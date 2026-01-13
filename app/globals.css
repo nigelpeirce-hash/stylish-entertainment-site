@@ -1,0 +1,614 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Old-School Digital Countdown Clock */
+.countdown-clock {
+  background: #0a0a0a;
+  border: 3px solid #d4af37;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 
+    0 0 20px rgba(212, 175, 55, 0.3),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+  font-family: 'Courier New', 'Monaco', monospace;
+}
+
+.digital-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.time-unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.digit-group {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.digit-group.large {
+  gap: 0.5rem;
+}
+
+.digit {
+  display: inline-block;
+  background: linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%);
+  color: #00ff41;
+  font-size: 3rem;
+  font-weight: bold;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid #00ff41;
+  border-radius: 4px;
+  box-shadow: 
+    0 0 10px rgba(0, 255, 65, 0.5),
+    inset 0 0 10px rgba(0, 255, 65, 0.1);
+  text-shadow: 
+    0 0 10px #00ff41,
+    0 0 20px #00ff41,
+    0 0 30px #00ff41;
+  min-width: 3.5rem;
+  text-align: center;
+  font-family: 'Courier New', 'Monaco', monospace;
+  letter-spacing: 0.1em;
+}
+
+.digit-separator {
+  color: #00ff41;
+  font-size: 3rem;
+  font-weight: bold;
+  text-shadow: 
+    0 0 10px #00ff41,
+    0 0 20px #00ff41;
+  margin: 0 0.25rem;
+  font-family: 'Courier New', 'Monaco', monospace;
+}
+
+.digit-group.large .digit {
+  font-size: 4rem;
+  padding: 0.75rem 1rem;
+  min-width: 4.5rem;
+}
+
+.separator {
+  color: #d4af37;
+  font-size: 2.5rem;
+  font-weight: bold;
+  text-shadow: 
+    0 0 10px #d4af37,
+    0 0 20px #d4af37;
+  animation: blink 1s infinite;
+  margin: 0 0.5rem;
+}
+
+.separator.large {
+  font-size: 3.5rem;
+  margin: 0 1rem;
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.3; }
+}
+
+.unit-label {
+  color: #d4af37;
+  font-size: 0.75rem;
+  font-weight: bold;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-shadow: 0 0 5px rgba(212, 175, 55, 0.5);
+  margin-top: 0.25rem;
+}
+
+.countdown-label {
+  text-align: center;
+  color: #d4af37;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-top: 1rem;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+.countdown-clock.expired .digit {
+  color: #ff6b6b;
+  border-color: #ff6b6b;
+  box-shadow: 
+    0 0 10px rgba(255, 107, 107, 0.5),
+    inset 0 0 10px rgba(255, 107, 107, 0.1);
+  text-shadow: 
+    0 0 10px #ff6b6b,
+    0 0 20px #ff6b6b;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .countdown-clock {
+    padding: 1.5rem;
+  }
+  
+  .digit {
+    font-size: 2rem;
+    padding: 0.4rem 0.6rem;
+    min-width: 2.5rem;
+  }
+  
+  .digit-group.large .digit {
+    font-size: 2.5rem;
+    padding: 0.5rem 0.75rem;
+    min-width: 3rem;
+  }
+  
+  .separator {
+    font-size: 1.5rem;
+  }
+  
+  .separator.large {
+    font-size: 2rem;
+  }
+  
+  .unit-label {
+    font-size: 0.6rem;
+  }
+  
+  .digital-display {
+    gap: 0.5rem;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 12%;
+    --foreground: 0 0% 95%;
+    --card: 0 0% 15%;
+    --card-foreground: 0 0% 95%;
+    --popover: 0 0% 15%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 43 74% 49%;
+    --primary-foreground: 0 0% 10%;
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 0 0% 20%;
+    --muted-foreground: 0 0% 70%;
+    --accent: 43 74% 49%;
+    --accent-foreground: 0 0% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 25%;
+    --input: 0 0% 20%;
+    --ring: 43 74% 49%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    background-color: #050505 !important;
+    color: #ffffff;
+    font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background-attachment: fixed;
+    position: relative;
+  }
+  
+  /* White-to-Black Gradient Blend at the top */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 400px;
+    background: linear-gradient(to bottom, 
+        rgba(255, 255, 255, 1) 0%, 
+        rgba(5, 5, 5, 0.8) 50%, 
+        rgba(5, 5, 5, 1) 100%
+    );
+    z-index: 0;
+    pointer-events: none;
+  }
+  
+  /* Ensure content stays above gradient */
+  #__next, main, header {
+    position: relative;
+    z-index: 1;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    color: #d4af37 !important;
+    margin-top: 0.5em !important;
+    margin-bottom: 0.5em !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.02em;
+    font-weight: 300 !important;
+  }
+  
+  /* Make fonts thinner/less chunky across the site */
+  .font-bold {
+    font-weight: 300 !important;
+  }
+  
+  .font-semibold {
+    font-weight: 300 !important;
+  }
+  
+  .font-medium {
+    font-weight: 300 !important;
+  }
+  
+  /* Reduce default font weight for body text */
+  body {
+    font-weight: 300;
+  }
+  
+  p, span, div, a, li {
+    font-weight: 300;
+  }
+  
+  /* Gold color for icons and interactive elements */
+  svg, 
+  [data-icon],
+  button:hover svg,
+  a:hover svg {
+    color: #d4af37 !important;
+    fill: #d4af37 !important;
+  }
+}
+
+@layer utilities {
+  .font-futura {
+    font-family: "Futura", var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-champagne-gold via-yellow-500 to-champagne-gold;
+  }
+  
+  .border-gradient {
+    border-image: linear-gradient(to right, #D4AF37, #F4D03F, #D4AF37) 1;
+  }
+  
+  .shine-effect {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .shine-effect::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(212, 175, 55, 0.3),
+      transparent
+    );
+    transition: left 0.5s;
+  }
+  
+  .shine-effect:hover::after {
+    left: 100%;
+  }
+  
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+    100% {
+      transform: translateX(100%);
+    }
+  }
+  
+  .animate-shimmer {
+    animation: shimmer 3s infinite;
+  }
+  
+  @keyframes wave {
+    0% {
+      transform: translateX(0) translateY(0) scaleY(1);
+    }
+    25% {
+      transform: translateX(-2%) translateY(-8px) scaleY(1.03);
+    }
+    50% {
+      transform: translateX(0) translateY(0) scaleY(1);
+    }
+    75% {
+      transform: translateX(2%) translateY(8px) scaleY(0.97);
+    }
+    100% {
+      transform: translateX(0) translateY(0) scaleY(1);
+    }
+  }
+  
+  @keyframes wave-reverse {
+    0% {
+      transform: translateX(0) translateY(0) scaleY(1);
+    }
+    25% {
+      transform: translateX(2%) translateY(8px) scaleY(0.97);
+    }
+    50% {
+      transform: translateX(0) translateY(0) scaleY(1);
+    }
+    75% {
+      transform: translateX(-2%) translateY(-8px) scaleY(1.03);
+    }
+    100% {
+      transform: translateX(0) translateY(0) scaleY(1);
+    }
+  }
+  
+  @keyframes wave-horizontal {
+    0% {
+      transform: translateX(-100%) translateY(0);
+      opacity: 0.5;
+    }
+    50% {
+      transform: translateX(0%) translateY(-5px);
+      opacity: 0.7;
+    }
+    100% {
+      transform: translateX(100%) translateY(0);
+      opacity: 0.5;
+    }
+  }
+  
+  .animate-wave {
+    animation: wave 8s ease-in-out infinite;
+  }
+  
+  .animate-wave-reverse {
+    animation: wave-reverse 10s ease-in-out infinite;
+  }
+  
+  .animate-wave-horizontal {
+    animation: wave-horizontal 12s ease-in-out infinite;
+  }
+  
+  @keyframes gradient-shift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  @keyframes light-sweep {
+    0% {
+      background-position: -200% 0%;
+    }
+    50% {
+      background-position: 200% 0%;
+    }
+    100% {
+      background-position: -200% 0%;
+    }
+  }
+  
+  .animate-gradient-shift {
+    animation: gradient-shift 20s ease-in-out infinite;
+  }
+  
+  .animate-light-sweep {
+    animation: light-sweep 8s ease-in-out infinite;
+  }
+  
+  /* Performance optimization for animations */
+  .will-change-transform {
+    will-change: transform, opacity;
+  }
+  
+  /* Ensure all images are centered and properly sized */
+  img {
+    object-fit: cover;
+    object-position: center;
+  }
+  
+  /* Gallery images - ensure consistent sizing */
+  .gallery-wrapper img,
+  [data-testid="photo-album"] img,
+  .react-photo-album--photo img,
+  .react-photo-album--photo a img,
+  .react-photo-album--photo > div img,
+  .react-photo-album--photo picture img {
+    object-fit: cover !important;
+    object-position: center center !important;
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    display: block !important;
+  }
+  
+  /* Ensure gallery containers have consistent sizing with borders and spacing */
+  .react-photo-album--photo {
+    width: 100% !important;
+    aspect-ratio: 4 / 3 !important;
+    overflow: visible !important;
+    padding: 0.75rem !important;
+    margin: 1rem !important;
+    border: 2px solid rgba(212, 175, 55, 0.25) !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2) !important;
+  }
+  
+  .react-photo-album--photo:hover {
+    border-color: rgba(212, 175, 55, 0.6) !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    transform: translateY(-4px) scale(1.02) !important;
+    box-shadow: 0 10px 15px -3px rgba(212, 175, 55, 0.2), 0 4px 6px -2px rgba(212, 175, 55, 0.1) !important;
+  }
+  
+  .react-photo-album--photo a,
+  .react-photo-album--photo > div,
+  .react-photo-album--photo picture {
+    width: 100% !important;
+    height: 100% !important;
+    display: block !important;
+    aspect-ratio: 4 / 3 !important;
+    overflow: hidden !important;
+  }
+  
+  /* Add extra spacing in gallery grid */
+  .gallery-wrapper [data-testid="photo-album"] {
+    gap: 1.5rem !important;
+  }
+  
+  /* Ensure proper spacing between gallery items */
+  .react-photo-album {
+    gap: 1.5rem !important;
+  }
+  
+  /* Add spacing to gallery container and center it */
+  .gallery-wrapper {
+    padding: 1rem 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+  
+  /* Center the photo album grid */
+  .gallery-wrapper [data-testid="photo-album"],
+  .react-photo-album {
+    margin: 0 auto !important;
+    display: flex !important;
+    justify-content: center !important;
+  }
+  
+  /* Override heading color for footer headings - they should be black on gold background */
+  footer h1, footer h2, footer h3, footer h4, footer h5, footer h6 {
+    color: #000000 !important;
+  }
+  
+  /* Hide scrollbar for thumbnail navigation */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Sparkle background effect for header */
+  .sparkle-background {
+    position: relative;
+  }
+  
+  .sparkle-background::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(2px 2px at 20% 30%, rgba(255, 255, 255, 0.9), transparent),
+      radial-gradient(2px 2px at 60% 70%, rgba(255, 255, 255, 0.7), transparent),
+      radial-gradient(1.5px 1.5px at 50% 50%, rgba(255, 255, 255, 1), transparent),
+      radial-gradient(1.5px 1.5px at 80% 10%, rgba(255, 255, 255, 0.8), transparent),
+      radial-gradient(2px 2px at 90% 40%, rgba(255, 255, 255, 0.9), transparent),
+      radial-gradient(1px 1px at 33% 60%, rgba(255, 255, 255, 0.7), transparent),
+      radial-gradient(1.5px 1.5px at 70% 80%, rgba(255, 255, 255, 0.8), transparent),
+      radial-gradient(2px 2px at 40% 20%, rgba(255, 255, 255, 1), transparent),
+      radial-gradient(1px 1px at 15% 50%, rgba(255, 255, 255, 0.7), transparent),
+      radial-gradient(2px 2px at 85% 60%, rgba(255, 255, 255, 0.9), transparent),
+      radial-gradient(1.5px 1.5px at 55% 30%, rgba(255, 255, 255, 0.8), transparent),
+      radial-gradient(1px 1px at 25% 80%, rgba(255, 255, 255, 0.7), transparent),
+      radial-gradient(2px 2px at 75% 15%, rgba(255, 255, 255, 1), transparent),
+      radial-gradient(1.5px 1.5px at 45% 65%, rgba(255, 255, 255, 0.8), transparent),
+      radial-gradient(1px 1px at 95% 35%, rgba(255, 255, 255, 0.9), transparent),
+      radial-gradient(2px 2px at 10% 25%, rgba(255, 255, 255, 0.8), transparent),
+      radial-gradient(1px 1px at 65% 45%, rgba(255, 255, 255, 0.7), transparent),
+      radial-gradient(1.5px 1.5px at 35% 75%, rgba(255, 255, 255, 0.9), transparent),
+      radial-gradient(2px 2px at 88% 55%, rgba(255, 255, 255, 0.8), transparent);
+    background-size: 100% 100%;
+    animation: sparkle-twinkle 3s ease-in-out infinite;
+    opacity: 0.8;
+  }
+  
+  .sparkle-background::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(1.5px 1.5px at 30% 40%, rgba(255, 255, 255, 0.9), transparent),
+      radial-gradient(1px 1px at 70% 20%, rgba(255, 255, 255, 0.7), transparent),
+      radial-gradient(2px 2px at 50% 80%, rgba(255, 255, 255, 1), transparent),
+      radial-gradient(1px 1px at 15% 70%, rgba(255, 255, 255, 0.8), transparent),
+      radial-gradient(1.5px 1.5px at 85% 30%, rgba(255, 255, 255, 0.9), transparent),
+      radial-gradient(2px 2px at 45% 15%, rgba(255, 255, 255, 0.7), transparent),
+      radial-gradient(1px 1px at 75% 60%, rgba(255, 255, 255, 0.8), transparent),
+      radial-gradient(1.5px 1.5px at 25% 50%, rgba(255, 255, 255, 1), transparent),
+      radial-gradient(2px 2px at 90% 75%, rgba(255, 255, 255, 0.9), transparent),
+      radial-gradient(1px 1px at 55% 25%, rgba(255, 255, 255, 0.7), transparent);
+    background-size: 100% 100%;
+    animation: sparkle-twinkle 4s ease-in-out infinite reverse;
+    opacity: 0.6;
+  }
+  
+  @keyframes sparkle-twinkle {
+    0%, 100% {
+      opacity: 0.4;
+      transform: scale(1);
+    }
+    25% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(0.95);
+    }
+    75% {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+  }
+}
+
+/* Lightbox Navigation Arrows - Make More Visible */
+.yarl__button {
+  background-color: rgba(212, 175, 55, 0.4) !important;
+  color: #ffffff !important;
+  border: 2px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 50% !important;
+  width: 56px !important;
+  height: 56px !important;
+  padding: 16px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7) !important;
+  transition: all 0.3s ease !important;
+  backdrop-filter: blur(8px) !important;
+}
+
+.yarl__button:hover {
+  background-color: rgba(212, 175, 55, 0.6) !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.9) !important;
+}
+
+.yarl__button svg {
+  width: 28px !important;
+  height: 28px !important;
+  stroke-width: 4 !important;
+  color: #ffffff !important;
+}
