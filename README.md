@@ -1,6 +1,6 @@
-# Stylish Wedding Entertainment Website
+# Stylish Entertainment Website
 
-A high-end, sophisticated wedding entertainment website built with Next.js, Tailwind CSS, and modern web technologies.
+A high-end, sophisticated entertainment website built with Next.js, Tailwind CSS, and modern web technologies.
 
 ## Tech Stack
 
