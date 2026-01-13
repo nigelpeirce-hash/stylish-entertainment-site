@@ -1,0 +1,173 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// NextAuth.js required models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@index([userId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// User model
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?   // Hashed password for credentials provider
+  image         String?
+  phone         String?
+  address       String?
+  role          String    @default("client") // client or admin
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  bookings      Booking[]
+  formSubmissions FormSubmission[]
+
+  @@index([email])
+}
+
+// Booking/Inquiry model
+model Booking {
+  id                String   @id @default(cuid())
+  userId            String?
+  
+  // Client Information
+  name              String   // Happy Couple
+  email             String
+  phoneAreaCode     String?
+  phoneNumber       String?
+  
+  // Event Details
+  eventType         String   @default("wedding") // wedding, party, corporate, etc.
+  eventDate         DateTime
+  
+  // Venue Information
+  venueName         String
+  venueContact      String?
+  venueAddress      String?
+  venueAddress2     String?
+  venueTown         String?
+  venueCounty       String?
+  venuePostcode     String?
+  venuePhoneAreaCode String?
+  venuePhoneNumber  String?
+  
+  // DJ Details
+  djArrivalTime     String?
+  djStartTime       String?
+  djFinishTime      String?
+  djSetupLocation   String?  @db.Text
+  djParking         String?  @db.Text
+  soundLimiter      Boolean? // Yes/No
+  
+  // Event Details
+  numberOfGuests    Int?
+  services          String[] // Array of selected services
+  message           String?  @db.Text
+  budget            String?
+  status            String   @default("pending") // pending, confirmed, completed, cancelled
+  contactPreference String?  // Phone or Email
+  
+  // Payment
+  finalBalance      String?
+  paymentMethod     String?
+  paymentPayerName  String?  // Who is going to pay the DJ
+  
+  // Terms & Conditions
+  termsAccepted     Boolean  @default(false)
+  termsAcceptedAt   DateTime?
+  
+  // Planning Checklist
+  completedTasks    String[] // Array of completed task IDs
+  
+  // Email Tracking
+  emailsSent        Json?    // Object tracking which emails have been sent
+  lastEmailSentAt   DateTime?
+  
+  // Music Details
+  musicNotesToDJ    String?  @db.Text
+  musicNotesToStylish String? @db.Text
+  firstDance        String?
+  lastSong          String?
+  musicDislikes     String?  @db.Text
+  musicRequests     String?  @db.Text
+  musicFileUrl      String?  // URL to uploaded file
+  
+  // Client relationship (optional - can be from logged in user or guest)
+  user              User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+  @@index([email])
+  @@index([status])
+  @@index([eventDate])
+}
+
+// General form submissions
+model FormSubmission {
+  id                String   @id @default(cuid())
+  userId            String?
+  formType          String   // contact, inquiry, feedback, etc.
+  name              String
+  email             String
+  phone             String?
+  subject           String?
+  message           String   @db.Text
+  metadata          Json?    // For storing additional form-specific data
+  
+  // Client relationship (optional)
+  user              User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  createdAt         DateTime @default(now())
+  
+  @@index([userId])
+  @@index([email])
+  @@index([formType])
+}
