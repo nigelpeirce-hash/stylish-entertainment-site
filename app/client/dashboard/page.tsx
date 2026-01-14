@@ -275,9 +275,7 @@ export default function ClientDashboard() {
                           eventDate={new Date(booking.eventDate)}
                           eventType={booking.eventType}
                           completedTasks={booking.completedTasks || []}
-                          onTaskToggle={(taskId, completed) =>
-                            handleTaskToggle(booking.id, taskId, completed)
-                          }
+                          onTaskToggle={handleTaskToggle(booking.id)}
                         />
                       )}
 
