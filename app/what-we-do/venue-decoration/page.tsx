@@ -142,7 +142,6 @@ export default function VenueDecoration() {
                     "Drapery and fabric installations",
                     "Custom backdrops and photo walls",
                     "Cohesive design theme throughout",
-                    "Chair covers and sashes",
                     "Themed decor and accessories",
                     "Complete venue transformation",
                   ].map((feature, idx) => (
@@ -200,7 +199,7 @@ export default function VenueDecoration() {
                 <Link href="/contact-us" className="text-champagne-gold hover:text-gold-light underline font-semibold">Contact Us</Link> today and speak to one of our team about your party or event.
               </p>
               <p className="text-white text-base md:text-lg leading-relaxed">
-                We offer our venue styling in the following areas: <span className="font-semibold text-champagne-gold">Venue styling Somerset, Wiltshire, London, Devon, Bristol, Bath, Swindon, Oxford, Berkshire</span>.
+                We offer our venue styling in the following areas: <span className="font-semibold text-champagne-gold">Venue styling Somerset, Wiltshire, Devon, Bristol, Bath, Swindon, Oxford</span>.
               </p>
             </div>
           </motion.div>

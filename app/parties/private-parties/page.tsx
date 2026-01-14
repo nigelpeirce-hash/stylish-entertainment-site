@@ -127,8 +127,8 @@ export default function PrivateParties() {
       </section>
 
       {/* Welcome Section */}
-      <section className="py-16 px-4 bg-gray-800">
-        <div className="container mx-auto max-w-4xl">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-800">
+        <div className="container mx-auto max-w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -160,8 +160,8 @@ export default function PrivateParties() {
       </section>
 
       {/* Gallery */}
-      <section className="py-16 px-4 bg-gray-900">
-        <div className="container mx-auto max-w-7xl">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-900">
+        <div className="container mx-auto max-w-full px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -174,8 +174,8 @@ export default function PrivateParties() {
       </section>
 
       {/* Text Block Below Gallery - Broken into interesting sections */}
-      <section className="py-16 px-4 bg-gray-800">
-        <div className="container mx-auto max-w-6xl">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-800">
+        <div className="container mx-auto max-w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

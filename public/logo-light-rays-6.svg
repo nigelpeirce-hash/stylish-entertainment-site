@@ -1,0 +1,42 @@
+<svg width="450" height="200" viewBox="0 0 450 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldText6" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#d4af37;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#f4d03f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d4af37;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="rayGrad6" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.6" />
+      <stop offset="40%" style="stop-color:#f4d03f;stop-opacity:0.7" />
+      <stop offset="100%" style="stop-color:#d4af37;stop-opacity:0" />
+    </linearGradient>
+    <filter id="glow6">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Light rays - spotlight effect, narrower spread -->
+  <g opacity="0.7">
+    <path d="M 20 60 L 140 62" stroke="url(#rayGrad6)" stroke-width="3.5" fill="none" stroke-linecap="round" filter="url(#glow6)"/>
+    <path d="M 20 75 L 145 68" stroke="url(#rayGrad6)" stroke-width="4.5" fill="none" stroke-linecap="round" filter="url(#glow6)"/>
+    <path d="M 20 90 L 148 74" stroke="url(#rayGrad6)" stroke-width="5.5" fill="none" stroke-linecap="round" filter="url(#glow6)"/>
+    <path d="M 20 105 L 148 80" stroke="url(#rayGrad6)" stroke-width="5.5" fill="none" stroke-linecap="round" filter="url(#glow6)"/>
+    <path d="M 20 120 L 145 86" stroke="url(#rayGrad6)" stroke-width="4.5" fill="none" stroke-linecap="round" filter="url(#glow6)"/>
+    <path d="M 20 135 L 140 92" stroke="url(#rayGrad6)" stroke-width="3.5" fill="none" stroke-linecap="round" filter="url(#glow6)"/>
+  </g>
+  
+  <!-- Light source -->
+  <circle cx="20" cy="97" r="9" fill="#f4d03f" opacity="0.5"/>
+  <circle cx="20" cy="97" r="5" fill="#ffffff" opacity="0.8"/>
+  
+  <!-- Text -->
+  <g transform="translate(150, 0)">
+    <text x="0" y="50" font-family="'Raleway', sans-serif" font-size="48" font-weight="700" fill="url(#goldText6)" text-anchor="start" letter-spacing="2">Stylish</text>
+    <text x="0" y="90" font-family="'Raleway', sans-serif" font-size="28" font-weight="400" fill="url(#goldText6)" text-anchor="start" letter-spacing="4" opacity="0.9">ENTERTAINMENT</text>
+    <line x1="0" y1="60" x2="250" y2="60" stroke="url(#goldText6)" stroke-width="2" opacity="0.5"/>
+  </g>
+</svg>

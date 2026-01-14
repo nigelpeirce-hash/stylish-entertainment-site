@@ -10,17 +10,17 @@ The email automation system sends scheduled emails to clients based on their boo
 
 ## Setup Instructions
 
-### 1. Email Configuration (SMTP)
+### 1. Email Configuration (SMTP) - Mailgun (Recommended)
 
-Create or update your `.env.local` file with SMTP credentials:
+Create or update your `.env.local` file with Mailgun SMTP credentials:
 
 ```env
-# SMTP Configuration
-SMTP_HOST=smtp.gmail.com
+# SMTP Configuration (Mailgun)
+SMTP_HOST=smtp.mailgun.org
 SMTP_PORT=587
 SMTP_SECURE=false
-SMTP_USER=your-email@gmail.com
-SMTP_PASSWORD=your-app-password
+SMTP_USER=postmaster@stylishentertainment.co.uk
+SMTP_PASSWORD=your-mailgun-smtp-password
 
 # Site URL (for email links)
 NEXT_PUBLIC_SITE_URL=https://stylishentertainment.co.uk
@@ -29,7 +29,17 @@ NEXT_PUBLIC_SITE_URL=https://stylishentertainment.co.uk
 CRON_SECRET=your-secret-key-here
 ```
 
-### 2. Gmail Setup (if using Gmail)
+**To find your Mailgun SMTP credentials:**
+1. Log into your Mailgun dashboard
+2. Go to **Sending** → **Domain Settings** → Select your domain (`stylishentertainment.co.uk`)
+3. Scroll to **SMTP credentials** section
+4. Your **SMTP Username** is usually: `postmaster@stylishentertainment.co.uk`
+5. Click **Reset password** or **Show password** to get your SMTP password
+6. Copy these values into your `.env.local` file
+
+**Note:** The SMTP username format is typically `postmaster@your-domain.com` or `mailbox@your-domain.com`
+
+### 2. Gmail Setup (Alternative - if not using Mailgun)
 
 1. Go to your Google Account settings
 2. Enable 2-Factor Authentication
@@ -57,12 +67,12 @@ SMTP_USER=apikey
 SMTP_PASSWORD=your-sendgrid-api-key
 ```
 
-**Mailgun:**
+**Mailgun (Already configured as default):**
 ```env
 SMTP_HOST=smtp.mailgun.org
 SMTP_PORT=587
-SMTP_USER=your-mailgun-username
-SMTP_PASSWORD=your-mailgun-password
+SMTP_USER=postmaster@stylishentertainment.co.uk
+SMTP_PASSWORD=your-mailgun-smtp-password
 ```
 
 ### 4. Scheduled Email Execution

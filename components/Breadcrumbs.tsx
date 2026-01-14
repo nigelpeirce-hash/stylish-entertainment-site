@@ -47,6 +47,24 @@ const pathLabels: Record<string, string> = {
   "five-ways-to-totally-transform-a-venue-1-lighting": "Five Ways to Transform a Venue #1 Lighting",
   "five-ways-to-totally-transform-a-venue-2-decor": "Five Ways to Transform a Venue #2 Decor",
   "bristol-university-spring-ball": "Bristol University Spring Ball",
+  // Client area labels
+  "client": "Client Portal",
+  "dashboard": "Dashboard",
+  "profile": "Profile",
+  "bookings": "Bookings",
+  "new": "New Booking",
+};
+
+// Paths that should not be linked (they don't have actual pages)
+const nonLinkablePaths: string[] = [];
+
+// Paths that should link to a specific route instead of the generated path
+const customRoutes: Record<string, string> = {
+  "client": "/client/dashboard", // /client doesn't exist, link to dashboard instead
+  "dashboard": "/client/dashboard",
+  "profile": "/client/profile",
+  "bookings": "/client/dashboard", // /client/bookings doesn't exist, link to dashboard
+  "new": "/client/bookings/new",
 };
 
 // Function to format slug to readable label
@@ -81,9 +99,21 @@ export default function Breadcrumbs() {
   pathSegments.forEach((segment, index) => {
     currentPath += `/${segment}`;
     const label = formatLabel(segment);
+    
+    // Check if this path should be linkable
+    const isLinkable = !nonLinkablePaths.includes(segment);
+    
+    // Use custom route if available, otherwise use the generated path
+    let href = customRoutes[segment] || currentPath;
+    
+    // For the last segment, always use the current pathname
+    if (index === pathSegments.length - 1) {
+      href = pathname;
+    }
+    
     breadcrumbs.push({
       label,
-      href: currentPath,
+      href: isLinkable ? href : "#",
     });
   });
 
@@ -110,6 +140,10 @@ export default function Breadcrumbs() {
                     <ChevronRight className="w-4 h-4 text-white mx-2" />
                     {isLast ? (
                       <span className="text-champagne-gold font-medium">
+                        {crumb.label}
+                      </span>
+                    ) : crumb.href === "#" ? (
+                      <span className="text-gray-500 cursor-default">
                         {crumb.label}
                       </span>
                     ) : (

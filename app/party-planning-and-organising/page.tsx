@@ -277,10 +277,6 @@ export default function PartyPlanning() {
                     </li>
                     <li className="flex items-start gap-3">
                       <span className="text-champagne-gold mt-1">•</span>
-                      <span>Final invoice and payment processing</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                      <span className="text-champagne-gold mt-1">•</span>
                       <span>Follow-up and feedback collection</span>
                     </li>
                   </ul>

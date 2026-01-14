@@ -17,83 +17,35 @@ interface ImageCarouselProps {
 }
 
 export default function ImageCarousel({ images }: ImageCarouselProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
-
-  const nextImage = () => {
-    setCurrentIndex((prev) => (prev + 1) % images.length);
-  };
-
-  const prevImage = () => {
-    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
-  };
 
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
     setLightboxOpen(true);
   };
 
-  const currentImage = images[currentIndex];
-
   return (
     <div className="relative w-full max-w-5xl mx-auto">
-      {/* Image Container */}
-      <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-gray-900 shadow-2xl">
-        <img
-          src={currentImage.src}
-          alt={currentImage.alt}
-          className="w-full h-full object-cover object-center cursor-pointer hover:scale-105 transition-transform duration-500"
-          onClick={() => openLightbox(currentIndex)}
-          loading="lazy"
-          decoding="async"
-        />
-        
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none"></div>
-        
-        {/* Navigation Buttons - More Prominent */}
-        <button
-          onClick={prevImage}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 p-4 bg-champagne-gold/40 hover:bg-champagne-gold/60 backdrop-blur-md rounded-full text-white transition-all duration-300 hover:scale-110 shadow-2xl border-2 border-white/50"
-          aria-label="Previous image"
-        >
-          <ChevronLeft className="w-8 h-8 font-bold" strokeWidth={4} />
-        </button>
-        <button
-          onClick={nextImage}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-4 bg-champagne-gold/40 hover:bg-champagne-gold/60 backdrop-blur-md rounded-full text-white transition-all duration-300 hover:scale-110 shadow-2xl border-2 border-white/50"
-          aria-label="Next image"
-        >
-          <ChevronRight className="w-8 h-8 font-bold" strokeWidth={4} />
-        </button>
-
-        {/* Image Counter */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 px-4 py-2 bg-black/60 backdrop-blur-sm rounded-full text-white text-sm font-medium">
-          {currentIndex + 1} / {images.length}
-        </div>
-      </div>
-
-      {/* Thumbnail Navigation */}
-      <div className="mt-6 flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+      {/* Vertical Scrolling Gallery */}
+      <div className="space-y-6">
         {images.map((image, index) => (
-          <button
+          <div
             key={index}
-            onClick={() => setCurrentIndex(index)}
-            className={`flex-shrink-0 w-24 h-16 rounded-lg overflow-hidden border-2 transition-all duration-300 ${
-              index === currentIndex
-                ? "border-champagne-gold scale-110 shadow-lg"
-                : "border-gray-700 hover:border-gray-500 opacity-70 hover:opacity-100"
-            }`}
-            aria-label={`View image ${index + 1}: ${image.alt}`}
+            className="relative w-full overflow-hidden rounded-lg bg-gray-900 shadow-lg hover:shadow-2xl transition-shadow duration-300 group"
           >
             <img
               src={image.src}
               alt={image.alt}
-              className="w-full h-full object-cover"
+              className="w-full h-auto object-contain cursor-pointer hover:opacity-90 transition-opacity duration-300"
+              onClick={() => openLightbox(index)}
               loading="lazy"
+              decoding="async"
             />
-          </button>
+            
+            {/* Hover overlay hint */}
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 pointer-events-none" />
+          </div>
         ))}
       </div>
 
@@ -104,6 +56,50 @@ export default function ImageCarousel({ images }: ImageCarouselProps) {
         index={lightboxIndex}
         slides={images}
         on={{ view: ({ index }) => setLightboxIndex(index) }}
+        render={{
+          buttonPrev: () => (
+            <button
+              className="yarl__button yarl__button_prev"
+              style={{
+                backgroundColor: "rgba(212, 175, 55, 0.9)",
+                color: "#1a1a1a",
+                border: "2px solid rgba(255, 255, 255, 0.3)",
+                borderRadius: "50%",
+                padding: "16px",
+                width: "56px",
+                height: "56px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
+              }}
+              aria-label="Previous image"
+            >
+              <ChevronLeft size={28} strokeWidth={3} />
+            </button>
+          ),
+          buttonNext: () => (
+            <button
+              className="yarl__button yarl__button_next"
+              style={{
+                backgroundColor: "rgba(212, 175, 55, 0.9)",
+                color: "#1a1a1a",
+                border: "2px solid rgba(255, 255, 255, 0.3)",
+                borderRadius: "50%",
+                padding: "16px",
+                width: "56px",
+                height: "56px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
+              }}
+              aria-label="Next image"
+            >
+              <ChevronRight size={28} strokeWidth={3} />
+            </button>
+          ),
+        }}
       />
     </div>
   );

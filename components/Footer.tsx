@@ -21,21 +21,21 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-champagne-gold text-black py-8 sm:py-12 mt-0 relative overflow-hidden">
+    <footer className="bg-champagne-gold text-black py-6 sm:py-8 mt-0 relative overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent backdrop-blur-md pointer-events-none"></div>
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent backdrop-blur-sm pointer-events-none"></div>
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <div>
             <h3 className="font-sans text-xl mb-4 font-bold" style={{ color: '#000000' }}>Stylish Entertainment</h3>
             <p className="text-black/80 mb-3">
-              Exceptional wedding entertainment. Strictly no YMCA.
+              Professional DJs, live musicians, lighting design, and venue styling for weddings, parties, and corporate events. Strictly no YMCA.
             </p>
             <p className="text-black/80 mb-3">
-              Transform your venue with our professional <Link href="/services/venue-styling" className="hover:text-black font-semibold underline transition-colors">venue styling</Link> and stunning <Link href="/services/lighting-design" className="hover:text-black font-semibold underline transition-colors">wedding lighting design</Link> services.
+              From <Link href="/artists/djs" className="hover:text-black font-semibold underline transition-colors">expert DJs</Link> and <Link href="/artists/musicians" className="hover:text-black font-semibold underline transition-colors">talented musicians</Link> to <Link href="/services/lighting-design" className="hover:text-black font-semibold underline transition-colors">bespoke lighting design</Link> and <Link href="/services/venue-styling" className="hover:text-black font-semibold underline transition-colors">venue transformations</Link>, we create unforgettable celebrations.
             </p>
             <p className="text-black/80">
-              From elegant LED mood lighting to complete venue transformations, we create the perfect atmosphere for your special day.
+              Complete your event with our <Link href="/hire" className="hover:text-black font-semibold underline transition-colors">hire shop</Link> featuring decorative items, lighting, and styling accessories.
             </p>
           </div>
           <div>
@@ -100,7 +100,7 @@ export default function Footer() {
             </div>
           </div>
         </div>
-        <div className="border-t border-black/20 mt-8 pt-8 text-center text-black/70">
+        <div className="border-t border-black/20 mt-6 pt-6 text-center text-black/70">
           <p className="mb-2">&copy; {new Date().getFullYear()} Stylish Entertainment. All rights reserved.</p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/privacy-policy" className="hover:text-black font-medium underline transition-colors">

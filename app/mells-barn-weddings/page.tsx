@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useEffect } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
+import BlogImage from "@/components/BlogImage";
 
 const mellsBarnPhotos = [
   {
@@ -109,18 +110,33 @@ export default function MellsBarnWeddings() {
           </div>
         </section>
 
-        {/* First Image - Ribbon Garlands */}
-        <div className="bg-white">
-          <div className="w-full h-screen min-h-[100vh] relative">
-            <img
-              src={mellsBarnPhotos[0].src}
-              alt={mellsBarnPhotos[0].alt}
-              className="w-full h-full object-cover"
-              loading="lazy"
-            />
+        {/* Gallery Images */}
+        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-900">
+          <div className="container mx-auto max-w-4xl">
+            <div className="space-y-8">
+              {mellsBarnPhotos.map((photo, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="relative w-full overflow-hidden rounded-lg bg-gray-800 shadow-lg"
+                >
+                  <div className="relative aspect-[4/3] w-full">
+                    <BlogImage
+                      src={photo.src}
+                      alt={photo.alt}
+                      images={mellsBarnPhotos}
+                      index={index}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
-          <div className="h-8 md:h-12 bg-white"></div>
-        </div>
+        </section>
 
         {/* Transforming the Space Section */}
         <section className="py-20 px-4 bg-gray-800">
@@ -151,25 +167,6 @@ export default function MellsBarnWeddings() {
             </motion.div>
           </div>
         </section>
-
-        {/* Gallery Images */}
-        <div className="bg-white">
-          {mellsBarnPhotos.slice(1).map((photo, index) => (
-            <div key={index}>
-              <div className="w-full h-screen min-h-[100vh] relative">
-                <img
-                  src={photo.src}
-                  alt={photo.alt}
-                  className="w-full h-full object-cover"
-                  loading="lazy"
-                />
-              </div>
-              {index < mellsBarnPhotos.slice(1).length - 1 && (
-                <div className="h-8 md:h-12 bg-white"></div>
-              )}
-            </div>
-          ))}
-        </div>
 
         {/* Additional Information Sections */}
         <section className="py-20 px-4 bg-gray-800">

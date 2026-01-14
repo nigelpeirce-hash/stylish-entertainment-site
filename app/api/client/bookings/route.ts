@@ -1,19 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
+import { getToken } from "next-auth/jwt";
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    // Try to get token directly from request (works better with NextAuth v5)
+    const token = await getToken({
+      req: request as any,
+      secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
+    });
 
-    if (!session?.user) {
+    let userId: string | null = null;
+
+    if (token) {
+      userId = (token.id as string) || (token.sub as string);
+    } else {
+      // Fallback to getServerSession
+      const session = await getServerSession();
+      if (!session?.user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+      userId = (session.user as any).id;
+    }
+
+    if (!userId) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const bookings = await prisma.booking.findMany({
       where: {
-        userId: (session.user as any).id,
+        userId: userId,
       },
       orderBy: {
         createdAt: "desc",
@@ -32,12 +49,34 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    // Try to get token directly from request (works better with NextAuth v5)
+    const token = await getToken({
+      req: request as any,
+      secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
+    });
+
+    let userId: string | null = null;
+
+    if (token) {
+      userId = (token.id as string) || (token.sub as string);
+    } else {
+      // Fallback to getServerSession
+      const session = await getServerSession();
+      if (!session?.user) {
+        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      }
+      userId = (session.user as any).id;
+    }
+
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
 
     const booking = await prisma.booking.create({
       data: {
-        userId: session?.user ? (session.user as any).id : null,
+        userId: userId,
         
         // Client Information
         name: body.name,
@@ -69,9 +108,11 @@ export async function POST(request: NextRequest) {
         soundLimiter: body.soundLimiter === "Yes" ? true : body.soundLimiter === "No" ? false : null,
         numberOfGuests: body.numberOfGuests ? parseInt(body.numberOfGuests) : null,
         services: body.services || [],
+        upsellItems: body.upsellItems || [],
         message: body.message,
         budget: body.budget,
         contactPreference: body.contactPreference,
+        preferredDJ: body.preferredDJ || null,
         
         // Payment
         finalBalance: body.finalBalance,

@@ -15,6 +15,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Calendar, User, Mail, Phone, MapPin, Music } from "lucide-react";
+import DJSelectionModal from "@/components/DJSelectionModal";
+import UpsellSection from "@/components/UpsellSection";
 
 const bookingSchema = z.object({
   // Client Information
@@ -79,6 +81,9 @@ export default function BookDJPage() {
   const [success, setSuccess] = useState(false);
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [showAccountCreation, setShowAccountCreation] = useState(false);
+  const [showDJModal, setShowDJModal] = useState(false);
+  const [selectedDJ, setSelectedDJ] = useState<string | null>(null);
+  const [selectedUpsells, setSelectedUpsells] = useState<string[]>([]);
 
   const {
     register,
@@ -109,9 +114,21 @@ export default function BookDJPage() {
   const toggleService = (service: string) => {
     const current = selectedServices;
     if (current.includes(service)) {
-      setValue("services", current.filter((s) => s !== service));
+      const newServices = current.filter((s) => s !== service);
+      setValue("services", newServices);
+      // If unchecking DJs, clear DJ selection
+      if (service === "DJs") {
+        setSelectedDJ(null);
+      }
     } else {
-      setValue("services", [...current, service]);
+      const newServices = [...current, service];
+      setValue("services", newServices);
+      // If checking DJs, show modal after a brief delay to ensure state is updated
+      if (service === "DJs") {
+        setTimeout(() => {
+          setShowDJModal(true);
+        }, 100);
+      }
     }
   };
 
@@ -162,6 +179,9 @@ export default function BookDJPage() {
           numberOfGuests: data.numberOfGuests ? parseInt(data.numberOfGuests) : null,
           services: data.services,
           message: data.message,
+          preferredDJ: selectedDJ,
+          upsellItems: selectedUpsells,
+          termsAccepted: true, // Terms accepted by submitting the form
         }),
       });
 
@@ -198,6 +218,9 @@ export default function BookDJPage() {
             <p className="text-gray-400 text-sm">
               We'll be in touch soon to confirm your booking.
             </p>
+            <p className="text-gray-300 text-xs mt-2">
+              Once your booking is confirmed, you'll be able to complete the DJ worksheet and manage your booking online.
+            </p>
             {createAccount && !session ? (
               <p className="text-gray-300 text-sm">
                 Redirecting to login...
@@ -205,18 +228,20 @@ export default function BookDJPage() {
             ) : (
               <div className="flex flex-col gap-2">
                 <Button
-                  onClick={() => router.push("/dj-worksheet")}
-                  className="bg-champagne-gold text-black hover:bg-gold-light"
-                >
-                  Complete DJ Worksheet
-                </Button>
-                <Button
                   onClick={() => router.push("/")}
-                  variant="outline"
-                  className="border-gray-700 text-white"
+                  className="bg-champagne-gold text-black hover:bg-gold-light"
                 >
                   Return to Home
                 </Button>
+                {session && (
+                  <Button
+                    onClick={() => router.push("/client/dashboard")}
+                    variant="outline"
+                    className="border-gray-700 text-white"
+                  >
+                    Go to Dashboard
+                  </Button>
+                )}
               </div>
             )}
           </CardContent>
@@ -448,6 +473,11 @@ export default function BookDJPage() {
                         />
                         <Label htmlFor={service} className="cursor-pointer text-sm">
                           {service}
+                          {service === "DJs" && selectedDJ && (
+                            <span className="ml-2 text-xs text-champagne-gold">
+                              ({selectedDJ === null ? "Any DJ" : selectedDJ})
+                            </span>
+                          )}
                         </Label>
                       </div>
                     ))}
@@ -455,7 +485,47 @@ export default function BookDJPage() {
                   {errors.services && (
                     <p className="text-sm text-red-400">{errors.services.message}</p>
                   )}
+                  {selectedServices.includes("DJs") && (
+                    <p className="text-sm text-gray-400 mt-2">
+                      {selectedDJ ? (
+                        <>
+                          Selected: <span className="text-champagne-gold font-medium">
+                            {selectedDJ === null ? "Any DJ" : selectedDJ}
+                          </span>
+                          <Button
+                            type="button"
+                            variant="link"
+                            onClick={() => setShowDJModal(true)}
+                            className="text-champagne-gold hover:text-gold-light ml-2 p-0 h-auto"
+                          >
+                            Change
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-yellow-400">Please select a DJ preference</span>
+                          <Button
+                            type="button"
+                            variant="link"
+                            onClick={() => setShowDJModal(true)}
+                            className="text-champagne-gold hover:text-gold-light ml-2 p-0 h-auto"
+                          >
+                            Select Now
+                          </Button>
+                        </>
+                      )}
+                    </p>
+                  )}
                 </div>
+
+                {/* Upsell Section - Shows when at least one service is selected */}
+                {selectedServices.length > 0 && (
+                  <UpsellSection
+                    selectedServices={selectedServices}
+                    selectedUpsells={selectedUpsells}
+                    onUpsellChange={setSelectedUpsells}
+                  />
+                )}
 
                 {/* Additional Message */}
                 <div className="space-y-2">
@@ -481,7 +551,7 @@ export default function BookDJPage() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => router.back()}
+                    onClick={() => router.push("/")}
                     className="border-gray-700 text-white"
                   >
                     Cancel
@@ -501,6 +571,14 @@ export default function BookDJPage() {
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* DJ Selection Modal */}
+        <DJSelectionModal
+          open={showDJModal}
+          onClose={() => setShowDJModal(false)}
+          onSelect={(dj) => setSelectedDJ(dj)}
+          selectedDJ={selectedDJ}
+        />
       </div>
     </div>
   );

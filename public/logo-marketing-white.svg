@@ -1,0 +1,40 @@
+<svg width="1200" height="600" viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="whiteTextFull" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#f4d03f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="rayGradWhite" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.7" />
+      <stop offset="50%" style="stop-color:#f4d03f;stop-opacity:0.5" />
+      <stop offset="100%" style="stop-color:#ffffff;stop-opacity:0" />
+    </linearGradient>
+    <filter id="glowWhite">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Upward angled rays from bottom-left -->
+  <g opacity="0.8">
+    <path d="M 80 540 L 480 120" stroke="url(#rayGradWhite)" stroke-width="8" fill="none" stroke-linecap="round" filter="url(#glowWhite)"/>
+    <path d="M 120 540 L 520 160" stroke="url(#rayGradWhite)" stroke-width="10" fill="none" stroke-linecap="round" filter="url(#glowWhite)"/>
+    <path d="M 160 540 L 560 200" stroke="url(#rayGradWhite)" stroke-width="12" fill="none" stroke-linecap="round" filter="url(#glowWhite)"/>
+    <path d="M 200 540 L 600 240" stroke="url(#rayGradWhite)" stroke-width="14" fill="none" stroke-linecap="round" filter="url(#glowWhite)"/>
+    <path d="M 240 540 L 640 280" stroke="url(#rayGradWhite)" stroke-width="16" fill="none" stroke-linecap="round" filter="url(#glowWhite)"/>
+    <path d="M 280 540 L 680 320" stroke="url(#rayGradWhite)" stroke-width="16" fill="none" stroke-linecap="round" filter="url(#glowWhite)"/>
+    <path d="M 320 540 L 720 360" stroke="url(#rayGradWhite)" stroke-width="14" fill="none" stroke-linecap="round" filter="url(#glowWhite)"/>
+    <path d="M 360 540 L 760 400" stroke="url(#rayGradWhite)" stroke-width="12" fill="none" stroke-linecap="round" filter="url(#glowWhite)"/>
+  </g>
+  
+  <!-- Text -->
+  <g transform="translate(400, 0)">
+    <text x="0" y="200" font-family="'Raleway', sans-serif" font-size="120" font-weight="700" fill="url(#whiteTextFull)" text-anchor="start" letter-spacing="4">Stylish</text>
+    <text x="0" y="320" font-family="'Raleway', sans-serif" font-size="72" font-weight="400" fill="url(#whiteTextFull)" text-anchor="start" letter-spacing="8" opacity="0.95">ENTERTAINMENT</text>
+    <line x1="0" y1="240" x2="640" y2="240" stroke="url(#whiteTextFull)" stroke-width="4" opacity="0.5"/>
+  </g>
+</svg>

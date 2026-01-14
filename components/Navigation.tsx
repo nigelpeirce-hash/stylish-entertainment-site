@@ -39,6 +39,7 @@ export default function Navigation() {
     { href: "/what-we-do/lighting", label: "Lighting" },
     { href: "/what-we-do/equipment-dj-band-sound-kit", label: "Sound" },
     { href: "/fire-pit-html", label: "Fire Pit Hire" },
+    { href: "/hire", label: "Hire Shop" },
   ];
 
   const weddingLinks = [
@@ -127,12 +128,9 @@ export default function Navigation() {
           <div className="flex flex-col flex-shrink-0">
             <Link href="/" className="relative group z-20 hover:opacity-90 transition-opacity duration-300">
               <img
-                src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png"
+                src="/logo-header.svg"
                 alt="Stylish Entertainment Logo"
                 className="h-12 sm:h-14 md:h-16 lg:h-20 w-auto object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
-                style={{
-                  filter: 'brightness(0) saturate(100%) invert(77%) sepia(58%) saturate(1234%) hue-rotate(1deg) brightness(102%) contrast(85%)',
-                }}
                 loading="eager"
                 fetchPriority="high"
               />

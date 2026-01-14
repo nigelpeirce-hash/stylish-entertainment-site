@@ -312,7 +312,7 @@ export default function WeddingPlanningChecklist({
                 </div>
                 <div className="text-sm text-gray-400">
                   {monthsUntilEvent > 0 && `${monthsUntilEvent} month${monthsUntilEvent > 1 ? "s" : ""}, `}
-                  {daysUntilEvent % 30} day{daysUntilEvent % 30 !== 1 ? "s" : ""} until your special day
+                  {daysUntilEvent % 30} day{daysUntilEvent % 30 !== 1 ? "s" : ""} until your {eventType === "Wedding" ? "special day" : eventType.toLowerCase()}
                 </div>
               </>
             ) : daysUntilEvent === 0 ? (

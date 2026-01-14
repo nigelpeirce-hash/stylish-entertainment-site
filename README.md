@@ -10,7 +10,7 @@ A high-end, sophisticated entertainment website built with Next.js, Tailwind CSS
 - **Animations**: Framer Motion
 - **Form Validation**: Zod + React Hook Form
 - **Gallery**: react-photo-album + yet-another-react-lightbox
-- **Deployment**: Optimized for Azure Static Web Apps
+- **Deployment**: Optimized for Vercel (also works on Azure App Service, Railway, Render)
 
 ## Design Identity
 
@@ -62,7 +62,7 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 npm run build
 ```
 
-This generates a static export in the `out` directory, ready for Azure Static Web Apps deployment.
+This builds the Next.js application ready for deployment to Vercel or other Node.js hosting platforms.
 
 ## Project Structure
 
@@ -105,11 +105,15 @@ The contact form currently logs to console. To enable actual form submission:
 1. Set up an API endpoint or form service (e.g., Formspree, SendGrid)
 2. Update the `onSubmit` handler in `app/contact/page.tsx`
 
-## Deployment to Azure Static Web Apps
+## Deployment to Vercel (Recommended)
 
-1. Build the project: `npm run build`
-2. Deploy the `out` directory to Azure Static Web Apps
-3. Configure custom domain if needed
+1. Push your code to GitHub
+2. Go to [vercel.com](https://vercel.com) and sign up
+3. Import your GitHub repository
+4. Add environment variables (see `FREE_HOSTING_OPTIONS.md`)
+5. Deploy! Vercel will automatically build and deploy your app
+
+For detailed deployment instructions, see `FREE_HOSTING_OPTIONS.md`
 
 ## Notes
 

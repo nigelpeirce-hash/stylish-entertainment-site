@@ -1,9 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
+import BlogImage from "@/components/BlogImage";
 
 export default function BlogPostProfessionalDJ() {
   useEffect(() => {
@@ -14,14 +15,24 @@ export default function BlogPostProfessionalDJ() {
     }
   }, []);
 
+  // Collect all images for lightbox navigation
+  const allImages = useMemo(() => [
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg", alt: "Professional DJ setup at Babington House with custom lighting, professional sound equipment, and atmospheric wedding entertainment" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163683/NP-Decks-2_y32tje.jpg", alt: "Professional DJ decks and mixing equipment for high-quality sound production" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163197/DJ-Kit-on-Croquet-Lawn_jncfnl.jpg", alt: "Professional DJ kit setup on croquet lawn showcasing quality sound equipment" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163297/Mirjam-and-Ben-1062-1_vy1hgx.jpg", alt: "Professional DJ Nige performing at a wedding, showcasing expert mixing and crowd engagement" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163359/Rich-S-DJ_qxsnht.jpg", alt: "Professional DJ Rich S performing at a luxury venue, showcasing professional DJ services" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163392/james-Malin_ovqqnf.jpg", alt: "Professional DJ James H performing at wedding and party events" },
+  ], []);
+
   return (
     <div>
       {/* Hero */}
       <section className="relative min-h-[50vh] flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-15 flex items-center justify-center">
           <img
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg"
-            alt="Professional DJ setup with custom lighting and sound equipment"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163774/Jade-and-Emma-0064_t4shle.jpg"
+            alt="Professional DJ and wedding entertainment at Babington House, Somerset"
             className="w-full h-full object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}
             loading="eager"
@@ -62,11 +73,11 @@ export default function BlogPostProfessionalDJ() {
 
                   <div className="my-8">
                     <div className="relative aspect-[16/9] overflow-hidden rounded-lg my-6">
-                      <img
+                      <BlogImage
                         src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg"
                         alt="Professional DJ setup at Babington House with custom lighting, professional sound equipment, and atmospheric wedding entertainment"
-                        className="w-full h-full object-cover"
-                        loading="lazy"
+                        images={allImages}
+                        index={0}
                       />
                     </div>
                   </div>
@@ -86,21 +97,21 @@ export default function BlogPostProfessionalDJ() {
                     <p className="mb-4">
                       Professional DJs invest in high-quality, reliable equipment that delivers crystal-clear sound. They understand acoustics, know how to set up sound systems properly for different venues, and have backup equipment ready should anything go wrong. This ensures your guests hear every beat, every lyric, and every announcement clearly.
                     </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
-                        <img
+                        <BlogImage
                           src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163683/NP-Decks-2_y32tje.jpg"
                           alt="Professional DJ decks and mixing equipment for high-quality sound production"
-                          className="w-full h-full object-cover"
-                          loading="lazy"
+                          images={allImages}
+                          index={1}
                         />
                       </div>
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
-                        <img
+                        <BlogImage
                           src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163197/DJ-Kit-on-Croquet-Lawn_jncfnl.jpg"
                           alt="Professional DJ kit setup on croquet lawn showcasing quality sound equipment"
-                          className="w-full h-full object-cover"
-                          loading="lazy"
+                          images={allImages}
+                          index={2}
                         />
                       </div>
                     </div>
@@ -145,11 +156,11 @@ export default function BlogPostProfessionalDJ() {
                       Professional DJs work with you before the event to understand your musical preferences, create custom playlists, and incorporate your must-play songs while avoiding your do-not-play list. They can blend your personal favorites with crowd-pleasing hits, creating a unique soundtrack that reflects your style while keeping guests entertained.
                     </p>
                     <div className="relative aspect-[4/3] overflow-hidden rounded-lg my-6">
-                      <img
+                      <BlogImage
                         src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163297/Mirjam-and-Ben-1062-1_vy1hgx.jpg"
                         alt="Professional DJ Nige performing at a wedding, showcasing expert mixing and crowd engagement"
-                        className="w-full h-full object-cover"
-                        loading="lazy"
+                        images={allImages}
+                        index={3}
                       />
                     </div>
                     <p>
@@ -175,21 +186,21 @@ export default function BlogPostProfessionalDJ() {
                     <p className="mb-4">
                       Our DJs are not just music selectors - they&apos;re entertainers, crowd readers, and event coordinators who work tirelessly to ensure your special day is everything you dreamed it would be. With extensive music libraries, professional equipment, and a commitment to excellence, our DJs create the perfect soundtrack for your celebration.
                     </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
-                        <img
+                        <BlogImage
                           src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163359/Rich-S-DJ_qxsnht.jpg"
                           alt="Professional DJ Rich S performing at a luxury venue, showcasing professional DJ services"
-                          className="w-full h-full object-cover"
-                          loading="lazy"
+                          images={allImages}
+                          index={4}
                         />
                       </div>
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
-                        <img
+                        <BlogImage
                           src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163392/james-Malin_ovqqnf.jpg"
                           alt="Professional DJ James H performing at wedding and party events"
-                          className="w-full h-full object-cover"
-                          loading="lazy"
+                          images={allImages}
+                          index={5}
                         />
                       </div>
                     </div>

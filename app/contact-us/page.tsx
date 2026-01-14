@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import Script from "next/script";
+import DJSelectionModal from "@/components/DJSelectionModal";
+import UpsellSection from "@/components/UpsellSection";
 
 // Load Google reCAPTCHA v3
 declare global {
@@ -30,6 +32,8 @@ const formSchema = z.object({
   }),
   services: z.array(z.string()).min(1, "Please select at least one service"),
   message: z.string().min(10, "Message must be at least 10 characters"),
+  preferredDJ: z.string().optional(),
+  upsellItems: z.array(z.string()).optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -47,6 +51,9 @@ export default function ContactUs() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
+  const [showDJModal, setShowDJModal] = useState(false);
+  const [selectedDJ, setSelectedDJ] = useState<string | null>(null);
+  const [selectedUpsells, setSelectedUpsells] = useState<string[]>([]);
 
   // Replace with your actual Google reCAPTCHA site key
   const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "YOUR_RECAPTCHA_SITE_KEY";
@@ -85,9 +92,21 @@ export default function ContactUs() {
   const toggleService = (service: string) => {
     const current = selectedServices;
     if (current.includes(service)) {
-      setValue("services", current.filter((s) => s !== service));
+      const newServices = current.filter((s) => s !== service);
+      setValue("services", newServices);
+      // If unchecking DJs, clear DJ selection
+      if (service === "DJs") {
+        setSelectedDJ(null);
+      }
     } else {
-      setValue("services", [...current, service]);
+      const newServices = [...current, service];
+      setValue("services", newServices);
+      // If checking DJs, show modal after a brief delay to ensure state is updated
+      if (service === "DJs") {
+        setTimeout(() => {
+          setShowDJModal(true);
+        }, 100);
+      }
     }
   };
 
@@ -112,22 +131,36 @@ export default function ContactUs() {
       // Execute reCAPTCHA
       const recaptchaToken = await executeRecaptcha();
       
-      // Include reCAPTCHA token in form submission
+      // Include reCAPTCHA token and DJ/upsell data in form submission
       const formDataWithRecaptcha = {
         ...data,
         recaptchaToken,
+        preferredDJ: selectedDJ,
+        upsellItems: selectedUpsells,
       };
 
-      // Simulate form submission (replace with actual API call)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Form data:", formDataWithRecaptcha);
-      
+      // Submit to API
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formDataWithRecaptcha),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to send message");
+      }
+
       setIsSubmitting(false);
       setSubmitSuccess(true);
       
       // Reset form after 3 seconds
       setTimeout(() => {
         setSubmitSuccess(false);
+        // Reset DJ and upsell selections
+        setSelectedDJ(null);
+        setSelectedUpsells([]);
       }, 3000);
     } catch (error) {
       console.error("Form submission error:", error);
@@ -310,6 +343,11 @@ export default function ContactUs() {
                             className="text-sm font-normal cursor-pointer text-gray-300"
                           >
                             {service}
+                            {service === "DJs" && selectedDJ && (
+                              <span className="ml-2 text-xs text-champagne-gold">
+                                ({selectedDJ === null ? "Any DJ" : selectedDJ})
+                              </span>
+                            )}
                           </Label>
                         </div>
                       ))}
@@ -317,7 +355,45 @@ export default function ContactUs() {
                     {errors.services && (
                       <p className="text-sm text-red-400 mt-1">{errors.services.message}</p>
                     )}
+                    {selectedServices.includes("DJs") && (
+                      <p className="text-sm text-gray-400 mt-2">
+                        {selectedDJ ? (
+                          <>
+                            Selected: <span className="text-champagne-gold font-medium">
+                              {selectedDJ === null ? "Any DJ" : selectedDJ}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setShowDJModal(true)}
+                              className="text-champagne-gold hover:text-gold-light ml-2 underline"
+                            >
+                              Change
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-yellow-400">Please select a DJ preference</span>
+                            <button
+                              type="button"
+                              onClick={() => setShowDJModal(true)}
+                              className="text-champagne-gold hover:text-gold-light ml-2 underline"
+                            >
+                              Select Now
+                            </button>
+                          </>
+                        )}
+                      </p>
+                    )}
                   </div>
+
+                  {/* Upsell Section */}
+                  {selectedServices.length > 0 && (
+                    <UpsellSection
+                      selectedServices={selectedServices}
+                      selectedUpsells={selectedUpsells}
+                      onUpsellChange={setSelectedUpsells}
+                    />
+                  )}
 
                   {/* Message */}
                   <div>
@@ -404,6 +480,14 @@ export default function ContactUs() {
           </motion.div>
         </div>
       </section>
+
+      {/* DJ Selection Modal */}
+      <DJSelectionModal
+        open={showDJModal}
+        onClose={() => setShowDJModal(false)}
+        onSelect={setSelectedDJ}
+        selectedDJ={selectedDJ}
+      />
     </div>
     </>
   );

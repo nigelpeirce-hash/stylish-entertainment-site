@@ -59,7 +59,7 @@ export default function KitHireService() {
             <CardContent className="space-y-6">
               <div>
                 <h3 className="text-xl font-bold text-white mb-4">What We Offer</h3>
-                <ul className="space-y-3">
+                <ul className="space-y-3 mb-6">
                   {[
                     "Sound systems and PA equipment",
                     "Lighting rigs and effects",
@@ -76,6 +76,15 @@ export default function KitHireService() {
                     </li>
                   ))}
                 </ul>
+                <div className="pt-4 border-t border-gray-700">
+                  <h3 className="text-xl font-bold text-white mb-4">Hire Items</h3>
+                  <p className="text-gray-300 mb-4">
+                    Browse our selection of decorative and lighting hire items including lanterns, candlesticks, mirror balls, and vases.
+                  </p>
+                  <Button asChild className="bg-champagne-gold text-black hover:bg-gold-light">
+                    <Link href="/hire">Browse Hire Items</Link>
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

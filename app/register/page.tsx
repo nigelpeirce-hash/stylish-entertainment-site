@@ -43,7 +43,9 @@ export default function RegisterPage() {
     setError("");
 
     try {
-      const response = await fetch("/api/auth/register", {
+      console.log("Attempting registration with:", { name: data.name, email: data.email });
+      
+      const response = await fetch("/api/auth/register/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -53,11 +55,35 @@ export default function RegisterPage() {
         }),
       });
 
-      const result = await response.json();
+      console.log("Registration response status:", response.status);
+      
+      // Clone the response so we can read it multiple times if needed
+      const responseClone = response.clone();
+      let result;
+      
+      try {
+        result = await response.json();
+        console.log("Registration response:", result);
+      } catch (jsonError) {
+        console.error("Failed to parse JSON response:", jsonError);
+        try {
+          const text = await responseClone.text();
+          console.error("Response text:", text);
+          setError(`Server error: ${text.substring(0, 200)}`);
+        } catch (textError) {
+          console.error("Failed to read response text:", textError);
+          setError(`Server returned invalid response (Status: ${response.status}). Check console for details.`);
+        }
+        setIsLoading(false);
+        return;
+      }
 
       if (!response.ok) {
-        setError(result.error || "Registration failed");
+        // Show more detailed error message
+        const errorMsg = result.error || result.message || result.details?.message || "Registration failed";
+        setError(errorMsg);
         setIsLoading(false);
+        console.error("Registration error:", result);
       } else {
         setSuccess(true);
         setTimeout(() => {
@@ -65,7 +91,9 @@ export default function RegisterPage() {
         }, 2000);
       }
     } catch (error) {
-      setError("An error occurred. Please try again.");
+      console.error("Registration fetch error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Network error";
+      setError(`An error occurred: ${errorMessage}. Please check your connection and try again.`);
       setIsLoading(false);
     }
   };

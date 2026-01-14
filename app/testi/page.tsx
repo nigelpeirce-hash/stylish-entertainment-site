@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import GoogleReviews from "@/components/GoogleReviews";
 
 // Helper function to shuffle array
 function shuffleArray<T>(array: T[]): T[] {
@@ -221,6 +222,17 @@ export default function Testimonials() {
             <p className="text-lg sm:text-xl md:text-2xl text-champagne-gold font-semibold max-w-4xl mx-auto leading-relaxed px-4 italic">
               From packed dance floors to standing ovations, our clients share their unforgettable experiences
             </p>
+          </motion.div>
+
+          {/* Google Reviews Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="mb-16"
+          >
+            <GoogleReviews maxReviews={5} />
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
