@@ -393,7 +393,7 @@ export default function DJs() {
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       </div>
-                      <CardHeader className="p-4 sm:p-6 md:p-6 lg:p-8 bg-gray-800/50 backdrop-blur-sm flex flex-col justify-start">
+                      <CardHeader className="p-4 sm:p-6 md:p-6 lg:p-8 bg-gray-800/50 backdrop-blur-sm flex flex-col justify-start pb-20 sm:pb-6 md:pb-6 lg:pb-8">
                         <CardTitle className="text-xl sm:text-2xl md:text-3xl mb-2 sm:mb-3 text-white font-bold">{dj.name}</CardTitle>
                         <p className="text-sm sm:text-base text-gray-300 mb-3 sm:mb-4 leading-relaxed">{dj.bio}</p>
                         
@@ -546,7 +546,7 @@ export default function DJs() {
             <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/20">
               <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Booking Process</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-6 text-white font-bold px-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-6 text-gray-900 font-bold px-4">
               How Does It <span className="text-gradient">Work?</span>
             </h2>
           </motion.div>
