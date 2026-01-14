@@ -3,6 +3,10 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import * as z from "zod";
 
+// Force dynamic rendering to prevent database connection during build
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const djSchema = z.object({
   name: z.string().min(1, "Name is required"),
   slug: z.string().optional(),

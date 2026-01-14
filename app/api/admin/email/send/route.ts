@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { sendEmailFromCRM } from "@/lib/email-send";
+
+// Force dynamic rendering to prevent database connection during build
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 import { prisma } from "@/lib/prisma";
 import { processTemplate, extractBookingVariables, formatDJFee } from "@/lib/email-templates";
 import * as z from "zod";
