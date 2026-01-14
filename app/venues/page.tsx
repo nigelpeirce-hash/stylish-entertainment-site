@@ -20,7 +20,6 @@ const venuesUnsorted = [
   { name: "Orchardleigh Estate", url: "https://www.orchardleigh.com/" },
   { name: "Elmhay Park", url: "https://www.orchardleigh.com/" },
   { name: "North Cadbury Court", url: "https://www.northcadburycourt.co.uk/" },
-  { name: "Bradley House", url: "https://www.bradleyhouse.co.uk/" },
   { name: "The Assembly Rooms, Bath", url: "https://www.bathassemblyrooms.org.uk/" },
   { name: "Barnsley House", url: "https://www.barnsleyhouse.com/" },
   { name: "Pembroke Lodge, Richmond Park", url: "https://www.pembroke-lodge.co.uk/" },
