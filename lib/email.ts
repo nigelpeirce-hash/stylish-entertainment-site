@@ -50,7 +50,23 @@ interface EmailOptions {
 
 // Send email using Mailgun REST API (preferred method)
 async function sendEmailViaMailgunAPI({ to, subject, html, text, from }: EmailOptions) {
-  const fromEmail = from || process.env.SMTP_FROM_EMAIL || `info@${MAILGUN_DOMAIN}`;
+  // Mailgun requires the "from" address to be from a verified domain
+  // If a custom "from" is provided, validate it's from the Mailgun domain
+  let fromEmail = from || process.env.SMTP_FROM_EMAIL || `info@${MAILGUN_DOMAIN}`;
+  
+  // Ensure the from email is from the verified Mailgun domain
+  // If it's not, use the default domain email
+  if (fromEmail && !fromEmail.includes(`@${MAILGUN_DOMAIN}`)) {
+    console.warn(`From email ${fromEmail} is not from verified domain ${MAILGUN_DOMAIN}. Using default.`);
+    fromEmail = `info@${MAILGUN_DOMAIN}`;
+  }
+  
+  // Final fallback if still invalid
+  if (!fromEmail || !fromEmail.includes('@')) {
+    fromEmail = `info@${MAILGUN_DOMAIN}`;
+  }
+  
+  console.log("Using from email:", fromEmail);
   
   const formData = new URLSearchParams();
   formData.append("from", `"Stylish Entertainment" <${fromEmail}>`);
