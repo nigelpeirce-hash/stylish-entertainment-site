@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
-import { importICalFromURL, importICalFromFile, createBookingsFromICal } from "@/lib/ical-import";
 import * as z from "zod";
 
 // Force dynamic rendering to prevent BigInt issues during build
@@ -20,6 +19,9 @@ export async function POST(request: NextRequest) {
     if (!admin) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    // Dynamically import ical-import to avoid BigInt issues during build
+    const { importICalFromURL, importICalFromFile, createBookingsFromICal } = await import("@/lib/ical-import");
 
     const body = await request.json();
     const validatedData = importSchema.parse(body);
