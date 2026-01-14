@@ -50,6 +50,7 @@ const serviceOptions = [
 export default function ContactUs() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [error, setError] = useState<string>("");
   const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
   const [showDJModal, setShowDJModal] = useState(false);
   const [selectedDJ, setSelectedDJ] = useState<string | null>(null);
@@ -126,6 +127,7 @@ export default function ContactUs() {
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
+    setError(""); // Clear any previous errors
     
     try {
       // Execute reCAPTCHA
@@ -149,7 +151,8 @@ export default function ContactUs() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Failed to send message");
+        console.error("API Error Response:", result);
+        throw new Error(result.error || result.details || "Failed to send message");
       }
 
       setIsSubmitting(false);
@@ -165,6 +168,9 @@ export default function ContactUs() {
     } catch (error) {
       console.error("Form submission error:", error);
       setIsSubmitting(false);
+      const errorMessage = error instanceof Error ? error.message : "Failed to send message. Please try again.";
+      setError(errorMessage);
+      alert(`Error: ${errorMessage}\n\nPlease check your email settings or try again later.`);
     }
   };
 
@@ -229,6 +235,15 @@ export default function ContactUs() {
               </CardHeader>
               <CardContent className="px-4 sm:px-6">
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 sm:space-y-6">
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 bg-red-900/30 border-2 border-red-500/50 rounded-md text-red-400 font-medium text-center"
+                    >
+                      ⚠ {error}
+                    </motion.div>
+                  )}
                   {/* Name */}
                   <div>
                     <Label htmlFor="name" className="text-gray-200">Name *</Label>

@@ -132,7 +132,8 @@ export default function Contact() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Failed to send message");
+        console.error("API Error Response:", result);
+        throw new Error(result.error || result.details || "Failed to send message");
       }
       
       setIsSubmitting(false);
@@ -149,7 +150,9 @@ export default function Contact() {
     } catch (error) {
       console.error("Form submission error:", error);
       setIsSubmitting(false);
-      alert(error instanceof Error ? error.message : "Failed to send message. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : "Failed to send message. Please try again.";
+      setError(errorMessage);
+      alert(`Error: ${errorMessage}\n\nPlease check your email settings or try again later.`);
     }
   };
 
