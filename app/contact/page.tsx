@@ -46,6 +46,7 @@ const serviceOptions = [
 export default function Contact() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [error, setError] = useState<string>("");
   const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
 
   // Google reCAPTCHA v3 Site Key
@@ -109,6 +110,7 @@ export default function Contact() {
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
+    setError(""); // Clear any previous errors
     
     try {
       // Execute reCAPTCHA v3
@@ -217,6 +219,15 @@ export default function Contact() {
               </CardHeader>
               <CardContent className="px-4 sm:px-6">
                 <form id="contact-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5 sm:space-y-6">
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 bg-red-900/30 border-2 border-red-500/50 rounded-md text-red-400 font-medium text-center"
+                    >
+                      ⚠ {error}
+                    </motion.div>
+                  )}
                   {/* Name */}
                   <div>
                     <Label htmlFor="name" className="text-gray-200">Name *</Label>
