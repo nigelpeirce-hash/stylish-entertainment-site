@@ -103,3 +103,11 @@ export const authOptions: NextAuthConfig = {
   secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
   trustHost: true, // Required for NextAuth v5
 };
+
+// Validate NextAuth configuration at startup
+if (!process.env.NEXTAUTH_SECRET && !process.env.AUTH_SECRET) {
+  console.error("⚠️  NEXTAUTH_SECRET or AUTH_SECRET is not set!");
+  console.error("   Authentication will not work properly.");
+  console.error("   Please set NEXTAUTH_SECRET in your environment variables.");
+  console.error("   Generate one with: openssl rand -base64 32");
+}

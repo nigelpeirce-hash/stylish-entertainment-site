@@ -49,7 +49,18 @@ export default function LoginPage() {
 
       if (result?.error) {
         console.error("Sign in error:", result.error);
-        setError(result.error);
+        // Provide user-friendly error messages
+        let errorMessage = result.error;
+        if (result.error === "Configuration") {
+          errorMessage = "Authentication is not properly configured. Please contact support.";
+        } else if (result.error === "CredentialsSignin") {
+          errorMessage = "Invalid email or password. Please try again.";
+        } else if (result.error.includes("No user found")) {
+          errorMessage = "No account found with this email address.";
+        } else if (result.error.includes("Invalid password")) {
+          errorMessage = "Invalid password. Please try again.";
+        }
+        setError(errorMessage);
         setIsLoading(false);
       } else if (result?.ok) {
         console.log("Sign in successful, checking role...");
