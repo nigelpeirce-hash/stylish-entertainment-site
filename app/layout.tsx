@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Raleway } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
+import dynamic from "next/dynamic";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
@@ -9,14 +10,21 @@ import GoogleTagManager from "@/components/GoogleTagManager";
 import CookieYes from "@/components/CookieYes";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { Providers } from "@/components/Providers";
-import EventDatePrompt from "@/components/EventDatePrompt";
-import HeaderCountdown from "@/components/HeaderCountdown";
+
+// Dynamically import heavy components that don't need to block initial render
+const EventDatePrompt = dynamic(() => import("@/components/EventDatePrompt"), {
+  ssr: false,
+});
+const HeaderCountdown = dynamic(() => import("@/components/HeaderCountdown"), {
+  ssr: false,
+});
 
 const raleway = Raleway({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
-  weight: ["300", "400", "500", "600", "700", "800", "900"],
+  weight: ["400", "600", "700"], // Reduced from 7 weights to 3 most used
+  preload: true,
 });
 
 export const metadata: Metadata = {

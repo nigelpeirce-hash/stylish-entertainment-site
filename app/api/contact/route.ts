@@ -4,7 +4,7 @@ import { sendEmail } from "@/lib/email";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, weddingDate, venueNamePostcode, contactPreference, services, message, recaptchaToken, preferredDJ, upsellItems } = body;
+    const { name, email, weddingDate, venueNamePostcode, contactPreference, services, message, recaptchaToken, preferredDJ, djStartTime, djFinishTime, upsellItems } = body;
 
     // Basic validation
     if (!name || !email || !message) {
@@ -90,6 +90,16 @@ export async function POST(request: NextRequest) {
               <div class="field-value">${preferredDJ === null ? "Any DJ" : preferredDJ}</div>
             </div>
             ` : ''}
+            ${djStartTime || djFinishTime ? `
+            <div class="field">
+              <div class="field-label">DJ Set Times:</div>
+              <div class="field-value">
+                ${djStartTime ? `Start: ${djStartTime}` : 'Start: Not specified'}
+                ${djStartTime && djFinishTime ? ' | ' : ''}
+                ${djFinishTime ? `Finish: ${djFinishTime}` : djStartTime ? 'Finish: Not specified' : ''}
+              </div>
+            </div>
+            ` : ''}
             ${upsellItems && Array.isArray(upsellItems) && upsellItems.length > 0 ? `
             <div class="field">
               <div class="field-label">Items of Interest (Upsells):</div>
@@ -158,7 +168,7 @@ export async function POST(request: NextRequest) {
             <p>Thank you for getting in touch with Stylish Entertainment. We've received your message and will get back to you as soon as possible.</p>
             <p>We typically respond within 24-48 hours.</p>
             <p>If you have any urgent questions, please call us at 07970793177.</p>
-            <p>Best regards,<br>The Team at Stylish Entertainment</p>
+            <p>Best regards,<br>Ali & Nige</p>
           </div>
         </div>
       </body>

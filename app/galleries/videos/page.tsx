@@ -65,15 +65,26 @@ export default function Videos() {
     const apiKey = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
     const channelId = process.env.NEXT_PUBLIC_YOUTUBE_CHANNEL_ID || "@stylishentertainment937";
 
-    if (apiKey) {
+    // Debug logging
+    console.log("YouTube API Configuration Check:", {
+      hasApiKey: !!apiKey,
+      apiKeyLength: apiKey?.length || 0,
+      channelId: channelId,
+      environment: typeof window !== 'undefined' ? 'client' : 'server',
+    });
+
+    if (apiKey && apiKey !== "YOUR_YOUTUBE_API_KEY" && apiKey.length > 10) {
       console.log("YouTube API Key found, fetching videos...");
       fetchYouTubeData(apiKey, channelId);
     } else {
-      console.warn("YouTube API Key not found. Using fallback videos. Please set NEXT_PUBLIC_YOUTUBE_API_KEY in Vercel environment variables.");
+      console.warn("YouTube API Key not found or invalid. Using fallback videos.");
+      console.warn("To fix: Set NEXT_PUBLIC_YOUTUBE_API_KEY in Vercel environment variables and redeploy.");
       // Use fallback data
       const videos = fallbackPlaylists.flatMap((playlist) => playlist.videos);
       setAllVideos(videos);
+      setPlaylists(fallbackPlaylists);
       setLoading(false);
+      setError("YouTube API key not configured. Please set NEXT_PUBLIC_YOUTUBE_API_KEY in Vercel environment variables and redeploy.");
     }
   }, []);
 

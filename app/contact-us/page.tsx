@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -33,6 +34,8 @@ const formSchema = z.object({
   services: z.array(z.string()).min(1, "Please select at least one service"),
   message: z.string().min(10, "Message must be at least 10 characters"),
   preferredDJ: z.string().optional(),
+  djStartTime: z.string().optional(),
+  djFinishTime: z.string().optional(),
   upsellItems: z.array(z.string()).optional(),
 });
 
@@ -55,6 +58,8 @@ export default function ContactUs() {
   const [showDJModal, setShowDJModal] = useState(false);
   const [selectedDJ, setSelectedDJ] = useState<string | null>(null);
   const [selectedUpsells, setSelectedUpsells] = useState<string[]>([]);
+  const [djStartTime, setDjStartTime] = useState<string>("");
+  const [djFinishTime, setDjFinishTime] = useState<string>("");
 
   // Replace with your actual Google reCAPTCHA site key
   const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "YOUR_RECAPTCHA_SITE_KEY";
@@ -138,6 +143,8 @@ export default function ContactUs() {
         ...data,
         recaptchaToken,
         preferredDJ: selectedDJ,
+        djStartTime: selectedServices.includes("DJs") ? djStartTime : undefined,
+        djFinishTime: selectedServices.includes("DJs") ? djFinishTime : undefined,
         upsellItems: selectedUpsells,
       };
 
@@ -164,6 +171,8 @@ export default function ContactUs() {
         // Reset DJ and upsell selections
         setSelectedDJ(null);
         setSelectedUpsells([]);
+        setDjStartTime("");
+        setDjFinishTime("");
       }, 3000);
     } catch (error) {
       console.error("Form submission error:", error);
@@ -195,13 +204,14 @@ export default function ContactUs() {
         {/* Hero */}
         <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-25 flex items-center justify-center">
-          <img
+          <Image
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162649/Kin-House-Mirrorball-Clusters_fi5n50.jpg"
             alt="Kin House wedding venue with elegant mirrorball clusters and professional lighting design, showcasing our wedding entertainment services"
-            className="w-full h-full object-cover object-center brightness-110"
+            fill
+            className="object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}
-            loading="eager"
-            fetchPriority="high"
+            priority
+            sizes="100vw"
           />
         </div>
         <motion.div
@@ -371,33 +381,60 @@ export default function ContactUs() {
                       <p className="text-sm text-red-400 mt-1">{errors.services.message}</p>
                     )}
                     {selectedServices.includes("DJs") && (
-                      <p className="text-sm text-gray-400 mt-2">
-                        {selectedDJ ? (
-                          <>
-                            Selected: <span className="text-champagne-gold font-medium">
-                              {selectedDJ === null ? "Any DJ" : selectedDJ}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => setShowDJModal(true)}
-                              className="text-champagne-gold hover:text-gold-light ml-2 underline"
-                            >
-                              Change
-                            </button>
-                          </>
-                        ) : (
-                          <>
-                            <span className="text-yellow-400">Please select a DJ preference</span>
-                            <button
-                              type="button"
-                              onClick={() => setShowDJModal(true)}
-                              className="text-champagne-gold hover:text-gold-light ml-2 underline"
-                            >
-                              Select Now
-                            </button>
-                          </>
-                        )}
-                      </p>
+                      <>
+                        <p className="text-sm text-gray-400 mt-2">
+                          {selectedDJ ? (
+                            <>
+                              Selected: <span className="text-champagne-gold font-medium">
+                                {selectedDJ === null ? "Any DJ" : selectedDJ}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => setShowDJModal(true)}
+                                className="text-champagne-gold hover:text-gold-light ml-2 underline"
+                              >
+                                Change
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-yellow-400">Please select a DJ preference</span>
+                              <button
+                                type="button"
+                                onClick={() => setShowDJModal(true)}
+                                className="text-champagne-gold hover:text-gold-light ml-2 underline"
+                              >
+                                Select Now
+                              </button>
+                            </>
+                          )}
+                        </p>
+                        {/* DJ Set Times */}
+                        <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <Label htmlFor="djStartTime" className="text-gray-200">DJ Start Time</Label>
+                            <Input
+                              id="djStartTime"
+                              type="time"
+                              value={djStartTime}
+                              onChange={(e) => setDjStartTime(e.target.value)}
+                              className="mt-2 bg-gray-700 border-gray-600 text-white focus:border-champagne-gold"
+                              placeholder="e.g., 19:00"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="djFinishTime" className="text-gray-200">DJ Finish Time</Label>
+                            <Input
+                              id="djFinishTime"
+                              type="time"
+                              value={djFinishTime}
+                              onChange={(e) => setDjFinishTime(e.target.value)}
+                              className="mt-2 bg-gray-700 border-gray-600 text-white focus:border-champagne-gold"
+                              placeholder="e.g., 00:00"
+                            />
+                          </div>
+                        </div>
+                      </>
                     )}
                   </div>
 
