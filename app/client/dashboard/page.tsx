@@ -15,6 +15,7 @@ import MusicPlaylistManager from "@/components/MusicPlaylistManager";
 import EventTimeline from "@/components/EventTimeline";
 import GuestCountTracker from "@/components/GuestCountTracker";
 import BudgetTracker from "@/components/BudgetTracker";
+import { comment } from "postcss";
 
 export default function ClientDashboard() {
   const { data: session, status } = useSession();
