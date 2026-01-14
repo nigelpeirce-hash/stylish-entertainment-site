@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -72,7 +72,7 @@ const eventTypes = [
   "Other",
 ];
 
-export default function BookDJPage() {
+function BookDJPageContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -581,5 +581,17 @@ export default function BookDJPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function BookDJPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="text-white">Loading...</div>
+      </div>
+    }>
+      <BookDJPageContent />
+    </Suspense>
   );
 }
