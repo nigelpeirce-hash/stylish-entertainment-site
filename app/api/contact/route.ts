@@ -20,10 +20,13 @@ export async function POST(request: NextRequest) {
     // Format services list
     const servicesList = Array.isArray(services) ? services.join(", ") : services || "Not specified";
 
-    // Get base URL for logo (use production domain if set, otherwise Vercel URL)
-    const baseUrl = process.env.NEXTAUTH_URL || process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
-      : 'https://stylishentertainment.co.uk';
+    // Get base URL for logo (use NEXTAUTH_URL if set, otherwise try Vercel URL, fallback to production domain)
+    let baseUrl = 'https://stylishentertainment.co.uk';
+    if (process.env.NEXTAUTH_URL) {
+      baseUrl = process.env.NEXTAUTH_URL;
+    } else if (process.env.VERCEL_URL) {
+      baseUrl = `https://${process.env.VERCEL_URL}`;
+    }
     const logoUrl = `${baseUrl}/logo-header.svg`;
 
     // Create email content
