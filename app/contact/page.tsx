@@ -367,11 +367,11 @@ export default function Contact() {
 
                   {submitSuccess && (
                     <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="p-4 bg-green-50 border border-green-200 rounded-md text-green-800"
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 bg-green-900/30 border-2 border-green-500/50 rounded-md text-green-400 font-medium text-center"
                     >
-                      Thank you! We&apos;ll be in touch soon.
+                      ✓ Thank you! Your message has been sent. We&apos;ll be in touch soon.
                     </motion.div>
                   )}
                 </form>

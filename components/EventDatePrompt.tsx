@@ -25,8 +25,12 @@ export default function EventDatePrompt() {
       setEventDate(storedDate);
       setIsOpen(false);
     } else if (!promptShown) {
-      // Show prompt for new visitors
-      setIsOpen(true);
+      // Show prompt for new visitors after 6 seconds (to allow page to fully display)
+      const timer = setTimeout(() => {
+        setIsOpen(true);
+      }, 6000);
+      
+      return () => clearTimeout(timer);
     }
   }, []);
 
