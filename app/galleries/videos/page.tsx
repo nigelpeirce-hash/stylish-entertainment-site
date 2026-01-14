@@ -171,13 +171,36 @@ export default function Videos() {
         })
       );
 
-      setPlaylists(playlistsWithVideos);
+      // Sort playlists: "Zoom parties" should be at the bottom, below "entertainment"
+      const sortedPlaylists = [...playlistsWithVideos].sort((a, b) => {
+        const aTitle = a.title.toLowerCase();
+        const bTitle = b.title.toLowerCase();
+        
+        const aIsZoom = aTitle.includes("zoom parties") || aTitle.includes("zoom party");
+        const bIsZoom = bTitle.includes("zoom parties") || bTitle.includes("zoom party");
+        const aIsEntertainment = aTitle.includes("entertainment");
+        const bIsEntertainment = bTitle.includes("entertainment");
+        
+        // Priority: Zoom parties (3) > Entertainment (2) > Others (1)
+        const getPriority = (isZoom: boolean, isEntertainment: boolean) => {
+          if (isZoom) return 3;
+          if (isEntertainment) return 2;
+          return 1;
+        };
+        
+        const aPriority = getPriority(aIsZoom, aIsEntertainment);
+        const bPriority = getPriority(bIsZoom, bIsEntertainment);
+        
+        return aPriority - bPriority;
+      });
+      
+      setPlaylists(sortedPlaylists);
       // Deduplicate videos by ID to prevent duplicate keys
-      const allVids = playlistsWithVideos.flatMap((p) => p.videos);
+      const allVids = sortedPlaylists.flatMap((p) => p.videos);
       const uniqueVideos = Array.from(
         new Map(allVids.map((video) => [video.id, video])).values()
       );
-      console.log(`Successfully loaded ${uniqueVideos.length} unique videos from ${allVids.length} total videos across ${playlistsWithVideos.length} playlists`);
+      console.log(`Successfully loaded ${uniqueVideos.length} unique videos from ${allVids.length} total videos across ${sortedPlaylists.length} playlists`);
       setAllVideos(uniqueVideos);
       setError(null);
     } catch (err: any) {
