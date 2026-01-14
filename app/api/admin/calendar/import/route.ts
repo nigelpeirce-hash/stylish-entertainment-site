@@ -3,6 +3,10 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { importICalFromURL, importICalFromFile, createBookingsFromICal } from "@/lib/ical-import";
 import * as z from "zod";
 
+// Force dynamic rendering to prevent BigInt issues during build
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const importSchema = z.object({
   url: z.string().url().optional(),
   fileContent: z.string().optional(),
