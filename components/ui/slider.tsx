@@ -12,7 +12,13 @@ interface SliderProps {
 
 export function Slider({ children, className }: SliderProps) {
   const [currentIndex, setCurrentIndex] = React.useState(0)
-  const childrenArray = React.Children.toArray(children)
+  
+  // Memoize children array to prevent infinite re-renders
+  // Use a stable key-based approach to detect actual changes
+  const childrenArray = React.useMemo(() => {
+    return React.Children.toArray(children)
+  }, [children])
+  
   const totalSlides = childrenArray.length
 
   const goToPrevious = () => {
