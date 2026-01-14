@@ -5,13 +5,7 @@ import { useEffect, useRef } from "react";
 
 declare global {
   interface Window {
-    grecaptcha: {
-      ready: (callback: () => void) => void;
-      execute: (siteKey: string, options: { action: string }) => Promise<string>;
-      render: (container: HTMLElement, options: { sitekey: string; theme?: string; size?: string }) => number;
-      reset: (widgetId?: number) => void;
-      getResponse: (widgetId?: number) => string;
-    };
+    grecaptcha: any;
   }
 }
 

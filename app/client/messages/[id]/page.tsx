@@ -135,7 +135,7 @@ export default function ClientThreadDetail() {
             >
               <Card
                 className={`${
-                  email.isOutbound
+                  email.direction === "outbound"
                     ? "bg-champagne-gold/10 border-champagne-gold/50"
                     : "bg-gray-800 border-gray-700"
                 }`}
