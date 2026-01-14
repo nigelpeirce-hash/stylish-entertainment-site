@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,7 @@ interface Booking {
   user: { id: string; name: string; email: string } | null;
 }
 
-export default function AdminBookings() {
+function AdminBookingsContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -302,5 +302,17 @@ export default function AdminBookings() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AdminBookings() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="text-white">Loading...</div>
+      </div>
+    }>
+      <AdminBookingsContent />
+    </Suspense>
   );
 }
