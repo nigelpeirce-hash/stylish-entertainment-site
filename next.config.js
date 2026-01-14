@@ -3,7 +3,17 @@ const nextConfig = {
   // Removed 'output: export' to enable API routes for email and authentication
   // If you need static export for deployment, you'll need to use a different deployment strategy
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
+    ],
+    // Cloudinary handles format/quality (f_auto,q_auto), Next.js handles responsive sizes
+    formats: ['image/avif', 'image/webp'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
   trailingSlash: true,
   async redirects() {

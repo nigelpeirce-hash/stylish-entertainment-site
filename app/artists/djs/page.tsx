@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -108,13 +109,14 @@ export default function DJs() {
           <div className="absolute bottom-10 left-10 w-72 h-72 bg-champagne-gold/5 rounded-full blur-3xl"></div>
         </div>
         <div className="absolute inset-0 opacity-25 flex items-center justify-center">
-          <img
+          <Image
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163213/festival-trio_wrtrng.jpg"
             alt="Festival trio of DJ, saxophone and percussion performing at a wedding or party event, showcasing professional live entertainment"
-            className="w-full h-full object-cover object-center brightness-110"
+            fill
+            className="object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}
-            loading="eager"
-            fetchPriority="high"
+            priority
+            sizes="100vw"
           />
         </div>
         <motion.div
@@ -361,23 +363,13 @@ export default function DJs() {
                       <div className="relative h-64 md:h-auto overflow-hidden bg-gray-900 flex items-center justify-center">
                         {dj.image ? (
                           <>
-                            <img
+                            <Image
                               src={dj.image}
                               alt={dj.alt}
-                              className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
+                              fill
+                              className="object-cover object-center group-hover:scale-110 transition-transform duration-500"
                               style={{ objectPosition: 'center center' }}
-                              loading="lazy"
-                              decoding="async"
-                              onError={(e) => {
-                                console.error('Image failed to load:', dj.image);
-                                const target = e.currentTarget;
-                                target.style.display = 'none';
-                                // Show fallback
-                                const fallback = target.nextElementSibling as HTMLElement;
-                                if (fallback) {
-                                  fallback.style.display = 'flex';
-                                }
-                              }}
+                              sizes="(max-width: 768px) 100vw, 50vw"
                             />
                             <div className="w-full h-full hidden items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 text-gray-400 flex-col gap-2">
                               <svg className="w-16 h-16 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

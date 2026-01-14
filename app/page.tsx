@@ -2,10 +2,11 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent } from "@/components/ui/card";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { Quote } from "lucide-react";
 
 const services = [
@@ -114,8 +115,8 @@ const featuredTestimonials = [
   },
 ];
 
-// Testimonials Carousel Component
-function TestimonialsCarousel() {
+// Testimonials Carousel Component - Memoized for performance
+const TestimonialsCarousel = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -126,7 +127,11 @@ function TestimonialsCarousel() {
     return () => clearInterval(interval);
   }, []);
 
-  const currentTestimonial = featuredTestimonials[currentIndex];
+  const currentTestimonial = useMemo(() => featuredTestimonials[currentIndex], [currentIndex]);
+  
+  const handleDotClick = useCallback((index: number) => {
+    setCurrentIndex(index);
+  }, []);
 
   return (
     <div className="relative max-w-4xl mx-auto">
@@ -164,7 +169,7 @@ function TestimonialsCarousel() {
         {featuredTestimonials.map((_, index) => (
           <button
             key={index}
-            onClick={() => setCurrentIndex(index)}
+            onClick={() => handleDotClick(index)}
             className={`transition-all duration-300 rounded-full ${
               index === currentIndex
                 ? "w-8 h-2 bg-champagne-gold"
@@ -176,7 +181,7 @@ function TestimonialsCarousel() {
       </div>
     </div>
   );
-}
+};
 
 // Homepage Gallery Slider Images
 const gallerySliderImages = [
@@ -230,18 +235,16 @@ export default function Home() {
         <Slider className="h-full">
           {gallerySliderImages.map((image, index) => (
             <div key={index} className="relative w-full h-full flex-shrink-0 flex items-center justify-center bg-gray-900">
-              <img
+              <Image
                 src={image.src}
                 alt={image.alt}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
                 style={{ 
                   objectPosition: 'center center',
-                  minHeight: '100%',
-                  minWidth: '100%'
                 }}
-                loading={index === 0 ? "eager" : "lazy"}
-                fetchPriority={index === 0 ? "high" : "auto"}
-                decoding="async"
+                priority={index === 0}
+                sizes="100vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none"></div>
             </div>
@@ -312,12 +315,13 @@ export default function Home() {
                 <Link href={service.href}>
                   <Card className="h-full bg-gray-800 border-champagne-gold/30 hover:shadow-xl transition-all duration-300 hover:border-champagne-gold/60 group cursor-pointer">
                     <div className="relative h-48 overflow-hidden bg-gray-100">
-                      <img
+                      <Image
                         src={service.image}
                         alt={service.alt}
+                        width={400}
+                        height={192}
                         className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
-                        loading="lazy"
-                        decoding="async"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
@@ -451,11 +455,12 @@ export default function Home() {
               <Card className="bg-gray-900 border-champagne-gold/30 h-full">
                 <CardContent className="p-6 sm:p-8">
                   <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700">
-                    <img
+                    <Image
                       src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162313/Ali-Peirce_aec3tn.jpg"
                       alt="Ali - Co-founder of Stylish Entertainment"
-                      className="w-full h-full object-cover"
-                      loading="lazy"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
                     />
                   </div>
                   <h3 className="text-2xl md:text-3xl font-bold text-champagne-gold mb-3">Ali</h3>
@@ -476,11 +481,12 @@ export default function Home() {
               <Card className="bg-gray-900 border-champagne-gold/30 h-full">
                 <CardContent className="p-6 sm:p-8">
                   <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700">
-                    <img
+                    <Image
                       src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162279/Nigel-DJ-Babs-House-0009-1_f59b99.jpg"
                       alt="Nige - Co-founder of Stylish Entertainment"
-                      className="w-full h-full object-cover"
-                      loading="lazy"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
                     />
                   </div>
                   <h3 className="text-2xl md:text-3xl font-bold text-champagne-gold mb-3">Nige</h3>
