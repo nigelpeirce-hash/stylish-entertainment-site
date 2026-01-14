@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Smartphone, Monitor, Maximize2, ExternalLink, Chrome, Command, Windows } from "lucide-react";
+import { Smartphone, Monitor, Maximize2, ExternalLink, Chrome, Command } from "lucide-react";
 import Link from "next/link";
 
 export default function MobilePreview() {

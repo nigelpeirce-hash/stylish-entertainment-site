@@ -335,7 +335,7 @@ export default function ContactUs() {
                           <Checkbox
                             id={service}
                             checked={selectedServices.includes(service)}
-                            onChange={() => toggleService(service)}
+                            onCheckedChange={() => toggleService(service)}
                             className="border-gray-400 data-[state=checked]:bg-champagne-gold data-[state=checked]:text-black"
                           />
                           <Label

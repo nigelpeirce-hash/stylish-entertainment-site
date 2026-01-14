@@ -63,47 +63,56 @@ export async function syncEmailInbox(inboxId: string) {
 
         if (all && all.body) {
           const parsed = await simpleParser(all.body);
+          const p: any = parsed;
 
+          // Extract Message-ID and In-Reply-To
           // Extract Message-ID and In-Reply-To
           const messageId = parsed.messageId || `local-${Date.now()}-${Math.random()}`;
           const inReplyTo = parsed.inReplyTo || undefined;
 
-          // Parse from/to addresses
-          const from = parsed.from
+          // Parse from/to addresses with safe access
+          const fromAddress =
+            p.from && Array.isArray(p.from.value) && p.from.value.length > 0
+              ? p.from.value[0]
+              : null;
+
+          const from = fromAddress
             ? {
-                name: parsed.from.name || undefined,
-                address: parsed.from.value[0].address,
+                name: (fromAddress as any).name || undefined,
+                address: (fromAddress as any).address,
               }
             : { address: "unknown@unknown.com" };
 
-          const to = parsed.to
-            ? parsed.to.value.map((addr) => ({
-                name: addr.name || undefined,
-                address: addr.address,
-              }))
-            : [];
+          const to =
+            p.to && Array.isArray(p.to.value)
+              ? p.to.value.map((addr: any) => ({
+                  name: addr.name || undefined,
+                  address: addr.address,
+                }))
+              : [];
 
-          const cc = parsed.cc
-            ? parsed.cc.value.map((addr) => ({
-                name: addr.name || undefined,
-                address: addr.address,
-              }))
-            : undefined;
+          const cc =
+            p.cc && Array.isArray(p.cc.value)
+              ? p.cc.value.map((addr: any) => ({
+                  name: addr.name || undefined,
+                  address: addr.address,
+                }))
+              : undefined;
 
           messages.push({
             messageId,
             inReplyTo,
-            subject: parsed.subject || "(No Subject)",
+            subject: p.subject || "(No Subject)",
             from,
             to,
             cc,
-            text: parsed.text || undefined,
-            html: parsed.html || undefined,
-            date: parsed.date || new Date(),
-            attachments: parsed.attachments?.map((att) => ({
+            text: p.text || undefined,
+            html: p.html || undefined,
+            date: p.date || new Date(),
+            attachments: p.attachments?.map((att: any) => ({
               filename: att.filename || "attachment",
               contentType: att.contentType,
-              content: att.content,
+              content: att.content as Buffer,
             })),
           });
         }

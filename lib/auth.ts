@@ -1,9 +1,9 @@
-import { NextAuthOptions } from "next-auth";
+import type { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-export const authOptions: NextAuthOptions = {
+export const authOptions: NextAuthConfig = {
   // Removed PrismaAdapter - using JWT sessions, so we don't need database sessions
   // adapter: PrismaAdapter(prisma) as any,
   providers: [
@@ -22,7 +22,7 @@ export const authOptions: NextAuthOptions = {
           console.log("Attempting to authorize user:", credentials.email);
 
           const user = await prisma.user.findUnique({
-            where: { email: credentials.email },
+            where: { email: (credentials as any).email as string },
           });
 
           if (!user || !user.password) {
@@ -33,7 +33,7 @@ export const authOptions: NextAuthOptions = {
           console.log("User found, checking password...");
 
           const isPasswordValid = await bcrypt.compare(
-            credentials.password,
+            (credentials as any).password as string,
             user.password
           );
 

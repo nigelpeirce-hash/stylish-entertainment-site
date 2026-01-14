@@ -17,6 +17,7 @@ interface HireItem {
   stockAvailable: number;
   imageUrl: string | null;
   category: string | null;
+  slug?: string | null;
 }
 
 interface CartItem {

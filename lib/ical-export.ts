@@ -44,8 +44,6 @@ ${booking.message ? `Notes: ${booking.message}` : ""}
           name: "Stylish Entertainment",
           email: "info@stylishentertainment.co.uk",
         },
-        status: "CONFIRMED",
-        busystatus: "BUSY",
       });
     });
 
@@ -104,8 +102,6 @@ ${booking.message ? `Notes: ${booking.message}` : ""}
         name: "Stylish Entertainment",
         email: "info@stylishentertainment.co.uk",
       },
-      status: "CONFIRMED",
-      busystatus: "BUSY",
     });
 
     return calendar.toString();

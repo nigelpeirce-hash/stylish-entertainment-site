@@ -126,7 +126,7 @@ export async function sendEmailFromCRM(options: SendEmailOptions) {
         bcc: [],
         textContent: options.text || null,
         htmlContent: options.html || null,
-        attachments: null,
+        attachments: [],
         direction: "outbound",
         isRead: true,
         isStarred: false,
