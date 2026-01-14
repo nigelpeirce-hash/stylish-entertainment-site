@@ -77,14 +77,16 @@ export default function Videos() {
       console.log("YouTube API Key found, fetching videos...");
       fetchYouTubeData(apiKey, channelId);
     } else {
-      console.warn("YouTube API Key not found or invalid. Using fallback videos.");
-      console.warn("To fix: Set NEXT_PUBLIC_YOUTUBE_API_KEY in Vercel environment variables and redeploy.");
+      // Only log once in development, silently use fallback in production
+      if (process.env.NODE_ENV === "development") {
+        console.debug("YouTube API Key not configured. Using fallback videos.");
+      }
       // Use fallback data
       const videos = fallbackPlaylists.flatMap((playlist) => playlist.videos);
       setAllVideos(videos);
       setPlaylists(fallbackPlaylists);
       setLoading(false);
-      setError("YouTube API key not configured. Please set NEXT_PUBLIC_YOUTUBE_API_KEY in Vercel environment variables and redeploy.");
+      // Don't show error to users - fallback videos work fine
     }
   }, []);
 

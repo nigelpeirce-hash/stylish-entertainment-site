@@ -23,13 +23,43 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Test database connection
+    try {
+      await prisma.$connect();
+    } catch (dbError: any) {
+      console.error("Database connection failed:", dbError);
+      return NextResponse.json(
+        { 
+          error: "Database connection error", 
+          message: process.env.NODE_ENV === "development" 
+            ? dbError.message 
+            : "Unable to connect to database. Please try again later." 
+        },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
     const validatedData = registerSchema.parse(body);
 
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email: validatedData.email },
-    });
+    let existingUser;
+    try {
+      existingUser = await prisma.user.findUnique({
+        where: { email: validatedData.email },
+      });
+    } catch (dbError: any) {
+      console.error("Database query error (findUnique):", dbError);
+      return NextResponse.json(
+        { 
+          error: "Database error", 
+          message: process.env.NODE_ENV === "development" 
+            ? dbError.message 
+            : "Unable to check user. Please try again later." 
+        },
+        { status: 500 }
+      );
+    }
 
     if (existingUser) {
       return NextResponse.json(
@@ -42,20 +72,41 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(validatedData.password, 12);
 
     // Create user
-    const user = await prisma.user.create({
-      data: {
-        name: validatedData.name,
-        email: validatedData.email,
-        password: hashedPassword,
-        role: "client",
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-      },
-    });
+    let user;
+    try {
+      user = await prisma.user.create({
+        data: {
+          name: validatedData.name,
+          email: validatedData.email,
+          password: hashedPassword,
+          role: "client",
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      });
+    } catch (dbError: any) {
+      console.error("Database query error (create):", dbError);
+      // Check for unique constraint violation
+      if (dbError.code === 'P2002') {
+        return NextResponse.json(
+          { error: "User with this email already exists" },
+          { status: 400 }
+        );
+      }
+      return NextResponse.json(
+        { 
+          error: "Database error", 
+          message: process.env.NODE_ENV === "development" 
+            ? dbError.message 
+            : "Unable to create user. Please try again later." 
+        },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json(
       { message: "User created successfully", user },
