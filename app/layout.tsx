@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Raleway } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
-import dynamic from "next/dynamic";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
@@ -10,14 +9,7 @@ import GoogleTagManager from "@/components/GoogleTagManager";
 import CookieYes from "@/components/CookieYes";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { Providers } from "@/components/Providers";
-
-// Dynamically import heavy components that don't need to block initial render
-const EventDatePrompt = dynamic(() => import("@/components/EventDatePrompt"), {
-  ssr: false,
-});
-const HeaderCountdown = dynamic(() => import("@/components/HeaderCountdown"), {
-  ssr: false,
-});
+import ClientOnlyComponents from "@/components/ClientOnlyComponents";
 
 const raleway = Raleway({
   subsets: ["latin"],
@@ -103,11 +95,10 @@ export default function RootLayout({
           <GoogleAnalytics />
           <CookieYes />
           <Navigation />
-          <HeaderCountdown />
+          <ClientOnlyComponents />
           <Breadcrumbs />
           <main className="min-h-screen">{children}</main>
           <Footer />
-          <EventDatePrompt />
         </Providers>
       </body>
     </html>

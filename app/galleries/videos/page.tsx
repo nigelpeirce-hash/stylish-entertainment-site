@@ -170,9 +170,13 @@ export default function Videos() {
       );
 
       setPlaylists(playlistsWithVideos);
+      // Deduplicate videos by ID to prevent duplicate keys
       const allVids = playlistsWithVideos.flatMap((p) => p.videos);
-      console.log(`Successfully loaded ${allVids.length} videos from ${playlistsWithVideos.length} playlists`);
-      setAllVideos(allVids);
+      const uniqueVideos = Array.from(
+        new Map(allVids.map((video) => [video.id, video])).values()
+      );
+      console.log(`Successfully loaded ${uniqueVideos.length} unique videos from ${allVids.length} total videos across ${playlistsWithVideos.length} playlists`);
+      setAllVideos(uniqueVideos);
       setError(null);
     } catch (err: any) {
       console.error("Error fetching YouTube data:", err);
@@ -306,8 +310,8 @@ export default function Videos() {
                   {expandedPlaylist === playlist.id && (
                     <CardContent>
                       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-                        {playlist.videos.map((video) => (
-                          <div key={video.id} className="space-y-2">
+                        {playlist.videos.map((video, videoIndex) => (
+                          <div key={`${playlist.id}-${video.id}-${videoIndex}`} className="space-y-2">
                             <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-800">
                               <LazyIframe
                                 src={`https://www.youtube.com/embed/${video.id}`}
@@ -357,7 +361,7 @@ export default function Videos() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {allVideos.map((video, index) => (
                 <motion.div
-                  key={video.id}
+                  key={`all-videos-${video.id}-${index}`}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
