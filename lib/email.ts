@@ -79,7 +79,23 @@ async function sendEmailViaMailgunAPI({ to, subject, html, text, from }: EmailOp
 
   if (!response.ok) {
     const errorText = await response.text();
-    throw new Error(`Mailgun API error: ${response.status} - ${errorText}`);
+    let errorDetails = errorText;
+    try {
+      const errorJson = JSON.parse(errorText);
+      errorDetails = errorJson.message || errorJson.error || errorText;
+    } catch {
+      // If not JSON, use the text as-is
+    }
+    console.error("Mailgun API Error Details:", {
+      status: response.status,
+      statusText: response.statusText,
+      error: errorDetails,
+      apiUrl: `${MAILGUN_API_URL}/${MAILGUN_DOMAIN}/messages`,
+      hasApiKey: !!MAILGUN_API_KEY,
+      apiKeyLength: MAILGUN_API_KEY?.length || 0,
+      domain: MAILGUN_DOMAIN,
+    });
+    throw new Error(`Mailgun API error: ${response.status} - ${errorDetails}`);
   }
 
   const result = await response.json();
