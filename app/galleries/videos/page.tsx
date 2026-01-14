@@ -66,8 +66,10 @@ export default function Videos() {
     const channelId = process.env.NEXT_PUBLIC_YOUTUBE_CHANNEL_ID || "@stylishentertainment937";
 
     if (apiKey) {
+      console.log("YouTube API Key found, fetching videos...");
       fetchYouTubeData(apiKey, channelId);
     } else {
+      console.warn("YouTube API Key not found. Using fallback videos. Please set NEXT_PUBLIC_YOUTUBE_API_KEY in Vercel environment variables.");
       // Use fallback data
       const videos = fallbackPlaylists.flatMap((playlist) => playlist.videos);
       setAllVideos(videos);
@@ -82,15 +84,33 @@ export default function Videos() {
       // Convert @username to channel ID if needed
       let actualChannelId = channelId;
       if (channelId.startsWith("@")) {
-        // Fetch channel ID from username
-        const channelResponse = await fetch(
-          `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(channelId)}&type=channel&key=${apiKey}`
-        );
-        if (channelResponse.ok) {
-          const channelData = await channelResponse.json();
-          if (channelData.items && channelData.items.length > 0) {
-            actualChannelId = channelData.items[0].snippet.channelId;
+        // For @username format, we need to use channels.list with forUsername
+        // But first try to get channel ID from the custom URL
+        try {
+          const channelResponse = await fetch(
+            `https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=${channelId.replace("@", "")}&key=${apiKey}`
+          );
+          if (channelResponse.ok) {
+            const channelData = await channelResponse.json();
+            if (channelData.items && channelData.items.length > 0) {
+              actualChannelId = channelData.items[0].id;
+              console.log(`Found channel ID: ${actualChannelId}`);
+            } else {
+              // Fallback: try search API
+              const searchResponse = await fetch(
+                `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(channelId)}&type=channel&maxResults=1&key=${apiKey}`
+              );
+              if (searchResponse.ok) {
+                const searchData = await searchResponse.json();
+                if (searchData.items && searchData.items.length > 0) {
+                  actualChannelId = searchData.items[0].snippet.channelId;
+                  console.log(`Found channel ID via search: ${actualChannelId}`);
+                }
+              }
+            }
           }
+        } catch (e) {
+          console.warn("Could not convert @username to channel ID, using as-is:", e);
         }
       }
 
@@ -140,14 +160,18 @@ export default function Videos() {
 
       setPlaylists(playlistsWithVideos);
       const allVids = playlistsWithVideos.flatMap((p) => p.videos);
+      console.log(`Successfully loaded ${allVids.length} videos from ${playlistsWithVideos.length} playlists`);
       setAllVideos(allVids);
       setError(null);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error fetching YouTube data:", err);
-      setError("Unable to load videos from YouTube. Using fallback content.");
+      const errorMessage = err?.message || "Unknown error";
+      setError(`Unable to load videos from YouTube: ${errorMessage}. Using fallback content.`);
+      console.error("Full error details:", err);
       // Use fallback data on error
       const videos = fallbackPlaylists.flatMap((playlist) => playlist.videos);
       setAllVideos(videos);
+      setPlaylists(fallbackPlaylists);
     } finally {
       setLoading(false);
     }
