@@ -20,6 +20,12 @@ export async function POST(request: NextRequest) {
     // Format services list
     const servicesList = Array.isArray(services) ? services.join(", ") : services || "Not specified";
 
+    // Get base URL for logo (use production domain if set, otherwise Vercel URL)
+    const baseUrl = process.env.NEXTAUTH_URL || process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : 'https://stylishentertainment.co.uk';
+    const logoUrl = `${baseUrl}/logo-header.svg`;
+
     // Create email content
     const emailSubject = `New Contact Form Submission from ${name}`;
     const emailHtml = `
@@ -41,7 +47,7 @@ export async function POST(request: NextRequest) {
       <body>
         <div class="container">
           <div class="header">
-            <img src="https://stylishentertainment.co.uk/logo-header.svg" alt="Stylish Entertainment" class="logo" style="max-width: 200px; height: auto; margin-bottom: 15px;" />
+            <img src="${logoUrl}" alt="Stylish Entertainment" class="logo" style="max-width: 200px; height: auto; margin-bottom: 15px;" />
             <h1 style="margin: 0; font-size: 24px;">New Contact Form Submission</h1>
           </div>
           <div class="content">
@@ -141,7 +147,7 @@ export async function POST(request: NextRequest) {
       <body>
         <div class="container">
           <div class="header">
-            <img src="https://stylishentertainment.co.uk/logo-header.svg" alt="Stylish Entertainment" class="logo" style="max-width: 200px; height: auto; margin-bottom: 15px;" />
+            <img src="${logoUrl}" alt="Stylish Entertainment" class="logo" style="max-width: 200px; height: auto; margin-bottom: 15px;" />
             <h1 style="margin: 0; font-size: 24px;">Thank You for Contacting Us!</h1>
           </div>
           <div class="content">
