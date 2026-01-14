@@ -13,12 +13,20 @@ interface SliderProps {
 export function Slider({ children, className }: SliderProps) {
   const [currentIndex, setCurrentIndex] = React.useState(0)
   
-  // Memoize children array to prevent infinite re-renders
-  // Use a stable key-based approach to detect actual changes
-  const childrenArray = React.useMemo(() => {
-    return React.Children.toArray(children)
-  }, [children])
+  // Use ref to store stable children array - only update when count actually changes
+  // This prevents infinite loops from children prop reference changes on every render
+  const childrenRef = React.useRef<React.ReactNode[]>([])
+  const countRef = React.useRef(0)
   
+  const currentCount = React.Children.count(children)
+  
+  // Only update children array if the count changed (actual content change)
+  if (currentCount !== countRef.current) {
+    childrenRef.current = React.Children.toArray(children)
+    countRef.current = currentCount
+  }
+  
+  const childrenArray = childrenRef.current
   const totalSlides = childrenArray.length
 
   const goToPrevious = () => {

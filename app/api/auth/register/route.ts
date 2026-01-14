@@ -3,6 +3,9 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import * as z from "zod";
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
@@ -11,21 +14,22 @@ const registerSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
-    console.log("Registration endpoint called");
-    console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
-    
+    // Check database connection first
+    if (!process.env.DATABASE_URL) {
+      console.error("DATABASE_URL is not set");
+      return NextResponse.json(
+        { error: "Database configuration error", message: "Database connection not configured" },
+        { status: 500 }
+      );
+    }
+
     const body = await request.json();
-    console.log("Request body received:", { name: body.name, email: body.email });
-    
     const validatedData = registerSchema.parse(body);
-    console.log("Data validated successfully");
 
     // Check if user already exists
-    console.log("Checking if user exists...");
     const existingUser = await prisma.user.findUnique({
       where: { email: validatedData.email },
     });
-    console.log("User check complete, exists:", !!existingUser);
 
     if (existingUser) {
       return NextResponse.json(
@@ -35,12 +39,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Hash password
-    console.log("Hashing password...");
     const hashedPassword = await bcrypt.hash(validatedData.password, 12);
-    console.log("Password hashed");
 
     // Create user
-    console.log("Creating user in database...");
     const user = await prisma.user.create({
       data: {
         name: validatedData.name,
@@ -56,7 +57,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    console.log("User created successfully:", user.id);
     return NextResponse.json(
       { message: "User created successfully", user },
       { status: 201 }
