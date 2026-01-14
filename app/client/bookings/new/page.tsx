@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { useState } from "react";
+import DJSelectionModal from "@/components/DJSelectionModal";
+import UpsellSection from "@/components/UpsellSection";
 
 const bookingSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -56,6 +58,9 @@ export default function NewBookingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState(false);
+  const [showDJModal, setShowDJModal] = useState(false);
+  const [selectedDJ, setSelectedDJ] = useState<string | null>(null);
+  const [selectedUpsells, setSelectedUpsells] = useState<string[]>([]);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -83,8 +88,16 @@ export default function NewBookingPage() {
     const current = selectedServices;
     if (current.includes(service)) {
       setValue("services", current.filter((s) => s !== service));
+      // If unchecking DJs, clear DJ selection
+      if (service === "DJs") {
+        setSelectedDJ(null);
+      }
     } else {
       setValue("services", [...current, service]);
+      // If checking DJs, show modal
+      if (service === "DJs") {
+        setShowDJModal(true);
+      }
     }
   };
 
@@ -96,7 +109,11 @@ export default function NewBookingPage() {
       const response = await fetch("/api/client/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          ...data,
+          preferredDJ: selectedDJ,
+          upsellItems: selectedUpsells,
+        }),
       });
 
       const result = await response.json();
@@ -277,6 +294,11 @@ export default function NewBookingPage() {
                         />
                         <Label htmlFor={service} className="cursor-pointer">
                           {service}
+                          {service === "DJs" && selectedDJ && (
+                            <span className="ml-2 text-xs text-champagne-gold">
+                              ({selectedDJ === null ? "Any DJ" : selectedDJ})
+                            </span>
+                          )}
                         </Label>
                       </div>
                     ))}
@@ -284,7 +306,29 @@ export default function NewBookingPage() {
                   {errors.services && (
                     <p className="text-sm text-red-400">{errors.services.message}</p>
                   )}
+                  {selectedServices.includes("DJs") && selectedDJ && (
+                    <p className="text-sm text-gray-400 mt-2">
+                      Selected: <span className="text-champagne-gold font-medium">
+                        {selectedDJ === null ? "Any DJ" : selectedDJ}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="link"
+                        onClick={() => setShowDJModal(true)}
+                        className="text-champagne-gold hover:text-gold-light ml-2 p-0 h-auto"
+                      >
+                        Change
+                      </Button>
+                    </p>
+                  )}
                 </div>
+
+                {/* Upsell Section */}
+                <UpsellSection
+                  selectedServices={selectedServices}
+                  selectedUpsells={selectedUpsells}
+                  onUpsellChange={setSelectedUpsells}
+                />
 
                 <div className="space-y-2">
                   <Label htmlFor="budget">Budget</Label>
@@ -341,6 +385,14 @@ export default function NewBookingPage() {
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* DJ Selection Modal */}
+        <DJSelectionModal
+          open={showDJModal}
+          onClose={() => setShowDJModal(false)}
+          onSelect={(dj) => setSelectedDJ(dj)}
+          selectedDJ={selectedDJ}
+        />
       </div>
     </div>
   );

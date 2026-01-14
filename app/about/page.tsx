@@ -45,10 +45,10 @@ export default function About() {
               </CardHeader>
               <CardContent className="p-6 sm:p-8 pt-0 space-y-4">
                 <p className="text-gray-300 leading-relaxed text-base sm:text-lg">
-                  We are an entertainment business based in Frome, Somerset. Prior to setting up STYLISH, we spent 20 years in London working in the music and advertising industries, honing our craft and building a reputation for excellence.
+                  We are an entertainment business based in Frome, Somerset, with over 20 years of experience creating celebrations across the West Country and beyond. From intimate weddings to larger parties, we work with venues and couples to bring their vision to life.
                 </p>
                 <p className="text-gray-300 leading-relaxed text-base sm:text-lg">
-                  We founded the award-winning Factory Studios, which is currently London's top creative post-production studios and production company. This unique background sets us apart in the entertainment industry and drives our commitment to exceptional customer service and attention to detail.
+                  We work regularly with venues like Babington House, Kin House, Pennard House, and Mells Barn, providing DJs, musicians, lighting design, and venue styling for weddings and celebrations. We focus on good communication, reliable service, and attention to detail in every event we produce.
                 </p>
               </CardContent>
             </Card>
@@ -69,10 +69,10 @@ export default function About() {
               </CardHeader>
               <CardContent className="p-6 sm:p-8 pt-0 space-y-4">
                 <p className="text-gray-300 leading-relaxed text-base sm:text-lg">
-                  With over 20 years of experience in the music and creative industries, we bring a level of professionalism and creativity that is rare in the wedding and party entertainment sector. Our time in London's competitive creative industries taught us the importance of precision, innovation, and exceeding expectations.
+                  With over 20 years of experience creating celebrations, we bring a background in music and creative industries to wedding and party entertainment. Our journey began in 1997 when Nige co-founded <a href="https://factory.uk.com" target="_blank" rel="noopener noreferrer" className="text-champagne-gold hover:text-gold-light underline">factory.uk.com</a>, which provided experience in creative and technical work.
                 </p>
                 <p className="text-gray-300 leading-relaxed text-base sm:text-lg">
-                  Our work with Factory Studios, one of London's most respected post-production facilities, has given us an unparalleled understanding of how to create atmosphere, mood, and unforgettable experiences. We apply this same level of creative excellence and technical expertise to every wedding, party, and event we produce.
+                  In 2004, we established Stylish Entertainment, applying this background to weddings, parties, and events. This experience helps us understand how to create the right atmosphere and mood for each celebration, and we work hard to get the details right.
                 </p>
               </CardContent>
             </Card>
@@ -94,27 +94,27 @@ export default function About() {
               <CardContent className="p-6 sm:p-8 pt-0 space-y-4">
                 <div className="space-y-3">
                   <div>
-                    <h3 className="text-xl font-bold text-champagne-gold mb-2">Creative Excellence</h3>
+                    <h3 className="text-xl font-bold text-champagne-gold mb-2">Creative Approach</h3>
                     <p className="text-gray-300 leading-relaxed">
-                      Our background in creative industries means we don't just provide entertainment – we create experiences. Every lighting design, every DJ set, and every venue styling project is approached with an artist's eye and a professional's precision.
+                      Our background in creative industries influences how we approach entertainment. We think about lighting design, DJ sets, and venue styling as part of creating the right atmosphere for each event.
                     </p>
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-champagne-gold mb-2">Uncompromising Standards</h3>
+                    <h3 className="text-xl font-bold text-champagne-gold mb-2">Quality Standards</h3>
                     <p className="text-gray-300 leading-relaxed">
-                      We've worked with some of the most demanding clients in the creative industries, and we bring that same commitment to quality to every wedding and party. From equipment standards to customer service, we never compromise.
+                      We take care with equipment, setup, and service. We maintain our gear, arrive on time, and communicate clearly throughout the planning and event process.
                     </p>
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-champagne-gold mb-2">Trusted by Prestigious Venues</h3>
+                    <h3 className="text-xl font-bold text-champagne-gold mb-2">Long-term Relationships</h3>
                     <p className="text-gray-300 leading-relaxed">
-                      For over 20 years, we have been the sole supplier of entertainment and party production at the legendary Babington House (Soho House & Co), where every detail must be perfect. This long-standing relationship demonstrates our reliability, professionalism, and ability to consistently deliver exceptional results.
+                      For over 20 years, we've been providing entertainment and party production at Babington House (Soho House & Co). We also work regularly with venues like Kin House, Pennard House, and Mells Barn. These ongoing relationships show that venues value our work and reliability.
                     </p>
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-champagne-gold mb-2">Personal Service</h3>
                     <p className="text-gray-300 leading-relaxed">
-                      Despite our professional background, we remain a personal, family-run business. You'll work directly with Nigel and Ali, who bring decades of combined experience to every project. We're not a faceless corporation – we're passionate professionals who care deeply about making your event extraordinary.
+                      We're a small, family-run business. You'll work directly with Ali and Nige, who bring years of combined experience to each project. We're not a large corporation – we're a team of two who care about making your event work well.
                     </p>
                   </div>
                 </div>
@@ -199,10 +199,10 @@ export default function About() {
                   Based in Frome, Somerset, we serve clients across the West Country and beyond. Over the last 12 months, we have supplied entertainment from Norfolk in the east to Cornwall in the west, from the south coast to the midlands.
                 </p>
                 <p className="text-gray-300 leading-relaxed text-base sm:text-lg">
-                  We regularly work in Somerset, Wiltshire, Dorset, Devon, Gloucestershire, Bath, Bristol, Swindon, Oxford, Berkshire, London, and many areas in between. Our network of artists and suppliers across the south enables us to provide exceptional service wherever your event is located.
+                  We regularly work in Somerset, Wiltshire, Dorset, Devon, Gloucestershire, Bath, Bristol, Swindon, Oxford, London, and many areas in between. We have a network of artists and suppliers across the south that helps us work in different locations.
                 </p>
-                <p className="text-gray-300 leading-relaxed text-base sm:text-lg font-semibold">
-                  No matter where your celebration takes place, we're committed to bringing the same level of excellence and attention to detail that has made us trusted partners of venues like Babington House for over two decades.
+                <p className="text-gray-300 leading-relaxed text-base sm:text-lg">
+                  Wherever your celebration takes place, we'll work to provide reliable service and attention to detail, just as we've done for venues like Babington House over the years.
                 </p>
               </CardContent>
             </Card>
@@ -223,17 +223,91 @@ export default function About() {
               </CardHeader>
               <CardContent className="p-6 sm:p-8 pt-0 space-y-4">
                 <p className="text-gray-300 leading-relaxed text-base sm:text-lg">
-                  We understand that the entertainment industry has a reputation for inconsistency and poor service. That's why we're committed to changing that perception, one exceptional event at a time.
+                  We understand that your event is important to you. We treat it with care and work to ensure everything runs smoothly.
                 </p>
                 <p className="text-gray-300 leading-relaxed text-base sm:text-lg">
-                  When you work with STYLISH Entertainment, you're not just hiring a DJ or lighting company – you're partnering with experienced professionals who understand that your event is one of the most important days of your life. We treat it with the respect, care, and attention to detail it deserves.
+                  When you work with Stylish Entertainment, you're working with experienced professionals who understand that events matter. We focus on clear communication, reliable service, and getting things right.
                 </p>
-                <p className="text-gray-300 leading-relaxed text-base sm:text-lg font-semibold text-champagne-gold">
-                  We have backup talent if someone is ill and have never let any client down on their special party or wedding. Your peace of mind is our priority.
+                <p className="text-gray-300 leading-relaxed text-base sm:text-lg">
+                  We have backup options if someone is unavailable, and we've always been there for our clients on their event day. Your peace of mind matters to us.
                 </p>
               </CardContent>
             </Card>
           </motion.div>
+
+          {/* Meet the Team Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.6 }}
+            className="text-center mb-8"
+          >
+            <h2 className="text-2xl sm:text-3xl md:text-4xl text-white font-bold mb-4">
+              Meet the <span className="text-gradient">Team</span>
+            </h2>
+            <p className="text-gray-300 text-base sm:text-lg mb-8">
+              The passionate professionals behind Stylish Entertainment
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {/* Ali */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.7 }}
+            >
+              <Card className="bg-gray-900 border-champagne-gold/30 h-full">
+                <CardContent className="p-6 sm:p-8">
+                  <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700">
+                    <img
+                      src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162313/Ali-Peirce_aec3tn.jpg"
+                      alt="Ali - Co-founder of Stylish Entertainment"
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold text-champagne-gold mb-3">Ali</h3>
+                  <p className="text-gray-300 leading-relaxed mb-4">
+                    Ali combines creative vision with meticulous attention to detail. Drawing on years of experience in the creative industries, Ali specializes in venue styling and creating the perfect atmosphere for your special day. Every detail matters, and Ali ensures nothing is overlooked.
+                  </p>
+                  <p className="text-gray-300 leading-relaxed">
+                    With a keen eye for design and a passion for creating beautiful spaces, Ali transforms venues into stunning celebration spaces. From initial consultation through to the final setup, Ali works closely with couples and clients to bring their vision to life, ensuring every element works together harmoniously.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Nige */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.8 }}
+            >
+              <Card className="bg-gray-900 border-champagne-gold/30 h-full">
+                <CardContent className="p-6 sm:p-8">
+                  <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700">
+                    <img
+                      src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162279/Nigel-DJ-Babs-House-0009-1_f59b99.jpg"
+                      alt="Nige - Co-founder of Stylish Entertainment"
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  </div>
+                  <h3 className="text-2xl md:text-3xl font-bold text-champagne-gold mb-3">Nige</h3>
+                  <p className="text-gray-300 leading-relaxed mb-4">
+                    With over 20 years of experience in the music and creative industries, Nige brings a wealth of knowledge and passion to every event. From DJ sets at prestigious venues like Babington House to creative lighting design, Nige ensures every celebration is unforgettable.
+                  </p>
+                  <p className="text-gray-300 leading-relaxed">
+                    Nige co-founded factory.uk.com in 1997, bringing expertise from the creative industries to entertainment. Since establishing Stylish Entertainment in 2004, Nige has been the creative force behind hundreds of celebrations, combining technical excellence with an intuitive understanding of what makes an event truly special.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
         </div>
       </section>
     </div>

@@ -7,7 +7,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 // NextAuth.js required models
@@ -67,6 +66,16 @@ model User {
   sessions      Session[]
   bookings      Booking[]
   formSubmissions FormSubmission[]
+  assignedTasks Task[] @relation("AssignedTasks")
+  createdTasks  Task[] @relation("CreatedTasks")
+  createdNotes  Note[] @relation("CreatedNotes")
+  clientNotes   Note[] @relation("ClientNotes")
+  emailThreads  EmailThread[]
+  sentEmails    Email[] @relation("SentEmails")
+  createdTemplates EmailTemplate[] @relation("CreatedTemplates")
+  carts         Cart[]
+  hireOrders   HireOrder[]
+  confirmedOrders HireOrder[] @relation("ConfirmedOrders")
 
   @@index([email])
 }
@@ -104,10 +113,12 @@ model Booking {
   djSetupLocation   String?  @db.Text
   djParking         String?  @db.Text
   soundLimiter      Boolean? // Yes/No
+  preferredDJ       String? // Selected DJ name or "any" for any DJ
   
   // Event Details
   numberOfGuests    Int?
   services          String[] // Array of selected services
+  upsellItems       String[] // Array of additional services/hire items for upsell
   message           String?  @db.Text
   budget            String?
   status            String   @default("pending") // pending, confirmed, completed, cancelled
@@ -141,6 +152,13 @@ model Booking {
   // Client relationship (optional - can be from logged in user or guest)
   user              User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   
+  // CRM Relations
+  emailThreads      EmailThread[]
+  notes             Note[]
+  tasks             Task[]
+  carts             Cart[]
+  hireOrders        HireOrder[]
+  
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
@@ -170,4 +188,370 @@ model FormSubmission {
   @@index([userId])
   @@index([email])
   @@index([formType])
+}
+
+// CRM Models
+
+// Email Inbox Configuration
+model EmailInbox {
+  id              String   @id @default(cuid())
+  name            String   // e.g., "Main Inbox", "Bookings", "Info"
+  email           String   @unique // The email address
+  isActive        Boolean  @default(true)
+  
+  // IMAP Settings
+  imapHost        String
+  imapPort        Int      @default(993)
+  imapSecure      Boolean  @default(true) // Use SSL/TLS
+  imapUsername    String
+  imapPassword    String   // Encrypted in production
+  
+  // SMTP Settings (for sending)
+  smtpHost        String?
+  smtpPort        Int?     @default(587)
+  smtpSecure      Boolean  @default(true)
+  smtpUsername    String?
+  smtpPassword    String? // Encrypted in production
+  
+  // Sync Settings
+  syncEnabled     Boolean  @default(true)
+  lastSyncedAt    DateTime?
+  syncInterval    Int      @default(5) // minutes
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  emails          Email[]
+  threads         EmailThread[]
+  
+  @@index([email])
+  @@index([isActive])
+}
+
+// Email Thread (conversation between client and admin)
+model EmailThread {
+  id              String   @id @default(cuid())
+  subject         String
+  fromEmail       String   // Client email
+  fromName        String?
+  toEmail         String   // Inbox email
+  bookingId       String?  // Linked booking (optional)
+  userId          String?  // Linked user account (optional)
+  
+  // Thread metadata
+  isRead          Boolean  @default(false)
+  isStarred       Boolean  @default(false)
+  isArchived      Boolean  @default(false)
+  lastMessageAt   DateTime @default(now())
+  
+  // Inbox
+  inboxId         String
+  inbox           EmailInbox @relation(fields: [inboxId], references: [id])
+  
+  // Relations
+  booking         Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  emails          Email[]
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([fromEmail])
+  @@index([bookingId])
+  @@index([userId])
+  @@index([inboxId])
+  @@index([lastMessageAt])
+}
+
+// Individual Email Message
+model Email {
+  id              String   @id @default(cuid())
+  threadId        String
+  thread          EmailThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  
+  // Email details
+  messageId       String?  @unique // Email Message-ID header
+  inReplyTo       String?  // Parent email Message-ID
+  subject         String
+  fromEmail       String
+  fromName        String?
+  toEmail         String
+  toName          String?
+  cc              String[] // Array of CC emails
+  bcc             String[] // Array of BCC emails
+  
+  // Content
+  textContent     String?  @db.Text
+  htmlContent     String?  @db.Text
+  attachments     Json?    // Array of attachment metadata
+  
+  // Direction
+  direction       String   // "inbound" or "outbound"
+  
+  // Status
+  isRead          Boolean  @default(false)
+  isStarred       Boolean  @default(false)
+  
+  // Sender (if outbound, this is the admin user)
+  sentByUserId    String?
+  sentByUser      User?    @relation("SentEmails", fields: [sentByUserId], references: [id], onDelete: SetNull)
+  
+  // Inbox
+  inboxId         String
+  inbox           EmailInbox @relation(fields: [inboxId], references: [id])
+  
+  receivedAt      DateTime @default(now())
+  createdAt       DateTime @default(now())
+  
+  @@index([threadId])
+  @@index([fromEmail])
+  @@index([toEmail])
+  @@index([inboxId])
+  @@index([receivedAt])
+  @@index([messageId])
+}
+
+// Notes (internal notes on bookings/clients)
+model Note {
+  id              String   @id @default(cuid())
+  content         String   @db.Text
+  bookingId       String?
+  userId          String?  // Client user ID (if note about a client)
+  
+  // Author
+  createdById     String
+  createdBy       User     @relation("CreatedNotes", fields: [createdById], references: [id])
+  
+  // Relations
+  booking         Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  user            User?    @relation("ClientNotes", fields: [userId], references: [id], onDelete: Cascade)
+  
+  isPinned        Boolean  @default(false)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([bookingId])
+  @@index([userId])
+  @@index([createdById])
+  @@index([createdAt])
+}
+
+// Tasks (to-do items for admins)
+model Task {
+  id              String   @id @default(cuid())
+  title           String
+  description     String?  @db.Text
+  bookingId       String?
+  
+  // Assignment
+  assignedToId    String?
+  assignedTo      User?    @relation("AssignedTasks", fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdById     String
+  createdBy       User     @relation("CreatedTasks", fields: [createdById], references: [id])
+  
+  // Status
+  status          String   @default("pending") // pending, in_progress, completed, cancelled
+  priority        String   @default("medium") // low, medium, high, urgent
+  
+  // Dates
+  dueDate         DateTime?
+  completedAt     DateTime?
+  
+  // Relations
+  booking         Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([assignedToId])
+  @@index([bookingId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+// Email Templates for CRM
+model EmailTemplate {
+  id              String    @id @default(cuid())
+  name            String    // e.g., "DJ Inquiry Response"
+  subject         String    // Email subject (can include variables)
+  bodyHtml        String    @db.Text // HTML email body
+  bodyText        String?   @db.Text // Plain text version
+  category        String?   // e.g., "inquiry", "confirmation", "follow-up"
+  isActive        Boolean   @default(true)
+  
+  // Variables available: {{djFee}}, {{eventDate}}, {{eventTimings}}, {{djName}}, {{venueName}}, {{clientName}}
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  createdById     String?   // Admin who created it
+  createdBy       User?     @relation("CreatedTemplates", fields: [createdById], references: [id], onDelete: SetNull)
+  
+  @@index([category])
+  @@index([isActive])
+}
+
+// Hire Items
+model HireItem {
+  id              String    @id @default(cuid())
+  name            String    // e.g., "Lanterns", "Candlesticks"
+  slug            String?   @unique // URL-friendly identifier for SEO
+  description     String?   @db.Text
+  seoTitle        String?   // Custom SEO title
+  seoDescription  String?   @db.Text // Custom SEO meta description
+  price           Float     @default(50.00) // Price in GBP
+  stockAvailable  Int       @default(0) // Number available
+  imageUrl        String?   // URL to item image
+  category        String?   // e.g., "decor", "lighting"
+  isActive        Boolean   @default(true)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  cartItems      CartItem[]
+  orderItems     HireOrderItem[]
+  
+  @@index([category])
+  @@index([isActive])
+  @@index([slug])
+}
+
+// Shopping Cart
+model Cart {
+  id              String    @id @default(cuid())
+  userId          String?   // Optional - can be guest cart
+  sessionId       String?   // For guest carts
+  status          String    @default("active") // active, abandoned, completed
+  
+  user            User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items           CartItem[]
+  bookingId       String?   // Linked to booking if created from booking
+  booking         Booking?  @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([userId])
+  @@index([sessionId])
+  @@index([status])
+}
+
+// Cart Items
+model CartItem {
+  id              String    @id @default(cuid())
+  cartId          String
+  hireItemId      String
+  quantity        Int       @default(1)
+  price           Float     // Price at time of adding (snapshot)
+  
+  cart            Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  hireItem        HireItem  @relation(fields: [hireItemId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([cartId])
+  @@index([hireItemId])
+}
+
+// Hire Orders
+model HireOrder {
+  id              String    @id @default(cuid())
+  orderNumber     String    @unique // e.g., "ORD-2024-001"
+  
+  // Customer Information
+  customerName    String
+  customerEmail   String
+  customerPhone   String?
+  customerAddress String?   @db.Text
+  
+  // Event Information
+  eventDate       DateTime?
+  eventType       String?   // wedding, party, corporate, etc.
+  venueName       String?
+  venueAddress    String?   @db.Text
+  
+  // Order Details
+  status          String    @default("pending") // pending, confirmed, cancelled, completed
+  totalAmount     Float
+  notes           String?   @db.Text
+  
+  // Relations
+  userId          String?   // If logged in user
+  user            User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  bookingId       String?   // Linked to a booking if created from booking
+  booking         Booking?  @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  items           HireOrderItem[]
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  confirmedAt     DateTime?
+  confirmedById   String?   // Admin who confirmed
+  confirmedBy     User?     @relation("ConfirmedOrders", fields: [confirmedById], references: [id], onDelete: SetNull)
+  
+  @@index([status])
+  @@index([userId])
+  @@index([orderNumber])
+  @@index([createdAt])
+}
+
+// Hire Order Items
+model HireOrderItem {
+  id              String    @id @default(cuid())
+  orderId         String
+  hireItemId      String
+  quantity        Int
+  price           Float     // Price at time of order (snapshot)
+  itemName        String    // Snapshot of item name
+  
+  order           HireOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  hireItem        HireItem  @relation(fields: [hireItemId], references: [id], onDelete: Cascade)
+  
+  createdAt       DateTime  @default(now())
+  
+  @@index([orderId])
+  @@index([hireItemId])
+}
+
+// DJs
+model DJ {
+  id              String    @id @default(cuid())
+  name            String    // e.g., "DJ Nige", "Rich S"
+  slug            String?   @unique // URL-friendly identifier
+  bio             String?   @db.Text
+  imageUrl        String?   // Profile image
+  mixcloudUrl     String?   // Mixcloud embed URL
+  seoTitle        String?   // Custom SEO title
+  seoDescription  String?   @db.Text // Custom SEO meta description
+  isActive        Boolean   @default(true)
+  displayOrder    Int       @default(0) // For sorting/ordering
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([isActive])
+  @@index([slug])
+  @@index([displayOrder])
+}
+
+// Musicians
+model Musician {
+  id              String    @id @default(cuid())
+  name            String    // e.g., "Jazz Trio", "Saxophonist"
+  slug            String?   @unique // URL-friendly identifier
+  bio             String?   @db.Text
+  imageUrl        String?   // Profile image
+  seoTitle        String?   // Custom SEO title
+  seoDescription  String?   @db.Text // Custom SEO meta description
+  instrument      String?   // e.g., "Saxophone", "Jazz Trio", "Piano"
+  isActive        Boolean   @default(true)
+  displayOrder    Int       @default(0) // For sorting/ordering
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@index([isActive])
+  @@index([slug])
+  @@index([instrument])
+  @@index([displayOrder])
 }

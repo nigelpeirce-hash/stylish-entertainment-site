@@ -1,10 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import LazyIframe from "@/components/LazyIframe";
+import BlogImage from "@/components/BlogImage";
 
 export default function BlogPostDecor() {
   useEffect(() => {
@@ -14,6 +15,13 @@ export default function BlogPostDecor() {
       metaDescription.setAttribute("content", "Discover how decor can transform your wedding venue. From Middle Eastern themes to circus tents, explore creative venue styling ideas from STYLISH Entertainment.");
     }
   }, []);
+
+  // Collect all images for lightbox navigation
+  const allImages = useMemo(() => [
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163673/455_yjyind.jpg", alt: "Middle Eastern style venue decor with red satin drapes, sofas, and bohemian eastern styling" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163738/Circus-Temed-Party-Tent_uizqbq.jpg", alt: "13m x 7m circus tent installation inside the Orangery at Babington House with red and white satin fabric" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163745/Pool-Party01_qe5ro0.jpg", alt: "Pool party decor with LED furniture and LED uplighting creating a vibrant atmosphere" },
+  ], []);
 
   return (
     <div>
@@ -74,21 +82,21 @@ export default function BlogPostDecor() {
                     <p className="mb-4">
                       This Middle Eastern style theme incorporates the use of soft furnishings including red satin style drapes and furniture like the sofas, chaise lounges and cushions. Other props such as faux palm trees, lanterns and shisha pipes contributed to the creation of this cool chill out area in a bohemian eastern style. Lighting was also key in addition to decor to create the warm red glow.
                     </p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
-                        <img
+                        <BlogImage
                           src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163673/455_yjyind.jpg"
                           alt="Middle Eastern style venue decor with red satin drapes, sofas, and bohemian eastern styling"
-                          className="w-full h-full object-cover"
-                          loading="lazy"
+                          images={allImages}
+                          index={0}
                         />
                       </div>
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
-                        <img
+                        <BlogImage
                           src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163673/455_yjyind.jpg"
                           alt="Middle Eastern themed venue with lanterns, palm trees, and warm red lighting"
-                          className="w-full h-full object-cover"
-                          loading="lazy"
+                          images={allImages}
+                          index={0}
                         />
                       </div>
                     </div>
@@ -112,11 +120,11 @@ export default function BlogPostDecor() {
                       <p className="text-sm text-gray-400 mt-2 italic">Circus tent installation video</p>
                     </div>
                     <div className="relative aspect-[4/3] overflow-hidden rounded-lg my-6">
-                      <img
+                      <BlogImage
                         src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163738/Circus-Temed-Party-Tent_uizqbq.jpg"
                         alt="13m x 7m circus tent installation inside the Orangery at Babington House with red and white satin fabric"
-                        className="w-full h-full object-cover"
-                        loading="lazy"
+                        images={allImages}
+                        index={1}
                       />
                     </div>
                     <p className="text-sm text-gray-400 italic">A peek inside the circus tent</p>
@@ -142,11 +150,11 @@ export default function BlogPostDecor() {
                       LED furniture is a perfect accompaniment to LED uplighting as can be seen in this Pool Party decor, while hire accessories such as fire pits are a great idea for outdoor spaces, alongside outdoor seating such as hay bales or chill out areas to create a social alfresco feel.
                     </p>
                     <div className="relative aspect-[4/3] overflow-hidden rounded-lg my-6">
-                      <img
+                      <BlogImage
                         src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163745/Pool-Party01_qe5ro0.jpg"
                         alt="Pool party decor with LED furniture and LED uplighting creating a vibrant atmosphere"
-                        className="w-full h-full object-cover"
-                        loading="lazy"
+                        images={allImages}
+                        index={2}
                       />
                     </div>
                   </div>

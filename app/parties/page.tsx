@@ -80,7 +80,7 @@ export default function Parties() {
 
       {/* Introduction */}
       <section className="py-12 md:py-16 bg-gray-900">
-        <div className="container mx-auto px-4 max-w-5xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -100,7 +100,7 @@ export default function Parties() {
 
       {/* Party Services Grid */}
       <section className="py-12 md:py-16 bg-gray-800">
-        <div className="container mx-auto px-4 max-w-7xl">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -167,7 +167,7 @@ export default function Parties() {
 
       {/* CTA Section */}
       <section className="py-12 md:py-16 bg-gray-900">
-        <div className="container mx-auto px-4 max-w-4xl text-center">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-full text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

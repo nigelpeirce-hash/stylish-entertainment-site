@@ -38,21 +38,48 @@ export default function LoginPage() {
     setError("");
 
     try {
+      console.log("Attempting to sign in:", data.email);
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
         redirect: false,
       });
 
+      console.log("Sign in result:", result);
+
       if (result?.error) {
+        console.error("Sign in error:", result.error);
         setError(result.error);
         setIsLoading(false);
-      } else {
-        router.push("/client/dashboard");
+      } else if (result?.ok) {
+        console.log("Sign in successful, checking role...");
+        // Wait a moment for session to be set, then check role
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        
+        // Get session to check role
+        const sessionRes = await fetch("/api/auth/session");
+        const sessionData = await sessionRes.json();
+        const userRole = sessionData?.user?.role || (sessionData?.user as any)?.role;
+        console.log("User role from session:", userRole);
+        console.log("Full session data:", JSON.stringify(sessionData, null, 2));
+        
+        // Redirect based on role
+        if (userRole === "admin") {
+          console.log("Redirecting to admin dashboard");
+          router.push("/admin");
+        } else {
+          console.log("Redirecting to client dashboard");
+          router.push("/client/dashboard");
+        }
         router.refresh();
+      } else {
+        console.error("Unexpected sign in result:", result);
+        setError("An unexpected error occurred. Please try again.");
+        setIsLoading(false);
       }
-    } catch (error) {
-      setError("An error occurred. Please try again.");
+    } catch (error: any) {
+      console.error("Sign in exception:", error);
+      setError(error?.message || "An error occurred. Please try again.");
       setIsLoading(false);
     }
   };

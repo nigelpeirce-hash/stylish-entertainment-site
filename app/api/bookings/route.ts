@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
 import * as z from "zod";
 
@@ -24,12 +23,14 @@ const bookingSchema = z.object({
   numberOfGuests: z.number().nullable().optional(),
   services: z.array(z.string()),
   message: z.string().optional(),
-  termsAccepted: z.boolean(),
+  termsAccepted: z.boolean().optional().default(false),
+  preferredDJ: z.string().nullable().optional(),
+  upsellItems: z.array(z.string()).optional(),
 });
 
 export async function POST(request: NextRequest) {
   try {
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession();
     const body = await request.json();
 
     const validatedData = bookingSchema.parse(body);
@@ -80,6 +81,7 @@ export async function POST(request: NextRequest) {
       ...additionalInfo
     ].filter(Boolean).join("\n\n");
 
+    // Terms acceptance is required for booking
     if (!validatedData.termsAccepted) {
       return NextResponse.json(
         { error: "Terms and Conditions must be accepted" },
@@ -99,7 +101,9 @@ export async function POST(request: NextRequest) {
         venuePostcode: venuePostcode,
         numberOfGuests: validatedData.numberOfGuests || null,
         services: validatedData.services || ["DJs"],
+        upsellItems: validatedData.upsellItems || [],
         message: combinedMessage,
+        preferredDJ: validatedData.preferredDJ || null,
         status: "pending",
         termsAccepted: validatedData.termsAccepted,
         termsAcceptedAt: new Date(),

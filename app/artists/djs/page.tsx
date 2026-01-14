@@ -587,7 +587,7 @@ export default function DJs() {
                   {[
                     "London", "Bristol", "Bath", "Birmingham", "Somerset", "Wiltshire",
                     "Devon", "Dorset", "Oxford", "Cardiff", "Surrey", "Gloucestershire",
-                    "Berkshire", "Essex", "Sussex", "Exeter", "South Wales"
+                    "Essex", "Sussex", "Exeter", "South Wales"
                   ].map((location, index) => (
                     <span
                       key={index}

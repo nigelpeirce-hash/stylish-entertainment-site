@@ -11,13 +11,21 @@ const registerSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    console.log("Registration endpoint called");
+    console.log("DATABASE_URL exists:", !!process.env.DATABASE_URL);
+    
     const body = await request.json();
+    console.log("Request body received:", { name: body.name, email: body.email });
+    
     const validatedData = registerSchema.parse(body);
+    console.log("Data validated successfully");
 
     // Check if user already exists
+    console.log("Checking if user exists...");
     const existingUser = await prisma.user.findUnique({
       where: { email: validatedData.email },
     });
+    console.log("User check complete, exists:", !!existingUser);
 
     if (existingUser) {
       return NextResponse.json(
@@ -27,9 +35,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Hash password
+    console.log("Hashing password...");
     const hashedPassword = await bcrypt.hash(validatedData.password, 12);
+    console.log("Password hashed");
 
     // Create user
+    console.log("Creating user in database...");
     const user = await prisma.user.create({
       data: {
         name: validatedData.name,
@@ -45,11 +56,12 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log("User created successfully:", user.id);
     return NextResponse.json(
       { message: "User created successfully", user },
       { status: 201 }
     );
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
         { error: "Validation error", details: error.errors },
@@ -58,9 +70,32 @@ export async function POST(request: NextRequest) {
     }
 
     console.error("Registration error:", error);
+    console.error("Error details:", {
+      message: error?.message,
+      code: error?.code,
+      name: error?.name,
+      stack: error?.stack,
+    });
+    
+    // Provide more detailed error information in development
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const isDevelopment = process.env.NODE_ENV === "development";
+    
     return NextResponse.json(
-      { error: "Internal server error" },
+      { 
+        error: "Internal server error",
+        message: isDevelopment ? errorMessage : "An error occurred during registration",
+        ...(isDevelopment && { 
+          details: {
+            code: error?.code,
+            name: error?.name,
+          }
+        })
+      },
       { status: 500 }
     );
+  } finally {
+    // Don't disconnect in Next.js - let it manage connections
+    // await prisma.$disconnect();
   }
 }

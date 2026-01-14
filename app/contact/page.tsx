@@ -120,9 +120,20 @@ export default function Contact() {
         recaptchaToken,
       };
 
-      // Simulate form submission (replace with actual API call)
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log("Form data:", formDataWithRecaptcha);
+      // Send form data to API route
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formDataWithRecaptcha),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to send message");
+      }
       
       setIsSubmitting(false);
       setSubmitSuccess(true);
@@ -138,6 +149,7 @@ export default function Contact() {
     } catch (error) {
       console.error("Form submission error:", error);
       setIsSubmitting(false);
+      alert(error instanceof Error ? error.message : "Failed to send message. Please try again.");
     }
   };
 

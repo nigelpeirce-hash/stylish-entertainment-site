@@ -4,6 +4,34 @@ import { motion } from "framer-motion";
 import { useEffect } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
+import ImageCarousel, { ImagePhoto } from "@/components/ImageCarousel";
+
+const galleryPhotos: ImagePhoto[] = [
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768338936/Light-Curtains_dsuulv.jpg",
+    width: 1200,
+    height: 900,
+    alt: "Light curtains creating a dramatic lighting effect at Bristol University Spring Ball",
+  },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163389/Kings-Weston-House-Dining-Room_pijh7p.jpg",
+    width: 1200,
+    height: 900,
+    alt: "Kings Weston House dining room with elegant lighting design for the Bristol University Spring Ball",
+  },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162674/Trapeze-Artist-in-atrium_z1orhr.jpg",
+    width: 1200,
+    height: 900,
+    alt: "Trapeze artist performing in the atrium of Kings Weston House during the Bristol University Spring Ball",
+  },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163587/Party-DJ-Lighting-at-a-UNiversity-Spring-Ball_anblbj.jpg",
+    width: 1200,
+    height: 900,
+    alt: "Party DJ with dynamic lighting at Bristol University Spring Ball",
+  },
+];
 
 export default function BlogPostBristolSpringBall() {
   useEffect(() => {
@@ -44,7 +72,7 @@ export default function BlogPostBristolSpringBall() {
       </section>
 
       {/* Blog Content */}
-      <section className="py-20 px-4 bg-gray-800">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-800">
         <div className="container mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -67,53 +95,37 @@ export default function BlogPostBristolSpringBall() {
                   <p>
                     We decorated six rooms in total including a large marquee in the grounds. A fabulous event to work on and we can report back that with 750 enthusiastic law students all went well with no law suits imminent!
                   </p>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
 
-                  <div className="my-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
-                      <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
-                        <img
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163371/Lighting-Design-at-Kings-Weston-House_qxzunv.jpg"
-                          alt="Combination of curtain lighting and bannister fairy-lights with foliage at Kings Weston House"
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
-                        <img
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163371/Lighting-Design-at-Kings-Weston-House_qxzunv.jpg"
-                          alt="Combination of fairy-light canopy with shades and pink window up-lighting at Bristol University Spring Ball"
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-400 italic">Combination of Curtain lighting and bannister fairy-lights with foliage</p>
-                    <p className="text-sm text-gray-400 italic mt-2">Combination of fairy-light canopy with shades and Pink window up-lighting</p>
-                  </div>
+        {/* Full-width Gallery Section */}
+        <div className="container mx-auto max-w-full mt-12 px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <h3 className="text-2xl font-bold text-champagne-gold mb-6 text-center">Gallery</h3>
+            <ImageCarousel images={galleryPhotos} />
+          </motion.div>
+        </div>
 
-                  <div className="my-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
-                      <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
-                        <img
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163371/Lighting-Design-at-Kings-Weston-House_qxzunv.jpg"
-                          alt="A trapeze artist performing in the atrium of Kings Weston House during the Bristol University Spring Ball"
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                      <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
-                        <img
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163371/Lighting-Design-at-Kings-Weston-House_qxzunv.jpg"
-                          alt="Dancing with hands in the air action at Bristol University Spring Ball"
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-400 italic">A trapeze artist performing in the atrium of Kings Weston House</p>
-                    <p className="text-sm text-gray-400 italic mt-2">Dancing with hands in the air action</p>
-                  </div>
-
+        {/* Continue Blog Content */}
+        <div className="container mx-auto max-w-4xl mt-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="prose prose-invert prose-lg max-w-none"
+          >
+            <Card className="bg-gray-900 border-champagne-gold/30">
+              <CardContent className="p-6 sm:p-8 md:p-12">
+                <div className="text-gray-300 leading-relaxed space-y-6">
                   <div className="mt-12 pt-8 border-t border-gray-700">
                     <p className="text-lg">
                       For any queries on event lighting and sound design, feel free to{" "}

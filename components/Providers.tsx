@@ -101,7 +101,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  // Always render SessionProvider - components need it
+  // Always render SessionProvider - components like AuthButton need it immediately
   // Errors will be suppressed by the error handlers above
   return (
     <SessionProvider 

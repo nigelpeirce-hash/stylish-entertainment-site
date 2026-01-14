@@ -1,0 +1,136 @@
+<svg width="450" height="200" viewBox="0 0 450 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldTextGradientLR" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#d4af37;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#f4d03f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d4af37;stop-opacity:1" />
+    </linearGradient>
+    <radialGradient id="rayGradient1" cx="0%" cy="50%">
+      <stop offset="0%" style="stop-color:#f4d03f;stop-opacity:0.8" />
+      <stop offset="50%" style="stop-color:#d4af37;stop-opacity:0.4" />
+      <stop offset="100%" style="stop-color:#d4af37;stop-opacity:0" />
+    </radialGradient>
+    <linearGradient id="rayGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f4d03f;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#f4d03f;stop-opacity:0" />
+    </linearGradient>
+    <filter id="rayGlow">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Light rays originating from left, radiating outward -->
+  <g opacity="0.7">
+    <!-- Main rays pointing toward text -->
+    <path d="M 20 40 L 120 60" 
+          stroke="url(#rayGradient2)" 
+          stroke-width="3" 
+          fill="none" 
+          stroke-linecap="round"
+          filter="url(#rayGlow)"
+          opacity="0.6"/>
+    <path d="M 20 60 L 130 70" 
+          stroke="url(#rayGradient2)" 
+          stroke-width="4" 
+          fill="none" 
+          stroke-linecap="round"
+          filter="url(#rayGlow)"
+          opacity="0.7"/>
+    <path d="M 20 80 L 140 85" 
+          stroke="url(#rayGradient2)" 
+          stroke-width="5" 
+          fill="none" 
+          stroke-linecap="round"
+          filter="url(#rayGlow)"
+          opacity="0.8"/>
+    <path d="M 20 100 L 140 105" 
+          stroke="url(#rayGradient2)" 
+          stroke-width="5" 
+          fill="none" 
+          stroke-linecap="round"
+          filter="url(#rayGlow)"
+          opacity="0.8"/>
+    <path d="M 20 120 L 130 125" 
+          stroke="url(#rayGradient2)" 
+          stroke-width="4" 
+          fill="none" 
+          stroke-linecap="round"
+          filter="url(#rayGlow)"
+          opacity="0.7"/>
+    <path d="M 20 140 L 120 135" 
+          stroke="url(#rayGradient2)" 
+          stroke-width="3" 
+          fill="none" 
+          stroke-linecap="round"
+          filter="url(#rayGlow)"
+          opacity="0.6"/>
+    
+    <!-- Subtle upward rays -->
+    <path d="M 30 110 L 80 50" 
+          stroke="url(#rayGradient2)" 
+          stroke-width="2" 
+          fill="none" 
+          stroke-linecap="round"
+          opacity="0.4"/>
+    <path d="M 40 110 L 90 45" 
+          stroke="url(#rayGradient2)" 
+          stroke-width="2" 
+          fill="none" 
+          stroke-linecap="round"
+          opacity="0.3"/>
+    
+    <!-- Subtle downward rays -->
+    <path d="M 30 90 L 80 150" 
+          stroke="url(#rayGradient2)" 
+          stroke-width="2" 
+          fill="none" 
+          stroke-linecap="round"
+          opacity="0.4"/>
+    <path d="M 40 90 L 90 155" 
+          stroke="url(#rayGradient2)" 
+          stroke-width="2" 
+          fill="none" 
+          stroke-linecap="round"
+          opacity="0.3"/>
+  </g>
+  
+  <!-- Light source point (subtle) -->
+  <circle cx="20" cy="100" r="8" fill="url(#rayGradient1)" opacity="0.5"/>
+  <circle cx="20" cy="100" r="4" fill="#f4d03f" opacity="0.8"/>
+  
+  <!-- Text on the right -->
+  <g transform="translate(150, 0)">
+    <!-- "Stylish" text -->
+    <text x="0" y="50" 
+          font-family="'Raleway', sans-serif" 
+          font-size="48" 
+          font-weight="700" 
+          fill="url(#goldTextGradientLR)" 
+          text-anchor="start"
+          letter-spacing="2">
+      Stylish
+    </text>
+    
+    <!-- "Entertainment" text -->
+    <text x="0" y="90" 
+          font-family="'Raleway', sans-serif" 
+          font-size="28" 
+          font-weight="400" 
+          fill="url(#goldTextGradientLR)" 
+          text-anchor="start"
+          letter-spacing="4"
+          opacity="0.9">
+      ENTERTAINMENT
+    </text>
+    
+    <!-- Decorative underline with subtle glow -->
+    <line x1="0" y1="60" x2="250" y2="60" 
+          stroke="url(#goldTextGradientLR)" 
+          stroke-width="2" 
+          opacity="0.5"/>
+  </g>
+</svg>

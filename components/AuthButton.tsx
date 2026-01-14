@@ -14,18 +14,28 @@ export function AuthButton() {
   }
 
   if (session) {
+    const isAdmin = (session.user as any)?.role === "admin";
     return (
       <div className="flex items-center gap-2">
-        <Link href="/client/dashboard">
+        <Link href={isAdmin ? "/admin" : "/client/dashboard"}>
           <Button
             variant="outline"
             size="sm"
             className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
           >
             <User className="w-4 h-4 mr-2" />
-            Dashboard
+            {isAdmin ? "Admin" : "Dashboard"}
           </Button>
         </Link>
+        <Button
+          onClick={() => signOut({ callbackUrl: "/" })}
+          variant="outline"
+          size="sm"
+          className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          Sign Out
+        </Button>
       </div>
     );
   }

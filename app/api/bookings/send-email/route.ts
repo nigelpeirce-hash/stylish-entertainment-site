@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import {
@@ -13,7 +12,7 @@ import {
 export async function POST(request: NextRequest) {
   try {
     // Only allow admin users or system to send emails
-    const session = await getServerSession(authOptions);
+    const session = await getServerSession();
     // For now, allow sending (in production, you might want to restrict this)
     
     const body = await request.json();
@@ -84,7 +83,7 @@ export async function POST(request: NextRequest) {
 
     if (!result.success) {
       return NextResponse.json(
-        { error: result.error || "Failed to send email" },
+        { error: (result as any).error || "Failed to send email" },
         { status: 500 }
       );
     }
@@ -94,7 +93,7 @@ export async function POST(request: NextRequest) {
     emailsSent[emailKey] = {
       sent: true,
       sentAt: new Date().toISOString(),
-      messageId: result.messageId,
+      messageId: result.success ? (result as any).messageId : undefined,
     };
 
     await prisma.booking.update({
@@ -108,7 +107,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "Email sent successfully",
-      messageId: result.messageId,
+      messageId: result.success ? (result as any).messageId : undefined,
     });
   } catch (error) {
     console.error("Error sending email:", error);

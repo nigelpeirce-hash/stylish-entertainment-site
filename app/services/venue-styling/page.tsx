@@ -94,7 +94,6 @@ export default function VenueStylingService() {
                     "Drapery and fabric installations",
                     "Custom backdrops and photo walls",
                     "Cohesive design theme throughout",
-                    "Chair covers and sashes",
                     "Themed decor and accessories",
                     "Complete venue transformation",
                   ].map((feature, idx) => (

@@ -112,8 +112,8 @@ export default function ChristmasParties() {
       </section>
 
       {/* Introduction */}
-      <section className="py-16 px-4 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-800 relative">
-        <div className="container mx-auto max-w-4xl">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-800 relative">
+        <div className="container mx-auto max-w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -166,8 +166,8 @@ export default function ChristmasParties() {
       </section>
 
       {/* What We Offer */}
-      <section className="py-16 px-4 bg-gray-800">
-        <div className="container mx-auto max-w-6xl">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-800">
+        <div className="container mx-auto max-w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -246,8 +246,8 @@ export default function ChristmasParties() {
       </section>
 
       {/* Gallery */}
-      <section className="py-16 px-4 bg-gray-900">
-        <div className="container mx-auto max-w-7xl">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-900">
+        <div className="container mx-auto max-w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -260,8 +260,8 @@ export default function ChristmasParties() {
       </section>
 
       {/* Call to Action */}
-      <section className="py-16 px-4 bg-gradient-to-b from-gray-800 via-red-950/20 to-gray-800">
-        <div className="container mx-auto max-w-6xl">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-800 via-red-950/20 to-gray-800">
+        <div className="container mx-auto max-w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

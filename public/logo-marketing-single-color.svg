@@ -1,0 +1,27 @@
+<svg width="1200" height="600" viewBox="0 0 1200 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="singleColorGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#d4af37;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d4af37;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Upward angled rays (single color for single-color printing) -->
+  <g opacity="0.7">
+    <path d="M 80 540 L 480 120" stroke="#d4af37" stroke-width="8" fill="none" stroke-linecap="round"/>
+    <path d="M 120 540 L 520 160" stroke="#d4af37" stroke-width="10" fill="none" stroke-linecap="round"/>
+    <path d="M 160 540 L 560 200" stroke="#d4af37" stroke-width="12" fill="none" stroke-linecap="round"/>
+    <path d="M 200 540 L 600 240" stroke="#d4af37" stroke-width="14" fill="none" stroke-linecap="round"/>
+    <path d="M 240 540 L 640 280" stroke="#d4af37" stroke-width="16" fill="none" stroke-linecap="round"/>
+    <path d="M 280 540 L 680 320" stroke="#d4af37" stroke-width="16" fill="none" stroke-linecap="round"/>
+    <path d="M 320 540 L 720 360" stroke="#d4af37" stroke-width="14" fill="none" stroke-linecap="round"/>
+    <path d="M 360 540 L 760 400" stroke="#d4af37" stroke-width="12" fill="none" stroke-linecap="round"/>
+  </g>
+  
+  <!-- Text (single color) -->
+  <g transform="translate(400, 0)">
+    <text x="0" y="200" font-family="'Raleway', sans-serif" font-size="120" font-weight="700" fill="#d4af37" text-anchor="start" letter-spacing="4">Stylish</text>
+    <text x="0" y="320" font-family="'Raleway', sans-serif" font-size="72" font-weight="400" fill="#d4af37" text-anchor="start" letter-spacing="8" opacity="0.9">ENTERTAINMENT</text>
+    <line x1="0" y1="240" x2="640" y2="240" stroke="#d4af37" stroke-width="4" opacity="0.5"/>
+  </g>
+</svg>

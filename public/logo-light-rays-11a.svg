@@ -1,0 +1,44 @@
+<svg width="450" height="200" viewBox="0 0 450 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldText11a" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#d4af37;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#f4d03f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d4af37;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="rayGrad11a" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f4d03f;stop-opacity:0.75" />
+      <stop offset="70%" style="stop-color:#d4af37;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#d4af37;stop-opacity:0" />
+    </linearGradient>
+    <filter id="glow11a">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Multiple upward angled rays from bottom-left, more dramatic -->
+  <g opacity="0.7">
+    <path d="M 15 180 L 130 35" stroke="url(#rayGrad11a)" stroke-width="3.5" fill="none" stroke-linecap="round" filter="url(#glow11a)"/>
+    <path d="M 25 180 L 140 45" stroke="url(#rayGrad11a)" stroke-width="4" fill="none" stroke-linecap="round" filter="url(#glow11a)"/>
+    <path d="M 35 180 L 150 55" stroke="url(#rayGrad11a)" stroke-width="4.5" fill="none" stroke-linecap="round" filter="url(#glow11a)"/>
+    <path d="M 45 180 L 160 65" stroke="url(#rayGrad11a)" stroke-width="5" fill="none" stroke-linecap="round" filter="url(#glow11a)"/>
+    <path d="M 55 180 L 170 75" stroke="url(#rayGrad11a)" stroke-width="5.5" fill="none" stroke-linecap="round" filter="url(#glow11a)"/>
+    <path d="M 65 180 L 180 85" stroke="url(#rayGrad11a)" stroke-width="6" fill="none" stroke-linecap="round" filter="url(#glow11a)"/>
+    <path d="M 75 180 L 190 95" stroke="url(#rayGrad11a)" stroke-width="5.5" fill="none" stroke-linecap="round" filter="url(#glow11a)"/>
+    <path d="M 85 180 L 200 105" stroke="url(#rayGrad11a)" stroke-width="5" fill="none" stroke-linecap="round" filter="url(#glow11a)"/>
+    <path d="M 95 180 L 210 115" stroke="url(#rayGrad11a)" stroke-width="4.5" fill="none" stroke-linecap="round" filter="url(#glow11a)"/>
+  </g>
+  
+  <!-- Light source at bottom -->
+  <circle cx="55" cy="180" r="8" fill="#f4d03f" opacity="0.5"/>
+  
+  <!-- Text -->
+  <g transform="translate(150, 0)">
+    <text x="0" y="50" font-family="'Raleway', sans-serif" font-size="48" font-weight="700" fill="url(#goldText11a)" text-anchor="start" letter-spacing="2">Stylish</text>
+    <text x="0" y="90" font-family="'Raleway', sans-serif" font-size="28" font-weight="400" fill="url(#goldText11a)" text-anchor="start" letter-spacing="4" opacity="0.9">ENTERTAINMENT</text>
+    <line x1="0" y1="60" x2="250" y2="60" stroke="url(#goldText11a)" stroke-width="2" opacity="0.5"/>
+  </g>
+</svg>

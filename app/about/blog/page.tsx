@@ -51,7 +51,7 @@ export default function Blog() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-15 flex items-center justify-center">
           <img
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162661/Exterior-LED-mood-Lighting_jjuuar.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163768/MartinBeddallPhotography02-e1530632660291_pabjzl.jpg"
             alt="Professional wedding lighting and entertainment blog"
             className="w-full h-full object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}
@@ -73,9 +73,9 @@ export default function Blog() {
       </section>
 
       {/* Blog Posts */}
-      <section className="py-20 px-4 bg-gray-800">
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-800">
+        <div className="container mx-auto max-w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10">
             {blogPosts.map((post, index) => (
               <motion.div
                 key={post.slug}
@@ -86,7 +86,7 @@ export default function Blog() {
               >
                 <Link href={`/about/blog/${post.slug}`}>
                   <Card className="h-full bg-gray-900 border-champagne-gold/30 hover:shadow-xl transition-all duration-300 hover:border-champagne-gold/60 group cursor-pointer">
-                    <div className="relative h-48 overflow-hidden bg-gray-100">
+                    <div className="relative h-64 md:h-80 overflow-hidden bg-gray-100">
                       <img
                         src={post.image}
                         alt={post.alt}
@@ -96,14 +96,14 @@ export default function Blog() {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
-                    <CardContent className="p-6">
-                      <h3 className="text-xl font-bold text-white mb-3 group-hover:text-champagne-gold transition-colors">
+                    <CardContent className="p-6 md:p-8">
+                      <h3 className="text-2xl md:text-3xl font-bold text-white mb-4 group-hover:text-champagne-gold transition-colors">
                         {post.title}
                       </h3>
-                      <p className="text-gray-300 text-sm leading-relaxed line-clamp-3">
+                      <p className="text-gray-300 text-base md:text-lg leading-relaxed line-clamp-3">
                         {post.excerpt}
                       </p>
-                      <div className="mt-4 text-champagne-gold text-sm font-semibold group-hover:underline">
+                      <div className="mt-6 text-champagne-gold text-base md:text-lg font-semibold group-hover:underline">
                         Read more →
                       </div>
                     </CardContent>

@@ -75,6 +75,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://stylishentertainment.co.uk",
   },
+  icons: {
+    icon: "/favicon.svg",
+    shortcut: "/favicon.svg",
+    apple: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

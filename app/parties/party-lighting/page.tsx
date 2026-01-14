@@ -169,8 +169,8 @@ export default function PartyLighting() {
       </section>
 
       {/* Text Paragraph */}
-      <section className="py-16 px-4 bg-gray-800">
-        <div className="container mx-auto max-w-4xl">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-800">
+        <div className="container mx-auto max-w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -196,23 +196,86 @@ export default function PartyLighting() {
         </div>
       </section>
 
-      {/* Gallery */}
-      <section className="py-16 px-4 bg-gray-900">
-        <div className="container mx-auto max-w-7xl">
+      {/* Gallery - Split into groups with promotional cards */}
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-900">
+        <div className="container mx-auto max-w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex justify-center"
+            className="space-y-12"
           >
-            <ImageCarousel images={partyLightingPhotos} />
+            {/* First Image Group (6 images) */}
+            <div className="flex justify-center">
+              <ImageCarousel images={partyLightingPhotos.slice(0, 6)} />
+            </div>
+
+            {/* DJ Promotion Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="flex justify-center"
+            >
+              <Card className="bg-gradient-to-r from-champagne-gold/20 via-yellow-400/20 to-champagne-gold/20 border-2 border-champagne-gold/40 shadow-xl max-w-4xl w-full">
+                <CardContent className="p-6 sm:p-8 text-center">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-champagne-gold mb-4">
+                    Do you know we also offer DJ?
+                  </h3>
+                  <p className="text-white text-lg md:text-xl leading-relaxed mb-6">
+                    Complete your party experience with professional DJ services. Our expert DJs create the perfect atmosphere with seamless mixing and crowd-pleasing playlists.
+                  </p>
+                  <Link
+                    href="/artists/djs"
+                    className="inline-block px-8 py-3 bg-champagne-gold text-black font-semibold rounded-lg hover:bg-gold-light transition-all duration-300 hover:scale-105 shadow-lg"
+                  >
+                    Explore Our DJs
+                  </Link>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Second Image Group (6 images) */}
+            <div className="flex justify-center">
+              <ImageCarousel images={partyLightingPhotos.slice(6, 12)} />
+            </div>
+
+            {/* Musicians Promotion Card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="flex justify-center"
+            >
+              <Card className="bg-gradient-to-r from-champagne-gold/20 via-yellow-400/20 to-champagne-gold/20 border-2 border-champagne-gold/40 shadow-xl max-w-4xl w-full">
+                <CardContent className="p-6 sm:p-8 text-center">
+                  <h3 className="text-2xl sm:text-3xl font-bold text-champagne-gold mb-4">
+                    Do you know we offer musicians?
+                  </h3>
+                  <p className="text-white text-lg md:text-xl leading-relaxed mb-6">
+                    Elevate your event with live music. From jazz trios to saxophone and percussion, our talented musicians add elegance and energy to any celebration.
+                  </p>
+                  <Link
+                    href="/artists/musicians"
+                    className="inline-block px-8 py-3 bg-champagne-gold text-black font-semibold rounded-lg hover:bg-gold-light transition-all duration-300 hover:scale-105 shadow-lg"
+                  >
+                    Explore Our Musicians
+                  </Link>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Third Image Group (remaining images) */}
+            <div className="flex justify-center">
+              <ImageCarousel images={partyLightingPhotos.slice(12)} />
+            </div>
           </motion.div>
         </div>
       </section>
 
       {/* Text Block Below Gallery - Broken into interesting sections */}
-      <section className="py-16 px-4 bg-gray-800">
-        <div className="container mx-auto max-w-6xl">
+      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-800">
+        <div className="container mx-auto max-w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

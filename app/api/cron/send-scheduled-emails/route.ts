@@ -9,7 +9,8 @@ import {
 
 // This endpoint should be called by a cron job or scheduled task
 // For local development, you can call it manually or set up a cron
-// For production, use Vercel Cron, Azure Functions, or similar
+// For production on Vercel, configure in vercel.json with cron jobs
+// For other platforms, use their scheduled task feature (Azure Functions, Railway Cron, etc.)
 export async function GET(request: NextRequest) {
   try {
     // Verify it's a cron request (in production, add authentication header check)
@@ -64,7 +65,7 @@ export async function GET(request: NextRequest) {
             emailsSent.confirmation = {
               sent: true,
               sentAt: now.toISOString(),
-              messageId: result.messageId,
+              messageId: result.success ? (result as any).messageId : undefined,
             };
             results.confirmationEmails++;
           }
@@ -96,7 +97,7 @@ export async function GET(request: NextRequest) {
             emailsSent.finalDetails = {
               sent: true,
               sentAt: now.toISOString(),
-              messageId: result.messageId,
+              messageId: result.success ? (result as any).messageId : undefined,
             };
             results.finalDetailsEmails++;
           }
@@ -128,7 +129,7 @@ export async function GET(request: NextRequest) {
             emailsSent.paymentReminder = {
               sent: true,
               sentAt: now.toISOString(),
-              messageId: result.messageId,
+              messageId: result.success ? (result as any).messageId : undefined,
             };
             results.paymentReminders++;
           }

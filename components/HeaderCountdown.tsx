@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import CountdownClock from "@/components/CountdownClock";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,8 +9,12 @@ import { Button } from "@/components/ui/button";
 const STORAGE_KEY_EVENT_DATE = "stylishentertainment_event_date";
 
 export default function HeaderCountdown() {
+  const { data: session } = useSession();
   const [eventDate, setEventDate] = useState<string | null>(null);
   const [targetDate, setTargetDate] = useState<Date | null>(null);
+
+  // Hide countdown for admin users
+  const isAdmin = (session?.user as any)?.role === "admin";
 
   useEffect(() => {
     const loadEventDate = () => {
@@ -52,7 +57,8 @@ export default function HeaderCountdown() {
     window.dispatchEvent(new Event("storage"));
   };
 
-  if (!targetDate) {
+  // Hide countdown for admin users or if no target date
+  if (isAdmin || !targetDate) {
     return null;
   }
 

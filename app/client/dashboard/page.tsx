@@ -11,12 +11,17 @@ import { motion } from "framer-motion";
 import { Calendar, MessageSquare, User, LogOut, Plus } from "lucide-react";
 import WeddingPlanningChecklist from "@/components/WeddingPlanningChecklist";
 import CountdownClock from "@/components/CountdownClock";
+import MusicPlaylistManager from "@/components/MusicPlaylistManager";
+import EventTimeline from "@/components/EventTimeline";
+import GuestCountTracker from "@/components/GuestCountTracker";
+import BudgetTracker from "@/components/BudgetTracker";
 
 export default function ClientDashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isCreatingTest, setIsCreatingTest] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -61,6 +66,30 @@ export default function ClientDashboard() {
         console.error("Error updating task:", error);
       }
     };
+  };
+
+  const createTestBooking = async () => {
+    setIsCreatingTest(true);
+    try {
+      const response = await fetch("/api/test/create-test-booking", {
+        method: "POST",
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Refresh bookings to show the new test booking
+        await fetchBookings();
+        alert("Test booking created successfully! Scroll down to see it.");
+      } else {
+        alert(result.error || "Failed to create test booking");
+      }
+    } catch (error) {
+      console.error("Error creating test booking:", error);
+      alert("An error occurred. Please try again.");
+    } finally {
+      setIsCreatingTest(false);
+    }
   };
 
   if (status === "loading" || loading) {
@@ -137,17 +166,19 @@ export default function ClientDashboard() {
             </Card>
           </Link>
 
-          <Card className="bg-gray-800 border-champagne-gold/30 h-full">
-            <CardContent className="p-6 flex items-center gap-4">
-              <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                <MessageSquare className="w-6 h-6 text-champagne-gold" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-white">Messages</h3>
-                <p className="text-sm text-gray-400">View conversations</p>
-              </div>
-            </CardContent>
-          </Card>
+          <Link href="/client/messages">
+            <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+              <CardContent className="p-6 flex items-center gap-4">
+                <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                  <MessageSquare className="w-6 h-6 text-champagne-gold" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-white">Messages</h3>
+                  <p className="text-sm text-gray-400">View conversations</p>
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
         </motion.div>
 
         {/* Bookings Section */}
@@ -167,11 +198,24 @@ export default function ClientDashboard() {
               {bookings.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-gray-400 mb-4">No bookings yet</p>
-                  <Link href="/client/bookings/new">
-                    <Button className="bg-champagne-gold text-black hover:bg-gold-light">
-                      Create Your First Booking
+                  <div className="flex gap-3 justify-center">
+                    <Link href="/client/bookings/new">
+                      <Button className="bg-champagne-gold text-black hover:bg-gold-light">
+                        Create Your First Booking
+                      </Button>
+                    </Link>
+                    <Button
+                      onClick={createTestBooking}
+                      disabled={isCreatingTest}
+                      variant="outline"
+                      className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10"
+                    >
+                      {isCreatingTest ? "Creating..." : "Create Test Booking"}
                     </Button>
-                  </Link>
+                  </div>
+                  <p className="text-xs text-gray-500 mt-3">
+                    Use "Create Test Booking" to quickly test dashboard features
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-6">
@@ -210,13 +254,13 @@ export default function ClientDashboard() {
                         </CardContent>
                       </Card>
 
-                      {/* Countdown Clock */}
-                      {booking.eventType === "Wedding" && (
+                      {/* Countdown Clock - Hidden for admins */}
+                      {session?.user && (session.user as any)?.role !== "admin" && (
                         <Card className="bg-gray-800 border-champagne-gold/30">
                           <CardHeader>
                             <CardTitle className="flex items-center gap-2">
                               <Calendar className="w-5 h-5 text-champagne-gold" />
-                              Countdown to Your Wedding
+                              Countdown to Your {booking.eventType === "Wedding" ? "Wedding" : booking.eventType}
                             </CardTitle>
                           </CardHeader>
                           <CardContent>
@@ -236,6 +280,36 @@ export default function ClientDashboard() {
                           }
                         />
                       )}
+
+                      {/* Music Playlist Manager */}
+                      <MusicPlaylistManager
+                        bookingId={booking.id}
+                        initialData={{
+                          musicRequests: booking.musicRequests,
+                          musicDislikes: booking.musicDislikes,
+                          firstDance: booking.firstDance,
+                          lastSong: booking.lastSong,
+                          musicNotesToDJ: booking.musicNotesToDJ,
+                        }}
+                      />
+
+                      {/* Event Timeline */}
+                      <EventTimeline
+                        bookingId={booking.id}
+                        eventDate={new Date(booking.eventDate)}
+                      />
+
+                      {/* Guest Count Tracker */}
+                      <GuestCountTracker
+                        bookingId={booking.id}
+                        initialCount={booking.numberOfGuests || 0}
+                      />
+
+                      {/* Budget Tracker */}
+                      <BudgetTracker
+                        bookingId={booking.id}
+                        totalBudget={booking.budget}
+                      />
                     </div>
                   ))}
                 </div>

@@ -1,0 +1,42 @@
+<svg width="450" height="200" viewBox="0 0 450 200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="goldText4" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#d4af37;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#f4d03f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d4af37;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="rayGrad4" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f4d03f;stop-opacity:0.6" />
+      <stop offset="100%" style="stop-color:#d4af37;stop-opacity:0" />
+    </linearGradient>
+    <filter id="glow4">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Light rays - fan pattern, more spread -->
+  <g opacity="0.6">
+    <path d="M 30 50 L 120 45" stroke="url(#rayGrad4)" stroke-width="2.5" fill="none" stroke-linecap="round" filter="url(#glow4)"/>
+    <path d="M 30 65 L 125 55" stroke="url(#rayGrad4)" stroke-width="3" fill="none" stroke-linecap="round" filter="url(#glow4)"/>
+    <path d="M 30 80 L 130 65" stroke="url(#rayGrad4)" stroke-width="3.5" fill="none" stroke-linecap="round" filter="url(#glow4)"/>
+    <path d="M 30 95 L 135 75" stroke="url(#rayGrad4)" stroke-width="4" fill="none" stroke-linecap="round" filter="url(#glow4)"/>
+    <path d="M 30 110 L 135 85" stroke="url(#rayGrad4)" stroke-width="4" fill="none" stroke-linecap="round" filter="url(#glow4)"/>
+    <path d="M 30 125 L 130 95" stroke="url(#rayGrad4)" stroke-width="3.5" fill="none" stroke-linecap="round" filter="url(#glow4)"/>
+    <path d="M 30 140 L 125 105" stroke="url(#rayGrad4)" stroke-width="3" fill="none" stroke-linecap="round" filter="url(#glow4)"/>
+    <path d="M 30 155 L 120 115" stroke="url(#rayGrad4)" stroke-width="2.5" fill="none" stroke-linecap="round" filter="url(#glow4)"/>
+  </g>
+  
+  <!-- Light source -->
+  <circle cx="30" cy="102" r="7" fill="#f4d03f" opacity="0.35"/>
+  
+  <!-- Text -->
+  <g transform="translate(150, 0)">
+    <text x="0" y="50" font-family="'Raleway', sans-serif" font-size="48" font-weight="700" fill="url(#goldText4)" text-anchor="start" letter-spacing="2">Stylish</text>
+    <text x="0" y="90" font-family="'Raleway', sans-serif" font-size="28" font-weight="400" fill="url(#goldText4)" text-anchor="start" letter-spacing="4" opacity="0.9">ENTERTAINMENT</text>
+    <line x1="0" y1="60" x2="250" y2="60" stroke="url(#goldText4)" stroke-width="2" opacity="0.5"/>
+  </g>
+</svg>
