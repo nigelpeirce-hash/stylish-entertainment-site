@@ -125,6 +125,35 @@ export default function LightingDesignService() {
               </div>
             </CardContent>
           </Card>
+
+          {/* About Section */}
+          <Card className="bg-gray-900 border-champagne-gold/30 mt-8">
+            <CardContent className="p-6 sm:p-8 space-y-6">
+              <div className="space-y-4 text-gray-300 leading-relaxed">
+                <p className="text-base sm:text-lg">
+                  At <span className="text-champagne-gold font-semibold">STYLISH Entertainment</span>, we take pride in our established reputation for providing genuine guidance and flawless execution. Explore the firsthand experiences of our satisfied clients on our <Link href="/testi" className="text-champagne-gold hover:text-gold-light underline">testimonial page</Link> to witness the magic we bring to every celebration.
+                </p>
+                
+                <p className="text-base sm:text-lg">
+                  Eager to turn your vision into reality? Based in <span className="text-champagne-gold font-medium">Frome, Somerset</span>, we extend our services across <span className="text-white font-medium">Somerset, Wiltshire, Dorset, Gloucestershire, Bath, Bristol, Swindon, and Exeter</span>.
+                </p>
+                
+                <p className="text-base sm:text-lg">
+                  Take the first step towards an unforgettable event by reaching out to <span className="text-champagne-gold font-medium">Nigel or Ali</span> at STYLISH Entertainment. Call <a href="tel:07970793177" className="text-champagne-gold hover:text-gold-light font-medium underline">07970793177</a> to discuss your party and specific requirements, or simply complete the form below.
+                </p>
+                
+                <p className="text-lg sm:text-xl text-champagne-gold font-semibold italic text-center pt-4">
+                  Let&apos;s illuminate your celebration into a masterpiece together!
+                </p>
+              </div>
+
+              <div className="pt-6 border-t border-champagne-gold/30">
+                <Button asChild size="lg" className="w-full sm:w-auto bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
+                  <Link href="/contact-us">Get in Touch</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </section>
 
