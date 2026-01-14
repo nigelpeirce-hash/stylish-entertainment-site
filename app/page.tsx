@@ -226,10 +226,10 @@ export default function Home() {
   return (
     <div>
       {/* Full Width Image Gallery Slider */}
-      <section className="relative w-full h-[70vh] sm:h-[80vh] md:h-[85vh] lg:h-[92vh] overflow-hidden">
+      <section className="relative w-full h-[60vh] sm:h-[75vh] md:h-[85vh] lg:h-[92vh] overflow-hidden bg-gray-900">
         <Slider className="h-full">
           {gallerySliderImages.map((image, index) => (
-            <div key={index} className="relative w-full h-full flex-shrink-0 flex items-center justify-center bg-black">
+            <div key={index} className="relative w-full h-full flex-shrink-0 flex items-center justify-center bg-gray-900">
               <img
                 src={image.src}
                 alt={image.alt}
@@ -250,7 +250,7 @@ export default function Home() {
       </section>
 
       {/* Hero Section */}
-      <section className="relative min-h-[95vh] flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
+      <section className="relative min-h-[95vh] flex items-center justify-center bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 text-white overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -272,9 +272,6 @@ export default function Home() {
             Professional DJs, musicians, lighting design, and venue styling across London, Somerset, Bath, Bristol, Dorset, Devon, and Cornwall. Strictly no YMCA.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
-              <Link href="/contact">Get in Touch</Link>
-            </Button>
             <Button asChild variant="outline" size="lg" className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 hover:scale-105 transition-all duration-300">
               <Link href="/artists">Meet Our DJs</Link>
             </Button>
@@ -283,7 +280,7 @@ export default function Home() {
       </section>
 
       {/* Services Section */}
-      <section className="py-20 px-4 bg-gray-800">
+      <section className="py-20 px-4 bg-gray-700">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -338,7 +335,7 @@ export default function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 px-4 bg-gray-900 relative overflow-hidden">
+      <section className="py-20 px-4 bg-gray-800 relative overflow-hidden">
         <div className="container mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -370,7 +367,7 @@ export default function Home() {
       </section>
 
       {/* Featured Venues */}
-      <section className="pt-20 pb-8 px-4 bg-gray-900">
+      <section className="pt-20 pb-8 px-4 bg-gray-800">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -423,7 +420,7 @@ export default function Home() {
       </section>
 
       {/* Meet the Team Section */}
-      <section className="py-20 px-4 bg-gray-800">
+      <section className="py-20 px-4 bg-gray-700">
         <div className="container mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
