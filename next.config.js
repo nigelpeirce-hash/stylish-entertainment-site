@@ -9,6 +9,11 @@ const nextConfig = {
         hostname: 'res.cloudinary.com',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'collection.cloudinary.com',
+        pathname: '/**',
+      },
     ],
     // Cloudinary handles format/quality (f_auto,q_auto), Next.js handles responsive sizes
     formats: ['image/avif', 'image/webp'],

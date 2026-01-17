@@ -28,7 +28,7 @@ const config = {
     extend: {
       colors: {
         charcoal: "#1A1A1A",
-        "champagne-gold": "#D4AF37",
+        "champagne-gold": "#E6C84A", // More saturated gold for premium look
         "gold-light": "#F4D03F",
         "gold-dark": "#B8941F",
         ivory: "#F5F5F0",
