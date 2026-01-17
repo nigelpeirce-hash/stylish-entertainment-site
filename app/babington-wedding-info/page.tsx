@@ -9,7 +9,7 @@ import { useEffect } from "react";
 const allImages = [
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162621/Babington-House-in-Green_oms0ws.jpg", alt: "Babington House wedding venue exterior" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg", alt: "Professional DJ setup by DJ Nige at Babington House" },
-  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768169246/Fairy%20Light%20Tunnel%20at%20Babington%20House.jpg", alt: "Fairy light tunnel at Babington House" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw", alt: "Fairy light tunnel at Babington House" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162522/Babington-House-Bar-with-DJ-Niges-setup_zdgqtq.jpg", alt: "Babington House bar with DJ Nige's setup" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162299/STYLISH-babs-july2016_ria-mishaal-photography_017_xsbk3l.jpg", alt: "Babington House front of house with bush lighting" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163408/Babington-House-Alfresco-dining-daytime_xk0vra.jpg", alt: "Babington House croquet lawn alfresco dining" },

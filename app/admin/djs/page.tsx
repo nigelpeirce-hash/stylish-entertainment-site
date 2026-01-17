@@ -3,22 +3,13 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
-import {
-  Music,
-  Plus,
-  Edit,
-  Trash2,
-  Save,
-  X,
-  Image as ImageIcon,
-} from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { DJCard } from "./DJCard";
+import { DJForm } from "./DJForm";
+import { Toast } from "@/components/ui/toast";
 
 interface DJ {
   id: string;
@@ -33,6 +24,22 @@ interface DJ {
   displayOrder: number;
 }
 
+type ToastState = {
+  id: string;
+  message: string;
+  type: "success" | "error" | "info";
+} | null;
+
+// Helper function to generate slug from name
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "") // Remove special characters
+    .replace(/[\s_-]+/g, "-") // Replace spaces and underscores with hyphens
+    .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+}
+
 export default function DJsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -40,6 +47,8 @@ export default function DJsPage() {
   const [loading, setLoading] = useState(true);
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [toast, setToast] = useState<ToastState>(null);
   const [formData, setFormData] = useState({
     name: "",
     bio: "",
@@ -51,19 +60,22 @@ export default function DJsPage() {
     displayOrder: 0,
   });
 
+  // Tightened session check - return loading immediately if unauthenticated
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
-    } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      return;
     }
-  }, [status, session, router]);
-
-  useEffect(() => {
-    if (status === "authenticated" && (session?.user as any)?.role === "admin") {
+    
+    if (status === "authenticated") {
+      if ((session?.user as any)?.role !== "admin") {
+        router.push("/client/dashboard");
+        return;
+      }
+      // Only fetch DJs if authenticated as admin
       fetchDJs();
     }
-  }, [status, session]);
+  }, [status, session, router]);
 
   const fetchDJs = async () => {
     try {
@@ -74,55 +86,74 @@ export default function DJsPage() {
       }
     } catch (error) {
       console.error("Error fetching DJs:", error);
+      showToast("Failed to load DJs", "error");
     } finally {
       setLoading(false);
     }
   };
 
+  const showToast = (message: string, type: "success" | "error" | "info" = "info") => {
+    setToast({
+      id: Date.now().toString(),
+      message,
+      type,
+    } as ToastState);
+  };
+
   const handleSave = async () => {
+    if (!formData.name.trim()) {
+      showToast("Name is required", "error");
+      return;
+    }
+
+    setIsSaving(true);
     try {
+      const slug = generateSlug(formData.name);
+      const payload = {
+        ...formData,
+        slug, // Auto-generate slug from name
+        imageUrl: formData.imageUrl || null,
+        mixcloudUrl: formData.mixcloudUrl || null,
+      };
+
       if (editingId) {
         // Update existing
         const response = await fetch(`/api/admin/djs/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...formData,
-            imageUrl: formData.imageUrl || null,
-            mixcloudUrl: formData.mixcloudUrl || null,
-          }),
+          body: JSON.stringify(payload),
         });
 
         if (response.ok) {
           await fetchDJs();
           resetForm();
+          showToast("DJ updated successfully", "success");
         } else {
           const error = await response.json();
-          alert(error.error || "Failed to update DJ");
+          showToast(error.error || "Failed to update DJ", "error");
         }
       } else {
         // Create new
         const response = await fetch("/api/admin/djs", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...formData,
-            imageUrl: formData.imageUrl || null,
-            mixcloudUrl: formData.mixcloudUrl || null,
-          }),
+          body: JSON.stringify(payload),
         });
 
         if (response.ok) {
           await fetchDJs();
           resetForm();
+          showToast("DJ created successfully", "success");
         } else {
           const error = await response.json();
-          alert(error.error || "Failed to create DJ");
+          showToast(error.error || "Failed to create DJ", "error");
         }
       }
     } catch (error) {
       console.error("Error saving DJ:", error);
-      alert("An error occurred");
+      showToast("An error occurred while saving", "error");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -136,12 +167,13 @@ export default function DJsPage() {
 
       if (response.ok) {
         await fetchDJs();
+        showToast("DJ deleted successfully", "success");
       } else {
-        alert("Failed to delete DJ");
+        showToast("Failed to delete DJ", "error");
       }
     } catch (error) {
       console.error("Error deleting DJ:", error);
-      alert("An error occurred");
+      showToast("An error occurred while deleting", "error");
     }
   };
 
@@ -183,20 +215,32 @@ export default function DJsPage() {
     setEditingId(null);
   };
 
-  if (status === "loading" || loading) {
+  // Show loading spinner immediately if unauthenticated or loading
+  if (status === "loading" || (status === "authenticated" && loading && (session?.user as any)?.role !== "admin")) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <div className="text-white">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center" style={{
+        background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
+      }}>
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-8 h-8 text-champagne-gold animate-spin" />
+          <div className="text-white">Loading...</div>
+        </div>
       </div>
     );
   }
 
+  // Return null if not authenticated or not admin (router will handle redirect)
   if (!session || (session?.user as any)?.role !== "admin") {
     return null;
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
+    <div 
+      className="min-h-screen text-white py-12 px-4"
+      style={{
+        background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
+      }}
+    >
       <div className="container mx-auto max-w-6xl">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -205,11 +249,11 @@ export default function DJsPage() {
         >
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h1 className="text-4xl font-bold mb-2">DJs</h1>
-              <p className="text-gray-400">Manage DJ profiles and information</p>
+              <h1 className="text-4xl font-bold mb-2 text-white">DJs</h1>
+              <p className="text-gray-200">Manage DJ profiles and information</p>
             </div>
             <Link href="/admin">
-              <Button variant="outline" className="border-champagne-gold text-champagne-gold">
+              <Button variant="outline" className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10">
                 Back to Dashboard
               </Button>
             </Link>
@@ -219,208 +263,41 @@ export default function DJsPage() {
         {/* DJs List */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
           {djs.map((dj) => (
-            <Card key={dj.id} className="bg-gray-800 border-champagne-gold/30">
-              <CardContent className="p-4">
-                {dj.imageUrl && (
-                  <img
-                    src={dj.imageUrl}
-                    alt={dj.name}
-                    className="w-full h-32 object-cover rounded-lg mb-3"
-                  />
-                )}
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="text-lg font-semibold text-white">{dj.name}</h3>
-                  {!dj.isActive && (
-                    <span className="px-2 py-1 bg-gray-900/30 text-gray-400 text-xs rounded border border-gray-500/30">
-                      Inactive
-                    </span>
-                  )}
-                </div>
-                {dj.bio && (
-                  <p className="text-sm text-gray-400 mb-2 line-clamp-2">
-                    {dj.bio}
-                  </p>
-                )}
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() => handleEdit(dj)}
-                    size="sm"
-                    variant="outline"
-                    className="flex-1 border-gray-600 text-gray-300"
-                  >
-                    <Edit className="w-4 h-4 mr-2" />
-                    Edit
-                  </Button>
-                  <Button
-                    onClick={() => handleDelete(dj.id)}
-                    size="sm"
-                    variant="outline"
-                    className="border-red-500 text-red-400 hover:bg-red-900/20"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+            <DJCard key={dj.id} dj={dj} onEdit={handleEdit} onDelete={handleDelete} />
           ))}
         </div>
 
         {/* Add/Edit Form */}
         {isAdding && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-8"
-            id="dj-form"
-          >
-            <Card className="bg-gray-800 border-champagne-gold/30 border-2">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>{editingId ? `Edit DJ: ${formData.name || ""}` : "Create New DJ"}</span>
-                  <Button
-                    onClick={resetForm}
-                    variant="ghost"
-                    size="sm"
-                    className="text-gray-400"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>DJ Name *</Label>
-                  <Input
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g., DJ Nige"
-                    className="bg-gray-900 text-white border-gray-700"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Bio</Label>
-                  <Textarea
-                    value={formData.bio}
-                    onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                    rows={4}
-                    placeholder="DJ bio and experience..."
-                    className="bg-gray-900 text-white border-gray-700"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Mixcloud URL (optional)</Label>
-                  <Input
-                    value={formData.mixcloudUrl}
-                    onChange={(e) => setFormData({ ...formData, mixcloudUrl: e.target.value })}
-                    placeholder="https://www.mixcloud.com/username/show-name/"
-                    className="bg-gray-900 text-white border-gray-700"
-                  />
-                  <p className="text-xs text-gray-400">
-                    Full Mixcloud URL (e.g., https://www.mixcloud.com/djnige/live-mix/)
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Display Order</Label>
-                  <Input
-                    type="number"
-                    value={formData.displayOrder}
-                    onChange={(e) =>
-                      setFormData({ ...formData, displayOrder: parseInt(e.target.value) || 0 })
-                    }
-                    className="bg-gray-900 text-white border-gray-700"
-                  />
-                  <p className="text-xs text-gray-400">Lower numbers appear first</p>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>SEO Title (optional - auto-generated if empty)</Label>
-                  <Input
-                    value={formData.seoTitle}
-                    onChange={(e) => setFormData({ ...formData, seoTitle: e.target.value })}
-                    placeholder="e.g., DJ Nige | Professional Wedding DJ"
-                    className="bg-gray-900 text-white border-gray-700"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>SEO Description (optional - auto-generated with locations if empty)</Label>
-                  <Textarea
-                    value={formData.seoDescription}
-                    onChange={(e) => setFormData({ ...formData, seoDescription: e.target.value })}
-                    rows={3}
-                    placeholder="Auto-generated with: available in Somerset, Dorset, Wiltshire, Bristol, Bath, and Frome"
-                    className="bg-gray-900 text-white border-gray-700"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Image URL</Label>
-                  <Input
-                    value={formData.imageUrl}
-                    onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                    placeholder="https://..."
-                    className="bg-gray-900 text-white border-gray-700"
-                  />
-                  {formData.imageUrl && (
-                    <img
-                      src={formData.imageUrl}
-                      alt="Preview"
-                      className="w-32 h-32 object-cover rounded mt-2"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = "none";
-                      }}
-                    />
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label>
-                    <input
-                      type="checkbox"
-                      checked={formData.isActive}
-                      onChange={(e) =>
-                        setFormData({ ...formData, isActive: e.target.checked })
-                      }
-                      className="mr-2"
-                    />
-                    Active (visible on website)
-                  </Label>
-                </div>
-
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    onClick={handleSave}
-                    className="bg-champagne-gold text-black hover:bg-gold-light"
-                  >
-                    <Save className="w-4 h-4 mr-2" />
-                    {editingId ? "Update DJ" : "Create DJ"}
-                  </Button>
-                  <Button
-                    onClick={resetForm}
-                    variant="outline"
-                    className="border-gray-600 text-gray-300"
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <DJForm
+            editingId={editingId}
+            formData={formData}
+            onFormDataChange={setFormData}
+            onSave={handleSave}
+            onCancel={resetForm}
+            isSaving={isSaving}
+          />
         )}
 
         {!isAdding && (
-          <Button
-            onClick={() => setIsAdding(true)}
-            className="bg-champagne-gold text-black hover:bg-gold-light"
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.2 }}
           >
-            <Plus className="w-4 h-4 mr-2" />
-            Create New DJ
-          </Button>
+            <Button
+              onClick={() => setIsAdding(true)}
+              className="bg-champagne-gold text-black hover:bg-gold-light shadow-[0_0_15px_rgba(212,175,55,0.4)] hover:shadow-[0_0_25px_rgba(212,175,55,0.6)] transition-all duration-300"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create New DJ
+            </Button>
+          </motion.div>
         )}
       </div>
+
+      {/* Toast Notification */}
+      <Toast toast={toast} onClose={() => setToast(null)} />
     </div>
   );
 }

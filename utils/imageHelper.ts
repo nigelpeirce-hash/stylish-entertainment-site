@@ -17,6 +17,7 @@ export interface ImageConfig {
 
 /**
  * Generates a Cloudinary URL with automatic optimization
+ * Includes DPR (Device Pixel Ratio) support for retina displays
  * @param config Image configuration object
  * @returns Optimized Cloudinary URL
  */
@@ -24,7 +25,10 @@ export function getCloudinaryUrl(config: ImageConfig): string {
   const baseUrl = "https://res.cloudinary.com/drtwveoqo/image/upload";
   
   // Build transformation string
-  let transformations = "f_auto,q_auto";
+  // f_auto: automatic format selection (WebP, AVIF when supported)
+  // q_auto: automatic quality optimization
+  // dpr_auto: automatic device pixel ratio (serves 2x/3x for retina displays)
+  let transformations = "f_auto,q_auto,dpr_auto";
   if (config.transformations) {
     transformations += `,${config.transformations}`;
   }
@@ -72,6 +76,11 @@ export function validateImage(image: {
     console.warn("Cloudinary URL should include f_auto,q_auto for optimization");
   }
   
+  // Check if Cloudinary URL has DPR support for retina displays
+  if (image.src.includes("res.cloudinary.com") && !image.src.includes("dpr_")) {
+    console.warn("Cloudinary URL should include dpr_auto for retina display support");
+  }
+  
   return true;
 }
 
@@ -106,4 +115,25 @@ export function createSliderImage(config: ImageConfig) {
   
   validateImage(image);
   return image;
+}
+
+/**
+ * Adds DPR (Device Pixel Ratio) support to existing Cloudinary URLs
+ * Automatically serves 2x/3x resolution images for retina displays
+ * @param cloudinaryUrl Existing Cloudinary URL
+ * @returns URL with dpr_auto added to transformations
+ */
+export function addRetinaSupport(cloudinaryUrl: string): string {
+  if (!cloudinaryUrl.includes("res.cloudinary.com")) {
+    return cloudinaryUrl; // Not a Cloudinary URL, return as-is
+  }
+  
+  // If dpr_auto already exists, return as-is
+  if (cloudinaryUrl.includes("dpr_auto") || cloudinaryUrl.includes("dpr_")) {
+    return cloudinaryUrl;
+  }
+  
+  // Add dpr_auto to the transformation string
+  // Pattern: /f_auto,q_auto/ -> /f_auto,q_auto,dpr_auto/
+  return cloudinaryUrl.replace(/\/f_auto,q_auto\//, "/f_auto,q_auto,dpr_auto/");
 }

@@ -16,7 +16,7 @@ const stylingPhotos: ImagePhoto[] = [
     alt: "Professional venue styling with elegant decorations and creative design creating a sophisticated wedding atmosphere",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768169246/Fairy%20Light%20Tunnel%20at%20Babington%20House.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw",
     width: 1200,
     height: 900,
     alt: "Fairy light tunnel at Babington House creating a magical entrance with professional venue styling and lighting design",

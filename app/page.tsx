@@ -13,37 +13,37 @@ const services = [
   {
     title: "Weddings",
     href: "/weddings/wedding-entertainment",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163781/Emma-Conrad-2-9-23-682_utvftj.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163781/Emma-Conrad-2-9-23-682_utvftj.jpg",
     alt: "Exceptional wedding entertainment and lighting design across the West Country",
   },
   {
     title: "Parties",
     href: "/parties/private-parties",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163810/image2_l1hxxx.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163810/image2_l1hxxx.jpg",
     alt: "Professional party entertainment and production across the West Country",
   },
   {
     title: "DJs",
     href: "/artists/djs",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163683/NP-Decks-2_y32tje.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163683/NP-Decks-2_y32tje.jpg",
     alt: "Professional Wedding DJ across the West Country",
   },
   {
     title: "Musicians",
     href: "/artists/musicians",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163656/IMG_3148_owtb29.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163656/IMG_3148_owtb29.jpg",
     alt: "Live Wedding Musicians across the West Country",
   },
   {
     title: "Lighting Gallery",
     href: "/galleries",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768169246/Fairy%20Light%20Tunnel%20at%20Babington%20House.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw",
     alt: "Professional Wedding Lighting Design across the West Country",
   },
   {
     title: "Kit Hire",
     href: "/what-we-do/equipment-dj-band-sound-kit",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768214470/DJ-Decks_mlezxe.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768214470/DJ-Decks_mlezxe.jpg",
     alt: "Wedding Equipment Hire across the West Country",
   },
   {
@@ -55,19 +55,19 @@ const services = [
   {
     title: "Fire-Pits",
     href: "/fire-pit-html",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163430/Fire-Pits-and-Marshmallows_ke3nk5.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163430/Fire-Pits-and-Marshmallows_ke3nk5.jpg",
     alt: "Outdoor Fire-Pits for Wedding Venues across the West Country",
   },
   {
     title: "Venue Styling",
     href: "/what-we-do/venue-decoration",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162330/Venue-Styling-Candles-and-autumn-floristry_tbjfee.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162330/Venue-Styling-Candles-and-autumn-floristry_tbjfee.jpg",
     alt: "Luxury Wedding Venue Styling across the West Country",
   },
   {
     title: "Party Planning",
     href: "/party-planning-and-organising",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163810/image2_l1hxxx.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163810/image2_l1hxxx.jpg",
     alt: "Professional Party Planning and Event Production across the West Country",
   },
 ];
@@ -186,35 +186,35 @@ const TestimonialsCarousel = () => {
 // Homepage Gallery Slider Images
 const gallerySliderImages = [
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162627/Camilla-Richard-0063_mctrmo.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162627/Camilla-Richard-0063_mctrmo.jpg",
     alt: "Wedding reception with professional lighting design showcasing elegant table settings and ambient lighting at a West Country venue",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162621/Babington-House-in-Green_oms0ws.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162621/Babington-House-in-Green_oms0ws.jpg",
     alt: "Babington House wedding venue with beautiful exterior LED mood lighting in green tones, showcasing luxury wedding lighting design",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg",
     alt: "Professional DJ setup at Babington House with custom lighting, professional sound equipment, and atmospheric wedding entertainment",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,c_auto,g_auto,h_667,w_1000/EmilyTomWedding-JonnyBarrattPhotography605-scaled-e1640779326843_ozksuz.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto,c_auto,g_auto,h_667,w_1000/EmilyTomWedding-JonnyBarrattPhotography605-scaled-e1640779326843_ozksuz.jpg",
     alt: "Emily and Tom's wedding reception with stunning atmospheric lighting design creating a magical evening ambiance",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768169246/Fairy%20Light%20Tunnel%20at%20Babington%20House.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw",
     alt: "Fairy light tunnel at Babington House creating a magical entrance with professional wedding lighting design and venue styling",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163830/RosedewFarmWeddingPhotography-EmmaSam-562_aqtw3u.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163830/RosedewFarmWeddingPhotography-EmmaSam-562_aqtw3u.jpg",
     alt: "Rosedew Farm wedding with elegant lighting design and professional wedding entertainment creating a beautiful celebration atmosphere",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163799/The-Newt-Somerset-with-our-Fairy-Light-Tunnel-installed-for-their-first-wedding_qwbpur.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163799/The-Newt-Somerset-with-our-Fairy-Light-Tunnel-installed-for-their-first-wedding_qwbpur.jpg",
     alt: "The Newt Somerset wedding venue with fairy light tunnel installation showcasing professional wedding lighting design and venue transformation",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163768/MartinBeddallPhotography02-e1530632660291_pabjzl.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163768/MartinBeddallPhotography02-e1530632660291_pabjzl.jpg",
     alt: "Elegant wedding celebration with professional lighting design and atmospheric wedding entertainment creating a memorable evening",
   },
 ];
@@ -456,7 +456,7 @@ export default function Home() {
                 <CardContent className="p-6 sm:p-8">
                   <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700">
                     <Image
-                      src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162313/Ali-Peirce_aec3tn.jpg"
+                      src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162313/Ali-Peirce_aec3tn.jpg"
                       alt="Ali - Co-founder of Stylish Entertainment"
                       fill
                       className="object-cover"
@@ -482,7 +482,7 @@ export default function Home() {
                 <CardContent className="p-6 sm:p-8">
                   <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700">
                     <Image
-                      src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162279/Nigel-DJ-Babs-House-0009-1_f59b99.jpg"
+                      src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162279/Nigel-DJ-Babs-House-0009-1_f59b99.jpg"
                       alt="Nige - Co-founder of Stylish Entertainment"
                       fill
                       className="object-cover"

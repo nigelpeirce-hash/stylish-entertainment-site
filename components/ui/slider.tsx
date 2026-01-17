@@ -20,8 +20,8 @@ export function Slider({ children, className }: SliderProps) {
   
   const currentCount = React.Children.count(children)
   
-  // Only update children array if the count changed (actual content change)
-  if (currentCount !== countRef.current) {
+  // Initialize or update children array if the count changed (actual content change)
+  if (currentCount !== countRef.current || childrenRef.current.length === 0) {
     childrenRef.current = React.Children.toArray(children)
     countRef.current = currentCount
   }
@@ -39,13 +39,13 @@ export function Slider({ children, className }: SliderProps) {
 
   return (
     <div className={cn("relative w-full", className)}>
-      <div className="overflow-hidden">
+      <div className="overflow-hidden h-full">
         <div
-          className="flex transition-transform duration-500 ease-in-out"
+          className="flex transition-transform duration-500 ease-in-out h-full"
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
           {childrenArray.map((child, index) => (
-            <div key={index} className="min-w-full">
+            <div key={index} className="min-w-full h-full">
               {child}
             </div>
           ))}

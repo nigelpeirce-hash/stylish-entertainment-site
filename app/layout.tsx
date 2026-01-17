@@ -9,7 +9,6 @@ import GoogleTagManager from "@/components/GoogleTagManager";
 import CookieYes from "@/components/CookieYes";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { Providers } from "@/components/Providers";
-import ClientOnlyComponents from "@/components/ClientOnlyComponents";
 
 const raleway = Raleway({
   subsets: ["latin"],
@@ -44,7 +43,7 @@ export const metadata: Metadata = {
     description: "Stylish Entertainment & Production - Exceptional entertainment services. Professional DJs, musicians, lighting design, and venue styling across London, Somerset, Bath, Bristol, Dorset, Devon, and Cornwall.",
     images: [
       {
-        url: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768169246/Fairy%20Light%20Tunnel%20at%20Babington%20House.jpg",
+        url: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw",
         width: 1200,
         height: 630,
         alt: "Stylish Entertainment & Production - Professional DJs, Lighting Design and Venue Styling",
@@ -55,7 +54,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Stylish Entertainment & Production | Professional DJs, Lighting Design & Venue Styling",
     description: "Stylish Entertainment & Production - Exceptional entertainment services. Professional DJs, lighting design, and venue styling.",
-    images: ["https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768169246/Fairy%20Light%20Tunnel%20at%20Babington%20House.jpg"],
+    images: ["https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw"],
     creator: "@stylishentertainment",
   },
   robots: {
@@ -89,15 +88,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={raleway.variable}>
-      <body>
+      <body className="relative min-h-screen" style={{
+        background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
+      }}>
+        {/* Decorative Light Leaks */}
+        <div className="fixed top-0 right-0 w-96 h-96 bg-champagne-gold opacity-20 rounded-full blur-3xl pointer-events-none z-0" style={{ transform: 'translate(30%, -30%)' }}></div>
+        <div className="fixed bottom-0 left-0 w-96 h-96 bg-champagne-gold opacity-20 rounded-full blur-3xl pointer-events-none z-0" style={{ transform: 'translate(-30%, 30%)' }}></div>
+        
         <Providers>
           <GoogleTagManager />
           <GoogleAnalytics />
           <CookieYes />
           <Navigation />
-          <ClientOnlyComponents />
           <Breadcrumbs />
-          <main className="min-h-screen">{children}</main>
+          <main className="min-h-screen relative z-10">{children}</main>
           <Footer />
         </Providers>
       </body>

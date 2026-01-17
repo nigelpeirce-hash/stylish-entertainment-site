@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthButton } from "@/components/AuthButton";
+import WaveDivider from "@/components/WaveDivider";
 
 export default function Navigation() {
   const [isOpen, setIsOpen] = useState(false);
@@ -135,9 +136,6 @@ export default function Navigation() {
                 fetchPriority="high"
               />
             </Link>
-            <span className="text-xs sm:text-sm md:text-base text-white font-semibold mt-1 relative z-20 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
-              Home of DJ Nige
-            </span>
           </div>
 
           {/* Centered Tagline - Hidden on Mobile */}
@@ -145,9 +143,18 @@ export default function Navigation() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
-            className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none"
+            className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none px-2"
+            style={{ 
+              maxWidth: 'calc(100% - 320px)',
+              minWidth: '200px'
+            }}
           >
-            <h2 className="text-white text-sm md:text-base lg:text-lg font-semibold italic text-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] whitespace-nowrap">
+            <h2 
+              className="text-white font-semibold italic text-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] whitespace-nowrap"
+              style={{
+                fontSize: 'clamp(0.625rem, 1.5vw + 0.25rem, 1.125rem)'
+              }}
+            >
               Every Gathering Deserves To Be Extraordinary
             </h2>
           </motion.div>
@@ -456,6 +463,9 @@ export default function Navigation() {
             </motion.div>
           )}
         </AnimatePresence>
+        
+        {/* Wave Divider at bottom of header */}
+        <WaveDivider />
       </nav>
 
     </>

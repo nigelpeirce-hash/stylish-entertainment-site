@@ -227,7 +227,7 @@ export default function Videos() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-25 flex items-center justify-center">
           <img
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768169246/Fairy%20Light%20Tunnel%20at%20Babington%20House.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw"
             alt="Video gallery showcasing our work"
             className="w-full h-full object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}

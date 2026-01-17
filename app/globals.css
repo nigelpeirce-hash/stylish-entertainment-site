@@ -193,11 +193,12 @@
     @apply border-border;
   }
   body {
-    background-color: #050505 !important;
-    color: #ffffff;
+    background: radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%) !important;
+    color: rgb(241 245 249) !important; /* slate-200 / gray-100 */
     font-family: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background-attachment: fixed;
     position: relative;
+    min-height: 100vh;
   }
   
   /* White-to-Black Gradient Blend at the top */
@@ -223,13 +224,32 @@
     z-index: 1;
   }
   
-  h1, h2, h3, h4, h5, h6 {
-    color: #d4af37 !important;
+  h1, h2 {
+    color: #ffffff !important;
     margin-top: 0.5em !important;
     margin-bottom: 0.5em !important;
     line-height: 1.2 !important;
     letter-spacing: -0.02em;
-    font-weight: 300 !important;
+    font-weight: 600 !important; /* font-semibold */
+    tracking-tight: true;
+  }
+  
+  h3, h4, h5, h6 {
+    color: #ffffff !important;
+    margin-top: 0.5em !important;
+    margin-bottom: 0.5em !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.02em;
+    font-weight: 400 !important;
+  }
+  
+  /* Champagne-gold text with glow effect */
+  .text-champagne-gold,
+  h1 .text-champagne-gold,
+  h2 .text-champagne-gold,
+  h3 .text-champagne-gold,
+  [class*="text-champagne-gold"] {
+    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.4));
   }
   
   /* Make fonts thinner/less chunky across the site */
@@ -248,10 +268,17 @@
   /* Reduce default font weight for body text */
   body {
     font-weight: 300;
+    color: rgb(241 245 249) !important; /* slate-200 / gray-100 */
   }
   
   p, span, div, a, li {
     font-weight: 300;
+    color: rgb(241 245 249) !important; /* slate-200 / gray-100 */
+  }
+  
+  /* Override for specific gray text classes - make them brighter */
+  .text-gray-300 {
+    color: rgb(241 245 249) !important; /* slate-200 / gray-100 */
   }
   
   /* Gold color for icons and interactive elements */
@@ -408,6 +435,49 @@
   
   .animate-light-sweep {
     animation: light-sweep 8s ease-in-out infinite;
+  }
+  
+  /* Wave divider animations - GPU accelerated translateX */
+  .animate-wave-slide-1 {
+    animation: wave-slide-1 20s linear infinite;
+    will-change: transform;
+  }
+  
+  .animate-wave-slide-2 {
+    animation: wave-slide-2 15s linear infinite;
+    will-change: transform;
+  }
+  
+  .animate-wave-slide-3 {
+    animation: wave-slide-3 25s linear infinite;
+    will-change: transform;
+  }
+  
+  @keyframes wave-slide-1 {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+  
+  @keyframes wave-slide-2 {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+  
+  @keyframes wave-slide-3 {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
   }
   
   /* Performance optimization for animations */
