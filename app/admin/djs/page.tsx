@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { DJCard } from "./DJCard";
@@ -261,10 +261,12 @@ export default function DJsPage() {
         </motion.div>
 
         {/* DJs List */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          {djs.map((dj) => (
-            <DJCard key={dj.id} dj={dj} onEdit={handleEdit} onDelete={handleDelete} />
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-8">
+          <AnimatePresence>
+            {djs.map((dj) => (
+              <DJCard key={dj.id} dj={dj} onEdit={handleEdit} onDelete={handleDelete} />
+            ))}
+          </AnimatePresence>
         </div>
 
         {/* Add/Edit Form */}
