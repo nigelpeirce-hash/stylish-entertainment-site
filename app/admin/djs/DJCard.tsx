@@ -33,8 +33,10 @@ export function DJCard({ dj, onEdit, onDelete }: DJCardProps) {
 
   return (
     <motion.div
+      layout
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20, scale: 0.95 }}
       transition={{ duration: 0.3 }}
     >
       <Card className="bg-gray-800/50 backdrop-blur-md border-champagne-gold/50 hover:border-champagne-gold/80 transition-all duration-300 hover:shadow-[0_0_20px_rgba(212,175,55,0.2)]">
@@ -83,7 +85,7 @@ export function DJCard({ dj, onEdit, onDelete }: DJCardProps) {
               onClick={() => onEdit(dj)}
               size="sm"
               variant="outline"
-              className="flex-1 border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10"
+              className="flex-1 border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold hover:text-black hover:border-champagne-gold transition-all duration-300"
             >
               <Edit className="w-4 h-4 mr-2" />
               Edit

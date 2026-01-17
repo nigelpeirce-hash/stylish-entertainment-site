@@ -22,19 +22,21 @@ interface DJ {
   displayOrder: number;
 }
 
+type FormDataState = {
+  name: string;
+  bio: string;
+  mixcloudUrl: string;
+  seoTitle: string;
+  seoDescription: string;
+  imageUrl: string;
+  isActive: boolean;
+  displayOrder: number;
+};
+
 interface DJFormProps {
   editingId: string | null;
-  formData: {
-    name: string;
-    bio: string;
-    mixcloudUrl: string;
-    seoTitle: string;
-    seoDescription: string;
-    imageUrl: string;
-    isActive: boolean;
-    displayOrder: number;
-  };
-  onFormDataChange: (data: typeof formData) => void;
+  formData: FormDataState;
+  onFormDataChange: (data: FormDataState) => void;
   onSave: () => Promise<void>;
   onCancel: () => void;
   isSaving: boolean;
