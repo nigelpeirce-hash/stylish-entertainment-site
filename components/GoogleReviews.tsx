@@ -32,6 +32,7 @@ export default function GoogleReviews({
   const [loading, setLoading] = useState(!initialReviews);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [showFallback, setShowFallback] = useState(false);
 
   useEffect(() => {
     // If reviews are provided as props, use them
@@ -41,27 +42,27 @@ export default function GoogleReviews({
       return;
     }
 
-    // Otherwise, fetch from API if placeId is provided
-    if (placeId) {
-      fetchReviews();
-    } else {
-      setLoading(false);
-    }
-  }, [placeId, initialReviews, maxReviews]);
+    // Always try to fetch from API
+    fetchReviews();
+  }, [maxReviews]);
 
   const fetchReviews = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/google-reviews?placeId=${placeId}&maxReviews=${maxReviews}`);
+      setError(null);
+      const response = await fetch(`/api/google-reviews?maxReviews=${maxReviews}`);
       const data = await response.json();
       
-      if (data.success && data.reviews) {
+      if (data.success && data.reviews && data.reviews.length > 0) {
         setReviews(data.reviews);
+        setShowFallback(false);
       } else {
-        setError(data.error || "Failed to load reviews");
+        setShowFallback(true);
+        setError(data.error || "No reviews available");
       }
     } catch (err) {
       console.error("Error fetching Google reviews:", err);
+      setShowFallback(true);
       setError("Failed to load reviews");
     } finally {
       setLoading(false);
@@ -95,6 +96,28 @@ export default function GoogleReviews({
     );
   };
 
+  // Show fallback badge if API fails or no reviews
+  if (showFallback || (error && reviews.length === 0)) {
+    return (
+      <div className={`flex items-center justify-center py-8 ${className}`}>
+        <div className="inline-flex items-center gap-3 px-6 py-4 bg-gray-900/50 backdrop-blur-sm border border-champagne-gold/30 rounded-lg">
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                className="w-5 h-5 fill-champagne-gold text-champagne-gold"
+              />
+            ))}
+          </div>
+          <div>
+            <p className="text-white font-semibold text-lg">Verified 5-Star Service</p>
+            <p className="text-gray-400 text-sm">Trusted by 500+ happy clients</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className={`flex items-center justify-center py-12 ${className}`}>
@@ -103,8 +126,8 @@ export default function GoogleReviews({
     );
   }
 
-  if (error || reviews.length === 0) {
-    return null; // Don't show anything if there's an error or no reviews
+  if (reviews.length === 0) {
+    return null;
   }
 
   const currentReview = reviews[currentIndex];
@@ -132,7 +155,9 @@ export default function GoogleReviews({
           exit={{ opacity: 0, y: -20, scale: 0.95 }}
           transition={{ duration: 0.5 }}
         >
-          <Card className="bg-gray-800/50 border-champagne-gold/40 backdrop-blur-sm">
+          <Card className={`border-champagne-gold/40 backdrop-blur-lg transition-all duration-300 hover:border-champagne-gold/60 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] ${
+            className?.includes('luxury-theme') ? 'bg-white/5' : 'bg-gray-800/50 backdrop-blur-sm'
+          }`}>
             <CardContent className="p-8 sm:p-12">
               {/* Rating Stars */}
               <div className="flex justify-center mb-4">

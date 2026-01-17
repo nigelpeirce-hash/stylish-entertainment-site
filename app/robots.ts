@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/admin/', '/api/', '/client/', '/demo-', '/login', '/register'],
       },
     ],
-    sitemap: 'https://stylishentertainment.co.uk/sitemap.xml',
+    sitemap: 'https://www.stylishentertainment.co.uk/sitemap.xml',
   }
 }

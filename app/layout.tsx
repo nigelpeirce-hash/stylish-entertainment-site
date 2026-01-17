@@ -19,12 +19,13 @@ const raleway = Raleway({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://stylishentertainment.co.uk'),
+  metadataBase: new URL("https://www.stylishentertainment.co.uk"),
   title: {
-    default: "Stylish Entertainment & Production | Professional DJs, Lighting Design & Venue Styling",
-    template: "%s | Stylish Entertainment"
+    default: "STYLISH Entertainment | Wedding DJs, Lighting & Planning",
+    template: "%s | STYLISH Entertainment"
   },
-  description: "Stylish Entertainment & Production - Exceptional entertainment services. Professional DJs, musicians, lighting design, and venue styling across London, Somerset, Bath, Bristol, Dorset, Devon, and Cornwall. Strictly no YMCA.",
+  description: "Premium wedding and event entertainment across Somerset, Wiltshire, and the West Country.",
+  siteName: "STYLISH Entertainment",
   keywords: ["West Country Wedding DJs", "London Wedding DJs", "Somerset Wedding DJs", "Bath Wedding DJs", "Bristol Wedding DJs", "Dorset Wedding DJs", "Devon Wedding DJs", "Wedding DJs Cornwall", "Stylish Entertainment", "Luxury Wedding Lighting Hire", "Wedding Entertainment", "Wedding Lighting Design", "Venue Styling", "Wedding Musicians", "Babington House DJ", "Professional Wedding DJs", "Wedding Sound Systems", "LED Wedding Lighting"],
   authors: [{ name: "Stylish Entertainment" }],
   creator: "Stylish Entertainment",
@@ -37,10 +38,10 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_GB",
-    url: "https://stylishentertainment.co.uk",
-    siteName: "Stylish Entertainment",
-    title: "Stylish Entertainment & Production | Professional DJs, Lighting Design & Venue Styling",
-    description: "Stylish Entertainment & Production - Exceptional entertainment services. Professional DJs, musicians, lighting design, and venue styling across London, Somerset, Bath, Bristol, Dorset, Devon, and Cornwall.",
+    url: "https://www.stylishentertainment.co.uk",
+    siteName: "STYLISH Entertainment",
+    title: "STYLISH Entertainment | Wedding DJs, Lighting & Planning",
+    description: "Premium wedding and event entertainment across Somerset, Wiltshire, and the West Country.",
     images: [
       {
         url: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw",
@@ -52,8 +53,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Stylish Entertainment & Production | Professional DJs, Lighting Design & Venue Styling",
-    description: "Stylish Entertainment & Production - Exceptional entertainment services. Professional DJs, lighting design, and venue styling.",
+    title: "STYLISH Entertainment | Wedding DJs, Lighting & Planning",
+    description: "Premium wedding and event entertainment across Somerset, Wiltshire, and the West Country.",
     images: ["https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw"],
     creator: "@stylishentertainment",
   },
@@ -72,7 +73,7 @@ export const metadata: Metadata = {
     google: "3eb19029808b92e4",
   },
   alternates: {
-    canonical: "https://stylishentertainment.co.uk",
+    canonical: "./",
   },
   icons: {
     icon: "/favicon.svg",

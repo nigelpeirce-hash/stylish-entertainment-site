@@ -4,7 +4,7 @@ import { sendEmail } from "@/lib/email";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, weddingDate, venueNamePostcode, contactPreference, services, message, recaptchaToken, preferredDJ, djStartTime, djFinishTime, upsellItems } = body;
+    const { name, email, phone, eventDate, venueName, referralSource, eventType, message, recaptchaToken } = body;
 
     // Basic validation
     if (!name || !email || !message) {
@@ -16,9 +16,6 @@ export async function POST(request: NextRequest) {
 
     // TODO: Verify reCAPTCHA token on server side if needed
     // For now, we'll trust the client-side verification
-
-    // Format services list
-    const servicesList = Array.isArray(services) ? services.join(", ") : services || "Not specified";
 
     // Get base URL for logo (use NEXTAUTH_URL if set, otherwise try Vercel URL, fallback to production domain)
     let baseUrl = 'https://stylishentertainment.co.uk';
@@ -62,48 +59,34 @@ export async function POST(request: NextRequest) {
               <div class="field-label">Email:</div>
               <div class="field-value">${email}</div>
             </div>
-            ${weddingDate ? `
+            ${phone ? `
             <div class="field">
-              <div class="field-label">Wedding Date:</div>
-              <div class="field-value">${weddingDate}</div>
+              <div class="field-label">Phone:</div>
+              <div class="field-value">${phone}</div>
             </div>
             ` : ''}
-            ${venueNamePostcode ? `
+            ${eventDate ? `
             <div class="field">
-              <div class="field-label">Venue Name/Postcode:</div>
-              <div class="field-value">${venueNamePostcode}</div>
+              <div class="field-label">Event Date:</div>
+              <div class="field-value">${eventDate}</div>
             </div>
             ` : ''}
-            ${contactPreference ? `
+            ${venueName ? `
             <div class="field">
-              <div class="field-label">Preferred Contact Method:</div>
-              <div class="field-value">${contactPreference}</div>
+              <div class="field-label">Venue Name:</div>
+              <div class="field-value">${venueName}</div>
             </div>
             ` : ''}
+            ${referralSource ? `
             <div class="field">
-              <div class="field-label">Services Interested In:</div>
-              <div class="field-value">${servicesList}</div>
-            </div>
-            ${preferredDJ ? `
-            <div class="field">
-              <div class="field-label">Preferred DJ:</div>
-              <div class="field-value">${preferredDJ === null ? "Any DJ" : preferredDJ}</div>
+              <div class="field-label">How did you hear about us:</div>
+              <div class="field-value">${referralSource}</div>
             </div>
             ` : ''}
-            ${djStartTime || djFinishTime ? `
+            ${eventType ? `
             <div class="field">
-              <div class="field-label">DJ Set Times:</div>
-              <div class="field-value">
-                ${djStartTime ? `Start: ${djStartTime}` : 'Start: Not specified'}
-                ${djStartTime && djFinishTime ? ' | ' : ''}
-                ${djFinishTime ? `Finish: ${djFinishTime}` : djStartTime ? 'Finish: Not specified' : ''}
-              </div>
-            </div>
-            ` : ''}
-            ${upsellItems && Array.isArray(upsellItems) && upsellItems.length > 0 ? `
-            <div class="field">
-              <div class="field-label">Items of Interest (Upsells):</div>
-              <div class="field-value">${upsellItems.join(", ")}</div>
+              <div class="field-label">Event Type:</div>
+              <div class="field-value">${eventType}</div>
             </div>
             ` : ''}
             <div class="field">
