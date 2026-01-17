@@ -219,7 +219,7 @@ export default function PartyDJsClient() {
             </h2>
             <Card className="bg-gray-800/50 backdrop-blur-md border-champagne-gold/50">
               <CardContent className="p-6">
-                <Accordion type="single" collapsible className="w-full">
+                <Accordion type="single" className="w-full">
                   {faqs.map((faq, idx) => (
                     <AccordionItem key={idx} value={`item-${idx}`}>
                       <AccordionTrigger className="text-left">

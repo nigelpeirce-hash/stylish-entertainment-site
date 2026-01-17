@@ -384,7 +384,7 @@ export default function MellsBarnClient() {
             </motion.div>
             <Card className="bg-gray-800/50 backdrop-blur-md border-champagne-gold/50">
               <CardContent className="p-6">
-                <Accordion type="single" collapsible className="w-full">
+                <Accordion type="single" className="w-full">
                   {faqItems.map((item, idx) => (
                     <AccordionItem key={idx} value={`item-${idx}`} className="border-champagne-gold/30">
                       <AccordionTrigger className="text-white hover:text-champagne-gold">
