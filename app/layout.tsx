@@ -25,7 +25,6 @@ export const metadata: Metadata = {
     template: "%s | STYLISH Entertainment"
   },
   description: "Premium wedding and event entertainment across Somerset, Wiltshire, and the West Country.",
-  siteName: "STYLISH Entertainment",
   keywords: ["West Country Wedding DJs", "London Wedding DJs", "Somerset Wedding DJs", "Bath Wedding DJs", "Bristol Wedding DJs", "Dorset Wedding DJs", "Devon Wedding DJs", "Wedding DJs Cornwall", "Stylish Entertainment", "Luxury Wedding Lighting Hire", "Wedding Entertainment", "Wedding Lighting Design", "Venue Styling", "Wedding Musicians", "Babington House DJ", "Professional Wedding DJs", "Wedding Sound Systems", "LED Wedding Lighting"],
   authors: [{ name: "Stylish Entertainment" }],
   creator: "Stylish Entertainment",
