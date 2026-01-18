@@ -34,6 +34,17 @@ export async function GET(
             email: true,
           },
         },
+        staffAssignments: {
+          include: {
+            staff: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -74,6 +85,57 @@ export async function GET(
     });
   } catch (error) {
     console.error("Error fetching booking:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> | { id: string } }
+) {
+  try {
+    const admin = await requireAdmin(request);
+    if (!admin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const resolvedParams = params instanceof Promise ? await params : params;
+    const bookingId = resolvedParams.id;
+    const body = await request.json();
+
+    if (!bookingId) {
+      return NextResponse.json({ error: "Booking ID is required" }, { status: 400 });
+    }
+
+    // Validate eventDate if provided
+    if (body.eventDate) {
+      const parsedDate = new Date(body.eventDate);
+      if (isNaN(parsedDate.getTime())) {
+        return NextResponse.json({ error: "Invalid date format" }, { status: 400 });
+      }
+      body.eventDate = parsedDate;
+    }
+
+    const updatedBooking = await prisma.booking.update({
+      where: { id: bookingId },
+      data: body,
+      include: {
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({ booking: updatedBooking });
+  } catch (error) {
+    console.error("Error updating booking:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

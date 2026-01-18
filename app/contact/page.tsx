@@ -50,7 +50,7 @@ export default function Contact() {
   const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
 
   // Google reCAPTCHA v3 Site Key
-  const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "6LfVGEksAAAAAJHrB69urNHrL8IGPEOrQcJDL_J7";
+  const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
   useEffect(() => {
     document.title = "Contact Us | West Country Wedding Entertainment Booking";

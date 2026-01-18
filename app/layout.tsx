@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Raleway } from "next/font/google";
+import { Raleway, Bebas_Neue } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
@@ -9,12 +9,21 @@ import GoogleTagManager from "@/components/GoogleTagManager";
 import CookieYes from "@/components/CookieYes";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { Providers } from "@/components/Providers";
+import WelcomeBackBanner from "@/components/WelcomeBackBanner";
 
 const raleway = Raleway({
   subsets: ["latin"],
   variable: "--font-sans",
   display: "swap",
   weight: ["400", "600", "700"], // Reduced from 7 weights to 3 most used
+  preload: true,
+});
+
+const bebasNeue = Bebas_Neue({
+  subsets: ["latin"],
+  variable: "--font-artdeco",
+  display: "swap",
+  weight: "400",
   preload: true,
 });
 
@@ -87,7 +96,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={raleway.variable}>
+    <html lang="en" className={`${raleway.variable} ${bebasNeue.variable}`}>
       <body className="relative min-h-screen" style={{
         background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
       }}>
@@ -99,6 +108,7 @@ export default function RootLayout({
           <GoogleTagManager />
           <GoogleAnalytics />
           <CookieYes />
+          <WelcomeBackBanner />
           <Navigation />
           <Breadcrumbs />
           <main className="min-h-screen relative z-10">{children}</main>

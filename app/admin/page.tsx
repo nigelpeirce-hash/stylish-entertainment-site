@@ -21,6 +21,8 @@ import {
   Music,
 } from "lucide-react";
 import Link from "next/link";
+import AdminHelp from "@/components/AdminHelp";
+import VenueAssetUploader from "@/components/VenueAssetUploader";
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
@@ -34,6 +36,16 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Check for dev bypass first (development only)
+    const devBypass = typeof window !== "undefined" && 
+      (process.env.NODE_ENV === "development" || window.location.hostname === "localhost") &&
+      sessionStorage.getItem("dev_admin_bypass") === "true";
+
+    if (devBypass) {
+      // Dev bypass active, allow access
+      return;
+    }
+
     if (status === "unauthenticated") {
       router.push("/login");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
@@ -42,7 +54,12 @@ export default function AdminDashboard() {
   }, [status, session, router]);
 
   useEffect(() => {
-    if (status === "authenticated" && (session?.user as any)?.role === "admin") {
+    // Check for dev bypass
+    const devBypass = typeof window !== "undefined" && 
+      (process.env.NODE_ENV === "development" || window.location.hostname === "localhost") &&
+      sessionStorage.getItem("dev_admin_bypass") === "true";
+
+    if ((status === "authenticated" && (session?.user as any)?.role === "admin") || devBypass) {
       fetchStats();
     }
   }, [status, session]);
@@ -94,7 +111,15 @@ export default function AdminDashboard() {
     );
   }
 
-  if (!session || (session?.user as any)?.role !== "admin") {
+  // Check for dev bypass (development only)
+  const devBypass = typeof window !== "undefined" && 
+    (process.env.NODE_ENV === "development" || window.location.hostname === "localhost") &&
+    sessionStorage.getItem("dev_admin_bypass") === "true";
+
+  const isAdmin = session && (session?.user as any)?.role === "admin";
+  const displayName = isAdmin ? session.user?.name : sessionStorage.getItem("dev_admin_name") || "Dev Admin";
+
+  if (!isAdmin && !devBypass) {
     return null;
   }
 
@@ -110,9 +135,22 @@ export default function AdminDashboard() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
-              <p className="text-gray-400">Welcome back, {session.user?.name}</p>
+              <p className="text-gray-400">Welcome back, {displayName}</p>
+              {devBypass && (
+                <p className="text-xs text-yellow-400 mt-1">⚠️ Development Mode - Auth Bypassed</p>
+              )}
             </div>
             <div className="flex flex-wrap gap-3">
+              <AdminHelp />
+              <Link href="/admin/90-day-command">
+                <Button
+                  variant="outline"
+                  className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10 whitespace-nowrap"
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  90-Day Command Centre
+                </Button>
+              </Link>
               <Button
                 onClick={handleSyncEmails}
                 className="bg-champagne-gold text-black hover:bg-gold-light"
@@ -202,152 +240,218 @@ export default function AdminDashboard() {
           </Card>
         </motion.div>
 
-        {/* Quick Actions */}
+        {/* Main Actions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+          className="mb-12"
         >
-          <Link href="/admin/inbox">
-            <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-              <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                  <Inbox className="w-6 h-6 text-champagne-gold" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Email Inbox</h3>
-                  <p className="text-sm text-gray-400">View and manage emails</p>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+          <h2 className="text-2xl font-bold mb-6">Main Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Link href="/admin/90-day-command">
+              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                    <TrendingUp className="w-6 h-6 text-champagne-gold" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">90-Day Command Centre</h3>
+                    <p className="text-sm text-gray-400">Upcoming events & status tracking</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
 
-          <Link href="/admin/bookings">
-            <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-              <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                  <Calendar className="w-6 h-6 text-champagne-gold" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Bookings</h3>
-                  <p className="text-sm text-gray-400">Manage all bookings</p>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+            <Link href="/admin/bookings">
+              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                    <Calendar className="w-6 h-6 text-champagne-gold" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Manage Bookings</h3>
+                    <p className="text-sm text-gray-400">View and manage all bookings</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
 
-          <Link href="/admin/settings">
-            <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-              <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                  <Settings className="w-6 h-6 text-champagne-gold" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Settings</h3>
-                  <p className="text-sm text-gray-400">Configure email inboxes</p>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+            <Link href="/admin/orders">
+              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                    <Package className="w-6 h-6 text-champagne-gold" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Hire Orders</h3>
+                    <p className="text-sm text-gray-400">View and manage orders</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
 
-          <Link href="/admin/email-templates">
-            <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-              <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                  <Mail className="w-6 h-6 text-champagne-gold" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Email Templates</h3>
-                  <p className="text-sm text-gray-400">Manage email templates</p>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+            <Link href="/admin/inbox">
+              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                    <Inbox className="w-6 h-6 text-champagne-gold" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Email Inbox</h3>
+                    <p className="text-sm text-gray-400">View and manage emails</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
 
-          <Link href="/demo-booking-form">
-            <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-              <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                  <Calendar className="w-6 h-6 text-champagne-gold" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Booking Form Demo</h3>
-                  <p className="text-sm text-gray-400">Test DJ selection & upsells</p>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+            <Link href="/admin/hire-items">
+              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                    <Package className="w-6 h-6 text-champagne-gold" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Hire Shop Items</h3>
+                    <p className="text-sm text-gray-400">Manage products & pricing</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </motion.div>
 
-          <Link href="/admin/hire-items/seed">
-            <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-              <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                  <Package className="w-6 h-6 text-champagne-gold" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Seed Hire Items</h3>
-                  <p className="text-sm text-gray-400">Create initial hire items</p>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+        {/* Additional Tools */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mb-12"
+        >
+          <h2 className="text-2xl font-bold mb-6">Additional Tools</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Link href="/admin/settings">
+              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                    <Settings className="w-6 h-6 text-champagne-gold" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Settings</h3>
+                    <p className="text-sm text-gray-400">Configure email inboxes</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
 
-          <Link href="/admin/orders">
-            <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-              <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                  <Package className="w-6 h-6 text-champagne-gold" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Hire Orders</h3>
-                  <p className="text-sm text-gray-400">View and manage orders</p>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+            <Link href="/admin/email-templates">
+              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                    <Mail className="w-6 h-6 text-champagne-gold" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Email Templates</h3>
+                    <p className="text-sm text-gray-400">Manage email templates</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
 
-          <Link href="/admin/hire-items">
-            <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-              <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                  <Package className="w-6 h-6 text-champagne-gold" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Hire Shop Items</h3>
-                  <p className="text-sm text-gray-400">Manage products & pricing</p>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+            <Link href="/admin/emails">
+              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                    <Send className="w-6 h-6 text-champagne-gold" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Email Journey</h3>
+                    <p className="text-sm text-gray-400">Preview customer lifecycle emails</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
 
-          <Link href="/admin/djs">
-            <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-              <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                  <Music className="w-6 h-6 text-champagne-gold" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white">DJs</h3>
-                  <p className="text-sm text-gray-400">Manage DJ profiles</p>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+            <Link href="/admin/djs">
+              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                    <Music className="w-6 h-6 text-champagne-gold" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">DJs</h3>
+                    <p className="text-sm text-gray-400">Manage DJ profiles</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
 
-          <Link href="/admin/musicians">
-            <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-              <CardContent className="p-6 flex items-center gap-4">
-                <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                  <Music className="w-6 h-6 text-champagne-gold" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white">Musicians</h3>
-                  <p className="text-sm text-gray-400">Manage musician profiles</p>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
+            <Link href="/admin/musicians">
+              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                    <Music className="w-6 h-6 text-champagne-gold" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Musicians</h3>
+                    <p className="text-sm text-gray-400">Manage musician profiles</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </motion.div>
+
+        {/* Utility Tools */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="mb-8"
+        >
+          <h2 className="text-2xl font-bold mb-6">Utility Tools</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <Link href="/admin/hire-items/seed">
+              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                    <Package className="w-6 h-6 text-champagne-gold" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Seed Hire Items</h3>
+                    <p className="text-sm text-gray-400">Create initial hire items</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/demo-booking-form">
+              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                    <Calendar className="w-6 h-6 text-champagne-gold" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Booking Form Demo</h3>
+                    <p className="text-sm text-gray-400">Test DJ selection & upsells</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          </div>
+        </motion.div>
+
+        {/* Venue Asset Uploader */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mb-8"
+        >
+          <h2 className="text-xl font-bold mb-4">Venue Assets</h2>
+          <div className="max-w-xl">
+            <VenueAssetUploader />
+          </div>
         </motion.div>
       </div>
     </div>

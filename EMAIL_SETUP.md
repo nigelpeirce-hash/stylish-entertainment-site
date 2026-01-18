@@ -123,7 +123,7 @@ Content-Type: application/json
 
 ## Email Templates
 
-All email templates are in `lib/email-templates.ts` and can be customized:
+All email templates are in `lib/email-templates.ts` and can be customised:
 - `welcomeEmail()` - Sent immediately after booking
 - `bookingConfirmationEmail()` - Sent 2 days after booking
 - `finalDetailsReminderEmail()` - Sent 3 weeks before event

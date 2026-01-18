@@ -6,8 +6,10 @@ import { Menu, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthButton } from "@/components/AuthButton";
 import WaveDivider from "@/components/WaveDivider";
+import { useClientStatus } from "@/hooks/useClientStatus";
 
 export default function Navigation() {
+  const { isReturning } = useClientStatus();
   const [isOpen, setIsOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
   const [weddingsOpen, setWeddingsOpen] = useState(false);
@@ -16,6 +18,7 @@ export default function Navigation() {
   const [whatWeOfferOpen, setWhatWeOfferOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [galleriesOpen, setGalleriesOpen] = useState(false);
+  const [venuesOpen, setVenuesOpen] = useState(false);
 
   const navLinks = [
     { href: "/contact-us", label: "Contact" },
@@ -60,9 +63,17 @@ export default function Navigation() {
     { href: "/artists/musicians", label: "Musicians" },
   ];
 
+  const venuesLinks = [
+    { href: "/venues", label: "All Venues" },
+    { href: "/babington-wedding-info", label: "Babington House" },
+    { href: "/venues/mells-barn", label: "Mells Barn" },
+    { href: "/pennard-house-lighting", label: "Pennard House" },
+    { href: "/kin-house-wiltshire", label: "Kin House" },
+  ];
+
   return (
     <>
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b-2 border-[#d4af37]/50 shadow-2xl relative overflow-hidden bg-gradient-to-b from-[#2a1f0a] via-[#1a1508] to-[#0f0a05]">
+    <nav className={`fixed left-0 right-0 z-50 border-b-2 border-[#d4af37]/50 shadow-2xl relative overflow-hidden bg-gradient-to-b from-[#2a1f0a] via-[#1a1508] to-[#0f0a05] ${isReturning ? 'top-10' : 'top-0'}`}>
       {/* Base gradient background - More luxurious gold tones */}
       <div 
         className="absolute inset-0 pointer-events-none"
@@ -125,37 +136,40 @@ export default function Navigation() {
       />
       
       <div className="container mx-auto px-4 sm:px-6 relative z-20">
-        <div className="flex items-center justify-between h-48 md:h-52 relative">
+        <div className="flex items-center justify-between h-32 md:h-36 relative">
           <div className="flex flex-col flex-shrink-0">
             <Link href="/" className="relative group z-20 hover:opacity-90 transition-opacity duration-300">
               <img
                 src="/logo-header.svg"
                 alt="Stylish Entertainment Logo"
-                className="h-12 sm:h-14 md:h-16 lg:h-20 w-auto object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+                className="h-16 sm:h-20 md:h-24 lg:h-28 xl:h-32 w-auto object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]"
                 loading="eager"
                 fetchPriority="high"
               />
             </Link>
           </div>
 
-          {/* Centered Tagline - Hidden on Mobile */}
+          {/* Centered Tagline - Hidden on Mobile, Responsive to Container */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8 }}
-            className="hidden md:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none px-2"
+            className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none px-2"
             style={{ 
-              maxWidth: 'calc(100% - 320px)',
+              width: 'fit-content',
+              maxWidth: 'calc(100vw - 400px)',
               minWidth: '200px'
             }}
           >
             <h2 
-              className="text-white font-semibold italic text-center drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] whitespace-nowrap"
+              className="font-semibold italic text-center whitespace-nowrap"
               style={{
-                fontSize: 'clamp(0.625rem, 1.5vw + 0.25rem, 1.125rem)'
+                fontSize: 'clamp(0.625rem, 1.2vw + 0.25rem, 1rem)',
+                color: '#000000',
+                textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)'
               }}
             >
-              Every Gathering Deserves To Be Extraordinary
+              Make every gathering extraordinary
             </h2>
           </motion.div>
 
@@ -165,12 +179,13 @@ export default function Navigation() {
                 <AuthButton />
               </div>
               <button
-                className="text-white relative z-20 p-2 rounded-lg hover:bg-[#d4af37]/20 hover:text-[#d4af37] transition-all duration-300 hover:scale-110 flex items-center gap-2 backdrop-blur-sm drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]"
+                className="relative z-20 p-2 rounded-lg hover:bg-[#d4af37]/20 hover:text-[#d4af37] transition-all duration-300 hover:scale-110 flex items-center gap-2 backdrop-blur-sm"
                 onClick={() => setIsOpen(!isOpen)}
                 aria-label="Toggle menu"
+                style={{ color: '#000000', textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }}
               >
-                {isOpen ? <X size={26} className="font-bold" /> : <Menu size={26} className="font-bold" />}
-                <span className="hidden sm:inline text-sm font-bold">Menu</span>
+                {isOpen ? <X size={26} className="font-bold" style={{ color: '#000000', textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }} /> : <Menu size={26} className="font-bold" style={{ color: '#000000', textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }} />}
+                <span className="hidden sm:inline text-sm font-bold" style={{ color: '#000000', textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }}>Menu</span>
               </button>
             </div>
           </div>
@@ -330,6 +345,44 @@ export default function Navigation() {
                               onClick={() => {
                                 setIsOpen(false);
                                 setWhatWeOfferOpen(false);
+                              }}
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+
+                  {/* Venues Dropdown */}
+                  <div className="relative">
+                    <button
+                      onClick={() => setVenuesOpen(!venuesOpen)}
+                      className="w-full text-left text-white hover:text-[#d4af37] hover:translate-x-2 transition-all duration-300 font-semibold py-2 sm:py-3 px-3 rounded-lg hover:bg-white/10 relative group flex items-center justify-between"
+                    >
+                      <span className="relative z-10 text-sm sm:text-base">Venues</span>
+                      <ChevronDown 
+                        className={`w-4 h-4 transition-transform duration-300 ${venuesOpen ? 'rotate-180' : ''}`}
+                      />
+                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1 bg-[#d4af37] rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></span>
+                    </button>
+                    <AnimatePresence>
+                      {venuesOpen && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="mt-2 ml-4 space-y-1 border-l-2 border-[#d4af37]/40 pl-4"
+                        >
+                          {venuesLinks.map((item) => (
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              className="block text-white hover:text-[#d4af37] hover:translate-x-2 transition-all duration-300 font-medium py-1.5 px-2 rounded hover:bg-white/10 text-sm"
+                              onClick={() => {
+                                setIsOpen(false);
+                                setVenuesOpen(false);
                               }}
                             >
                               {item.label}

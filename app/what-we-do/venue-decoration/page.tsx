@@ -196,7 +196,7 @@ export default function VenueDecoration() {
             </p>
             <div className="bg-gradient-to-br from-champagne-gold/10 to-yellow-400/10 border-2 border-champagne-gold/30 rounded-lg p-6 mb-6">
               <p className="text-white text-lg md:text-xl leading-relaxed mb-4">
-                <Link href="/contact-us" className="text-champagne-gold hover:text-gold-light underline font-semibold">Contact Us</Link> today and speak to one of our team about your party or event.
+                <Link href="/contact-us" className="text-champagne-gold hover:text-gold-light underline font-semibold">Check Availability</Link> today and speak to one of our team about your party or event.
               </p>
               <p className="text-white text-base md:text-lg leading-relaxed">
                 We offer our venue styling in the following areas: <span className="font-semibold text-champagne-gold">Venue styling Somerset, Wiltshire, Devon, Bristol, Bath, Swindon, Oxford</span>.
@@ -219,7 +219,7 @@ export default function VenueDecoration() {
               Ready to style your venue?
             </h2>
             <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
-              <Link href="/contact-us">Get in Touch</Link>
+              <Link href="/contact-us">Check Availability</Link>
             </Button>
           </motion.div>
         </div>

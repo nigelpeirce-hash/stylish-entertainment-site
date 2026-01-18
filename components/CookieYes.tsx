@@ -16,17 +16,34 @@ export default function CookieYes() {
 
   useEffect(() => {
     // Only load CookieYes in production (not on localhost)
+    if (typeof window === "undefined") {
+      return; // Server-side, don't load
+    }
+
+    const hostname = window.location.hostname;
     const isLocalhost = 
-      typeof window !== "undefined" && 
-      (window.location.hostname === "localhost" || 
-       window.location.hostname === "127.0.0.1" ||
-       window.location.hostname.includes("192.168."));
+      hostname === "localhost" || 
+      hostname === "127.0.0.1" ||
+      hostname.startsWith("192.168.") ||
+      hostname.startsWith("10.") ||
+      hostname.startsWith("10.0.") ||
+      hostname.includes("localhost");
     
-    setShouldLoad(!isLocalhost);
+    // Also check for development environment variables
+    const isDevelopment = process.env.NODE_ENV === "development";
+    
+    if (isLocalhost || isDevelopment) {
+      console.log("CookieYes: Skipping load on localhost/development");
+      setShouldLoad(false);
+      return;
+    }
+    
+    setShouldLoad(true);
   }, []);
 
+  // Don't render anything if we shouldn't load
   if (!shouldLoad) {
-    return null; // Don't load CookieYes on localhost
+    return null;
   }
 
   return (

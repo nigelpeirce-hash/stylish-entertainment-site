@@ -24,6 +24,9 @@ import {
   Sparkles,
 } from "lucide-react";
 import Link from "next/link";
+import { ArtistDispatch } from "@/components/ArtistDispatch";
+import { SendResources } from "@/components/SendResources";
+import { QuickStaffConfirm } from "@/components/QuickStaffConfirm";
 
 interface Booking {
   id: string;
@@ -45,6 +48,18 @@ interface Booking {
   budget: string | null;
   status: string;
   contactPreference: string | null;
+  djArrivalTime?: string | null;
+  djStartTime?: string | null;
+  djFinishTime?: string | null;
+  firstDance?: string | null;
+  musicDislikes?: string | null;
+  musicRequests?: string | null;
+  musicNotesToDJ?: string | null;
+  assignedDJEmail?: string | null;
+  assignedDJName?: string | null;
+  reviewComplete?: boolean;
+  dispatchedAt?: string | null;
+  dispatchedBy?: string | null;
   user: { id: string; name: string; email: string } | null;
   emailThreads: Array<{
     id: string;
@@ -52,6 +67,18 @@ interface Booking {
     fromEmail: string;
     lastMessageAt: string;
     isRead: boolean;
+  }>;
+  staffAssignments?: Array<{
+    id: string;
+    role: string;
+    agreedFee: number;
+    status: string;
+    confirmationEmailSent: boolean;
+    staff: {
+      id: string;
+      name: string;
+      email: string | null;
+    };
   }>;
 }
 
@@ -337,6 +364,78 @@ export default function BookingDetail() {
               </CardContent>
             </Card>
           )}
+
+          {/* Staff Assignments */}
+          <Card className="bg-gray-800 border-champagne-gold/30">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <User className="w-5 h-5 text-champagne-gold" />
+                  Staff Assignments
+                </CardTitle>
+                <QuickStaffConfirm
+                  bookingId={booking.id}
+                  venueName={booking.venueName}
+                  eventDate={booking.eventDate}
+                  onConfirm={fetchBooking}
+                />
+              </div>
+            </CardHeader>
+            <CardContent>
+              {booking.staffAssignments && booking.staffAssignments.length > 0 ? (
+                <div className="space-y-3">
+                  {booking.staffAssignments.map((assignment) => (
+                    <div
+                      key={assignment.id}
+                      className="p-4 bg-gray-900/50 rounded-lg border border-gray-700"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <p className="text-white font-semibold">{assignment.staff.name}</p>
+                            <span
+                              className={`px-2 py-1 text-xs rounded ${
+                                assignment.status === "held"
+                                  ? "bg-blue-900/30 text-blue-400 border border-blue-500/30"
+                                  : assignment.status === "dispatched"
+                                  ? "bg-green-900/30 text-green-400 border border-green-500/30"
+                                  : "bg-gray-700 text-gray-300 border border-gray-600"
+                              }`}
+                            >
+                              {assignment.status === "held" ? "Date Held" : assignment.status === "dispatched" ? "Fully Dispatched" : assignment.status}
+                            </span>
+                          </div>
+                          <p className="text-gray-400 text-sm">Role: {assignment.role}</p>
+                          <p className="text-gray-400 text-sm">
+                            Fee: £{assignment.agreedFee.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                          </p>
+                          {assignment.confirmationEmailSent && (
+                            <p className="text-xs text-gray-500 mt-1">✓ Confirmation email sent</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-gray-400 text-sm">No staff assigned yet. Use "Quick Staff Confirm" to add staff.</p>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Send Resources */}
+          <SendResources
+            bookingId={booking.id}
+            clientEmail={booking.email}
+            clientName={booking.name}
+          />
+
+          {/* Artist Dispatch Module */}
+          <ArtistDispatch
+            bookingId={booking.id}
+            booking={booking}
+            onUpdate={fetchBooking}
+          />
 
           {/* Email Threads */}
           {booking.emailThreads && booking.emailThreads.length > 0 && (

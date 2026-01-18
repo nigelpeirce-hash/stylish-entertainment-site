@@ -94,46 +94,89 @@ export default function Videos() {
     try {
       setLoading(true);
       
-      // Convert @username to channel ID if needed
+      // Convert @username/handle to channel ID if needed
       let actualChannelId = channelId;
       if (channelId.startsWith("@")) {
-        // For @username format, we need to use channels.list with forUsername
-        // But first try to get channel ID from the custom URL
+        // For @handle format, try multiple methods to get the channel ID
+        const handle = channelId.replace("@", "");
+        let found = false;
+        let lastError: string | null = null;
+        
+        // Method 1: Try using channels.list with forHandle (newer API feature - available in some API versions)
         try {
           const channelResponse = await fetch(
-            `https://www.googleapis.com/youtube/v3/channels?part=id&forUsername=${channelId.replace("@", "")}&key=${apiKey}`
+            `https://www.googleapis.com/youtube/v3/channels?part=id&forHandle=${handle}&key=${apiKey}`
           );
+          
           if (channelResponse.ok) {
             const channelData = await channelResponse.json();
             if (channelData.items && channelData.items.length > 0) {
               actualChannelId = channelData.items[0].id;
-              console.log(`Found channel ID: ${actualChannelId}`);
+              console.log(`Found channel ID via forHandle: ${actualChannelId}`);
+              found = true;
             } else {
-              // Fallback: try search API
-              const searchResponse = await fetch(
-                `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(channelId)}&type=channel&maxResults=1&key=${apiKey}`
-              );
-              if (searchResponse.ok) {
-                const searchData = await searchResponse.json();
-                if (searchData.items && searchData.items.length > 0) {
-                  actualChannelId = searchData.items[0].snippet.channelId;
-                  console.log(`Found channel ID via search: ${actualChannelId}`);
-                }
-              }
+              lastError = "Channel not found with forHandle parameter";
             }
+          } else {
+            const errorData = await channelResponse.json().catch(() => ({}));
+            lastError = `forHandle API returned ${channelResponse.status}: ${JSON.stringify(errorData)}`;
           }
         } catch (e) {
-          console.warn("Could not convert @username to channel ID, using as-is:", e);
+          lastError = `forHandle method failed: ${e instanceof Error ? e.message : 'Unknown error'}`;
+          console.warn("forHandle method failed, trying alternatives:", e);
+        }
+        
+        // Method 2: Try using the handle directly in playlists endpoint
+        // Some API versions accept handles directly
+        if (!found) {
+          try {
+            const testResponse = await fetch(
+              `https://www.googleapis.com/youtube/v3/playlists?part=snippet&channelId=${channelId}&maxResults=1&key=${apiKey}`
+            );
+            if (testResponse.ok) {
+              const testData = await testResponse.json();
+              // If we get a valid response (even if empty), the handle works
+              actualChannelId = channelId;
+              console.log(`Using handle directly: ${actualChannelId}`);
+              found = true;
+            } else {
+              const errorData = await testResponse.json().catch(() => ({}));
+              lastError = `Direct handle test returned ${testResponse.status}: ${JSON.stringify(errorData)}`;
+            }
+          } catch (e) {
+            lastError = `Direct handle method failed: ${e instanceof Error ? e.message : 'Unknown error'}`;
+            console.warn("Direct handle method failed:", e);
+          }
+        }
+        
+        if (!found) {
+          // Provide helpful error message with instructions
+          const errorMsg = `Unable to resolve channel handle ${channelId}. ${lastError || 'All methods failed.'}\n\n` +
+            `To fix this:\n` +
+            `1. Get your actual Channel ID from: https://www.youtube.com/@${handle}/about\n` +
+            `2. Or use this tool: https://commentpicker.com/youtube-channel-id.php\n` +
+            `3. Set NEXT_PUBLIC_YOUTUBE_CHANNEL_ID to the Channel ID (starts with UC...) instead of the handle.\n` +
+            `4. Make sure YouTube Data API v3 is enabled in Google Cloud Console.`;
+          
+          console.error(errorMsg);
+          throw new Error(errorMsg);
         }
       }
 
-      // Fetch playlists
+      // Fetch playlists using the actual channel ID
       const playlistsResponse = await fetch(
         `https://www.googleapis.com/youtube/v3/playlists?part=snippet,contentDetails&channelId=${actualChannelId}&maxResults=50&key=${apiKey}`
       );
 
       if (!playlistsResponse.ok) {
-        throw new Error(`Failed to fetch playlists: ${playlistsResponse.statusText}`);
+        const errorText = await playlistsResponse.text();
+        console.error(`YouTube API Error (${playlistsResponse.status}):`, errorText);
+        
+        if (playlistsResponse.status === 403) {
+          throw new Error(`API key error (403). Please check: 1) YouTube Data API v3 is enabled, 2) API key restrictions allow localhost, 3) API key has correct permissions.`);
+        }
+        
+        throw new Error(`Failed to fetch playlists (${playlistsResponse.status}): ${playlistsResponse.statusText}`);
       }
 
       const playlistsData = await playlistsResponse.json();
@@ -227,8 +270,8 @@ export default function Videos() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-25 flex items-center justify-center">
           <img
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw"
-            alt="Video gallery showcasing our work"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163683/NP-Decks-2_y32tje.jpg"
+            alt="Video gallery showcasing our work - Professional DJ performance and entertainment"
             className="w-full h-full object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}
             loading="eager"
@@ -294,7 +337,7 @@ export default function Videos() {
               Video Playlists
             </h2>
             <p className="text-lg text-gray-300">
-              Browse our videos organized by category
+              Browse our videos organised by category
             </p>
             {error && (
               <p className="text-yellow-400 text-sm mt-2">{error}</p>

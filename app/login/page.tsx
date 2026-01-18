@@ -38,32 +38,60 @@ export default function LoginPage() {
     setError("");
 
     try {
-      console.log("Attempting to sign in:", data.email);
+      // First, check if email exists in database
+      let emailExists = false;
+      const emailCheck = await fetch("/api/auth/check-credentials", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: data.email, password: data.password }),
+      });
+
+      if (!emailCheck.ok) {
+        const emailError = await emailCheck.json();
+        if (emailError.error === "EMAIL_NOT_RECOGNIZED") {
+          setError("Email not recognised. Please check your email address and try again.");
+          setIsLoading(false);
+          return;
+        }
+      } else {
+        // Email exists in database
+        emailExists = true;
+      }
+
+      // Email exists, proceed with authentication
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
         redirect: false,
       });
 
-      console.log("Sign in result:", result);
-
+      // Handle errors - check error first, even if ok is true (NextAuth v5 beta quirk)
       if (result?.error) {
-        console.error("Sign in error:", result.error);
-        // Provide user-friendly error messages
+        // Provide user-friendly error messages based on specific error types
         let errorMessage = result.error;
+        
         if (result.error === "Configuration") {
           errorMessage = "Authentication is not properly configured. Please contact support.";
+          console.error("⚠️ NextAuth Configuration Error - Check server logs for details");
+          console.error("   This usually means NEXTAUTH_SECRET is missing or invalid");
         } else if (result.error === "CredentialsSignin") {
-          errorMessage = "Invalid email or password. Please try again.";
-        } else if (result.error.includes("No user found")) {
-          errorMessage = "No account found with this email address.";
-        } else if (result.error.includes("Invalid password")) {
-          errorMessage = "Invalid password. Please try again.";
+          // Since we checked the email first, if we get here and email exists,
+          // it means the password is wrong
+          if (emailExists) {
+            errorMessage = "Invalid password. Please try again.";
+          } else {
+            // Fallback (shouldn't happen if email check worked)
+            errorMessage = "Invalid email or password. Please try again.";
+          }
+          // Authentication failed (invalid password or credentials)
         }
         setError(errorMessage);
         setIsLoading(false);
-      } else if (result?.ok) {
-        console.log("Sign in successful, checking role...");
+        return; // Exit early if there's an error
+      } 
+      
+      // Only proceed if result is actually ok (no error present)
+      if (result?.ok && !result?.error) {
         // Wait a moment for session to be set, then check role
         await new Promise((resolve) => setTimeout(resolve, 500));
         
@@ -71,15 +99,11 @@ export default function LoginPage() {
         const sessionRes = await fetch("/api/auth/session");
         const sessionData = await sessionRes.json();
         const userRole = sessionData?.user?.role || (sessionData?.user as any)?.role;
-        console.log("User role from session:", userRole);
-        console.log("Full session data:", JSON.stringify(sessionData, null, 2));
         
         // Redirect based on role
         if (userRole === "admin") {
-          console.log("Redirecting to admin dashboard");
           router.push("/admin");
         } else {
-          console.log("Redirecting to client dashboard");
           router.push("/client/dashboard");
         }
         router.refresh();

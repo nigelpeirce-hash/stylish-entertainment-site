@@ -35,8 +35,17 @@ export default function ContactUsClient() {
         </motion.div>
       </section>
 
-      {/* Contact Form */}
-      <ContactForm />
+      {/* Contact Form Section */}
+      <section
+        className="pt-20 pb-8 px-4 relative"
+        style={{
+          background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
+        }}
+      >
+        <div className="container mx-auto max-w-3xl">
+          <ContactForm />
+        </div>
+      </section>
     </div>
   );
 }

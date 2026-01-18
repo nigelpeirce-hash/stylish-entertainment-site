@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { motion } from "framer-motion";
-import { User, Mail, Phone, MapPin, Calendar, ArrowLeft, Edit2, X, Check } from "lucide-react";
+import { User, Mail, Phone, MapPin, Calendar, ArrowLeft, Edit2, X, Check, Trash2, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 
 interface UserProfile {
@@ -26,6 +27,7 @@ interface Booking {
   eventDate: string;
   venueName: string;
   status: string;
+  services?: string[];
 }
 
 export default function ProfilePage() {
@@ -36,6 +38,10 @@ export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [userIpAddress, setUserIpAddress] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     name: "",
     phone: "",
@@ -64,6 +70,28 @@ export default function ProfilePage() {
       });
     }
   }, [profile]);
+
+  // Fetch user IP address for deletion logging
+  useEffect(() => {
+    const fetchIp = async () => {
+      try {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        setUserIpAddress(data.ip);
+      } catch (error) {
+        console.error("Error fetching IP:", error);
+        try {
+          const fallbackResponse = await fetch('https://api64.ipify.org?format=json');
+          const fallbackData = await fallbackResponse.json();
+          setUserIpAddress(fallbackData.ip);
+        } catch (fallbackError) {
+          console.error("Error fetching IP from fallback:", fallbackError);
+          setUserIpAddress("Unknown");
+        }
+      }
+    };
+    fetchIp();
+  }, []);
 
   const fetchProfile = async () => {
     try {
@@ -146,6 +174,50 @@ export default function ProfilePage() {
       return eventDate >= new Date();
     })
     .sort((a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime());
+
+  // Check if user has active or upcoming bookings (for account deletion restriction)
+  const hasActiveOrUpcomingBookings = bookings.some((booking) => {
+    const eventDate = new Date(booking.eventDate);
+    const isUpcoming = eventDate >= new Date();
+    const isActive = booking.status === "confirmed" || booking.status === "pending";
+    return isUpcoming && isActive;
+  });
+
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmation !== "DELETE") {
+      return;
+    }
+
+    if (!userIpAddress) {
+      alert("Could not retrieve your IP address. Please try again.");
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch("/api/client/delete-account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          deletion_ip: userIpAddress,
+          deletion_timestamp: new Date().toISOString(),
+        }),
+      });
+
+      if (response.ok) {
+        // Redirect to confirmation page
+        router.push("/client/account-deleted");
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to delete account: ${errorData.message || "Unknown error"}`);
+        setIsDeleting(false);
+      }
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      alert("An error occurred while deleting your account. Please try again.");
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
@@ -377,6 +449,31 @@ export default function ProfilePage() {
                           <p className="text-gray-400 text-sm mt-1">
                             Venue: {booking.venueName}
                           </p>
+                          {booking.services && booking.services.length > 0 && (
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {booking.services.map((service) => {
+                                // Map service names to display names
+                                const serviceMap: Record<string, string> = {
+                                  "DJs": "DJ",
+                                  "Lighting Design": "Lighting",
+                                  "Venue Styling": "Styling",
+                                  "Musicians": "Musicians",
+                                  "Kit Hire": "Kit Hire",
+                                  "Fire-Pits": "Fire-Pits",
+                                  "Party Planning": "Party Planning",
+                                };
+                                const displayName = serviceMap[service] || service;
+                                return (
+                                  <span
+                                    key={service}
+                                    className="px-2 py-1 text-xs font-medium bg-champagne-gold/20 text-champagne-gold border border-champagne-gold/30 rounded"
+                                  >
+                                    {displayName}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          )}
                         </div>
                         <div className="flex items-center gap-2">
                           <span
@@ -399,6 +496,104 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
         </motion.div>
+
+        {/* Delete Account Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-8"
+        >
+          <Card className="bg-gray-800 border-red-900/30">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-red-300">
+                <Trash2 className="w-5 h-5" />
+                Delete Account
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-gray-300 text-sm">
+                Once you delete your account, there is no going back. Please be certain.
+              </p>
+              
+              {hasActiveOrUpcomingBookings ? (
+                <div className="p-4 bg-yellow-900/20 border border-yellow-700/50 rounded-lg">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="w-5 h-5 text-yellow-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-yellow-200 font-medium mb-1">
+                        Accounts with active bookings cannot be deleted online.
+                      </p>
+                      <p className="text-yellow-200/80 text-sm">
+                        Please contact Nigel or Ali to discuss your event.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <Button
+                    onClick={() => setIsDeleteModalOpen(true)}
+                    variant="destructive"
+                    className="bg-red-900/30 hover:bg-red-900/50 text-red-300 border border-red-700/50"
+                  >
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Delete Account
+                  </Button>
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Delete Confirmation Modal */}
+        <Dialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
+          <DialogContent className="bg-gray-900 border-red-900/50">
+            <DialogHeader>
+              <DialogTitle className="text-red-300 flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5" />
+                Delete Account Confirmation
+              </DialogTitle>
+              <DialogDescription className="text-gray-300 pt-2">
+                This action cannot be undone. This will permanently delete your account and remove all associated data.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="p-4 bg-red-900/20 border border-red-700/50 rounded-lg">
+                <p className="text-red-200 text-sm mb-2">
+                  To confirm, please type <span className="font-bold">DELETE</span> in the box below:
+                </p>
+                <Input
+                  type="text"
+                  value={deleteConfirmation}
+                  onChange={(e) => setDeleteConfirmation(e.target.value)}
+                  placeholder="Type DELETE to confirm"
+                  className="bg-gray-800 text-white border-gray-700 focus:border-red-700"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setIsDeleteModalOpen(false);
+                  setDeleteConfirmation("");
+                }}
+                className="border-gray-600 text-gray-300 hover:bg-gray-700"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleDeleteAccount}
+                disabled={deleteConfirmation !== "DELETE" || isDeleting}
+                variant="destructive"
+                className="bg-red-900/30 hover:bg-red-900/50 text-red-300 border border-red-700/50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isDeleting ? "Deleting..." : "Delete Account"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

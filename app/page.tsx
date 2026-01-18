@@ -1,13 +1,15 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent } from "@/components/ui/card";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState } from "react";
 import { Quote } from "lucide-react";
+import { getRandomReviews } from "@/data/reviews";
+import type { Review } from "@/data/reviews";
 
 const services = [
   {
@@ -81,104 +83,76 @@ const featuredVenues = [
   { name: "North Cadbury Court", url: "https://www.northcadburycourt.co.uk/" },
 ];
 
-// Featured testimonials for homepage carousel
-const featuredTestimonials = [
-  {
-    quote: "All killer, no filler. All bangers, no clangers, as it were. The dance floor was full all night.",
-    author: "Vicky & Oli",
-    venue: "Hotel du Vin, Poole",
-  },
-  {
-    quote: "Our photographers mentioned in the 10 years they've been working they've not seen a dance floor so full for so long.",
-    author: "Alina & Dan",
-    venue: "Babington House",
-  },
-  {
-    quote: "Not sure a single guest left the dance floor for the 2.5hrs you were playing. We've had so many amazing comments today.",
-    author: "Sophie & Sam",
-    venue: "Sessions Art Club, London",
-  },
-  {
-    quote: "The set was a real hit and Rich was an absolute pleasure to work with throughout the day. We'd absolutely recommend him for any future events.",
-    author: "Tom & Annig",
-    venue: "Marquee Wedding, Tisbury",
-  },
-  {
-    quote: "His mixing and ability to judge the audience was better than I have ever seen. We will definitely be using him again! Just superb!",
-    author: "George & Kathryn",
-    venue: "Dene Farm, Hampshire",
-  },
-  {
-    quote: "The music was absolutely amazing - the dance floor was busy all evening and lots of people have told me how much they enjoyed the set.",
-    author: "Antonia & Jonathan",
-    venue: "Eastnor Castle",
-  },
-];
+// Testimonials Section Component - Displays 3 random reviews
+const TestimonialsSection = () => {
+  // Initialize with empty array to avoid hydration mismatch
+  // Reviews will be set in useEffect (client-side only)
+  const [selectedReviews, setSelectedReviews] = useState<Review[]>([]);
+  const [isClient, setIsClient] = useState(false);
 
-// Testimonials Carousel Component - Memoized for performance
-const TestimonialsCarousel = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
+  // Only select random reviews on client-side to prevent hydration mismatch
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % featuredTestimonials.length);
-    }, 5000); // Change quote every 5 seconds
-
-    return () => clearInterval(interval);
+    setIsClient(true);
+    setSelectedReviews(getRandomReviews(3));
   }, []);
 
-  const currentTestimonial = useMemo(() => featuredTestimonials[currentIndex], [currentIndex]);
-  
-  const handleDotClick = useCallback((index: number) => {
-    setCurrentIndex(index);
-  }, []);
+  // Show placeholder during SSR and initial hydration
+  if (!isClient) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto">
+        {[1, 2, 3].map((index) => (
+          <Card key={index} className="bg-gray-800/50 border-champagne-gold/40 backdrop-blur-sm h-full">
+            <CardContent className="p-6 sm:p-8 h-full flex flex-col">
+              <div className="flex justify-center mb-4">
+                <Quote className="w-8 h-8 text-champagne-gold/50" strokeWidth={1.5} />
+              </div>
+              <p className="text-base sm:text-lg text-white font-medium leading-relaxed text-center mb-6 italic flex-grow">
+                &nbsp;
+              </p>
+              <div className="text-center border-t border-champagne-gold/30 pt-4">
+                <p className="text-champagne-gold font-bold text-base sm:text-lg">&nbsp;</p>
+                <p className="text-gray-400 text-sm mt-1">&nbsp;</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
 
   return (
-    <div className="relative max-w-4xl mx-auto">
-      <AnimatePresence mode="wait">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto">
+      {selectedReviews.map((review, index) => (
         <motion.div
-          key={currentIndex}
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -20, scale: 0.95 }}
-          transition={{ duration: 0.5 }}
+          key={`${review.author}-${index}`}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ 
+            duration: 0.6, 
+            delay: index * 0.15,
+            ease: [0.22, 1, 0.36, 1] // Luxe easing curve
+          }}
         >
-          <Card className="bg-gray-800/50 border-champagne-gold/40 backdrop-blur-sm">
-            <CardContent className="p-8 sm:p-12">
-              <div className="flex justify-center mb-6">
-                <Quote className="w-12 h-12 text-champagne-gold/60" />
+          <Card className="bg-gray-800/50 border-champagne-gold/40 backdrop-blur-sm h-full hover:border-champagne-gold/60 transition-all duration-300">
+            <CardContent className="p-6 sm:p-8 h-full flex flex-col">
+              <div className="flex justify-center mb-4">
+                <Quote className="w-8 h-8 text-champagne-gold/50" strokeWidth={1.5} style={{ filter: 'drop-shadow(0 2px 4px rgba(212, 175, 55, 0.2))' }} />
               </div>
-              <p className="text-xl sm:text-2xl md:text-3xl text-white font-medium leading-relaxed text-center mb-8 italic">
-                &quot;{currentTestimonial.quote}&quot;
+              <p className="text-base sm:text-lg text-white font-medium leading-relaxed text-center mb-6 italic flex-grow">
+                &quot;{review.quote}&quot;
               </p>
-              <div className="text-center border-t border-champagne-gold/30 pt-6">
-                <p className="text-champagne-gold font-bold text-lg sm:text-xl">
-                  {currentTestimonial.author}
+              <div className="text-center border-t border-champagne-gold/30 pt-4">
+                <p className="text-champagne-gold font-bold text-base sm:text-lg">
+                  {review.author}
                 </p>
-                <p className="text-gray-400 text-sm sm:text-base mt-2">
-                  {currentTestimonial.venue}
+                <p className="text-gray-400 text-sm mt-1">
+                  {review.venue}
                 </p>
               </div>
             </CardContent>
           </Card>
         </motion.div>
-      </AnimatePresence>
-
-      {/* Dots indicator */}
-      <div className="flex justify-center gap-2 mt-8">
-        {featuredTestimonials.map((_, index) => (
-          <button
-            key={index}
-            onClick={() => handleDotClick(index)}
-            className={`transition-all duration-300 rounded-full ${
-              index === currentIndex
-                ? "w-8 h-2 bg-champagne-gold"
-                : "w-2 h-2 bg-champagne-gold/30 hover:bg-champagne-gold/50"
-            }`}
-            aria-label={`Go to testimonial ${index + 1}`}
-          />
-        ))}
-      </div>
+      ))}
     </div>
   );
 };
@@ -186,11 +160,11 @@ const TestimonialsCarousel = () => {
 // Homepage Gallery Slider Images
 const gallerySliderImages = [
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162627/Camilla-Richard-0063_mctrmo.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg",
     alt: "Wedding reception with professional lighting design showcasing elegant table settings and ambient lighting at a West Country venue",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162621/Babington-House-in-Green_oms0ws.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg",
     alt: "Babington House wedding venue with beautiful exterior LED mood lighting in green tones, showcasing luxury wedding lighting design",
   },
   {
@@ -206,11 +180,11 @@ const gallerySliderImages = [
     alt: "Fairy light tunnel at Babington House creating a magical entrance with professional wedding lighting design and venue styling",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163830/RosedewFarmWeddingPhotography-EmmaSam-562_aqtw3u.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768734676/RosedewFarmWeddingPhotography-EmmaSam-562_aqtw3u.jpg",
     alt: "Rosedew Farm wedding with elegant lighting design and professional wedding entertainment creating a beautiful celebration atmosphere",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163799/The-Newt-Somerset-with-our-Fairy-Light-Tunnel-installed-for-their-first-wedding_qwbpur.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768736010/The-Newt-Somerset-with-our-Fairy-Light-Tunnel-installed-for-their-first-wedding_xwmaca.jpg",
     alt: "The Newt Somerset wedding venue with fairy light tunnel installation showcasing professional wedding lighting design and venue transformation",
   },
   {
@@ -243,8 +217,10 @@ export default function Home() {
                 style={{ 
                   objectPosition: 'center center',
                 }}
-                priority={index === 0}
+                priority={index <= 1}
                 sizes="100vw"
+                loading={index <= 1 ? "eager" : "lazy"}
+                quality={90}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none"></div>
             </div>
@@ -253,7 +229,7 @@ export default function Home() {
       </section>
 
       {/* Hero Section */}
-      <section className="relative min-h-[95vh] flex items-center justify-center bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 text-white overflow-hidden">
+      <section className="relative py-12 md:py-20 flex items-center justify-center bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 text-white overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -359,8 +335,8 @@ export default function Home() {
             </p>
           </motion.div>
 
-          {/* Animated Testimonials Carousel */}
-          <TestimonialsCarousel />
+          {/* Random Testimonials Grid */}
+          <TestimonialsSection />
           
           <div className="text-center mt-12">
             <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">

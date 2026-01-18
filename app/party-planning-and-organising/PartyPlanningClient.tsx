@@ -49,7 +49,7 @@ export default function PartyPlanningClient() {
       <section className="relative min-h-[60vh] flex items-center justify-center text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163267/IMG_0740_rcczi9.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768754478/IMG_2866_zhs5sz.jpg"
             alt="Professional party planning and event organization services"
             fill
             className="object-cover object-center"
@@ -217,7 +217,7 @@ export default function PartyPlanningClient() {
             >
               <div className="flex-1 relative h-80 lg:h-96 rounded-lg overflow-hidden border border-champagne-gold/30">
                 <Image
-                  src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163267/IMG_0740_rcczi9.jpg"
+                  src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg"
                   alt="Initial consultation meeting for event planning"
                   fill
                   className="object-cover"
@@ -263,7 +263,7 @@ export default function PartyPlanningClient() {
             >
               <div className="flex-1 relative h-80 lg:h-96 rounded-lg overflow-hidden border border-champagne-gold/30">
                 <Image
-                  src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163371/Lighting-Design-at-Kings-Weston-House_qxzunv.jpg"
+                  src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg"
                   alt="Lighting design and production setup in progress"
                   fill
                   className="object-cover"
@@ -309,7 +309,7 @@ export default function PartyPlanningClient() {
             >
               <div className="flex-1 relative h-80 lg:h-96 rounded-lg overflow-hidden border border-champagne-gold/30">
                 <Image
-                  src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163745/Pool-Party01_qe5ro0.jpg"
+                  src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163815/Highcliffe-Castle-Wedding-2-web_pgsbaa.jpg"
                   alt="Party in full swing with flawless execution"
                   fill
                   className="object-cover"

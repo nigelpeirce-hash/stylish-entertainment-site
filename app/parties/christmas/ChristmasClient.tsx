@@ -29,7 +29,7 @@ const christmasPhotos: ImagePhoto[] = [
     alt: "Vintage festoon lighting creating a warm and inviting atmosphere for Christmas parties",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162291/Pennard-House-Lighting-with-Amber-Up-lighting_ztldmo.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768731384/Pennard-House-Lighting-with-Amber-Up-lighting_sljvaa.jpg",
     width: 1200,
     height: 900,
     alt: "Elegant venue with amber uplighting perfect for sophisticated Christmas celebrations",
@@ -277,7 +277,7 @@ export default function ChristmasClient() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center lg:flex-row-reverse">
               <div className="relative h-80 lg:h-96 rounded-lg overflow-hidden border border-champagne-gold/30 order-2 lg:order-1">
                 <Image
-                  src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162291/Pennard-House-Lighting-with-Amber-Up-lighting_ztldmo.jpg"
+                  src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768731384/Pennard-House-Lighting-with-Amber-Up-lighting_sljvaa.jpg"
                   alt="Festive lighting design for Christmas parties"
                   fill
                   className="object-cover"

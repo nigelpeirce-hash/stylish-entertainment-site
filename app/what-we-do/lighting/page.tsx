@@ -10,7 +10,7 @@ import { useEffect } from "react";
 
 const lightingPhotos: ImagePhoto[] = [
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162627/Camilla-Richard-0063_mctrmo.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg",
     width: 1200,
     height: 900,
     alt: "Wedding reception with professional lighting design, elegant table settings, and ambient lighting at a West Country venue",
@@ -22,7 +22,7 @@ const lightingPhotos: ImagePhoto[] = [
     alt: "Elegant wedding reception with sophisticated lighting design creating a warm and romantic atmosphere with ambient mood lighting",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162621/Babington-House-in-Green_oms0ws.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg",
     width: 1200,
     height: 900,
     alt: "Babington House wedding venue exterior with beautiful green LED mood lighting, showcasing luxury wedding lighting design in Somerset",
@@ -40,7 +40,7 @@ const lightingPhotos: ImagePhoto[] = [
     alt: "Emily and Tom's wedding reception with stunning atmospheric lighting design, captured by Jonny Barratt Photography, creating a magical evening ambiance",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162378/Jade-and-Emma-0059-1_wddnet.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768734499/Jade-and-Emma-0059-1_wddnet.jpg",
     width: 1200,
     height: 900,
     alt: "Jade and Emma's wedding with elegant dance floor lighting design and romantic ambient lighting creating a beautiful celebration atmosphere",
@@ -170,7 +170,7 @@ export default function Lighting() {
               Ready to transform your venue?
             </h2>
             <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
-              <Link href="/contact-us">Get in Touch</Link>
+              <Link href="/contact-us">Check Availability</Link>
             </Button>
           </motion.div>
         </div>

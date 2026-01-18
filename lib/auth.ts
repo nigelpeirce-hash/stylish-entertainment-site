@@ -3,6 +3,16 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
+// Get secret with fallback
+const getSecret = () => {
+  const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET;
+  if (!secret) {
+    console.warn("⚠️  NEXTAUTH_SECRET/AUTH_SECRET not set. Using temporary development secret.");
+    return "temporary-dev-secret-do-not-use-in-production";
+  }
+  return secret;
+};
+
 export const authOptions: NextAuthConfig = {
   // Removed PrismaAdapter - using JWT sessions, so we don't need database sessions
   // adapter: PrismaAdapter(prisma) as any,
@@ -16,18 +26,26 @@ export const authOptions: NextAuthConfig = {
       async authorize(credentials) {
         try {
           if (!credentials?.email || !credentials?.password) {
-            throw new Error("Please enter email and password");
+            return null;
           }
 
           console.log("Attempting to authorize user:", credentials.email);
 
+          // First, check if user exists in database
           const user = await prisma.user.findUnique({
             where: { email: (credentials as any).email as string },
           });
 
-          if (!user || !user.password) {
-            console.log("User not found or no password:", credentials.email);
-            throw new Error("No user found with this email");
+          // Email not found - throw specific error that can be caught
+          if (!user) {
+            console.log("Email not recognized:", credentials.email);
+            throw new Error("EMAIL_NOT_RECOGNIZED");
+          }
+
+          // User exists but has no password (edge case)
+          if (!user.password) {
+            console.log("User found but has no password:", credentials.email);
+            throw new Error("EMAIL_NOT_RECOGNIZED");
           }
 
           console.log("User found, checking password...");
@@ -37,9 +55,10 @@ export const authOptions: NextAuthConfig = {
             user.password
           );
 
+          // Email exists but password is wrong - throw specific error
           if (!isPasswordValid) {
             console.log("Invalid password for user:", credentials.email);
-            throw new Error("Invalid password");
+            throw new Error("INVALID_PASSWORD");
           }
 
           console.log("Password valid, returning user:", user.id);
@@ -48,12 +67,28 @@ export const authOptions: NextAuthConfig = {
             id: user.id,
             email: user.email,
             name: user.name,
-            role: user.role || "client", // Ensure role is always set
+            role: user.role || "client",
           };
         } catch (error: any) {
           console.error("Authorization error:", error);
-          // Re-throw the error so NextAuth can handle it
-          throw error;
+          console.error("Error type:", error?.constructor?.name);
+          console.error("Error message:", error?.message);
+          
+          // In NextAuth v5 beta, throwing errors can cause "Configuration" errors
+          // Instead, log the error and return null for all cases
+          // The email check in the login page will handle "email not recognized"
+          if (error.message === "EMAIL_NOT_RECOGNIZED") {
+            console.log("Returning null for EMAIL_NOT_RECOGNIZED");
+            return null;
+          }
+          if (error.message === "INVALID_PASSWORD") {
+            console.log("Returning null for INVALID_PASSWORD");
+            return null;
+          }
+          
+          // For other errors, also return null
+          console.log("Returning null for unexpected error");
+          return null;
         }
       },
     }),
@@ -100,14 +135,7 @@ export const authOptions: NextAuthConfig = {
       return session;
     },
   },
-  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
+  secret: getSecret(),
   trustHost: true, // Required for NextAuth v5
+  debug: process.env.NODE_ENV === "development", // Enable debug logging in development
 };
-
-// Validate NextAuth configuration at startup
-if (!process.env.NEXTAUTH_SECRET && !process.env.AUTH_SECRET) {
-  console.error("⚠️  NEXTAUTH_SECRET or AUTH_SECRET is not set!");
-  console.error("   Authentication will not work properly.");
-  console.error("   Please set NEXTAUTH_SECRET in your environment variables.");
-  console.error("   Generate one with: openssl rand -base64 32");
-}

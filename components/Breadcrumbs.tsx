@@ -56,15 +56,16 @@ const pathLabels: Record<string, string> = {
 };
 
 // Paths that should not be linked (they don't have actual pages)
-const nonLinkablePaths: string[] = [];
+const nonLinkablePaths: string[] = ["weddings"];
 
 // Paths that should link to a specific route instead of the generated path
 const customRoutes: Record<string, string> = {
   "client": "/client/dashboard", // /client doesn't exist, link to dashboard instead
-  "dashboard": "/client/dashboard",
+  "dashboard": "/client/dashboard", // Always link dashboard back to /client/dashboard
   "profile": "/client/profile",
   "bookings": "/client/dashboard", // /client/bookings doesn't exist, link to dashboard
   "new": "/client/bookings/new",
+  "messages": "/client/messages",
 };
 
 // Function to format slug to readable label
@@ -104,11 +105,20 @@ export default function Breadcrumbs() {
     const isLinkable = !nonLinkablePaths.includes(segment);
     
     // Use custom route if available, otherwise use the generated path
-    let href = customRoutes[segment] || currentPath;
+    const isLast = index === pathSegments.length - 1;
+    let href: string;
     
-    // For the last segment, always use the current pathname
-    if (index === pathSegments.length - 1) {
-      href = pathname;
+    if (isLast) {
+      // Last segment - check if we're on the current page
+      if (pathname === currentPath) {
+        href = pathname; // Current page - will be styled as non-clickable
+      } else {
+        // Use custom route if available, otherwise currentPath
+        href = customRoutes[segment] || currentPath;
+      }
+    } else {
+      // Not last segment - always use custom route if available
+      href = customRoutes[segment] || currentPath;
     }
     
     breadcrumbs.push({
@@ -127,7 +137,7 @@ export default function Breadcrumbs() {
           {breadcrumbs.map((crumb, index) => {
             const isLast = index === breadcrumbs.length - 1;
             return (
-              <li key={crumb.href} className="flex items-center">
+              <li key={`${crumb.href}-${index}`} className="flex items-center">
                 {index === 0 ? (
                   <Link
                     href={crumb.href}

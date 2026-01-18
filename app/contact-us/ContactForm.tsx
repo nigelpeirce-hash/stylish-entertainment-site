@@ -13,8 +13,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Lock, Loader2 } from "lucide-react";
-import { formSchema, type FormData, referralOptions, eventTypeOptions } from "@/lib/contact-schema";
+import { Lock, Loader2, Music } from "lucide-react";
+import { RefinedCheckmark } from "@/components/RefinedCheckmark";
+import { formSchema, type FormData, referralOptions, eventTypeOptions, djOptions, upsellOptions } from "@/lib/contact-schema";
+import DJSelectionModal from "@/components/DJSelectionModal";
+import { AnimatePresence } from "framer-motion";
 
 // Load Google reCAPTCHA v3
 declare global {
@@ -28,6 +31,8 @@ export default function ContactForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string>("");
   const [recaptchaLoaded, setRecaptchaLoaded] = useState(false);
+  const [isDJModalOpen, setIsDJModalOpen] = useState(false);
+  const [selectedDJ, setSelectedDJ] = useState<string | null>(null);
 
   const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || "YOUR_RECAPTCHA_SITE_KEY";
 
@@ -43,13 +48,41 @@ export default function ContactForm() {
     register,
     handleSubmit,
     formState: { errors },
+    watch,
+    setValue,
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       referralSource: "",
       eventType: "",
+      preferredDJ: "",
+      upsells: [],
     },
   });
+
+  const watchedDJ = watch("preferredDJ");
+  const watchedUpsells = watch("upsells") || [];
+
+  // Sync selectedDJ state with form value
+  useEffect(() => {
+    if (watchedDJ) {
+      setSelectedDJ(watchedDJ);
+    }
+  }, [watchedDJ]);
+
+  const handleDJSelect = (djName: string | null) => {
+    const djValue = djName || "";
+    setSelectedDJ(djName);
+    setValue("preferredDJ", djValue);
+  };
+
+  const handleUpsellToggle = (upsellId: string) => {
+    const currentUpsells = watchedUpsells;
+    const newUpsells = currentUpsells.includes(upsellId)
+      ? currentUpsells.filter((id) => id !== upsellId)
+      : [...currentUpsells, upsellId];
+    setValue("upsells", newUpsells);
+  };
 
   const executeRecaptcha = async (): Promise<string | null> => {
     if (!window.grecaptcha || !RECAPTCHA_SITE_KEY || RECAPTCHA_SITE_KEY === "YOUR_RECAPTCHA_SITE_KEY") {
@@ -253,6 +286,70 @@ export default function ContactForm() {
                     )}
                   </div>
 
+                  {/* DJ Selection */}
+                  <div>
+                    <Label className="text-gray-200">Preferred DJ (Optional)</Label>
+                    <Button
+                      type="button"
+                      onClick={() => setIsDJModalOpen(true)}
+                      variant="outline"
+                      className="mt-2 w-full bg-white/5 backdrop-blur-md border-champagne-gold/30 text-white hover:bg-white/10 hover:border-champagne-gold/50 flex items-center justify-between"
+                    >
+                      <span className="flex items-center gap-2">
+                        <Music className="w-4 h-4" />
+                        {selectedDJ ? selectedDJ : "Select DJ (Optional)"}
+                      </span>
+                      <span className="text-xs text-gray-400">Click to choose</span>
+                    </Button>
+                    {selectedDJ && (
+                      <p className="text-sm text-champagne-gold mt-2 flex items-center gap-1.5">
+                        <RefinedCheckmark className="w-4 h-4" />
+                        <span>{selectedDJ} selected</span>
+                      </p>
+                    )}
+                    <input type="hidden" {...register("preferredDJ")} />
+                  </div>
+
+                  {/* Upsells - Show if any DJ option is selected (including "Not sure yet") */}
+                  <AnimatePresence>
+                    {selectedDJ && selectedDJ !== "" && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <div className="pt-4 border-t border-gray-700">
+                          <Label className="text-gray-200 mb-4 block">Enhance Your Package (Optional)</Label>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            {upsellOptions.map((upsell) => (
+                              <label
+                                key={upsell.id}
+                                className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl cursor-pointer hover:border-champagne-gold/50 transition-all group"
+                              >
+                                <div className="flex items-center gap-3">
+                                  <input
+                                    type="checkbox"
+                                    checked={watchedUpsells.includes(upsell.id)}
+                                    onChange={() => handleUpsellToggle(upsell.id)}
+                                    className="w-5 h-5 accent-champagne-gold"
+                                  />
+                                  <span className="text-gray-200 group-hover:text-white transition-colors text-sm">
+                                    {upsell.label}
+                                  </span>
+                                </div>
+                                <span className="text-[10px] text-champagne-gold uppercase tracking-tighter opacity-60">
+                                  {upsell.category}
+                                </span>
+                              </label>
+                            ))}
+                          </div>
+                          <input type="hidden" {...register("upsells")} />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                   <div>
                     <Label htmlFor="message" className="text-gray-200">Message *</Label>
                     <Textarea
@@ -343,6 +440,14 @@ export default function ContactForm() {
           </motion.div>
         </div>
       </section>
+
+      {/* DJ Selection Modal */}
+      <DJSelectionModal
+        open={isDJModalOpen}
+        onClose={() => setIsDJModalOpen(false)}
+        onSelect={handleDJSelect}
+        selectedDJ={selectedDJ}
+      />
     </>
   );
 }

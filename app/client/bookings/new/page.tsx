@@ -296,7 +296,7 @@ export default function NewBookingPage() {
                           {service}
                           {service === "DJs" && selectedDJ && (
                             <span className="ml-2 text-xs text-champagne-gold">
-                              ({selectedDJ === null ? "Any DJ" : selectedDJ})
+                              ({selectedDJ})
                             </span>
                           )}
                         </Label>
@@ -309,7 +309,7 @@ export default function NewBookingPage() {
                   {selectedServices.includes("DJs") && selectedDJ && (
                     <p className="text-sm text-gray-400 mt-2">
                       Selected: <span className="text-champagne-gold font-medium">
-                        {selectedDJ === null ? "Any DJ" : selectedDJ}
+                        {selectedDJ}
                       </span>
                       <Button
                         type="button"

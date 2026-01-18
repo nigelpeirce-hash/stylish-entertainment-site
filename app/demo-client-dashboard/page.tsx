@@ -53,7 +53,7 @@ export default function DemoClientDashboardPage() {
     { id: "book-transport", title: "Book Transport", icon: Car, deadline: -60, completed: false },
     { id: "order-rings", title: "Order Wedding Rings", icon: Circle, deadline: -60, completed: false },
     { id: "send-invitations", title: "Send Invitations", icon: FileText, deadline: -45, completed: false },
-    { id: "finalize-menu", title: "Finalize Menu with Caterer", icon: UtensilsCrossed, deadline: -30, completed: false },
+    { id: "finalize-menu", title: "Finalise Menu with Caterer", icon: UtensilsCrossed, deadline: -30, completed: false },
     { id: "confirm-florals", title: "Confirm Floral Arrangements", icon: Flower2, deadline: -30, completed: false },
     { id: "dress-fitting", title: "Dress Fitting & Alterations", icon: Circle, deadline: -21, completed: false },
     { id: "confirm-all-vendors", title: "Confirm All Vendors", icon: Phone, deadline: -14, completed: false },
@@ -336,12 +336,12 @@ export default function DemoClientDashboardPage() {
                     Wedding Planning Checklist
                   </h4>
                   <p className="text-gray-300 text-sm mb-4">
-                    This checklist helps you stay organized as you plan your wedding. 
-                    Tasks are organized by urgency and automatically update based on your wedding date.
+                    This checklist helps you stay organised as you plan your wedding. 
+                    Tasks are organised by urgency and automatically update based on your wedding date.
                   </p>
                   <ul className="text-gray-400 text-sm space-y-1 list-disc list-inside">
                     <li>Check off tasks as you complete them</li>
-                    <li>Tasks are organized by urgency (overdue, urgent, upcoming)</li>
+                    <li>Tasks are organised by urgency (overdue, urgent, upcoming)</li>
                     <li>Includes vendor confirmations and planning milestones</li>
                     <li>Complete your DJ worksheet 3 weeks before your wedding</li>
                   </ul>

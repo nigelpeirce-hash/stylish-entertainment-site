@@ -158,6 +158,7 @@ model Booking {
   tasks             Task[]
   carts             Cart[]
   hireOrders        HireOrder[]
+  staffAssignments  BookingStaffAssignment[]
   
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -554,4 +555,65 @@ model Musician {
   @@index([slug])
   @@index([instrument])
   @@index([displayOrder])
+}
+
+// Venue Assets (PDF brochures)
+model VenueAsset {
+  id                String   @id @default(cuid())
+  venueName         String   // e.g., "Babington House"
+  year              Int      // e.g., 2026
+  pdfUrl            String   // Cloudinary URL to the PDF
+  cloudinaryPublicId String? // Cloudinary public_id for asset management
+  fileName          String   // e.g., "babington-2026.pdf"
+  isActive          Boolean  @default(true)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@unique([venueName, year]) // One PDF per venue per year
+  @@index([venueName])
+  @@index([year])
+  @@index([isActive])
+}
+
+// Freelance Crew/Staff
+model FreelanceCrew {
+  id                String   @id @default(cuid())
+  name              String   // Staff member name
+  email             String?  // Contact email (optional, may be added later)
+  phone             String?  // Contact phone (optional)
+  roles             String[] // Array of roles they can perform (e.g., ["Lighting", "Sound", "Styling"])
+  isActive          Boolean  @default(true)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  assignments       BookingStaffAssignment[]
+  
+  @@index([name])
+  @@index([isActive])
+}
+
+// Booking Staff Assignments
+model BookingStaffAssignment {
+  id                String   @id @default(cuid())
+  bookingId         String
+  staffId           String
+  role              String   // Role for this specific booking (e.g., "Lighting", "Sound Engineer")
+  agreedFee         Float    // Agreed fee in GBP
+  status            String   @default("held") // "held" (date held), "dispatched" (full details sent), "confirmed" (acknowledged)
+  confirmationEmailSent Boolean @default(false)
+  confirmationSentAt DateTime?
+  
+  // Relations
+  booking           Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  staff             FreelanceCrew @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@index([bookingId])
+  @@index([staffId])
+  @@index([status])
 }

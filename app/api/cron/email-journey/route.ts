@@ -1,0 +1,395 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { getJourneyEmail, type JourneyStage } from "@/lib/email-journey-templates";
+import { getResendConfig } from "@/lib/email-config";
+import { Resend } from "resend";
+import { getBrochureLink } from "@/lib/venue-assets";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
+/**
+ * Email Journey Automation Cron Job
+ * 
+ * This endpoint should be called periodically (e.g., daily via Vercel Cron)
+ * to automatically send journey emails based on triggers:
+ * 
+ * 1. 3-Day Reminder: After inquiry autoresponder sent, send gentle reminder if no booking confirmed
+ * 2. 4-Week Check-in: 4 weeks before event date
+ * 3. Week-of Excitement: 7 days before event date
+ * 4. Post-Wedding Magic: 3 days after event date
+ * 
+ * Usage: Set up Vercel Cron or external cron service to call this endpoint daily
+ */
+
+interface EmailJourneyStatus {
+  inquiryAutoresponder?: { sentAt: string; messageId?: string };
+  threeDayReminder?: { sentAt: string; messageId?: string };
+  bookingConfirmation?: { sentAt: string; messageId?: string };
+  fourWeekCheckin?: { sentAt: string; messageId?: string };
+  weekOfExcitement?: { sentAt: string; messageId?: string };
+  postWeddingMagic?: { sentAt: string; messageId?: string };
+}
+
+export async function GET(request: NextRequest) {
+  // Optional: Add authentication/secret check for cron security
+  const authHeader = request.headers.get("authorization");
+  const cronSecret = process.env.CRON_SECRET;
+  
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const now = new Date();
+  const results = {
+    processed: 0,
+    sent: 0,
+    skipped: 0,
+    errors: [] as string[],
+  };
+
+  try {
+    // 1. Find bookings that need 3-day reminder (inquiry sent 3+ days ago, no booking confirmed)
+    const threeDaysAgo = new Date(now);
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+    const bookingsNeedingReminder = await prisma.booking.findMany({
+      where: {
+        status: { in: ["pending", "inquiry"] },
+        lastEmailSentAt: {
+          lte: threeDaysAgo,
+        },
+        emailsSent: {
+          path: ["inquiryAutoresponder"],
+          isSet: true,
+        },
+        NOT: {
+          emailsSent: {
+            path: ["threeDayReminder"],
+            isSet: true,
+          },
+        },
+      },
+      take: 100, // Process in batches
+    });
+
+    // 2. Find bookings needing 4-week check-in (event date is 28-29 days away)
+    const fourWeeksFromNow = new Date(now);
+    fourWeeksFromNow.setDate(fourWeeksFromNow.getDate() + 28);
+    const fourWeeksStart = new Date(fourWeeksFromNow);
+    fourWeeksStart.setHours(0, 0, 0, 0);
+    const fourWeeksEnd = new Date(fourWeeksFromNow);
+    fourWeeksEnd.setHours(23, 59, 59, 999);
+
+    const bookingsNeeding4WeekCheckin = await prisma.booking.findMany({
+      where: {
+        status: { in: ["confirmed", "pending"] },
+        eventDate: {
+          gte: fourWeeksStart,
+          lte: fourWeeksEnd,
+        },
+        emailsSent: {
+          path: ["bookingConfirmation"],
+          isSet: true,
+        },
+        NOT: {
+          emailsSent: {
+            path: ["fourWeekCheckin"],
+            isSet: true,
+          },
+        },
+      },
+      take: 100,
+    });
+
+    // 3. Find bookings needing week-of excitement (event date is 6-7 days away)
+    const oneWeekFromNow = new Date(now);
+    oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
+    const oneWeekStart = new Date(oneWeekFromNow);
+    oneWeekStart.setHours(0, 0, 0, 0);
+    const oneWeekEnd = new Date(oneWeekFromNow);
+    oneWeekEnd.setHours(23, 59, 59, 999);
+
+    const bookingsNeedingWeekOf = await prisma.booking.findMany({
+      where: {
+        status: { in: ["confirmed", "pending"] },
+        eventDate: {
+          gte: oneWeekStart,
+          lte: oneWeekEnd,
+        },
+        NOT: {
+          emailsSent: {
+            path: ["weekOfExcitement"],
+            isSet: true,
+          },
+        },
+      },
+      take: 100,
+    });
+
+    // 4. Find bookings needing post-wedding magic (event date was 3 days ago, status is completed or past)
+    const threeDaysAgoEvent = new Date(now);
+    threeDaysAgoEvent.setDate(threeDaysAgoEvent.getDate() - 3);
+    const threeDaysAgoStart = new Date(threeDaysAgoEvent);
+    threeDaysAgoStart.setHours(0, 0, 0, 0);
+    const threeDaysAgoEnd = new Date(threeDaysAgoEvent);
+    threeDaysAgoEnd.setHours(23, 59, 59, 999);
+
+    const bookingsNeedingPostWedding = await prisma.booking.findMany({
+      where: {
+        status: { in: ["confirmed", "completed"] },
+        eventDate: {
+          gte: threeDaysAgoStart,
+          lte: threeDaysAgoEnd,
+        },
+        NOT: {
+          emailsSent: {
+            path: ["postWeddingMagic"],
+            isSet: true,
+          },
+        },
+      },
+      take: 100,
+    });
+
+    // Process 3-day reminders
+    for (const booking of bookingsNeedingReminder) {
+      results.processed++;
+      try {
+        const emailsSent = (booking.emailsSent as EmailJourneyStatus) || {};
+        
+        const emailData = {
+          clientName: booking.name,
+          eventType: booking.eventType || "your event",
+          eventDate: booking.eventDate
+            ? new Date(booking.eventDate).toLocaleDateString("en-GB", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })
+            : undefined,
+          venueName: booking.venueName,
+          clientAdminUrl: `https://stylishentertainment.co.uk/client/dashboard`,
+        };
+
+        // Use the dedicated gentle reminder template
+        const emailContent = getJourneyEmail("gentle-reminder", emailData);
+        const emailConfig = getResendConfig("booking");
+
+        const emailResult = await resend.emails.send({
+          from: emailConfig.from,
+          replyTo: emailConfig.replyTo,
+          to: [booking.email],
+          subject: emailContent.subject,
+          html: emailContent.html,
+        });
+
+        const messageId = 'data' in emailResult ? (emailResult as any).data?.id : undefined;
+
+        // Update booking emailsSent
+        await prisma.booking.update({
+          where: { id: booking.id },
+          data: {
+            emailsSent: {
+              ...emailsSent,
+              threeDayReminder: {
+                sentAt: now.toISOString(),
+                messageId,
+              },
+            },
+            lastEmailSentAt: now,
+          },
+        });
+
+        results.sent++;
+      } catch (error: any) {
+        results.errors.push(`Booking ${booking.id}: ${error.message}`);
+        results.skipped++;
+      }
+    }
+
+    // Process 4-week check-ins
+    for (const booking of bookingsNeeding4WeekCheckin) {
+      results.processed++;
+      try {
+        const emailsSent = (booking.emailsSent as EmailJourneyStatus) || {};
+        
+        const emailData = {
+          clientName: booking.name,
+          eventType: booking.eventType || "your event",
+          eventDate: new Date(booking.eventDate).toLocaleDateString("en-GB", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          venueName: booking.venueName,
+          clientAdminUrl: `https://stylishentertainment.co.uk/client/dashboard`,
+        };
+
+        const emailContent = getJourneyEmail("4-week-checkin", emailData);
+        const emailConfig = getResendConfig("booking");
+
+        const emailResult = await resend.emails.send({
+          from: emailConfig.from,
+          replyTo: emailConfig.replyTo,
+          to: [booking.email],
+          subject: emailContent.subject,
+          html: emailContent.html,
+        });
+
+        const messageId = 'data' in emailResult ? (emailResult as any).data?.id : undefined;
+
+        await prisma.booking.update({
+          where: { id: booking.id },
+          data: {
+            emailsSent: {
+              ...emailsSent,
+              fourWeekCheckin: {
+                sentAt: now.toISOString(),
+                messageId,
+              },
+            },
+            lastEmailSentAt: now,
+          },
+        });
+
+        results.sent++;
+      } catch (error: any) {
+        results.errors.push(`Booking ${booking.id}: ${error.message}`);
+        results.skipped++;
+      }
+    }
+
+    // Process week-of excitement
+    for (const booking of bookingsNeedingWeekOf) {
+      results.processed++;
+      try {
+        const emailsSent = (booking.emailsSent as EmailJourneyStatus) || {};
+        
+        const emailData = {
+          clientName: booking.name,
+          eventType: booking.eventType || "your event",
+          eventDate: new Date(booking.eventDate).toLocaleDateString("en-GB", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          venueName: booking.venueName,
+          clientAdminUrl: `https://stylishentertainment.co.uk/client/dashboard`,
+        };
+
+        const emailContent = getJourneyEmail("week-of-excitement", emailData);
+        const emailConfig = getResendConfig("booking");
+
+        const emailResult = await resend.emails.send({
+          from: emailConfig.from,
+          replyTo: emailConfig.replyTo,
+          to: [booking.email],
+          subject: emailContent.subject,
+          html: emailContent.html,
+        });
+
+        const messageId = 'data' in emailResult ? (emailResult as any).data?.id : undefined;
+
+        await prisma.booking.update({
+          where: { id: booking.id },
+          data: {
+            emailsSent: {
+              ...emailsSent,
+              weekOfExcitement: {
+                sentAt: now.toISOString(),
+                messageId,
+              },
+            },
+            lastEmailSentAt: now,
+          },
+        });
+
+        results.sent++;
+      } catch (error: any) {
+        results.errors.push(`Booking ${booking.id}: ${error.message}`);
+        results.skipped++;
+      }
+    }
+
+    // Process post-wedding magic
+    for (const booking of bookingsNeedingPostWedding) {
+      results.processed++;
+      try {
+        const emailsSent = (booking.emailsSent as EmailJourneyStatus) || {};
+        
+        const emailData = {
+          clientName: booking.name,
+          eventType: booking.eventType || "your event",
+          eventDate: new Date(booking.eventDate).toLocaleDateString("en-GB", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }),
+          venueName: booking.venueName,
+          clientAdminUrl: `https://stylishentertainment.co.uk/client/dashboard`,
+        };
+
+        const emailContent = getJourneyEmail("post-wedding-magic", emailData);
+        const emailConfig = getResendConfig("booking");
+
+        const emailResult = await resend.emails.send({
+          from: emailConfig.from,
+          replyTo: emailConfig.replyTo,
+          to: [booking.email],
+          subject: emailContent.subject,
+          html: emailContent.html,
+        });
+
+        const messageId = 'data' in emailResult ? (emailResult as any).data?.id : undefined;
+
+        await prisma.booking.update({
+          where: { id: booking.id },
+          data: {
+            emailsSent: {
+              ...emailsSent,
+              postWeddingMagic: {
+                sentAt: now.toISOString(),
+                messageId,
+              },
+            },
+            lastEmailSentAt: now,
+          },
+        });
+
+        results.sent++;
+      } catch (error: any) {
+        results.errors.push(`Booking ${booking.id}: ${error.message}`);
+        results.skipped++;
+      }
+    }
+
+    return NextResponse.json({
+      success: true,
+      timestamp: now.toISOString(),
+      results,
+      summary: {
+        "3-day-reminders": bookingsNeedingReminder.length,
+        "4-week-checkins": bookingsNeeding4WeekCheckin.length,
+        "week-of-excitement": bookingsNeedingWeekOf.length,
+        "post-wedding": bookingsNeedingPostWedding.length,
+      },
+    });
+  } catch (error: any) {
+    console.error("Error in email journey automation:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        error: error.message,
+        results,
+      },
+      { status: 500 }
+    );
+  }
+}

@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import Lightbox from "yet-another-react-lightbox";
-import { ChevronLeft, ChevronRight, MapPin, Video, FileText, Zap, Map, Home, Camera } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, Video, FileText, Zap, Map, Home, Camera, Sparkles, Flame, Music, Lightbulb } from "lucide-react";
 import "yet-another-react-lightbox/styles.css";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,17 +66,41 @@ const styleLooks = [
   {
     name: "The Country Classic",
     description: "Warm fairy-light canopies, rustic wooden accents, and soft ambient lighting create a timeless countryside elegance.",
-    features: ["Fairy light zig-zag canopies", "Soft amber uplighting", "Ribbon garlands", "White shade lanterns"],
+    features: [
+      "Fairy light zig-zag canopies",
+      "Soft amber uplighting",
+      "Ribbon garlands",
+      "White shade lanterns",
+      "Festoon lighting",
+      "Garden lighting",
+      "Garlands",
+    ],
   },
   {
-    name: "The Neon Party",
+    name: "The Stylish Party",
     description: "Bold LED up-lighting in vibrant colours, mirrorballs, and dynamic party lighting for an unforgettable celebration.",
-    features: ["Coloured LED uplighting", "Mirrorball clusters", "Dynamic lighting effects", "Festoon lighting"],
+    features: [
+      "Coloured LED uplighting",
+      "Mirrorball clusters",
+      "Mirror, disco & glitter balls",
+      "Dynamic lighting effects",
+      "Festoon lighting",
+      "Marquee lighting",
+      "DJs",
+    ],
   },
   {
     name: "The Fairy Light Glow",
     description: "Romantic, ethereal atmosphere with delicate fairy-light draping, petal garlands, and soft pink mood lighting.",
-    features: ["Fairy light ceiling dressing", "Petal garlands", "Pink mood lighting", "Bead detailing"],
+    features: [
+      "Fairy light ceiling dressing",
+      "Petal garlands",
+      "Pink mood lighting",
+      "Bead detailing",
+      "Garden lighting",
+      "Garlands",
+      "Festoon lighting",
+    ],
   },
 ];
 
@@ -148,20 +172,14 @@ export default function MellsBarnClient() {
             >
               <Card className="bg-gray-800/50 backdrop-blur-md border-champagne-gold/50">
                 <CardContent className="p-6 sm:p-8 md:p-12">
-                  <div className="text-gray-200 leading-relaxed space-y-6">
-                    <div className="my-8">
-                      <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">Planning from afar?</h2>
-                      <p className="text-lg">
-                        Located just a short distance from our base in Frome, Mells Barn is a venue we have worked with extensively over the years. Our local Frome-based team acts as your 'on-the-ground' eyes and ears for technical setup, so you don't need to worry about being miles away.
-                      </p>
-                    </div>
-
-                    <div className="my-8">
-                      <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">A Venue We Know and Love</h2>
-                      <p>
-                        From intimate weddings to lively celebrations, we have had the privilege of providing DJs, entertainment, lighting, and styling to transform this space into something truly magical. With years of experience at Mells Barn, we understand its unique character and can bring your vision to life—even from a distance.
-                      </p>
-                    </div>
+                  <div className="text-gray-200 leading-relaxed">
+                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">A Venue We Know and Love</h2>
+                    <p className="text-lg mb-4">
+                      Located just a short distance from our base in Frome, Mells Barn is a venue we have worked with extensively over the years. From intimate weddings to lively celebrations, we transform this space with lighting, styling, and entertainment.
+                    </p>
+                    <p className="text-lg">
+                      Our local team acts as your on-the-ground experts for technical setup, so you don't need to worry about being miles away. We understand the venue's unique character and can bring your vision to life.
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -186,42 +204,16 @@ export default function MellsBarnClient() {
                 <CardHeader>
                   <div className="flex items-center gap-3 mb-2">
                     <Video className="h-6 w-6 text-champagne-gold" />
-                    <CardTitle className="text-white">Zoom Consultations</CardTitle>
+                    <CardTitle className="text-white">Consultations</CardTitle>
                   </div>
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-200 leading-relaxed">
-                    We offer Zoom consultations so you can discuss your vision with us from anywhere in the world. Share your inspiration, ask questions, and see our portfolio—all from the comfort of your home.
+                    Discuss your vision with us from anywhere. Share your inspiration, ask questions, and see our portfolio.
                   </p>
                 </CardContent>
               </Card>
 
-              <Card className="bg-gray-800/50 backdrop-blur-md border-champagne-gold/50">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Map className="h-6 w-6 text-champagne-gold" />
-                    <CardTitle className="text-white">Detailed Site Maps</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-200 leading-relaxed">
-                    We have detailed site maps of Mells Barn covering every power circuit, rigging point, and access route. You don't need to visit for technical meetings—we handle it all using our comprehensive knowledge of the venue.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        </section>
-
-        {/* Logistics & Trust Section */}
-        <section className="py-20 px-4">
-          <div className="container mx-auto max-w-4xl">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
               <Card className="bg-gradient-to-br from-champagne-gold/10 to-transparent border-2 border-champagne-gold/50">
                 <CardHeader>
                   <div className="flex items-center gap-3 mb-2">
@@ -231,7 +223,7 @@ export default function MellsBarnClient() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p className="text-gray-200 leading-relaxed">
-                    We know Mells Barn's power circuits, rigging points, and access times perfectly. This reduces 'Day-of' stress for couples not from the area—we've handled every technical detail hundreds of times, so you can relax knowing everything is under control.
+                    We know Mells Barn's power circuits, rigging points, and access times. We've handled every technical detail hundreds of times, so you can relax knowing everything is under control.
                   </p>
                   <div className="mt-6 p-4 bg-champagne-gold/10 rounded-lg border border-champagne-gold/30">
                     <p className="text-champagne-gold font-semibold">
@@ -240,7 +232,7 @@ export default function MellsBarnClient() {
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           </div>
         </section>
 

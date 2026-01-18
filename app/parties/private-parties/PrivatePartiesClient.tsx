@@ -11,6 +11,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import WaveDivider from "@/components/WaveDivider";
 import { Map, Sparkles, Music, Video, MapPin, CheckCircle2, ArrowRight } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const privatePartyPhotos = [
   {
@@ -42,32 +48,94 @@ const privatePartyPhotos = [
 const serviceAreas = [
   {
     region: "Somerset",
-    towns: ["Frome", "Bruton", "Castle Cary", "Glastonbury", "Wells", "Taunton"],
+    previewTowns: ["Frome", "Bruton", "Castle Cary", "Glastonbury"],
+    allTowns: [
+      "Frome", "Bruton", "Castle Cary", "Glastonbury", "Wells", "Taunton",
+      "Shepton Mallet", "Street", "Yeovil", "Bridgwater", "Wincanton",
+      "Somerton", "Crewkerne", "Ilminster", "Chard", "Dunster", "Watchet",
+      "Minehead", "Burnham-on-Sea", "Highbridge", "Cheddar", "Axbridge",
+      "Wedmore", "Langport", "Martock", "South Petherton", "Milborne Port",
+      "Templecombe", "Norton-sub-Hamdon", "Montacute", "Stoke-sub-Hamdon",
+      "Cucklington", "Zeals", "Evercreech", "Ditcheat", "Pilton"
+    ],
     isHomeBase: true,
   },
   {
     region: "Wiltshire",
-    towns: ["Warminster", "Westbury", "Trowbridge", "Salisbury", "Bradford-on-Avon"],
+    previewTowns: ["Malmesbury", "Marlborough", "Devizes", "Salisbury"],
+    allTowns: [
+      "Malmesbury", "Marlborough", "Devizes", "Salisbury", "Warminster",
+      "Westbury", "Trowbridge", "Bradford-on-Avon", "Chippenham", "Swindon",
+      "Melksham", "Corsham", "Amesbury", "Calne", "Tidworth", "Pewsey",
+      "Royal Wootton Bassett", "Ludgershall", "Tisbury", "Downton",
+      "Fordingbridge", "Alderbury", "Woodford", "Redlynch", "Britford",
+      "Durrington", "Bulford", "Larkhill", "Easterton", "Market Lavington",
+      "Burbage", "Great Bedwyn", "Ramsbury", "Ogbourne St George"
+    ],
     isHomeBase: false,
   },
   {
-    region: "Bath & BANES",
-    towns: ["Bath", "Midsomer Norton", "Chew Valley"],
+    region: "Gloucestershire",
+    previewTowns: ["South Gloucestershire", "Cheltenham", "Gloucester"],
+    allTowns: [
+      "South Gloucestershire", "Cheltenham", "Gloucester", "Stroud",
+      "Cirencester", "Tetbury", "Tewkesbury", "Dursley", "Thornbury",
+      "Chipping Sodbury", "Yate", "Wotton-under-Edge", "Moreton-in-Marsh",
+      "Fairford", "Lechlade", "Nailsworth", "Painswick", "Stonehouse",
+      "Berkeley", "Lydney", "Newent", "Winchcombe", "Chipping Campden",
+      "Broadway", "Bourton-on-the-Water", "Stow-on-the-Wold", "Northleach",
+      "Kemble", "Sapperton", "Rodmarton", "Eastleach", "Ampney Crucis"
+    ],
+    isHomeBase: false,
+  },
+  {
+    region: "Bath",
+    previewTowns: ["Bath", "Midsomer Norton", "Radstock"],
+    allTowns: [
+      "Bath", "Midsomer Norton", "Radstock", "Keynsham", "Saltford",
+      "Peasedown St John", "Combe Down", "Lansdown", "Twerton", "Oldfield Park",
+      "Widcombe", "Claverton Down", "Bathampton", "Batheaston", "Bathford",
+      "Compton Dando", "Wellow", "Peasedown", "Camerton", "Priston",
+      "Englishcombe", "Hinton Charterhouse", "Freshford", "Limpley Stoke"
+    ],
     isHomeBase: false,
   },
   {
     region: "Bristol",
-    towns: ["Clifton", "Chew Magna", "City Centre"],
+    previewTowns: ["Clifton", "City Centre", "Westbury-on-Trym"],
+    allTowns: [
+      "Clifton", "City Centre", "Westbury-on-Trym", "Chew Magna",
+      "Bishopston", "Redland", "Hotwells", "Hanham", "Longwell Green",
+      "Brislington", "Knowle", "Bedminster", "Ashton Gate", "Southville",
+      "Windmill Hill", "Totterdown", "St Werburghs", "Montpelier", "Cotham",
+      "Stokes Croft", "St Pauls", "Easton", "Fishponds", "Staple Hill",
+      "Kingswood", "Whitchurch", "Westbury Park", "Henleaze", "Westbury Village"
+    ],
     isHomeBase: false,
   },
   {
     region: "Dorset",
-    towns: ["Sherborne", "Gillingham", "Shaftesbury"],
+    previewTowns: ["Sherborne", "Gillingham", "Shaftesbury"],
+    allTowns: [
+      "Sherborne", "Gillingham", "Shaftesbury", "Dorchester", "Weymouth",
+      "Bridport", "Blandford Forum", "Wimborne Minster", "Sturminster Newton",
+      "Bere Regis", "Verwood", "Wareham", "Swanage", "Poole", "Bournemouth",
+      "Christchurch", "Ferndown", "Wimborne", "Corfe Mullen", "Blandford St Mary",
+      "Stalbridge", "Templecombe", "Stalbridge", "Milborne Port", "Templecombe",
+      "Puddletown", "Cerne Abbas", "Milton Abbas", "Abbotsbury", "Lyme Regis"
+    ],
     isHomeBase: false,
   },
   {
-    region: "Mendip",
-    towns: ["Shepton Mallet", "Oakhill", "Street"],
+    region: "Devon",
+    previewTowns: ["Exeter", "Honiton", "Crediton"],
+    allTowns: [
+      "Exeter", "Honiton", "Crediton", "Tiverton", "Okehampton",
+      "Barnstaple", "Bideford", "South Molton", "Chulmleigh", "Dawlish",
+      "Teignmouth", "Newton Abbot", "Torquay", "Paignton", "Totnes",
+      "Dartmouth", "Salcombe", "Kingsbridge", "Plymouth", "Tavistock",
+      "Holsworthy", "Hatherleigh", "Winkleigh", "North Tawton", "Bow"
+    ],
     isHomeBase: false,
   },
 ];
@@ -75,10 +143,17 @@ const serviceAreas = [
 export default function PrivatePartiesClient() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [serviceAreaModalOpen, setServiceAreaModalOpen] = useState(false);
+  const [selectedCountyIndex, setSelectedCountyIndex] = useState<number | null>(null);
 
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
     setLightboxOpen(true);
+  };
+
+  const openCountyModal = (index: number) => {
+    setSelectedCountyIndex(index);
+    setServiceAreaModalOpen(true);
   };
 
   return (
@@ -367,7 +442,7 @@ export default function PrivatePartiesClient() {
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-2">
-                        {area.towns.map((town, townIdx) => (
+                        {area.previewTowns.map((town, townIdx) => (
                           <div key={townIdx} className="flex items-center gap-2">
                             {area.isHomeBase && town === "Frome" ? (
                               <>
@@ -386,10 +461,37 @@ export default function PrivatePartiesClient() {
                             )}
                           </div>
                         ))}
+                        {area.allTowns.length > area.previewTowns.length && (
+                          <div className="pt-3">
+                            <Button
+                              onClick={() => openCountyModal(idx)}
+                              variant="outline"
+                              size="sm"
+                              className="w-full bg-white/5 backdrop-blur-md border-champagne-gold/40 text-white hover:bg-white/10 hover:border-champagne-gold/60 transition-all duration-300 text-xs"
+                            >
+                              Find out more ({area.allTowns.length - area.previewTowns.length} more towns)
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
                 ))}
+              </div>
+
+              {/* View Full Service Area Button */}
+              <div className="text-center mb-8">
+                <Button
+                  onClick={() => {
+                    setSelectedCountyIndex(null);
+                    setServiceAreaModalOpen(true);
+                  }}
+                  variant="outline"
+                  className="bg-white/5 backdrop-blur-md border-champagne-gold/50 text-white hover:bg-white/10 hover:border-champagne-gold/70 transition-all duration-300"
+                >
+                  View Complete Service Area
+                  <MapPin className="ml-2 h-4 w-4" />
+                </Button>
               </div>
 
               {/* Destination SEO Text */}
@@ -400,6 +502,29 @@ export default function PrivatePartiesClient() {
                   </p>
                 </CardContent>
               </Card>
+
+              {/* SEO-Friendly Service Area Text (Visually Hidden but Crawlable) */}
+              <div className="sr-only mt-8" aria-hidden="true">
+                <h3 className="text-white font-bold mb-4">Complete Service Area Coverage</h3>
+                <p className="text-gray-300 mb-4">
+                  STYLISH Entertainment provides party planning and event production services across the West Country, 
+                  serving over 200 towns and locations. Our comprehensive coverage includes:
+                </p>
+                {serviceAreas.map((area, idx) => (
+                  <div key={idx} className="mb-4">
+                    <h4 className="text-white font-semibold mb-2">Party Planning in {area.region}</h4>
+                    <p className="text-gray-300 text-sm">
+                      We offer professional party planning services in {area.region} covering: {area.allTowns.join(", ")}.
+                    </p>
+                  </div>
+                ))}
+                <p className="text-gray-300 text-sm mt-4">
+                  Whether you&apos;re planning a private party, corporate event, or celebration in Frome, Malmesbury, 
+                  Marlborough, Devizes, Castle Cary, Cheltenham, Gloucester, Sherborne, Exeter, Bath, Bristol, 
+                  or any of the 200+ towns we serve across Somerset, Wiltshire, Gloucestershire, Dorset, and Devon, 
+                  we provide expert party planning and technical production services.
+                </p>
+              </div>
             </motion.div>
           </div>
         </section>
@@ -525,6 +650,83 @@ export default function PrivatePartiesClient() {
           ),
         }}
       />
+
+      {/* Service Area Modal */}
+      <Dialog 
+        open={serviceAreaModalOpen} 
+        onOpenChange={(open) => {
+          setServiceAreaModalOpen(open);
+          if (!open) setSelectedCountyIndex(null);
+        }}
+      >
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 border-champagne-gold/50">
+          <DialogHeader>
+            <DialogTitle className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
+              <MapPin className="h-6 w-6 text-champagne-gold" />
+              {selectedCountyIndex !== null 
+                ? `${serviceAreas[selectedCountyIndex].region} - Complete Service Area`
+                : "Complete Service Area"
+              }
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-6 space-y-6">
+            {(selectedCountyIndex !== null 
+              ? [serviceAreas[selectedCountyIndex]] 
+              : serviceAreas
+            ).map((area, idx) => {
+              const actualIdx = selectedCountyIndex !== null ? selectedCountyIndex : idx;
+              return (
+                <Card
+                  key={actualIdx}
+                  className="bg-white/5 backdrop-blur-lg border-champagne-gold/30"
+                >
+                  <CardHeader>
+                    <div className="flex items-center gap-3">
+                      <MapPin className="h-5 w-5 text-champagne-gold flex-shrink-0" />
+                      <CardTitle className="text-white text-xl">{area.region}</CardTitle>
+                      {area.isHomeBase && (
+                        <span className="text-xs text-champagne-gold/70 bg-champagne-gold/10 px-2 py-1 rounded">
+                          Home Base
+                        </span>
+                      )}
+                      <span className="ml-auto text-xs text-champagne-gold/70">
+                        {area.allTowns.length} towns
+                      </span>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                      {area.allTowns.map((town, townIdx) => (
+                        <div key={townIdx} className="flex items-center gap-2">
+                          {area.isHomeBase && town === "Frome" ? (
+                            <>
+                              <div className="relative">
+                                <div className="w-2 h-2 rounded-full bg-champagne-gold animate-pulse"></div>
+                                <div className="absolute inset-0 w-2 h-2 rounded-full bg-champagne-gold animate-ping opacity-75"></div>
+                              </div>
+                              <span className="text-gray-200 font-semibold text-sm">{town}</span>
+                            </>
+                          ) : (
+                            <>
+                              <CheckCircle2 className="w-4 h-4 text-champagne-gold/60 flex-shrink-0" />
+                              <span className="text-gray-200 text-sm">{town}</span>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+          <div className="mt-6 p-4 bg-champagne-gold/10 rounded-lg border border-champagne-gold/30">
+            <p className="text-gray-200 text-sm leading-relaxed">
+              <strong className="text-champagne-gold">Note:</strong> This is a comprehensive list of areas we serve. If your location isn&apos;t listed, please contact us to discuss your event requirements—we may still be able to assist!
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

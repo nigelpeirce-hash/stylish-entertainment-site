@@ -2,6 +2,9 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { ArrowRight, Phone } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import Gallery, { Photo } from "@/components/Gallery";
 
 const galleryPhotos: Photo[] = [
@@ -48,7 +51,7 @@ const galleryPhotos: Photo[] = [
     alt: "Matt and Emma's wedding with stunning fairy light installations and professional wedding lighting design creating a romantic atmosphere",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163611/Camilla-Richard-0063_ngmblz.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg",
     width: 1200,
     height: 900,
     alt: "Camilla and Richard's wedding reception with elegant lighting design, beautiful table settings, and atmospheric wedding lighting",
@@ -59,6 +62,30 @@ const galleryPhotos: Photo[] = [
     height: 900,
     alt: "Babington House wedding with professional lighting design and elegant wedding lighting installations, captured by Ria Mishaal Photography",
   },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768741340/_F4R3275_tukoww.jpg",
+    width: 1200,
+    height: 900,
+    alt: "Chill Out Camp with vintage Edison festoon lighting and fairy lights creating a magical wedding atmosphere",
+  },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768741619/IMG_0487_aoaxho.jpg",
+    width: 1200,
+    height: 900,
+    alt: "Bar terrace with elegant wedding lighting design creating a romantic atmosphere",
+  },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768742034/IMG_1348_161201_zwmdh2.jpg",
+    width: 1200,
+    height: 900,
+    alt: "Wedding venue with beautiful lighting and elegant styling",
+  },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768742094/IMG_4162_h3h0bb.jpg",
+    width: 1200,
+    height: 900,
+    alt: "Sophisticated wedding lighting design creating an atmospheric celebration",
+  },
 ];
 
 export default function WeddingLightingClient() {
@@ -68,8 +95,8 @@ export default function WeddingLightingClient() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-25 flex items-center justify-center">
           <img
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw"
-            alt="Fairy light tunnel at Babington House creating a magical wedding entrance with elegant lighting design"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163797/150730_sami-tammy_ria-mishaal-photography_775_bbo9bb.jpg"
+            alt="Sami and Tammy's wedding with beautiful lighting design creating an elegant and romantic atmosphere, captured by Ria Mishaal Photography"
             className="w-full h-full object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}
             loading="eager"
@@ -99,10 +126,10 @@ export default function WeddingLightingClient() {
             className="prose prose-lg prose-invert max-w-none"
           >
             <p className="text-white text-lg md:text-xl leading-relaxed mb-4">
-              Step into the world of enchanting wedding lighting where we turn ordinary spaces into Instagram-worthy wonders!
+              Transform ordinary spaces into extraordinary celebrations with our bespoke wedding lighting design.
             </p>
             <p className="text-white text-lg md:text-xl leading-relaxed mb-4">
-              Our team specialises in crafting custom wedding lighting installations tailored to your unique venue. Whether it's a charming barn, an elegant marquee, a luxurious venue, or the cosiness of your own home, we've got the magic touch to transform it into a dreamy spectacle. But that's not all – we sprinkle our lighting expertise outdoors too, adding a touch of radiance to alfresco dining, terraces, walkways, and even Mother Nature's own creations like trees and hedges. Check out the images below for a peek into the magic we can conjure up!
+              We create custom lighting installations tailored to your venue – from charming barns and elegant marquees to luxury venues and intimate home celebrations. Our expertise extends outdoors too, illuminating alfresco dining areas, terraces, walkways, and natural features to create a cohesive, magical atmosphere throughout your celebration.
             </p>
           </motion.div>
         </div>
@@ -121,36 +148,60 @@ export default function WeddingLightingClient() {
         </div>
       </section>
 
-      {/* Text Block Below Gallery */}
-      <section className="py-16 px-4 bg-gray-800">
-        <div className="container mx-auto max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.6 }}
-            className="prose prose-lg prose-invert max-w-none"
-          >
-            <p className="text-white text-lg md:text-xl leading-relaxed mb-4">
-              At STYLISH Entertainment, we take pride in our established reputation for providing genuine guidance and flawless execution. Explore the firsthand experiences of our satisfied clients on our <Link href="/testi" className="text-champagne-gold hover:text-gold-light underline">testimonial page</Link> to witness the magic we bring to every celebration.
-            </p>
-            <p className="text-white text-lg md:text-xl leading-relaxed mb-4">
-              Eager to turn your vision into reality? Based in Frome, Somerset, we extend our services across Somerset, Wiltshire, Dorset, Gloucestershire, Bath, Bristol, Swindon, and Exeter.
-            </p>
-            <p className="text-white text-lg md:text-xl leading-relaxed mb-4">
-              Take the first step towards an unforgettable event by reaching out to Nigel or Ali at STYLISH Entertainment. Call <a href="tel:+447970793177" className="text-champagne-gold hover:text-gold-light underline font-semibold">07970793177</a> to discuss your party and specific requirements, or simply complete the form below.
-            </p>
-            <p className="text-white text-lg md:text-xl leading-relaxed font-semibold text-champagne-gold">
-              Let's illuminate your celebration into a masterpiece together!
-            </p>
-            <div className="mt-8">
-              <Link
-                href="/contact"
-                className="inline-block px-8 py-3 bg-champagne-gold text-black font-semibold rounded-lg hover:bg-gold-light transition-all duration-300 hover:scale-105 shadow-lg"
+      {/* Reputation & Service Area Section */}
+      <section className="py-20 bg-gray-900 overflow-hidden">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            
+            {/* Column 1: Reputation & Trust */}
+            <div className="space-y-6">
+              <h2 className="text-3xl font-serif text-white">A Reputation Built on <span className="text-champagne-gold">Flawless Execution</span></h2>
+              <p className="text-gray-300 leading-relaxed">
+                At STYLISH Entertainment, we provide more than just equipment; we offer genuine guidance. 
+                Our clients trust us to transform their most important moments into masterpieces.
+              </p>
+              <Link 
+                href="/testimonials" 
+                className="inline-flex items-center gap-2 text-champagne-gold hover:text-white transition-colors group"
               >
-                Get in Touch
+                <span className="border-b border-champagne-gold">Read Client Experiences</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
-          </motion.div>
+
+            {/* Column 2: Service Area & Fast Contact */}
+            <Card className="bg-white/5 border-champagne-gold/20 backdrop-blur-xl p-8">
+              <div className="space-y-6">
+                <div>
+                  <h4 className="text-xs uppercase tracking-widest text-champagne-gold mb-4">Serving the West Country</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {["Somerset", "Wiltshire", "Dorset", "Gloucestershire", "Bath", "Bristol", "Exeter"].map((area) => (
+                      <span key={area} className="px-3 py-1 bg-white/10 rounded-full text-xs text-gray-200">
+                        {area}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-6 border-t border-white/10">
+                  <p className="text-gray-400 text-sm mb-4">Reach out to Nigel or Ali directly:</p>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <a 
+                      href="tel:+447970793177" 
+                      className="flex items-center justify-center gap-3 bg-champagne-gold text-black font-bold py-3 px-6 rounded-lg hover:bg-white transition-all shadow-lg"
+                    >
+                      <Phone className="w-5 h-5" />
+                      07970 793177
+                    </a>
+                    <Button variant="outline" asChild className="border-white/20 text-white hover:bg-white/10">
+                      <Link href="/contact-us">Inquire Online</Link>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </Card>
+
+          </div>
         </div>
       </section>
     </div>

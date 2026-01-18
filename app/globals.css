@@ -1,8 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Screen reader only - for SEO content that should be crawlable but not visible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
 
 /* Old-School Digital Countdown Clock */
 .countdown-clock {
@@ -283,13 +297,24 @@
     color: rgb(241 245 249) !important; /* slate-200 / gray-100 */
   }
   
-  /* Gold color for icons and interactive elements */
+  /* Refined icon styling */
   svg, 
-  [data-icon],
+  [data-icon] {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.1));
+    transition: filter 0.2s ease;
+  }
+  
+  /* Gold color for icons and interactive elements */
   button:hover svg,
-  a:hover svg {
-    color: #d4af37 !important;
-    fill: #d4af37 !important;
+  a:hover svg,
+  .text-champagne-gold svg {
+    filter: drop-shadow(0 0 3px rgba(212, 175, 55, 0.4)) !important;
+  }
+  
+  /* Refined star and checkmark icons */
+  [class*="RefinedStar"],
+  [class*="RefinedCheckmark"] {
+    stroke-width: 1.5;
   }
 }
 
@@ -564,9 +589,15 @@
     justify-content: center !important;
   }
   
-  /* Override heading color for footer headings - they should be black on gold background */
+  /* Override all footer text to black at 90% opacity */
+  footer,
+  footer * {
+    color: rgba(0, 0, 0, 0.9) !important;
+  }
+  
+  /* Override heading color for footer headings - they should be full black on gold background */
   footer h1, footer h2, footer h3, footer h4, footer h5, footer h6 {
-    color: #000000 !important;
+    color: rgba(0, 0, 0, 1) !important;
   }
   
   /* Hide scrollbar for thumbnail navigation */
@@ -683,4 +714,23 @@
   height: 28px !important;
   stroke-width: 4 !important;
   color: #ffffff !important;
+}
+
+/* Masonry Grid Styles */
+.masonry-grid {
+  column-count: auto;
+  column-width: 300px;
+  column-gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .masonry-grid {
+    column-width: 100%;
+    column-count: 1;
+  }
+}
+
+.break-inside-avoid {
+  break-inside: avoid;
+  page-break-inside: avoid;
 }

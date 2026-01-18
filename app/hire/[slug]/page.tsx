@@ -209,11 +209,9 @@ export default function HireItemPage() {
                 </div>
               )}
 
-              {/* SEO Location Text */}
-              <div className="bg-blue-900/20 border border-blue-500/30 rounded-lg p-4 mb-6">
-                <p className="text-blue-300">
-                  <strong>Available for hire in:</strong> {LOCATIONS}
-                </p>
+              {/* Service Area - Hidden for SEO only */}
+              <div className="sr-only">
+                <p>Available for hire in {LOCATIONS}. Professional wedding and event hire services across the West Country.</p>
               </div>
 
               <div className="mb-6">
@@ -251,16 +249,14 @@ export default function HireItemPage() {
           <Card className="bg-gray-800 border-champagne-gold/30">
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold mb-4">
-                {item.name} Hire in {LOCATIONS}
+                {item.name} Hire across the West Country
               </h2>
               <div className="prose prose-invert max-w-none">
                 <p className="text-gray-300 leading-relaxed mb-4">
-                  {seoDescription}
+                  {item.description || `${item.name} for ambient lighting. Perfect for creating a warm, romantic atmosphere at your event.`}
                 </p>
                 <p className="text-gray-300 leading-relaxed">
-                  Perfect for weddings, parties, and events across the West Country. 
-                  Our {item.name.toLowerCase()} hire service is available throughout {LOCATIONS}. 
-                  Contact us to discuss your requirements and book your items today.
+                  Professional wedding and event hire services across the West Country. Perfect for weddings, parties, and events. Contact us to discuss your requirements and book your items today.
                 </p>
               </div>
             </CardContent>

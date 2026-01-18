@@ -5,7 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import GoogleReviews from "@/components/GoogleReviews";
-import { Star, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
+import { RefinedStar } from "@/components/RefinedStar";
 import { testimonials, type Testimonial } from "@/data/testimonials";
 
 // Helper function to shuffle array
@@ -65,7 +66,7 @@ export default function TestimonialsClient() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-15 flex items-center justify-center">
           <img
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162627/Camilla-Richard-0063_mctrmo.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg"
             alt="Wedding reception with professional lighting design showcasing elegant table settings and ambient lighting at a West Country venue"
             className="w-full h-full object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}
@@ -94,9 +95,13 @@ export default function TestimonialsClient() {
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
             {/* 5.0 Google Star Rating */}
             <div className="flex items-center gap-3">
-              <div className="flex gap-1">
+              <div className="flex gap-0.5">
                 {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} className="w-6 h-6 fill-champagne-gold text-champagne-gold" />
+                  <RefinedStar
+                    key={star}
+                    filled={true}
+                    className="w-[18px] h-[18px] text-champagne-gold"
+                  />
                 ))}
               </div>
               <span className="text-2xl font-bold text-white">5.0</span>

@@ -16,22 +16,52 @@ const stylingPhotos: Photo[] = [
     alt: "Elegant Wedding Venue Styling",
   },
   {
-    src: "https://images.unsplash.com/photo-1464366400600-7168e8c8040e?w=1200&h=800&fit=crop",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg",
     width: 1200,
     height: 800,
-    alt: "Elegant Wedding Table Styling at West Country Venue",
+    alt: "Elegant wedding venue styling with sophisticated lighting design and professional decoration",
   },
   {
-    src: "https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=1200&h=800&fit=crop",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768742034/IMG_1348_161201_zwmdh2.jpg",
     width: 1200,
     height: 800,
-    alt: "Luxury Wedding Venue Styling with Drapery across the West Country",
+    alt: "Luxury wedding venue styling with elegant lighting and sophisticated interior design",
   },
   {
-    src: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=1200&h=800&fit=crop",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768742094/IMG_4162_h3h0bb.jpg",
     width: 1200,
     height: 800,
-    alt: "Professional Wedding Backdrop and Photo Wall Styling",
+    alt: "Professional wedding venue styling with atmospheric lighting and elegant decoration",
+  },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768742204/Saltburn_231005__0050_1558_y6diu8.jpg",
+    width: 1200,
+    height: 800,
+    alt: "Sophisticated wedding venue styling with professional lighting design and elegant atmosphere",
+  },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163679/IMG_3094-1_aiyu5i.jpg",
+    width: 1200,
+    height: 800,
+    alt: "Elegant venue styling with sophisticated lighting and decoration creating a luxurious atmosphere",
+  },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163675/DSC00018_kixfyj.jpg",
+    width: 1200,
+    height: 800,
+    alt: "Beautiful venue styling with elegant decorations and professional lighting design",
+  },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163647/Orangery-violet_c95cvu.jpg",
+    width: 1200,
+    height: 800,
+    alt: "Orangery venue with violet lighting and elegant styling creating a romantic atmosphere",
+  },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163633/Stretch-Marquee-Lighting-e1483614284289_lmsqwr.jpg",
+    width: 1200,
+    height: 800,
+    alt: "Stretch marquee with professional lighting and elegant venue styling for wedding celebrations",
   },
 ];
 
@@ -111,7 +141,7 @@ export default function VenueStylingService() {
 
       {/* Gallery */}
       <section className="py-20 px-4 bg-gray-900">
-        <div className="container mx-auto">
+        <div className="container mx-auto max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -124,7 +154,9 @@ export default function VenueStylingService() {
               Elegant styling that reflects your personal vision
             </p>
           </motion.div>
-          <Gallery photos={stylingPhotos} columns={2} />
+          <div className="w-full md:max-w-4xl md:mx-auto">
+            <Gallery photos={stylingPhotos} columns={2} />
+          </div>
         </div>
       </section>
 

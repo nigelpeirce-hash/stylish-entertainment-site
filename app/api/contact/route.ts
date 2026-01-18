@@ -1,10 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
+import { getBrochureLink } from "@/lib/venue-assets";
+import { inquiryAutoresponder } from "@/lib/email-journey-templates";
+import { getResendConfig } from "@/lib/email-config";
+import { Resend } from "resend";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, phone, eventDate, venueName, referralSource, eventType, message, recaptchaToken } = body;
+    const { name, email, phone, eventDate, venueName, venueNamePostcode, referralSource, eventType, preferredDJ, upsells, message, recaptchaToken } = body;
+    
+    // Extract venue name (handle both venueName and venueNamePostcode fields)
+    const clientVenueName = venueName || venueNamePostcode || null;
 
     // Basic validation
     if (!name || !email || !message) {
@@ -71,10 +80,10 @@ export async function POST(request: NextRequest) {
               <div class="field-value">${eventDate}</div>
             </div>
             ` : ''}
-            ${venueName ? `
+            ${clientVenueName ? `
             <div class="field">
               <div class="field-label">Venue Name:</div>
-              <div class="field-value">${venueName}</div>
+              <div class="field-value">${clientVenueName}</div>
             </div>
             ` : ''}
             ${referralSource ? `
@@ -87,6 +96,28 @@ export async function POST(request: NextRequest) {
             <div class="field">
               <div class="field-label">Event Type:</div>
               <div class="field-value">${eventType}</div>
+            </div>
+            ` : ''}
+            ${preferredDJ ? `
+            <div class="field">
+              <div class="field-label">Preferred DJ:</div>
+              <div class="field-value">${preferredDJ}</div>
+            </div>
+            ` : ''}
+            ${upsells && upsells.length > 0 ? `
+            <div class="field">
+              <div class="field-label">Selected Enhancements:</div>
+              <div class="field-value">${upsells.map((upsell: string) => {
+                const upsellMap: Record<string, string> = {
+                  "lighting": "Professional Lighting Design",
+                  "musicians": "Live Musicians (Sax, Bongos)",
+                  "fire-pits": "Fire Pit Hire",
+                  "venue-styling": "Venue Styling & Decoration",
+                  "early-setup": "Early Setup Available",
+                  "extended-hours": "Extended Performance Hours",
+                };
+                return upsellMap[upsell] || upsell;
+              }).join(", ")}</div>
             </div>
             ` : ''}
             <div class="field">
@@ -102,16 +133,11 @@ export async function POST(request: NextRequest) {
     // Send email to your business email
     const recipientEmail = process.env.CONTACT_FORM_EMAIL || "info@stylishentertainment.co.uk";
     
-    console.log("Attempting to send email to:", recipientEmail);
-    console.log("SMTP configured:", !!process.env.SMTP_USER && !!process.env.SMTP_PASSWORD);
-    
     const emailResult = await sendEmail({
       to: recipientEmail,
       subject: emailSubject,
       html: emailHtml,
     });
-
-    console.log("Email send result:", emailResult);
 
     if (!emailResult.success) {
       console.error("❌ Failed to send contact form email:", (emailResult as any).error);
@@ -124,50 +150,66 @@ export async function POST(request: NextRequest) {
         { status: 500 }
       );
     }
-    
-    console.log("✅ Business email sent successfully:", emailResult.success ? (emailResult as any).messageId : undefined);
 
-    // Optionally send a confirmation email to the user
-    const confirmationHtml = `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-          .header { background: #d4af37; color: #000; padding: 20px; text-align: center; }
-          .content { background: #f9f9f9; padding: 30px; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <div class="header">
-            <img src="${logoUrl}" alt="Stylish Entertainment" class="logo" style="max-width: 200px; height: auto; margin-bottom: 15px;" />
-            <h1 style="margin: 0; font-size: 24px;">Thank You for Contacting Us!</h1>
-          </div>
-          <div class="content">
-            <p>Dear ${name},</p>
-            <p>Thank you for getting in touch with Stylish Entertainment. We've received your message and will get back to you as soon as possible.</p>
-            <p>We typically respond within 24-48 hours.</p>
-            <p>If you have any urgent questions, please call us at 07970793177.</p>
-            <p>Best regards,<br>Ali & Nige</p>
-          </div>
-        </div>
-      </body>
-      </html>
-    `;
+    // Send automated inquiry autoresponder email to the client
+    // Fetch brochure link from venue_assets table based on venueName
+    // Query: SELECT pdf_url FROM venue_assets WHERE venue_name = [clientVenueName] AND is_active = true
+    let brochureUrl: string;
+    try {
+      brochureUrl = await getBrochureLink(clientVenueName);
+    } catch (error) {
+      console.error("Error fetching brochure link:", error);
+      // Fallback to general brochure
+      brochureUrl = "https://res.cloudinary.com/stylish/brochures/general-stylish-brochure.pdf";
+    }
 
-    // Send confirmation email to the user
-    console.log("Sending confirmation email to:", email);
-    const confirmationResult = await sendEmail({
-      to: email,
-      subject: "Thank you for contacting Stylish Entertainment",
-      html: confirmationHtml,
+    // Format event date if provided
+    const formattedEventDate = eventDate 
+      ? new Date(eventDate).toLocaleDateString("en-GB", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : undefined;
+
+    // Generate inquiry autoresponder email using the template
+    const inquiryEmail = inquiryAutoresponder({
+      clientName: name,
+      eventType: eventType || "your event",
+      eventDate: formattedEventDate || "your event date",
+      venueName: clientVenueName || undefined,
+      brochureUrl: brochureUrl,
     });
-    console.log("Confirmation email result:", confirmationResult);
+
+    // Send inquiry autoresponder email using Resend (with centralized config)
+    const emailConfig = getResendConfig("booking");
+    let confirmationResult;
+    
+    try {
+      confirmationResult = await resend.emails.send({
+        from: emailConfig.from,
+        replyTo: emailConfig.replyTo,
+        to: [email],
+        subject: inquiryEmail.subject,
+        html: inquiryEmail.html,
+      });
+    } catch (resendError) {
+      console.error("Error sending inquiry autoresponder via Resend:", resendError);
+      // Fallback to SMTP if Resend fails
+      confirmationResult = await sendEmail({
+        to: email,
+        subject: inquiryEmail.subject,
+        html: inquiryEmail.html,
+      });
+    }
 
     // Return detailed response for debugging
+    const confirmationSuccess = 'data' in confirmationResult || (confirmationResult as any).success;
+    const confirmationMessageId = 'data' in confirmationResult 
+      ? (confirmationResult as any).data?.id 
+      : (confirmationResult as any).messageId;
+    
     return NextResponse.json(
       { 
         success: true, 
@@ -175,8 +217,8 @@ export async function POST(request: NextRequest) {
         emailDetails: {
           businessEmailSent: emailResult.success,
           businessEmailMessageId: emailResult.success ? (emailResult as any).messageId : undefined,
-          confirmationEmailSent: confirmationResult.success,
-          confirmationEmailMessageId: confirmationResult.success ? (confirmationResult as any).messageId : undefined,
+          confirmationEmailSent: confirmationSuccess,
+          confirmationEmailMessageId: confirmationMessageId || undefined,
           businessEmailTo: recipientEmail,
           confirmationEmailTo: email,
         }

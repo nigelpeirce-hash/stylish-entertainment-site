@@ -8,9 +8,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { Music, Plus, X, Heart, Ban, Play, Trash2, Link as LinkIcon, FileText, Upload, ExternalLink } from "lucide-react";
+import { isWeddingEvent, getLabel } from "@/lib/eventLabels";
 
 interface MusicPlaylistManagerProps {
   bookingId: string;
+  eventType?: string | null;
   initialData?: {
     musicRequests?: string;
     musicDislikes?: string;
@@ -23,6 +25,7 @@ interface MusicPlaylistManagerProps {
 
 export default function MusicPlaylistManager({
   bookingId,
+  eventType,
   initialData,
   onUpdate,
 }: MusicPlaylistManagerProps) {
@@ -193,19 +196,21 @@ export default function MusicPlaylistManager({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* First Dance */}
-          <div className="space-y-2">
-            <Label htmlFor="firstDance" className="text-white">
-              First Dance Song
-            </Label>
-            <Input
-              id="firstDance"
-              value={firstDance}
-              onChange={(e) => setFirstDance(e.target.value)}
-              placeholder="Artist - Song Title"
-              className="bg-gray-900 text-white border-gray-700"
-            />
-          </div>
+          {/* First Dance - Only show for Wedding events */}
+          {isWeddingEvent(eventType) && (
+            <div className="space-y-2">
+              <Label htmlFor="firstDance" className="text-white">
+                {getLabel("firstDance", eventType)}
+              </Label>
+              <Input
+                id="firstDance"
+                value={firstDance}
+                onChange={(e) => setFirstDance(e.target.value)}
+                placeholder="Artist - Song Title"
+                className="bg-gray-900 text-white border-gray-700"
+              />
+            </div>
+          )}
 
           {/* Last Song */}
           <div className="space-y-2">

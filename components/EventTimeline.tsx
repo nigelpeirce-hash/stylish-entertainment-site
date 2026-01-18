@@ -107,7 +107,7 @@ export default function EventTimeline({
               className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10"
             >
               <Edit2 className="w-4 h-4 mr-2" />
-              Customize
+              Customise
             </Button>
           )}
         </div>

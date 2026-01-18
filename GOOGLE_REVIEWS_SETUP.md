@@ -81,7 +81,7 @@ The Google Reviews component is already integrated into the testimonials page. I
 
 ## Customization
 
-You can customize the component by:
+You can customise the component by:
 
 - Changing `maxReviews` prop to show more/fewer reviews
 - Modifying the styling in `components/GoogleReviews.tsx`

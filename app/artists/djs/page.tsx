@@ -14,10 +14,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import LazyIframe from "@/components/LazyIframe";
-import { Target, Clock, Sparkles, Wrench, Music, Shield } from "lucide-react";
+import { Target, Clock, Sparkles, Wrench, Music, Shield, Play, Search } from "lucide-react";
 import YMCACheck from "@/components/YMCACheck";
+import { Input } from "@/components/ui/input";
 
 const djs = [
   {
@@ -91,7 +92,135 @@ To view full details with images & videos please view DJ Nige's page
   },
 ];
 
+// Import venues data from venues page
+const venuesUnsorted = [
+  "Monaco Yacht Club",
+  "Maritime Museum Amsterdam",
+  { name: "Babington House Hotel, Soho House", url: "https://www.sohohouse.com/houses/babington-house" },
+  { name: "Dorfold Hall", url: "https://www.dorfoldestate.com/" },
+  { name: "The Met Bar", url: "https://www.metropolitanlondon.com/" },
+  { name: "Goodwood House, Sussex", url: "https://www.goodwood.com/" },
+  { name: "Hotel Tresanton Cornwall", url: "https://www.tresanton.com/" },
+  { name: "Cowley Manor", url: "https://www.cowleymanor.com/" },
+  { name: "Berkeley Castle", url: "https://www.berkeley-castle.com/" },
+  { name: "Coombe Lodge", url: "https://www.coombelodge.co.uk/" },
+  { name: "Priston Mill", url: "https://www.pristonmill.co.uk/" },
+  { name: "The Chapel, Bruton", url: "https://atthechapel.co.uk/" },
+  { name: "Roth Bar & Grill", url: "https://rothbar.co.uk/" },
+  { name: "Orchardleigh Estate", url: "https://www.orchardleigh.com/" },
+  { name: "Elmhay Park", url: "https://www.orchardleigh.com/" },
+  { name: "North Cadbury Court", url: "https://www.northcadburycourt.com/" },
+  { name: "Barnsley House", url: "https://www.barnsleyhouse.com/" },
+  { name: "Pembroke Lodge, Richmond Park", url: "https://www.pembroke-lodge.co.uk/" },
+  { name: "Yarlington House", url: "https://www.yarlingtonhouse.co.uk/" },
+  { name: "Lulworth Castle", url: "https://www.lulworth.com/" },
+  "The Imperial",
+  "Charlton House, Shepton Mallet",
+  { name: "Eastnor Castle", url: "https://www.eastnorcastle.com/" },
+  "The Great Tythe Barn, Tetbury",
+  "Euridge Manor",
+  { name: "Sessions Art Club London", url: "https://sessionsartsclub.com/" },
+  { name: "Soho Farmhouse", url: "https://www.sohohouse.com/houses/soho-farmhouse" },
+  { name: "Hotel du Vin, Poole", url: "https://www.hotelduvin.com/locations/poole/" },
+  "Many private addresses",
+  { name: "Calcot Manor", url: "https://www.calcot.co/" },
+  { name: "Cardiff City Hall", url: "https://www.cardiffcityhall.com/" },
+  { name: "Cardiff Castle", url: "https://www.cardiffcastle.com/" },
+  { name: "Athelhampton House", url: "https://www.athelhampton.co.uk/" },
+  { name: "Homewood Park", url: "https://www.homewoodpark.co.uk/" },
+  "Shilstone Manor",
+  { name: "Pentille Castle", url: "https://www.pentillie.co.uk/" },
+  { name: "Stoke Place", url: "https://www.stokeplace.com/" },
+  "St Stephen's Hampstead",
+  { name: "St George's Bristol", url: "https://www.stgeorgesbristol.co.uk/" },
+  { name: "Gant's Mill", url: "https://www.gantsmill.co.uk/" },
+  "The Manor Castle Coombe",
+  { name: "Elmore Court", url: "https://www.elmorecourt.com/" },
+  "Revolution",
+  { name: "The Mayfair Hotel", url: "https://www.themayfairhotel.co.uk/" },
+  "Dewsall Court",
+  "Polhawn Fort",
+  { name: "Syrencot", url: "https://www.syrencot.co.uk/" },
+  { name: "Bailbrook House", url: "https://www.bailbrookhouse.co.uk/" },
+  { name: "The Gathering Barn", url: "https://www.thegatheringbarn.co.uk/" },
+  { name: "Thames Rowing Club", url: "https://www.thamesrc.co.uk/" },
+  { name: "Hampton Court House", url: "https://www.hamptoncourthouse.co.uk/" },
+  { name: "Hestercombe Gardens", url: "https://www.hestercombe.com/" },
+  { name: "Pencarrow Estate", url: "https://www.pencarrow.co.uk/" },
+  "Northover Manor",
+  { name: "Boconnoc Estate", url: "https://www.boconnoc.com/" },
+  { name: "Rockingham Castle", url: "https://www.rockinghamcastle.com/" },
+  "Queen Mary University, London",
+  { name: "Town Hall Hotel, London", url: "https://www.townhallhotel.com/" },
+  { name: "The Wellington Arms, Basingstoke", url: "https://www.thewellingtonarms.com/" },
+  { name: "Wick Farm, Bath", url: "https://www.wickfarm.co.uk/" },
+  { name: "Parklands Quendon Hall, Essex", url: "https://quendonhall.co.uk/" },
+  { name: "Dene Farm, Hampshire", url: "https://www.denefarm.co.uk/" },
+  "Cutteridge Barns, Trowbridge",
+  { name: "Brympton House", url: "https://www.brymptonhouse.co.uk/" },
+  { name: "Cripps Barn", url: "https://www.crippsbarn.co.uk/" },
+  { name: "Tall Johns, South Wales", url: "https://www.talljohnshouse.com/" },
+  { name: "The Royal Yacht Club", url: "https://www.rlyc.org.uk/" },
+  { name: "The Newt in Somerset", url: "https://www.thenewtinsomerset.com/" },
+  { name: "Glastonbury Festival", url: "https://www.glastonburyfestivals.co.uk/" },
+  "Almonry Barn, Somerset",
+  "Penarth Pier Pavilion, Wales",
+  { name: "Kingscote Barn, Gloucestershire", url: "https://www.kingscotebarn.co.uk/" },
+  "Hatton Hall, Warwickshire",
+  { name: "The Assembly Rooms, Bath", url: "https://www.assemblyroomsbath.co.uk/" },
+  "The Penny Farthing Cafe Bar, Cowbridge, Wales",
+  "Ruscombe, Berkshire",
+  "Braintree, Essex",
+];
+
+// Convert venues to a consistent format with name and location extracted
+const formatVenues = () => {
+  const formatted = venuesUnsorted.map((venue) => {
+    if (typeof venue === 'string') {
+      // Extract location from string if it contains a comma
+      const parts = venue.split(',').map(p => p.trim());
+      if (parts.length > 1) {
+        return {
+          name: parts[0],
+          location: parts.slice(1).join(', '),
+          url: undefined,
+        };
+      }
+      return {
+        name: venue,
+        location: '',
+        url: undefined,
+      };
+    }
+    // Extract location from name if it contains a comma
+    const nameParts = venue.name.split(',').map(p => p.trim());
+    if (nameParts.length > 1) {
+      return {
+        name: nameParts[0],
+        location: nameParts.slice(1).join(', '),
+        url: venue.url,
+      };
+    }
+    return {
+      name: venue.name,
+      location: '',
+      url: venue.url,
+    };
+  });
+  
+  // Sort alphabetically by name (ignoring "The" prefix for sorting)
+  return formatted.sort((a, b) => {
+    const nameA = a.name.replace(/^The /i, '').toLowerCase();
+    const nameB = b.name.replace(/^The /i, '').toLowerCase();
+    return nameA.localeCompare(nameB, undefined, { sensitivity: 'base' });
+  });
+};
+
+const allVenues = formatVenues();
+
 export default function DJs() {
+  const [venueSearch, setVenueSearch] = useState("");
+
   useEffect(() => {
     document.title = "DJs | Professional Wedding DJs | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
@@ -110,8 +239,8 @@ export default function DJs() {
         </div>
         <div className="absolute inset-0 opacity-25 flex items-center justify-center">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163213/festival-trio_wrtrng.jpg"
-            alt="Festival trio of DJ, saxophone and percussion performing at a wedding or party event, showcasing professional live entertainment"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163785/Nigel-DJ-Babs-House-0002-1_ktgbaf.jpg"
+            alt="DJ Nige performing at Babington House, showcasing professional wedding DJ services with elegant lighting"
             fill
             className="object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}
@@ -153,9 +282,9 @@ export default function DJs() {
             className="text-center mb-12"
           >
             <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/20">
-              <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Why Choose Us</span>
+              <span className="text-xs font-semibold text-black tracking-wider uppercase">Why Choose Us</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-6 text-white font-bold px-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-6 text-gray-900 font-bold px-4">
               What Sets Our <span className="text-gradient">DJs Apart</span>
             </h2>
           </motion.div>
@@ -170,10 +299,10 @@ export default function DJs() {
           >
             <Card className="bg-gradient-to-br from-champagne-gold/10 to-yellow-400/10 border-2 border-champagne-gold/30 shadow-lg">
               <CardContent className="p-6 sm:p-8">
-                <p className="text-base sm:text-lg text-gray-100 leading-relaxed mb-4">
+                <p className="text-base sm:text-lg text-gray-800 leading-relaxed mb-4">
                   Looking for a DJ to make your event unforgettable? Our experienced and reliable DJs know exactly how to get the crowd dancing with their perfect mix of music, sound, and lighting. Choose from our brilliant solo mobile DJs or our festival trio of DJ, sax, and percussion to truly wow and entertain your guests.
                 </p>
-                <p className="text-base sm:text-lg text-gray-100 leading-relaxed">
+                <p className="text-base sm:text-lg text-gray-800 leading-relaxed">
                   We pride ourselves on our ability to read the crowd and cater to everyone's musical tastes, from the music lovers to your Aunt Betty. And to ensure a unique experience, we have banned overplayed and cliché songs such as YMCA, "Come on Eileen," and "The Macarena."
                 </p>
               </CardContent>
@@ -385,9 +514,9 @@ export default function DJs() {
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       </div>
-                      <CardHeader className="p-4 sm:p-6 md:p-6 lg:p-8 bg-gray-800/50 backdrop-blur-sm flex flex-col justify-start pb-20 sm:pb-6 md:pb-6 lg:pb-8">
+                      <CardHeader className="p-4 sm:p-6 md:p-6 lg:p-8 bg-gray-900/90 backdrop-blur-sm flex flex-col justify-start pb-20 sm:pb-6 md:pb-6 lg:pb-8">
                         <CardTitle className="text-xl sm:text-2xl md:text-3xl mb-2 sm:mb-3 text-white font-bold">{dj.name}</CardTitle>
-                        <p className="text-sm sm:text-base text-gray-300 mb-3 sm:mb-4 leading-relaxed">{dj.bio}</p>
+                        <p className="text-sm sm:text-base text-gray-200 mb-3 sm:mb-4 leading-relaxed">{dj.bio}</p>
                         
                         <Dialog>
                           <DialogTrigger asChild>
@@ -525,6 +654,82 @@ export default function DJs() {
         </div>
       </section>
 
+      {/* Fun Video Gallery - Portrait Style */}
+      <section className="py-20 px-4 bg-gray-900">
+        <div className="container mx-auto max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
+              <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">The Fun We Create</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-sans mb-3 sm:mb-4 text-white font-bold px-4">
+              See The <span className="text-gradient">Party In Action</span>
+            </h2>
+            <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto px-4">
+              Watch how our DJs create unforgettable moments and get everyone dancing
+            </p>
+          </motion.div>
+
+          {/* Portrait Video Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {[
+              { id: "5VChJyJMIfs", title: "DJ performance and crowd energy" },
+              { id: "EPq35ZF1Awc", title: "Wedding party dance floor excitement" },
+              { id: "3TnzdP0IhTU", title: "Celebration moments and guest reactions" },
+              { id: "iGCx-ZzMMtw", title: "Fun party atmosphere and music mixing" },
+            ].map((video, index) => (
+              <motion.div
+                key={video.id}
+                initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="relative group"
+              >
+                <Card className="bg-gray-800/50 backdrop-blur-sm border-2 border-champagne-gold/30 shadow-xl overflow-hidden hover:border-champagne-gold/60 transition-all duration-300 hover:shadow-2xl h-full">
+                  <CardContent className="p-0">
+                    <div className="relative w-full aspect-[9/16] rounded-t-lg overflow-hidden bg-gray-900">
+                      <LazyIframe
+                        src={`https://www.youtube.com/embed/${video.id}`}
+                        title={`${video.title} - Stylish Entertainment DJ Services`}
+                        className="absolute inset-0 w-full h-full"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                        referrerPolicy="strict-origin-when-cross-origin"
+                      />
+                      {/* Refined Play Icon Overlay */}
+                      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none flex items-center justify-center">
+                        <div className="relative">
+                          {/* Outer glow ring */}
+                          <div className="absolute inset-0 bg-champagne-gold/20 rounded-full blur-xl scale-150 group-hover:scale-175 transition-transform duration-300"></div>
+                          {/* Play button circle */}
+                          <div className="relative bg-champagne-gold/95 backdrop-blur-sm rounded-full p-4 md:p-5 shadow-2xl border-2 border-white/30 group-hover:scale-110 transition-transform duration-300">
+                            <Play 
+                              className="w-8 h-8 md:w-10 md:h-10 text-black ml-1" 
+                              fill="currentColor"
+                              strokeWidth={2}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      {/* Subtle corner indicator */}
+                      <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                        <Play className="w-4 h-4 text-champagne-gold" fill="currentColor" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* How Does It Work */}
       <section className="py-20 px-4 bg-gradient-to-b from-white via-gray-50/30 to-white">
         <div className="container mx-auto max-w-5xl">
@@ -551,7 +756,7 @@ export default function DJs() {
           >
             <Card className="border-champagne-gold/30 bg-gray-800 shadow-lg mb-8">
               <CardContent className="p-8 sm:p-10 md:p-12">
-                <div className="space-y-6 text-gray-300 leading-relaxed">
+                <div className="space-y-6 text-gray-100 leading-relaxed">
                   <p className="text-lg sm:text-xl">
                     When you contact us with your date, location and timings we will email you a quote based on current availability. If you wish to book, we will email a booking form and we will arrange for you to speak with your chosen DJ (to make sure they are the right person for you) before you book or near your party date.
                   </p>
@@ -591,6 +796,86 @@ export default function DJs() {
                 </div>
                 <p className="text-base sm:text-lg text-gray-300 leading-relaxed text-center mt-6 italic">
                   And other areas of the UK and Europe by request.
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Venues We've Played At */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.35 }}
+            className="mb-8"
+          >
+            <Card className="border-champagne-gold/30 bg-gray-800/80 backdrop-blur-sm shadow-lg">
+              <CardContent className="p-8 sm:p-10 md:p-12">
+                <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4 text-center">
+                  Venues We've Played At
+                </h3>
+                <p className="text-base sm:text-lg text-gray-300 leading-relaxed text-center mb-6">
+                  Check if we've performed at your venue. Search by venue name or location.
+                </p>
+                
+                {/* Search Input */}
+                <div className="relative mb-6 max-w-md mx-auto">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <Input
+                    type="text"
+                    placeholder="Search venues..."
+                    value={venueSearch}
+                    onChange={(e) => setVenueSearch(e.target.value)}
+                    className="pl-10 bg-gray-900/50 border-champagne-gold/30 text-white placeholder:text-gray-500 focus:border-champagne-gold/60"
+                  />
+                </div>
+
+                {/* Venues List */}
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {allVenues
+                    .filter((venue) => 
+                      venue.name.toLowerCase().includes(venueSearch.toLowerCase()) ||
+                      venue.location.toLowerCase().includes(venueSearch.toLowerCase())
+                    )
+                    .map((venue, index) => (
+                      <motion.div
+                        key={`${venue.name}-${index}`}
+                        initial={{ opacity: 0, x: -20 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.3, delay: index * 0.01 }}
+                        className="flex items-center justify-between p-3 bg-gray-900/50 rounded-lg border border-champagne-gold/20 hover:border-champagne-gold/40 hover:bg-gray-900/70 transition-all"
+                      >
+                        <div className="flex-1">
+                          <p className="text-white font-medium">{venue.name}</p>
+                          {venue.location && (
+                            <p className="text-gray-400 text-sm">{venue.location}</p>
+                          )}
+                        </div>
+                        {venue.url && (
+                          <Link
+                            href={venue.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-champagne-gold hover:text-champagne-gold/80 text-sm font-medium ml-4 transition-colors"
+                          >
+                            View →
+                          </Link>
+                        )}
+                      </motion.div>
+                    ))}
+                  {allVenues.filter((venue) => 
+                    venue.name.toLowerCase().includes(venueSearch.toLowerCase()) ||
+                    venue.location.toLowerCase().includes(venueSearch.toLowerCase())
+                  ).length === 0 && (
+                    <p className="text-gray-400 text-center py-8">
+                      No venues found. Try a different search term.
+                    </p>
+                  )}
+                </div>
+                
+                <p className="text-sm text-gray-400 text-center mt-6 italic">
+                  Don't see your venue? We'd love to play there! Contact us to discuss your date.
                 </p>
               </CardContent>
             </Card>

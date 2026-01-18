@@ -475,7 +475,7 @@ function BookDJPageContent() {
                           {service}
                           {service === "DJs" && selectedDJ && (
                             <span className="ml-2 text-xs text-champagne-gold">
-                              ({selectedDJ === null ? "Any DJ" : selectedDJ})
+                              ({selectedDJ})
                             </span>
                           )}
                         </Label>
@@ -490,7 +490,7 @@ function BookDJPageContent() {
                       {selectedDJ ? (
                         <>
                           Selected: <span className="text-champagne-gold font-medium">
-                            {selectedDJ === null ? "Any DJ" : selectedDJ}
+                            {selectedDJ}
                           </span>
                           <Button
                             type="button"
@@ -503,7 +503,7 @@ function BookDJPageContent() {
                         </>
                       ) : (
                         <>
-                          <span className="text-yellow-400">Please select a DJ preference</span>
+                          <span className="text-yellow-400">Please select a DJ</span>
                           <Button
                             type="button"
                             variant="link"

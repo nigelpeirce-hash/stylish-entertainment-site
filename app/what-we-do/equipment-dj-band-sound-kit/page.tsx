@@ -5,35 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Volume2, Mic, Radio, Headphones } from "lucide-react";
-import ImageCarousel, { ImagePhoto } from "@/components/ImageCarousel";
 import { useEffect } from "react";
-
-const soundPhotos: ImagePhoto[] = [
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Professional DJ sound equipment and sound system setup at Babington House with high-quality audio equipment",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162508/Kin-House-Stage-Lighting-and-Sound-supply_j8yln4.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Professional stage lighting and sound system supply at Kin House venue with complete DJ and band sound kit",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163688/Nigel-DJ-Babs-House-0008-1_ol2gkr.jpg",
-    width: 1200,
-    height: 900,
-    alt: "DJ Nige performing with professional sound equipment and live musicians at Babington House",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163656/IMG_3148_owtb29.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Live musicians performing with professional sound equipment and audio system for wedding entertainment",
-  },
-];
 
 export default function SoundEquipment() {
   useEffect(() => {
@@ -146,27 +118,6 @@ export default function SoundEquipment() {
         </div>
       </section>
 
-      {/* Gallery */}
-      <section className="py-20 px-4 bg-gray-900">
-        <div className="container mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mb-12"
-          >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-sans mb-3 sm:mb-4 text-center text-white font-bold px-4">Sound Equipment Gallery</h2>
-            <p className="text-base sm:text-lg text-gray-300 text-center max-w-2xl mx-auto px-4">
-              Professional sound systems in action at our events
-            </p>
-          </motion.div>
-          <div className="flex justify-center">
-            <ImageCarousel images={soundPhotos} />
-          </div>
-        </div>
-      </section>
-
       {/* CTA */}
       <section className="pt-20 pb-8 px-4 bg-gray-800">
         <div className="container mx-auto max-w-4xl text-center">
@@ -180,7 +131,7 @@ export default function SoundEquipment() {
               Need professional sound equipment for your event?
             </h2>
             <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
-              <Link href="/contact-us">Get in Touch</Link>
+              <Link href="/contact-us">Check Availability</Link>
             </Button>
           </motion.div>
         </div>

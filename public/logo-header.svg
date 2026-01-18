@@ -30,7 +30,7 @@
   
   <!-- Text -->
   <g transform="translate(100, 0)">
-    <text x="0" y="30" font-family="'Raleway', sans-serif" font-size="28" font-weight="700" fill="url(#goldTextHeader)" text-anchor="start" letter-spacing="1.5">Stylish</text>
-    <text x="0" y="55" font-family="'Raleway', sans-serif" font-size="16" font-weight="400" fill="url(#goldTextHeader)" text-anchor="start" letter-spacing="3" opacity="0.9">ENTERTAINMENT</text>
+    <text x="0" y="35" font-family="Impact, 'Arial Black', 'Franklin Gothic Bold', 'Arial Bold', sans-serif" font-size="21" font-weight="bold" fill="url(#goldTextHeader)" text-anchor="start" letter-spacing="2.5">STYLISH</text>
+    <text x="0" y="58" font-family="Impact, 'Arial Black', 'Franklin Gothic Bold', 'Arial Bold', sans-serif" font-size="21" font-weight="bold" fill="url(#goldTextHeader)" text-anchor="start" letter-spacing="3" opacity="0.95">Entertainment</text>
   </g>
 </svg>

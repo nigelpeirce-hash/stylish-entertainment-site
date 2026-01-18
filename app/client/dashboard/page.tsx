@@ -11,12 +11,12 @@ import { motion } from "framer-motion";
 import { Calendar, MessageSquare, User, Plus } from "lucide-react";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { SingleEventHero } from "./SingleEventHero";
-import WeddingPlanningChecklist from "@/components/WeddingPlanningChecklist";
 import CountdownClock from "@/components/CountdownClock";
 import MusicPlaylistManager from "@/components/MusicPlaylistManager";
-import EventTimeline from "@/components/EventTimeline";
 import GuestCountTracker from "@/components/GuestCountTracker";
 import BudgetTracker from "@/components/BudgetTracker";
+import AddOnConcierge from "@/components/AddOnConcierge";
+import { getLabel } from "@/lib/eventLabels";
 
 // Wedding Planning Tips
 const WEDDING_TIPS = [
@@ -62,24 +62,7 @@ export default function ClientDashboard() {
     }
   };
 
-  const handleTaskToggle = (bookingId: string) => {
-    return async (taskId: string, completed: boolean) => {
-      try {
-        const response = await fetch(`/api/client/bookings/${bookingId}/tasks`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ taskId, completed }),
-        });
-        
-        if (response.ok) {
-          // Refresh bookings to get updated task status
-          fetchBookings();
-        }
-      } catch (error) {
-        console.error("Error updating task:", error);
-      }
-    };
-  };
+  // handleTaskToggle function removed - see TIMELINE_TASKS_BACKUP.md for future reference
 
   const createTestBooking = async () => {
     setIsCreatingTest(true);
@@ -248,7 +231,6 @@ export default function ClientDashboard() {
                 // Single Event Hero View
                 <SingleEventHero
                   booking={bookings[0]}
-                  onTaskToggle={handleTaskToggle(bookings[0].id)}
                 />
               ) : (
                 // Multiple Bookings List View
@@ -264,7 +246,12 @@ export default function ClientDashboard() {
                               </h3>
                               <p className="text-gray-200 mb-1">
                                 <strong>Date:</strong>{" "}
-                                {new Date(booking.eventDate).toLocaleDateString()}
+                                {booking.eventDate ? new Date(booking.eventDate).toLocaleDateString('en-GB', { 
+                                  weekday: 'long', 
+                                  year: 'numeric', 
+                                  month: 'long', 
+                                  day: 'numeric' 
+                                }) : 'Date not set'}
                               </p>
                               <p className="text-gray-200 mb-1">
                                 <strong>Venue:</strong> {booking.venueName}
@@ -294,7 +281,7 @@ export default function ClientDashboard() {
                           <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-white">
                               <Calendar className="w-5 h-5 text-champagne-gold" />
-                              Countdown to Your {booking.eventType === "Wedding" ? "Wedding" : booking.eventType}
+                              Countdown to Your {getLabel("countdown", booking.eventType)}
                             </CardTitle>
                           </CardHeader>
                           <CardContent>
@@ -303,19 +290,18 @@ export default function ClientDashboard() {
                         </Card>
                       )}
 
-                      {/* Wedding Planning Checklist */}
-                      {booking.eventType === "Wedding" && (
-                        <WeddingPlanningChecklist
-                          eventDate={new Date(booking.eventDate)}
-                          eventType={booking.eventType}
-                          completedTasks={booking.completedTasks || []}
-                          onTaskToggle={handleTaskToggle(booking.id)}
+                      {/* Budget Tracker */}
+                      <div className="min-w-0 overflow-x-auto">
+                        <BudgetTracker
+                          bookingId={booking.id}
+                          totalBudget={booking.budget}
                         />
-                      )}
+                      </div>
 
                       {/* Music Playlist Manager */}
                       <MusicPlaylistManager
                         bookingId={booking.id}
+                        eventType={booking.eventType}
                         initialData={{
                           musicRequests: booking.musicRequests,
                           musicDislikes: booking.musicDislikes,
@@ -325,27 +311,18 @@ export default function ClientDashboard() {
                         }}
                       />
 
-                      {/* Event Timeline */}
-                      <div className="min-w-0 overflow-x-auto">
-                        <EventTimeline
-                          bookingId={booking.id}
-                          eventDate={new Date(booking.eventDate)}
-                        />
-                      </div>
-
                       {/* Guest Count Tracker */}
                       <GuestCountTracker
                         bookingId={booking.id}
                         initialCount={booking.numberOfGuests || 0}
                       />
 
-                      {/* Budget Tracker */}
-                      <div className="min-w-0 overflow-x-auto">
-                        <BudgetTracker
-                          bookingId={booking.id}
-                          totalBudget={booking.budget}
-                        />
-                      </div>
+                      {/* Add-On Concierge */}
+                      <AddOnConcierge
+                        bookingId={booking.id}
+                        eventType={booking.eventType}
+                        eventDate={booking.eventDate}
+                      />
                     </div>
                   ))}
                 </div>

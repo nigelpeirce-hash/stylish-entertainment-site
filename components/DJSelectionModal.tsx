@@ -43,46 +43,50 @@ export default function DJSelectionModal({
             Select Your Preferred DJ
           </DialogTitle>
           <DialogDescription className="text-gray-400">
-            Choose a specific DJ or select "Any DJ" if you have no preference
+            Choose a DJ or select "Not sure yet" if you'd like our help choosing the perfect match
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
-          {/* Any DJ Option */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            onClick={() => handleSelect(null)}
-            className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
-              selectedDJ === null
-                ? "border-champagne-gold bg-champagne-gold/20"
-                : "border-gray-700 hover:border-champagne-gold/50 bg-gray-900/50"
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-champagne-gold/20 flex items-center justify-center">
-                  <Music className="w-6 h-6 text-champagne-gold" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg text-white">Any DJ</h3>
-                  <p className="text-sm text-gray-400">
-                    We'll assign the best available DJ for your event
-                  </p>
-                </div>
-              </div>
-              {selectedDJ === null && (
-                <div className="w-5 h-5 rounded-full bg-champagne-gold border-2 border-champagne-gold"></div>
-              )}
-            </div>
-          </motion.div>
-
           {/* DJ List */}
           <div className="space-y-2">
             <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">
               Our DJs
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {/* "Not Sure" Option */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.02 }}
+                onClick={() => handleSelect("Not sure yet")}
+                onMouseEnter={() => setHoveredDJ("Not sure yet")}
+                onMouseLeave={() => setHoveredDJ(null)}
+                className={`p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                  selectedDJ === "Not sure yet"
+                    ? "border-champagne-gold bg-champagne-gold/20"
+                    : hoveredDJ === "Not sure yet"
+                    ? "border-champagne-gold/50 bg-gray-900/50"
+                    : "border-gray-700 bg-gray-900/30"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gray-600/40 flex items-center justify-center">
+                      <Music className="w-5 h-5 text-gray-400" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-white">Not sure yet</h3>
+                      <p className="text-xs text-gray-400">We'll help you choose</p>
+                    </div>
+                  </div>
+                  {selectedDJ === "Not sure yet" && (
+                    <div className="w-5 h-5 rounded-full bg-champagne-gold border-2 border-champagne-gold"></div>
+                  )}
+                </div>
+              </motion.div>
+              
+              {/* Individual DJs */}
               {djList.map((dj) => (
                 <motion.div
                   key={dj}

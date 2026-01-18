@@ -77,7 +77,7 @@ export function Slider({ children, className }: SliderProps) {
           
           {/* Slide Counter */}
           <div className="absolute top-4 right-4 z-10 bg-white/95 backdrop-blur-sm border-2 border-champagne-gold rounded-full px-4 py-2 shadow-lg">
-            <span className="text-sm sm:text-base font-bold text-champagne-gold">
+            <span className="text-sm sm:text-base font-bold text-black">
               {currentIndex + 1} / {totalSlides}
             </span>
           </div>

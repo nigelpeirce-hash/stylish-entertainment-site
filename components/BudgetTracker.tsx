@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
-import { DollarSign, Plus, Trash2, Check, X, TrendingUp, AlertCircle } from "lucide-react";
+import { PoundSterling, Plus, Trash2, Check, X, TrendingUp, AlertCircle } from "lucide-react";
 
 interface BudgetItem {
   id: string;
@@ -98,7 +98,7 @@ export default function BudgetTracker({
     <Card className="bg-gray-800 border-champagne-gold/30">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <DollarSign className="w-5 h-5 text-champagne-gold" />
+          <PoundSterling className="w-5 h-5 text-champagne-gold" />
           Budget & Payment Tracker
         </CardTitle>
       </CardHeader>
@@ -110,7 +110,7 @@ export default function BudgetTracker({
             animate={{ opacity: 1, scale: 1 }}
             className="p-4 bg-gray-900 rounded-lg border border-gray-700"
           >
-            <div className="text-sm text-gray-400 mb-1">Total Budget</div>
+            <div className="text-sm text-gray-400 mb-1">Total Fee</div>
             <div className="text-2xl font-bold text-white">{formatCurrency(totalAmount)}</div>
           </motion.div>
 
@@ -120,7 +120,7 @@ export default function BudgetTracker({
             transition={{ delay: 0.1 }}
             className="p-4 bg-gray-900 rounded-lg border border-green-500/30"
           >
-            <div className="text-sm text-gray-400 mb-1">Paid</div>
+            <div className="text-sm text-gray-400 mb-1">Deposit Paid</div>
             <div className="text-2xl font-bold text-green-400">{formatCurrency(paidAmount)}</div>
           </motion.div>
 
@@ -130,7 +130,7 @@ export default function BudgetTracker({
             transition={{ delay: 0.2 }}
             className="p-4 bg-gray-900 rounded-lg border border-yellow-500/30"
           >
-            <div className="text-sm text-gray-400 mb-1">Remaining</div>
+            <div className="text-sm text-gray-400 mb-1">Final Balance</div>
             <div className="text-2xl font-bold text-yellow-400">
               {formatCurrency(remainingAmount)}
             </div>
@@ -232,7 +232,7 @@ export default function BudgetTracker({
 
           {items.length === 0 ? (
             <div className="text-center py-8 text-gray-400">
-              <DollarSign className="w-12 h-12 mx-auto mb-2 text-gray-600" />
+              <PoundSterling className="w-12 h-12 mx-auto mb-2 text-gray-600" />
               <p>No payment items yet. Add your first payment to get started.</p>
             </div>
           ) : (

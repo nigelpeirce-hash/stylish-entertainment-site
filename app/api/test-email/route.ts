@@ -3,16 +3,20 @@ import { sendEmail } from "@/lib/email";
 
 export async function GET() {
   try {
-    console.log("=== TEST EMAIL ENDPOINT ===");
-    console.log("SMTP_HOST:", process.env.SMTP_HOST);
-    console.log("SMTP_PORT:", process.env.SMTP_PORT);
-    console.log("SMTP_USER:", process.env.SMTP_USER);
-    console.log("SMTP_PASSWORD:", process.env.SMTP_PASSWORD ? "***SET***" : "MISSING");
-    console.log("SMTP_FROM_EMAIL:", process.env.SMTP_FROM_EMAIL);
+    if (process.env.NODE_ENV === "development") {
+      console.log("=== TEST EMAIL ENDPOINT ===");
+      console.log("SMTP_HOST:", process.env.SMTP_HOST);
+      console.log("SMTP_PORT:", process.env.SMTP_PORT);
+      console.log("SMTP_USER:", process.env.SMTP_USER);
+      console.log("SMTP_PASSWORD:", process.env.SMTP_PASSWORD ? "***SET***" : "MISSING");
+      console.log("SMTP_FROM_EMAIL:", process.env.SMTP_FROM_EMAIL);
+    }
 
     const testEmail = process.env.CONTACT_FORM_EMAIL || "info@stylishentertainment.co.uk";
     
-    console.log("Sending test email to:", testEmail);
+    if (process.env.NODE_ENV === "development") {
+      console.log("Sending test email to:", testEmail);
+    }
     
     const result = await sendEmail({
       to: testEmail,
@@ -24,7 +28,9 @@ export async function GET() {
       `,
     });
 
-    console.log("Test email result:", result);
+    if (process.env.NODE_ENV === "development") {
+      console.log("Test email result:", result);
+    }
 
     return NextResponse.json({
       success: result.success,

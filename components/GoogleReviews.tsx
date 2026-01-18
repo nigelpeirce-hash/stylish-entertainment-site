@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, ExternalLink } from "lucide-react";
+import { ExternalLink } from "lucide-react";
+import { RefinedStar } from "@/components/RefinedStar";
 
 interface GoogleReview {
   author_name: string;
@@ -81,14 +82,15 @@ export default function GoogleReviews({
 
   const renderStars = (rating: number) => {
     return (
-      <div className="flex gap-1">
+      <div className="flex gap-0.5">
         {[1, 2, 3, 4, 5].map((star) => (
-          <Star
+          <RefinedStar
             key={star}
-            className={`w-5 h-5 ${
+            filled={star <= rating}
+            className={`w-[14px] h-[14px] ${
               star <= rating
-                ? "fill-champagne-gold text-champagne-gold"
-                : "fill-gray-600 text-gray-600"
+                ? "text-champagne-gold"
+                : "text-gray-600/20"
             }`}
           />
         ))}
@@ -101,11 +103,12 @@ export default function GoogleReviews({
     return (
       <div className={`flex items-center justify-center py-8 ${className}`}>
         <div className="inline-flex items-center gap-3 px-6 py-4 bg-gray-900/50 backdrop-blur-sm border border-champagne-gold/30 rounded-lg">
-          <div className="flex gap-1">
+          <div className="flex gap-0.5">
             {[1, 2, 3, 4, 5].map((star) => (
-              <Star
+              <RefinedStar
                 key={star}
-                className="w-5 h-5 fill-champagne-gold text-champagne-gold"
+                filled={true}
+                className="w-[14px] h-[14px] text-champagne-gold"
               />
             ))}
           </div>
