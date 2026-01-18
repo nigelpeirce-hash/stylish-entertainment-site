@@ -68,31 +68,27 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if assignment already exists
-    const existingAssignment = await prisma.bookingStaffAssignment.findUnique({
+    const existingAssignment = await prisma.bookingStaffAssignment.findFirst({
       where: {
-        bookingId_staffId: {
-          bookingId,
-          staffId: staff.id,
-        },
+        bookingId,
+        staffId: staff.id,
       },
     });
 
     // Create or update staff assignment
-    const assignment = await prisma.bookingStaffAssignment.upsert({
-      where: {
-        bookingId_staffId: {
-          bookingId,
-          staffId: staff.id,
-        },
-      },
-      update: {
-        role,
-        agreedFee: parseFloat(agreedFee),
-        status: "held",
-        confirmationEmailSent: sendEmail ? true : existingAssignment?.confirmationEmailSent || false,
-        confirmationSentAt: sendEmail ? new Date() : existingAssignment?.confirmationSentAt || null,
-      },
-      create: {
+    const assignment = existingAssignment
+      ? await prisma.bookingStaffAssignment.update({
+          where: { id: existingAssignment.id },
+          data: {
+            role,
+            agreedFee: parseFloat(agreedFee),
+            status: "held",
+            confirmationEmailSent: sendEmail ? true : existingAssignment.confirmationEmailSent,
+            confirmationSentAt: sendEmail ? new Date() : existingAssignment.confirmationSentAt,
+          },
+        })
+      : await prisma.bookingStaffAssignment.create({
+          data: {
         bookingId,
         staffId: staff.id,
         role,

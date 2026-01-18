@@ -55,24 +55,20 @@ export async function GET(request: NextRequest) {
     const threeDaysAgo = new Date(now);
     threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
-    const bookingsNeedingReminder = await prisma.booking.findMany({
+    const bookingsNeedingReminderRaw = await prisma.booking.findMany({
       where: {
         status: { in: ["pending", "inquiry"] },
         lastEmailSentAt: {
           lte: threeDaysAgo,
         },
-        emailsSent: {
-          path: ["inquiryAutoresponder"],
-          isSet: true,
-        },
-        NOT: {
-          emailsSent: {
-            path: ["threeDayReminder"],
-            isSet: true,
-          },
-        },
       },
       take: 100, // Process in batches
+    });
+
+    // Filter in code to check JSON field paths
+    const bookingsNeedingReminder = bookingsNeedingReminderRaw.filter((booking) => {
+      const emailsSent = booking.emailsSent as any;
+      return emailsSent?.inquiryAutoresponder && !emailsSent?.threeDayReminder;
     });
 
     // 2. Find bookings needing 4-week check-in (event date is 28-29 days away)
@@ -83,25 +79,20 @@ export async function GET(request: NextRequest) {
     const fourWeeksEnd = new Date(fourWeeksFromNow);
     fourWeeksEnd.setHours(23, 59, 59, 999);
 
-    const bookingsNeeding4WeekCheckin = await prisma.booking.findMany({
+    const bookingsNeeding4WeekCheckinRaw = await prisma.booking.findMany({
       where: {
         status: { in: ["confirmed", "pending"] },
         eventDate: {
           gte: fourWeeksStart,
           lte: fourWeeksEnd,
         },
-        emailsSent: {
-          path: ["bookingConfirmation"],
-          isSet: true,
-        },
-        NOT: {
-          emailsSent: {
-            path: ["fourWeekCheckin"],
-            isSet: true,
-          },
-        },
       },
       take: 100,
+    });
+
+    const bookingsNeeding4WeekCheckin = bookingsNeeding4WeekCheckinRaw.filter((booking) => {
+      const emailsSent = booking.emailsSent as any;
+      return emailsSent?.bookingConfirmation && !emailsSent?.fourWeekCheckin;
     });
 
     // 3. Find bookings needing week-of excitement (event date is 6-7 days away)
@@ -112,21 +103,20 @@ export async function GET(request: NextRequest) {
     const oneWeekEnd = new Date(oneWeekFromNow);
     oneWeekEnd.setHours(23, 59, 59, 999);
 
-    const bookingsNeedingWeekOf = await prisma.booking.findMany({
+    const bookingsNeedingWeekOfRaw = await prisma.booking.findMany({
       where: {
         status: { in: ["confirmed", "pending"] },
         eventDate: {
           gte: oneWeekStart,
           lte: oneWeekEnd,
         },
-        NOT: {
-          emailsSent: {
-            path: ["weekOfExcitement"],
-            isSet: true,
-          },
-        },
       },
       take: 100,
+    });
+
+    const bookingsNeedingWeekOf = bookingsNeedingWeekOfRaw.filter((booking) => {
+      const emailsSent = booking.emailsSent as any;
+      return !emailsSent?.weekOfExcitement;
     });
 
     // 4. Find bookings needing post-wedding magic (event date was 3 days ago, status is completed or past)
@@ -137,21 +127,20 @@ export async function GET(request: NextRequest) {
     const threeDaysAgoEnd = new Date(threeDaysAgoEvent);
     threeDaysAgoEnd.setHours(23, 59, 59, 999);
 
-    const bookingsNeedingPostWedding = await prisma.booking.findMany({
+    const bookingsNeedingPostWeddingRaw = await prisma.booking.findMany({
       where: {
         status: { in: ["confirmed", "completed"] },
         eventDate: {
           gte: threeDaysAgoStart,
           lte: threeDaysAgoEnd,
         },
-        NOT: {
-          emailsSent: {
-            path: ["postWeddingMagic"],
-            isSet: true,
-          },
-        },
       },
       take: 100,
+    });
+
+    const bookingsNeedingPostWedding = bookingsNeedingPostWeddingRaw.filter((booking) => {
+      const emailsSent = booking.emailsSent as any;
+      return !emailsSent?.postWeddingMagic;
     });
 
     // Process 3-day reminders
