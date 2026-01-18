@@ -96,12 +96,20 @@ export default function AboutClient() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6 sm:p-8 pt-0 space-y-4">
-                <p className="text-gray-200 md:text-gray-300 leading-relaxed text-base sm:text-lg">
-                  We are an entertainment business based in Frome, Somerset, with over 20 years of experience creating celebrations across the West Country and beyond. From intimate weddings to larger parties, we work with venues and couples to bring their vision to life.
-                </p>
-                <p className="text-gray-200 md:text-gray-300 leading-relaxed text-base sm:text-lg">
-                  We work regularly with venues like Babington House (where we have been a trusted supplier since 2003), Kin House, Pennard House, and Mells Barn, providing DJs, musicians, lighting design, and venue styling for weddings and celebrations. We focus on good communication, reliable service, and attention to detail in every event we produce.
-                </p>
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-xl font-semibold text-champagne-gold mb-1">Ali – Strategic Heart & Luxe Experience</h3>
+                    <p className="text-gray-200 md:text-gray-300 leading-relaxed text-base sm:text-lg">
+                      Ali brings a strategic and personal heart to Stylish, combining a professional background in interior design, luxury hospitality, and project management. Her eye for detail and sense of occasion run through everything – from creative guest experiences to event logistics. She delivers thoughtful, tailored service for every occasion, ensuring each celebration feels truly special.
+                    </p>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-champagne-gold mb-1">Nige – Technical Vision & Legendary Events</h3>
+                    <p className="text-gray-200 md:text-gray-300 leading-relaxed text-base sm:text-lg">
+                      Starting his event journey at his parents' Rock-Ola juke box factory, Nige's career has seen him light and entertain for icons including Sir Sean Connery and Simon Cowell. He holds a 44-tonne vehicle (artic) license and has been trusted to drive, build and operate mega-events, as well as design lighting for legendary acts at <a href="https://cheeseandgrain.com" target="_blank" rel="noopener noreferrer" className="text-champagne-gold hover:text-gold-light underline">The Cheese & Grain</a>, including The Orb, Martin Kemp, Toyah, Republica, The Skids, Dave Rowntree (Blur), and more. He brings technical vision, creative flair, and calm delivery to every project.
+                    </p>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
@@ -242,15 +250,15 @@ export default function AboutClient() {
             </Card>
           </motion.div>
 
-          {/* Meet the Team Section */}
+          {/* Meet the Team Section - Two Column Layout */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.6 }}
-            className="text-center mb-8"
+            className="text-center mb-12"
           >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl text-white font-bold mb-4 tracking-wide">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl text-white font-serif font-bold mb-4 tracking-wide">
               Meet the <span className="text-gradient">Team</span>
             </h2>
             <p className="text-white md:text-gray-300 text-base sm:text-lg mb-8">
@@ -258,65 +266,120 @@ export default function AboutClient() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            {/* Ali */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            {/* Column 1: Ali's Bio */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.7 }}
+              className="lg:col-span-1"
             >
               <Card className="bg-gray-900 border-champagne-gold/30 h-full">
                 <CardContent className="p-6 sm:p-8">
                   <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700">
                     <Image
                       src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162313/Ali-Peirce_aec3tn.jpg"
-                      alt="Ali - Venue Styling & Artist Liaison at Stylish Entertainment"
+                      alt="Ali - Creative Strategist at Stylish Entertainment"
                       fill
                       className="object-cover"
                       priority
-                      sizes="(max-width: 768px) 100vw, 50vw"
+                      sizes="(max-width: 1024px) 100vw, 33vw"
                     />
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-champagne-gold mb-3 tracking-wide">Ali</h3>
-                  <p className="text-gray-400 text-sm font-semibold mb-3">Venue Styling & Artist Liaison</p>
-                  <p className="text-gray-200 md:text-gray-300 leading-relaxed mb-4">
-                    Ali combines creative vision with meticulous attention to detail. Drawing on years of experience in the creative industries, Ali specializes in venue styling and creating the perfect atmosphere for your special day. Every detail matters, and Ali ensures nothing is overlooked.
-                  </p>
-                  <p className="text-gray-200 md:text-gray-300 leading-relaxed">
-                    With a keen eye for design and a passion for creating beautiful spaces, Ali transforms venues into stunning celebration spaces. From initial consultation through to the final setup, Ali works closely with couples and clients to bring their vision to life, ensuring every element works together harmoniously.
-                  </p>
+                  <h3 className="text-2xl md:text-3xl font-serif font-bold text-champagne-gold mb-2 tracking-wide">Ali</h3>
+                  <p className="text-gray-400 text-sm font-semibold mb-4 uppercase tracking-wider">Creative Strategist</p>
+                  <div className="space-y-4 text-gray-200 md:text-gray-300 leading-relaxed">
+                    <p>
+                      Ali is the Strategic Heart of STYLISH, overseeing every detail of the 'Luxe' experience that defines our approach to celebration. As the primary link to prestigious venues like Babington House and Kin House, Ali ensures that every interaction reflects our commitment to excellence.
+                    </p>
+                    <p>
+                      Her philosophy is clear: entertainment is a high-end hospitality service. This perspective informs every decision, from initial consultation through to the final moments of your celebration. Ali understands that true luxury lies in the seamless execution of details that guests may never consciously notice, but will always remember.
+                    </p>
+                    <p>
+                      Through meticulous oversight and a deep understanding of what makes moments truly special, Ali ensures that every STYLISH event exceeds expectations, creating memories that resonate long after the music fades.
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>
 
-            {/* Nige */}
+            {/* Column 2: Nige's Bio */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.8 }}
+              className="lg:col-span-1"
             >
               <Card className="bg-gray-900 border-champagne-gold/30 h-full">
                 <CardContent className="p-6 sm:p-8">
                   <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700">
                     <Image
                       src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162279/Nigel-DJ-Babs-House-0009-1_f59b99.jpg"
-                      alt="Nige - Production & DJ at Stylish Entertainment"
+                      alt="Nige - Creative Technician at Stylish Entertainment"
                       fill
                       className="object-cover"
                       priority
-                      sizes="(max-width: 768px) 100vw, 50vw"
+                      sizes="(max-width: 1024px) 100vw, 33vw"
                     />
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-champagne-gold mb-3 tracking-wide">Nige</h3>
-                  <p className="text-gray-400 text-sm font-semibold mb-3">Production & DJ</p>
-                  <p className="text-gray-200 md:text-gray-300 leading-relaxed mb-4">
-                    With over 20 years of experience in the music and creative industries, Nige brings a wealth of knowledge and passion to every event. From DJ sets at prestigious venues like Babington House to creative lighting design, Nige ensures every celebration is unforgettable.
-                  </p>
-                  <p className="text-gray-200 md:text-gray-300 leading-relaxed">
-                    Nige co-founded factory.uk.com in 1997, bringing expertise from the creative industries to entertainment. His background includes work with Radio 1, Virgin Radio, and clients such as Sony and Universal. Since establishing Stylish Entertainment in 2004, Nige has been the creative force behind hundreds of celebrations, combining technical excellence with an intuitive understanding of what makes an event truly special.
-                  </p>
+                  <h3 className="text-2xl md:text-3xl font-serif font-bold text-champagne-gold mb-2 tracking-wide">Nige</h3>
+                  <p className="text-gray-400 text-sm font-semibold mb-4 uppercase tracking-wider">Creative Technician</p>
+                  <div className="space-y-4 text-gray-200 md:text-gray-300 leading-relaxed">
+                    <p>
+                      Nige's event journey began with his family heritage: sole UK rights to Rock-Ola Jukeboxes post-WWII, instilling in him a deep appreciation for music and technical excellence from the very beginning.
+                    </p>
+                    <p>
+                      His London career saw him co-found <a href="https://factory.uk.com" target="_blank" rel="noopener noreferrer" className="text-champagne-gold hover:text-gold-light underline">Factory Studios</a>, where he recorded Sir Sean Connery in Spain and sold a TV campaign to Simon Cowell, establishing himself as a trusted creative partner to high-profile clients.
+                    </p>
+                    <p>
+                      The transition to Somerset came through landmark experiences at The Met Bar and as backstage DJ at Glastonbury Festival's Pyramid stage—a bridge that led to his 20-year residency at Babington House, where he continues to bring technical vision and creative flair to every celebration.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Column 3: Technical Accolades Sidebar */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: 0.9 }}
+              className="lg:col-span-1"
+            >
+              <Card className="bg-gradient-to-br from-champagne-gold/10 to-yellow-400/10 border-champagne-gold/30 h-full">
+                <CardHeader className="p-6 sm:p-8 pb-4">
+                  <CardTitle className="text-xl md:text-2xl font-serif font-bold text-champagne-gold tracking-wide">
+                    Technical Accolades
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6 sm:p-8 pt-0 space-y-6">
+                  <div className="space-y-3">
+                    <h4 className="text-lg font-semibold text-white mb-3">Heritage</h4>
+                    <p className="text-gray-200 text-sm leading-relaxed">
+                      Rock-Ola Jukebox expertise and lifelong music collector, continuing a family tradition that began with sole UK rights to Rock-Ola Jukeboxes post-WWII.
+                    </p>
+                  </div>
+                  <div className="border-t border-champagne-gold/30 pt-6 space-y-3">
+                    <h4 className="text-lg font-semibold text-white mb-3">Lighting Design</h4>
+                    <p className="text-gray-200 text-sm leading-relaxed">
+                      ABTT Qualified Theatre Electrician and Freelance LD at <a href="https://cheeseandgrain.com" target="_blank" rel="noopener noreferrer" className="text-champagne-gold hover:text-gold-light underline">The Cheese & Grain</a>, lighting acts including The Orb, Martin Kemp, Johnny Vegas, and Hothouse Flowers.
+                    </p>
+                  </div>
+                  <div className="border-t border-champagne-gold/30 pt-6 space-y-3">
+                    <h4 className="text-lg font-semibold text-white mb-3">Heavy Logistics</h4>
+                    <p className="text-gray-200 text-sm leading-relaxed">
+                      Licensed 44-tonne Artic driver and Ducati rider, combining precision logistics with a passion for engineering excellence.
+                    </p>
+                  </div>
+                  <div className="border-t border-champagne-gold/30 pt-6 space-y-3">
+                    <h4 className="text-lg font-semibold text-white mb-3">Discretion</h4>
+                    <p className="text-gray-200 text-sm leading-relaxed">
+                      Quite private with no public social media presence, Nige is trusted by high-profile clients for absolute privacy and professional discretion in every project.
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             </motion.div>

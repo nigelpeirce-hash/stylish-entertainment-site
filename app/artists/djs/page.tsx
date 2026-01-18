@@ -28,13 +28,15 @@ const djs = [
     mixingStyle: "Seamless Mixing",
     genres: ["House", "Disco", "Soul", "Funk", "Pop", "Ibiza", "R&B"],
     bio: "Over 20 years as resident DJ at Babington House Hotel, Nige brings sophistication and energy to every event.",
-    fullBio: `DJ Nige started his DJ career at the age of 14, honing his skills at local parties and events before entering into the wider world of London's radio, music, and advertising industries. Throughout his career, DJ Nige has established himself as a highly talented and sought-after producer & DJ, with highlights including producing for Pete Tong's Essential Selection on Radio 1, playing as a resident DJ at Babington House Hotel in Somerset for 20 years, and entertaining crowds at the Glastonbury Festival as backstage DJ at the Pyramid stage. Alongside his DJing career, Nige also co-founded an award-winning TV & Radio production company, Factory Studios, where he mixed and produced many dance compilation albums.
+    fullBio: `DJ Nige started his DJ career at the age of 14, honing his skills at local parties and events before entering into the wider world of London's radio, music, and advertising industries. Throughout his career, DJ Nige has established himself as a highly talented and sought-after producer & DJ, with highlights including producing for Pete Tong's Essential Selection on Radio 1, playing as a resident DJ at Babington House Hotel in Somerset for 20 years, and entertaining crowds at the Glastonbury Festival as backstage DJ at the Pyramid stage.
 
-Since 2003 Nige has been resident DJ at celebrity hangout, Babington House Hotel in Somerset where his skills on the decks & reading a crowd has been sought out for the entertainment of Adele, James Corden, Kate Winslet, Eddie Redmayne, Russel Howard, and Michael Mcintyre to name a few! With his exceptional talent and extensive knowledge of music, DJ Nige is the perfect choice for any event, whether it's a wedding, corporate party, or birthday celebration.
+Nige's journey took a significant turn when he transitioned from performing at iconic festivals like Glastonbury to high-profile London venues, including The Met Bar. This move reflected his growing reputation and the demand for his unique ability to blend technical excellence with an intuitive understanding of crowd dynamics. Working alongside industry leaders and entertaining A-list clients, Nige established himself as a trusted name in premium event entertainment.
 
-His music knowledge is extensive and ever-growing, with a love of music from all era's and genres he plays everything from Contemporary, House, Garage, Ibiza, Old Skool, Soul, Funk, Dance, Reggae, Rock N Roll, R&B, Indie, Urban, Ska and any other genre from the 30,000 tracks he holds on his Mac. However, if you're looking for cheesy hits or synchronised dancing, you are dancing on the wrong turntables!
+Alongside his DJing career, Nige also co-founded an award-winning TV & Radio production company, Factory Studios, where he mixed and produced many dance compilation albums. Since 2003, Nige has been resident DJ at celebrity hangout, Babington House Hotel in Somerset, where his skills on the decks & reading a crowd has been sought out for the entertainment of Adele, James Corden, Kate Winslet, Eddie Redmayne, Russell Howard, and Michael McIntyre to name a few!
 
-To view full details with images & videos please view DJ Nige's page
+With his exceptional talent and extensive knowledge of music, DJ Nige is the perfect choice for any event, whether it's a wedding, corporate party, or birthday celebration. His music knowledge is extensive and ever-growing, with a love of music from all eras and genres. He plays everything from Contemporary, House, Garage, Ibiza, Old Skool, Soul, Funk, Dance, Reggae, Rock N Roll, R&B, Indie, Urban, Ska and any other genre from the 30,000 tracks he holds on his Mac. However, if you're looking for cheesy hits or synchronised dancing, you are dancing on the wrong turntables!
+
+For more on Nige's technical expertise and industry recognition, including his Rock-Ola certification and Artic License, see his [technical bio on our About page](/about).
 
 ---
 
@@ -542,11 +544,38 @@ export default function DJs() {
                                     return (
                                       <>
                                         {/* Biography paragraphs */}
-                                        {bioText.split('\n\n').filter(p => p.trim() && !p.includes('**Recent Testimonials**')).map((paragraph, index) => (
-                                          <p key={index} className="mb-4 leading-relaxed text-gray-100">
-                                            {paragraph}
-                                          </p>
-                                        ))}
+                                        {bioText.split('\n\n').filter(p => p.trim() && !p.includes('**Recent Testimonials**')).map((paragraph, index) => {
+                                          // Check for markdown links [text](url)
+                                          const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+                                          const parts = [];
+                                          let lastIndex = 0;
+                                          let match;
+                                          
+                                          while ((match = linkRegex.exec(paragraph)) !== null) {
+                                            // Add text before the link
+                                            if (match.index > lastIndex) {
+                                              parts.push(paragraph.substring(lastIndex, match.index));
+                                            }
+                                            // Add the link
+                                            parts.push(
+                                              <Link key={match.index} href={match[2]} className="text-champagne-gold hover:text-champagne-gold/80 underline">
+                                                {match[1]}
+                                              </Link>
+                                            );
+                                            lastIndex = match.index + match[0].length;
+                                          }
+                                          
+                                          // Add remaining text after last link
+                                          if (lastIndex < paragraph.length) {
+                                            parts.push(paragraph.substring(lastIndex));
+                                          }
+                                          
+                                          return (
+                                            <p key={index} className="mb-4 leading-relaxed text-gray-100">
+                                              {parts.length > 0 ? parts : paragraph}
+                                            </p>
+                                          );
+                                        })}
                                         
                                         {/* Testimonials section */}
                                         {testimonialsText && (

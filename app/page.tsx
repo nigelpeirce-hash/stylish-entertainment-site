@@ -428,23 +428,29 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.1 }}
             >
-              <Card className="bg-gray-900 border-champagne-gold/30 h-full">
-                <CardContent className="p-6 sm:p-8">
-                  <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700">
-                    <Image
-                      src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162313/Ali-Peirce_aec3tn.jpg"
-                      alt="Ali - Co-founder of Stylish Entertainment"
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                  </div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-champagne-gold mb-3">Ali</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    Ali combines creative vision with meticulous attention to detail. Drawing on years of experience in the creative industries, Ali specializes in venue styling and creating the perfect atmosphere for your special day. Every detail matters, and Ali ensures nothing is overlooked.
-                  </p>
-                </CardContent>
-              </Card>
+              <Link href="/about">
+                <Card className="bg-gray-900 border-champagne-gold/30 h-full hover:border-champagne-gold/60 transition-all duration-300 cursor-pointer group">
+                  <CardContent className="p-6 sm:p-8">
+                    <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700 group-hover:scale-105 transition-transform duration-300">
+                      <Image
+                        src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162313/Ali-Peirce_aec3tn.jpg"
+                        alt="Ali - Creative Strategist & Co-founder of Stylish Entertainment"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-serif font-bold text-champagne-gold mb-2">Ali</h3>
+                    <p className="text-sm text-gray-400 mb-3 uppercase tracking-wider">Creative Strategist</p>
+                    <p className="text-gray-300 leading-relaxed mb-4">
+                      Ali combines creative vision with meticulous attention to detail. Specializing in venue styling and artist liaison, Ali transforms spaces into stunning celebration environments where every detail matters.
+                    </p>
+                    <p className="text-champagne-gold text-sm font-medium group-hover:underline">
+                      Read Full Bio →
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
             </motion.div>
 
             {/* Nige */}
@@ -454,23 +460,29 @@ export default function Home() {
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
             >
-              <Card className="bg-gray-900 border-champagne-gold/30 h-full">
-                <CardContent className="p-6 sm:p-8">
-                  <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700">
-                    <Image
-                      src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162279/Nigel-DJ-Babs-House-0009-1_f59b99.jpg"
-                      alt="Nige - Co-founder of Stylish Entertainment"
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                  </div>
-                  <h3 className="text-2xl md:text-3xl font-bold text-champagne-gold mb-3">Nige</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    With over 20 years of experience in the music and creative industries, Nige brings a wealth of knowledge and passion to every event. From DJ sets at prestigious venues like Babington House to creative lighting design, Nige ensures every celebration is unforgettable.
-                  </p>
-                </CardContent>
-              </Card>
+              <Link href="/about">
+                <Card className="bg-gray-900 border-champagne-gold/30 h-full hover:border-champagne-gold/60 transition-all duration-300 cursor-pointer group">
+                  <CardContent className="p-6 sm:p-8">
+                    <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700 group-hover:scale-105 transition-transform duration-300">
+                      <Image
+                        src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162279/Nigel-DJ-Babs-House-0009-1_f59b99.jpg"
+                        alt="Nige - Creative Technician & Co-founder of Stylish Entertainment"
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
+                    </div>
+                    <h3 className="text-2xl md:text-3xl font-serif font-bold text-champagne-gold mb-2">Nige</h3>
+                    <p className="text-sm text-gray-400 mb-3 uppercase tracking-wider">Creative Technician</p>
+                    <p className="text-gray-300 leading-relaxed mb-4">
+                      With over 20 years of experience, Nige brings technical excellence and creative expertise to every event. From DJ sets at Babington House to Glastonbury Festival, combining innovation with flawless execution.
+                    </p>
+                    <p className="text-champagne-gold text-sm font-medium group-hover:underline">
+                      Read Full Bio →
+                    </p>
+                  </CardContent>
+                </Card>
+              </Link>
             </motion.div>
           </div>
 
