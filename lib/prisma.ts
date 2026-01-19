@@ -71,7 +71,45 @@ function createPrismaClient() {
   });
 }
 
-export const prisma =
-  globalForPrisma.prisma ?? createPrismaClient();
+// Lazy initialization - only create PrismaClient when first accessed
+// This prevents initialization during build when DATABASE_URL might not be available
+let prismaInstance: PrismaClient | null = null;
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+function getPrisma(): PrismaClient {
+  if (!prismaInstance) {
+    if (globalForPrisma.prisma) {
+      prismaInstance = globalForPrisma.prisma;
+    } else {
+      prismaInstance = createPrismaClient();
+      if (process.env.NODE_ENV !== "production") {
+        globalForPrisma.prisma = prismaInstance;
+      }
+    }
+  }
+  return prismaInstance;
+}
+
+// Export prisma as a Proxy to lazily initialize on first access
+export const prisma = new Proxy({} as PrismaClient, {
+  get(_target, prop, receiver) {
+    const instance = getPrisma();
+    const value = instance[prop as keyof PrismaClient];
+    if (typeof value === 'function') {
+      return value.bind(instance);
+    }
+    return value;
+  },
+  has(_target, prop) {
+    const instance = getPrisma();
+    return prop in instance;
+  },
+  ownKeys(_target) {
+    const instance = getPrisma();
+    return Object.keys(instance);
+  },
+  getOwnPropertyDescriptor(_target, prop) {
+    const instance = getPrisma();
+    const descriptor = Object.getOwnPropertyDescriptor(instance, prop);
+    return descriptor || undefined;
+  },
+}) as PrismaClient;
