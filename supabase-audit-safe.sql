@@ -1,8 +1,8 @@
 -- ============================================
--- SUPABASE DATABASE AUDIT SCRIPT
+-- SUPABASE DATABASE AUDIT SCRIPT (SAFE VERSION)
 -- ============================================
+-- This version safely handles missing tables without errors
 -- Run this in Supabase SQL Editor to check your database structure
--- Compare results with your Prisma schema to find any missing fields/tables
 -- ============================================
 
 -- 1. LIST ALL TABLES IN YOUR DATABASE
@@ -46,7 +46,15 @@ WHERE table_name = 'User'
 AND table_schema = 'public'
 ORDER BY ordinal_position;
 
--- 5. CHECK FREELANCECREW TABLE (if it exists)
+-- 5. CHECK IF FREELANCECREW TABLE EXISTS
+SELECT 
+    CASE 
+        WHEN EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'FreelanceCrew' AND table_schema = 'public')
+        THEN 'EXISTS'
+        ELSE 'DOES NOT EXIST - Run supabase-migration.sql to create it'
+    END as freelance_crew_status;
+
+-- 5a. IF FREELANCECREW EXISTS, SHOW ITS STRUCTURE
 SELECT 
     column_name,
     data_type,
@@ -57,9 +65,15 @@ WHERE table_name = 'FreelanceCrew'
 AND table_schema = 'public'
 ORDER BY ordinal_position;
 
--- If no results, the table doesn't exist yet. Run supabase-migration.sql to create it.
+-- 6. CHECK IF BOOKINGSTAFFASSIGNMENT TABLE EXISTS
+SELECT 
+    CASE 
+        WHEN EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'BookingStaffAssignment' AND table_schema = 'public')
+        THEN 'EXISTS'
+        ELSE 'DOES NOT EXIST - Run supabase-migration.sql to create it'
+    END as booking_staff_assignment_status;
 
--- 6. CHECK BOOKINGSTAFFASSIGNMENT TABLE (if it exists)
+-- 6a. IF BOOKINGSTAFFASSIGNMENT EXISTS, SHOW ITS STRUCTURE
 SELECT 
     column_name,
     data_type,
@@ -70,11 +84,19 @@ WHERE table_name = 'BookingStaffAssignment'
 AND table_schema = 'public'
 ORDER BY ordinal_position;
 
--- If no results, the table doesn't exist yet. Run supabase-migration.sql to create it.
-
--- 7. CHECK VENUE_ASSETS TABLE (if it exists)
--- Note: This table might be named "VenueAsset" (PascalCase) or "venue_assets" (snake_case)
+-- 7. CHECK IF VENUE_ASSETS TABLE EXISTS (check both naming conventions)
 SELECT 
+    CASE 
+        WHEN EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'VenueAsset' AND table_schema = 'public')
+        THEN 'EXISTS (as VenueAsset)'
+        WHEN EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'venue_assets' AND table_schema = 'public')
+        THEN 'EXISTS (as venue_assets)'
+        ELSE 'DOES NOT EXIST - See SUPABASE_AUDIT_GUIDE.md for creation SQL'
+    END as venue_assets_status;
+
+-- 7a. IF VENUE_ASSETS EXISTS, SHOW ITS STRUCTURE
+SELECT 
+    table_name,
     column_name,
     data_type,
     is_nullable,
@@ -83,8 +105,6 @@ FROM information_schema.columns
 WHERE table_name IN ('VenueAsset', 'venue_assets')
 AND table_schema = 'public'
 ORDER BY table_name, ordinal_position;
-
--- If no results, the table doesn't exist yet. See SUPABASE_AUDIT_GUIDE.md for creation SQL.
 
 -- 8. LIST ALL INDEXES
 SELECT 
@@ -113,18 +133,7 @@ WHERE tc.constraint_type = 'FOREIGN KEY'
 AND tc.table_schema = 'public'
 ORDER BY tc.table_name;
 
--- 10. CHECK FOR MISSING COLUMNS IN BOOKING TABLE
--- Compare this with your Prisma schema to see what's missing
--- Expected columns based on recent changes:
--- - priority (TEXT, default 'medium')
--- - termsAccepted (BOOLEAN)
--- - termsAcceptedAt (TIMESTAMP)
--- - emailsSent (JSON)
--- - musicRequests (TEXT)
--- - staffAssignments relation
-
--- 11. COUNT RECORDS IN KEY TABLES (only if tables exist)
--- This uses a safe approach that won't error if tables don't exist
+-- 10. COUNT RECORDS IN KEY TABLES (safe - only counts if tables exist)
 SELECT 
     'Booking' as table_name, 
     COUNT(*) as record_count 
@@ -135,7 +144,7 @@ SELECT
     COUNT(*) as record_count 
 FROM "User"
 UNION ALL
--- Only count FreelanceCrew if it exists
+-- FreelanceCrew (only if exists)
 SELECT 
     'FreelanceCrew' as table_name, 
     CASE 
@@ -144,42 +153,40 @@ SELECT
         ELSE 0
     END as record_count
 UNION ALL
--- Only count BookingStaffAssignment if it exists
+-- BookingStaffAssignment (only if exists)
 SELECT 
     'BookingStaffAssignment' as table_name, 
     CASE 
         WHEN EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'BookingStaffAssignment' AND table_schema = 'public')
         THEN (SELECT COUNT(*) FROM "BookingStaffAssignment")
         ELSE 0
-    END as record_count
-UNION ALL
--- Only count VenueAsset/venue_assets if it exists
+    END as record_count;
+
+-- ============================================
+-- SUMMARY: MISSING TABLES CHECK
+-- ============================================
 SELECT 
-    COALESCE(
-        (SELECT 'VenueAsset' WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'VenueAsset' AND table_schema = 'public')),
-        (SELECT 'venue_assets' WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'venue_assets' AND table_schema = 'public')),
-        'VenueAsset (not found)'
-    ) as table_name,
-    COALESCE(
-        (SELECT COUNT(*) FROM "VenueAsset" WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'VenueAsset' AND table_schema = 'public')),
-        (SELECT COUNT(*) FROM "venue_assets" WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'venue_assets' AND table_schema = 'public')),
-        0
-    ) as record_count;
-
--- ============================================
--- QUICK FIXES FOR COMMON MISSING FIELDS
--- ============================================
-
--- If priority is missing from Booking:
--- ALTER TABLE "Booking" ADD COLUMN IF NOT EXISTS "priority" TEXT DEFAULT 'medium';
-
--- If venue_assets table is missing:
--- CREATE TABLE IF NOT EXISTS "venue_assets" (
---     "id" TEXT PRIMARY KEY,
---     "venue_name" TEXT NOT NULL,
---     "pdf_url" TEXT NOT NULL,
---     "is_active" BOOLEAN DEFAULT true,
---     "created_at" TIMESTAMP DEFAULT now(),
---     "updated_at" TIMESTAMP DEFAULT now(),
---     UNIQUE("venue_name", "is_active")
--- );
+    'FreelanceCrew' as table_name,
+    CASE 
+        WHEN EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'FreelanceCrew' AND table_schema = 'public')
+        THEN '✅ EXISTS'
+        ELSE '❌ MISSING - Run: supabase-migration.sql'
+    END as status
+UNION ALL
+SELECT 
+    'BookingStaffAssignment' as table_name,
+    CASE 
+        WHEN EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'BookingStaffAssignment' AND table_schema = 'public')
+        THEN '✅ EXISTS'
+        ELSE '❌ MISSING - Run: supabase-migration.sql'
+    END as status
+UNION ALL
+SELECT 
+    'VenueAsset/venue_assets' as table_name,
+    CASE 
+        WHEN EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'VenueAsset' AND table_schema = 'public')
+        THEN '✅ EXISTS (as VenueAsset)'
+        WHEN EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'venue_assets' AND table_schema = 'public')
+        THEN '✅ EXISTS (as venue_assets)'
+        ELSE '❌ MISSING - See SUPABASE_AUDIT_GUIDE.md'
+    END as status;
