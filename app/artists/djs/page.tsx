@@ -15,9 +15,33 @@ import {
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import LazyIframe from "@/components/LazyIframe";
-import { Target, Clock, Sparkles, Wrench, Music, Shield, Play, Search } from "lucide-react";
+import { Target, Clock, Sparkles, Wrench, Music, Shield, Play, Search, Quote } from "lucide-react";
 import YMCACheck from "@/components/YMCACheck";
 import { Input } from "@/components/ui/input";
+import { reviews } from "@/data/reviews";
+import { testimonials } from "@/data/testimonials";
+
+// Helper function to filter testimonials/reviews by DJ name
+function getDJTestimonials(djName: string) {
+  const djKeywords: { [key: string]: string[] } = {
+    "DJ Nige": ["nige", "nigel"],
+    "DJ Rich": ["rich"],
+    "James H DJ": ["james"],
+  };
+
+  const keywords = djKeywords[djName] || [];
+  if (keywords.length === 0) return [];
+
+  const allTestimonials = [
+    ...reviews.map((r) => ({ ...r, source: "reviews" as const })),
+    ...testimonials.map((t) => ({ ...t, source: "testimonials" as const })),
+  ];
+
+  return allTestimonials.filter((testimonial) => {
+    const quoteLower = testimonial.quote.toLowerCase();
+    return keywords.some((keyword) => quoteLower.includes(keyword));
+  });
+}
 
 const djs = [
   {
@@ -576,7 +600,7 @@ export default function DJs() {
                                         );
                                       })}
                                       
-                                      {/* Testimonials section */}
+                                      {/* Testimonials section from fullBio */}
                                       {testimonialsText && (
                                         <div className="mt-8 pt-6 border-t-2 border-champagne-gold/30">
                                           <h3 className="text-2xl font-bold text-white mb-6">Recent Testimonials</h3>
@@ -600,6 +624,55 @@ export default function DJs() {
                                           </div>
                                         </div>
                                       )}
+
+                                      {/* Dynamic Testimonials Section - Pulled from reviews/testimonials */}
+                                      {(() => {
+                                        const djTestimonials = getDJTestimonials(dj.name);
+                                        if (djTestimonials.length === 0) return null;
+                                        
+                                        return (
+                                          <div className="mt-8 pt-6 border-t-2 border-champagne-gold/30">
+                                            <div className="flex items-center gap-2 mb-6">
+                                              <Quote className="w-6 h-6 text-champagne-gold" strokeWidth={2} />
+                                              <h3 className="text-2xl font-bold text-white">Client Testimonials</h3>
+                                            </div>
+                                            <div className="space-y-4">
+                                              {djTestimonials.slice(0, 5).map((testimonial, idx) => (
+                                                <div
+                                                  key={idx}
+                                                  className="p-5 bg-gradient-to-br from-champagne-gold/5 to-yellow-400/5 rounded-lg border border-champagne-gold/20 shadow-sm hover:border-champagne-gold/40 transition-colors"
+                                                >
+                                                  <p className="text-gray-200 italic mb-3 leading-relaxed">
+                                                    &quot;{testimonial.quote}&quot;
+                                                  </p>
+                                                  <div className="flex items-center justify-between pt-2 border-t border-champagne-gold/20">
+                                                    <p className="text-champagne-gold font-semibold text-sm">
+                                                      {testimonial.author}
+                                                    </p>
+                                                    {'venueUrl' in testimonial && testimonial.venueUrl ? (
+                                                      <Link
+                                                        href={testimonial.venueUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-gray-400 hover:text-champagne-gold text-xs transition-colors"
+                                                      >
+                                                        {testimonial.venue}
+                                                      </Link>
+                                                    ) : (
+                                                      <p className="text-gray-400 text-xs">{testimonial.venue}</p>
+                                                    )}
+                                                  </div>
+                                                </div>
+                                              ))}
+                                              {djTestimonials.length > 5 && (
+                                                <p className="text-gray-400 text-sm italic text-center pt-2">
+                                                  And {djTestimonials.length - 5} more testimonial{djTestimonials.length - 5 !== 1 ? 's' : ''}...
+                                                </p>
+                                              )}
+                                            </div>
+                                          </div>
+                                        );
+                                      })()}
                                     </>
                                   );
                                 })()}
