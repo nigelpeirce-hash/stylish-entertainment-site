@@ -134,6 +134,9 @@ AND tc.table_schema = 'public'
 ORDER BY tc.table_name;
 
 -- 10. COUNT RECORDS IN KEY TABLES (safe - only counts if tables exist)
+-- Note: We can only safely count tables that definitely exist
+-- For optional tables, we'll check existence separately
+
 SELECT 
     'Booking' as table_name, 
     COUNT(*) as record_count 
@@ -142,25 +145,25 @@ UNION ALL
 SELECT 
     'User' as table_name, 
     COUNT(*) as record_count 
-FROM "User"
-UNION ALL
--- FreelanceCrew (only if exists)
+FROM "User";
+
+-- 10a. COUNT FREELANCECREW (only if it exists - run separately if needed)
+-- Uncomment the block below ONLY if FreelanceCrew table exists:
+/*
 SELECT 
     'FreelanceCrew' as table_name, 
-    CASE 
-        WHEN EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'FreelanceCrew' AND table_schema = 'public')
-        THEN (SELECT COUNT(*) FROM "FreelanceCrew")
-        ELSE 0
-    END as record_count
-UNION ALL
--- BookingStaffAssignment (only if exists)
+    COUNT(*) as record_count 
+FROM "FreelanceCrew";
+*/
+
+-- 10b. COUNT BOOKINGSTAFFASSIGNMENT (only if it exists - run separately if needed)
+-- Uncomment the block below ONLY if BookingStaffAssignment table exists:
+/*
 SELECT 
     'BookingStaffAssignment' as table_name, 
-    CASE 
-        WHEN EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'BookingStaffAssignment' AND table_schema = 'public')
-        THEN (SELECT COUNT(*) FROM "BookingStaffAssignment")
-        ELSE 0
-    END as record_count;
+    COUNT(*) as record_count 
+FROM "BookingStaffAssignment";
+*/
 
 -- ============================================
 -- SUMMARY: MISSING TABLES CHECK

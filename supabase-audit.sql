@@ -123,8 +123,10 @@ ORDER BY tc.table_name;
 -- - musicRequests (TEXT)
 -- - staffAssignments relation
 
--- 11. COUNT RECORDS IN KEY TABLES (only if tables exist)
--- This uses a safe approach that won't error if tables don't exist
+-- 11. COUNT RECORDS IN KEY TABLES (core tables only)
+-- Note: We can only safely count tables that definitely exist
+-- For optional tables (FreelanceCrew, BookingStaffAssignment), check existence first using queries above
+
 SELECT 
     'Booking' as table_name, 
     COUNT(*) as record_count 
@@ -133,38 +135,14 @@ UNION ALL
 SELECT 
     'User' as table_name, 
     COUNT(*) as record_count 
-FROM "User"
-UNION ALL
--- Only count FreelanceCrew if it exists
-SELECT 
-    'FreelanceCrew' as table_name, 
-    CASE 
-        WHEN EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'FreelanceCrew' AND table_schema = 'public')
-        THEN (SELECT COUNT(*) FROM "FreelanceCrew")
-        ELSE 0
-    END as record_count
-UNION ALL
--- Only count BookingStaffAssignment if it exists
-SELECT 
-    'BookingStaffAssignment' as table_name, 
-    CASE 
-        WHEN EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'BookingStaffAssignment' AND table_schema = 'public')
-        THEN (SELECT COUNT(*) FROM "BookingStaffAssignment")
-        ELSE 0
-    END as record_count
-UNION ALL
--- Only count VenueAsset/venue_assets if it exists
-SELECT 
-    COALESCE(
-        (SELECT 'VenueAsset' WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'VenueAsset' AND table_schema = 'public')),
-        (SELECT 'venue_assets' WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'venue_assets' AND table_schema = 'public')),
-        'VenueAsset (not found)'
-    ) as table_name,
-    COALESCE(
-        (SELECT COUNT(*) FROM "VenueAsset" WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'VenueAsset' AND table_schema = 'public')),
-        (SELECT COUNT(*) FROM "venue_assets" WHERE EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'venue_assets' AND table_schema = 'public')),
-        0
-    ) as record_count;
+FROM "User";
+
+-- 11a. COUNT OPTIONAL TABLES (run these separately ONLY if tables exist)
+-- To count FreelanceCrew, first verify it exists (see query 5), then run:
+-- SELECT 'FreelanceCrew' as table_name, COUNT(*) as record_count FROM "FreelanceCrew";
+
+-- To count BookingStaffAssignment, first verify it exists (see query 6), then run:
+-- SELECT 'BookingStaffAssignment' as table_name, COUNT(*) as record_count FROM "BookingStaffAssignment";
 
 -- ============================================
 -- QUICK FIXES FOR COMMON MISSING FIELDS
