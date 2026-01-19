@@ -4,6 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
 import { getResendConfig, EMAIL_CONFIG } from "@/lib/email-config";
 
+// Force dynamic rendering to prevent build-time errors
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // Lazy initialization to prevent build-time errors
 const getResend = () => {
   const apiKey = process.env.RESEND_API_KEY;

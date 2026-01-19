@@ -4,6 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { getToken } from "next-auth/jwt";
 import * as z from "zod";
 
+// Force dynamic rendering to prevent database connection during build
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const updateProfileSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters").optional(),
   phone: z.string().optional().nullable(),

@@ -9,6 +9,10 @@ import {
   welcomeEmail,
 } from "@/lib/email-templates";
 
+// Force dynamic rendering to prevent database connection during build
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function POST(request: NextRequest) {
   try {
     // Only allow admin users or system to send emails

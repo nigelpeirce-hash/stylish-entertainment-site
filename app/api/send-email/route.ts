@@ -6,6 +6,10 @@ import { getServerSession } from "@/lib/get-session";
 import { getResendConfig } from "@/lib/email-config";
 import { getBrochureLink, getVenueAsset, getTrackingUrl } from "@/lib/venue-assets";
 
+// Force dynamic rendering to prevent build-time errors
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // Lazy initialization to prevent build-time errors
 const getResend = () => {
   const apiKey = process.env.RESEND_API_KEY;
