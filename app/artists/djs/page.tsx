@@ -68,9 +68,11 @@ For more on Nige's technical expertise and industry recognition, including his R
     name: "DJ Rich",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163359/Rich-S-DJ_qxsnht.jpg",
     alt: "Professional wedding DJ Rich S performing at a luxury London venue, showcasing professional DJ services with high-quality sound and lighting",
-    mixingStyle: "Eclectic Blend",
-    bio: "Rich curates unique sets that reflect your personal style, creating unforgettable moments.",
-    fullBio: "Rich curates unique sets that reflect your personal style, creating unforgettable moments. With an eclectic taste in music and a talent for blending genres seamlessly, DJ Rich brings a fresh and modern approach to wedding entertainment. Having performed at some of London's most prestigious venues and events, Rich has developed a unique style that appeals to diverse audiences. His ability to mix indie, alternative, electronic, and pop music creates a dynamic atmosphere that keeps guests engaged from the first song to the last. Rich prides himself on working closely with couples to understand their musical preferences, ensuring that every moment of their special day is perfectly soundtracked. His attention to detail and commitment to excellence make him a standout choice for couples seeking something truly special.",
+    mixingStyle: "Oxford & London Resident | JACKfm Presenter | O2 Academy",
+    bio: "Award-winning radio presenter and versatile DJ, experienced in playing for thousands at student nights, corporate events, and celebrations.",
+    fullBio: `After discovering a passion and love for music whilst studying, Rich worked his way up through the student night scene in Oxford (Fuzzy Ducks, Bridge Mondays etc…) and London (Crazy Larrys, Embargos etc…). Accustomed to playing regularly in front of 1000's of people, his musical style is broad and Rich is experienced in playing weddings, 18th, 21st, 30th Birthdays and a multitude of corporate events.
+
+Through a vast knowledge of music past and present, his range and ability to play whatever style is necessary for your party is invaluable. His exuberance and hard work has also seen him become a co-presenter on Oxfordshire's largest local breakfast show The Morning Glory on the multi-award winning JACKfm in Oxfordshire. When not presenting early mornings, Rich is honing his DJing as resident for the O2 Academy in Oxford. Rich is an extremely accomplished and adaptable DJ who is ideal for a party whatever the occasion.`,
     youtubeEmbed: "https://www.youtube.com/embed/H7bTX4sbUwI",
     mixcloudEmbeds: [
       "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FDjrichsmith%2Fsomething-chilled-mix%2F",
