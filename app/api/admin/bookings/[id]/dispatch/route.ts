@@ -4,7 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
 import { getResendConfig, EMAIL_CONFIG } from "@/lib/email-config";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization to prevent build-time errors
+const getResend = () => {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY environment variable is not set");
+  }
+  return new Resend(apiKey);
+};
 
 export async function POST(
   request: NextRequest,
@@ -187,7 +194,7 @@ export async function POST(
     const emailConfig = getResendConfig("dj_worksheet");
 
     // Send email via Resend
-    const emailResult = await resend.emails.send({
+    const emailResult = await getResend().emails.send({
       from: emailConfig.from,
       replyTo: emailConfig.replyTo,
       to: [assignedDJEmail],

@@ -5,7 +5,14 @@ import { staffConfirmationEmail } from "@/lib/email-staff-confirmation";
 import { getResendConfig } from "@/lib/email-config";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization to prevent build-time errors
+const getResend = () => {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY environment variable is not set");
+  }
+  return new Resend(apiKey);
+};
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -123,7 +130,7 @@ export async function POST(request: NextRequest) {
 
         const emailConfig = getResendConfig("general");
 
-        await resend.emails.send({
+        await getResend().emails.send({
           from: emailConfig.from,
           replyTo: emailConfig.replyTo,
           to: [staff.email],

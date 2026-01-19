@@ -5,7 +5,14 @@ import { getResendConfig } from "@/lib/email-config";
 import { Resend } from "resend";
 import { getBrochureLink } from "@/lib/venue-assets";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization to prevent build-time errors
+const getResend = () => {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY environment variable is not set");
+  }
+  return new Resend(apiKey);
+};
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -168,7 +175,7 @@ export async function GET(request: NextRequest) {
         const emailContent = getJourneyEmail("gentle-reminder", emailData);
         const emailConfig = getResendConfig("booking");
 
-        const emailResult = await resend.emails.send({
+        const emailResult = await getResend().emails.send({
           from: emailConfig.from,
           replyTo: emailConfig.replyTo,
           to: [booking.email],
@@ -222,7 +229,7 @@ export async function GET(request: NextRequest) {
         const emailContent = getJourneyEmail("4-week-checkin", emailData);
         const emailConfig = getResendConfig("booking");
 
-        const emailResult = await resend.emails.send({
+        const emailResult = await getResend().emails.send({
           from: emailConfig.from,
           replyTo: emailConfig.replyTo,
           to: [booking.email],
@@ -275,7 +282,7 @@ export async function GET(request: NextRequest) {
         const emailContent = getJourneyEmail("week-of-excitement", emailData);
         const emailConfig = getResendConfig("booking");
 
-        const emailResult = await resend.emails.send({
+        const emailResult = await getResend().emails.send({
           from: emailConfig.from,
           replyTo: emailConfig.replyTo,
           to: [booking.email],
@@ -328,7 +335,7 @@ export async function GET(request: NextRequest) {
         const emailContent = getJourneyEmail("post-wedding-magic", emailData);
         const emailConfig = getResendConfig("booking");
 
-        const emailResult = await resend.emails.send({
+        const emailResult = await getResend().emails.send({
           from: emailConfig.from,
           replyTo: emailConfig.replyTo,
           to: [booking.email],

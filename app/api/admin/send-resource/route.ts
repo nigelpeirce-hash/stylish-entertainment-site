@@ -5,7 +5,14 @@ import { getResourceById } from "@/lib/master-resources";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin-auth";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization to prevent build-time errors
+const getResend = () => {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY environment variable is not set");
+  }
+  return new Resend(apiKey);
+};
 
 // Force dynamic rendering to prevent build-time static analysis
 export const dynamic = 'force-dynamic';
@@ -174,7 +181,7 @@ export async function POST(request: NextRequest) {
     const emailConfig = getResendConfig("booking");
 
     // Send email via Resend
-    const result = await resend.emails.send({
+    const result = await getResend().emails.send({
       from: emailConfig.from,
       replyTo: emailConfig.replyTo,
       to: [clientEmail],
