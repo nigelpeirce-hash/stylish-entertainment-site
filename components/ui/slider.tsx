@@ -57,22 +57,22 @@ export function Slider({ children, className }: SliderProps) {
           <Button
             variant="outline"
             size="icon"
-            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 bg-white/95 hover:bg-champagne-gold border-2 border-champagne-gold shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 w-12 h-12 sm:w-14 sm:h-14 group"
+            className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-10 bg-gray-900/95 hover:bg-champagne-gold border-2 border-champagne-gold shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 w-12 h-12 sm:w-14 sm:h-14 group"
             onClick={goToPrevious}
             aria-label="Previous slide"
           >
-            <ChevronLeft className="h-6 w-6 sm:h-7 sm:w-7 text-champagne-gold group-hover:text-white transition-colors" />
+            <ChevronLeft className="h-6 w-6 sm:h-7 sm:w-7 text-champagne-gold group-hover:text-gray-900 transition-colors" />
           </Button>
           
           {/* Next Button */}
           <Button
             variant="outline"
             size="icon"
-            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 bg-white/95 hover:bg-champagne-gold border-2 border-champagne-gold shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 w-12 h-12 sm:w-14 sm:h-14 group"
+            className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-10 bg-gray-900/95 hover:bg-champagne-gold border-2 border-champagne-gold shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 w-12 h-12 sm:w-14 sm:h-14 group"
             onClick={goToNext}
             aria-label="Next slide"
           >
-            <ChevronRight className="h-6 w-6 sm:h-7 sm:w-7 text-champagne-gold group-hover:text-white transition-colors" />
+            <ChevronRight className="h-6 w-6 sm:h-7 sm:w-7 text-champagne-gold group-hover:text-gray-900 transition-colors" />
           </Button>
           
           {/* Slide Counter */}
