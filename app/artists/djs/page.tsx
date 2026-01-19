@@ -760,7 +760,7 @@ export default function DJs() {
       </section>
 
       {/* How Does It Work */}
-      <section className="py-20 px-4 bg-gradient-to-b from-white via-gray-50/30 to-white">
+      <section className="py-20 px-4 bg-gray-900">
         <div className="container mx-auto max-w-5xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -769,10 +769,10 @@ export default function DJs() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/20">
+            <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
               <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Booking Process</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-6 text-gray-900 font-bold px-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-6 text-white font-bold px-4">
               How Does It <span className="text-gradient">Work?</span>
             </h2>
           </motion.div>
@@ -801,7 +801,7 @@ export default function DJs() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="mb-8"
           >
-            <Card className="border-champagne-gold/30 bg-gradient-to-br from-champagne-gold/5 to-yellow-400/5 shadow-lg">
+            <Card className="border-champagne-gold/30 bg-gray-800 shadow-lg">
               <CardContent className="p-8 sm:p-10 md:p-12">
                 <h3 className="text-2xl sm:text-3xl font-bold text-white mb-6 text-center">
                   Our Service Areas
@@ -917,7 +917,7 @@ export default function DJs() {
             transition={{ duration: 0.6, delay: 0.4 }}
             className="text-center"
           >
-            <Card className="border-2 border-champagne-gold/50 bg-gradient-to-br from-champagne-gold/10 to-yellow-400/10 shadow-xl">
+            <Card className="border-2 border-champagne-gold/50 bg-gray-800 shadow-xl">
               <CardContent className="p-8 sm:p-10">
                 <p className="text-xl sm:text-2xl font-bold text-white mb-6">
                   Please Contact us for a free quote based on your location and timings.
