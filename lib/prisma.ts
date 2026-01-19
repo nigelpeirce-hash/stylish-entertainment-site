@@ -8,17 +8,26 @@ const globalForPrisma = globalThis as unknown as {
 
 // Create PostgreSQL connection pool
 const connectionString = process.env.DATABASE_URL;
-if (!connectionString) {
-  throw new Error("DATABASE_URL environment variable is not set");
-}
 
-const pool = new Pool({ connectionString });
-const adapter = new PrismaPg(pool);
+// Only initialize pool if connection string exists (prevents build-time errors)
+let pool: Pool | undefined;
+let adapter: PrismaPg | undefined;
+
+if (connectionString) {
+  pool = new Pool({ 
+    connectionString,
+    // Add connection timeout to prevent hangs
+    connectionTimeoutMillis: 5000,
+    // Limit pool size
+    max: 10,
+  });
+  adapter = new PrismaPg(pool);
+}
 
 export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
-    adapter,
+    ...(adapter && { adapter }),
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
 

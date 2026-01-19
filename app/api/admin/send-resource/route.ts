@@ -7,6 +7,10 @@ import { requireAdmin } from "@/lib/admin-auth";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Force dynamic rendering to prevent build-time static analysis
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const LUXE_STYLES = `
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
