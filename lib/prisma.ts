@@ -9,8 +9,8 @@ const globalForPrisma = globalThis as unknown as {
 // Create PostgreSQL connection pool
 const connectionString = process.env.DATABASE_URL;
 
-// Always try to create adapter if DATABASE_URL exists
-// Prisma 7 with adapter requires adapter to be provided
+// Prisma 7 with adapter requires adapter to be provided to PrismaClient
+// We MUST create the adapter synchronously if DATABASE_URL exists
 let pool: Pool | undefined;
 let adapter: PrismaPg | undefined;
 
@@ -27,18 +27,19 @@ if (connectionString) {
     });
     adapter = new PrismaPg(pool);
   } catch (error) {
-    // Log warning but continue - adapter might still work
-    console.warn("Prisma pool initialization warning:", error);
+    // If adapter creation fails, log error but continue
+    // Will retry when creating PrismaClient
+    console.warn("Prisma adapter initialization warning:", error);
   }
 }
 
 // Create Prisma client with adapter
-// Prisma 7 with adapter requires adapter to be provided
+// Prisma 7 requires adapter when using client engine type
 function createPrismaClient() {
-  // Prisma 7 requires adapter when using client engine type
-  if (!adapter) {
-    // During build on Vercel, DATABASE_URL should be available
-    // If it's not, we need to fail gracefully or provide a fallback
+  // Ensure we have an adapter - Prisma 7 requires it
+  let clientAdapter = adapter;
+  
+  if (!clientAdapter) {
     if (!connectionString) {
       throw new Error(
         "DATABASE_URL environment variable is required. " +
@@ -46,30 +47,26 @@ function createPrismaClient() {
       );
     }
     
-    // If we have connectionString but adapter creation failed,
-    // try to create adapter again (might fail during build)
+    // Retry adapter creation if initial attempt failed
     try {
-      const fallbackPool = new Pool({
+      const retryPool = new Pool({ 
         connectionString,
         connectionTimeoutMillis: 5000,
         max: 10,
+        idleTimeoutMillis: 30000,
       });
-      const fallbackAdapter = new PrismaPg(fallbackPool);
-      return new PrismaClient({
-        adapter: fallbackAdapter,
-        log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
-      });
+      clientAdapter = new PrismaPg(retryPool);
     } catch (error) {
-      // If adapter creation still fails, throw descriptive error
       throw new Error(
         `Failed to create Prisma adapter: ${error instanceof Error ? error.message : String(error)}. ` +
-        "Please check your DATABASE_URL environment variable."
+        "Please check your DATABASE_URL environment variable in Vercel."
       );
     }
   }
 
+  // Prisma 7 requires adapter when using client engine type
   return new PrismaClient({
-    adapter,
+    adapter: clientAdapter,
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
 }

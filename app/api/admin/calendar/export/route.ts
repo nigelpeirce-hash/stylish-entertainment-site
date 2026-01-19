@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { exportBookingsToICal, exportSingleBookingToICal } from "@/lib/ical-export";
 
+// Force dynamic rendering for API routes that interact with the database
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET(request: NextRequest) {
   try {
     const admin = await requireAdmin(request);
