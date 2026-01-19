@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useClientStatus } from "@/hooks/useClientStatus";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +17,7 @@ import { Calendar, MapPin, Music, Lightbulb, Shield, MessageCircle, FileText, Lo
 import Link from "next/link";
 import Image from "next/image";
 
-export default function SecureBookingPage() {
+function SecureBookingPageContent() {
   const { clientName } = useClientStatus();
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [userIpAddress, setUserIpAddress] = useState<string | null>(null);
@@ -477,5 +477,17 @@ export default function SecureBookingPage() {
         </div>
       </section>
     </div>
+  );
+}
+
+export default function SecureBookingPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-900">
+        <div className="text-white">Loading...</div>
+      </div>
+    }>
+      <SecureBookingPageContent />
+    </Suspense>
   );
 }

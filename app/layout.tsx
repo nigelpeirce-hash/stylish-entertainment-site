@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Raleway, Bebas_Neue } from "next/font/google";
 import Script from "next/script";
+import { Suspense } from "react";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
@@ -108,8 +109,12 @@ export default function RootLayout({
           <GoogleTagManager />
           <GoogleAnalytics />
           <CookieYes />
-          <WelcomeBackBanner />
-          <Navigation />
+          <Suspense fallback={null}>
+            <WelcomeBackBanner />
+          </Suspense>
+          <Suspense fallback={<nav className="h-20 bg-gray-900" />}>
+            <Navigation />
+          </Suspense>
           <Breadcrumbs />
           <main className="min-h-screen relative z-10">{children}</main>
           <Footer />
