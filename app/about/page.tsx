@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import AboutClient from "./AboutClient";
 
 export const metadata: Metadata = {
-  title: "About Us | Stylish Entertainment | West Country Wedding Entertainment",
-  description: "Learn about Stylish Entertainment. We are an entertainment business based in Frome, Somerset, with 20+ years of experience in the music and advertising industries. Trusted supplier at Babington House since 2003.",
+  title: "About Us | Stylish Entertainment | West Country Event Entertainment",
+  description: "Learn about Stylish Entertainment. We are an entertainment business based in Frome, Somerset, with 20+ years of experience providing entertainment for weddings, parties, and events in the music and advertising industries. Trusted supplier at Babington House since 2003.",
 };
 
 const professionalServiceSchema = {
