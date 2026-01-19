@@ -274,7 +274,7 @@ export default function DJs() {
       </section>
 
       {/* Selling Points */}
-      <section className="py-16 px-4 bg-gradient-to-b from-white via-gray-50/30 to-white">
+      <section className="py-16 px-4 bg-gray-900">
         <div className="container mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -283,10 +283,10 @@ export default function DJs() {
             transition={{ duration: 0.6 }}
             className="text-center mb-12"
           >
-            <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/20">
-              <span className="text-xs font-semibold text-black tracking-wider uppercase">Why Choose Us</span>
+            <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/20 rounded-full border border-champagne-gold/40">
+              <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Why Choose Us</span>
             </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-6 text-gray-900 font-bold px-4">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-6 text-white font-bold px-4">
               What Sets Our <span className="text-gradient">DJs Apart</span>
             </h2>
           </motion.div>
@@ -299,12 +299,12 @@ export default function DJs() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="max-w-4xl mx-auto mb-12"
           >
-            <Card className="bg-gradient-to-br from-champagne-gold/10 to-yellow-400/10 border-2 border-champagne-gold/30 shadow-lg">
+            <Card className="bg-gray-800 border-2 border-champagne-gold/30 shadow-lg">
               <CardContent className="p-6 sm:p-8">
-                <p className="text-base sm:text-lg text-gray-800 leading-relaxed mb-4">
+                <p className="text-base sm:text-lg text-gray-200 leading-relaxed mb-4">
                   Looking for a DJ to make your event unforgettable? Our experienced and reliable DJs know exactly how to get the crowd dancing with their perfect mix of music, sound, and lighting. Choose from our brilliant solo mobile DJs or our festival trio of DJ, sax, and percussion to truly wow and entertain your guests.
                 </p>
-                <p className="text-base sm:text-lg text-gray-800 leading-relaxed">
+                <p className="text-base sm:text-lg text-gray-200 leading-relaxed">
                   We pride ourselves on our ability to read the crowd and cater to everyone's musical tastes, from the music lovers to your Aunt Betty. And to ensure a unique experience, we have banned overplayed and cliché songs such as YMCA, "Come on Eileen," and "The Macarena."
                 </p>
               </CardContent>
@@ -489,7 +489,7 @@ export default function DJs() {
             <Slider>
               {djs.map((dj, index) => (
                 <div key={dj.name} className="px-4">
-                  <Card className="bg-gradient-to-br from-white to-gray-50/30 border-2 border-champagne-gold/40 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:border-champagne-gold/60 group">
+                  <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:border-champagne-gold/60 group">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:items-stretch">
                       <div className="relative h-64 md:h-auto overflow-hidden bg-gray-900 flex items-center justify-center">
                         {dj.image ? (
@@ -516,7 +516,7 @@ export default function DJs() {
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       </div>
-                      <CardHeader className="p-4 sm:p-6 md:p-6 lg:p-8 bg-gray-900/90 backdrop-blur-sm flex flex-col justify-start pb-20 sm:pb-6 md:pb-6 lg:pb-8">
+                      <CardHeader className="p-4 sm:p-6 md:p-6 lg:p-8 bg-gray-900 flex flex-col justify-start pb-20 sm:pb-6 md:pb-6 lg:pb-8">
                         <CardTitle className="text-xl sm:text-2xl md:text-3xl mb-2 sm:mb-3 text-white font-bold">{dj.name}</CardTitle>
                         <p className="text-sm sm:text-base text-gray-200 mb-3 sm:mb-4 leading-relaxed">{dj.bio}</p>
                         
