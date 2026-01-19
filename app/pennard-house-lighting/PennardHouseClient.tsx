@@ -292,7 +292,7 @@ export default function PennardHouseClient() {
                         </div>
                         <p className="text-champagne-gold font-semibold text-lg mt-6 flex items-center justify-center gap-2">
                           <PenTool className="w-5 h-5" />
-                          <span>Ali & Nigel</span>
+                          <span>Ali & Nige</span>
                         </p>
                       </CardContent>
                     </Card>

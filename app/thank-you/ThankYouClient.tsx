@@ -4,8 +4,34 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import UpdateEnquiryForm from "./UpdateEnquiryForm";
 
 export default function ThankYouClient() {
+  const [bookingId, setBookingId] = useState<string | null>(null);
+  const [email, setEmail] = useState<string | null>(null);
+  const [showUpdateForm, setShowUpdateForm] = useState(false);
+
+  useEffect(() => {
+    // Check sessionStorage for recent booking
+    const storedBookingId = sessionStorage.getItem("recentBookingId");
+    const storedEmail = sessionStorage.getItem("recentBookingEmail");
+    const storedTimestamp = sessionStorage.getItem("recentBookingTimestamp");
+
+    // Only show update form if booking was submitted within last 24 hours
+    if (storedBookingId && storedEmail && storedTimestamp) {
+      const timestamp = parseInt(storedTimestamp, 10);
+      const hoursSinceSubmission = (Date.now() - timestamp) / (1000 * 60 * 60);
+      
+      // Show update form if submitted within 24 hours
+      if (hoursSinceSubmission < 24) {
+        setBookingId(storedBookingId);
+        setEmail(storedEmail);
+        setShowUpdateForm(true);
+      }
+    }
+  }, []);
+
   return (
     <section
       className="min-h-screen flex items-center justify-center px-4 py-20 relative"
@@ -34,7 +60,13 @@ export default function ThankYouClient() {
             </a>
             .
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+
+          {/* Update Enquiry Form - Only show if recent booking exists */}
+          {showUpdateForm && bookingId && email && (
+            <UpdateEnquiryForm bookingId={bookingId} email={email} />
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
             <Button
               asChild
               size="lg"
@@ -42,14 +74,16 @@ export default function ThankYouClient() {
             >
               <Link href="/">Return to Home</Link>
             </Button>
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="border-champagne-gold/30 text-white hover:bg-champagne-gold/10"
-            >
-              <Link href="/contact-us/">Send Another Message</Link>
-            </Button>
+            {!showUpdateForm && (
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="border-champagne-gold/30 text-white hover:bg-champagne-gold/10"
+              >
+                <Link href="/contact-us/">Send Another Message</Link>
+              </Button>
+            )}
           </div>
         </motion.div>
       </div>

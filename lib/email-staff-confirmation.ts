@@ -10,7 +10,7 @@ export interface StaffConfirmationData {
   venueName: string;
   role: string;
   agreedFee: number;
-  senderName: string; // "Nigel" or "Ali"
+  senderName: string; // "Nige" or "Ali"
 }
 
 const LUXE_STYLES = `

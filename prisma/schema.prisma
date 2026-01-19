@@ -54,7 +54,7 @@ model User {
   name          String?
   email         String    @unique
   emailVerified DateTime?
-  password      String?   // Hashed password for credentials provider
+  password      String? // Hashed password for credentials provider
   image         String?
   phone         String?
   address       String?
@@ -62,59 +62,60 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts      Account[]
-  sessions      Session[]
-  bookings      Booking[]
-  formSubmissions FormSubmission[]
-  assignedTasks Task[] @relation("AssignedTasks")
-  createdTasks  Task[] @relation("CreatedTasks")
-  createdNotes  Note[] @relation("CreatedNotes")
-  clientNotes   Note[] @relation("ClientNotes")
-  emailThreads  EmailThread[]
-  sentEmails    Email[] @relation("SentEmails")
-  createdTemplates EmailTemplate[] @relation("CreatedTemplates")
-  carts         Cart[]
-  hireOrders   HireOrder[]
-  confirmedOrders HireOrder[] @relation("ConfirmedOrders")
+  accounts         Account[]
+  sessions         Session[]
+  bookings         Booking[]
+  formSubmissions  FormSubmission[]
+  assignedTasks    Task[]           @relation("AssignedTasks")
+  createdTasks     Task[]           @relation("CreatedTasks")
+  createdNotes     Note[]           @relation("CreatedNotes")
+  clientNotes      Note[]           @relation("ClientNotes")
+  emailThreads     EmailThread[]
+  sentEmails       Email[]          @relation("SentEmails")
+  createdTemplates EmailTemplate[]  @relation("CreatedTemplates")
+  carts            Cart[]
+  hireOrders       HireOrder[]
+  confirmedOrders  HireOrder[]      @relation("ConfirmedOrders")
+  sentComms        CommsLog[]       @relation("SentComms")
 
   @@index([email])
 }
 
 // Booking/Inquiry model
 model Booking {
-  id                String   @id @default(cuid())
-  userId            String?
-  
+  id     String  @id @default(cuid())
+  userId String?
+
   // Client Information
-  name              String   // Happy Couple
-  email             String
-  phoneAreaCode     String?
-  phoneNumber       String?
-  
+  name          String // Happy Couple
+  email         String
+  phoneAreaCode String?
+  phoneNumber   String?
+
   // Event Details
-  eventType         String   @default("wedding") // wedding, party, corporate, etc.
-  eventDate         DateTime
-  
+  eventType String   @default("wedding") // wedding, party, corporate, etc.
+  eventDate DateTime
+
   // Venue Information
-  venueName         String
-  venueContact      String?
-  venueAddress      String?
-  venueAddress2     String?
-  venueTown         String?
-  venueCounty       String?
-  venuePostcode     String?
+  venueName          String
+  venueContact       String?
+  venueAddress       String?
+  venueAddress2      String?
+  venueTown          String?
+  venueCounty        String?
+  venuePostcode      String?
   venuePhoneAreaCode String?
-  venuePhoneNumber  String?
-  
+  venuePhoneNumber   String?
+
   // DJ Details
-  djArrivalTime     String?
-  djStartTime       String?
-  djFinishTime      String?
-  djSetupLocation   String?  @db.Text
-  djParking         String?  @db.Text
-  soundLimiter      Boolean? // Yes/No
-  preferredDJ       String? // Selected DJ name or "any" for any DJ
-  
+  djArrivalTime   String?
+  djStartTime     String?
+  djFinishTime    String?
+  djSetupLocation String?  @db.Text
+  djParking       String?  @db.Text
+  soundLimiter    Boolean? // Yes/No
+  preferredDJ     String? // Selected DJ name or "any" for any DJ
+
   // Event Details
   numberOfGuests    Int?
   services          String[] // Array of selected services
@@ -123,36 +124,79 @@ model Booking {
   budget            String?
   status            String   @default("pending") // pending, confirmed, completed, cancelled
   priority          String   @default("medium") // low, medium, high, urgent
-  contactPreference String?  // Phone or Email
-  
+  contactPreference String? // Phone or Email
+
   // Payment
-  finalBalance      String?
-  paymentMethod     String?
-  paymentPayerName  String?  // Who is going to pay the DJ
-  
+  finalBalance     String?
+  paymentMethod    String?
+  paymentPayerName String? // Who is going to pay the DJ
+
   // Terms & Conditions
-  termsAccepted     Boolean  @default(false)
-  termsAcceptedAt   DateTime?
-  
+  termsAccepted   Boolean   @default(false)
+  termsAcceptedAt DateTime?
+
+  // Booking Reference (for email threading and conflict detection)
+  bookingReference String? @unique // Format: SE-YYYY-ShortID (e.g., SE-2024-A1B2C3)
+
+  // Authorized Email Senders (for conflict resolution - allows multiple emails per booking)
+  authorizedSenders String[] // Array of email addresses authorized to send/receive for this booking
+
+  // Conflict Resolution
+  conflictStatus     String? // "pending", "resolved", "merged", "kept_separate"
+  conflictResolvedAt DateTime?
+
+  // Priority Flagging
+  flaggedFor String? // "user1", "user2" (for simple inbox flagging system)
+
+  // Reciprocal Hand-off System
+  assignedTo       String? // "wife", "husband" (who is currently handling this booking)
+  handoffStatus    String? // "action_needed", "tech_review", "tech_alert", "awaiting_quote"
+  handoffNote      String?  @db.Text // Note from wife when sending to husband for technical review
+  isTechReady      Boolean? @default(false) // Technical review complete, ready for quote
+  venueFingerprint String? // Normalized venue identifier for conflict detection (date + venue postcode hash)
+
+  // Lead Retention & Cleanup
+  purgeAt   DateTime? // Date when booking should be purged/cleaned up if inactive
+  rescuedAt DateTime? // Date when lead was rescued via rescue link
+
   // Planning Checklist
-  completedTasks    String[] // Array of completed task IDs
-  
+  completedTasks String[] // Array of completed task IDs
+
   // Email Tracking
-  emailsSent        Json?    // Object tracking which emails have been sent
-  lastEmailSentAt   DateTime?
-  
+  emailsSent      Json? // Object tracking which emails have been sent
+  lastEmailSentAt DateTime?
+
+  // Flexible Operator Fields
+  adminNotes       String?  @db.Text // Private admin notes (never shown to client)
+  feeBreakdown     Json? // Flexible fee line items array
+  taxInclusive     Boolean? @default(true) // Tax-inclusive or tax-exclusive pricing
+  taxRate          Float?   @default(20) // VAT rate percentage
+  overrideReason   String?  @db.Text // Reason for manual override
+  selectedTemplate String? // Selected email template ID
+
+  // Manual Override & Audit
+  depositReceived             Boolean? @default(false)
+  depositReceivedManual       Boolean? @default(false) // True if manually overridden
+  finalDetailsConfirmed       Boolean? @default(false)
+  finalDetailsConfirmedManual Boolean? @default(false) // True if manually overridden
+  djWorksheetApproved         Boolean? @default(false)
+  djWorksheetApprovedManual   Boolean? @default(false) // True if manually overridden
+
+  // Talent Status (for availability tracking in enquiry dashboard)
+  talentStatus Json? // Store which performers have been contacted: { "dj": true, "musician": false, ... }
+
   // Music Details
-  musicNotesToDJ    String?  @db.Text
+  musicNotesToDJ      String? @db.Text
   musicNotesToStylish String? @db.Text
-  firstDance        String?
-  lastSong          String?
-  musicDislikes     String?  @db.Text
-  musicRequests     String?  @db.Text
-  musicFileUrl      String?  // URL to uploaded file
-  
+  firstDance          String?
+  lastSong            String?
+  musicDislikes       String? @db.Text
+  musicRequests       String? @db.Text
+  musicFileUrl        String? // URL to uploaded file
+
   // Client relationship (optional - can be from logged in user or guest)
-  user              User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
   // CRM Relations
   emailThreads      EmailThread[]
   notes             Note[]
@@ -160,33 +204,78 @@ model Booking {
   carts             Cart[]
   hireOrders        HireOrder[]
   staffAssignments  BookingStaffAssignment[]
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  auditLogs         AuditLog[]
+  commsLogs         CommsLog[]
+  conflictEnquiries NewEnquiry[]             @relation("ConflictBooking")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([userId])
   @@index([email])
   @@index([status])
   @@index([eventDate])
+  @@index([bookingReference])
+  @@index([eventDate, venuePostcode])
 }
 
-// General form submissions
+// New Enquiry (Smart Intake & Conflict Detection)
+model NewEnquiry {
+  id            String   @id @default(cuid())
+  name          String
+  email         String
+  phoneAreaCode String?
+  phoneNumber   String?
+  eventDate     DateTime
+  venuePostcode String
+  venueName     String? // Optional, may be captured later
+
+  // Conflict Detection
+  isConflict         Boolean   @default(false)
+  originalBookingId  String? // Link to existing booking if conflict detected
+  originalBooking    Booking?  @relation("ConflictBooking", fields: [originalBookingId], references: [id], onDelete: SetNull)
+  conflictDetectedAt DateTime?
+  conflictResolved   Boolean   @default(false)
+
+  // Processing Status
+  status     String    @default("new") // "new", "reviewed", "converted", "rejected"
+  reviewedAt DateTime?
+  reviewedBy String? // Admin user ID
+
+  // Automated Email Tracking
+  firstTouchEmailSent   Boolean   @default(false)
+  firstTouchEmailSentAt DateTime?
+
+  // Notification Tracking
+  notificationSent   Boolean   @default(false)
+  notificationSentAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([eventDate, venuePostcode]) // For conflict detection
+  @@index([isConflict])
+  @@index([status])
+  @@index([createdAt])
+  @@index([email])
+}
+
 model FormSubmission {
-  id                String   @id @default(cuid())
-  userId            String?
-  formType          String   // contact, inquiry, feedback, etc.
-  name              String
-  email             String
-  phone             String?
-  subject           String?
-  message           String   @db.Text
-  metadata          Json?    // For storing additional form-specific data
-  
+  id       String  @id @default(cuid())
+  userId   String?
+  formType String // contact, inquiry, feedback, etc.
+  name     String
+  email    String
+  phone    String?
+  subject  String?
+  message  String  @db.Text
+  metadata Json? // For storing additional form-specific data
+
   // Client relationship (optional)
-  user              User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  
-  createdAt         DateTime @default(now())
-  
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+
   @@index([userId])
   @@index([email])
   @@index([formType])
@@ -196,68 +285,68 @@ model FormSubmission {
 
 // Email Inbox Configuration
 model EmailInbox {
-  id              String   @id @default(cuid())
-  name            String   // e.g., "Main Inbox", "Bookings", "Info"
-  email           String   @unique // The email address
-  isActive        Boolean  @default(true)
-  
+  id       String  @id @default(cuid())
+  name     String // e.g., "Main Inbox", "Bookings", "Info"
+  email    String  @unique // The email address
+  isActive Boolean @default(true)
+
   // IMAP Settings
-  imapHost        String
-  imapPort        Int      @default(993)
-  imapSecure      Boolean  @default(true) // Use SSL/TLS
-  imapUsername    String
-  imapPassword    String   // Encrypted in production
-  
+  imapHost     String
+  imapPort     Int     @default(993)
+  imapSecure   Boolean @default(true) // Use SSL/TLS
+  imapUsername String
+  imapPassword String // Encrypted in production
+
   // SMTP Settings (for sending)
-  smtpHost        String?
-  smtpPort        Int?     @default(587)
-  smtpSecure      Boolean  @default(true)
-  smtpUsername    String?
-  smtpPassword    String? // Encrypted in production
-  
+  smtpHost     String?
+  smtpPort     Int?    @default(587)
+  smtpSecure   Boolean @default(true)
+  smtpUsername String?
+  smtpPassword String? // Encrypted in production
+
   // Sync Settings
-  syncEnabled     Boolean  @default(true)
-  lastSyncedAt    DateTime?
-  syncInterval    Int      @default(5) // minutes
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
-  emails          Email[]
-  threads         EmailThread[]
-  
+  syncEnabled  Boolean   @default(true)
+  lastSyncedAt DateTime?
+  syncInterval Int       @default(5) // minutes
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  emails  Email[]
+  threads EmailThread[]
+
   @@index([email])
   @@index([isActive])
 }
 
 // Email Thread (conversation between client and admin)
 model EmailThread {
-  id              String   @id @default(cuid())
-  subject         String
-  fromEmail       String   // Client email
-  fromName        String?
-  toEmail         String   // Inbox email
-  bookingId       String?  // Linked booking (optional)
-  userId          String?  // Linked user account (optional)
-  
+  id        String  @id @default(cuid())
+  subject   String
+  fromEmail String // Client email
+  fromName  String?
+  toEmail   String // Inbox email
+  bookingId String? // Linked booking (optional)
+  userId    String? // Linked user account (optional)
+
   // Thread metadata
-  isRead          Boolean  @default(false)
-  isStarred       Boolean  @default(false)
-  isArchived      Boolean  @default(false)
-  lastMessageAt   DateTime @default(now())
-  
+  isRead        Boolean  @default(false)
+  isStarred     Boolean  @default(false)
+  isArchived    Boolean  @default(false)
+  lastMessageAt DateTime @default(now())
+
   // Inbox
-  inboxId         String
-  inbox           EmailInbox @relation(fields: [inboxId], references: [id])
-  
+  inboxId String
+  inbox   EmailInbox @relation(fields: [inboxId], references: [id])
+
   // Relations
-  booking         Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
-  user            User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  emails          Email[]
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  emails  Email[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([fromEmail])
   @@index([bookingId])
   @@index([userId])
@@ -267,44 +356,44 @@ model EmailThread {
 
 // Individual Email Message
 model Email {
-  id              String   @id @default(cuid())
-  threadId        String
-  thread          EmailThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
-  
+  id       String      @id @default(cuid())
+  threadId String
+  thread   EmailThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+
   // Email details
-  messageId       String?  @unique // Email Message-ID header
-  inReplyTo       String?  // Parent email Message-ID
-  subject         String
-  fromEmail       String
-  fromName        String?
-  toEmail         String
-  toName          String?
-  cc              String[] // Array of CC emails
-  bcc             String[] // Array of BCC emails
-  
+  messageId String?  @unique // Email Message-ID header
+  inReplyTo String? // Parent email Message-ID
+  subject   String
+  fromEmail String
+  fromName  String?
+  toEmail   String
+  toName    String?
+  cc        String[] // Array of CC emails
+  bcc       String[] // Array of BCC emails
+
   // Content
-  textContent     String?  @db.Text
-  htmlContent     String?  @db.Text
-  attachments     Json?    // Array of attachment metadata
-  
+  textContent String? @db.Text
+  htmlContent String? @db.Text
+  attachments Json? // Array of attachment metadata
+
   // Direction
-  direction       String   // "inbound" or "outbound"
-  
+  direction String // "inbound" or "outbound"
+
   // Status
-  isRead          Boolean  @default(false)
-  isStarred       Boolean  @default(false)
-  
+  isRead    Boolean @default(false)
+  isStarred Boolean @default(false)
+
   // Sender (if outbound, this is the admin user)
-  sentByUserId    String?
-  sentByUser      User?    @relation("SentEmails", fields: [sentByUserId], references: [id], onDelete: SetNull)
-  
+  sentByUserId String?
+  sentByUser   User?   @relation("SentEmails", fields: [sentByUserId], references: [id], onDelete: SetNull)
+
   // Inbox
-  inboxId         String
-  inbox           EmailInbox @relation(fields: [inboxId], references: [id])
-  
-  receivedAt      DateTime @default(now())
-  createdAt       DateTime @default(now())
-  
+  inboxId String
+  inbox   EmailInbox @relation(fields: [inboxId], references: [id])
+
+  receivedAt DateTime @default(now())
+  createdAt  DateTime @default(now())
+
   @@index([threadId])
   @@index([fromEmail])
   @@index([toEmail])
@@ -315,24 +404,24 @@ model Email {
 
 // Notes (internal notes on bookings/clients)
 model Note {
-  id              String   @id @default(cuid())
-  content         String   @db.Text
-  bookingId       String?
-  userId          String?  // Client user ID (if note about a client)
-  
+  id        String  @id @default(cuid())
+  content   String  @db.Text
+  bookingId String?
+  userId    String? // Client user ID (if note about a client)
+
   // Author
-  createdById     String
-  createdBy       User     @relation("CreatedNotes", fields: [createdById], references: [id])
-  
+  createdById String
+  createdBy   User   @relation("CreatedNotes", fields: [createdById], references: [id])
+
   // Relations
-  booking         Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  user            User?    @relation("ClientNotes", fields: [userId], references: [id], onDelete: Cascade)
-  
-  isPinned        Boolean  @default(false)
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  user    User?    @relation("ClientNotes", fields: [userId], references: [id], onDelete: Cascade)
+
+  isPinned Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([bookingId])
   @@index([userId])
   @@index([createdById])
@@ -341,31 +430,31 @@ model Note {
 
 // Tasks (to-do items for admins)
 model Task {
-  id              String   @id @default(cuid())
-  title           String
-  description     String?  @db.Text
-  bookingId       String?
-  
+  id          String  @id @default(cuid())
+  title       String
+  description String? @db.Text
+  bookingId   String?
+
   // Assignment
-  assignedToId    String?
-  assignedTo      User?    @relation("AssignedTasks", fields: [assignedToId], references: [id], onDelete: SetNull)
-  createdById     String
-  createdBy       User     @relation("CreatedTasks", fields: [createdById], references: [id])
-  
+  assignedToId String?
+  assignedTo   User?   @relation("AssignedTasks", fields: [assignedToId], references: [id], onDelete: SetNull)
+  createdById  String
+  createdBy    User    @relation("CreatedTasks", fields: [createdById], references: [id])
+
   // Status
-  status          String   @default("pending") // pending, in_progress, completed, cancelled
-  priority        String   @default("medium") // low, medium, high, urgent
-  
+  status   String @default("pending") // pending, in_progress, completed, cancelled
+  priority String @default("medium") // low, medium, high, urgent
+
   // Dates
-  dueDate         DateTime?
-  completedAt     DateTime?
-  
+  dueDate     DateTime?
+  completedAt DateTime?
+
   // Relations
-  booking         Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  booking Booking? @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([assignedToId])
   @@index([bookingId])
   @@index([status])
@@ -374,45 +463,45 @@ model Task {
 
 // Email Templates for CRM
 model EmailTemplate {
-  id              String    @id @default(cuid())
-  name            String    // e.g., "DJ Inquiry Response"
-  subject         String    // Email subject (can include variables)
-  bodyHtml        String    @db.Text // HTML email body
-  bodyText        String?   @db.Text // Plain text version
-  category        String?   // e.g., "inquiry", "confirmation", "follow-up"
-  isActive        Boolean   @default(true)
-  
+  id       String  @id @default(cuid())
+  name     String // e.g., "DJ Inquiry Response"
+  subject  String // Email subject (can include variables)
+  bodyHtml String  @db.Text // HTML email body
+  bodyText String? @db.Text // Plain text version
+  category String? // e.g., "inquiry", "confirmation", "follow-up"
+  isActive Boolean @default(true)
+
   // Variables available: {{djFee}}, {{eventDate}}, {{eventTimings}}, {{djName}}, {{venueName}}, {{clientName}}
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  createdById     String?   // Admin who created it
-  createdBy       User?     @relation("CreatedTemplates", fields: [createdById], references: [id], onDelete: SetNull)
-  
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String? // Admin who created it
+  createdBy   User?    @relation("CreatedTemplates", fields: [createdById], references: [id], onDelete: SetNull)
+
   @@index([category])
   @@index([isActive])
 }
 
 // Hire Items
 model HireItem {
-  id              String    @id @default(cuid())
-  name            String    // e.g., "Lanterns", "Candlesticks"
-  slug            String?   @unique // URL-friendly identifier for SEO
-  description     String?   @db.Text
-  seoTitle        String?   // Custom SEO title
-  seoDescription  String?   @db.Text // Custom SEO meta description
-  price           Float     @default(50.00) // Price in GBP
-  stockAvailable  Int       @default(0) // Number available
-  imageUrl        String?   // URL to item image
-  category        String?   // e.g., "decor", "lighting"
-  isActive        Boolean   @default(true)
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  cartItems      CartItem[]
-  orderItems     HireOrderItem[]
-  
+  id             String  @id @default(cuid())
+  name           String // e.g., "Lanterns", "Candlesticks"
+  slug           String? @unique // URL-friendly identifier for SEO
+  description    String? @db.Text
+  seoTitle       String? // Custom SEO title
+  seoDescription String? @db.Text // Custom SEO meta description
+  price          Float   @default(50.00) // Price in GBP
+  stockAvailable Int     @default(0) // Number available
+  imageUrl       String? // URL to item image
+  category       String? // e.g., "decor", "lighting"
+  isActive       Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  cartItems  CartItem[]
+  orderItems HireOrderItem[]
+
   @@index([category])
   @@index([isActive])
   @@index([slug])
@@ -420,19 +509,19 @@ model HireItem {
 
 // Shopping Cart
 model Cart {
-  id              String    @id @default(cuid())
-  userId          String?   // Optional - can be guest cart
-  sessionId       String?   // For guest carts
-  status          String    @default("active") // active, abandoned, completed
-  
-  user            User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  items           CartItem[]
-  bookingId       String?   // Linked to booking if created from booking
-  booking         Booking?  @relation(fields: [bookingId], references: [id], onDelete: SetNull)
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
+  id        String  @id @default(cuid())
+  userId    String? // Optional - can be guest cart
+  sessionId String? // For guest carts
+  status    String  @default("active") // active, abandoned, completed
+
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  bookingId String? // Linked to booking if created from booking
+  booking   Booking?   @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([userId])
   @@index([sessionId])
   @@index([status])
@@ -440,57 +529,57 @@ model Cart {
 
 // Cart Items
 model CartItem {
-  id              String    @id @default(cuid())
-  cartId          String
-  hireItemId      String
-  quantity        Int       @default(1)
-  price           Float     // Price at time of adding (snapshot)
-  
-  cart            Cart      @relation(fields: [cartId], references: [id], onDelete: Cascade)
-  hireItem        HireItem  @relation(fields: [hireItemId], references: [id], onDelete: Cascade)
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
+  id         String @id @default(cuid())
+  cartId     String
+  hireItemId String
+  quantity   Int    @default(1)
+  price      Float // Price at time of adding (snapshot)
+
+  cart     Cart     @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  hireItem HireItem @relation(fields: [hireItemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([cartId])
   @@index([hireItemId])
 }
 
 // Hire Orders
 model HireOrder {
-  id              String    @id @default(cuid())
-  orderNumber     String    @unique // e.g., "ORD-2024-001"
-  
+  id          String @id @default(cuid())
+  orderNumber String @unique // e.g., "ORD-2024-001"
+
   // Customer Information
   customerName    String
   customerEmail   String
   customerPhone   String?
-  customerAddress String?   @db.Text
-  
+  customerAddress String? @db.Text
+
   // Event Information
-  eventDate       DateTime?
-  eventType       String?   // wedding, party, corporate, etc.
-  venueName       String?
-  venueAddress    String?   @db.Text
-  
+  eventDate    DateTime?
+  eventType    String? // wedding, party, corporate, etc.
+  venueName    String?
+  venueAddress String?   @db.Text
+
   // Order Details
-  status          String    @default("pending") // pending, confirmed, cancelled, completed
-  totalAmount     Float
-  notes           String?   @db.Text
-  
+  status      String  @default("pending") // pending, confirmed, cancelled, completed
+  totalAmount Float
+  notes       String? @db.Text
+
   // Relations
-  userId          String?   // If logged in user
-  user            User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
-  bookingId       String?   // Linked to a booking if created from booking
-  booking         Booking?  @relation(fields: [bookingId], references: [id], onDelete: SetNull)
-  items           HireOrderItem[]
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  confirmedAt     DateTime?
-  confirmedById   String?   // Admin who confirmed
-  confirmedBy     User?     @relation("ConfirmedOrders", fields: [confirmedById], references: [id], onDelete: SetNull)
-  
+  userId    String? // If logged in user
+  user      User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  bookingId String? // Linked to a booking if created from booking
+  booking   Booking?        @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  items     HireOrderItem[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  confirmedAt   DateTime?
+  confirmedById String? // Admin who confirmed
+  confirmedBy   User?     @relation("ConfirmedOrders", fields: [confirmedById], references: [id], onDelete: SetNull)
+
   @@index([status])
   @@index([userId])
   @@index([orderNumber])
@@ -499,38 +588,38 @@ model HireOrder {
 
 // Hire Order Items
 model HireOrderItem {
-  id              String    @id @default(cuid())
-  orderId         String
-  hireItemId      String
-  quantity        Int
-  price           Float     // Price at time of order (snapshot)
-  itemName        String    // Snapshot of item name
-  
-  order           HireOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  hireItem        HireItem  @relation(fields: [hireItemId], references: [id], onDelete: Cascade)
-  
-  createdAt       DateTime  @default(now())
-  
+  id         String @id @default(cuid())
+  orderId    String
+  hireItemId String
+  quantity   Int
+  price      Float // Price at time of order (snapshot)
+  itemName   String // Snapshot of item name
+
+  order    HireOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  hireItem HireItem  @relation(fields: [hireItemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
   @@index([orderId])
   @@index([hireItemId])
 }
 
 // DJs
 model DJ {
-  id              String    @id @default(cuid())
-  name            String    // e.g., "DJ Nige", "Rich S"
-  slug            String?   @unique // URL-friendly identifier
-  bio             String?   @db.Text
-  imageUrl        String?   // Profile image
-  mixcloudUrl     String?   // Mixcloud embed URL
-  seoTitle        String?   // Custom SEO title
-  seoDescription  String?   @db.Text // Custom SEO meta description
-  isActive        Boolean   @default(true)
-  displayOrder    Int       @default(0) // For sorting/ordering
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
+  id             String  @id @default(cuid())
+  name           String // e.g., "DJ Nige", "Rich S"
+  slug           String? @unique // URL-friendly identifier
+  bio            String? @db.Text
+  imageUrl       String? // Profile image
+  mixcloudUrl    String? // Mixcloud embed URL
+  seoTitle       String? // Custom SEO title
+  seoDescription String? @db.Text // Custom SEO meta description
+  isActive       Boolean @default(true)
+  displayOrder   Int     @default(0) // For sorting/ordering
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([isActive])
   @@index([slug])
   @@index([displayOrder])
@@ -538,20 +627,20 @@ model DJ {
 
 // Musicians
 model Musician {
-  id              String    @id @default(cuid())
-  name            String    // e.g., "Jazz Trio", "Saxophonist"
-  slug            String?   @unique // URL-friendly identifier
-  bio             String?   @db.Text
-  imageUrl        String?   // Profile image
-  seoTitle        String?   // Custom SEO title
-  seoDescription  String?   @db.Text // Custom SEO meta description
-  instrument      String?   // e.g., "Saxophone", "Jazz Trio", "Piano"
-  isActive        Boolean   @default(true)
-  displayOrder    Int       @default(0) // For sorting/ordering
-  
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
+  id             String  @id @default(cuid())
+  name           String // e.g., "Jazz Trio", "Saxophonist"
+  slug           String? @unique // URL-friendly identifier
+  bio            String? @db.Text
+  imageUrl       String? // Profile image
+  seoTitle       String? // Custom SEO title
+  seoDescription String? @db.Text // Custom SEO meta description
+  instrument     String? // e.g., "Saxophone", "Jazz Trio", "Piano"
+  isActive       Boolean @default(true)
+  displayOrder   Int     @default(0) // For sorting/ordering
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([isActive])
   @@index([slug])
   @@index([instrument])
@@ -560,17 +649,17 @@ model Musician {
 
 // Venue Assets (PDF brochures)
 model VenueAsset {
-  id                String   @id @default(cuid())
-  venueName         String   // e.g., "Babington House"
-  year              Int      // e.g., 2026
-  pdfUrl            String   // Cloudinary URL to the PDF
+  id                 String  @id @default(cuid())
+  venueName          String // e.g., "Babington House"
+  year               Int // e.g., 2026
+  pdfUrl             String // Cloudinary URL to the PDF
   cloudinaryPublicId String? // Cloudinary public_id for asset management
-  fileName          String   // e.g., "babington-2026.pdf"
-  isActive          Boolean  @default(true)
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
+  fileName           String // e.g., "babington-2026.pdf"
+  isActive           Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@unique([venueName, year]) // One PDF per venue per year
   @@index([venueName])
   @@index([year])
@@ -579,42 +668,92 @@ model VenueAsset {
 
 // Freelance Crew/Staff
 model FreelanceCrew {
-  id                String   @id @default(cuid())
-  name              String   // Staff member name
-  email             String?  // Contact email (optional, may be added later)
-  phone             String?  // Contact phone (optional)
-  roles             String[] // Array of roles they can perform (e.g., ["Lighting", "Sound", "Styling"])
-  isActive          Boolean  @default(true)
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
+  id       String   @id @default(cuid())
+  name     String // Staff member name
+  email    String? // Contact email (optional, may be added later)
+  phone    String? // Contact phone (optional)
+  roles    String[] // Array of roles they can perform (e.g., ["Lighting", "Sound", "Styling"])
+  isActive Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // Relations
-  assignments       BookingStaffAssignment[]
-  
+  assignments BookingStaffAssignment[]
+
   @@index([name])
   @@index([isActive])
 }
 
 // Booking Staff Assignments
 model BookingStaffAssignment {
-  id                String   @id @default(cuid())
-  bookingId         String
-  staffId           String
-  role              String   // Role for this specific booking (e.g., "Lighting", "Sound Engineer")
-  agreedFee         Float    // Agreed fee in GBP
-  status            String   @default("held") // "held" (date held), "dispatched" (full details sent), "confirmed" (acknowledged)
-  confirmationEmailSent Boolean @default(false)
-  confirmationSentAt DateTime?
-  
+  id                    String    @id @default(cuid())
+  bookingId             String
+  staffId               String
+  role                  String // Role for this specific booking (e.g., "Lighting", "Sound Engineer")
+  agreedFee             Float // Agreed fee in GBP
+  status                String    @default("held") // "held" (date held), "dispatched" (full details sent), "confirmed" (acknowledged)
+  confirmationEmailSent Boolean   @default(false)
+  confirmationSentAt    DateTime?
+
   // Relations
-  booking           Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
-  staff             FreelanceCrew @relation(fields: [staffId], references: [id], onDelete: Cascade)
-  
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  
+  booking Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  staff   FreelanceCrew @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   @@index([bookingId])
   @@index([staffId])
   @@index([status])
+}
+
+// Audit Log for tracking manual overrides
+model AuditLog {
+  id        String  @id @default(cuid())
+  bookingId String
+  booking   Booking @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  action      String // e.g., "deposit_received_manual", "final_details_confirmed_manual"
+  description String  @db.Text // Human-readable description
+  performedBy String? // Admin name (e.g., "Husband", "Wife")
+
+  createdAt DateTime @default(now())
+
+  @@index([bookingId])
+  @@index([createdAt])
+}
+
+// Communication Log for tracking all client communications (Email, WhatsApp, SMS, etc.)
+model CommsLog {
+  id        String   @id @default(cuid())
+  bookingId String?
+  booking   Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  platform    String // "whatsapp", "email", "sms", "phone"
+  direction   String // "inbound" or "outbound"
+  phoneNumber String? // For WhatsApp/SMS
+  email       String? // For email
+  contactName String? // Name of the contact
+
+  message       String? @db.Text // Text content
+  mediaUrl      String? // URL to image/video/document in Supabase Storage
+  mediaType     String? // "image", "video", "document", "audio"
+  mediaFileName String? // Original filename
+
+  whatsappMessageId String? // WhatsApp message ID for tracking
+  whatsappTimestamp String? // WhatsApp timestamp
+
+  sentByUserId String? // Admin who sent (for outbound)
+  sentByUser   User?   @relation("SentComms", fields: [sentByUserId], references: [id], onDelete: SetNull)
+
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([bookingId])
+  @@index([phoneNumber])
+  @@index([email])
+  @@index([platform])
+  @@index([createdAt])
+  @@index([whatsappMessageId])
 }

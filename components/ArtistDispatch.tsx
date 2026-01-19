@@ -7,25 +7,39 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, User, Mail, CheckCircle2, AlertCircle, Clock, Calendar, MapPin, Music } from "lucide-react";
+import { Send, User, Mail, CheckCircle2, AlertCircle, Clock, Calendar, MapPin, Music, Phone, Users, FileText, Car, Home } from "lucide-react";
 
 interface Booking {
   id: string;
   name: string;
   email: string;
+  phoneAreaCode?: string | null;
+  phoneNumber?: string | null;
   eventType: string;
   eventDate: string;
   venueName: string;
   venueAddress: string | null;
+  venueAddress2?: string | null;
+  venueTown?: string | null;
+  venueCounty?: string | null;
   venuePostcode: string | null;
+  venueContact?: string | null;
+  venuePhoneAreaCode?: string | null;
+  venuePhoneNumber?: string | null;
+  numberOfGuests?: number | null;
   djArrivalTime?: string | null;
   djStartTime?: string | null;
   djFinishTime?: string | null;
+  djSetupLocation?: string | null;
+  djParking?: string | null;
+  soundLimiter?: boolean | null;
   preferredDJ: string | null;
   firstDance?: string | null;
+  lastSong?: string | null;
   musicDislikes?: string | null;
   musicRequests?: string | null;
   musicNotesToDJ?: string | null;
+  musicFileUrl?: string | null;
   assignedDJEmail?: string | null;
   assignedDJName?: string | null;
   reviewComplete?: boolean;
@@ -57,16 +71,100 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
     booking.assignedDJName || assignedDJFromDispatch || booking.preferredDJ || ""
   );
 
-  // Editable final details state
+  // Editable final details state - comprehensive worksheet fields
   const [editableDetails, setEditableDetails] = useState({
+    // Client Information
+    clientName: booking.name || "",
+    clientEmail: booking.email || "",
+    clientPhone: booking.phoneAreaCode && booking.phoneNumber 
+      ? `${booking.phoneAreaCode} ${booking.phoneNumber}` 
+      : "",
+    
+    // Event Information
+    eventType: booking.eventType || "",
+    eventDate: booking.eventDate || "",
+    numberOfGuests: booking.numberOfGuests?.toString() || "",
+    
+    // Venue Information
     venueName: booking.venueName || "",
+    venueAddress: booking.venueAddress || "",
+    venueAddress2: booking.venueAddress2 || "",
+    venueTown: booking.venueTown || "",
+    venueCounty: booking.venueCounty || "",
+    venuePostcode: booking.venuePostcode || "",
+    venueContact: booking.venueContact || "",
+    venuePhone: booking.venuePhoneAreaCode && booking.venuePhoneNumber
+      ? `${booking.venuePhoneAreaCode} ${booking.venuePhoneNumber}`
+      : "",
+    
+    // Timing
     djArrivalTime: booking.djArrivalTime || "",
     djStartTime: booking.djStartTime || "",
     djFinishTime: booking.djFinishTime || "",
+    
+    // Technical Setup
+    djSetupLocation: booking.djSetupLocation || "",
+    djParking: booking.djParking || "",
+    soundLimiter: booking.soundLimiter ? "Yes" : "No",
+    
+    // Music Preferences
     firstDance: booking.firstDance || "",
+    lastSong: booking.lastSong || "",
+    musicRequests: booking.musicRequests || "",
     musicDislikes: booking.musicDislikes || "",
     musicNotesToDJ: booking.musicNotesToDJ || "",
   });
+
+  // Update editableDetails when booking prop changes (e.g., after fetchBooking)
+  useEffect(() => {
+    setEditableDetails({
+      // Client Information
+      clientName: booking.name || "",
+      clientEmail: booking.email || "",
+      clientPhone: booking.phoneAreaCode && booking.phoneNumber 
+        ? `${booking.phoneAreaCode} ${booking.phoneNumber}` 
+        : "",
+      
+      // Event Information
+      eventType: booking.eventType || "",
+      eventDate: booking.eventDate || "",
+      numberOfGuests: booking.numberOfGuests?.toString() || "",
+      
+      // Venue Information
+      venueName: booking.venueName || "",
+      venueAddress: booking.venueAddress || "",
+      venueAddress2: booking.venueAddress2 || "",
+      venueTown: booking.venueTown || "",
+      venueCounty: booking.venueCounty || "",
+      venuePostcode: booking.venuePostcode || "",
+      venueContact: booking.venueContact || "",
+      venuePhone: booking.venuePhoneAreaCode && booking.venuePhoneNumber
+        ? `${booking.venuePhoneAreaCode} ${booking.venuePhoneNumber}`
+        : "",
+      
+      // Timing
+      djArrivalTime: booking.djArrivalTime || "",
+      djStartTime: booking.djStartTime || "",
+      djFinishTime: booking.djFinishTime || "",
+      
+      // Technical Setup
+      djSetupLocation: booking.djSetupLocation || "",
+      djParking: booking.djParking || "",
+      soundLimiter: booking.soundLimiter ? "Yes" : "No",
+      
+      // Music Preferences
+      firstDance: booking.firstDance || "",
+      lastSong: booking.lastSong || "",
+      musicRequests: booking.musicRequests || "",
+      musicDislikes: booking.musicDislikes || "",
+      musicNotesToDJ: booking.musicNotesToDJ || "",
+    });
+    
+    // Update assigned DJ info when booking changes
+    setAssignedDJEmail(booking.assignedDJEmail || assignedEmailFromDispatch || "");
+    setAssignedDJName(booking.assignedDJName || assignedDJFromDispatch || booking.preferredDJ || "");
+    setReviewComplete(booking.reviewComplete || false);
+  }, [booking, assignedEmailFromDispatch, assignedDJFromDispatch]);
 
   const dispatchStatus = dispatchedAt ? "Dispatched" : reviewComplete ? "Reviewed" : "Draft";
 
@@ -245,72 +343,277 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                   <CheckCircle2 className="w-4 h-4" />
                   Editable Version (To Send)
                 </h4>
-                <div className="space-y-4 text-sm">
-                  <div>
-                    <Label className="text-gray-300">Venue Name</Label>
-                    <Input
-                      value={editableDetails.venueName}
-                      onChange={(e) => setEditableDetails({ ...editableDetails, venueName: e.target.value })}
-                      className="bg-gray-800 text-white border-gray-600 mt-1"
-                    />
-                  </div>
-                  <div className="grid grid-cols-3 gap-2">
-                    <div>
-                      <Label className="text-gray-300 text-xs">Arrival</Label>
-                      <Input
-                        value={editableDetails.djArrivalTime}
-                        onChange={(e) => setEditableDetails({ ...editableDetails, djArrivalTime: e.target.value })}
-                        placeholder="18:00"
-                        className="bg-gray-800 text-white border-gray-600 mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-gray-300 text-xs">Start</Label>
-                      <Input
-                        value={editableDetails.djStartTime}
-                        onChange={(e) => setEditableDetails({ ...editableDetails, djStartTime: e.target.value })}
-                        placeholder="19:00"
-                        className="bg-gray-800 text-white border-gray-600 mt-1"
-                      />
-                    </div>
-                    <div>
-                      <Label className="text-gray-300 text-xs">Finish</Label>
-                      <Input
-                        value={editableDetails.djFinishTime}
-                        onChange={(e) => setEditableDetails({ ...editableDetails, djFinishTime: e.target.value })}
-                        placeholder="00:00"
-                        className="bg-gray-800 text-white border-gray-600 mt-1"
-                      />
+                <div className="space-y-4 text-sm max-h-[700px] overflow-y-auto pr-2">
+                  {/* Client Information */}
+                  <div className="border-b border-green-700/30 pb-3">
+                    <Label className="text-gray-400 text-xs uppercase mb-2 block">Client Details</Label>
+                    <div className="space-y-2">
+                      <div>
+                        <Label className="text-gray-300 text-xs">Client Name</Label>
+                        <Input
+                          value={editableDetails.clientName}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, clientName: e.target.value })}
+                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <Label className="text-gray-300 text-xs">Email</Label>
+                          <Input
+                            type="email"
+                            value={editableDetails.clientEmail}
+                            onChange={(e) => setEditableDetails({ ...editableDetails, clientEmail: e.target.value })}
+                            className="bg-gray-800 text-white border-gray-600 mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-gray-300 text-xs">Phone</Label>
+                          <Input
+                            value={editableDetails.clientPhone}
+                            onChange={(e) => setEditableDetails({ ...editableDetails, clientPhone: e.target.value })}
+                            placeholder="01234 567890"
+                            className="bg-gray-800 text-white border-gray-600 mt-1"
+                          />
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div>
-                    <Label className="text-gray-300">First Dance</Label>
-                    <Input
-                      value={editableDetails.firstDance}
-                      onChange={(e) => setEditableDetails({ ...editableDetails, firstDance: e.target.value })}
-                      placeholder="Song title & artist"
-                      className="bg-gray-800 text-white border-gray-600 mt-1"
-                    />
+                  
+                  {/* Event Information */}
+                  <div className="border-b border-green-700/30 pb-3">
+                    <Label className="text-gray-400 text-xs uppercase mb-2 block">Event Information</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <Label className="text-gray-300 text-xs">Event Type</Label>
+                        <Input
+                          value={editableDetails.eventType}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, eventType: e.target.value })}
+                          placeholder="Wedding / Party / Corporate"
+                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-gray-300 text-xs">Number of Guests</Label>
+                        <Input
+                          type="number"
+                          value={editableDetails.numberOfGuests}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, numberOfGuests: e.target.value })}
+                          placeholder="150"
+                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <Label className="text-gray-300">Do-Not-Plays</Label>
-                    <Textarea
-                      value={editableDetails.musicDislikes}
-                      onChange={(e) => setEditableDetails({ ...editableDetails, musicDislikes: e.target.value })}
-                      placeholder="List of songs/styles to avoid"
-                      rows={3}
-                      className="bg-gray-800 text-white border-gray-600 mt-1"
-                    />
+                  
+                  {/* Venue Information */}
+                  <div className="border-b border-green-700/30 pb-3">
+                    <Label className="text-gray-400 text-xs uppercase mb-2 block flex items-center gap-1">
+                      <MapPin className="w-3 h-3" /> Venue Details
+                    </Label>
+                    <div className="space-y-2">
+                      <div>
+                        <Label className="text-gray-300 text-xs">Venue Name</Label>
+                        <Input
+                          value={editableDetails.venueName}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, venueName: e.target.value })}
+                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-gray-300 text-xs">Address Line 1</Label>
+                        <Input
+                          value={editableDetails.venueAddress}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, venueAddress: e.target.value })}
+                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-gray-300 text-xs">Address Line 2</Label>
+                        <Input
+                          value={editableDetails.venueAddress2}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, venueAddress2: e.target.value })}
+                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <Label className="text-gray-300 text-xs">Town</Label>
+                          <Input
+                            value={editableDetails.venueTown}
+                            onChange={(e) => setEditableDetails({ ...editableDetails, venueTown: e.target.value })}
+                            className="bg-gray-800 text-white border-gray-600 mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-gray-300 text-xs">County</Label>
+                          <Input
+                            value={editableDetails.venueCounty}
+                            onChange={(e) => setEditableDetails({ ...editableDetails, venueCounty: e.target.value })}
+                            className="bg-gray-800 text-white border-gray-600 mt-1"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <Label className="text-gray-300 text-xs">Postcode</Label>
+                        <Input
+                          value={editableDetails.venuePostcode}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, venuePostcode: e.target.value })}
+                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <Label className="text-gray-300 text-xs">Venue Contact Name</Label>
+                          <Input
+                            value={editableDetails.venueContact}
+                            onChange={(e) => setEditableDetails({ ...editableDetails, venueContact: e.target.value })}
+                            className="bg-gray-800 text-white border-gray-600 mt-1"
+                          />
+                        </div>
+                        <div>
+                          <Label className="text-gray-300 text-xs">Venue Phone</Label>
+                          <Input
+                            value={editableDetails.venuePhone}
+                            onChange={(e) => setEditableDetails({ ...editableDetails, venuePhone: e.target.value })}
+                            placeholder="01234 567890"
+                            className="bg-gray-800 text-white border-gray-600 mt-1"
+                          />
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <Label className="text-gray-300">Additional Notes to DJ</Label>
-                    <Textarea
-                      value={editableDetails.musicNotesToDJ}
-                      onChange={(e) => setEditableDetails({ ...editableDetails, musicNotesToDJ: e.target.value })}
-                      placeholder="Any special instructions or requests"
-                      rows={3}
-                      className="bg-gray-800 text-white border-gray-600 mt-1"
-                    />
+                  
+                  {/* Timing */}
+                  <div className="border-b border-green-700/30 pb-3">
+                    <Label className="text-gray-400 text-xs uppercase mb-2 block flex items-center gap-1">
+                      <Clock className="w-3 h-3" /> Timings
+                    </Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <Label className="text-gray-300 text-xs">Arrival Time</Label>
+                        <Input
+                          value={editableDetails.djArrivalTime}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, djArrivalTime: e.target.value })}
+                          placeholder="18:00"
+                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-gray-300 text-xs">Start Time</Label>
+                        <Input
+                          value={editableDetails.djStartTime}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, djStartTime: e.target.value })}
+                          placeholder="19:00"
+                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-gray-300 text-xs">Finish Time</Label>
+                        <Input
+                          value={editableDetails.djFinishTime}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, djFinishTime: e.target.value })}
+                          placeholder="00:00"
+                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Technical Setup */}
+                  <div className="border-b border-green-700/30 pb-3">
+                    <Label className="text-gray-400 text-xs uppercase mb-2 block flex items-center gap-1">
+                      <Home className="w-3 h-3" /> Technical Setup
+                    </Label>
+                    <div className="space-y-2">
+                      <div>
+                        <Label className="text-gray-300 text-xs">Setup Location</Label>
+                        <Textarea
+                          value={editableDetails.djSetupLocation}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, djSetupLocation: e.target.value })}
+                          placeholder="Where to set up equipment (e.g., 'Main hall, left of stage')"
+                          rows={2}
+                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-gray-300 text-xs">Parking Information</Label>
+                        <Textarea
+                          value={editableDetails.djParking}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, djParking: e.target.value })}
+                          placeholder="Parking location and access instructions"
+                          rows={2}
+                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-gray-300 text-xs">Sound Limiter</Label>
+                        <select
+                          value={editableDetails.soundLimiter}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, soundLimiter: e.target.value })}
+                          className="bg-gray-800 text-white border border-gray-600 rounded-md px-3 py-2 mt-1 w-full text-sm"
+                        >
+                          <option value="No">No</option>
+                          <option value="Yes">Yes</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Music Preferences */}
+                  <div className="border-b border-green-700/30 pb-3">
+                    <Label className="text-gray-400 text-xs uppercase mb-2 block flex items-center gap-1">
+                      <Music className="w-3 h-3" /> Music Preferences
+                    </Label>
+                    <div className="space-y-2">
+                      <div>
+                        <Label className="text-gray-300 text-xs">First Dance</Label>
+                        <Input
+                          value={editableDetails.firstDance}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, firstDance: e.target.value })}
+                          placeholder="Song title & artist"
+                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-gray-300 text-xs">Last Song</Label>
+                        <Input
+                          value={editableDetails.lastSong}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, lastSong: e.target.value })}
+                          placeholder="Song title & artist"
+                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-gray-300 text-xs">Must-Plays / Requests</Label>
+                        <Textarea
+                          value={editableDetails.musicRequests}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, musicRequests: e.target.value })}
+                          placeholder="List of songs/styles to include (one per line)"
+                          rows={3}
+                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-gray-300 text-xs">Do-Not-Plays</Label>
+                        <Textarea
+                          value={editableDetails.musicDislikes}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, musicDislikes: e.target.value })}
+                          placeholder="List of songs/styles to avoid (one per line)"
+                          rows={3}
+                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-gray-300 text-xs">Additional Notes to DJ/Musician</Label>
+                        <Textarea
+                          value={editableDetails.musicNotesToDJ}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, musicNotesToDJ: e.target.value })}
+                          placeholder="Any special instructions, announcements, or requests"
+                          rows={3}
+                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

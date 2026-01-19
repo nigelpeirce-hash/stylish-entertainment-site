@@ -466,14 +466,14 @@ export default function Home() {
                     <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700 group-hover:scale-105 transition-transform duration-300">
                       <Image
                         src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162279/Nigel-DJ-Babs-House-0009-1_f59b99.jpg"
-                        alt="Nige - Creative Technician & Co-founder of Stylish Entertainment"
+                        alt="Nige - Creative & Technical & Co-founder of Stylish Entertainment"
                         fill
                         className="object-cover"
                         sizes="(max-width: 768px) 100vw, 50vw"
                       />
                     </div>
                     <h3 className="text-2xl md:text-3xl font-serif font-bold text-champagne-gold mb-2">Nige</h3>
-                    <p className="text-sm text-gray-400 mb-3 uppercase tracking-wider">Creative Technician</p>
+                    <p className="text-sm text-gray-400 mb-3 uppercase tracking-wider">Creative & Technical</p>
                     <p className="text-gray-300 leading-relaxed mb-4">
                       With over 20 years of experience, Nige brings technical excellence and creative expertise to every event. From DJ sets at Babington House to Glastonbury Festival, combining innovation with flawless execution.
                     </p>

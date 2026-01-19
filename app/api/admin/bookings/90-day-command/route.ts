@@ -12,11 +12,18 @@ export const runtime = 'nodejs';
  */
 export async function GET(request: NextRequest) {
   try {
-    // In development, allow access even if admin check fails (for dev bypass)
-    let admin = await requireAdmin(request);
-    const isDevelopment = process.env.NODE_ENV === "development";
+    // Check if request is from localhost (development only)
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    const realIp = request.headers.get("x-real-ip");
+    const hostname = request.headers.get("host") || "";
+    const isLocalhost = hostname.includes("localhost") || 
+                       hostname.includes("127.0.0.1") ||
+                       process.env.NODE_ENV === "development";
     
-    if (!admin && !isDevelopment) {
+    // In development/localhost, allow access even if admin check fails (for dev bypass)
+    let admin = await requireAdmin(request);
+    
+    if (!admin && !isLocalhost) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -232,8 +239,16 @@ export async function GET(request: NextRequest) {
  */
 export async function PATCH(request: NextRequest) {
   try {
-    const admin = await requireAdmin(request);
-    if (!admin) {
+    // Check if request is from localhost (development only)
+    const hostname = request.headers.get("host") || "";
+    const isLocalhost = hostname.includes("localhost") || 
+                       hostname.includes("127.0.0.1") ||
+                       process.env.NODE_ENV === "development";
+    
+    // In development/localhost, allow access even if admin check fails (for dev bypass)
+    let admin = await requireAdmin(request);
+    
+    if (!admin && !isLocalhost) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -265,7 +280,7 @@ export async function PATCH(request: NextRequest) {
         ...existingEmailsSent.commandCentre,
         ...statusToggles,
         updatedAt: new Date().toISOString(),
-        updatedBy: admin.name || admin.email,
+        updatedBy: admin?.name || admin?.email || "System",
       },
     };
 

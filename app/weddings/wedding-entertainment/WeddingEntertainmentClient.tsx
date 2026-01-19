@@ -27,7 +27,7 @@ const djs = [
     mixingStyle: "Seamless Mixing",
     genres: ["House", "Disco", "Soul", "Funk", "Pop", "Ibiza", "R&B"],
     bio: "Over 20 years as resident DJ at Babington House Hotel, Nige brings sophistication and energy to every event.",
-    fullBio: `DJ Nige started his DJ career at the age of 14, honing his skills at local parties and events before entering into the wider world of London's radio, music, and advertising industries. Throughout his career, DJ Nige has established himself as a highly talented and sought-after producer & DJ, with highlights including producing for Pete Tong's Essential Selection on Radio 1, playing as a resident DJ at Babington House Hotel in Somerset for 20 years, and entertaining crowds at the Glastonbury Festival as backstage DJ at the Pyramid stage.`,
+    fullBio: `DJ Nige started his DJ career at the age of 14, honing his skills at local parties and events before entering into the wider world of London's radio, music, and advertising industries. Throughout his career, DJ Nige has established himself as a highly talented and sought-after producer & DJ, with highlights including working as a freelance producer for Pete Tong's Essential Selection on Radio 1, which took him around clubs in the UK and Europe, playing as a resident DJ at Babington House Hotel in Somerset for 20 years, and entertaining crowds at the Glastonbury Festival as backstage DJ at the Pyramid stage.`,
     youtubeEmbed: "https://www.youtube.com/embed/RAdejWBYWaw?si=4-GnDsRvsG4ZpYio",
     mixcloudEmbeds: [
       "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2Fnigelpeirce1%2Fbabington-nye-part-1%2F",

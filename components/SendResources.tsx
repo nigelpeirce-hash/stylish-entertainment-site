@@ -3,6 +3,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { getAllResources, type MasterResource } from "@/lib/master-resources";
 import { Send, FileText, Loader2 } from "lucide-react";
 
@@ -10,10 +14,13 @@ interface SendResourcesProps {
   bookingId: string;
   clientEmail: string;
   clientName: string;
+  venueName?: string;
 }
 
-export function SendResources({ bookingId, clientEmail, clientName }: SendResourcesProps) {
+export function SendResources({ bookingId, clientEmail, clientName, venueName }: SendResourcesProps) {
   const [selectedResource, setSelectedResource] = useState<string>("");
+  const [sendBrochure, setSendBrochure] = useState(false);
+  const [customIntro, setCustomIntro] = useState("");
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,8 +28,8 @@ export function SendResources({ bookingId, clientEmail, clientName }: SendResour
   const resources = getAllResources();
 
   const handleSend = async () => {
-    if (!selectedResource) {
-      setError("Please select a resource to send");
+    if (!selectedResource && !sendBrochure) {
+      setError("Please select a resource or brochure to send");
       return;
     }
 
@@ -40,7 +47,10 @@ export function SendResources({ bookingId, clientEmail, clientName }: SendResour
           bookingId,
           clientEmail,
           clientName,
-          resourceId: selectedResource,
+          resourceId: selectedResource || null,
+          sendBrochure,
+          venueName,
+          customIntro: customIntro.trim() || null,
         }),
       });
 
@@ -52,6 +62,8 @@ export function SendResources({ bookingId, clientEmail, clientName }: SendResour
 
       setSuccess(true);
       setSelectedResource(""); // Reset selection
+      setSendBrochure(false);
+      setCustomIntro("");
       setTimeout(() => setSuccess(false), 3000); // Clear success message after 3 seconds
     } catch (err: any) {
       setError(err.message || "An error occurred while sending the resource");
@@ -69,9 +81,28 @@ export function SendResources({ bookingId, clientEmail, clientName }: SendResour
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Custom Intro Paragraph */}
+        <div>
+          <Label htmlFor="custom-intro" className="block text-sm font-medium text-gray-300 mb-2">
+            Custom Introduction (Optional)
+          </Label>
+          <Textarea
+            id="custom-intro"
+            value={customIntro}
+            onChange={(e) => setCustomIntro(e.target.value)}
+            placeholder="Add a personalised introduction after the greeting..."
+            className="w-full min-h-[100px] px-4 py-2 bg-gray-900 border border-gray-600 rounded-md text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-champagne-gold focus:border-champagne-gold"
+            disabled={sending}
+          />
+          <p className="mt-1 text-xs text-gray-400">
+            This text will appear after "Dear {clientName}," in the email
+          </p>
+        </div>
+
+        {/* Resource Selection */}
         <div>
           <label htmlFor="resource-select" className="block text-sm font-medium text-gray-300 mb-2">
-            Select a Resource to Send
+            Select a Resource to Send (Optional)
           </label>
           <select
             id="resource-select"
@@ -94,6 +125,20 @@ export function SendResources({ bookingId, clientEmail, clientName }: SendResour
           )}
         </div>
 
+        {/* Brochure Option */}
+        <div className="flex items-center space-x-2 pt-2 pb-2">
+          <Checkbox
+            id="send-brochure"
+            checked={sendBrochure}
+            onCheckedChange={(checked) => setSendBrochure(checked === true)}
+            className="border-champagne-gold/50 data-[state=checked]:bg-champagne-gold data-[state=checked]:border-champagne-gold"
+            disabled={sending}
+          />
+          <Label htmlFor="send-brochure" className="text-sm text-gray-300 cursor-pointer">
+            Also send venue brochure {venueName ? `(${venueName})` : "(General)"}
+          </Label>
+        </div>
+
         {error && (
           <div className="p-3 bg-red-900/30 border border-red-500/50 rounded-md text-red-400 text-sm">
             {error}
@@ -108,7 +153,7 @@ export function SendResources({ bookingId, clientEmail, clientName }: SendResour
 
         <Button
           onClick={handleSend}
-          disabled={!selectedResource || sending}
+          disabled={(!selectedResource && !sendBrochure) || sending}
           className="w-full bg-champagne-gold text-black hover:bg-gold-light disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {sending ? (
@@ -119,7 +164,7 @@ export function SendResources({ bookingId, clientEmail, clientName }: SendResour
           ) : (
             <>
               <Send className="w-4 h-4 mr-2" />
-              Send Resource
+              {sendBrochure && selectedResource ? "Send Resource & Brochure" : sendBrochure ? "Send Brochure" : "Send Resource"}
             </>
           )}
         </Button>

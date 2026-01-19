@@ -38,9 +38,26 @@ export default function NinetyDayCommandCentre() {
   const [filter, setFilter] = useState<"all" | "within30" | "needsAttention">("all");
 
   useEffect(() => {
-    // Check for dev bypass first (development only)
+    // Auto-enable dev bypass on localhost (development only)
+    const isLocalhost = typeof window !== "undefined" && 
+      (process.env.NODE_ENV === "development" || 
+       window.location.hostname === "localhost" || 
+       window.location.hostname === "127.0.0.1" ||
+       window.location.hostname.startsWith("192.168.") ||
+       window.location.hostname.startsWith("10."));
+
+    if (isLocalhost) {
+      // Automatically set bypass flag for localhost
+      sessionStorage.setItem("dev_admin_bypass", "true");
+      sessionStorage.setItem("dev_admin_role", "admin");
+      sessionStorage.setItem("dev_admin_name", "Local Admin");
+      // Allow access immediately
+      fetchBookings();
+      return;
+    }
+
+    // Check for existing dev bypass (for production dev environments)
     const devBypass = typeof window !== "undefined" && 
-      (process.env.NODE_ENV === "development" || window.location.hostname === "localhost") &&
       sessionStorage.getItem("dev_admin_bypass") === "true";
 
     if (devBypass) {
@@ -162,9 +179,15 @@ export default function NinetyDayCommandCentre() {
   };
 
   // Check for dev bypass (development only)
-  const devBypass = typeof window !== "undefined" && 
-    (process.env.NODE_ENV === "development" || window.location.hostname === "localhost") &&
-    sessionStorage.getItem("dev_admin_bypass") === "true";
+  const isLocalhost = typeof window !== "undefined" && 
+    (process.env.NODE_ENV === "development" || 
+     window.location.hostname === "localhost" || 
+     window.location.hostname === "127.0.0.1" ||
+     window.location.hostname.startsWith("192.168.") ||
+     window.location.hostname.startsWith("10."));
+  
+  const devBypass = isLocalhost || 
+    (typeof window !== "undefined" && sessionStorage.getItem("dev_admin_bypass") === "true");
 
   const isAdmin = session && (session?.user as any)?.role === "admin";
 
@@ -183,6 +206,15 @@ export default function NinetyDayCommandCentre() {
   return (
     <div className="min-h-screen bg-gray-950 text-white py-12 px-4">
       <div className="container mx-auto max-w-7xl">
+        {/* Dev Mode Banner */}
+        {devBypass && (
+          <div className="mb-4 p-3 bg-yellow-900/30 border border-yellow-600/50 rounded-lg">
+            <p className="text-xs text-yellow-400">
+              ⚠️ <strong>Development Mode:</strong> Authentication bypassed for localhost access
+            </p>
+          </div>
+        )}
+        
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}

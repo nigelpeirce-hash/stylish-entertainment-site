@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getResendConfig } from "@/lib/email-config";
 import { getResourceById } from "@/lib/master-resources";
+import { getBrochureLink } from "@/lib/venue-assets";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin-auth";
 
@@ -117,24 +118,70 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { bookingId, clientEmail, clientName, resourceId } = body;
+    const { bookingId, clientEmail, clientName, resourceId, sendBrochure, venueName, customIntro } = body;
 
-    if (!bookingId || !clientEmail || !clientName || !resourceId) {
+    if (!bookingId || !clientEmail || !clientName) {
       return NextResponse.json(
-        { error: "Missing required fields: bookingId, clientEmail, clientName, resourceId" },
+        { error: "Missing required fields: bookingId, clientEmail, clientName" },
         { status: 400 }
       );
     }
 
-    // Get the resource details
-    const resource = getResourceById(resourceId);
-    if (!resource) {
-      return NextResponse.json({ error: "Resource not found" }, { status: 404 });
+    if (!resourceId && !sendBrochure) {
+      return NextResponse.json(
+        { error: "Please select either a resource or brochure to send" },
+        { status: 400 }
+      );
     }
 
-    // Generate tracking URL for the PDF
+    // Get the resource details if selected
+    let resource = null;
+    if (resourceId) {
+      resource = getResourceById(resourceId);
+      if (!resource) {
+        return NextResponse.json({ error: "Resource not found" }, { status: 404 });
+      }
+    }
+
+    // Get brochure URL if requested
+    let brochureUrl: string | null = null;
+    if (sendBrochure) {
+      try {
+        brochureUrl = await getBrochureLink(venueName);
+      } catch (error) {
+        console.error("Error fetching brochure link:", error);
+        brochureUrl = null;
+      }
+    }
+
+    // Generate tracking URLs
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk";
-    const trackingUrl = `${baseUrl}/api/track-download?id=${bookingId}&file=${resourceId}`;
+    const resourceTrackingUrl = resource ? `${baseUrl}/api/track-download?id=${bookingId}&file=${resourceId}` : null;
+    const brochureTrackingUrl = brochureUrl ? `${baseUrl}/api/track-download?id=${bookingId}&file=brochure-${venueName || 'general'}` : null;
+
+    // Build content sections
+    let resourceSection = '';
+    if (resource && resourceTrackingUrl) {
+      resourceSection = `
+        <p>We thought you might find this resource helpful as you plan your celebration. Please find below a link to download <strong>${resource.name}</strong>.</p>
+        <p style="text-align: center; margin: 30px 0;">
+          <a href="${resourceTrackingUrl}" class="button">Download ${resource.name}</a>
+        </p>
+      `;
+    }
+
+    let brochureSection = '';
+    if (brochureUrl && brochureTrackingUrl) {
+      brochureSection = `
+        <p>${venueName ? `We've prepared a bespoke guide for your chosen venue, ${venueName}, to help you visualise the setup.` : "To give you a better sense of what we do, we'd love to share our brochure with you."}</p>
+        <p style="text-align: center; margin: 30px 0;">
+          <a href="${brochureTrackingUrl}" class="button" style="background-color: #ffffff; color: #D4AF37 !important; border: 2px solid #D4AF37;">Download ${venueName ? 'Venue Guide' : 'Brochure'}</a>
+        </p>
+      `;
+    }
+
+    // Custom intro or default
+    const introParagraph = customIntro || (resource && !sendBrochure ? "We thought you might find this resource helpful as you plan your celebration." : "");
 
     // Generate email HTML
     const emailHtml = `
@@ -152,16 +199,15 @@ export async function POST(request: NextRequest) {
               <div class="divider"></div>
             </div>
             <div class="content">
-              <h1>A Resource for You</h1>
+              <h1>${resource ? 'A Resource for You' : sendBrochure ? 'Your Venue Guide' : 'Information for You'}</h1>
               <p>Dear ${clientName},</p>
-              <p>We thought you might find this resource helpful as you plan your celebration. Please find below a link to download <strong>${resource.name}</strong>.</p>
-              <p style="text-align: center; margin: 30px 0;">
-                <a href="${trackingUrl}" class="button">Download ${resource.name}</a>
-              </p>
-              <p>If you have any questions about this resource or would like to discuss your event in more detail, please don't hesitate to get in touch.</p>
+              ${introParagraph ? `<p>${introParagraph}</p>` : ''}
+              ${resourceSection}
+              ${brochureSection}
+              <p>If you have any questions about this ${resource && sendBrochure ? 'information' : resource ? 'resource' : 'brochure'} or would like to discuss your event in more detail, please don't hesitate to get in touch.</p>
               <div class="signature">
                 <p>Best regards,</p>
-                <p><strong>Nigel & Ali</strong><br>
+                <p><strong>Ali & Nige</strong><br>
                 Stylish Entertainment</p>
               </div>
             </div>
@@ -180,13 +226,26 @@ export async function POST(request: NextRequest) {
     // Use centralised email config with dynamic sender name for booking emails
     const emailConfig = getResendConfig("booking");
 
+    // Get booking reference for email threading if bookingId provided
+    let threadingHeaders = {};
+    let finalHtml = emailHtml;
+    if (bookingId) {
+      const bookingReference = await ensureBookingReference(bookingId);
+      if (bookingReference) {
+        threadingHeaders = getThreadingHeaders(bookingReference);
+        // Add Thread-ID footer to email HTML
+        finalHtml = emailHtml + generateThreadIdFooter(bookingReference);
+      }
+    }
+
     // Send email via Resend
     const result = await getResend().emails.send({
       from: emailConfig.from,
       replyTo: emailConfig.replyTo,
       to: [clientEmail],
-      subject: `${resource.name} - Stylish Entertainment`,
-      html: emailHtml,
+      subject: resource ? `${resource.name}${sendBrochure ? ' & Venue Guide' : ''} - Stylish Entertainment` : sendBrochure ? `${venueName ? `${venueName} ` : ''}Venue Guide - Stylish Entertainment` : 'Information - Stylish Entertainment',
+      html: finalHtml, // Include Thread-ID footer
+      headers: threadingHeaders, // Add In-Reply-To and References headers
     });
 
     // Log the resource send to booking metadata
@@ -200,13 +259,25 @@ export async function POST(request: NextRequest) {
         const existingMetadata = (booking.emailsSent as any) || {};
         const resourceSends = existingMetadata.resourceSends || [];
 
-        resourceSends.push({
-          resourceId,
-          resourceName: resource.name,
-          sentAt: new Date().toISOString(),
-          sentBy: admin.name || admin.email,
-        });
+        if (resource) {
+          resourceSends.push({
+            resourceId,
+            resourceName: resource.name,
+            sentAt: new Date().toISOString(),
+            sentBy: admin.name || admin.email,
+          });
+        }
 
+        if (sendBrochure && brochureUrl) {
+          resourceSends.push({
+            resourceId: 'brochure',
+            resourceName: venueName ? `${venueName} Venue Guide` : 'General Brochure',
+            sentAt: new Date().toISOString(),
+            sentBy: admin.name || admin.email,
+          });
+        }
+
+        // Mark as action taken by setting lastEmailSentAt
         await prisma.booking.update({
           where: { id: bookingId },
           data: {
@@ -214,6 +285,7 @@ export async function POST(request: NextRequest) {
               ...existingMetadata,
               resourceSends,
             } as any,
+            lastEmailSentAt: new Date(), // Mark that admin has taken action
           },
         });
       }

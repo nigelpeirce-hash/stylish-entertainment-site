@@ -236,12 +236,12 @@ export function inquiryAutoresponder(data: JourneyEmailData) {
     <h1>Thank You for Your Inquiry</h1>
     <p>Dear {{clientName}},</p>
     <p>Thank you for reaching out to Stylish Entertainment. We're delighted that you're considering us for {{eventType}} on {{eventDate}}.</p>
-    <p>Nigel and Ali are excited to learn more about your vision and help bring it to life. We specialise in creating unforgettable celebrations with our expert DJ services, elegant lighting design, and sophisticated venue styling.</p>
+    <p>We're excited to learn more about your vision and help bring it to life. We specialise in creating unforgettable celebrations with our expert DJ services, elegant lighting design, and sophisticated venue styling.</p>
     ${brochureSection}
-    <p>One of our team will be in touch within 24 hours to discuss your requirements in detail. In the meantime, if you have any questions, please don't hesitate to get in touch.</p>
+    <p>We'll be in touch within 24 hours to discuss your requirements in detail. In the meantime, if you have any questions, please don't hesitate to get in touch.</p>
     <div class="signature">
       <p>Warm regards,</p>
-      <p><strong>Nigel & Ali</strong><br>
+      <p><strong>Ali & Nige</strong><br>
       Stylish Entertainment</p>
     </div>
   `;
@@ -261,7 +261,7 @@ export function gentleReminder(data: JourneyEmailData) {
   const contentHtml = `
     <h1>Just Following Up</h1>
     <p>Dear {{clientName}},</p>
-    <p>I hope you're well and enjoying planning your {{eventType}} for {{eventDate}} at {{venueName}}.</p>
+    <p>We hope you're well and enjoying planning your {{eventType}} for {{eventDate}} at {{venueName}}.</p>
     <p>We wanted to check in and see if you have any questions about our services or if there's anything we can help with. Planning an event can be overwhelming, and we're here to make it easier for you.</p>
     <h2>We're Here to Help</h2>
     <p>Whether you're still exploring your options, have questions about our packages, or want to discuss your vision, we'd love to chat. Every event is unique, and we're passionate about creating something truly special for you.</p>
@@ -272,7 +272,7 @@ export function gentleReminder(data: JourneyEmailData) {
     <p>Best of luck with your planning, and please don't hesitate to reach out if you'd like to chat.</p>
     <div class="signature">
       <p>Warm regards,</p>
-      <p><strong>Nigel & Ali</strong><br>
+      <p><strong>Ali & Nige</strong><br>
       Stylish Entertainment</p>
     </div>
   `;
@@ -308,7 +308,7 @@ export function bookingConfirmation(data: JourneyEmailData) {
     <p>If you have any questions or need to discuss any changes, please don't hesitate to reach out. We're here to ensure everything runs smoothly.</p>
     <div class="signature">
       <p>Best regards,</p>
-      <p><strong>Nigel & Ali</strong><br>
+      <p><strong>Ali & Nige</strong><br>
       Stylish Entertainment</p>
     </div>
   `;
@@ -344,7 +344,7 @@ export function fourWeekCheckin(data: JourneyEmailData) {
     <p>If you have any questions or want to discuss anything, just reply to this email or give us a call. We're here to help!</p>
     <div class="signature">
       <p>Warm regards,</p>
-      <p><strong>Nigel & Ali</strong><br>
+      <p><strong>Ali & Nige</strong><br>
       Stylish Entertainment</p>
     </div>
   `;
@@ -371,7 +371,7 @@ export function weekOfExcitement(data: JourneyEmailData) {
     <p>Relax, enjoy, and let us take care of the entertainment. We've got everything under control.</p>
     <div class="signature">
       <p>Looking forward to celebrating with you,</p>
-      <p><strong>Nigel & Ali</strong><br>
+      <p><strong>Ali & Nige</strong><br>
       Stylish Entertainment</p>
     </div>
   `;
@@ -403,7 +403,7 @@ export function postWeddingMagic(data: JourneyEmailData) {
     <p>Thank you again for choosing Stylish Entertainment. It was an honour to be part of your celebration.</p>
     <div class="signature">
       <p>With warmest regards,</p>
-      <p><strong>Nigel & Ali</strong><br>
+      <p><strong>Ali & Nige</strong><br>
       Stylish Entertainment</p>
     </div>
   `;

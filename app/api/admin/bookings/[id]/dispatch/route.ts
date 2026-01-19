@@ -3,6 +3,11 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
 import { getResendConfig, EMAIL_CONFIG } from "@/lib/email-config";
+import { 
+  ensureBookingReference, 
+  getThreadingHeaders,
+  generateThreadIdFooter
+} from "@/lib/booking-integrity";
 
 // Force dynamic rendering to prevent build-time errors
 export const dynamic = 'force-dynamic';
@@ -139,25 +144,73 @@ export async function POST(
       <h1 style="font-size: 24px; margin-bottom: 20px; color: #1a1a1a;">Event Details</h1>
       
       <div class="section">
+        <div class="section-title">Client Information</div>
+        <div class="detail-row">
+          <span class="detail-label">Client Name:</span>
+          <span class="detail-value">${finalDetails.clientName || booking.name}</span>
+        </div>
+        ${finalDetails.clientEmail || booking.email ? `<div class="detail-row">
+          <span class="detail-label">Email:</span>
+          <span class="detail-value">${finalDetails.clientEmail || booking.email}</span>
+        </div>` : ''}
+        ${finalDetails.clientPhone ? `<div class="detail-row">
+          <span class="detail-label">Phone:</span>
+          <span class="detail-value">${finalDetails.clientPhone}</span>
+        </div>` : ''}
+        ${finalDetails.eventType || booking.eventType ? `<div class="detail-row">
+          <span class="detail-label">Event Type:</span>
+          <span class="detail-value">${finalDetails.eventType || booking.eventType}</span>
+        </div>` : ''}
+        ${finalDetails.numberOfGuests || booking.numberOfGuests ? `<div class="detail-row">
+          <span class="detail-label">Number of Guests:</span>
+          <span class="detail-value">${finalDetails.numberOfGuests || booking.numberOfGuests}</span>
+        </div>` : ''}
+      </div>
+
+      <div class="section">
         <div class="section-title">Venue Information</div>
         <div class="detail-row">
-          <span class="detail-label">Venue:</span>
+          <span class="detail-label">Venue Name:</span>
           <span class="detail-value">${finalDetails.venueName || booking.venueName}</span>
         </div>
-        ${booking.venueAddress ? `<div class="detail-row">
-          <span class="detail-label">Address:</span>
-          <span class="detail-value">${booking.venueAddress}${booking.venuePostcode ? `, ${booking.venuePostcode}` : ''}</span>
+        ${finalDetails.venueAddress || booking.venueAddress ? `<div class="detail-row">
+          <span class="detail-label">Address Line 1:</span>
+          <span class="detail-value">${finalDetails.venueAddress || booking.venueAddress}</span>
+        </div>` : ''}
+        ${finalDetails.venueAddress2 ? `<div class="detail-row">
+          <span class="detail-label">Address Line 2:</span>
+          <span class="detail-value">${finalDetails.venueAddress2}</span>
+        </div>` : ''}
+        ${finalDetails.venueTown || booking.venueTown ? `<div class="detail-row">
+          <span class="detail-label">Town:</span>
+          <span class="detail-value">${finalDetails.venueTown || booking.venueTown}</span>
+        </div>` : ''}
+        ${finalDetails.venueCounty || booking.venueCounty ? `<div class="detail-row">
+          <span class="detail-label">County:</span>
+          <span class="detail-value">${finalDetails.venueCounty || booking.venueCounty}</span>
+        </div>` : ''}
+        ${finalDetails.venuePostcode || booking.venuePostcode ? `<div class="detail-row">
+          <span class="detail-label">Postcode:</span>
+          <span class="detail-value">${finalDetails.venuePostcode || booking.venuePostcode}</span>
+        </div>` : ''}
+        ${finalDetails.venueContact || booking.venueContact ? `<div class="detail-row">
+          <span class="detail-label">Venue Contact:</span>
+          <span class="detail-value">${finalDetails.venueContact || booking.venueContact}</span>
+        </div>` : ''}
+        ${finalDetails.venuePhone || (booking.venuePhoneAreaCode && booking.venuePhoneNumber) ? `<div class="detail-row">
+          <span class="detail-label">Venue Phone:</span>
+          <span class="detail-value">${finalDetails.venuePhone || `${booking.venuePhoneAreaCode} ${booking.venuePhoneNumber}`}</span>
         </div>` : ''}
       </div>
 
       <div class="section">
         <div class="section-title">Event Timings</div>
         <div class="detail-row">
-          <span class="detail-label">Date:</span>
+          <span class="detail-label">Event Date:</span>
           <span class="detail-value">${eventDate}</span>
         </div>
         ${finalDetails.djArrivalTime ? `<div class="detail-row">
-          <span class="detail-label">Arrival:</span>
+          <span class="detail-label">Arrival Time:</span>
           <span class="detail-value">${finalDetails.djArrivalTime}</span>
         </div>` : ''}
         ${finalDetails.djStartTime ? `<div class="detail-row">
@@ -170,19 +223,44 @@ export async function POST(
         </div>` : ''}
       </div>
 
-      ${finalDetails.firstDance ? `<div class="section">
-        <div class="section-title">First Dance</div>
-        <div class="detail-value">${finalDetails.firstDance}</div>
+      ${(finalDetails.djSetupLocation || booking.djSetupLocation) || (finalDetails.djParking || booking.djParking) || finalDetails.soundLimiter !== undefined || booking.soundLimiter !== null ? `<div class="section">
+        <div class="section-title">Technical Setup</div>
+        ${finalDetails.djSetupLocation || booking.djSetupLocation ? `<div class="detail-row">
+          <span class="detail-label">Setup Location:</span>
+          <span class="detail-value" style="white-space: pre-wrap;">${finalDetails.djSetupLocation || booking.djSetupLocation}</span>
+        </div>` : ''}
+        ${finalDetails.djParking || booking.djParking ? `<div class="detail-row">
+          <span class="detail-label">Parking Information:</span>
+          <span class="detail-value" style="white-space: pre-wrap;">${finalDetails.djParking || booking.djParking}</span>
+        </div>` : ''}
+        ${finalDetails.soundLimiter !== undefined || booking.soundLimiter !== null ? `<div class="detail-row">
+          <span class="detail-label">Sound Limiter:</span>
+          <span class="detail-value">${finalDetails.soundLimiter !== undefined ? finalDetails.soundLimiter : (booking.soundLimiter ? 'Yes' : 'No')}</span>
+        </div>` : ''}
       </div>` : ''}
 
-      ${finalDetails.musicDislikes ? `<div class="section">
-        <div class="section-title">Do-Not-Plays</div>
-        <div class="detail-value" style="white-space: pre-wrap;">${finalDetails.musicDislikes}</div>
-      </div>` : ''}
-
-      ${finalDetails.musicNotesToDJ ? `<div class="section">
-        <div class="section-title">Additional Notes</div>
-        <div class="detail-value" style="white-space: pre-wrap;">${finalDetails.musicNotesToDJ}</div>
+      ${finalDetails.firstDance || booking.firstDance || finalDetails.lastSong || booking.lastSong || finalDetails.musicRequests || booking.musicRequests || finalDetails.musicDislikes || booking.musicDislikes || finalDetails.musicNotesToDJ || booking.musicNotesToDJ ? `<div class="section">
+        <div class="section-title">Music Preferences</div>
+        ${finalDetails.firstDance || booking.firstDance ? `<div class="detail-row">
+          <span class="detail-label">First Dance:</span>
+          <span class="detail-value">${finalDetails.firstDance || booking.firstDance}</span>
+        </div>` : ''}
+        ${finalDetails.lastSong || booking.lastSong ? `<div class="detail-row">
+          <span class="detail-label">Last Song:</span>
+          <span class="detail-value">${finalDetails.lastSong || booking.lastSong}</span>
+        </div>` : ''}
+        ${finalDetails.musicRequests || booking.musicRequests ? `<div class="detail-row">
+          <span class="detail-label">Must-Plays / Requests:</span>
+          <span class="detail-value" style="white-space: pre-wrap;">${finalDetails.musicRequests || booking.musicRequests}</span>
+        </div>` : ''}
+        ${finalDetails.musicDislikes || booking.musicDislikes ? `<div class="detail-row">
+          <span class="detail-label">Do-Not-Plays:</span>
+          <span class="detail-value" style="white-space: pre-wrap;">${finalDetails.musicDislikes || booking.musicDislikes}</span>
+        </div>` : ''}
+        ${finalDetails.musicNotesToDJ || booking.musicNotesToDJ ? `<div class="detail-row">
+          <span class="detail-label">Additional Notes to DJ/Musician:</span>
+          <span class="detail-value" style="white-space: pre-wrap;">${finalDetails.musicNotesToDJ || booking.musicNotesToDJ}</span>
+        </div>` : ''}
       </div>` : ''}
     </div>
     <div class="footer">
@@ -197,6 +275,17 @@ export async function POST(
     // Use centralised email config with dynamic sender name for DJ worksheets
     const emailConfig = getResendConfig("dj_worksheet");
 
+    // Get booking reference for email threading
+    const bookingReference = await ensureBookingReference(bookingId);
+    const threadingHeaders = bookingReference 
+      ? getThreadingHeaders(bookingReference)
+      : {};
+
+    // Add Thread-ID footer to email HTML for threading
+    const finalHtml = bookingReference
+      ? eventSummary + generateThreadIdFooter(bookingReference)
+      : eventSummary;
+
     // Send email via Resend
     const emailResult = await getResend().emails.send({
       from: emailConfig.from,
@@ -204,7 +293,8 @@ export async function POST(
       to: [assignedDJEmail],
       bcc: [EMAIL_CONFIG.OFFICE_EMAIL],
       subject: `Event Details - ${booking.eventType} at ${finalDetails.venueName || booking.venueName} - ${eventDate}`,
-      html: eventSummary,
+      html: finalHtml, // Include Thread-ID footer
+      headers: threadingHeaders, // Add In-Reply-To and References headers
     });
 
     // Update booking with dispatch metadata
@@ -223,11 +313,12 @@ export async function POST(
       artistDispatch: dispatchMetadata,
     };
 
-    // Update booking with dispatch metadata
+    // Update booking with dispatch metadata and mark as action taken
     await prisma.booking.update({
       where: { id: bookingId },
       data: {
         emailsSent: updatedEmailsSent,
+        lastEmailSentAt: new Date(), // Mark that admin has taken action
         // Note: If you add dispatchedAt, dispatchedBy, assignedDJName, assignedDJEmail,
         // and reviewComplete fields to the Booking schema, update them here instead
       },

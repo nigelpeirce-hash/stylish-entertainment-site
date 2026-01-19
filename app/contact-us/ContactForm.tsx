@@ -18,6 +18,7 @@ import { RefinedCheckmark } from "@/components/RefinedCheckmark";
 import { formSchema, type FormData, referralOptions, eventTypeOptions, djOptions, upsellOptions } from "@/lib/contact-schema";
 import DJSelectionModal from "@/components/DJSelectionModal";
 import { AnimatePresence } from "framer-motion";
+import { VenueAutocomplete } from "@/components/VenueAutocomplete";
 
 // Load Google reCAPTCHA v3
 declare global {
@@ -125,6 +126,12 @@ export default function ContactForm() {
 
       // Redirect to thank-you page on success (status 200)
       if (response.status === 200) {
+        // Store booking details in sessionStorage for thank-you page
+        if (result.bookingId) {
+          sessionStorage.setItem("recentBookingId", result.bookingId);
+          sessionStorage.setItem("recentBookingEmail", data.email);
+          sessionStorage.setItem("recentBookingTimestamp", Date.now().toString());
+        }
         router.push("/thank-you/");
       }
     } catch (error) {
@@ -166,7 +173,7 @@ export default function ContactForm() {
           >
             <Card className="bg-white/5 backdrop-blur-xl border-champagne-gold/30">
               <CardHeader>
-                <CardTitle className="text-3xl md:text-4xl text-white">Premium Inquiry Experience</CardTitle>
+                <CardTitle className="text-3xl md:text-4xl text-white">Contact Us</CardTitle>
                 <CardDescription className="text-gray-200 text-sm sm:text-base">
                   Fill out the form below and we&apos;ll get back to you as soon as possible
                 </CardDescription>
@@ -239,15 +246,13 @@ export default function ContactForm() {
 
                   <div>
                     <Label htmlFor="venueName" className="text-gray-200">Venue Name *</Label>
-                    <Input
+                    <VenueAutocomplete
                       id="venueName"
-                      {...register("venueName")}
-                      placeholder="Venue name"
-                      className="mt-2 bg-white/5 backdrop-blur-md border-champagne-gold/30 text-white placeholder:text-gray-400 focus:border-champagne-gold focus:ring-1 focus:ring-champagne-gold/50"
+                      value={watch("venueName") || ""}
+                      onChange={(value) => setValue("venueName", value)}
+                      placeholder="Start typing venue name..."
+                      error={errors.venueName?.message}
                     />
-                    {errors.venueName && (
-                      <p className="text-sm text-red-400 mt-1">{errors.venueName.message}</p>
-                    )}
                   </div>
 
                   <div>

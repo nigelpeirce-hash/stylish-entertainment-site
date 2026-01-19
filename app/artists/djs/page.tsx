@@ -50,7 +50,7 @@ const djs = [
     alt: "DJ Nige performing at Mirjam and Ben's wedding at Babington House, Somerset, showcasing professional wedding DJ services with elegant lighting",
     mixingStyle: "Seamless Mixing",
     bio: "Over 20 years as resident DJ at Babington House Hotel, Nige brings sophistication and energy to every event.",
-    fullBio: `DJ Nige started his DJ career at the age of 14, honing his skills at local parties and events before entering into the wider world of London's radio, music, and advertising industries. Throughout his career, DJ Nige has established himself as a highly talented and sought-after producer & DJ, with highlights including producing for Pete Tong's Essential Selection on Radio 1, playing as a resident DJ at Babington House Hotel in Somerset for 20 years, and entertaining crowds at the Glastonbury Festival as backstage DJ at the Pyramid stage.
+    fullBio: `DJ Nige started his DJ career at the age of 14, honing his skills at local parties and events before entering into the wider world of London's radio, music, and advertising industries. Throughout his career, DJ Nige has established himself as a highly talented and sought-after producer & DJ, with highlights including working as a freelance producer for Pete Tong's Essential Selection on Radio 1, which took him around clubs in the UK and Europe, playing as a resident DJ at Babington House Hotel in Somerset for 20 years, and entertaining crowds at the Glastonbury Festival as backstage DJ at the Pyramid stage.
 
 Nige's journey took a significant turn when he transitioned from performing at iconic festivals like Glastonbury to high-profile London venues, including The Met Bar. This move reflected his growing reputation and the demand for his unique ability to blend technical excellence with an intuitive understanding of crowd dynamics. Working alongside industry leaders and entertaining A-list clients, Nige established himself as a trusted name in premium event entertainment.
 
@@ -58,7 +58,7 @@ Alongside his DJing career, Nige also co-founded an award-winning TV & Radio pro
 
 With his exceptional talent and extensive knowledge of music, DJ Nige is the perfect choice for any event, whether it's a wedding, corporate party, or birthday celebration. His music knowledge is extensive and ever-growing, with a love of music from all eras and genres. He plays everything from Contemporary, House, Garage, Ibiza, Old Skool, Soul, Funk, Dance, Reggae, Rock N Roll, R&B, Indie, Urban, Ska and any other genre from the 30,000 tracks he holds on his Mac. However, if you're looking for cheesy hits or synchronised dancing, you are dancing on the wrong turntables!
 
-For more on Nige's technical expertise and industry recognition, including his Rock-Ola certification and Artic License, see his [technical bio on our About page](/about).
+For more on Nige's technical expertise and industry recognition, including his Artic License and lighting design work, see his [technical bio on our About page](/about).
 
 ---
 
@@ -114,6 +114,8 @@ Through a vast knowledge of music past and present, his range and ability to pla
     mixcloudEmbeds: [
       "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FJamesMalinHudson%2Fhere-comes-the-bride-saxhouse%2F",
       "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FJamesMalinHudson%2Flets-get-married-discosoulpop%2F",
+      "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FJamesMalinHudson%2Fthrow-the-bouquet-kisstory%2F",
+      "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FJamesMalinHudson%2Fshotgun-alternativeindierock%2F",
     ],
   },
 ];

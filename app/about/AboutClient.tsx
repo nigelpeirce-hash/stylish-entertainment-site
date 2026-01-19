@@ -106,7 +106,7 @@ export default function AboutClient() {
                   <div>
                     <h3 className="text-xl font-semibold text-champagne-gold mb-1">Nige – Technical Vision & Legendary Events</h3>
                     <p className="text-gray-200 md:text-gray-300 leading-relaxed text-base sm:text-lg">
-                      Starting his event journey at his parents' Rock-Ola juke box factory, Nige's career has seen him light and entertain for icons including Sir Sean Connery and Simon Cowell. He holds a 44-tonne vehicle (artic) license and has been trusted to drive, build and operate mega-events, as well as design lighting for legendary acts at <a href="https://cheeseandgrain.com" target="_blank" rel="noopener noreferrer" className="text-champagne-gold hover:text-gold-light underline">The Cheese & Grain</a>, including The Orb, Martin Kemp, Toyah, Republica, The Skids, Dave Rowntree (Blur), and more. He brings technical vision, creative flair, and calm delivery to every project.
+                      Nige's love of music began through his family's UK rights to Rock-Ola Jukeboxes post-WWII, giving him early access to hundreds of 7-inch singles with holes in the middle when he started DJing at 14. His career has since seen him light and entertain for icons including Sir Sean Connery and Simon Cowell. He holds a 44-tonne vehicle (artic) license and has been trusted to drive, build and operate mega-events, as well as design lighting for legendary acts at <a href="https://cheeseandgrain.com" target="_blank" rel="noopener noreferrer" className="text-champagne-gold hover:text-gold-light underline">The Cheese & Grain</a>, including The Orb, Martin Kemp, Toyah, Republica, The Skids, Dave Rowntree (Blur), and more. He brings technical vision, creative flair, and calm delivery to every project.
                     </p>
                   </div>
                 </div>
@@ -129,11 +129,11 @@ export default function AboutClient() {
               </CardHeader>
               <CardContent className="p-6 sm:p-8 pt-0 space-y-4">
                 <p className="text-gray-200 md:text-gray-300 leading-relaxed text-base sm:text-lg">
-                  With over 20 years of experience creating celebrations, we bring a background in music and creative industries to wedding and party entertainment. Our journey began in 1997 when Nige co-founded <a href="https://factory.uk.com" target="_blank" rel="noopener noreferrer" className="text-champagne-gold hover:text-gold-light underline">factory.uk.com</a>, which provided experience in creative and technical work.
+                  With over 20 years of experience creating celebrations, we bring a background in music and creative industries to wedding and party entertainment. Our journey began in 1997 when Nige co-founded <a href="https://factory.uk.com" target="_blank" rel="noopener noreferrer" className="text-champagne-gold hover:text-gold-light underline">Factory Studios</a>, an award-winning production company and recording studios, which provided experience in creative and technical work.
                 </p>
-                <p className="text-gray-200 md:text-gray-300 leading-relaxed text-base sm:text-lg">
-                  Nige's background includes work with Radio 1, Virgin Radio, and clients such as Sony and Universal, bringing a depth of industry knowledge and creative expertise to every event. This experience helps us understand how to create the right atmosphere and mood for each celebration, and we work hard to get the details right.
-                </p>
+                  <p className="text-gray-200 md:text-gray-300 leading-relaxed text-base sm:text-lg">
+                  Nige's background includes working as a freelance producer for Pete Tong's Essential Selection on Radio 1, which took him around clubs in the UK and Europe, alongside work with Virgin Radio and clients such as Sony and Universal, bringing a depth of industry knowledge and creative expertise to every event. This experience helps us understand how to create the right atmosphere and mood for each celebration, and we work hard to get the details right.
+                  </p>
                 <p className="text-gray-200 md:text-gray-300 leading-relaxed text-base sm:text-lg">
                   In 2004, we established Stylish Entertainment, applying this background to weddings, parties, and events. Since then, we have been a trusted supplier at Babington House since 2003, building on our reputation for excellence and reliability.
                 </p>
@@ -317,7 +317,7 @@ export default function AboutClient() {
                   <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700">
                     <Image
                       src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162279/Nigel-DJ-Babs-House-0009-1_f59b99.jpg"
-                      alt="Nige - Creative Technician at Stylish Entertainment"
+                      alt="Nige - Creative & Technical at Stylish Entertainment"
                       fill
                       className="object-cover"
                       priority
@@ -325,16 +325,16 @@ export default function AboutClient() {
                     />
                   </div>
                   <h3 className="text-2xl md:text-3xl font-serif font-bold text-champagne-gold mb-2 tracking-wide">Nige</h3>
-                  <p className="text-gray-400 text-sm font-semibold mb-4 uppercase tracking-wider">Creative Technician</p>
+                  <p className="text-gray-400 text-sm font-semibold mb-4 uppercase tracking-wider">Creative & Technical</p>
                   <div className="space-y-4 text-gray-200 md:text-gray-300 leading-relaxed">
                     <p>
-                      Nige's event journey began with his family heritage: sole UK rights to Rock-Ola Jukeboxes post-WWII, instilling in him a deep appreciation for music and technical excellence from the very beginning.
+                      Nige's love of music was sparked by his family's UK rights to Rock-Ola Jukeboxes post-WWII. This gave him early access to the vinyl that came off the jukeboxes—hundreds of 7-inch singles with holes in the middle—which he had when he started DJing at 14. It was this early connection to music through his family heritage that shaped his deep appreciation for music and technical excellence.
                     </p>
                     <p>
-                      His London career saw him co-found <a href="https://factory.uk.com" target="_blank" rel="noopener noreferrer" className="text-champagne-gold hover:text-gold-light underline">Factory Studios</a>, where he recorded Sir Sean Connery in Spain and sold a TV campaign to Simon Cowell, establishing himself as a trusted creative partner to high-profile clients.
+                      His London career saw him co-found <a href="https://factory.uk.com" target="_blank" rel="noopener noreferrer" className="text-champagne-gold hover:text-gold-light underline">Factory Studios</a>, an award-winning production company and recording studios. During this time, he worked as a freelance producer for Pete Tong's Essential Selection on Radio 1, which took him around clubs in the UK and Europe, recording Sir Sean Connery in Spain and selling a TV campaign to Simon Cowell, establishing himself as a trusted creative partner to high-profile clients.
                     </p>
                     <p>
-                      The transition to Somerset came through landmark experiences at The Met Bar and as backstage DJ at Glastonbury Festival's Pyramid stage—a bridge that led to his 20-year residency at Babington House, where he continues to bring technical vision and creative flair to every celebration.
+                      Following a sabbatical from Factory Studios, Nige's seminal moments came through playing backstage at Glastonbury Festival's Pyramid stage and his first gig at Babington House in 2003—a bridge that led to his 20-year residency at Babington House, where he continues to bring technical vision and creative flair to every celebration.
                     </p>
                   </div>
                 </CardContent>
@@ -359,7 +359,7 @@ export default function AboutClient() {
                   <div className="space-y-3">
                     <h4 className="text-lg font-semibold text-white mb-3">Heritage</h4>
                     <p className="text-gray-200 text-sm leading-relaxed">
-                      Rock-Ola Jukebox expertise and lifelong music collector, continuing a family tradition that began with sole UK rights to Rock-Ola Jukeboxes post-WWII.
+                      Lifelong music collector whose love of music began through his family's UK rights to Rock-Ola Jukeboxes post-WWII, giving him early access to hundreds of 7-inch singles with holes in the middle when he started DJing at 14.
                     </p>
                   </div>
                   <div className="border-t border-champagne-gold/30 pt-6 space-y-3">

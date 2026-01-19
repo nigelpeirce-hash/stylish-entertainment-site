@@ -4,6 +4,12 @@ import { getBrochureLink } from "@/lib/venue-assets";
 import { inquiryAutoresponder } from "@/lib/email-journey-templates";
 import { getResendConfig } from "@/lib/email-config";
 import { Resend } from "resend";
+import { prisma } from "@/lib/prisma";
+import { 
+  checkForBookingConflicts, 
+  generateBookingReference,
+  ensureBookingReference 
+} from "@/lib/booking-integrity";
 
 // Force dynamic rendering to prevent build-time errors
 export const dynamic = 'force-dynamic';
@@ -23,14 +29,213 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { name, email, phone, eventDate, venueName, venueNamePostcode, referralSource, eventType, preferredDJ, upsells, message, recaptchaToken } = body;
     
+    // Log incoming request for debugging
+    console.log("📧 Contact form submission received:", {
+      name,
+      email,
+      hasEventDate: !!eventDate,
+      hasVenueName: !!venueName,
+      hasVenueNamePostcode: !!venueNamePostcode,
+      eventType,
+      hasMessage: !!message,
+      timestamp: new Date().toISOString(),
+    });
+    
     // Extract venue name (handle both venueName and venueNamePostcode fields)
     const clientVenueName = venueName || venueNamePostcode || null;
 
     // Basic validation
     if (!name || !email || !message) {
+      console.error("❌ Validation failed: Missing required fields", { name: !!name, email: !!email, message: !!message });
       return NextResponse.json(
         { error: "Name, email, and message are required" },
         { status: 400 }
+      );
+    }
+
+    // Find or create user by email
+    let user = await prisma.user.findUnique({
+      where: { email },
+    });
+
+    if (!user) {
+      // Create a new user account for this enquiry
+      user = await prisma.user.create({
+        data: {
+          email,
+          name,
+          phone: phone || null,
+          role: "client",
+        },
+      });
+    } else {
+      // Update user info if name or phone changed
+      if (name && user.name !== name) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { name },
+        });
+      }
+      if (phone && user.phone !== phone) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { phone },
+        });
+      }
+    }
+
+    // Parse phone number if provided (split into area code and number if UK format)
+    let phoneAreaCode: string | null = null;
+    let phoneNumber: string | null = null;
+    if (phone) {
+      // Try to parse UK phone format (e.g., "07700 900000" or "020 7946 0958")
+      const cleaned = phone.replace(/\s+/g, "");
+      if (cleaned.startsWith("0")) {
+        // UK mobile or landline
+        if (cleaned.startsWith("07")) {
+          // Mobile: 07700 900000
+          phoneAreaCode = cleaned.substring(0, 4); // "0770"
+          phoneNumber = cleaned.substring(4); // "0900000"
+        } else {
+          // Landline: 020 7946 0958
+          phoneAreaCode = cleaned.substring(0, 3); // "020"
+          phoneNumber = cleaned.substring(3); // "79460958"
+        }
+      } else {
+        // International or other format, store as-is
+        phoneNumber = phone;
+      }
+    }
+
+    // Parse venue name and postcode if provided as combined field
+    let parsedVenueName = clientVenueName || "TBC";
+    let parsedVenuePostcode: string | null = null;
+    if (clientVenueName) {
+      // Try to split venue name and postcode (postcode usually at end)
+      const parts = clientVenueName.trim().split(/\s+(?=[A-Z]{1,2}\d)/);
+      if (parts.length > 1 && /[A-Z]{1,2}\d/.test(parts[parts.length - 1])) {
+        parsedVenuePostcode = parts[parts.length - 1];
+        parsedVenueName = parts.slice(0, -1).join(" ");
+      }
+    }
+
+    // Calculate priority: urgent if event date is within 2 weeks (14 days)
+    let priority = "medium";
+    if (eventDate) {
+      const eventDateObj = new Date(eventDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      eventDateObj.setHours(0, 0, 0, 0);
+      const daysUntilEvent = Math.floor((eventDateObj.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+      if (daysUntilEvent >= 0 && daysUntilEvent <= 14) {
+        priority = "urgent";
+      }
+    }
+
+    // Default event date to a far future date if not provided (required field)
+    const bookingEventDate = eventDate ? new Date(eventDate) : new Date("2099-12-31");
+
+    // Check for booking conflicts before creating (with name for fuzzy matching)
+    const conflictCheck = await checkForBookingConflicts(
+      email,
+      name, // Include name for fuzzy matching
+      bookingEventDate,
+      parsedVenuePostcode
+    );
+
+    // If conflict detected, mark booking with conflict status
+    const conflictStatus = 
+      conflictCheck.status === "POTENTIAL_DUPLICATE" || 
+      conflictCheck.status === "NAME_MATCH_WARNING"
+        ? "pending"
+        : null;
+
+    // Generate booking reference
+    const bookingReference = generateBookingReference();
+
+    // Map upsells to services array
+    const services: string[] = [];
+    if (upsells && Array.isArray(upsells)) {
+      upsells.forEach((upsell: string) => {
+        if (upsell === "lighting") services.push("lighting");
+        if (upsell === "musicians") services.push("musicians");
+        if (upsell === "fire-pits") services.push("fire-pits");
+        if (upsell === "venue-styling") services.push("venue-styling");
+      });
+    }
+
+    // Create booking record in database
+    console.log("🔨 Starting booking creation...", {
+      name,
+      email,
+      venueName: parsedVenueName,
+      eventDate: bookingEventDate.toISOString(),
+      status: "pending",
+      priority,
+      bookingReference,
+      conflictStatus: conflictCheck.status,
+    });
+    
+    let booking;
+    try {
+      booking = await prisma.booking.create({
+        data: {
+          userId: user.id,
+          name,
+          email,
+          phoneAreaCode,
+          phoneNumber,
+          eventType: eventType || "wedding",
+          eventDate: bookingEventDate,
+          venueName: parsedVenueName,
+          venuePostcode: parsedVenuePostcode,
+          preferredDJ: preferredDJ || null,
+          services,
+          upsellItems: upsells || [],
+          message: `${message}${referralSource ? `\n\nHow did you hear about us: ${referralSource}` : ""}`,
+          status: "pending",
+          // @ts-ignore - Priority field exists in schema but TypeScript types may be out of sync
+          priority,
+          contactPreference: "Email", // Default for contact form submissions
+          bookingReference, // Add booking reference for email threading
+          conflictStatus, // Mark if conflict detected
+          authorizedSenders: [], // Initialize empty array
+          // DO NOT mark inquiry email as sent here. Autoresponder doesn't count as admin action.
+          emailsSent: null, // Initialize as null, no admin action taken yet
+          lastEmailSentAt: null, // Initialize as null, no admin action taken yet
+        },
+      });
+      console.log("✅ Booking created successfully:", booking.id, "Status:", booking.status, "Priority:", (booking as any).priority);
+    } catch (bookingError) {
+      console.error("❌ CRITICAL: Failed to create booking record:", bookingError);
+      console.error("❌ Booking creation error details:", JSON.stringify(bookingError, null, 2));
+      console.error("❌ Booking data that failed:", {
+        userId: user.id,
+        name,
+        email,
+        eventDate: bookingEventDate,
+        venueName: parsedVenueName,
+        status: "pending",
+        priority,
+      });
+      // CRITICAL: Don't continue to send email if booking creation fails
+      // The booking must exist for the enquiry to appear in dashboard
+      return NextResponse.json(
+        { 
+          error: "Failed to create booking record. The enquiry was not saved. Please contact support.",
+          details: process.env.NODE_ENV === "development" ? String(bookingError) : undefined,
+          bookingError: process.env.NODE_ENV === "development" ? (bookingError instanceof Error ? bookingError.message : String(bookingError)) : undefined
+        },
+        { status: 500 }
+      );
+    }
+
+    // Ensure booking was created before proceeding
+    if (!booking || !booking.id) {
+      console.error("❌ CRITICAL: Booking creation returned null/undefined");
+      return NextResponse.json(
+        { error: "Failed to create booking record. Booking ID is missing." },
+        { status: 500 }
       );
     }
 
@@ -238,6 +443,12 @@ export async function POST(request: NextRequest) {
       { 
         success: true, 
         message: "Your message has been sent successfully!",
+        bookingId: booking.id,
+        bookingReference: booking.bookingReference, // Include booking reference
+        conflictStatus: conflictCheck.status, // Include conflict status
+        conflictWarning: conflictCheck.status === "CONFLICT" 
+          ? `Warning: This event details match an existing booking under a different email (${conflictCheck.existingBooking?.email}). Please review in admin dashboard.`
+          : undefined,
         emailDetails: {
           businessEmailSent: emailResult.success,
           businessEmailMessageId: emailResult.success ? (emailResult as any).messageId : undefined,

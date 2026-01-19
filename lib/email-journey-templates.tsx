@@ -188,15 +188,15 @@ export function inquiryAutoresponder(data: JourneyEmailData) {
     <h1>Thank You for Your Inquiry</h1>
     <p>Dear {{clientName}},</p>
     <p>Thank you for reaching out to Stylish Entertainment. We're delighted that you're considering us for {{eventType}} on {{eventDate}}.</p>
-    <p>Nigel and Ali are excited to learn more about your vision and help bring it to life. We specialise in creating unforgettable celebrations with our expert DJ services, elegant lighting design, and sophisticated venue styling.</p>
+    <p>We're excited to learn more about your vision and help bring it to life. We specialise in creating unforgettable celebrations with our expert DJ services, elegant lighting design, and sophisticated venue styling.</p>
     <p>To give you a better sense of what we do, we'd love to share our brochure with you:</p>
     <p style="text-align: center;">
       <a href="{{brochureUrl}}" class="button">Download Our Brochure</a>
     </p>
-    <p>One of our team will be in touch within 24 hours to discuss your requirements in detail. In the meantime, if you have any questions, please don't hesitate to get in touch.</p>
+    <p>We'll be in touch within 24 hours to discuss your requirements in detail. In the meantime, if you have any questions, please don't hesitate to get in touch.</p>
     <div class="signature">
       <p>Warm regards,</p>
-      <p><strong>Nigel & Ali</strong><br>
+      <p><strong>Ali & Nige</strong><br>
       Stylish Entertainment</p>
     </div>
   `;
@@ -232,7 +232,7 @@ export function bookingConfirmation(data: JourneyEmailData) {
     <p>If you have any questions or need to discuss any changes, please don't hesitate to reach out. We're here to ensure everything runs smoothly.</p>
     <div class="signature">
       <p>Best regards,</p>
-      <p><strong>Nigel & Ali</strong><br>
+      <p><strong>Ali & Nige</strong><br>
       Stylish Entertainment</p>
     </div>
   `;
@@ -268,7 +268,7 @@ export function fourWeekCheckin(data: JourneyEmailData) {
     <p>If you have any questions or want to discuss anything, just reply to this email or give us a call. We're here to help!</p>
     <div class="signature">
       <p>Warm regards,</p>
-      <p><strong>Nigel & Ali</strong><br>
+      <p><strong>Ali & Nige</strong><br>
       Stylish Entertainment</p>
     </div>
   `;
@@ -289,13 +289,13 @@ export function weekOfExcitement(data: JourneyEmailData) {
     <h1>We're Ready for You</h1>
     <p>Dear {{clientName}},</p>
     <p>Your {{eventType}} at {{venueName}} is almost here! We can't wait to celebrate with you this coming weekend.</p>
-    <p>Everything is in place, and our team is ready to create a truly special atmosphere for you and your guests. We've reviewed all your preferences and are excited to bring your vision to life.</p>
+    <p>Everything is in place, and we're ready to create a truly special atmosphere for you and your guests. We've reviewed all your preferences and are excited to bring your vision to life.</p>
     <h2>See You Soon</h2>
     <p>If you need to reach us in the days leading up to your event, we're always just an email or phone call away. Otherwise, we'll see you on {{eventDate}}!</p>
     <p>Relax, enjoy, and let us take care of the entertainment. We've got everything under control.</p>
     <div class="signature">
       <p>Looking forward to celebrating with you,</p>
-      <p><strong>Nigel & Ali</strong><br>
+      <p><strong>Ali & Nige</strong><br>
       Stylish Entertainment</p>
     </div>
   `;
@@ -316,7 +316,7 @@ export function postWeddingMagic(data: JourneyEmailData) {
     <h1>Thank You for Choosing Us</h1>
     <p>Dear {{clientName}},</p>
     <p>We hope your {{eventType}} at {{venueName}} was everything you dreamed of. It was an absolute pleasure to be part of your special day.</p>
-    <p>We'd love to hear about your experience. Your feedback helps us continue to create magical moments for couples like you, and it means the world to our team.</p>
+    <p>We'd love to hear about your experience. Your feedback helps us continue to create magical moments for couples like you, and it means the world to us.</p>
     <h2>Share Your Experience</h2>
     <p>If you have a moment, we'd be incredibly grateful if you could share your thoughts:</p>
     <p style="text-align: center; margin: 30px 0;">
@@ -327,7 +327,7 @@ export function postWeddingMagic(data: JourneyEmailData) {
     <p>Thank you again for choosing Stylish Entertainment. It was an honour to be part of your celebration.</p>
     <div class="signature">
       <p>With warmest regards,</p>
-      <p><strong>Nigel & Ali</strong><br>
+      <p><strong>Ali & Nige</strong><br>
       Stylish Entertainment</p>
     </div>
   `;

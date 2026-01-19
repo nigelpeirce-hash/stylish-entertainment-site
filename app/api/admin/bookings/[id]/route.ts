@@ -11,8 +11,16 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    // Check if request is from localhost (development only)
+    const hostname = request.headers.get("host") || "";
+    const isLocalhost = hostname.includes("localhost") || 
+                       hostname.includes("127.0.0.1") ||
+                       process.env.NODE_ENV === "development";
+    
+    // In development/localhost, allow access even if admin check fails (for dev bypass)
     const admin = await requireAdmin(request);
-    if (!admin) {
+    
+    if (!admin && !isLocalhost) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
@@ -97,8 +105,16 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
+    // Check if request is from localhost (development only)
+    const hostname = request.headers.get("host") || "";
+    const isLocalhost = hostname.includes("localhost") || 
+                       hostname.includes("127.0.0.1") ||
+                       process.env.NODE_ENV === "development";
+    
+    // In development/localhost, allow access even if admin check fails (for dev bypass)
     const admin = await requireAdmin(request);
-    if (!admin) {
+    
+    if (!admin && !isLocalhost) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

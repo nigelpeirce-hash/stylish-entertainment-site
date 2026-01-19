@@ -93,6 +93,13 @@ export function QuickStaffConfirm({ bookingId, venueName, eventDate, onConfirm }
       }
 
       setSuccess(true);
+      
+      // Call onConfirm immediately to refresh the booking data
+      if (onConfirm) {
+        onConfirm();
+      }
+      
+      // Wait a moment to show success message, then close and reset
       setTimeout(() => {
         setIsOpen(false);
         setStaffName("");
@@ -100,8 +107,7 @@ export function QuickStaffConfirm({ bookingId, venueName, eventDate, onConfirm }
         setAgreedFee("");
         setSendEmail(true);
         setSuccess(false);
-        if (onConfirm) onConfirm();
-      }, 2000);
+      }, 1500);
     } catch (err: any) {
       setError(err.message || "An error occurred. Please try again.");
     } finally {

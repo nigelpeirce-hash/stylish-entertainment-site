@@ -3,24 +3,17 @@
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import {
   Calendar,
   Search,
-  Filter,
-  Download,
+  Flag,
   Mail,
   User,
   MapPin,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Plus,
-  AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -31,11 +24,45 @@ interface Booking {
   eventType: string;
   eventDate: string;
   venueName: string;
+  venuePostcode: string | null;
   status: string;
   priority: string;
+  conflictStatus: string | null;
+  flaggedFor: string | null; // "user1" or "user2"
+  assignedTo: string | null; // "wife", "you"
+  handoffStatus: string | null; // "action_needed", "tech_review", "tech_alert", "awaiting_quote"
+  handoffNote: string | null;
   numberOfGuests: number | null;
   services: string[];
   user: { id: string; name: string; email: string } | null;
+}
+
+// Helper function to get initials from name
+function getInitials(name: string): string {
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  return name.substring(0, 2).toUpperCase();
+}
+
+// Helper function to get color for initials circle
+function getInitialsColor(name: string): string {
+  const colors = [
+    "bg-blue-600",
+    "bg-purple-600",
+    "bg-green-600",
+    "bg-yellow-600",
+    "bg-pink-600",
+    "bg-indigo-600",
+    "bg-red-600",
+    "bg-teal-600",
+  ];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
 }
 
 function AdminBookingsContent() {
@@ -46,8 +73,38 @@ function AdminBookingsContent() {
   const [filter, setFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  // Priority flag names - can be customized
+  const [user1Name, setUser1Name] = useState("Nigel");
+  const [user2Name, setUser2Name] = useState("Sarah");
+  // Handoff names
+  const [wifeName, setWifeName] = useState("Sarah");
+  const [yourName, setYourName] = useState("Nigel");
 
   useEffect(() => {
+    // Auto-enable dev bypass on localhost (development only)
+    const isLocalhost = typeof window !== "undefined" && 
+      (process.env.NODE_ENV === "development" || 
+       window.location.hostname === "localhost" || 
+       window.location.hostname === "127.0.0.1" ||
+       window.location.hostname.startsWith("192.168.") ||
+       window.location.hostname.startsWith("10."));
+
+    if (isLocalhost) {
+      sessionStorage.setItem("dev_admin_bypass", "true");
+      sessionStorage.setItem("dev_admin_role", "admin");
+      sessionStorage.setItem("dev_admin_name", "Local Admin");
+      fetchBookings();
+      return;
+    }
+
+    const devBypass = typeof window !== "undefined" && 
+      sessionStorage.getItem("dev_admin_bypass") === "true";
+
+    if (devBypass) {
+      fetchBookings();
+      return;
+    }
+
     if (status === "unauthenticated") {
       router.push("/login");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
@@ -56,7 +113,17 @@ function AdminBookingsContent() {
   }, [status, session, router]);
 
   useEffect(() => {
-    if (status === "authenticated" && (session?.user as any)?.role === "admin") {
+    const isLocalhostCheck = typeof window !== "undefined" && 
+      (process.env.NODE_ENV === "development" || 
+       window.location.hostname === "localhost" || 
+       window.location.hostname === "127.0.0.1" ||
+       window.location.hostname.startsWith("192.168.") ||
+       window.location.hostname.startsWith("10."));
+    const devBypassCheck = isLocalhostCheck || 
+      (typeof window !== "undefined" && sessionStorage.getItem("dev_admin_bypass") === "true");
+    const isAdminCheck = session && (session?.user as any)?.role === "admin";
+
+    if ((isAdminCheck || devBypassCheck) && status !== "loading") {
       fetchBookings();
     }
   }, [status, session, filter, search]);
@@ -80,55 +147,54 @@ function AdminBookingsContent() {
     }
   };
 
-  const handleExportCalendar = async () => {
+  const handleToggleFlag = async (bookingId: string, currentFlag: string | null) => {
     try {
-      const response = await fetch("/api/admin/calendar/export");
+      // Cycle through: null -> user1 -> user2 -> null
+      let newFlag: string | null = null;
+      if (!currentFlag) {
+        newFlag = "user1";
+      } else if (currentFlag === "user1") {
+        newFlag = "user2";
+      } else {
+        newFlag = null;
+      }
+
+      const response = await fetch(`/api/admin/bookings/${bookingId}/flag`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ flaggedFor: newFlag }),
+      });
+
       if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `bookings-${new Date().toISOString().split("T")[0]}.ics`;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
+        await fetchBookings();
       }
     } catch (error) {
-      console.error("Error exporting calendar:", error);
-      alert("Failed to export calendar");
+      console.error("Error toggling flag:", error);
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "confirmed":
-        return "text-green-400 bg-green-900/30 border-green-500/30";
-      case "pending":
-        return "text-yellow-400 bg-yellow-900/30 border-yellow-500/30";
-      case "completed":
-        return "text-blue-400 bg-blue-900/30 border-blue-500/30";
-      case "cancelled":
-        return "text-red-400 bg-red-900/30 border-red-500/30";
-      default:
-        return "text-gray-400 bg-gray-900/30 border-gray-500/30";
-    }
+  const getFlagColor = (flag: string | null) => {
+    if (flag === "user1") return "bg-blue-50 hover:bg-blue-100";
+    if (flag === "user2") return "bg-purple-50 hover:bg-purple-100";
+    return "bg-gray-800 hover:bg-gray-750";
   };
 
-  const getPriorityColor = (priority: string) => {
-    switch (priority) {
-      case "urgent":
-        return "text-red-400 bg-red-900/40 border-red-500/50 animate-pulse";
-      case "high":
-        return "text-orange-400 bg-orange-900/30 border-orange-500/30";
-      case "medium":
-        return "text-yellow-400 bg-yellow-900/20 border-yellow-500/20";
-      case "low":
-        return "text-gray-400 bg-gray-900/20 border-gray-500/20";
-      default:
-        return "text-gray-400 bg-gray-900/20 border-gray-500/20";
-    }
+  const getFlagIconColor = (flag: string | null) => {
+    if (flag === "user1") return "text-blue-600";
+    if (flag === "user2") return "text-purple-600";
+    return "text-gray-400";
   };
+
+  // Check for dev bypass
+  const isLocalhost = typeof window !== "undefined" && 
+    (process.env.NODE_ENV === "development" || 
+     window.location.hostname === "localhost" || 
+     window.location.hostname === "127.0.0.1" ||
+     window.location.hostname.startsWith("192.168.") ||
+     window.location.hostname.startsWith("10."));
+  const devBypass = isLocalhost || 
+    (typeof window !== "undefined" && sessionStorage.getItem("dev_admin_bypass") === "true");
+  const isAdmin = session && (session?.user as any)?.role === "admin";
 
   if (status === "loading" || loading) {
     return (
@@ -138,57 +204,47 @@ function AdminBookingsContent() {
     );
   }
 
-  if (!session || (session?.user as any)?.role !== "admin") {
+  if (!isAdmin && !devBypass) {
     return null;
   }
 
+  const formatEventDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
   return (
-    <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
-      <div className="container mx-auto max-w-7xl">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">Bookings Management</h1>
-              <p className="text-gray-400">View and manage all bookings</p>
-            </div>
-            <div className="flex gap-3">
-              <Button
-                onClick={handleExportCalendar}
-                variant="outline"
-                className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10"
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Export to iCal
+    <div className="min-h-screen bg-gray-900 text-white">
+      {/* Header */}
+      <div className="sticky top-0 z-30 bg-gray-900 border-b border-gray-800">
+        <div className="container mx-auto max-w-6xl px-4 py-4">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold">Inbox</h1>
+            <Link href="/admin">
+              <Button variant="outline" size="sm" className="border-champagne-gold text-champagne-gold">
+                Dashboard
               </Button>
-              <Link href="/admin">
-                <Button variant="outline" className="border-champagne-gold text-champagne-gold">
-                  Back to Dashboard
-                </Button>
-              </Link>
-            </div>
+            </Link>
           </div>
-
-          {/* Filters */}
-          <div className="flex flex-wrap gap-4 mb-6">
-            <div className="flex-1 min-w-[200px]">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    setTimeout(() => fetchBookings(), 500);
-                  }}
-                  placeholder="Search bookings..."
-                  className="bg-gray-800 text-white border-gray-700 pl-10"
-                />
-              </div>
+          
+          {/* Search and Filters */}
+          <div className="flex gap-3">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                value={search}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setTimeout(() => fetchBookings(), 500);
+                }}
+                placeholder="Search bookings..."
+                className="bg-gray-800 text-white border-gray-700 pl-10"
+              />
             </div>
-
             <div className="flex gap-2">
               <Button
                 onClick={() => setFilter("all")}
@@ -211,132 +267,146 @@ function AdminBookingsContent() {
               >
                 Confirmed
               </Button>
-              <Button
-                onClick={() => setFilter("completed")}
-                variant={filter === "completed" ? "default" : "outline"}
-                size="sm"
-              >
-                Completed
-              </Button>
             </div>
           </div>
-        </motion.div>
+        </div>
+      </div>
 
-        {/* Bookings Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {bookings.length === 0 ? (
-            <Card className="bg-gray-800 border-champagne-gold/30 md:col-span-2 lg:col-span-3">
-              <CardContent className="p-12 text-center">
-                <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-                <p className="text-gray-400 text-lg">No bookings found</p>
-              </CardContent>
-            </Card>
-          ) : (
-            bookings.map((booking) => (
-              <motion.div
-                key={booking.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-              >
-                <Card className={`bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all h-full ${
-                  booking.priority === "urgent" ? "border-red-500/50 ring-2 ring-red-500/30" : ""
-                }`}>
-                  <CardHeader>
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1">
-                        <CardTitle className="text-xl flex items-center gap-2">
-                          {booking.priority === "urgent" && (
-                            <AlertTriangle className="w-5 h-5 text-red-400 animate-pulse" />
-                          )}
-                          {booking.eventType}
-                        </CardTitle>
+      {/* Inbox List */}
+      <div className="container mx-auto max-w-6xl px-4 py-6">
+        {bookings.length === 0 ? (
+          <Card className="bg-gray-800 border-champagne-gold/30">
+            <CardContent className="p-12 text-center">
+              <Mail className="w-16 h-16 mx-auto mb-4 text-gray-600" />
+              <p className="text-gray-400 text-lg">No bookings found</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-1">
+            {bookings.map((booking) => {
+              const initials = getInitials(booking.name);
+              const initialsColor = getInitialsColor(booking.name);
+              const flagColor = getFlagColor(booking.flaggedFor);
+              const flagIconColor = getFlagIconColor(booking.flaggedFor);
+              
+              return (
+                <motion.div
+                  key={booking.id}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                >
+                  <div
+                    className={`flex flex-col gap-2 p-4 rounded-lg transition-all border-l-4 ${
+                      booking.conflictStatus === "pending"
+                        ? "border-red-500 bg-red-950/20"
+                        : booking.assignedTo
+                        ? getHandoffColor(booking.assignedTo, booking.handoffStatus)
+                        : booking.flaggedFor === "user1"
+                        ? `${getFlagColor(booking.flaggedFor)} ${getBorderColor(booking.flaggedFor)}`
+                        : booking.flaggedFor === "user2"
+                        ? `${getFlagColor(booking.flaggedFor)} ${getBorderColor(booking.flaggedFor)}`
+                        : "border-transparent bg-gray-800 hover:bg-gray-750"
+                    }`}
+                  >
+                    <Link href={`/admin/bookings/${booking.id}`}>
+                      <div className="flex items-center gap-4 cursor-pointer">
+                      {/* Left: Initials Circle */}
+                      <div className="flex-shrink-0">
+                        <div className={`w-12 h-12 rounded-full ${initialsColor} flex items-center justify-center text-white font-bold text-lg`}>
+                          {initials}
+                        </div>
                       </div>
-                      <div className="flex flex-col gap-1 items-end">
-                        <span
-                          className={`px-2 py-1 rounded text-xs font-medium border ${getStatusColor(
-                            booking.status
-                          )}`}
-                        >
-                          {booking.status}
-                        </span>
-                        {booking.priority && booking.priority !== "medium" && (
-                          <span
-                            className={`px-2 py-1 rounded text-xs font-bold border ${getPriorityColor(
-                              booking.priority
-                            )}`}
+
+                        {/* Center: Client Name, Date, Venue */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <h3 className="font-bold text-white text-lg truncate">
+                              {booking.name}
+                            </h3>
+                            {getHandoffBadge(booking.assignedTo, booking.handoffStatus) && (
+                              <span className="px-2 py-1 rounded text-xs font-medium bg-gray-700 text-gray-300 border border-gray-600">
+                                {getHandoffBadge(booking.assignedTo, booking.handoffStatus)}
+                              </span>
+                            )}
+                            <span className="text-champagne-gold font-medium text-sm whitespace-nowrap">
+                              {formatEventDate(booking.eventDate)}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-1 text-gray-400 text-sm">
+                            <MapPin className="w-4 h-4" />
+                            <span className="truncate">{booking.venueName}</span>
+                            {booking.venuePostcode && (
+                              <span className="text-gray-500">({booking.venuePostcode})</span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Right: Priority Flag */}
+                        <div className="flex-shrink-0">
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleToggleFlag(booking.id, booking.flaggedFor);
+                            }}
+                            className={`p-2 rounded-full hover:bg-gray-700 transition-colors ${flagIconColor}`}
+                            title={
+                              booking.flaggedFor === "user1"
+                                ? `Flagged for ${user1Name}`
+                                : booking.flaggedFor === "user2"
+                                ? `Flagged for ${user2Name}`
+                                : `Flag for ${user1Name}`
+                            }
                           >
-                            {booking.priority.toUpperCase()}
-                          </span>
-                        )}
+                            <Flag
+                              className={`w-5 h-5 ${
+                                booking.flaggedFor ? "fill-current" : ""
+                              }`}
+                            />
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <User className="w-4 h-4" />
-                      <span className="text-sm">{booking.name}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <Calendar className="w-4 h-4" />
-                      <span className="text-sm">
-                        {new Date(booking.eventDate).toLocaleDateString("en-GB", {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2 text-gray-400">
-                      <MapPin className="w-4 h-4" />
-                      <span className="text-sm">{booking.venueName}</span>
-                    </div>
-                    {booking.numberOfGuests && (
-                      <div className="flex items-center gap-2 text-gray-400">
-                        <User className="w-4 h-4" />
-                        <span className="text-sm">{booking.numberOfGuests} guests</span>
-                      </div>
-                    )}
-                    {booking.services.length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {booking.services.map((service, idx) => (
-                          <span
-                            key={idx}
-                            className="px-2 py-0.5 bg-champagne-gold/20 text-champagne-gold text-xs rounded border border-champagne-gold/30"
-                          >
-                            {service}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    <div className="flex gap-2 pt-2 border-t border-gray-700">
-                      <Link href={`/admin/bookings/${booking.id}`} className="flex-1">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10"
-                        >
-                          View Details
-                        </Button>
-                      </Link>
+                    </Link>
+
+                    {/* Assignment Buttons */}
+                    <div className="flex gap-2 mt-2 pt-2 border-t border-gray-700">
                       <Button
-                        onClick={() => {
-                          window.location.href = `/api/admin/calendar/export?bookingId=${booking.id}`;
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleAssign(booking.id, "wife");
                         }}
-                        variant="outline"
                         size="sm"
-                        className="border-gray-600 text-gray-300"
-                        title="Export to iCal"
+                        className={`flex-1 ${
+                          booking.assignedTo === "wife"
+                            ? "bg-blue-600 hover:bg-blue-700 text-white"
+                            : "bg-blue-900/30 hover:bg-blue-900/50 text-blue-300 border border-blue-500/50"
+                        }`}
                       >
-                        <Download className="w-4 h-4" />
+                        🙋‍♀️ For {wifeName}
+                      </Button>
+                      <Button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleAssign(booking.id, "you");
+                        }}
+                        size="sm"
+                        className={`flex-1 ${
+                          booking.assignedTo === "you"
+                            ? "bg-purple-600 hover:bg-purple-700 text-white"
+                            : "bg-purple-900/30 hover:bg-purple-900/50 text-purple-300 border border-purple-500/50"
+                        }`}
+                      >
+                        🛠️ For {yourName}
                       </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))
-          )}
-        </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -6,14 +6,32 @@ import { Button } from "@/components/ui/button";
 import { User, LogOut } from "lucide-react";
 import { useClientStatus } from "@/hooks/useClientStatus";
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 
 export function AuthButton() {
   const { data: session, status } = useSession();
   const { isReturning } = useClientStatus();
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatch by only showing client-side state after mount
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Handle loading and error states gracefully
-  if (status === "loading") {
-    return null;
+  if (status === "loading" || !mounted) {
+    // Return consistent UI during SSR and initial client render
+    return (
+      <Link href="/contact-us">
+        <Button
+          variant="outline"
+          size="sm"
+          className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
+        >
+          Enquire
+        </Button>
+      </Link>
+    );
   }
 
   if (session) {

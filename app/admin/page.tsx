@@ -19,10 +19,14 @@ import {
   LogOut,
   Package,
   Music,
+  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 import AdminHelp from "@/components/AdminHelp";
 import VenueAssetUploader from "@/components/VenueAssetUploader";
+import { NewSubmissionNotifier } from "@/components/NewSubmissionNotifier";
+import { BookingIntegrityWarning } from "@/components/BookingIntegrityWarning";
+import { ConflictCountBadge } from "@/components/ConflictCountBadge";
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
@@ -64,6 +68,11 @@ export default function AdminDashboard() {
     }
   }, [status, session]);
 
+  const [priorityStats, setPriorityStats] = useState({
+    urgent: 0,
+    medium: 0,
+  });
+
   const fetchStats = async () => {
     try {
       // Fetch unread threads
@@ -74,11 +83,28 @@ export default function AdminDashboard() {
       const bookingsRes = await fetch("/api/admin/bookings?status=pending");
       const bookingsData = await bookingsRes.json();
 
+      // Calculate priority breakdown and new enquiries (no action taken yet)
+      const bookings = bookingsData.bookings || [];
+      const urgent = bookings.filter((b: any) => b.priority === "urgent").length;
+      const medium = bookings.filter((b: any) => b.priority === "medium").length;
+      
+      // Count new enquiries (no admin action taken yet - autoresponder doesn't count)
+      const newEnquiries = bookings.filter((b: any) => {
+        // If lastEmailSentAt is null, no admin action has been taken
+        // Autoresponder emails don't count as "action taken"
+        return !b.lastEmailSentAt;
+      });
+
       setStats({
         unreadEmails: threadsData.threads?.length || 0,
         totalThreads: threadsData.threads?.length || 0,
-        pendingBookings: bookingsData.bookings?.length || 0,
+        pendingBookings: newEnquiries.length, // Show count of new enquiries (no action yet)
         todayEvents: 0, // TODO: Calculate today's events
+      });
+
+      setPriorityStats({
+        urgent,
+        medium,
       });
     } catch (error) {
       console.error("Error fetching stats:", error);
@@ -125,6 +151,15 @@ export default function AdminDashboard() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
+      {/* Booking Integrity Warning */}
+      <BookingIntegrityWarning />
+      
+      {/* New Submission Notifier */}
+      <NewSubmissionNotifier />
+      
+      {/* Conflict Count Badge */}
+      <ConflictCountBadge />
+      
       <div className="container mx-auto max-w-7xl">
         {/* Header */}
         <motion.div
@@ -209,16 +244,71 @@ export default function AdminDashboard() {
             </Card>
           </Link>
 
-          <Link href="/admin/bookings">
-            <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer">
-              <CardContent className="p-6">
+          <Link href="/admin/bookings?status=pending">
+            <Card className={`bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer relative overflow-hidden ${
+              stats.pendingBookings > 0 
+                ? "border-red-500 ring-4 ring-red-500/70 bg-red-950/30 animate-pulse" 
+                : priorityStats.urgent > 0 
+                ? "ring-2 ring-red-500/50 animate-pulse" 
+                : ""
+            }`}>
+              {/* Red flashing overlay for new enquiries */}
+              {stats.pendingBookings > 0 && (
+                <div className="absolute inset-0 bg-red-500/10 animate-pulse pointer-events-none" />
+              )}
+              <CardContent className="p-6 relative z-10">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400 mb-1">Pending Bookings</p>
-                    <p className="text-3xl font-bold text-white">{stats.pendingBookings}</p>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-sm text-gray-400">New Enquiries</p>
+                      {stats.pendingBookings > 0 && (
+                        <span className="px-2 py-0.5 bg-red-900/60 border border-red-500 rounded text-xs font-bold text-red-300 animate-pulse">
+                          NEW
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <p className={`text-3xl font-bold ${
+                        stats.pendingBookings > 0 ? "text-red-300" : "text-white"
+                      }`}>
+                        {stats.pendingBookings}
+                      </p>
+                      {stats.pendingBookings > 0 && (
+                        <div className="text-red-400 animate-pulse">
+                          <AlertCircle className="w-5 h-5" />
+                        </div>
+                      )}
+                    </div>
+                    {stats.pendingBookings > 0 && (
+                      <div className="flex gap-2 mt-2 flex-wrap">
+                        {priorityStats.urgent > 0 && (
+                          <span className="px-2 py-0.5 bg-red-900/60 border border-red-500/70 rounded text-xs font-bold text-red-300 animate-pulse">
+                            {priorityStats.urgent} URGENT
+                          </span>
+                        )}
+                        {priorityStats.medium > 0 && (
+                          <span className="px-2 py-0.5 bg-yellow-900/40 border border-yellow-500/50 rounded text-xs font-bold text-yellow-400">
+                            {priorityStats.medium} Medium
+                          </span>
+                        )}
+                      </div>
+                    )}
+                    {stats.pendingBookings > 0 && (
+                      <p className="text-xs text-red-300 mt-2 font-bold animate-pulse">
+                        ⚠️ No action taken yet - Send first reply
+                      </p>
+                    )}
                   </div>
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <Calendar className="w-6 h-6 text-champagne-gold" />
+                  <div className={`p-3 rounded-lg ${
+                    stats.pendingBookings > 0 
+                      ? "bg-red-900/40 animate-pulse" 
+                      : "bg-champagne-gold/20"
+                  }`}>
+                    <Calendar className={`w-6 h-6 ${
+                      stats.pendingBookings > 0 
+                        ? "text-red-300" 
+                        : "text-champagne-gold"
+                    }`} />
                   </div>
                 </div>
               </CardContent>
@@ -286,6 +376,20 @@ export default function AdminDashboard() {
                   <div>
                     <h3 className="text-lg font-semibold text-white">Hire Orders</h3>
                     <p className="text-sm text-gray-400">View and manage orders</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/admin/users">
+              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                    <Users className="w-6 h-6 text-champagne-gold" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">User Management</h3>
+                    <p className="text-sm text-gray-400">Manage users and roles</p>
                   </div>
                 </CardContent>
               </Card>

@@ -250,15 +250,16 @@ export default function EmailTemplates() {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Button
-                      onClick={() => handleEdit(template)}
-                      size="sm"
-                      variant="outline"
-                      className="border-gray-600 text-gray-300"
-                    >
-                      <Edit className="w-4 h-4 mr-2" />
-                      Edit
-                    </Button>
+                    <Link href={`/admin/email-templates/${template.id}`}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="border-gray-600 text-gray-300"
+                      >
+                        <Edit className="w-4 h-4 mr-2" />
+                        Edit & Send
+                      </Button>
+                    </Link>
                     <Button
                       onClick={() => handleDelete(template.id)}
                       size="sm"
