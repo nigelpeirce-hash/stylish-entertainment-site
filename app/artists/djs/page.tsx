@@ -84,7 +84,7 @@ For more on Nige's technical expertise and industry recognition, including his R
     mixingStyle: "From Radio to Prestigious Venues",
     bio: "Award-winning DJ with an eclectic style, creating unforgettable moments at London's most prestigious venues.",
     fullBio: `Beginning his career in radio, it wasn't long before James's innovative style of presenting got him noticed. He soon moved into TV and with his love of music made a name for himself as a respected DJ across the UK. Having performed at awards, festivals and some of London's most prestigious venues and events, James has developed a unique style that appeals to diverse audiences. James prides himself on working closely with clients to ensure unique sets that reflect your personal style, creating unforgettable moments. With an eclectic taste in music and the ability to mix any genre or decade seamlessly, James creates a dynamic atmosphere that keeps guests engaged from the first song to the last. His attention to detail and commitment to excellence make him a standout choice for clients seeking something truly special.`,
-    youtubeEmbed: "https://www.youtube.com/embed/H7bTX4sbUwI",
+    youtubeEmbed: "https://www.youtube.com/embed/r7PAMv1CbOg",
     mixcloudEmbeds: [
       "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FJamesMalinHudson%2Fhere-comes-the-bride-saxhouse%2F",
       "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FJamesMalinHudson%2Flets-get-married-discosoulpop%2F",
