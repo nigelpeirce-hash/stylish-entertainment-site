@@ -122,6 +122,7 @@ model Booking {
   message           String?  @db.Text
   budget            String?
   status            String   @default("pending") // pending, confirmed, completed, cancelled
+  priority          String   @default("medium") // low, medium, high, urgent
   contactPreference String?  // Phone or Email
   
   // Payment
