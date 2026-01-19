@@ -3,6 +3,10 @@ import { getToken } from "next-auth/jwt";
 import { prisma } from "@/lib/prisma";
 import * as z from "zod";
 
+// Force dynamic rendering to prevent database connection during build
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 const createOrderSchema = z.object({
   cartId: z.string(),
   customerName: z.string().min(1),

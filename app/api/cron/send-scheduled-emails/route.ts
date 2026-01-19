@@ -7,6 +7,10 @@ import {
   paymentReminderEmail,
 } from "@/lib/email-templates";
 
+// Force dynamic rendering for cron jobs
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // This endpoint should be called by a cron job or scheduled task
 // For local development, you can call it manually or set up a cron
 // For production on Vercel, configure in vercel.json with cron jobs

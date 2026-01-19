@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// Force dynamic rendering to prevent database connection during build
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // Get all active hire items
 export async function GET(request: NextRequest) {
   try {

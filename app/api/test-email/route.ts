@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
 
+// Force dynamic rendering to prevent build-time errors
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET() {
   try {
     if (process.env.NODE_ENV === "development") {

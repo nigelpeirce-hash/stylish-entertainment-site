@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 
+// Force dynamic rendering to prevent build-time errors
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET() {
   const info = {
     mailgunConfigured: !!process.env.MAILGUN_API_KEY,

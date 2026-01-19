@@ -3,6 +3,10 @@ import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
 import { getToken } from "next-auth/jwt";
 
+// Force dynamic rendering to prevent database connection during build
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // This endpoint creates a test booking for the logged-in user
 // Only works in development mode
 export async function POST(request: NextRequest) {

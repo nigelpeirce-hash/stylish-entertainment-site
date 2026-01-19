@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { syncAllInboxes } from "@/lib/email-sync";
 
+// Force dynamic rendering for cron jobs
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // Cron job endpoint for automatic email syncing
 // Can be called by Vercel Cron or external cron service
 export async function GET(request: NextRequest) {

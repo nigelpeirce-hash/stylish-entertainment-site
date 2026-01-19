@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
 
+// Force dynamic rendering to prevent database connection during build
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 /**
  * Diagnostic endpoint to check for bookings with suspicious dates
  * Returns bookings with dates that are:
