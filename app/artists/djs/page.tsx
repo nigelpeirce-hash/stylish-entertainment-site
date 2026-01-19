@@ -26,7 +26,6 @@ const djs = [
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163297/Mirjam-and-Ben-1062-1_vy1hgx.jpg",
     alt: "DJ Nige performing at Mirjam and Ben's wedding at Babington House, Somerset, showcasing professional wedding DJ services with elegant lighting",
     mixingStyle: "Seamless Mixing",
-    genres: ["House", "Disco", "Soul", "Funk", "Pop", "Ibiza", "R&B"],
     bio: "Over 20 years as resident DJ at Babington House Hotel, Nige brings sophistication and energy to every event.",
     fullBio: `DJ Nige started his DJ career at the age of 14, honing his skills at local parties and events before entering into the wider world of London's radio, music, and advertising industries. Throughout his career, DJ Nige has established himself as a highly talented and sought-after producer & DJ, with highlights including producing for Pete Tong's Essential Selection on Radio 1, playing as a resident DJ at Babington House Hotel in Somerset for 20 years, and entertaining crowds at the Glastonbury Festival as backstage DJ at the Pyramid stage.
 
@@ -71,7 +70,6 @@ For more on Nige's technical expertise and industry recognition, including his R
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163359/Rich-S-DJ_qxsnht.jpg",
     alt: "Professional wedding DJ Rich S performing at a luxury London venue, showcasing professional DJ services with high-quality sound and lighting",
     mixingStyle: "Eclectic Blend",
-    genres: ["Indie", "Alternative", "Electronic", "Pop"],
     bio: "Rich curates unique sets that reflect your personal style, creating unforgettable moments.",
     fullBio: "Rich curates unique sets that reflect your personal style, creating unforgettable moments. With an eclectic taste in music and a talent for blending genres seamlessly, DJ Rich brings a fresh and modern approach to wedding entertainment. Having performed at some of London's most prestigious venues and events, Rich has developed a unique style that appeals to diverse audiences. His ability to mix indie, alternative, electronic, and pop music creates a dynamic atmosphere that keeps guests engaged from the first song to the last. Rich prides himself on working closely with couples to understand their musical preferences, ensuring that every moment of their special day is perfectly soundtracked. His attention to detail and commitment to excellence make him a standout choice for couples seeking something truly special.",
     youtubeEmbed: "https://www.youtube.com/embed/H7bTX4sbUwI",
@@ -83,10 +81,9 @@ For more on Nige's technical expertise and industry recognition, including his R
     name: "James H DJ",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163392/james-Malin_ovqqnf.jpg",
     alt: "Professional DJ James H Hudson performing at wedding and party events, showcasing professional DJ services with expert mixing and entertainment",
-    mixingStyle: "Classic Elegance",
-    genres: ["Jazz", "Swing", "Soul", "R&B"],
-    bio: "Experienced, festival, wedding and party DJ.",
-    fullBio: "James H DJ is an experienced DJ specializing in festivals, weddings and parties. With a deep appreciation for the classics and a sophisticated understanding of musical history, James brings a refined and elegant touch to every celebration. His expertise in jazz, swing, soul, and R&B allows him to create a sophisticated ambiance that complements any event style. James has spent years perfecting his craft, studying the greats and understanding how music can enhance the emotional journey of any occasion. From intimate moments to lively celebrations, James ensures that every song is perfectly timed and beautifully executed. His commitment to quality and his passion for music shine through in every performance, making him the perfect choice for events that value sophistication and timeless elegance.",
+    mixingStyle: "From Radio to Prestigious Venues",
+    bio: "Award-winning DJ with an eclectic style, creating unforgettable moments at London's most prestigious venues.",
+    fullBio: `Beginning his career in radio, it wasn't long before James's innovative style of presenting got him noticed. He soon moved into TV and with his love of music made a name for himself as a respected DJ across the UK. Having performed at awards, festivals and some of London's most prestigious venues and events, James has developed a unique style that appeals to diverse audiences. James prides himself on working closely with clients to ensure unique sets that reflect your personal style, creating unforgettable moments. With an eclectic taste in music and the ability to mix any genre or decade seamlessly, James creates a dynamic atmosphere that keeps guests engaged from the first song to the last. His attention to detail and commitment to excellence make him a standout choice for clients seeking something truly special.`,
     youtubeEmbed: "https://www.youtube.com/embed/H7bTX4sbUwI",
     mixcloudEmbeds: [
       // Add Mixcloud embeds here as needed
