@@ -614,20 +614,6 @@ export default function DJs() {
                           </span>
                         </div>
 
-                        <div className="mb-4">
-                          <h4 className="font-bold mb-2 text-white text-xs sm:text-sm uppercase tracking-wider">Genre Specialties:</h4>
-                          <div className="flex flex-wrap gap-2">
-                            {dj.genres.map((genre) => (
-                              <span
-                                key={genre}
-                                className="inline-block px-3 py-1 bg-champagne-gold/10 text-champagne-gold rounded-full text-xs sm:text-sm font-medium border border-champagne-gold/30 hover:bg-champagne-gold/20 hover:border-champagne-gold/50 transition-all cursor-default"
-                              >
-                                {genre}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-
                         <div className="space-y-3 sm:space-y-4">
                           <div>
                             <h4 className="font-semibold mb-2 text-white text-xs sm:text-sm uppercase tracking-wider">Watch</h4>
