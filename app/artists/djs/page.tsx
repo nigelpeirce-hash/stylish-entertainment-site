@@ -74,7 +74,8 @@ For more on Nige's technical expertise and industry recognition, including his R
     fullBio: "Rich curates unique sets that reflect your personal style, creating unforgettable moments. With an eclectic taste in music and a talent for blending genres seamlessly, DJ Rich brings a fresh and modern approach to wedding entertainment. Having performed at some of London's most prestigious venues and events, Rich has developed a unique style that appeals to diverse audiences. His ability to mix indie, alternative, electronic, and pop music creates a dynamic atmosphere that keeps guests engaged from the first song to the last. Rich prides himself on working closely with couples to understand their musical preferences, ensuring that every moment of their special day is perfectly soundtracked. His attention to detail and commitment to excellence make him a standout choice for couples seeking something truly special.",
     youtubeEmbed: "https://www.youtube.com/embed/H7bTX4sbUwI",
     mixcloudEmbeds: [
-      // Add Mixcloud embeds here as needed
+      "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FDjrichsmith%2Fsomething-chilled-mix%2F",
+      "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FDjrichsmith%2Fwedding-mix%2F",
     ],
   },
   {
@@ -86,7 +87,8 @@ For more on Nige's technical expertise and industry recognition, including his R
     fullBio: `Beginning his career in radio, it wasn't long before James's innovative style of presenting got him noticed. He soon moved into TV and with his love of music made a name for himself as a respected DJ across the UK. Having performed at awards, festivals and some of London's most prestigious venues and events, James has developed a unique style that appeals to diverse audiences. James prides himself on working closely with clients to ensure unique sets that reflect your personal style, creating unforgettable moments. With an eclectic taste in music and the ability to mix any genre or decade seamlessly, James creates a dynamic atmosphere that keeps guests engaged from the first song to the last. His attention to detail and commitment to excellence make him a standout choice for clients seeking something truly special.`,
     youtubeEmbed: "https://www.youtube.com/embed/H7bTX4sbUwI",
     mixcloudEmbeds: [
-      // Add Mixcloud embeds here as needed
+      "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FJamesMalinHudson%2Fhere-comes-the-bride-saxhouse%2F",
+      "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FJamesMalinHudson%2Flets-get-married-discosoulpop%2F",
     ],
   },
 ];
