@@ -533,78 +533,76 @@ export default function DJs() {
                               <DialogTitle className="text-3xl md:text-4xl text-white font-bold mb-4">
                                 {dj.name}
                               </DialogTitle>
-                              <DialogDescription asChild>
-                                <div className="text-base sm:text-lg text-gray-100 leading-relaxed space-y-6 prose prose-lg max-w-none">
-                                  {(() => {
-                                    const parts = dj.fullBio.split('---');
-                                    const bioText = parts[0];
-                                    const testimonialsText = parts[1];
-                                    
-                                    return (
-                                      <>
-                                        {/* Biography paragraphs */}
-                                        {bioText.split('\n\n').filter(p => p.trim() && !p.includes('**Recent Testimonials**')).map((paragraph, index) => {
-                                          // Check for markdown links [text](url)
-                                          const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-                                          const parts = [];
-                                          let lastIndex = 0;
-                                          let match;
-                                          
-                                          while ((match = linkRegex.exec(paragraph)) !== null) {
-                                            // Add text before the link
-                                            if (match.index > lastIndex) {
-                                              parts.push(paragraph.substring(lastIndex, match.index));
-                                            }
-                                            // Add the link
-                                            parts.push(
-                                              <Link key={match.index} href={match[2]} className="text-champagne-gold hover:text-champagne-gold/80 underline">
-                                                {match[1]}
-                                              </Link>
-                                            );
-                                            lastIndex = match.index + match[0].length;
-                                          }
-                                          
-                                          // Add remaining text after last link
-                                          if (lastIndex < paragraph.length) {
-                                            parts.push(paragraph.substring(lastIndex));
-                                          }
-                                          
-                                          return (
-                                            <p key={index} className="mb-4 leading-relaxed text-gray-100">
-                                              {parts.length > 0 ? parts : paragraph}
-                                            </p>
-                                          );
-                                        })}
+                              <div className="text-base sm:text-lg text-gray-100 leading-relaxed space-y-6 prose prose-lg max-w-none">
+                                {(() => {
+                                  const parts = dj.fullBio.split('---');
+                                  const bioText = parts[0];
+                                  const testimonialsText = parts[1];
+                                  
+                                  return (
+                                    <>
+                                      {/* Biography paragraphs */}
+                                      {bioText.split('\n\n').filter(p => p.trim() && !p.includes('**Recent Testimonials**')).map((paragraph, index) => {
+                                        // Check for markdown links [text](url)
+                                        const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+                                        const parts = [];
+                                        let lastIndex = 0;
+                                        let match;
                                         
-                                        {/* Testimonials section */}
-                                        {testimonialsText && (
-                                          <div className="mt-8 pt-6 border-t-2 border-champagne-gold/30">
-                                            <h3 className="text-2xl font-bold text-white mb-6">Recent Testimonials</h3>
-                                            <div className="space-y-6">
-                                              {testimonialsText.split(/\*\*([^*]+)\*\*/).filter((section, idx) => idx % 2 === 1 && section.trim() && !section.includes('Recent Testimonials')).map((venue, idx) => {
-                                                const fullSection = testimonialsText.split(`**${venue}**`)[1]?.split('**')[0] || '';
-                                                const lines = fullSection.split('\n').filter(l => l.trim());
-                                                const quoteLines = lines.filter(l => !l.includes('—') && !l.includes('-') && l.trim() && !l.match(/^[A-Z][a-z]+ & [A-Z]/));
-                                                const quote = quoteLines.join(' ').replace(/^"/, '').replace(/"$/, '').trim();
-                                                const authorLine = lines.find(l => l.includes('—') || (l.includes(',') && l.match(/^[A-Z]/)));
-                                                const author = authorLine ? authorLine.replace(/^—\s*/, '').replace(/^-\s*/, '').trim() : '';
-                                                
-                                                return (
-                                                  <div key={idx} className="p-6 bg-gradient-to-br from-champagne-gold/5 to-yellow-400/5 rounded-lg border border-champagne-gold/20 shadow-sm">
-                                                    <h4 className="text-lg font-bold text-champagne-gold mb-3">{venue}</h4>
-                                                    {quote && <p className="text-gray-200 italic mb-3 leading-relaxed">"{quote}"</p>}
-                                                    {author && <p className="text-gray-300 text-sm font-medium">— {author}</p>}
-                                                  </div>
-                                                );
-                                              })}
-                                            </div>
+                                        while ((match = linkRegex.exec(paragraph)) !== null) {
+                                          // Add text before the link
+                                          if (match.index > lastIndex) {
+                                            parts.push(paragraph.substring(lastIndex, match.index));
+                                          }
+                                          // Add the link
+                                          parts.push(
+                                            <Link key={match.index} href={match[2]} className="text-champagne-gold hover:text-champagne-gold/80 underline">
+                                              {match[1]}
+                                            </Link>
+                                          );
+                                          lastIndex = match.index + match[0].length;
+                                        }
+                                        
+                                        // Add remaining text after last link
+                                        if (lastIndex < paragraph.length) {
+                                          parts.push(paragraph.substring(lastIndex));
+                                        }
+                                        
+                                        return (
+                                          <p key={index} className="mb-4 leading-relaxed text-gray-100">
+                                            {parts.length > 0 ? parts : paragraph}
+                                          </p>
+                                        );
+                                      })}
+                                      
+                                      {/* Testimonials section */}
+                                      {testimonialsText && (
+                                        <div className="mt-8 pt-6 border-t-2 border-champagne-gold/30">
+                                          <h3 className="text-2xl font-bold text-white mb-6">Recent Testimonials</h3>
+                                          <div className="space-y-6">
+                                            {testimonialsText.split(/\*\*([^*]+)\*\*/).filter((section, idx) => idx % 2 === 1 && section.trim() && !section.includes('Recent Testimonials')).map((venue, idx) => {
+                                              const fullSection = testimonialsText.split(`**${venue}**`)[1]?.split('**')[0] || '';
+                                              const lines = fullSection.split('\n').filter(l => l.trim());
+                                              const quoteLines = lines.filter(l => !l.includes('—') && !l.includes('-') && l.trim() && !l.match(/^[A-Z][a-z]+ & [A-Z]/));
+                                              const quote = quoteLines.join(' ').replace(/^"/, '').replace(/"$/, '').trim();
+                                              const authorLine = lines.find(l => l.includes('—') || (l.includes(',') && l.match(/^[A-Z]/)));
+                                              const author = authorLine ? authorLine.replace(/^—\s*/, '').replace(/^-\s*/, '').trim() : '';
+                                              
+                                              return (
+                                                <div key={idx} className="p-6 bg-gradient-to-br from-champagne-gold/5 to-yellow-400/5 rounded-lg border border-champagne-gold/20 shadow-sm">
+                                                  <h4 className="text-lg font-bold text-champagne-gold mb-3">{venue}</h4>
+                                                  {quote && <p className="text-gray-200 italic mb-3 leading-relaxed">"{quote}"</p>}
+                                                  {author && <p className="text-gray-300 text-sm font-medium">— {author}</p>}
+                                                </div>
+                                              );
+                                            })}
                                           </div>
-                                        )}
-                                      </>
-                                    );
-                                  })()}
-                                </div>
-                              </DialogDescription>
+                                        </div>
+                                      )}
+                                    </>
+                                  );
+                                })()}
+                              </div>
                             </DialogHeader>
                           </DialogContent>
                         </Dialog>
