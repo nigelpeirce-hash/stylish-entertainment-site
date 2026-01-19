@@ -40,6 +40,7 @@ export async function GET(request: NextRequest) {
         eventDate: true,
         eventType: true,
         status: true,
+        priority: true,
         emailsSent: true, // Contains status toggles
         createdAt: true,
       },

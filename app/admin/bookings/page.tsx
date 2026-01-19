@@ -20,6 +20,7 @@ import {
   XCircle,
   AlertCircle,
   Plus,
+  AlertTriangle,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -31,6 +32,7 @@ interface Booking {
   eventDate: string;
   venueName: string;
   status: string;
+  priority: string;
   numberOfGuests: number | null;
   services: string[];
   user: { id: string; name: string; email: string } | null;
@@ -110,6 +112,21 @@ function AdminBookingsContent() {
         return "text-red-400 bg-red-900/30 border-red-500/30";
       default:
         return "text-gray-400 bg-gray-900/30 border-gray-500/30";
+    }
+  };
+
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case "urgent":
+        return "text-red-400 bg-red-900/40 border-red-500/50 animate-pulse";
+      case "high":
+        return "text-orange-400 bg-orange-900/30 border-orange-500/30";
+      case "medium":
+        return "text-yellow-400 bg-yellow-900/20 border-yellow-500/20";
+      case "low":
+        return "text-gray-400 bg-gray-900/20 border-gray-500/20";
+      default:
+        return "text-gray-400 bg-gray-900/20 border-gray-500/20";
     }
   };
 
@@ -221,17 +238,37 @@ function AdminBookingsContent() {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
               >
-                <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all h-full">
+                <Card className={`bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all h-full ${
+                  booking.priority === "urgent" ? "border-red-500/50 ring-2 ring-red-500/30" : ""
+                }`}>
                   <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <CardTitle className="text-xl">{booking.eventType}</CardTitle>
-                      <span
-                        className={`px-2 py-1 rounded text-xs font-medium border ${getStatusColor(
-                          booking.status
-                        )}`}
-                      >
-                        {booking.status}
-                      </span>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1">
+                        <CardTitle className="text-xl flex items-center gap-2">
+                          {booking.priority === "urgent" && (
+                            <AlertTriangle className="w-5 h-5 text-red-400 animate-pulse" />
+                          )}
+                          {booking.eventType}
+                        </CardTitle>
+                      </div>
+                      <div className="flex flex-col gap-1 items-end">
+                        <span
+                          className={`px-2 py-1 rounded text-xs font-medium border ${getStatusColor(
+                            booking.status
+                          )}`}
+                        >
+                          {booking.status}
+                        </span>
+                        {booking.priority && booking.priority !== "medium" && (
+                          <span
+                            className={`px-2 py-1 rounded text-xs font-bold border ${getPriorityColor(
+                              booking.priority
+                            )}`}
+                          >
+                            {booking.priority.toUpperCase()}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-3">

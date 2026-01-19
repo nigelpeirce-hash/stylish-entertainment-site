@@ -89,6 +89,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Calculate if event is within 2 weeks (14 days) of today
+    const eventDate = new Date(validatedData.eventDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to start of day for accurate comparison
+    eventDate.setHours(0, 0, 0, 0);
+    
+    const daysUntilEvent = Math.ceil((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const isUrgent = daysUntilEvent > 0 && daysUntilEvent <= 14; // Within 2 weeks (14 days)
+    
+    const priority = isUrgent ? "urgent" : "medium";
+
     const booking = await prisma.booking.create({
       data: {
         userId: userId,
@@ -96,7 +107,7 @@ export async function POST(request: NextRequest) {
         email: validatedData.email,
         phoneNumber: validatedData.phone,
         eventType: validatedData.eventType,
-        eventDate: new Date(validatedData.eventDate),
+        eventDate: eventDate,
         venueName: venueName || "TBD",
         venuePostcode: venuePostcode,
         numberOfGuests: validatedData.numberOfGuests || null,
@@ -105,6 +116,7 @@ export async function POST(request: NextRequest) {
         message: combinedMessage,
         preferredDJ: validatedData.preferredDJ || null,
         status: "pending",
+        priority: priority,
         termsAccepted: validatedData.termsAccepted,
         termsAcceptedAt: new Date(),
       },

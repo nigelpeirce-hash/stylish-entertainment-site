@@ -34,11 +34,25 @@ export async function GET(request: NextRequest) {
           select: { id: true, name: true, email: true },
         },
       },
-      orderBy: { createdAt: "desc" },
+      orderBy: [
+        { priority: "desc" }, // Urgent first (alphabetically "urgent" > "medium" > "low")
+        { createdAt: "desc" },
+      ],
       take: 100,
     });
 
-    return NextResponse.json({ bookings });
+    // Sort to ensure urgent bookings are truly first (priority: urgent > high > medium > low)
+    const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
+    const sortedBookings = bookings.sort((a, b) => {
+      const aPriority = priorityOrder[a.priority as keyof typeof priorityOrder] ?? 2;
+      const bPriority = priorityOrder[b.priority as keyof typeof priorityOrder] ?? 2;
+      if (aPriority !== bPriority) {
+        return aPriority - bPriority;
+      }
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+    return NextResponse.json({ bookings: sortedBookings });
   } catch (error) {
     console.error("Error fetching bookings:", error);
     return NextResponse.json(
