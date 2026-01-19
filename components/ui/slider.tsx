@@ -76,14 +76,14 @@ export function Slider({ children, className }: SliderProps) {
           </Button>
           
           {/* Slide Counter */}
-          <div className="absolute top-4 right-4 z-10 bg-white/95 backdrop-blur-sm border-2 border-champagne-gold rounded-full px-4 py-2 shadow-lg">
-            <span className="text-sm sm:text-base font-bold text-black">
+          <div className="absolute top-4 right-4 z-10 bg-gray-900/95 backdrop-blur-sm border-2 border-champagne-gold rounded-full px-4 py-2 shadow-lg">
+            <span className="text-sm sm:text-base font-bold text-champagne-gold">
               {currentIndex + 1} / {totalSlides}
             </span>
           </div>
           
           {/* Navigation Dots */}
-          <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 sm:gap-3 z-10 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-champagne-gold/30">
+          <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 sm:gap-3 z-10 bg-gray-900/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border-2 border-champagne-gold/50">
             {childrenArray.map((_, index) => (
               <button
                 key={index}
@@ -91,7 +91,7 @@ export function Slider({ children, className }: SliderProps) {
                   "rounded-full transition-all duration-300 hover:scale-125",
                   index === currentIndex
                     ? "w-10 h-3 bg-champagne-gold shadow-md"
-                    : "w-3 h-3 bg-black/30 hover:bg-black/50"
+                    : "w-3 h-3 bg-gray-400 hover:bg-gray-300"
                 )}
                 onClick={() => setCurrentIndex(index)}
                 aria-label={`Go to slide ${index + 1}`}
@@ -100,8 +100,8 @@ export function Slider({ children, className }: SliderProps) {
           </div>
           
           {/* Navigation Hint Text */}
-          <div className="absolute bottom-16 sm:bottom-20 left-1/2 -translate-x-1/2 z-10 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border border-champagne-gold/30">
-            <p className="text-xs sm:text-sm text-black/70 font-medium">
+          <div className="absolute bottom-16 sm:bottom-20 left-1/2 -translate-x-1/2 z-10 bg-gray-900/95 backdrop-blur-sm px-4 py-2 rounded-lg shadow-lg border-2 border-champagne-gold/50">
+            <p className="text-xs sm:text-sm text-champagne-gold font-medium">
               <span className="hidden sm:inline">Click arrows or dots to navigate</span>
               <span className="sm:hidden">Swipe or tap</span>
             </p>
