@@ -533,8 +533,8 @@ export default function DJs() {
                               <DialogTitle className="text-3xl md:text-4xl text-white font-bold mb-4">
                                 {dj.name}
                               </DialogTitle>
-                              <DialogDescription className="text-base sm:text-lg text-gray-100 leading-relaxed">
-                                <div className="space-y-6 prose prose-lg max-w-none">
+                              <DialogDescription asChild>
+                                <div className="text-base sm:text-lg text-gray-100 leading-relaxed space-y-6 prose prose-lg max-w-none">
                                   {(() => {
                                     const parts = dj.fullBio.split('---');
                                     const bioText = parts[0];
