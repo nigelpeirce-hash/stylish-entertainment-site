@@ -141,8 +141,19 @@ export const GENERAL_BROCHURE: VenueAsset = {
 /**
  * Generate tracking URL for PDF download
  * Format: /api/track-download?id={bookingId}&file={trackingFileId}
+ * Always uses production domain to avoid SSL certificate issues
  */
 export function getTrackingUrl(bookingId: string, asset: VenueAsset): string {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk";
+  // Always use production domain to avoid SSL certificate errors
+  // Never use localhost or dev URLs in emails
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
+                  process.env.NEXTAUTH_URL?.replace(/localhost:\d+/, 'stylishentertainment.co.uk') ||
+                  "https://stylishentertainment.co.uk";
+  
+  // Ensure it's HTTPS and not localhost
+  if (baseUrl.includes('localhost') || baseUrl.includes('127.0.0.1') || !baseUrl.startsWith('https://')) {
+    return `https://stylishentertainment.co.uk/api/track-download?id=${bookingId}&file=${asset.trackingFileId}`;
+  }
+  
   return `${baseUrl}/api/track-download?id=${bookingId}&file=${asset.trackingFileId}`;
 }

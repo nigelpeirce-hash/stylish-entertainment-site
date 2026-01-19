@@ -167,10 +167,23 @@ export async function POST(request: NextRequest) {
     // Query: SELECT pdf_url FROM venue_assets WHERE venue_name = [clientVenueName] AND is_active = true
     let brochureUrl: string;
     try {
-      brochureUrl = await getBrochureLink(clientVenueName);
+      const cloudinaryUrl = await getBrochureLink(clientVenueName);
+      // Ensure the URL is HTTPS and valid (Cloudinary URLs should already be HTTPS)
+      if (cloudinaryUrl && cloudinaryUrl.startsWith('http')) {
+        brochureUrl = cloudinaryUrl;
+      } else {
+        // Fallback to general brochure if URL is invalid
+        brochureUrl = "https://res.cloudinary.com/stylish/brochures/general-stylish-brochure.pdf";
+      }
     } catch (error) {
       console.error("Error fetching brochure link:", error);
       // Fallback to general brochure
+      brochureUrl = "https://res.cloudinary.com/stylish/brochures/general-stylish-brochure.pdf";
+    }
+    
+    // Ensure brochure URL is always HTTPS (Cloudinary URLs should already be HTTPS, but double-check)
+    if (brochureUrl && !brochureUrl.startsWith('https://')) {
+      console.warn("Brochure URL is not HTTPS, using fallback:", brochureUrl);
       brochureUrl = "https://res.cloudinary.com/stylish/brochures/general-stylish-brochure.pdf";
     }
 
