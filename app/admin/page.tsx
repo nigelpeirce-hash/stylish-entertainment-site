@@ -217,10 +217,29 @@ export default function AdminDashboard() {
   );
 
   const isAdmin = session && (session?.user as any)?.role === "admin";
-  const displayName = isAdmin 
+  
+  // Check for "View as" demo mode from query parameter
+  const [viewAs, setViewAs] = useState<string | null>(null);
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const view = params.get("view");
+      if (view === "ali" || view === "nigel") {
+        setViewAs(view);
+      }
+    }
+  }, []);
+  
+  const displayName = viewAs === "ali" 
+    ? "Ali Peirce"
+    : viewAs === "nigel"
+    ? "Nigel Peirce"
+    : isAdmin 
     ? session.user?.name 
     : (mounted && typeof window !== "undefined" ? sessionStorage.getItem("dev_admin_name") : null) || "Dev Admin";
-  const userEmail = session?.user?.email || null;
+  const userEmail = viewAs === "ali" 
+    ? "ali@stylishentertainment.co.uk"
+    : session?.user?.email || null;
   const isSuperAdminUser = isSuperAdmin(userEmail);
 
   // Show loading state - ensure consistent rendering between server and client
@@ -258,12 +277,47 @@ export default function AdminDashboard() {
         >
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-4xl font-bold mb-2">
-                {displayName?.toLowerCase().includes("ali") ? "Ali's Desk" : "Admin Dashboard"}
-              </h1>
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-4xl font-bold">
+                  {displayName?.toLowerCase().includes("ali") || viewAs === "ali" ? "Ali's Desk" : "Admin Dashboard"}
+                </h1>
+                {viewAs && (
+                  <div className="flex gap-2 items-center">
+                    <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded border border-blue-500/30">
+                      Viewing as: {viewAs === "ali" ? "Ali" : "Nigel"}
+                    </span>
+                    <Button
+                      onClick={() => {
+                        const url = new URL(window.location.href);
+                        url.searchParams.delete("view");
+                        window.location.href = url.toString();
+                      }}
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs h-6 px-2 text-gray-400 hover:text-white"
+                    >
+                      Exit Demo
+                    </Button>
+                  </div>
+                )}
+              </div>
               <p className="text-gray-400">Welcome back, {displayName}</p>
               {devBypass && (
                 <p className="text-xs text-yellow-400 mt-1">⚠️ Development Mode - Auth Bypassed</p>
+              )}
+              {!viewAs && isSuperAdminUser && (
+                <div className="flex gap-2 mt-2">
+                  <Link href="/admin?view=ali">
+                    <Button variant="ghost" size="sm" className="text-xs h-7 px-3 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10">
+                      👁️ View as Ali
+                    </Button>
+                  </Link>
+                  <Link href="/admin?view=nigel">
+                    <Button variant="ghost" size="sm" className="text-xs h-7 px-3 text-purple-400 hover:text-purple-300 hover:bg-purple-500/10">
+                      👁️ View as Nigel
+                    </Button>
+                  </Link>
+                </div>
               )}
             </div>
             <div className="flex flex-wrap gap-3">
