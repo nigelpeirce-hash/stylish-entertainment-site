@@ -375,6 +375,12 @@
     opacity: 1 !important;
   }
   
+  /* Fix for invalid Tailwind-generated hoverinput selector */
+  input:hover,
+  textarea:hover {
+    color: rgb(255, 255, 255) !important;
+  }
+  
   /* Override for specific gray text classes - make them brighter */
   .text-gray-300 {
     color: rgb(241 245 249) !important; /* slate-200 / gray-100 */
