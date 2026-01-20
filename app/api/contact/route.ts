@@ -10,6 +10,7 @@ import {
   generateBookingReference,
   ensureBookingReference 
 } from "@/lib/booking-integrity";
+import { sendNewLeadNotification } from "@/lib/pushover-notifications";
 
 // Force dynamic rendering to prevent build-time errors
 export const dynamic = 'force-dynamic';
@@ -206,6 +207,19 @@ export async function POST(request: NextRequest) {
         },
       });
       console.log("✅ Booking created successfully:", booking.id, "Status:", booking.status, "Priority:", (booking as any).priority);
+      
+      // Send push notification to Ali and Nigel about new lead
+      try {
+        await sendNewLeadNotification({
+          id: booking.id,
+          name: booking.name,
+          eventDate: booking.eventDate,
+          venueName: booking.venueName,
+        });
+      } catch (notificationError) {
+        // Don't fail the booking creation if notification fails
+        console.error("Failed to send new lead notification:", notificationError);
+      }
     } catch (bookingError) {
       console.error("❌ CRITICAL: Failed to create booking record:", bookingError);
       console.error("❌ Booking creation error details:", JSON.stringify(bookingError, null, 2));

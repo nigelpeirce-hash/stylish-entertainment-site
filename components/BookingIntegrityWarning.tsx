@@ -40,8 +40,8 @@ export function BookingIntegrityWarning({
 
   useEffect(() => {
     fetchConflicts();
-    // Poll for conflicts every 30 seconds
-    const interval = setInterval(fetchConflicts, 30000);
+    // Poll for conflicts every 60 seconds (reduced frequency to prevent excessive requests)
+    const interval = setInterval(fetchConflicts, 60000);
     return () => clearInterval(interval);
   }, [bookingId]);
 

@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
         updatedAt: true,
         emailsSent: true,
         lastEmailSentAt: true,
-        user: {
+        User: {
           select: { id: true, name: true, email: true },
         },
       },

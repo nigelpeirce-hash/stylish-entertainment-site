@@ -6,6 +6,7 @@
 
 export type JourneyStage =
   | "inquiry-autoresponder"
+  | "gentle-reminder"
   | "booking-confirmation"
   | "4-week-checkin"
   | "week-of-excitement"
@@ -209,6 +210,37 @@ export function inquiryAutoresponder(data: JourneyEmailData) {
 }
 
 /**
+ * 1.5. Gentle Reminder (3-Day Follow-up)
+ * A friendly, gentle follow-up sent 3 days after initial inquiry if no booking confirmed
+ */
+export function gentleReminder(data: JourneyEmailData) {
+  const contentHtml = `
+    <h1>Just Following Up</h1>
+    <p>Dear {{clientName}},</p>
+    <p>We hope you're well and enjoying planning your {{eventType}} for {{eventDate}} at {{venueName}}.</p>
+    <p>We wanted to check in and see if you have any questions about our services or if there's anything we can help with. Planning an event can be overwhelming, and we're here to make it easier for you.</p>
+    <h2>We're Here to Help</h2>
+    <p>Whether you're still exploring your options, have questions about our packages, or want to discuss your vision, we'd love to chat. Every event is unique, and we're passionate about creating something truly special for you.</p>
+    <p style="text-align: center;">
+      <a href="https://stylishentertainment.co.uk/contact-us" class="button">Get in Touch</a>
+    </p>
+    <p>If you've already found another solution, no problem at all – we're just pleased you're getting everything sorted for your special day.</p>
+    <p>Best of luck with your planning, and please don't hesitate to reach out if you'd like to chat.</p>
+    <div class="signature">
+      <p>Warm regards,</p>
+      <p><strong>Ali & Nige</strong><br>
+      Stylish Entertainment</p>
+    </div>
+  `;
+
+  return buildEmailTemplate(
+    "Just Following Up - {{eventType}} at {{venueName}}",
+    contentHtml,
+    data
+  );
+}
+
+/**
  * 2. Booking Confirmation
  * Sent after deposit, includes link to Client Admin
  */
@@ -349,6 +381,8 @@ export function getJourneyEmail(
   switch (stage) {
     case "inquiry-autoresponder":
       return inquiryAutoresponder(data);
+    case "gentle-reminder":
+      return gentleReminder(data);
     case "booking-confirmation":
       return bookingConfirmation(data);
     case "4-week-checkin":

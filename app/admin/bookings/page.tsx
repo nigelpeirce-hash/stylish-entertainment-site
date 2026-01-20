@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useCallback, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +29,7 @@ interface Booking {
   priority: string;
   conflictStatus: string | null;
   flaggedFor: string | null; // "user1" or "user2"
-  assignedTo: string | null; // "wife", "you"
+  assignedTo: string | null; // "ali", "husband", "none"
   handoffStatus: string | null; // "action_needed", "tech_review", "tech_alert", "awaiting_quote"
   handoffNote: string | null;
   numberOfGuests: number | null;
@@ -75,11 +75,100 @@ function AdminBookingsContent() {
   const [loading, setLoading] = useState(true);
   // Priority flag names - can be customized
   const [user1Name, setUser1Name] = useState("Nigel");
-  const [user2Name, setUser2Name] = useState("Sarah");
+  const [user2Name, setUser2Name] = useState("Ali");
   // Handoff names
-  const [wifeName, setWifeName] = useState("Sarah");
+  const [wifeName, setWifeName] = useState("Ali");
   const [yourName, setYourName] = useState("Nigel");
 
+  // Use refs to track previous values and prevent unnecessary fetches
+  const prevFilterRef = useRef<string>("all");
+  const prevSearchRef = useRef<string>("");
+  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const hasInitializedRef = useRef(false);
+  const isFetchingRef = useRef(false);
+  const lastStatusRef = useRef<string | null>(null);
+  const lastSessionIdRef = useRef<string | null>(null);
+  const lastFetchTimeRef = useRef<number>(0);
+  const isPageVisibleRef = useRef<boolean>(true);
+
+  // Define fetchBookings as a stable function using refs
+  const fetchBookingsRef = useRef<() => Promise<void>>();
+  
+  fetchBookingsRef.current = async () => {
+    // Don't fetch if page is not visible
+    if (!isPageVisibleRef.current) {
+      console.log("Page not visible, skipping fetch");
+      return;
+    }
+    
+    // Aggressive throttle: prevent concurrent fetches and rapid successive fetches (2 seconds minimum)
+    const now = Date.now();
+    const timeSinceLastFetch = now - lastFetchTimeRef.current;
+    
+    if (isFetchingRef.current) {
+      console.log("Fetch already in progress, skipping");
+      return;
+    }
+    
+    if (timeSinceLastFetch < 2000) {
+      console.log(`Throttled: only ${timeSinceLastFetch}ms since last fetch`);
+      return;
+    }
+    
+    isFetchingRef.current = true;
+    lastFetchTimeRef.current = now;
+    setLoading(true);
+    try {
+      const params = new URLSearchParams();
+      const currentFilter = prevFilterRef.current;
+      const currentSearch = prevSearchRef.current;
+      
+      if (currentFilter !== "all") params.append("status", currentFilter);
+      if (currentSearch) params.append("search", currentSearch);
+
+      console.log("Fetching bookings:", params.toString());
+      const response = await fetch(`/api/admin/bookings?${params.toString()}`);
+      if (response.ok) {
+        const data = await response.json();
+        setBookings(data.bookings || []);
+      }
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+    } finally {
+      setLoading(false);
+      isFetchingRef.current = false;
+    }
+  };
+
+  // Page Visibility API: Pause fetching when tab is hidden
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const handleVisibilityChange = () => {
+      const isVisible = !document.hidden;
+      isPageVisibleRef.current = isVisible;
+      
+      if (isVisible && hasInitializedRef.current) {
+        // Page became visible - fetch fresh data after a short delay
+        console.log("Page became visible, fetching fresh data");
+        setTimeout(() => {
+          fetchBookingsRef.current?.();
+        }, 500);
+      }
+    };
+
+    // Set initial visibility state
+    isPageVisibleRef.current = !document.hidden;
+
+    // Listen for visibility changes
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, []);
+
+  // Authentication check
   useEffect(() => {
     // Auto-enable dev bypass on localhost (development only)
     const isLocalhost = typeof window !== "undefined" && 
@@ -93,59 +182,91 @@ function AdminBookingsContent() {
       sessionStorage.setItem("dev_admin_bypass", "true");
       sessionStorage.setItem("dev_admin_role", "admin");
       sessionStorage.setItem("dev_admin_name", "Local Admin");
-      fetchBookings();
-      return;
     }
 
     const devBypass = typeof window !== "undefined" && 
       sessionStorage.getItem("dev_admin_bypass") === "true";
+    const isAdmin = session && (session?.user as any)?.role === "admin";
 
-    if (devBypass) {
-      fetchBookings();
+    if (status === "unauthenticated" && !devBypass && !isLocalhost) {
+      router.push("/login");
       return;
     }
 
-    if (status === "unauthenticated") {
-      router.push("/login");
-    } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
+    if (status === "authenticated" && !isAdmin && !devBypass && !isLocalhost) {
       router.push("/client/dashboard");
+      return;
     }
   }, [status, session, router]);
 
+  // Initial fetch only (separate from filter/search changes)
   useEffect(() => {
-    const isLocalhostCheck = typeof window !== "undefined" && 
+    const isLocalhost = typeof window !== "undefined" && 
       (process.env.NODE_ENV === "development" || 
        window.location.hostname === "localhost" || 
        window.location.hostname === "127.0.0.1" ||
        window.location.hostname.startsWith("192.168.") ||
        window.location.hostname.startsWith("10."));
-    const devBypassCheck = isLocalhostCheck || 
-      (typeof window !== "undefined" && sessionStorage.getItem("dev_admin_bypass") === "true");
-    const isAdminCheck = session && (session?.user as any)?.role === "admin";
+    const devBypass = typeof window !== "undefined" && 
+      sessionStorage.getItem("dev_admin_bypass") === "true";
+    const isAdmin = session && (session?.user as any)?.role === "admin";
 
-    if ((isAdminCheck || devBypassCheck) && status !== "loading") {
-      fetchBookings();
+    // Wait for session to load
+    if (status === "loading") return;
+    
+    // Check if we should allow access
+    if (!isAdmin && !devBypass && !isLocalhost) return;
+
+    // Only fetch once on mount (check if already initialized)
+    if (hasInitializedRef.current) return;
+    
+    // Mark as initialized
+    hasInitializedRef.current = true;
+    lastStatusRef.current = status;
+    lastSessionIdRef.current = session?.user?.id || null;
+    prevFilterRef.current = filter;
+    prevSearchRef.current = search;
+    
+    // Fetch bookings - use a small delay to ensure everything is ready
+    setTimeout(() => {
+      fetchBookingsRef.current?.();
+    }, 100);
+  }, [status, session?.user?.id]); // Depend on status and session ID only
+
+  // Separate effect for filter/search changes (debounced)
+  useEffect(() => {
+    // Don't run until initialized
+    if (!hasInitializedRef.current) return;
+
+    // Only fetch if filter or search has actually changed
+    const filterChanged = prevFilterRef.current !== filter;
+    const searchChanged = prevSearchRef.current !== search;
+    
+    if (!filterChanged && !searchChanged) return;
+
+    // Prevent if already fetching
+    if (isFetchingRef.current) return;
+
+    // Clear any existing timeout
+    if (fetchTimeoutRef.current) {
+      clearTimeout(fetchTimeoutRef.current);
     }
-  }, [status, session, filter, search]);
+    
+    // Debounce the fetch (increased to 500ms to reduce calls)
+    fetchTimeoutRef.current = setTimeout(() => {
+      // Double check we're still initialized and not already fetching
+      if (isFetchingRef.current) return;
+      prevFilterRef.current = filter;
+      prevSearchRef.current = search;
+      fetchBookingsRef.current?.();
+    }, 500); // Increased debounce time
 
-  const fetchBookings = async () => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams();
-      if (filter !== "all") params.append("status", filter);
-      if (search) params.append("search", search);
-
-      const response = await fetch(`/api/admin/bookings?${params.toString()}`);
-      if (response.ok) {
-        const data = await response.json();
-        setBookings(data.bookings || []);
+    return () => {
+      if (fetchTimeoutRef.current) {
+        clearTimeout(fetchTimeoutRef.current);
       }
-    } catch (error) {
-      console.error("Error fetching bookings:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    };
+  }, [filter, search]); // Only depend on filter and search
 
   const handleToggleFlag = async (bookingId: string, currentFlag: string | null) => {
     try {
@@ -166,7 +287,7 @@ function AdminBookingsContent() {
       });
 
       if (response.ok) {
-        await fetchBookings();
+        await fetchBookingsRef.current?.();
       }
     } catch (error) {
       console.error("Error toggling flag:", error);
@@ -175,14 +296,20 @@ function AdminBookingsContent() {
 
   const handleAssign = async (bookingId: string, assignedTo: string) => {
     try {
+      // Map "ali" to the correct value and track who assigned
+      const assignValue = assignedTo === "ali" ? "ali" : assignedTo;
       const response = await fetch(`/api/admin/bookings/${bookingId}/handoff`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ assignedTo }),
+        body: JSON.stringify({ 
+          action: "assign",
+          assignedTo: assignValue,
+          assignedBy: assignValue === "ali" ? "Nigel" : undefined, // Track if Nigel is assigning to Ali
+        }),
       });
 
       if (response.ok) {
-        await fetchBookings();
+        await fetchBookingsRef.current?.();
       }
     } catch (error) {
       console.error("Error assigning booking:", error);
@@ -209,14 +336,15 @@ function AdminBookingsContent() {
 
   const getHandoffColor = (assignedTo: string | null, handoffStatus: string | null) => {
     if (!assignedTo) return "border-transparent bg-gray-800 hover:bg-gray-750";
-    if (assignedTo === "wife") {
+    // Support both "ali" and legacy "wife" values
+    if (assignedTo === "ali" || assignedTo === "wife") {
       if (handoffStatus === "action_needed") return "border-yellow-500 bg-yellow-950/20";
       if (handoffStatus === "tech_review") return "border-blue-500 bg-blue-950/20";
       if (handoffStatus === "tech_alert") return "border-orange-500 bg-orange-950/20";
       if (handoffStatus === "awaiting_quote") return "border-purple-500 bg-purple-950/20";
       return "border-gray-500 bg-gray-800 hover:bg-gray-750";
     }
-    if (assignedTo === "you") {
+    if (assignedTo === "husband" || assignedTo === "you" || assignedTo === "nigel") {
       if (handoffStatus === "action_needed") return "border-yellow-500 bg-yellow-950/20";
       if (handoffStatus === "tech_review") return "border-blue-500 bg-blue-950/20";
       if (handoffStatus === "tech_alert") return "border-orange-500 bg-orange-950/20";
@@ -275,10 +403,12 @@ function AdminBookingsContent() {
       <div className="sticky top-0 z-30 bg-gray-900 border-b border-gray-800">
         <div className="container mx-auto max-w-6xl px-4 py-4">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-bold">Inbox</h1>
+            <h1 className="text-2xl font-bold">
+              {session?.user?.name?.toLowerCase().includes("ali") ? "Ali's Desk" : "Inbox"}
+            </h1>
             <Link href="/admin">
               <Button variant="outline" size="sm" className="border-champagne-gold text-champagne-gold">
-                Dashboard
+                {session?.user?.name?.toLowerCase().includes("ali") ? "Ali's Desk" : "Dashboard"}
               </Button>
             </Link>
           </div>
@@ -291,7 +421,7 @@ function AdminBookingsContent() {
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
-                  setTimeout(() => fetchBookings(), 500);
+                  // Debouncing is handled by useEffect
                 }}
                 placeholder="Search bookings..."
                 className="bg-gray-800 text-white border-gray-700 pl-10"
@@ -376,7 +506,7 @@ function AdminBookingsContent() {
                               {booking.name}
                             </h3>
                             {getHandoffBadge(booking.assignedTo, booking.handoffStatus) && (
-                              <span className="px-2 py-1 rounded text-xs font-medium bg-gray-700 text-gray-300 border border-gray-600">
+                              <span className="px-2 py-1 rounded text-xs font-medium bg-gray-700 text-white border border-gray-600">
                                 {getHandoffBadge(booking.assignedTo, booking.handoffStatus)}
                               </span>
                             )}
@@ -384,11 +514,11 @@ function AdminBookingsContent() {
                               {formatEventDate(booking.eventDate)}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 mt-1 text-gray-400 text-sm">
+                          <div className="flex items-center gap-2 mt-1 text-gray-200 text-sm">
                             <MapPin className="w-4 h-4" />
                             <span className="truncate">{booking.venueName}</span>
                             {booking.venuePostcode && (
-                              <span className="text-gray-500">({booking.venuePostcode})</span>
+                              <span className="text-gray-300 font-semibold">({booking.venuePostcode})</span>
                             )}
                           </div>
                         </div>
@@ -426,13 +556,13 @@ function AdminBookingsContent() {
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          handleAssign(booking.id, "wife");
+                          handleAssign(booking.id, "ali");
                         }}
                         size="sm"
                         className={`flex-1 ${
-                          booking.assignedTo === "wife"
+                          booking.assignedTo === "ali" || booking.assignedTo === "wife"
                             ? "bg-blue-600 hover:bg-blue-700 text-white"
-                            : "bg-blue-900/30 hover:bg-blue-900/50 text-blue-300 border border-blue-500/50"
+                            : "bg-blue-900/30 hover:bg-blue-900/50 text-black border border-blue-500/50 font-medium"
                         }`}
                       >
                         🙋‍♀️ For {wifeName}
@@ -447,7 +577,7 @@ function AdminBookingsContent() {
                         className={`flex-1 ${
                           booking.assignedTo === "you"
                             ? "bg-purple-600 hover:bg-purple-700 text-white"
-                            : "bg-purple-900/30 hover:bg-purple-900/50 text-purple-300 border border-purple-500/50"
+                            : "bg-purple-900/30 hover:bg-purple-900/50 text-black border border-purple-500/50 font-medium"
                         }`}
                       >
                         🛠️ For {yourName}

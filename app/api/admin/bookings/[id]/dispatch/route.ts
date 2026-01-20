@@ -8,6 +8,7 @@ import {
   getThreadingHeaders,
   generateThreadIdFooter
 } from "@/lib/booking-integrity";
+import { generateBriefToken } from "@/lib/brief-token";
 
 // Force dynamic rendering to prevent build-time errors
 export const dynamic = 'force-dynamic';
@@ -40,11 +41,57 @@ export async function POST(
     }
 
     const body = await request.json();
-    const { assignedDJName, assignedDJEmail, finalDetails } = body;
+    const { assignedDJName, assignedDJEmail, finalDetails, staffAssignmentId } = body;
 
-    if (!assignedDJName || !assignedDJEmail) {
+    // Support both DJ dispatch and staff assignment dispatch
+    let staffAssignment = null;
+    let recipientEmail = assignedDJEmail;
+    let recipientName = assignedDJName;
+    let briefToken: string | null = null;
+
+    if (staffAssignmentId) {
+      // This is a staff assignment final brief
+      staffAssignment = await prisma.bookingStaffAssignment.findUnique({
+        where: { id: staffAssignmentId },
+        include: {
+          staff: true,
+        },
+      });
+
+      if (!staffAssignment) {
+        return NextResponse.json(
+          { error: "Staff assignment not found" },
+          { status: 404 }
+        );
+      }
+
+      if (!staffAssignment.staff.email) {
+        return NextResponse.json(
+          { error: "Staff member does not have an email address configured" },
+          { status: 400 }
+        );
+      }
+
+      recipientEmail = staffAssignment.staff.email;
+      recipientName = staffAssignment.staff.name;
+
+      // Generate token for brief confirmation
+      briefToken = generateBriefToken();
+
+      // Update assignment with token and set status to dispatched
+      await prisma.bookingStaffAssignment.update({
+        where: { id: staffAssignmentId },
+        data: {
+          briefToken,
+          status: "dispatched",
+          briefStatus: "pending",
+          confirmationEmailSent: true,
+          confirmationSentAt: new Date(),
+        },
+      });
+    } else if (!assignedDJName || !assignedDJEmail) {
       return NextResponse.json(
-        { error: "DJ/Agent name and email are required" },
+        { error: "DJ/Agent name and email are required, or provide staffAssignmentId" },
         { status: 400 }
       );
     }
@@ -263,6 +310,15 @@ export async function POST(
         </div>` : ''}
       </div>` : ''}
     </div>
+    ${briefToken ? `
+    <div style="text-align: center; padding: 30px 20px; margin-top: 30px; border-top: 1px solid #D4AF37;">
+      <p style="margin-bottom: 20px; color: #1a1a1a; font-weight: 500;">Please confirm that you have received and understood these final details:</p>
+      <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://stylishentertainment.co.uk'}/api/confirm-brief/${briefToken}" 
+         style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #D4AF37 0%, #B8941F 100%); color: #1a1a1a; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);">
+        I have received and understood the final details
+      </a>
+    </div>
+    ` : ''}
     <div class="footer">
       <p>Stylish Entertainment</p>
       <p>This is an automated dispatch. Please confirm receipt.</p>
@@ -290,7 +346,7 @@ export async function POST(
     const emailResult = await getResend().emails.send({
       from: emailConfig.from,
       replyTo: emailConfig.replyTo,
-      to: [assignedDJEmail],
+      to: [recipientEmail],
       bcc: [EMAIL_CONFIG.OFFICE_EMAIL],
       subject: `Event Details - ${booking.eventType} at ${finalDetails.venueName || booking.venueName} - ${eventDate}`,
       html: finalHtml, // Include Thread-ID footer
@@ -302,9 +358,11 @@ export async function POST(
     const dispatchMetadata = {
       dispatchedAt: new Date().toISOString(),
       dispatchedBy: admin.name || admin.email,
-      assignedDJName,
-      assignedDJEmail,
+      assignedDJName: recipientName,
+      assignedDJEmail: recipientEmail,
       emailMessageId: emailResult.data?.id,
+      staffAssignmentId: staffAssignment?.id || null,
+      briefToken: briefToken || null,
     };
 
     const currentEmailsSent = (booking.emailsSent as any) || {};

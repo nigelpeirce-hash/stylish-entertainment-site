@@ -9,7 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from "framer-motion";
-import { Settings, Plus, Trash2, Mail, Save, RefreshCw, Download, Upload } from "lucide-react";
+import { Settings, Plus, Trash2, Mail, Save, RefreshCw, Download, Upload, Activity, History } from "lucide-react";
+import { HeartbeatGraph } from "@/components/HeartbeatGraph";
+import { PasswordInput } from "@/components/PasswordInput";
+import { SafetyDeleteButton } from "@/components/SafetyDeleteButton";
+import { UserAvatar } from "@/components/UserAvatar";
+import { getDevBypass, getDevBypassHeaders } from "@/lib/dev-bypass";
+import { isSuperAdmin } from "@/lib/admin-permissions";
 
 interface EmailInbox {
   id: string;
@@ -19,6 +25,7 @@ interface EmailInbox {
   syncEnabled: boolean;
   lastSyncedAt: string | null;
   syncInterval: number;
+  assignedUsers?: string[];
   imapHost?: string;
   imapPort?: number;
   imapSecure?: boolean;
@@ -29,6 +36,12 @@ interface EmailInbox {
   smtpUsername?: string | null;
 }
 
+// Admin users
+const ADMIN_USERS = [
+  { name: "Nigel Peirce", email: "nigel@stylishentertainment.co.uk" },
+  { name: "Ali Peirce", email: "ali@stylishent.co.uk" },
+];
+
 export default function AdminSettings() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -37,6 +50,20 @@ export default function AdminSettings() {
   const [testingInboxId, setTestingInboxId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [connectionStatus, setConnectionStatus] = useState<Record<string, { status: "success" | "error" | "testing" | null; message: string; latency?: number }>>({});
+  const [revealedPasswords, setRevealedPasswords] = useState<Record<string, { imap: boolean; smtp: boolean }>>({});
+  
+  // Helper function to get routing label
+  const getRoutingLabel = (inbox: EmailInbox): string => {
+    if (!inbox.assignedUsers || inbox.assignedUsers.length === 0) {
+      return "Shared";
+    }
+    if (inbox.assignedUsers.length === 1) {
+      const user = ADMIN_USERS.find(u => u.email === inbox.assignedUsers![0]);
+      return user ? user.name.split(" ")[0] : "Custom";
+    }
+    return "Shared";
+  };
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -55,28 +82,73 @@ export default function AdminSettings() {
   });
 
   useEffect(() => {
+    // Check for dev bypass first (development only)
+    const devBypass = typeof window !== "undefined" && 
+      (process.env.NODE_ENV === "development" || window.location.hostname === "localhost") &&
+      sessionStorage.getItem("dev_admin_bypass") === "true";
+
+    if (devBypass) {
+      // Dev bypass active, allow access
+      return;
+    }
+
+    // Don't redirect while session is loading
+    if (status === "loading") {
+      return;
+    }
+
     if (status === "unauthenticated") {
       router.push("/login");
-    } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+    } else if (status === "authenticated") {
+      const userRole = (session?.user as any)?.role;
+      const userEmail = session?.user?.email;
+      
+      if (userRole !== "admin") {
+        router.push("/client/dashboard");
+      } else if (!isSuperAdmin(userEmail)) {
+        // Not SuperAdmin - redirect to dashboard
+        router.push("/admin");
+      }
     }
   }, [status, session, router]);
 
   useEffect(() => {
-    if (status === "authenticated" && (session?.user as any)?.role === "admin") {
+    // Check for dev bypass
+    const devBypass = typeof window !== "undefined" && 
+      (process.env.NODE_ENV === "development" || window.location.hostname === "localhost") &&
+      sessionStorage.getItem("dev_admin_bypass") === "true";
+
+    if ((status === "authenticated" && (session?.user as any)?.role === "admin") || devBypass) {
       fetchInboxes();
     }
   }, [status, session]);
 
   const fetchInboxes = async () => {
     try {
-      const response = await fetch("/api/admin/inboxes");
+      const headers = { ...getDevBypassHeaders(), "Content-Type": "application/json" };
+      const response = await fetch("/api/admin/inboxes", { headers });
       if (response.ok) {
         const data = await response.json();
         setInboxes(data.inboxes || []);
+      } else {
+        // Try to get error message, but don't fail if response isn't JSON
+        let errorMessage = `HTTP ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+        } catch {
+          // Response isn't JSON, use status text
+          errorMessage = response.statusText || errorMessage;
+        }
+        console.error("Error fetching inboxes:", errorMessage);
+        // Still set empty array to show the empty state
+        setInboxes([]);
       }
     } catch (error) {
-      console.error("Error fetching inboxes:", error);
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      console.error("Error fetching inboxes:", errorMessage);
+      // Set empty array on error so user sees the empty state
+      setInboxes([]);
     } finally {
       setLoading(false);
     }
@@ -84,12 +156,25 @@ export default function AdminSettings() {
 
   const handleSave = async () => {
     try {
+      // Only send password if it's been changed (not empty when editing)
+      const dataToSend = { ...formData };
+      if (editingId) {
+        // If editing and password is empty, don't send it (keep existing)
+        if (!dataToSend.imapPassword) {
+          delete (dataToSend as any).imapPassword;
+        }
+        if (!dataToSend.smtpPassword) {
+          delete (dataToSend as any).smtpPassword;
+        }
+      }
+
       if (editingId) {
         // Update existing
+        const headers = { ...getDevBypassHeaders(), "Content-Type": "application/json" };
         const response = await fetch(`/api/admin/inboxes/${editingId}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          headers,
+          body: JSON.stringify(dataToSend),
         });
 
         if (response.ok) {
@@ -101,10 +186,11 @@ export default function AdminSettings() {
         }
       } else {
         // Create new
+        const headers = { ...getDevBypassHeaders(), "Content-Type": "application/json" };
         const response = await fetch("/api/admin/inboxes", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          headers,
+          body: JSON.stringify(dataToSend),
         });
 
         if (response.ok) {
@@ -126,8 +212,10 @@ export default function AdminSettings() {
     if (!confirm("Are you sure you want to delete this inbox?")) return;
 
     try {
+      const headers = getDevBypassHeaders();
       const response = await fetch(`/api/admin/inboxes/${id}`, {
         method: "DELETE",
+        headers,
       });
 
       if (response.ok) {
@@ -141,6 +229,26 @@ export default function AdminSettings() {
     }
   };
 
+  const updateInboxAssignedUsers = async (inboxId: string, assignedUsers: string[]) => {
+    try {
+      const headers = { ...getDevBypassHeaders(), "Content-Type": "application/json" };
+      const response = await fetch(`/api/admin/inboxes/${inboxId}`, {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({ assignedUsers }),
+      });
+
+      if (response.ok) {
+        await fetchInboxes();
+      } else {
+        alert("Failed to update user permissions");
+      }
+    } catch (error) {
+      console.error("Error updating assigned users:", error);
+      alert("An error occurred");
+    }
+  };
+
   const handleEdit = (inbox: EmailInbox) => {
     setFormData({
       name: inbox.name,
@@ -149,17 +257,22 @@ export default function AdminSettings() {
       imapPort: inbox.imapPort || 993,
       imapSecure: inbox.imapSecure ?? true,
       imapUsername: inbox.imapUsername || "",
-      imapPassword: "",
+      imapPassword: "", // Never populate password fields for security
       smtpHost: inbox.smtpHost || "",
       smtpPort: inbox.smtpPort || 587,
       smtpSecure: inbox.smtpSecure ?? true,
       smtpUsername: inbox.smtpUsername || "",
-      smtpPassword: "",
+      smtpPassword: "", // Never populate password fields for security
       syncEnabled: inbox.syncEnabled,
       syncInterval: inbox.syncInterval,
     });
     setEditingId(inbox.id);
     setIsAdding(true);
+    // Set masked passwords to show they exist
+    setRevealedPasswords(prev => ({
+      ...prev,
+      [inbox.id]: { imap: false, smtp: false }
+    }));
   };
 
   const resetForm = () => {
@@ -183,17 +296,28 @@ export default function AdminSettings() {
     setEditingId(null);
   };
 
-  const handleSync = async (inboxId: string) => {
+  const handleSync = async (inboxId: string, deepSync: boolean = false) => {
     try {
+      if (deepSync && !confirm(
+        "Deep Sync will fetch 6 months of email history from all folders (INBOX, Sent, Archive). This may take several minutes. Continue?"
+      )) {
+        return;
+      }
+
+      const headers = { ...getDevBypassHeaders(), "Content-Type": "application/json" };
       const response = await fetch("/api/admin/email/sync", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ inboxId }),
+        headers,
+        body: JSON.stringify({ inboxId, deepSync }),
       });
 
       const result = await response.json();
       if (result.success) {
-        alert(`Synced ${result.count || 0} emails`);
+        alert(
+          deepSync
+            ? `Deep sync completed: ${result.count || 0} emails synced (6 months of history from all folders)`
+            : `Synced ${result.count || 0} emails`
+        );
         await fetchInboxes();
       } else {
         alert(result.error || "Failed to sync");
@@ -207,26 +331,52 @@ export default function AdminSettings() {
   const handleTestConnection = async (inboxId: string) => {
     try {
       setTestingInboxId(inboxId);
+      setConnectionStatus(prev => ({ ...prev, [inboxId]: { status: "testing", message: "Testing connection..." } }));
+      
+      const headers = { ...getDevBypassHeaders(), "Content-Type": "application/json" };
       const response = await fetch("/api/admin/inboxes/test-connection", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers,
         body: JSON.stringify({ inboxId }),
       });
 
       const result = await response.json();
 
       if (response.ok && result.success) {
-        alert(result.message || "Connection successful.");
+        setConnectionStatus(prev => ({ 
+          ...prev, 
+          [inboxId]: { 
+            status: "success", 
+            message: result.message || "Connection successful!",
+            latency: result.latency?.total || undefined,
+          } 
+        }));
+        // Clear status after 5 seconds
+        setTimeout(() => {
+          setConnectionStatus(prev => {
+            const newStatus = { ...prev };
+            delete newStatus[inboxId];
+            return newStatus;
+          });
+        }, 5000);
       } else {
-        alert(
-          `Connection failed: ${
-            result.error || result.message || "Unknown error"
-          }`
-        );
+        setConnectionStatus(prev => ({ 
+          ...prev, 
+          [inboxId]: { 
+            status: "error", 
+            message: result.error || result.message || "Connection failed. Check your IMAP settings." 
+          } 
+        }));
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error testing connection:", error);
-      alert("An error occurred while testing the connection");
+      setConnectionStatus(prev => ({ 
+        ...prev, 
+        [inboxId]: { 
+          status: "error", 
+          message: error?.message || "An error occurred while testing the connection" 
+        } 
+      }));
     } finally {
       setTestingInboxId(null);
     }
@@ -256,78 +406,217 @@ export default function AdminSettings() {
           <p className="text-gray-400">Configure your email inboxes for CRM</p>
         </motion.div>
 
-        {/* Existing Inboxes */}
-        <div className="space-y-4 mb-8">
-          {inboxes.map((inbox) => (
-            <Card key={inbox.id} className="bg-gray-800 border-champagne-gold/30">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <Mail className="w-5 h-5 text-champagne-gold" />
-                      <h3 className="text-xl font-semibold text-white">{inbox.name}</h3>
-                      <span className="text-sm text-gray-400">({inbox.email})</span>
-                      {inbox.isActive && (
-                        <span className="px-2 py-1 bg-green-900/30 text-green-400 text-xs rounded border border-green-500/30">
-                          Active
-                        </span>
-                      )}
-                      {inbox.syncEnabled && (
-                        <span className="px-2 py-1 bg-blue-900/30 text-blue-400 text-xs rounded border border-blue-500/30">
-                          Sync Enabled
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-sm text-gray-400 space-y-1">
-                      <p>Sync Interval: {inbox.syncInterval} minutes</p>
-                      {inbox.lastSyncedAt && (
-                        <p>Last Synced: {new Date(inbox.lastSyncedAt).toLocaleString()}</p>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      onClick={() => handleSync(inbox.id)}
-                      size="sm"
-                      variant="outline"
-                      className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10"
-                    >
-                      <RefreshCw className="w-4 h-4 mr-2" />
-                      Sync Now
-                    </Button>
-                    <Button
-                      onClick={() => handleTestConnection(inbox.id)}
-                      size="sm"
-                      variant="outline"
-                      className="border-blue-500 text-blue-400 hover:bg-blue-900/20"
-                      disabled={testingInboxId === inbox.id}
-                    >
-                      <RefreshCw className="w-4 h-4 mr-2" />
-                      {testingInboxId === inbox.id
-                        ? "Testing..."
-                        : "Test Connection"}
-                    </Button>
-                    <Button
-                      onClick={() => handleEdit(inbox)}
-                      size="sm"
-                      variant="outline"
-                      className="border-gray-600 text-gray-300"
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      onClick={() => handleDelete(inbox.id)}
-                      size="sm"
-                      variant="outline"
-                      className="border-red-500 text-red-400 hover:bg-red-900/20"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
+        {/* Server Blade Rack View */}
+        <div className="space-y-3 mb-8">
+          {inboxes.length === 0 ? (
+            <Card className="bg-slate-900/80 border-2 border-slate-700/50">
+              <CardContent className="p-6 text-center">
+                <Mail className="w-12 h-12 text-gray-500 mx-auto mb-4" />
+                <p className="text-gray-400 mb-4">No email inboxes configured yet.</p>
+                <Button
+                  onClick={() => setIsAdding(true)}
+                  className="bg-champagne-gold text-black hover:bg-gold-light"
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Your First Inbox
+                </Button>
               </CardContent>
             </Card>
-          ))}
+          ) : (
+            inboxes.map((inbox, index) => {
+            const status = connectionStatus[inbox.id];
+            const isConnected = status?.status === "success";
+            const stability: "high" | "medium" | "low" | "offline" = 
+              isConnected && status.latency 
+                ? status.latency < 100 ? "high" : status.latency < 500 ? "medium" : "low"
+                : "offline";
+            
+            return (
+              <motion.div
+                key={inbox.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="relative"
+              >
+                {/* Server Blade */}
+                <Card className="bg-slate-900/80 border-2 border-slate-700/50 hover:border-slate-600/80 transition-all shadow-lg">
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between gap-6">
+                      {/* Left: Blade Info & Status */}
+                      <div className="flex-1 flex items-center gap-6">
+                        {/* Heartbeat Graph with Routing Badge */}
+                        <div className="flex-shrink-0 flex flex-col items-center gap-2">
+                          <HeartbeatGraph 
+                            isActive={inbox.isActive && inbox.syncEnabled}
+                            stability={stability}
+                          />
+                          <span className="px-2 py-0.5 bg-slate-700/50 text-slate-300 text-[10px] rounded border border-slate-600/50 font-medium whitespace-nowrap">
+                            Routed to: {getRoutingLabel(inbox)}
+                          </span>
+                        </div>
+
+                        {/* Inbox Details */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-2">
+                            <Mail className="w-5 h-5 text-champagne-gold flex-shrink-0" />
+                            <h3 className="text-xl font-semibold text-white truncate">{inbox.name}</h3>
+                            <span className="text-sm text-gray-400 truncate">({inbox.email})</span>
+                            {inbox.isActive && (
+                              <span className="px-2 py-1 bg-green-900/40 text-green-400 text-xs rounded border border-green-500/50 font-semibold">
+                                ACTIVE
+                              </span>
+                            )}
+                          </div>
+                          
+                          {/* Permissions Section */}
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className="text-xs text-gray-400 font-medium">Permissions:</span>
+                            <div className="flex items-center gap-2">
+                              {ADMIN_USERS.map((user) => {
+                                const isSelected = inbox.assignedUsers?.includes(user.email) ?? false;
+                                return (
+                                  <UserAvatar
+                                    key={user.email}
+                                    name={user.name}
+                                    email={user.email}
+                                    isSelected={isSelected}
+                                    onClick={() => {
+                                      const currentUsers = inbox.assignedUsers || [];
+                                      const newUsers = isSelected
+                                        ? currentUsers.filter(e => e !== user.email)
+                                        : [...currentUsers, user.email];
+                                      
+                                      // Update via API
+                                      updateInboxAssignedUsers(inbox.id, newUsers);
+                                    }}
+                                  />
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Connection Stats */}
+                          <div className="flex items-center gap-6 text-xs">
+                            {status?.latency && (
+                              <div className="flex items-center gap-2">
+                                <Activity className="w-3 h-3 text-blue-400" />
+                                <span className="text-gray-300 font-mono">
+                                  Latency: <span className="text-blue-400 font-bold">{status.latency}ms</span>
+                                </span>
+                              </div>
+                            )}
+                            <div className="text-gray-400">
+                              Sync: <span className="text-gray-300 font-semibold">{inbox.syncInterval}m</span>
+                            </div>
+                            {inbox.lastSyncedAt ? (
+                              <div className="text-gray-400">
+                                Last: <span className="text-gray-300">{new Date(inbox.lastSyncedAt).toLocaleString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</span>
+                              </div>
+                            ) : (
+                              <span className="text-yellow-400">Never synced</span>
+                            )}
+                          </div>
+
+                          {/* Configuration Status */}
+                          <div className="flex items-center gap-4 mt-2 text-xs">
+                            <div className={`flex items-center gap-1 ${
+                              inbox.imapHost && inbox.imapUsername ? "text-green-400" : "text-red-400"
+                            }`}>
+                              <div className={`w-2 h-2 rounded-full ${
+                                inbox.imapHost && inbox.imapUsername ? "bg-green-500" : "bg-red-500"
+                              }`} />
+                              <span>IMAP</span>
+                            </div>
+                            <div className={`flex items-center gap-1 ${
+                              inbox.smtpHost && inbox.smtpUsername ? "text-green-400" : "text-gray-500"
+                            }`}>
+                              <div className={`w-2 h-2 rounded-full ${
+                                inbox.smtpHost && inbox.smtpUsername ? "bg-green-500" : "bg-gray-500"
+                              }`} />
+                              <span>SMTP</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right: Actions */}
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <Button
+                          onClick={() => handleSync(inbox.id, false)}
+                          size="sm"
+                          variant="outline"
+                          className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10"
+                        >
+                          <RefreshCw className="w-4 h-4 mr-2" />
+                          Sync
+                        </Button>
+                        <Button
+                          onClick={() => handleSync(inbox.id, true)}
+                          size="sm"
+                          variant="outline"
+                          className="border-purple-500/50 text-purple-400 hover:bg-purple-900/20"
+                          title="Deep Sync: Fetch 6 months of history from all folders"
+                        >
+                          <History className="w-4 h-4 mr-2" />
+                          Deep Sync
+                        </Button>
+                        <Button
+                          onClick={() => handleTestConnection(inbox.id)}
+                          size="sm"
+                          variant="outline"
+                          className={`border-blue-500/50 text-blue-400 hover:bg-blue-900/20 ${
+                            status?.status === "success" ? "border-green-500/50 text-green-400" :
+                            status?.status === "error" ? "border-red-500/50 text-red-400" : ""
+                          }`}
+                          disabled={testingInboxId === inbox.id || !inbox.imapHost || !inbox.imapUsername}
+                        >
+                          <RefreshCw className={`w-4 h-4 mr-2 ${testingInboxId === inbox.id ? "animate-spin" : ""}`} />
+                          {testingInboxId === inbox.id
+                            ? "Testing..."
+                            : status?.status === "success" 
+                            ? "✓"
+                            : status?.status === "error"
+                            ? "✗"
+                            : "Test"}
+                        </Button>
+                        <Button
+                          onClick={() => handleEdit(inbox)}
+                          size="sm"
+                          variant="outline"
+                          className="border-gray-600/50 text-gray-300 hover:bg-gray-800"
+                        >
+                          <Settings className="w-4 h-4" />
+                        </Button>
+                        <SafetyDeleteButton
+                          onDelete={() => handleDelete(inbox.id)}
+                          itemName={`Inbox: ${inbox.name}`}
+                          itemDetails={`Email: ${inbox.email}`}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Connection Status Message */}
+                    {status && (
+                      <div className={`mt-3 p-2 rounded text-xs border ${
+                        status.status === "success" 
+                          ? "bg-green-900/20 text-green-400 border-green-500/30"
+                          : status.status === "error"
+                          ? "bg-red-900/20 text-red-400 border-red-500/30"
+                          : "bg-blue-900/20 text-blue-400 border-blue-500/30"
+                      }`}>
+                        {status.status === "testing" && "⏳ "}
+                        {status.status === "success" && "✅ "}
+                        {status.status === "error" && "❌ "}
+                        {status.message}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+            })
+          )}
         </div>
 
         {/* Add/Edit Form */}
@@ -365,8 +654,15 @@ export default function AdminSettings() {
                   </div>
                 </div>
 
-                <div className="border-t border-gray-700 pt-4">
-                  <h4 className="text-lg font-semibold mb-4">IMAP Settings (Receiving)</h4>
+                {/* Incoming (IMAP) Section */}
+                <div className="border-t border-gray-700 pt-6">
+                  <div className="mb-4 pb-3 border-b border-gray-700/50">
+                    <h4 className="text-lg font-semibold text-white flex items-center gap-2">
+                      <Mail className="w-5 h-5 text-blue-400" />
+                      Incoming (IMAP)
+                    </h4>
+                    <p className="text-xs text-gray-400 mt-1">Email receiving configuration</p>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>IMAP Host</Label>
@@ -397,27 +693,35 @@ export default function AdminSettings() {
                     </div>
                     <div className="space-y-2">
                       <Label>IMAP Password</Label>
-                      <Input
-                        type="password"
+                      <PasswordInput
                         value={formData.imapPassword}
-                        onChange={(e) => setFormData({ ...formData, imapPassword: e.target.value })}
-                        placeholder="App password or email password"
+                        onChange={(value) => setFormData({ ...formData, imapPassword: value })}
+                        placeholder={editingId ? "Leave blank to keep current password" : "App password or email password"}
                         className="bg-gray-900 text-white border-gray-700"
+                        id="imapPassword"
+                        maskedValue={editingId ? "••••••••" : undefined}
                       />
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 md:col-span-2">
                       <Checkbox
                         id="imapSecure"
                         checked={formData.imapSecure}
                         onCheckedChange={(checked) => setFormData({ ...formData, imapSecure: checked as boolean })}
                       />
-                      <Label htmlFor="imapSecure">Use SSL/TLS</Label>
+                      <Label htmlFor="imapSecure" className="text-sm">Use SSL/TLS (recommended)</Label>
                     </div>
                   </div>
                 </div>
 
-                <div className="border-t border-gray-700 pt-4">
-                  <h4 className="text-lg font-semibold mb-4">SMTP Settings (Sending)</h4>
+                {/* Outgoing (SMTP) Section */}
+                <div className="border-t border-gray-700 pt-6">
+                  <div className="mb-4 pb-3 border-b border-gray-700/50">
+                    <h4 className="text-lg font-semibold text-white flex items-center gap-2">
+                      <Mail className="w-5 h-5 text-green-400" />
+                      Outgoing (SMTP)
+                    </h4>
+                    <p className="text-xs text-gray-400 mt-1">Email sending configuration</p>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>SMTP Host</Label>
@@ -448,21 +752,22 @@ export default function AdminSettings() {
                     </div>
                     <div className="space-y-2">
                       <Label>SMTP Password</Label>
-                      <Input
-                        type="password"
+                      <PasswordInput
                         value={formData.smtpPassword}
-                        onChange={(e) => setFormData({ ...formData, smtpPassword: e.target.value })}
-                        placeholder="App password or email password"
+                        onChange={(value) => setFormData({ ...formData, smtpPassword: value })}
+                        placeholder={editingId ? "Leave blank to keep current password" : "App password or email password"}
                         className="bg-gray-900 text-white border-gray-700"
+                        id="smtpPassword"
+                        maskedValue={editingId ? "••••••••" : undefined}
                       />
                     </div>
-                    <div className="flex items-center space-x-2">
+                    <div className="flex items-center space-x-2 md:col-span-2">
                       <Checkbox
                         id="smtpSecure"
                         checked={formData.smtpSecure}
                         onCheckedChange={(checked) => setFormData({ ...formData, smtpSecure: checked as boolean })}
                       />
-                      <Label htmlFor="smtpSecure">Use SSL/TLS</Label>
+                      <Label htmlFor="smtpSecure" className="text-sm">Use SSL/TLS (recommended)</Label>
                     </div>
                   </div>
                 </div>

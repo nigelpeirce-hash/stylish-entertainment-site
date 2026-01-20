@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { randomUUID } from "crypto";
 
 // Force dynamic rendering to prevent database connection during build
 export const dynamic = 'force-dynamic';
@@ -12,6 +13,7 @@ const musicianSchema = z.object({
   slug: z.string().optional(),
   bio: z.string().optional(),
   instrument: z.string().optional(),
+  youtubeEmbed: z.string().url().optional().nullable(),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
   imageUrl: z.string().url().optional().nullable(),
@@ -85,10 +87,13 @@ export async function POST(request: NextRequest) {
 
     const musician = await prisma.musician.create({
       data: {
+        id: randomUUID(),
         ...validatedData,
         slug,
         imageUrl: validatedData.imageUrl || null,
         instrument: validatedData.instrument || null,
+        youtubeEmbed: validatedData.youtubeEmbed || null,
+        updatedAt: new Date(),
       },
     });
 

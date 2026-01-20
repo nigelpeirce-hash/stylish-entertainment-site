@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Raleway, Bebas_Neue } from "next/font/google";
+import { Raleway, Bebas_Neue, Dancing_Script, Playfair_Display } from "next/font/google";
 import Script from "next/script";
 import { Suspense } from "react";
 import "./globals.css";
@@ -26,6 +26,22 @@ const bebasNeue = Bebas_Neue({
   display: "swap",
   weight: "400",
   preload: true,
+});
+
+const dancingScript = Dancing_Script({
+  subsets: ["latin"],
+  variable: "--font-dancing",
+  display: "swap",
+  weight: ["400", "600", "700"],
+  preload: false, // Only load when needed
+});
+
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-serif",
+  display: "swap",
+  weight: ["400", "600", "700"],
+  preload: false, // Only load when needed
 });
 
 export const metadata: Metadata = {
@@ -97,7 +113,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${raleway.variable} ${bebasNeue.variable}`}>
+    <html lang="en" className={`${raleway.variable} ${bebasNeue.variable} ${dancingScript.variable} ${playfairDisplay.variable}`}>
       <body className="relative min-h-screen" style={{
         background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
       }}>

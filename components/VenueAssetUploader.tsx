@@ -68,15 +68,26 @@ export default function VenueAssetUploader() {
     const venueSlug = venue.toLowerCase().replace(/\s+/g, "");
     const fileName = `${venueSlug}-${year}.pdf`;
 
+    const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "drtwveoqo";
+    const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "unsigned";
+    
+    if (!cloudName) {
+      setError("Cloudinary cloud name is not configured. Please check environment variables.");
+      setUploading(false);
+      return;
+    }
+
     const widgetOptions = {
-      cloudName: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "drtwveoqo",
-      uploadPreset: process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || "unsigned", // Use unsigned preset or signed preset
+      cloudName: cloudName,
+      uploadPreset: uploadPreset,
       folder: "brochures", // Automatically route to 'brochures' folder
       resourceType: "raw", // PDF files
-      sources: ["local", "url", "camera"],
+      sources: ["local"], // Only allow local file uploads for PDFs
       multiple: false,
       maxFileSize: 5000000, // 5MB max
       clientAllowedFormats: ["pdf"],
+      showAdvancedOptions: false,
+      showPoweredBy: false,
       context: {
         venue: venue,
         year: year,
@@ -84,19 +95,56 @@ export default function VenueAssetUploader() {
       },
     };
 
-    widgetRef.current = window.cloudinary.createUploadWidget(
+      widgetRef.current = window.cloudinary.createUploadWidget(
       widgetOptions,
       async (error: any, result: any) => {
         setUploading(false);
 
         if (error) {
-          console.error("Upload error:", error);
-          setError(error.message || "Upload failed. Please try again.");
+          // Better error handling for Cloudinary errors
+          let errorMessage = "Upload failed. Please try again.";
+          
+          if (error) {
+            // Handle different error types
+            if (typeof error === "string") {
+              errorMessage = error;
+            } else if (error?.message) {
+              errorMessage = error.message;
+            } else if (error?.error?.message) {
+              errorMessage = error.error.message;
+            } else if (error?.statusText) {
+              errorMessage = error.statusText;
+            } else if (typeof error === "object" && Object.keys(error).length > 0) {
+              // Try to stringify the error object for debugging
+              try {
+                const errorStr = JSON.stringify(error);
+                if (errorStr !== "{}") {
+                  errorMessage = `Upload error: ${errorStr}`;
+                }
+              } catch (e) {
+                // If stringification fails, use default message
+              }
+            }
+          }
+          
+          console.error("Upload error:", {
+            error,
+            errorType: typeof error,
+            errorKeys: error && typeof error === "object" ? Object.keys(error) : [],
+            errorMessage,
+          });
+          
+          setError(errorMessage);
           return;
         }
 
         if (result.event === "success") {
           try {
+            // Validate result.info exists
+            if (!result.info || !result.info.secure_url) {
+              throw new Error("Upload succeeded but file information is missing. Please try again.");
+            }
+
             // Save to database via API
             const response = await fetch("/api/admin/venue-assets/upload", {
               method: "POST",
@@ -107,18 +155,24 @@ export default function VenueAssetUploader() {
                 venueName: venue,
                 year: year,
                 pdfUrl: result.info.secure_url,
-                cloudinaryPublicId: result.info.public_id,
+                cloudinaryPublicId: result.info.public_id || null,
                 fileName: fileName,
               }),
             });
 
+            if (!response.ok) {
+              const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+              throw new Error(errorData.error || errorData.details || `Server error: ${response.status} ${response.statusText}`);
+            }
+
             const data = await response.json();
 
-            if (!response.ok) {
+            if (!data.success) {
               throw new Error(data.error || "Failed to save to database");
             }
 
             setSuccess(true);
+            setError(null);
             // Reset form after 3 seconds
             setTimeout(() => {
               setSuccess(false);
@@ -126,11 +180,28 @@ export default function VenueAssetUploader() {
               setYear(String(CURRENT_YEAR));
             }, 3000);
           } catch (err: any) {
-            console.error("Database sync error:", err);
-            setError(err.message || "Upload succeeded but failed to save to database. Please contact support.");
+            console.error("Database sync error:", {
+              error: err,
+              errorMessage: err?.message,
+              errorType: typeof err,
+              stack: err?.stack,
+            });
+            
+            const errorMessage = err?.message || 
+                                err?.error || 
+                                (typeof err === "string" ? err : "Upload succeeded but failed to save to database. Please contact support.");
+            
+            setError(errorMessage);
           }
         } else if (result.event === "queues-end") {
           // Widget closed without uploading
+          setUploading(false);
+        } else if (result.event === "abort") {
+          // Upload was aborted
+          setUploading(false);
+          setError("Upload was cancelled.");
+        } else if (result.event === "close") {
+          // Widget was closed
           setUploading(false);
         }
       }

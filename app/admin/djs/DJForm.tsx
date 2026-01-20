@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ type FormDataState = {
   name: string;
   bio: string;
   mixcloudUrl: string;
+  youtubeEmbed: string;
   seoTitle: string;
   seoDescription: string;
   imageUrl: string;
@@ -121,6 +123,21 @@ export function DJForm({
           </div>
 
           <div className="space-y-2">
+            <Label className="text-white">YouTube Embed URL (optional)</Label>
+            <Input
+              value={formData.youtubeEmbed}
+              onChange={(e) =>
+                onFormDataChange({ ...formData, youtubeEmbed: e.target.value })
+              }
+              placeholder="https://www.youtube.com/embed/VIDEO_ID"
+              className="bg-gray-900/50 text-white border-gray-700 focus:border-champagne-gold"
+            />
+            <p className="text-xs text-gray-400">
+              YouTube embed URL (e.g., https://www.youtube.com/embed/RAdejWBYWaw)
+            </p>
+          </div>
+
+          <div className="space-y-2">
             <Label className="text-white">Mixcloud URL (optional)</Label>
             <Input
               value={formData.mixcloudUrl}
@@ -195,9 +212,11 @@ export function DJForm({
             />
             {formData.imageUrl && (
               <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-gray-700 mt-2">
-                <img
+                <Image
                   src={formData.imageUrl}
                   alt="Preview"
+                  width={128}
+                  height={128}
                   className="w-full h-full object-cover"
                   onError={(e) => {
                     (e.target as HTMLImageElement).style.display = "none";

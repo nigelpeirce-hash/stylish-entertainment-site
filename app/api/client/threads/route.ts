@@ -29,7 +29,14 @@ export async function GET(request: NextRequest) {
 
     const threads = await prisma.emailThread.findMany({
       where,
-      include: {
+      select: {
+        id: true,
+        subject: true,
+        fromName: true,
+        fromEmail: true,
+        lastMessageAt: true,
+        isRead: true,
+        source: true,
         booking: {
           select: { id: true, eventType: true, eventDate: true },
         },
@@ -38,6 +45,7 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: { lastMessageAt: "desc" },
+      take: 50, // Limit results for performance
     });
 
     return NextResponse.json({ threads });

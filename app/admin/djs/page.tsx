@@ -53,6 +53,7 @@ export default function DJsPage() {
     name: "",
     bio: "",
     mixcloudUrl: "",
+    youtubeEmbed: "",
     seoTitle: "",
     seoDescription: "",
     imageUrl: "",
@@ -114,6 +115,7 @@ export default function DJsPage() {
         slug, // Auto-generate slug from name
         imageUrl: formData.imageUrl || null,
         mixcloudUrl: formData.mixcloudUrl || null,
+        youtubeEmbed: formData.youtubeEmbed || null,
       };
 
       if (editingId) {
@@ -182,6 +184,7 @@ export default function DJsPage() {
       name: dj.name,
       bio: dj.bio || "",
       mixcloudUrl: dj.mixcloudUrl || "",
+      youtubeEmbed: (dj as any).youtubeEmbed || "",
       seoTitle: dj.seoTitle || "",
       seoDescription: dj.seoDescription || "",
       imageUrl: dj.imageUrl || "",
@@ -205,6 +208,7 @@ export default function DJsPage() {
       name: "",
       bio: "",
       mixcloudUrl: "",
+      youtubeEmbed: "",
       seoTitle: "",
       seoDescription: "",
       imageUrl: "",

@@ -36,6 +36,16 @@ export async function GET(request: NextRequest) {
       where: {
         userId: userId,
       },
+      select: {
+        id: true,
+        name: true,
+        venueName: true,
+        eventDate: true,
+        eventType: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+      },
       orderBy: {
         createdAt: "desc",
       },

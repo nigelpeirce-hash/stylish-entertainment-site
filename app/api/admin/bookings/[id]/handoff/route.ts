@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { sendHandoffNotification } from "@/lib/pushover-notifications";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -36,26 +37,26 @@ export async function PATCH(
     let updateData: any = {};
 
     if (action === "assign") {
-      // Assign to wife or husband
-      if (assignedTo === "wife") {
-        updateData.assignedTo = "wife";
+      // Assign to Ali or Nigel
+      if (assignedTo === "ali" || assignedTo === "wife") {
+        updateData.assignedTo = "ali";
         updateData.handoffStatus = "action_needed";
         updateData.handoffNote = handoffNote || null;
-      } else if (assignedTo === "husband" || assignedTo === "you") {
+      } else if (assignedTo === "husband" || assignedTo === "you" || assignedTo === "nigel") {
         updateData.assignedTo = "husband";
         updateData.handoffStatus = "tech_review";
         updateData.handoffNote = handoffNote || null;
-        updateData.isTechReady = false; // Reset tech ready status when handed to husband
+        updateData.isTechReady = false; // Reset tech ready status when handed to Nigel
       }
     } else if (action === "tech_alert") {
-      // Wife sends technical alert to husband
+      // Ali sends technical alert to Nigel
       updateData.assignedTo = "husband";
       updateData.handoffStatus = "tech_alert";
       updateData.handoffNote = handoffNote || null;
       updateData.isTechReady = false;
     } else if (action === "tech_done") {
-      // Husband finishes tech review, flip back to wife
-      updateData.assignedTo = "wife";
+      // Nigel finishes tech review, flip back to Ali
+      updateData.assignedTo = "ali";
       updateData.handoffStatus = "awaiting_quote";
       updateData.handoffNote = null;
       updateData.isTechReady = true;
@@ -66,23 +67,46 @@ export async function PATCH(
       );
     }
 
+    // Get booking name before update for notification
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: { name: true },
+    });
+
     // Update booking
     const updatedBooking = await prisma.booking.update({
       where: { id: bookingId },
       data: updateData,
       select: {
         id: true,
+        name: true,
         assignedTo: true,
         handoffStatus: true,
         handoffNote: true,
       },
     });
 
-    // If it's a tech alert, we could trigger a notification here
-    // For now, we'll just return success
+    // Send hand-off notification if Nigel is passing to Ali
+    // Check if this is a handoff from Nigel to Ali
+    const isNigelToAli = action === "assign" && 
+                         updatedBooking.assignedTo === "ali" && 
+                         (assignedBy === "Nigel" || admin?.name?.toLowerCase().includes("nigel"));
+    
+    if (isNigelToAli) {
+      try {
+        await sendHandoffNotification({
+          id: bookingId,
+          name: booking?.name || updatedBooking.name || "Unknown",
+          assignedBy: "Nigel",
+        });
+      } catch (notificationError) {
+        // Don't fail the handoff if notification fails
+        console.error("Failed to send hand-off notification:", notificationError);
+      }
+    }
+
+    // If it's a tech alert, log it
     if (action === "tech_alert") {
-      // TODO: Implement phone notification system
-      // This could integrate with Twilio, push notifications, or email alerts
       console.log(`TECHNICAL ALERT: Booking ${bookingId} requires technical review`);
       console.log(`Note: ${handoffNote}`);
     }

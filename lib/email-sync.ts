@@ -1,10 +1,12 @@
 import imap from "imap-simple";
 import { simpleParser } from "mailparser";
 import { prisma } from "@/lib/prisma";
+import { randomUUID } from "crypto";
 
 interface EmailMessage {
   messageId: string;
   inReplyTo?: string;
+  references?: string[];
   subject: string;
   from: { name?: string; address: string };
   to: Array<{ name?: string; address: string }>;
@@ -13,9 +15,15 @@ interface EmailMessage {
   html?: string;
   date: Date;
   attachments?: Array<{ filename: string; contentType: string; content: Buffer }>;
+  direction: "inbound" | "outbound";
+  folder?: string;
 }
 
-export async function syncEmailInbox(inboxId: string) {
+interface SyncOptions {
+  deepSync?: boolean;
+}
+
+export async function syncEmailInbox(inboxId: string, options: SyncOptions = {}) {
   try {
     const inbox = await prisma.emailInbox.findUnique({
       where: { id: inboxId },
@@ -39,94 +47,134 @@ export async function syncEmailInbox(inboxId: string) {
     };
 
     const connection = await imap.connect(config);
-    await connection.openBox("INBOX");
+    
+    // Calculate date range based on sync type
+    const lastSyncedDate = options.deepSync
+      ? new Date(Date.now() - 180 * 24 * 60 * 60 * 1000) // 6 months for deep sync
+      : inbox.lastSyncedAt 
+        ? new Date(inbox.lastSyncedAt.getTime() - 24 * 60 * 60 * 1000) // 24 hours before last sync
+        : new Date(Date.now() - 90 * 24 * 60 * 60 * 1000); // Default to last 90 days
 
-    // Search criteria:
-    // For now, always fetch ALL messages from the INBOX.
-    // We rely on Message-ID + existing record checks to avoid duplicates.
-    // This makes behaviour predictable while we confirm connectivity.
-    const searchCriteria = ["ALL"] as any;
+    console.log(`Starting ${options.deepSync ? "DEEP" : "regular"} sync for ${inbox.email}`);
+    console.log(`Searching for emails since: ${lastSyncedDate.toISOString()}`);
 
+    // Get available mailboxes/folders
+    const boxes = await connection.getBoxes();
+    const folderNames = findFolders(boxes, ["INBOX", "Sent", "Sent Messages", "[Gmail]/Sent Mail", "[Gmail]/All Mail", "Archive"]);
+
+    const allMessages: EmailMessage[] = [];
     const fetchOptions = {
       bodies: "",
       struct: true,
     };
 
-    const results = await connection.search(searchCriteria, fetchOptions);
-
-    const messages: EmailMessage[] = [];
-
-    for (const result of results) {
+    // Process each folder
+    for (const folderName of folderNames) {
       try {
-        const id = result.attributes.uid;
-        const all = result.parts?.find((part: any) => part.which === "");
+        console.log(`Scanning folder: ${folderName}`);
+        await connection.openBox(folderName);
+        
+        const isOutbound = folderName.toLowerCase().includes("sent") || folderName.toLowerCase().includes("outbox");
+        const direction: "inbound" | "outbound" = isOutbound ? "outbound" : "inbound";
 
-        if (all && all.body) {
-          const parsed = await simpleParser(all.body);
-          const p: any = parsed;
+        // Use IMAP SEARCH for efficiency
+        // Search criteria: emails since date
+        const searchCriteria = [["SINCE", lastSyncedDate]];
+        
+        const results = await connection.search(searchCriteria, fetchOptions);
+        console.log(`Found ${results.length} emails in ${folderName}`);
 
-          // Extract Message-ID and In-Reply-To
-          // Extract Message-ID and In-Reply-To
-          const messageId = parsed.messageId || `local-${Date.now()}-${Math.random()}`;
-          const inReplyTo = parsed.inReplyTo || undefined;
+        // Parse emails from this folder
+        for (const result of results) {
+          try {
+            const all = result.parts?.find((part: any) => part.which === "");
 
-          // Parse from/to addresses with safe access
-          const fromAddress =
-            p.from && Array.isArray(p.from.value) && p.from.value.length > 0
-              ? p.from.value[0]
-              : null;
+            if (all && all.body) {
+              const parsed = await simpleParser(all.body);
+              const p: any = parsed;
 
-          const from = fromAddress
-            ? {
-                name: (fromAddress as any).name || undefined,
-                address: (fromAddress as any).address,
+              // Extract Message-ID, In-Reply-To, and References
+              const messageId = parsed.messageId || `local-${Date.now()}-${Math.random()}`;
+              const inReplyTo = parsed.inReplyTo || undefined;
+              
+              // Parse References header (space-separated message IDs)
+              let references: string[] = [];
+              if (parsed.references) {
+                if (Array.isArray(parsed.references)) {
+                  references = parsed.references;
+                } else if (typeof parsed.references === "string") {
+                  references = parsed.references.trim().split(/\s+/).filter(Boolean);
+                }
               }
-            : { address: "unknown@unknown.com" };
 
-          const to =
-            p.to && Array.isArray(p.to.value)
-              ? p.to.value.map((addr: any) => ({
-                  name: addr.name || undefined,
-                  address: addr.address,
-                }))
-              : [];
+              // Parse from/to addresses
+              const fromAddress =
+                p.from && Array.isArray(p.from.value) && p.from.value.length > 0
+                  ? p.from.value[0]
+                  : null;
 
-          const cc =
-            p.cc && Array.isArray(p.cc.value)
-              ? p.cc.value.map((addr: any) => ({
-                  name: addr.name || undefined,
-                  address: addr.address,
-                }))
-              : undefined;
+              const from = fromAddress
+                ? {
+                    name: (fromAddress as any).name || undefined,
+                    address: (fromAddress as any).address,
+                  }
+                : { address: inbox.email }; // Use inbox email as fallback for sent messages
 
-          messages.push({
-            messageId,
-            inReplyTo,
-            subject: p.subject || "(No Subject)",
-            from,
-            to,
-            cc,
-            text: p.text || undefined,
-            html: p.html || undefined,
-            date: p.date || new Date(),
-            attachments: p.attachments?.map((att: any) => ({
-              filename: att.filename || "attachment",
-              contentType: att.contentType,
-              content: att.content as Buffer,
-            })),
-          });
+              const to =
+                p.to && Array.isArray(p.to.value)
+                  ? p.to.value.map((addr: any) => ({
+                      name: addr.name || undefined,
+                      address: addr.address,
+                    }))
+                  : [];
+
+              const cc =
+                p.cc && Array.isArray(p.cc.value)
+                  ? p.cc.value.map((addr: any) => ({
+                      name: addr.name || undefined,
+                      address: addr.address,
+                    }))
+                  : undefined;
+
+              allMessages.push({
+                messageId,
+                inReplyTo,
+                references,
+                subject: p.subject || "(No Subject)",
+                from,
+                to,
+                cc,
+                text: p.text || undefined,
+                html: p.html || undefined,
+                date: p.date || new Date(),
+                attachments: p.attachments?.map((att: any) => ({
+                  filename: att.filename || "attachment",
+                  contentType: att.contentType,
+                  content: att.content as Buffer,
+                })),
+                direction,
+                folder: folderName,
+              });
+            }
+          } catch (error) {
+            console.error(`Error parsing email in ${folderName}:`, error);
+            continue;
+          }
         }
       } catch (error) {
-        console.error(`Error parsing email:`, error);
+        console.error(`Error processing folder ${folderName}:`, error);
+        // Continue with other folders even if one fails
         continue;
       }
     }
 
     connection.end();
 
-    // Process and store emails
-    for (const message of messages) {
-      await processInboundEmail(inbox, message);
+    console.log(`Total emails found across all folders: ${allMessages.length}`);
+
+    // Process and store emails with proper threading
+    for (const message of allMessages) {
+      await processEmailMessage(inbox, message);
     }
 
     // Update last synced time
@@ -135,80 +183,70 @@ export async function syncEmailInbox(inboxId: string) {
       data: { lastSyncedAt: new Date() },
     });
 
-    console.log(`Synced ${messages.length} emails from ${inbox.email}`);
-    return messages.length;
+    console.log(`Synced ${allMessages.length} emails from ${inbox.email}`);
+    return allMessages.length;
   } catch (error) {
     console.error(`Error syncing inbox ${inboxId}:`, error);
     throw error;
   }
 }
 
-async function processInboundEmail(
+/**
+ * Find available folders from IMAP mailbox structure
+ */
+function findFolders(boxes: any, preferredNames: string[]): string[] {
+  const found: string[] = [];
+  const allFolders: string[] = [];
+
+  // Recursively collect all folder names
+  function collectFolders(box: any, prefix = "") {
+    if (box.children) {
+      for (const [name, child] of Object.entries(box.children)) {
+        const fullName = prefix ? `${prefix}/${name}` : name;
+        allFolders.push(fullName);
+        collectFolders(child as any, fullName);
+      }
+    }
+  }
+
+  collectFolders(boxes);
+
+  // Find preferred folders first
+  for (const preferred of preferredNames) {
+    const foundFolder = allFolders.find((f) => 
+      f.toLowerCase() === preferred.toLowerCase() ||
+      f.toLowerCase().includes(preferred.toLowerCase())
+    );
+    if (foundFolder && !found.includes(foundFolder)) {
+      found.push(foundFolder);
+    }
+  }
+
+  // Always include INBOX if not already found
+  const inbox = allFolders.find((f) => f.toLowerCase() === "inbox");
+  if (inbox && !found.includes(inbox)) {
+    found.unshift(inbox);
+  }
+
+  return found.length > 0 ? found : ["INBOX"]; // Fallback to INBOX only
+}
+
+/**
+ * Process email message with advanced threading logic
+ */
+async function processEmailMessage(
   inbox: any,
   message: EmailMessage
 ) {
   try {
-    // Find or create email thread
+    // Normalize email addresses
     const fromEmail = message.from.address.toLowerCase();
-    const toEmail = inbox.email.toLowerCase();
-
-    // Try to find existing thread by subject and participants
-    let thread = await prisma.emailThread.findFirst({
-      where: {
-        inboxId: inbox.id,
-        fromEmail: fromEmail,
-        toEmail: toEmail,
-        subject: {
-          startsWith: message.subject.replace(/^(Re:|Fwd?:|Fwd:)\s*/i, "").trim(),
-        },
-      },
-      orderBy: { lastMessageAt: "desc" },
-    });
-
-    // If no thread found, check if this is a reply (has In-Reply-To)
-    if (!thread && message.inReplyTo) {
-      const parentEmail = await prisma.email.findUnique({
-        where: { messageId: message.inReplyTo },
-        include: { thread: true },
-      });
-
-      if (parentEmail?.thread) {
-        thread = parentEmail.thread;
-      }
-    }
-
-    // Create new thread if needed
-    if (!thread) {
-      // Try to find linked booking by email
-      const booking = await prisma.booking.findFirst({
-        where: { email: fromEmail },
-        orderBy: { createdAt: "desc" },
-      });
-
-      // Try to find linked user by email
-      const user = await prisma.user.findUnique({
-        where: { email: fromEmail },
-      });
-
-      thread = await prisma.emailThread.create({
-        data: {
-          subject: message.subject,
-          fromEmail: fromEmail,
-          fromName: message.from.name || null,
-          toEmail: toEmail,
-          inboxId: inbox.id,
-          bookingId: booking?.id || null,
-          userId: user?.id || null,
-          lastMessageAt: message.date,
-        },
-      });
-    } else {
-      // Update thread last message time
-      await prisma.emailThread.update({
-        where: { id: thread.id },
-        data: { lastMessageAt: message.date, isRead: false },
-      });
-    }
+    const inboxEmail = inbox.email.toLowerCase();
+    
+    // Determine primary email addresses involved (for client association)
+    const allParticipantEmails = new Set<string>([fromEmail]);
+    message.to.forEach((t) => allParticipantEmails.add(t.address.toLowerCase()));
+    message.cc?.forEach((c) => allParticipantEmails.add(c.address.toLowerCase()));
 
     // Check if email already exists
     const existingEmail = await prisma.email.findUnique({
@@ -220,6 +258,148 @@ async function processInboundEmail(
       return;
     }
 
+    // THREAD RECONSTRUCTION: Use Message-ID, In-Reply-To, and References
+    let thread = null;
+
+    // Strategy 1: Find thread via In-Reply-To (direct parent)
+    if (message.inReplyTo) {
+      const parentEmail = await prisma.email.findUnique({
+        where: { messageId: message.inReplyTo },
+        include: { EmailThread: true },
+      });
+
+      if (parentEmail?.EmailThread) {
+        thread = parentEmail.EmailThread;
+        console.log(`Thread found via In-Reply-To: ${thread.id}`);
+      }
+    }
+
+    // Strategy 2: Find thread via References header (entire conversation chain)
+    if (!thread && message.references && message.references.length > 0) {
+      // Search for any email in the References chain
+      for (const refId of message.references) {
+        const refEmail = await prisma.email.findUnique({
+          where: { messageId: refId },
+          include: { EmailThread: true },
+        });
+
+        if (refEmail?.EmailThread) {
+          thread = refEmail.EmailThread;
+          console.log(`Thread found via References: ${thread.id}`);
+          break;
+        }
+      }
+    }
+
+    // Strategy 3: Find existing thread by subject and participants (fallback)
+    if (!thread) {
+      const cleanSubject = message.subject.replace(/^(Re:|Fwd?:|Fwd:)\s*/i, "").trim();
+      
+      // Search for threads involving any participant email
+      const participantEmailsArray = Array.from(allParticipantEmails);
+      
+      thread = await prisma.emailThread.findFirst({
+        where: {
+          inboxId: inbox.id,
+          OR: [
+            { fromEmail: { in: participantEmailsArray } },
+            { toEmail: { in: participantEmailsArray } },
+          ],
+          subject: {
+            startsWith: cleanSubject.substring(0, 50), // First 50 chars to avoid truncation issues
+          },
+        },
+        orderBy: { lastMessageAt: "desc" },
+      });
+
+      if (thread) {
+        console.log(`Thread found via subject matching: ${thread.id}`);
+      }
+    }
+
+    // CLIENT ASSOCIATION: Find booking or user by any participant email
+    let bookingId: string | null = null;
+    let userId: string | null = null;
+    let clientEmail: string = fromEmail; // Default to from email
+
+    // Search for booking by any participant email
+    for (const email of allParticipantEmails) {
+      if (email === inboxEmail) continue; // Skip inbox email itself
+
+      const booking = await prisma.booking.findFirst({
+        where: { email: email },
+        orderBy: { createdAt: "desc" },
+      });
+
+      if (booking) {
+        bookingId = booking.id;
+        clientEmail = email;
+        break;
+      }
+    }
+
+    // Search for user by any participant email
+    if (!userId) {
+      for (const email of allParticipantEmails) {
+        if (email === inboxEmail) continue;
+
+        const user = await prisma.user.findUnique({
+          where: { email: email },
+        });
+
+        if (user) {
+          userId = user.id;
+          break;
+        }
+      }
+    }
+
+    // Create new thread if needed
+    if (!thread) {
+      // Determine thread participants
+      // For inbound: fromEmail is client, toEmail is inbox
+      // For outbound: fromEmail is inbox, toEmail is client
+      const threadFromEmail = message.direction === "inbound" ? clientEmail : inboxEmail;
+      const threadToEmail = message.direction === "inbound" ? inboxEmail : clientEmail;
+
+      thread = await prisma.emailThread.create({
+        data: {
+          id: randomUUID(),
+          subject: message.subject,
+          fromEmail: threadFromEmail,
+          fromName: message.from.name || null,
+          toEmail: threadToEmail,
+          inboxId: inbox.id,
+          bookingId: bookingId,
+          userId: userId,
+          lastMessageAt: message.date,
+          updatedAt: new Date(),
+        },
+      });
+
+      console.log(`Created new thread: ${thread.id} for ${clientEmail}`);
+    } else {
+      // Update thread last message time and potentially booking/user association
+      const updateData: any = {
+        lastMessageAt: message.date,
+        isRead: false,
+        updatedAt: new Date(),
+      };
+
+      // If thread doesn't have booking/user but we found one, update it
+      if (!thread.bookingId && bookingId) {
+        updateData.bookingId = bookingId;
+      }
+      if (!thread.userId && userId) {
+        updateData.userId = userId;
+      }
+
+      await prisma.emailThread.update({
+        where: { id: thread.id },
+        data: updateData,
+      });
+    }
+
     // Store attachments metadata
     const attachmentsMetadata = message.attachments
       ? message.attachments.map((att) => ({
@@ -229,9 +409,15 @@ async function processInboundEmail(
         }))
       : null;
 
+    // Determine toEmail for database (for outbound, use first recipient)
+    const dbToEmail = message.direction === "outbound" && message.to.length > 0
+      ? message.to[0].address.toLowerCase()
+      : inboxEmail;
+
     // Create email record
     await prisma.email.create({
       data: {
+        id: randomUUID(),
         messageId: message.messageId,
         inReplyTo: message.inReplyTo || null,
         threadId: thread.id,
@@ -239,35 +425,35 @@ async function processInboundEmail(
         subject: message.subject,
         fromEmail: fromEmail,
         fromName: message.from.name || null,
-        toEmail: toEmail,
-        toName: null,
-        cc: message.cc?.map((c) => c.address) || [],
+        toEmail: dbToEmail,
+        toName: message.to[0]?.name || null,
+        cc: message.cc?.map((c) => c.address.toLowerCase()) || [],
         bcc: [],
         textContent: message.text || null,
         htmlContent: message.html || null,
         attachments: attachmentsMetadata as any,
-        direction: "inbound",
+        direction: message.direction,
         isRead: false,
         isStarred: false,
         receivedAt: message.date,
       },
     });
 
-    console.log(`Processed email: ${message.subject} from ${fromEmail}`);
+    console.log(`Processed ${message.direction} email: ${message.subject} (${message.from.address})`);
   } catch (error) {
-    console.error(`Error processing inbound email:`, error);
+    console.error(`Error processing email message:`, error);
     throw error;
   }
 }
 
 // Sync all active inboxes
-export async function syncAllInboxes() {
+export async function syncAllInboxes(options: SyncOptions = {}) {
   const inboxes = await prisma.emailInbox.findMany({
     where: { isActive: true, syncEnabled: true },
   });
 
   const results = await Promise.allSettled(
-    inboxes.map((inbox) => syncEmailInbox(inbox.id))
+    inboxes.map((inbox) => syncEmailInbox(inbox.id, options))
   );
 
   const successful = results.filter((r) => r.status === "fulfilled").length;

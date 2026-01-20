@@ -242,27 +242,27 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
       <CardContent className="pt-6 space-y-6">
         {/* Assigned DJ/Agent */}
         <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Assigned Artist</h3>
+          <h3 className="text-sm font-semibold text-white mb-3 uppercase tracking-wider">Assigned Artist</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="djName" className="text-gray-300 text-sm">DJ/Agent Name</Label>
+              <Label htmlFor="djName" className="text-white text-sm font-medium">DJ/Agent Name</Label>
               <Input
                 id="djName"
                 value={assignedDJName}
                 onChange={(e) => setAssignedDJName(e.target.value)}
                 placeholder="DJ Name"
-                className="bg-gray-800 text-white border-gray-600 mt-1"
+                className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
               />
             </div>
             <div>
-              <Label htmlFor="djEmail" className="text-gray-300 text-sm">Email Address</Label>
+              <Label htmlFor="djEmail" className="text-white text-sm font-medium">Email Address</Label>
               <Input
                 id="djEmail"
                 type="email"
                 value={assignedDJEmail}
                 onChange={(e) => setAssignedDJEmail(e.target.value)}
                 placeholder="dj@example.com"
-                className="bg-gray-800 text-white border-gray-600 mt-1"
+                className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
               />
             </div>
           </div>
@@ -346,33 +346,33 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                 <div className="space-y-4 text-sm max-h-[700px] overflow-y-auto pr-2">
                   {/* Client Information */}
                   <div className="border-b border-green-700/30 pb-3">
-                    <Label className="text-gray-400 text-xs uppercase mb-2 block">Client Details</Label>
+                    <Label className="text-white text-xs uppercase mb-2 block font-semibold">Client Details</Label>
                     <div className="space-y-2">
                       <div>
-                        <Label className="text-gray-300 text-xs">Client Name</Label>
+                        <Label className="text-white text-xs font-medium">Client Name</Label>
                         <Input
                           value={editableDetails.clientName}
                           onChange={(e) => setEditableDetails({ ...editableDetails, clientName: e.target.value })}
-                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <Label className="text-gray-300 text-xs">Email</Label>
+                          <Label className="text-white text-xs font-medium">Email</Label>
                           <Input
                             type="email"
                             value={editableDetails.clientEmail}
                             onChange={(e) => setEditableDetails({ ...editableDetails, clientEmail: e.target.value })}
-                            className="bg-gray-800 text-white border-gray-600 mt-1"
+                            className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                           />
                         </div>
                         <div>
-                          <Label className="text-gray-300 text-xs">Phone</Label>
+                          <Label className="text-white text-xs font-medium">Phone</Label>
                           <Input
                             value={editableDetails.clientPhone}
                             onChange={(e) => setEditableDetails({ ...editableDetails, clientPhone: e.target.value })}
                             placeholder="01234 567890"
-                            className="bg-gray-800 text-white border-gray-600 mt-1"
+                            className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                           />
                         </div>
                       </div>
@@ -381,25 +381,25 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                   
                   {/* Event Information */}
                   <div className="border-b border-green-700/30 pb-3">
-                    <Label className="text-gray-400 text-xs uppercase mb-2 block">Event Information</Label>
+                    <Label className="text-white text-xs uppercase font-semibold mb-2 block">Event Information</Label>
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <Label className="text-gray-300 text-xs">Event Type</Label>
+                        <Label className="text-white text-xs font-medium">Event Type</Label>
                         <Input
                           value={editableDetails.eventType}
                           onChange={(e) => setEditableDetails({ ...editableDetails, eventType: e.target.value })}
                           placeholder="Wedding / Party / Corporate"
-                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                       <div>
-                        <Label className="text-gray-300 text-xs">Number of Guests</Label>
+                        <Label className="text-white text-xs font-medium">Number of Guests</Label>
                         <Input
                           type="number"
                           value={editableDetails.numberOfGuests}
                           onChange={(e) => setEditableDetails({ ...editableDetails, numberOfGuests: e.target.value })}
                           placeholder="150"
-                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                     </div>
@@ -407,76 +407,76 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                   
                   {/* Venue Information */}
                   <div className="border-b border-green-700/30 pb-3">
-                    <Label className="text-gray-400 text-xs uppercase mb-2 block flex items-center gap-1">
+                    <Label className="text-white text-xs uppercase font-semibold mb-2 block flex items-center gap-1">
                       <MapPin className="w-3 h-3" /> Venue Details
                     </Label>
                     <div className="space-y-2">
                       <div>
-                        <Label className="text-gray-300 text-xs">Venue Name</Label>
+                        <Label className="text-white text-xs font-medium">Venue Name</Label>
                         <Input
                           value={editableDetails.venueName}
                           onChange={(e) => setEditableDetails({ ...editableDetails, venueName: e.target.value })}
-                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                       <div>
-                        <Label className="text-gray-300 text-xs">Address Line 1</Label>
+                        <Label className="text-white text-xs font-medium">Address Line 1</Label>
                         <Input
                           value={editableDetails.venueAddress}
                           onChange={(e) => setEditableDetails({ ...editableDetails, venueAddress: e.target.value })}
-                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                       <div>
-                        <Label className="text-gray-300 text-xs">Address Line 2</Label>
+                        <Label className="text-white text-xs font-medium">Address Line 2</Label>
                         <Input
                           value={editableDetails.venueAddress2}
                           onChange={(e) => setEditableDetails({ ...editableDetails, venueAddress2: e.target.value })}
-                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <Label className="text-gray-300 text-xs">Town</Label>
+                          <Label className="text-white text-xs font-medium">Town</Label>
                           <Input
                             value={editableDetails.venueTown}
                             onChange={(e) => setEditableDetails({ ...editableDetails, venueTown: e.target.value })}
-                            className="bg-gray-800 text-white border-gray-600 mt-1"
+                            className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                           />
                         </div>
                         <div>
-                          <Label className="text-gray-300 text-xs">County</Label>
+                          <Label className="text-white text-xs font-medium">County</Label>
                           <Input
                             value={editableDetails.venueCounty}
                             onChange={(e) => setEditableDetails({ ...editableDetails, venueCounty: e.target.value })}
-                            className="bg-gray-800 text-white border-gray-600 mt-1"
+                            className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                           />
                         </div>
                       </div>
                       <div>
-                        <Label className="text-gray-300 text-xs">Postcode</Label>
+                        <Label className="text-white text-xs font-medium">Postcode</Label>
                         <Input
                           value={editableDetails.venuePostcode}
                           onChange={(e) => setEditableDetails({ ...editableDetails, venuePostcode: e.target.value })}
-                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-2">
                         <div>
-                          <Label className="text-gray-300 text-xs">Venue Contact Name</Label>
+                          <Label className="text-white text-xs font-medium">Venue Contact Name</Label>
                           <Input
                             value={editableDetails.venueContact}
                             onChange={(e) => setEditableDetails({ ...editableDetails, venueContact: e.target.value })}
-                            className="bg-gray-800 text-white border-gray-600 mt-1"
+                            className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                           />
                         </div>
                         <div>
-                          <Label className="text-gray-300 text-xs">Venue Phone</Label>
+                          <Label className="text-white text-xs font-medium">Venue Phone</Label>
                           <Input
                             value={editableDetails.venuePhone}
                             onChange={(e) => setEditableDetails({ ...editableDetails, venuePhone: e.target.value })}
                             placeholder="01234 567890"
-                            className="bg-gray-800 text-white border-gray-600 mt-1"
+                            className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                           />
                         </div>
                       </div>
@@ -485,35 +485,35 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                   
                   {/* Timing */}
                   <div className="border-b border-green-700/30 pb-3">
-                    <Label className="text-gray-400 text-xs uppercase mb-2 block flex items-center gap-1">
+                    <Label className="text-white text-xs uppercase font-semibold mb-2 block flex items-center gap-1">
                       <Clock className="w-3 h-3" /> Timings
                     </Label>
                     <div className="grid grid-cols-3 gap-2">
                       <div>
-                        <Label className="text-gray-300 text-xs">Arrival Time</Label>
+                        <Label className="text-white text-xs font-medium">Arrival Time</Label>
                         <Input
                           value={editableDetails.djArrivalTime}
                           onChange={(e) => setEditableDetails({ ...editableDetails, djArrivalTime: e.target.value })}
                           placeholder="18:00"
-                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                       <div>
-                        <Label className="text-gray-300 text-xs">Start Time</Label>
+                        <Label className="text-white text-xs font-medium">Start Time</Label>
                         <Input
                           value={editableDetails.djStartTime}
                           onChange={(e) => setEditableDetails({ ...editableDetails, djStartTime: e.target.value })}
                           placeholder="19:00"
-                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                       <div>
-                        <Label className="text-gray-300 text-xs">Finish Time</Label>
+                        <Label className="text-white text-xs font-medium">Finish Time</Label>
                         <Input
                           value={editableDetails.djFinishTime}
                           onChange={(e) => setEditableDetails({ ...editableDetails, djFinishTime: e.target.value })}
                           placeholder="00:00"
-                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                     </div>
@@ -521,32 +521,32 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                   
                   {/* Technical Setup */}
                   <div className="border-b border-green-700/30 pb-3">
-                    <Label className="text-gray-400 text-xs uppercase mb-2 block flex items-center gap-1">
+                    <Label className="text-white text-xs uppercase font-semibold mb-2 block flex items-center gap-1">
                       <Home className="w-3 h-3" /> Technical Setup
                     </Label>
                     <div className="space-y-2">
                       <div>
-                        <Label className="text-gray-300 text-xs">Setup Location</Label>
+                        <Label className="text-white text-xs font-medium">Setup Location</Label>
                         <Textarea
                           value={editableDetails.djSetupLocation}
                           onChange={(e) => setEditableDetails({ ...editableDetails, djSetupLocation: e.target.value })}
                           placeholder="Where to set up equipment (e.g., 'Main hall, left of stage')"
                           rows={2}
-                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                       <div>
-                        <Label className="text-gray-300 text-xs">Parking Information</Label>
+                        <Label className="text-white text-xs font-medium">Parking Information</Label>
                         <Textarea
                           value={editableDetails.djParking}
                           onChange={(e) => setEditableDetails({ ...editableDetails, djParking: e.target.value })}
                           placeholder="Parking location and access instructions"
                           rows={2}
-                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                       <div>
-                        <Label className="text-gray-300 text-xs">Sound Limiter</Label>
+                        <Label className="text-white text-xs font-medium">Sound Limiter</Label>
                         <select
                           value={editableDetails.soundLimiter}
                           onChange={(e) => setEditableDetails({ ...editableDetails, soundLimiter: e.target.value })}
@@ -561,56 +561,56 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                   
                   {/* Music Preferences */}
                   <div className="border-b border-green-700/30 pb-3">
-                    <Label className="text-gray-400 text-xs uppercase mb-2 block flex items-center gap-1">
+                    <Label className="text-white text-xs uppercase font-semibold mb-2 block flex items-center gap-1">
                       <Music className="w-3 h-3" /> Music Preferences
                     </Label>
                     <div className="space-y-2">
                       <div>
-                        <Label className="text-gray-300 text-xs">First Dance</Label>
+                        <Label className="text-white text-xs font-medium">First Dance</Label>
                         <Input
                           value={editableDetails.firstDance}
                           onChange={(e) => setEditableDetails({ ...editableDetails, firstDance: e.target.value })}
                           placeholder="Song title & artist"
-                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                       <div>
-                        <Label className="text-gray-300 text-xs">Last Song</Label>
+                        <Label className="text-white text-xs font-medium">Last Song</Label>
                         <Input
                           value={editableDetails.lastSong}
                           onChange={(e) => setEditableDetails({ ...editableDetails, lastSong: e.target.value })}
                           placeholder="Song title & artist"
-                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                       <div>
-                        <Label className="text-gray-300 text-xs">Must-Plays / Requests</Label>
+                        <Label className="text-white text-xs font-medium">Must-Plays / Requests</Label>
                         <Textarea
                           value={editableDetails.musicRequests}
                           onChange={(e) => setEditableDetails({ ...editableDetails, musicRequests: e.target.value })}
                           placeholder="List of songs/styles to include (one per line)"
                           rows={3}
-                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                       <div>
-                        <Label className="text-gray-300 text-xs">Do-Not-Plays</Label>
+                        <Label className="text-white text-xs font-medium">Do-Not-Plays</Label>
                         <Textarea
                           value={editableDetails.musicDislikes}
                           onChange={(e) => setEditableDetails({ ...editableDetails, musicDislikes: e.target.value })}
                           placeholder="List of songs/styles to avoid (one per line)"
                           rows={3}
-                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                       <div>
-                        <Label className="text-gray-300 text-xs">Additional Notes to DJ/Musician</Label>
+                        <Label className="text-white text-xs font-medium">Additional Notes to DJ/Musician</Label>
                         <Textarea
                           value={editableDetails.musicNotesToDJ}
                           onChange={(e) => setEditableDetails({ ...editableDetails, musicNotesToDJ: e.target.value })}
                           placeholder="Any special instructions, announcements, or requests"
                           rows={3}
-                          className="bg-gray-800 text-white border-gray-600 mt-1"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                     </div>

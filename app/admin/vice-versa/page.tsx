@@ -68,7 +68,7 @@ function ViceVersaContent() {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [handoffNote, setHandoffNote] = useState("");
   const [showHandoffNote, setShowHandoffNote] = useState(false);
-  const [handoffTo, setHandoffTo] = useState<"wife" | "husband" | null>(null);
+  const [handoffTo, setHandoffTo] = useState<"ali" | "husband" | null>(null);
 
   // Check for conflicts (bookings with same venueFingerprint)
   const checkConflicts = (booking: Booking) => {
@@ -143,7 +143,7 @@ function ViceVersaContent() {
     }
   };
 
-  const handleHandoff = async (bookingId: string, to: "wife" | "husband", note?: string) => {
+  const handleHandoff = async (bookingId: string, to: "ali" | "husband", note?: string) => {
     try {
       const response = await fetch(`/api/admin/bookings/${bookingId}/handoff`, {
         method: "PATCH",
@@ -161,7 +161,7 @@ function ViceVersaContent() {
         setHandoffNote("");
         setShowHandoffNote(false);
         setHandoffTo(null);
-        alert(`Booking passed to ${to === "wife" ? "Wife" : "Husband"}!`);
+        alert(`Booking passed to ${to === "ali" ? "Ali" : "Husband"}!`);
       }
     } catch (error) {
       console.error("Error handling handoff:", error);
@@ -182,7 +182,7 @@ function ViceVersaContent() {
         if (selectedBooking?.id === bookingId) {
           setSelectedBooking({ ...selectedBooking, isTechReady: true });
         }
-        alert("Tech marked as ready! Wife has been notified.");
+        alert("Tech marked as ready! Ali has been notified.");
       }
     } catch (error) {
       console.error("Error marking tech ready:", error);
@@ -234,7 +234,7 @@ function ViceVersaContent() {
   // Filter bookings by tab
   const filteredBookings = bookings.filter((booking) => {
     if (activeTab === "her-desk") {
-      return booking.assignedTo === "wife";
+      return booking.assignedTo === "ali" || booking.assignedTo === "wife";
     } else {
       return booking.assignedTo === "husband";
     }
@@ -487,14 +487,14 @@ function ViceVersaContent() {
                   <div className="space-y-4">
                     <Button
                       onClick={() => {
-                        setHandoffTo("wife");
+                        setHandoffTo("ali");
                         setShowHandoffNote(false);
                         setHandoffNote("");
-                        handleHandoff(selectedBooking.id, "wife");
+                        handleHandoff(selectedBooking.id, "ali");
                       }}
                       className="w-full h-16 bg-blue-600 hover:bg-blue-700 text-white text-xl font-semibold"
                     >
-                      🙋‍♀️ Pass to Wife
+                      🙋‍♀️ Pass to Ali
                     </Button>
 
                     <Button

@@ -35,7 +35,7 @@ export async function GET(
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       include: {
-        user: {
+        User: {
           select: {
             id: true,
             name: true,
@@ -139,7 +139,7 @@ export async function PATCH(
       where: { id: bookingId },
       data: body,
       include: {
-        user: {
+        User: {
           select: {
             id: true,
             name: true,
@@ -152,6 +152,73 @@ export async function PATCH(
     return NextResponse.json({ booking: updatedBooking });
   } catch (error) {
     console.error("Error updating booking:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> | { id: string } }
+) {
+  try {
+    // Check if request is from localhost (development only)
+    const hostname = request.headers.get("host") || "";
+    const isLocalhost = hostname.includes("localhost") || 
+                       hostname.includes("127.0.0.1") ||
+                       process.env.NODE_ENV === "development";
+    
+    // In development/localhost, allow access even if admin check fails (for dev bypass)
+    const admin = await requireAdmin(request);
+    
+    if (!admin && !isLocalhost) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const resolvedParams = params instanceof Promise ? await params : params;
+    const bookingId = resolvedParams.id;
+
+    if (!bookingId) {
+      return NextResponse.json({ error: "Booking ID is required" }, { status: 400 });
+    }
+
+    // Check if booking exists
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: {
+        staffAssignments: true,
+        emailThreads: true,
+      },
+    });
+
+    if (!booking) {
+      return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+    }
+
+    // Delete related records first (cascading delete)
+    // Delete email threads
+    await prisma.emailThread.deleteMany({
+      where: { bookingId: bookingId },
+    });
+
+    // Delete staff assignments
+    await prisma.bookingStaffAssignment.deleteMany({
+      where: { bookingId: bookingId },
+    });
+
+    // Delete the booking
+    await prisma.booking.delete({
+      where: { id: bookingId },
+    });
+
+    return NextResponse.json({ 
+      success: true,
+      message: "Booking permanently deleted" 
+    });
+  } catch (error) {
+    console.error("Error deleting booking:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

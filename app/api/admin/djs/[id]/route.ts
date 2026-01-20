@@ -12,6 +12,7 @@ const updateDjSchema = z.object({
   slug: z.string().optional(),
   bio: z.string().optional(),
   mixcloudUrl: z.string().url().optional().nullable(),
+  youtubeEmbed: z.string().url().optional().nullable(),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
   imageUrl: z.string().url().optional().nullable(),
@@ -68,12 +69,28 @@ export async function PUT(
     const body = await request.json();
     const validatedData = updateDjSchema.parse(body);
 
-    const dj = await prisma.dJ.update({
-      where: { id: djId },
-      data: validatedData,
-    });
+    try {
+      const dj = await prisma.dJ.update({
+        where: { id: djId },
+        data: validatedData,
+      });
 
-    return NextResponse.json({ dj });
+      return NextResponse.json({ dj });
+    } catch (prismaError: any) {
+      // Check if the error is about youtubeEmbed column not existing
+      if (prismaError?.message?.includes('youtubeEmbed') || prismaError?.code === 'P2009') {
+        console.error("Database migration required:", prismaError);
+        return NextResponse.json(
+          { 
+            error: "Database migration required. Please run the SQL migration to add the youtubeEmbed column.",
+            migrationFile: "supabase-add-youtube-embed-migration.sql",
+            details: "The youtubeEmbed field has been added to the schema but the database column doesn't exist yet."
+          },
+          { status: 500 }
+        );
+      }
+      throw prismaError;
+    }
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(

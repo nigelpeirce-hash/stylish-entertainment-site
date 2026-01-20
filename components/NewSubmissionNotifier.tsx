@@ -174,8 +174,8 @@ export function NewSubmissionNotifier() {
     // Initial check after 2 seconds (to avoid checking on mount)
     const initialTimeout = setTimeout(() => {
       checkForNewSubmissions();
-      // Then check every 10 seconds for fast response
-      pingIntervalRef.current = setInterval(checkForNewSubmissions, 10000);
+      // Then check every 60 seconds (reduced from 10s to prevent excessive polling)
+      pingIntervalRef.current = setInterval(checkForNewSubmissions, 60000);
     }, 2000);
 
     return () => {

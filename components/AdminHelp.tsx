@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { HelpCircle, Search, X, BookOpen, FileText, Mail, Calendar, Upload, Send } from "lucide-react";
+import { HelpCircle, Search, X, BookOpen, FileText, Mail, Calendar, Upload, Send, Inbox } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface WorkflowDoc {
@@ -126,7 +126,7 @@ Send PDF resources directly to clients from their booking detail page.
 - Download tracked in booking metadata
 
 ## Usage Tips
-- Resources are sent via Resend (office@stylishentertainment.co.uk)
+- Resources are sent via Resend (info@stylishentertainment.co.uk)
 - All sends are logged in booking \`emailsSent.resourceSends\` metadata
 - Client receives email immediately upon send
     `,
@@ -190,7 +190,7 @@ Send event details to assigned DJ/Artist after reviewing final client submission
 
 ## Email Features
 - Sent to assigned DJ/Agent email address
-- BCC to office@stylishentertainment.co.uk
+- BCC to info@stylishentertainment.co.uk
 - Includes: Venue, Timings, First Dance, Do-Not-Plays
 - Professional summary format
 
@@ -288,6 +288,128 @@ Automatically recognise returning clients via IP address or URL parameters.
 - IP matching checks \`emailsSent.acceptance_ip\` and \`emailsSent.visitor_ip\`
 - State persists in \`sessionStorage\` as \`stylish_returning_status\`
 - Recognition works across all pages
+    `,
+  },
+  {
+    id: "new-enquiry-workflow",
+    title: "New Enquiry Workflow",
+    category: "Inbox Management",
+    icon: Inbox,
+    keywords: ["enquiry", "inbox", "new", "conflict", "detection", "first touch", "workflow", "booking"],
+    content: `
+# New Enquiry Workflow
+
+## Overview
+Complete workflow for handling new enquiries from the moment they arrive in your inbox.
+
+## Step 1: Client Submits Contact Form
+When a client fills out the contact form on your website:
+- **Captures**: Name, Email, Phone, Event Date, Venue (Name/Postcode), Services, Message
+- **Creates**: A new \`Booking\` record in the database
+- **Generates**: Unique booking reference number
+
+## Step 2: Automated First Touch Email
+**Immediately** after submission, the system:
+- Sends an automated "First Touch" email to the client
+- Email subject: "Thanks for reaching out about [Event Date]!"
+- Content: "We are currently checking our talent availability and will get back to you shortly."
+- This email is logged in \`CommsLog\` for tracking
+
+## Step 3: Conflict Detection Engine
+The system automatically checks for potential duplicates:
+- **Checks**: \`events\` table for matching **Date + Postcode**
+- **If Match Found**:
+  - Sets \`isConflict: true\` on the booking
+  - Links \`originalBookingId\` to the existing booking
+  - Sets \`conflictStatus: "pending"\`
+  - Records \`conflictDetectedAt\` timestamp
+
+## Step 4: Enquiry Appears in Admin Inbox
+The new enquiry appears in multiple places:
+
+### Admin Dashboard
+- **"New Enquiries"** card shows count of bookings with no admin action
+- Card flashes **red** if there are new enquiries
+- Shows breakdown: **Urgent** vs **Medium** priority
+- Click to view all pending bookings
+
+### Bookings List Page (\`/admin/bookings\`)
+- New bookings appear with **"Action Needed"** badge
+- **Conflict Warning**: If conflict detected, booking card shows:
+  - Red border and background
+  - Amber/red banner: "POSSIBLE DUPLICATE: This date and venue are already locked for [Original Client Name]"
+  - ⚠️ Conflict icon displayed prominently
+
+### Enquiry Dashboard (\`/admin/enquiries\`)
+- Kanban board view with columns: **New**, **Checking Availability**, **Quoted**, **Contract Sent**
+- New enquiries appear in **"New"** column
+- Automatically sorted by urgency (sooner dates at top)
+- Conflict icon (⚠️) shown on enquiry cards
+
+## Step 5: Admin Review & Response
+
+### View Enquiry Details
+1. Click on enquiry card in bookings list or enquiry dashboard
+2. Opens booking detail page with full information
+3. Review client details, venue, services requested
+
+### Check for Conflicts
+- If conflict detected, review original booking
+- Decide: Merge, Keep Separate, or Resolve
+- Update \`conflictStatus\` accordingly
+
+### Send First Reply
+1. Navigate to booking detail page
+2. Use **Email Editor** (embedded in enquiry drawer)
+3. Select appropriate email template
+4. Customise and send quote/response
+5. Email is logged to \`CommsLog\` and \`EmailThread\`
+
+### Update Status
+- Move enquiry through Kanban columns:
+  - **New** → **Checking Availability** (when you start checking)
+  - **Checking Availability** → **Quoted** (after sending quote)
+  - **Quoted** → **Contract Sent** (after sending contract)
+
+## Step 6: Mobile Notification (Optional)
+If configured, you'll receive:
+- **Pushover/WhatsApp/Slack** notification
+- Includes: Client name, Event date, Venue
+- **Deep link** back to admin dashboard
+- **Quick Reply** button for fast response
+
+## Key Features
+
+### Conflict Detection
+- **Automatic**: Runs on every new enquiry
+- **Checks**: Date + Postcode combination
+- **Visual Warning**: Red/amber banners in admin UI
+- **Resolution**: Track resolution status in booking
+
+### Email Tracking
+- All emails logged to \`CommsLog\` table
+- Threaded conversations in \`EmailThread\`
+- Visible in booking detail page history
+- Links to DJ Command Module for full audit trail
+
+### Status Management
+- **Kanban Board**: Drag-and-drop status updates
+- **Auto-sorting**: New column sorted by urgency
+- **Visual Indicators**: Conflict icons, priority badges
+- **Real-time Updates**: Dashboard refreshes every 30 seconds
+
+## Best Practices
+1. **Check Dashboard Daily**: Review "New Enquiries" card first thing
+2. **Resolve Conflicts Quickly**: Review duplicate warnings immediately
+3. **Send First Reply Within 24 Hours**: Use enquiry dashboard email editor
+4. **Update Status**: Move enquiries through workflow stages
+5. **Track Everything**: All actions logged for audit trail
+
+## Related Features
+- **Enquiry Dashboard**: \`/admin/enquiries\` - Kanban board view
+- **Booking Detail**: \`/admin/bookings/[id]\` - Full booking management
+- **Email Editor**: Integrated in enquiry drawer for quick responses
+- **Conflict Resolution**: Track and resolve duplicate enquiries
     `,
   },
 ];

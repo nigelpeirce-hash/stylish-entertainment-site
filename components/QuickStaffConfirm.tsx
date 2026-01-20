@@ -94,10 +94,12 @@ export function QuickStaffConfirm({ bookingId, venueName, eventDate, onConfirm }
 
       setSuccess(true);
       
-      // Call onConfirm immediately to refresh the booking data
-      if (onConfirm) {
-        onConfirm();
-      }
+      // Wait a moment for database transaction to commit, then refresh
+      setTimeout(() => {
+        if (onConfirm) {
+          onConfirm();
+        }
+      }, 300);
       
       // Wait a moment to show success message, then close and reset
       setTimeout(() => {

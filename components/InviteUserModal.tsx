@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/radix-select";
 import { Mail, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getDevBypassHeaders } from "@/lib/dev-bypass";
 
 interface InviteUserModalProps {
   open: boolean;
@@ -39,6 +40,7 @@ export function InviteUserModal({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [inviteUrl, setInviteUrl] = useState<string | null>(null);
+  const [emailSent, setEmailSent] = useState<boolean | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -48,7 +50,10 @@ export function InviteUserModal({
     try {
       const response = await fetch("/api/admin/users/invite", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...getDevBypassHeaders(),
+        },
         body: JSON.stringify({ email, role }),
       });
 
@@ -60,18 +65,29 @@ export function InviteUserModal({
 
       setSuccess(true);
       setInviteUrl(data.inviteUrl || null);
+      setEmailSent(data.emailSent !== false);
       
       // Reset form
       setEmail("");
       setRole("user");
 
-      // Call success callback after a delay
-      setTimeout(() => {
-        onInviteSuccess?.();
+      // Don't auto-close if there's an invite URL (user might want to copy it)
+      // Only auto-close after longer delay if email was sent successfully
+      if (data.wasExisting || data.inviteUrl) {
+        // Keep modal open longer so user can copy URL if needed
+        setTimeout(() => {
+          onInviteSuccess?.();
+        }, 1000);
+      } else {
+        // Auto-close after delay
+        setTimeout(() => {
+          onInviteSuccess?.();
         onOpenChange(false);
         setSuccess(false);
         setInviteUrl(null);
-      }, 2000);
+        setEmailSent(null);
+        }, 2000);
+      }
     } catch (err: any) {
       setError(err.message || "Failed to invite user");
     } finally {
@@ -87,6 +103,7 @@ export function InviteUserModal({
       setError(null);
       setSuccess(false);
       setInviteUrl(null);
+      setEmailSent(null);
     }
   };
 
@@ -114,16 +131,44 @@ export function InviteUserModal({
             >
               <CheckCircle2 className="w-16 h-16 text-green-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-white mb-2">
-                Invitation Sent!
+                {inviteUrl ? "Invitation Created!" : "User Updated!"}
               </h3>
               <p className="text-gray-300 mb-4">
-                An invitation email has been sent to <strong>{email}</strong>
+                {inviteUrl 
+                  ? (emailSent !== false
+                      ? "An invitation email has been sent to " 
+                      : "Invitation created (email not sent - use link below). ")
+                  : "User role has been updated. "}
+                <strong>{email}</strong>
               </p>
               {inviteUrl && (
-                <div className="bg-gray-800 border border-gray-700 rounded-lg p-3 mt-4">
-                  <p className="text-xs text-gray-400 mb-2">Invite Link:</p>
-                  <p className="text-xs text-champagne-gold break-all font-mono">
+                <div className="bg-gray-800 border border-champagne-gold/50 rounded-lg p-4 mt-4 space-y-3">
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-sm font-semibold text-white">Invite Link:</p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="text-xs border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10"
+                      onClick={() => {
+                        navigator.clipboard.writeText(inviteUrl);
+                        alert("Link copied to clipboard!");
+                      }}
+                    >
+                      Copy Link
+                    </Button>
+                  </div>
+                  <p className="text-xs text-champagne-gold break-all font-mono bg-gray-900 p-2 rounded border border-gray-700">
                     {inviteUrl}
+                  </p>
+                  <p className="text-xs text-yellow-400 mt-2">
+                    💡 If you didn't receive the email, copy this link and share it manually.
+                  </p>
+                </div>
+              )}
+              {!inviteUrl && (
+                <div className="bg-blue-900/20 border border-blue-700/50 rounded-lg p-3 mt-4">
+                  <p className="text-sm text-blue-300">
+                    The user's role has been updated. They can log in with their existing credentials.
                   </p>
                 </div>
               )}

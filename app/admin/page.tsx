@@ -2,7 +2,7 @@
 
 import { useSession, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -20,6 +20,7 @@ import {
   Package,
   Music,
   AlertCircle,
+  Database,
 } from "lucide-react";
 import Link from "next/link";
 import AdminHelp from "@/components/AdminHelp";
@@ -27,6 +28,7 @@ import VenueAssetUploader from "@/components/VenueAssetUploader";
 import { NewSubmissionNotifier } from "@/components/NewSubmissionNotifier";
 import { BookingIntegrityWarning } from "@/components/BookingIntegrityWarning";
 import { ConflictCountBadge } from "@/components/ConflictCountBadge";
+import { isSuperAdmin } from "@/lib/admin-permissions";
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
@@ -38,42 +40,27 @@ export default function AdminDashboard() {
     todayEvents: 0,
   });
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Check for dev bypass first (development only)
-    const devBypass = typeof window !== "undefined" && 
-      (process.env.NODE_ENV === "development" || window.location.hostname === "localhost") &&
-      sessionStorage.getItem("dev_admin_bypass") === "true";
-
-    if (devBypass) {
-      // Dev bypass active, allow access
-      return;
-    }
-
-    if (status === "unauthenticated") {
-      router.push("/login");
-    } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
-    }
-  }, [status, session, router]);
-
-  useEffect(() => {
-    // Check for dev bypass
-    const devBypass = typeof window !== "undefined" && 
-      (process.env.NODE_ENV === "development" || window.location.hostname === "localhost") &&
-      sessionStorage.getItem("dev_admin_bypass") === "true";
-
-    if ((status === "authenticated" && (session?.user as any)?.role === "admin") || devBypass) {
-      fetchStats();
-    }
-  }, [status, session]);
-
   const [priorityStats, setPriorityStats] = useState({
     urgent: 0,
     medium: 0,
   });
 
-  const fetchStats = async () => {
+  // Track redirect to prevent multiple redirects
+  const redirectAttemptedRef = useRef(false);
+  // Use ref to track if we've already fetched to prevent loops
+  const hasFetchedRef = useRef(false);
+  // Use ref to prevent concurrent fetches
+  const isFetchingRef = useRef(false);
+
+  // Memoize fetchStats to prevent recreation and dependency loops
+  const fetchStats = useCallback(async () => {
+    // Prevent multiple simultaneous fetches
+    if (isFetchingRef.current) {
+      return;
+    }
+    
+    isFetchingRef.current = true;
+    setLoading(true);
     try {
       // Fetch unread threads
       const threadsRes = await fetch("/api/admin/threads?isRead=false");
@@ -110,40 +97,142 @@ export default function AdminDashboard() {
       console.error("Error fetching stats:", error);
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
-  };
+  }, []); // No dependencies - function is stable
+
+  useEffect(() => {
+    // Wait for session to load - don't redirect while loading
+    if (status === "loading") {
+      return;
+    }
+
+    // Prevent multiple redirect attempts
+    if (redirectAttemptedRef.current) {
+      return;
+    }
+
+    // Check for dev bypass (development only)
+    const isDev = typeof window !== "undefined" && 
+      (process.env.NODE_ENV === "development" || 
+       window.location.hostname === "localhost" ||
+       window.location.hostname === "127.0.0.1" ||
+       window.location.hostname.startsWith("192.168."));
+    
+    const devBypass = isDev && (
+      sessionStorage.getItem("dev_admin_bypass") === "true" ||
+      // Auto-allow in dev mode if no session (for easier development)
+      (!session && isDev)
+    );
+
+    // Allow access if authenticated as admin OR dev bypass is active
+    if (status === "authenticated" && (session?.user as any)?.role === "admin") {
+      // Authenticated admin - allow access
+      return;
+    }
+
+    if (devBypass) {
+      // Dev bypass active - allow access
+      return;
+    }
+
+    // Not authenticated and no dev bypass - redirect to login (only once)
+    redirectAttemptedRef.current = true;
+    if (status === "unauthenticated") {
+      router.push("/login");
+    } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
+      router.push("/client/dashboard");
+    }
+  }, [status, session?.user?.role, router]); // Only depend on specific values, not entire session
+
+  useEffect(() => {
+    // Wait for session to load - don't do anything while loading
+    if (status === "loading") {
+      return;
+    }
+
+    // Check for dev bypass
+    const isDev = typeof window !== "undefined" && 
+      (process.env.NODE_ENV === "development" || 
+       window.location.hostname === "localhost" ||
+       window.location.hostname === "127.0.0.1" ||
+       window.location.hostname.startsWith("192.168."));
+    
+    const devBypass = isDev && (
+      sessionStorage.getItem("dev_admin_bypass") === "true" ||
+      (!session && isDev) // Auto-allow in dev mode
+    );
+
+    const isAuthorized = (status === "authenticated" && (session?.user as any)?.role === "admin") || devBypass;
+    
+    // Only fetch once when authorized, and not already fetched
+    if (isAuthorized && !hasFetchedRef.current && !isFetchingRef.current) {
+      hasFetchedRef.current = true;
+      fetchStats();
+    }
+  }, [status, session?.user?.role, fetchStats]); // Removed 'loading' from dependencies to prevent re-runs
 
   const handleSyncEmails = async () => {
     try {
       const response = await fetch("/api/admin/email/sync", {
         method: "POST",
+        headers: { "Content-Type": "application/json" },
       });
       const result = await response.json();
       if (result.success) {
-        alert(`Email sync completed! ${result.count || result.successful} emails synced.`);
+        const message = result.count 
+          ? `Email sync completed! ${result.count} emails synced.`
+          : result.successful 
+          ? `Email sync completed! ${result.successful} inbox(es) synced successfully.`
+          : "Email sync completed!";
+        alert(message);
         fetchStats();
+      } else {
+        alert(`Email sync failed: ${result.error || result.details || "Unknown error"}`);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error syncing emails:", error);
-      alert("Failed to sync emails");
+      alert(`Failed to sync emails: ${error?.message || "Please check your email inbox configuration in Settings"}`);
     }
   };
 
-  if (status === "loading" || loading) {
+  // Track if component is mounted to prevent hydration mismatch
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Check for dev bypass (development only) - allow access automatically in dev mode
+  // Only check on client side to prevent hydration mismatch
+  const isDev = mounted && typeof window !== "undefined" && 
+    (process.env.NODE_ENV === "development" || 
+     window.location.hostname === "localhost" ||
+     window.location.hostname === "127.0.0.1" ||
+     window.location.hostname.startsWith("192.168."));
+  
+  const devBypass = mounted && isDev && (
+    (typeof window !== "undefined" && sessionStorage.getItem("dev_admin_bypass") === "true") ||
+    (!session && isDev) // Auto-allow in dev mode even without session
+  );
+
+  const isAdmin = session && (session?.user as any)?.role === "admin";
+  const displayName = isAdmin 
+    ? session.user?.name 
+    : (mounted && typeof window !== "undefined" ? sessionStorage.getItem("dev_admin_name") : null) || "Dev Admin";
+  const userEmail = session?.user?.email || null;
+  const isSuperAdminUser = isSuperAdmin(userEmail);
+
+  // Show loading state - ensure consistent rendering between server and client
+  if (!mounted || (status === "loading" || loading) && !devBypass) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <div className="text-white">Loading...</div>
+      <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
+        <div className="container mx-auto max-w-7xl">
+          <div className="text-white">Loading...</div>
+        </div>
       </div>
     );
   }
-
-  // Check for dev bypass (development only)
-  const devBypass = typeof window !== "undefined" && 
-    (process.env.NODE_ENV === "development" || window.location.hostname === "localhost") &&
-    sessionStorage.getItem("dev_admin_bypass") === "true";
-
-  const isAdmin = session && (session?.user as any)?.role === "admin";
-  const displayName = isAdmin ? session.user?.name : sessionStorage.getItem("dev_admin_name") || "Dev Admin";
 
   if (!isAdmin && !devBypass) {
     return null;
@@ -169,7 +258,9 @@ export default function AdminDashboard() {
         >
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-4xl font-bold mb-2">Admin Dashboard</h1>
+              <h1 className="text-4xl font-bold mb-2">
+                {displayName?.toLowerCase().includes("ali") ? "Ali's Desk" : "Admin Dashboard"}
+              </h1>
               <p className="text-gray-400">Welcome back, {displayName}</p>
               {devBypass && (
                 <p className="text-xs text-yellow-400 mt-1">⚠️ Development Mode - Auth Bypassed</p>
@@ -247,14 +338,14 @@ export default function AdminDashboard() {
           <Link href="/admin/bookings?status=pending">
             <Card className={`bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer relative overflow-hidden ${
               stats.pendingBookings > 0 
-                ? "border-red-500 ring-4 ring-red-500/70 bg-red-950/30 animate-pulse" 
+                ? "border-red-500 ring-4 ring-red-500/70 bg-red-950/30 animate-throb" 
                 : priorityStats.urgent > 0 
-                ? "ring-2 ring-red-500/50 animate-pulse" 
+                ? "ring-2 ring-red-500/50 animate-throb" 
                 : ""
             }`}>
               {/* Red flashing overlay for new enquiries */}
               {stats.pendingBookings > 0 && (
-                <div className="absolute inset-0 bg-red-500/10 animate-pulse pointer-events-none" />
+                <div className="absolute inset-0 bg-red-500/10 animate-throb pointer-events-none" />
               )}
               <CardContent className="p-6 relative z-10">
                 <div className="flex items-center justify-between">
@@ -262,7 +353,7 @@ export default function AdminDashboard() {
                     <div className="flex items-center gap-2 mb-1">
                       <p className="text-sm text-gray-400">New Enquiries</p>
                       {stats.pendingBookings > 0 && (
-                        <span className="px-2 py-0.5 bg-red-900/60 border border-red-500 rounded text-xs font-bold text-red-300 animate-pulse">
+                        <span className="px-2 py-0.5 bg-red-900/60 border border-red-500 rounded text-xs font-bold text-red-300 animate-throb">
                           NEW
                         </span>
                       )}
@@ -274,7 +365,7 @@ export default function AdminDashboard() {
                         {stats.pendingBookings}
                       </p>
                       {stats.pendingBookings > 0 && (
-                        <div className="text-red-400 animate-pulse">
+                        <div className="text-red-400 animate-throb">
                           <AlertCircle className="w-5 h-5" />
                         </div>
                       )}
@@ -282,7 +373,7 @@ export default function AdminDashboard() {
                     {stats.pendingBookings > 0 && (
                       <div className="flex gap-2 mt-2 flex-wrap">
                         {priorityStats.urgent > 0 && (
-                          <span className="px-2 py-0.5 bg-red-900/60 border border-red-500/70 rounded text-xs font-bold text-red-300 animate-pulse">
+                          <span className="px-2 py-0.5 bg-red-900/60 border border-red-500/70 rounded text-xs font-bold text-red-300 animate-throb">
                             {priorityStats.urgent} URGENT
                           </span>
                         )}
@@ -294,14 +385,14 @@ export default function AdminDashboard() {
                       </div>
                     )}
                     {stats.pendingBookings > 0 && (
-                      <p className="text-xs text-red-300 mt-2 font-bold animate-pulse">
+                      <p className="text-xs text-red-300 mt-2 font-bold animate-throb">
                         ⚠️ No action taken yet - Send first reply
                       </p>
                     )}
                   </div>
                   <div className={`p-3 rounded-lg ${
                     stats.pendingBookings > 0 
-                      ? "bg-red-900/40 animate-pulse" 
+                      ? "bg-red-900/40 animate-throb" 
                       : "bg-champagne-gold/20"
                   }`}>
                     <Calendar className={`w-6 h-6 ${
@@ -381,19 +472,35 @@ export default function AdminDashboard() {
               </Card>
             </Link>
 
-            <Link href="/admin/users">
+            <Link href="/admin/staff-management">
               <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
                 <CardContent className="p-6 flex items-center gap-4">
                   <div className="p-3 bg-champagne-gold/20 rounded-lg">
                     <Users className="w-6 h-6 text-champagne-gold" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-white">User Management</h3>
-                    <p className="text-sm text-gray-400">Manage users and roles</p>
+                    <h3 className="text-lg font-semibold text-white">Staff Management</h3>
+                    <p className="text-sm text-gray-400">Team directory & contact info</p>
                   </div>
                 </CardContent>
               </Card>
             </Link>
+
+            {isSuperAdminUser && (
+              <Link href="/admin/users">
+                <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                  <CardContent className="p-6 flex items-center gap-4">
+                    <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                      <Users className="w-6 h-6 text-champagne-gold" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">User Management</h3>
+                      <p className="text-sm text-gray-400">Manage users and roles</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            )}
 
             <Link href="/admin/inbox">
               <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
@@ -401,9 +508,12 @@ export default function AdminDashboard() {
                   <div className="p-3 bg-champagne-gold/20 rounded-lg">
                     <Inbox className="w-6 h-6 text-champagne-gold" />
                   </div>
-                  <div>
+                  <div className="flex-1">
                     <h3 className="text-lg font-semibold text-white">Email Inbox</h3>
                     <p className="text-sm text-gray-400">View and manage emails</p>
+                    <p className="text-xs text-yellow-400 mt-1">
+                      💡 Configure inboxes in Settings first
+                    </p>
                   </div>
                 </CardContent>
               </Card>
@@ -434,19 +544,76 @@ export default function AdminDashboard() {
         >
           <h2 className="text-2xl font-bold mb-6">Additional Tools</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Link href="/admin/settings">
-              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <Settings className="w-6 h-6 text-champagne-gold" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Settings</h3>
-                    <p className="text-sm text-gray-400">Configure email inboxes</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+            {isSuperAdminUser && (
+              <>
+                <Link href="/admin/settings">
+                  <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                    <CardContent className="p-6 flex items-center gap-4">
+                      <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                        <Settings className="w-6 h-6 text-champagne-gold" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-white">Settings</h3>
+                        <p className="text-sm text-gray-400">Configure email inboxes</p>
+                        <p className="text-xs text-blue-400 mt-1">
+                          ⚙️ Test connections & sync emails
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+                <Link href="/admin/email-audit">
+                  <Card className="bg-gray-800 border-purple-500/30 hover:border-purple-500/60 transition-all cursor-pointer h-full">
+                    <CardContent className="p-6 flex items-center gap-4">
+                      <div className="p-3 bg-purple-500/20 rounded-lg">
+                        <Mail className="w-6 h-6 text-purple-400" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-white">Email Audit</h3>
+                        <p className="text-sm text-gray-400">Diagnose email sync issues</p>
+                        <p className="text-xs text-purple-400 mt-1">
+                          🔍 Check server vs database stats
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+                <Link href="/admin/db-audit">
+                  <Card className="bg-gray-800 border-indigo-500/30 hover:border-indigo-500/60 transition-all cursor-pointer h-full">
+                    <CardContent className="p-6 flex items-center gap-4">
+                      <div className="p-3 bg-indigo-500/20 rounded-lg">
+                        <Database className="w-6 h-6 text-indigo-400" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-lg font-semibold text-white">Database Audit</h3>
+                        <p className="text-sm text-gray-400">Compare schema with Supabase</p>
+                        <p className="text-xs text-indigo-400 mt-1">
+                          🔍 Verify all fields exist
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+                {(process.env.NODE_ENV === "development" || typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) && (
+                  <Link href="/admin/dev-bypass-toggle">
+                    <Card className="bg-gray-800 border-yellow-500/30 hover:border-yellow-500/60 transition-all cursor-pointer h-full">
+                      <CardContent className="p-6 flex items-center gap-4">
+                        <div className="p-3 bg-yellow-500/20 rounded-lg">
+                          <AlertCircle className="w-6 h-6 text-yellow-400" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-lg font-semibold text-white">Dev Bypass Toggle</h3>
+                          <p className="text-sm text-gray-400">Enable/disable auth bypass</p>
+                          <p className="text-xs text-yellow-400 mt-1">
+                            ⚠️ Development only
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                )}
+              </>
+            )}
 
             <Link href="/admin/email-templates">
               <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
@@ -506,44 +673,46 @@ export default function AdminDashboard() {
           </div>
         </motion.div>
 
-        {/* Utility Tools */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mb-8"
-        >
-          <h2 className="text-2xl font-bold mb-6">Utility Tools</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Link href="/admin/hire-items/seed">
-              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <Package className="w-6 h-6 text-champagne-gold" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Seed Hire Items</h3>
-                    <p className="text-sm text-gray-400">Create initial hire items</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+        {/* Utility Tools - SuperAdmin Only */}
+        {isSuperAdminUser && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mb-8"
+          >
+            <h2 className="text-2xl font-bold mb-6">Utility Tools</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <Link href="/admin/hire-items/seed">
+                <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                  <CardContent className="p-6 flex items-center gap-4">
+                    <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                      <Package className="w-6 h-6 text-champagne-gold" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">Seed Hire Items</h3>
+                      <p className="text-sm text-gray-400">Create initial hire items</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
 
-            <Link href="/demo-booking-form">
-              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <Calendar className="w-6 h-6 text-champagne-gold" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Booking Form Demo</h3>
-                    <p className="text-sm text-gray-400">Test DJ selection & upsells</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
-        </motion.div>
+              <Link href="/demo-booking-form">
+                <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                  <CardContent className="p-6 flex items-center gap-4">
+                    <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                      <Calendar className="w-6 h-6 text-champagne-gold" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold text-white">Booking Form Demo</h3>
+                      <p className="text-sm text-gray-400">Test DJ selection & upsells</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
+          </motion.div>
+        )}
 
         {/* Venue Asset Uploader */}
         <motion.div

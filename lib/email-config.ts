@@ -1,11 +1,11 @@
 /**
  * Centralised Email Configuration
- * All outgoing emails use office@stylishentertainment.co.uk as the domain identity
+ * All outgoing emails use info@stylishentertainment.co.uk as the domain identity
  */
 
 export const EMAIL_CONFIG = {
   // Primary domain email address
-  OFFICE_EMAIL: "office@stylishentertainment.co.uk",
+  OFFICE_EMAIL: "info@stylishentertainment.co.uk",
   
   // Dynamic sender names based on email type
   SENDER_NAMES: {
@@ -16,8 +16,8 @@ export const EMAIL_CONFIG = {
     default: "STYLISH Entertainment",
   },
 
-  // Reply-To addresses (always office@stylishentertainment.co.uk)
-  REPLY_TO: "office@stylishentertainment.co.uk",
+  // Reply-To addresses (always info@stylishentertainment.co.uk)
+  REPLY_TO: "info@stylishentertainment.co.uk",
 } as const;
 
 /**

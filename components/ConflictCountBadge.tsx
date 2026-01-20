@@ -11,8 +11,8 @@ export function ConflictCountBadge() {
 
   useEffect(() => {
     fetchConflictCount();
-    // Poll every 30 seconds
-    const interval = setInterval(fetchConflictCount, 30000);
+    // Poll every 60 seconds (reduced frequency to prevent excessive requests)
+    const interval = setInterval(fetchConflictCount, 60000);
     return () => clearInterval(interval);
   }, []);
 

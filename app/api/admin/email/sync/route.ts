@@ -15,24 +15,37 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = await request.json();
-    const inboxId = body.inboxId;
+    let body;
+    try {
+      body = await request.json();
+    } catch (error) {
+      // Handle empty or malformed JSON
+      body = {};
+    }
+    const inboxId = body?.inboxId;
+    const deepSync = body?.deepSync === true; // 6-month historical backfill
 
     if (inboxId) {
       // Sync specific inbox
-      const count = await syncEmailInbox(inboxId);
+      const count = await syncEmailInbox(inboxId, { deepSync });
       return NextResponse.json({
         success: true,
-        message: `Synced ${count} emails`,
+        message: deepSync 
+          ? `Deep synced ${count} emails (6 months of history)` 
+          : `Synced ${count} emails`,
         count,
+        deepSync,
       });
     } else {
       // Sync all inboxes
-      const result = await syncAllInboxes();
+      const result = await syncAllInboxes({ deepSync });
       return NextResponse.json({
         success: true,
-        message: `Synced ${result.successful} inboxes`,
+        message: deepSync
+          ? `Deep synced ${result.successful} inboxes (6 months of history)`
+          : `Synced ${result.successful} inboxes`,
         ...result,
+        deepSync,
       });
     }
   } catch (error: any) {

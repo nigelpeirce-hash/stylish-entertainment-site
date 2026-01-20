@@ -12,6 +12,7 @@ const updateMusicianSchema = z.object({
   slug: z.string().optional(),
   bio: z.string().optional(),
   instrument: z.string().optional(),
+  youtubeEmbed: z.string().url().optional().nullable(),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
   imageUrl: z.string().url().optional().nullable(),

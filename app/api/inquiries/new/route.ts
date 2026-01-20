@@ -5,7 +5,14 @@ import { Resend } from "resend";
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization to prevent build-time errors
+const getResend = () => {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY environment variable is not set");
+  }
+  return new Resend(apiKey);
+};
 
 export async function POST(request: NextRequest) {
   try {
@@ -112,6 +119,7 @@ export async function POST(request: NextRequest) {
         </html>
       `;
 
+      const resend = getResend();
       await resend.emails.send({
         from: process.env.RESEND_FROM_EMAIL || "noreply@stylishentertainment.co.uk",
         to: email,
@@ -166,8 +174,12 @@ async function sendMobileNotification(enquiry: any, existingBooking: any) {
     return;
   }
 
-  const dashboardUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/admin/new-enquiries/${enquiry.id}`;
-  const deepLinkUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/admin/new-enquiries/${enquiry.id}`;
+  // Use relative paths for internal links (works regardless of port)
+  const dashboardPath = `/admin/new-enquiries/${enquiry.id}`;
+  const dashboardUrl = process.env.NEXT_PUBLIC_APP_URL 
+    ? `${process.env.NEXT_PUBLIC_APP_URL}${dashboardPath}`
+    : dashboardPath;
+  const deepLinkUrl = dashboardUrl;
 
   const message = existingBooking
     ? `⚠️ CONFLICT DETECTED: New inquiry from ${enquiry.name} for ${new Date(enquiry.eventDate).toLocaleDateString()} at ${enquiry.venuePostcode}. Conflicting with existing booking for ${existingBooking.name}.`

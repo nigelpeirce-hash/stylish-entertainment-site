@@ -18,9 +18,12 @@ import {
   MoreVertical,
   RefreshCw,
   ArrowLeft,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
 import { InviteUserModal } from "@/components/InviteUserModal";
+import { getDevBypassHeaders } from "@/lib/dev-bypass";
+import { isSuperAdmin } from "@/lib/admin-permissions";
 import {
   Select,
   SelectContent,
@@ -55,6 +58,7 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [updatingRole, setUpdatingRole] = useState<string | null>(null);
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
 
   useEffect(() => {
     // Check for dev bypass
@@ -67,12 +71,19 @@ export default function AdminUsers() {
        window.location.hostname === "127.0.0.1");
 
     const isAdmin = session && (session?.user as any)?.role === "admin";
-    const hasAccess = isAdmin || devBypass || isLocalhost;
+    const userEmail = session?.user?.email;
+    const isSuperAdminUser = isSuperAdmin(userEmail);
+    const hasAccess = (isAdmin && isSuperAdminUser) || devBypass || isLocalhost;
 
     if (status === "unauthenticated" && !hasAccess) {
       router.push("/login");
-    } else if (status === "authenticated" && !hasAccess) {
-      router.push("/admin");
+    } else if (status === "authenticated") {
+      if (!isAdmin) {
+        router.push("/client/dashboard");
+      } else if (!isSuperAdminUser && !devBypass && !isLocalhost) {
+        // Not SuperAdmin - redirect to dashboard
+        router.push("/admin");
+      }
     }
 
     if (hasAccess) {
@@ -83,7 +94,11 @@ export default function AdminUsers() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/admin/users");
+      const response = await fetch("/api/admin/users", {
+        headers: {
+          ...getDevBypassHeaders(),
+        },
+      });
       if (response.ok) {
         const data = await response.json();
         setUsers(data.users || []);
@@ -100,7 +115,10 @@ export default function AdminUsers() {
     try {
       const response = await fetch("/api/admin/users", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          ...getDevBypassHeaders(),
+        },
         body: JSON.stringify({ userId, role: newRole }),
       });
 
@@ -115,6 +133,42 @@ export default function AdminUsers() {
       alert("Failed to update role");
     } finally {
       setUpdatingRole(null);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string, userName: string, userEmail: string) => {
+    const confirmMessage = `Are you sure you want to permanently delete ${userName || userEmail}?\n\nThis action cannot be undone. All associated data will be removed.`;
+    
+    if (!confirm(confirmMessage)) {
+      return;
+    }
+
+    setDeletingUserId(userId);
+    try {
+      const response = await fetch(`/api/admin/users?userId=${encodeURIComponent(userId)}`, {
+        method: "DELETE",
+        headers: {
+          ...getDevBypassHeaders(),
+        },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        if (data.hadBookings) {
+          alert(`User deleted successfully. Note: This user had bookings that were also removed.`);
+        } else {
+          alert("User deleted successfully");
+        }
+        await fetchUsers();
+      } else {
+        alert(data.error || "Failed to delete user");
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      alert("Failed to delete user");
+    } finally {
+      setDeletingUserId(null);
     }
   };
 
@@ -361,6 +415,14 @@ export default function AdminUsers() {
                                     Resend Invite
                                   </DropdownMenuItem>
                                 )}
+                                <DropdownMenuItem
+                                  onClick={() => handleDeleteUser(user.id, user.name || "", user.email)}
+                                  disabled={deletingUserId === user.id}
+                                  className="text-red-400 hover:bg-red-900/30 hover:text-red-300"
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  {deletingUserId === user.id ? "Deleting..." : "Delete User"}
+                                </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
                           </td>

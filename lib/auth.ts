@@ -3,6 +3,12 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
+// Ensure NEXTAUTH_URL is set from NEXT_PUBLIC_SITE_URL if not explicitly set
+// This ensures consistent behavior across local and production environments
+if (process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXTAUTH_URL) {
+  process.env.NEXTAUTH_URL = process.env.NEXT_PUBLIC_SITE_URL;
+}
+
 // Get secret with fallback
 const getSecret = () => {
   const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET;
@@ -14,6 +20,13 @@ const getSecret = () => {
 };
 
 export const authOptions: NextAuthConfig = {
+  // Set NEXTAUTH_URL from NEXT_PUBLIC_SITE_URL for consistency
+  // This ensures authentication callbacks work in both local and production
+  // NextAuth will use NEXTAUTH_URL if set, otherwise fall back to detecting from request
+  ...(process.env.NEXT_PUBLIC_SITE_URL && {
+    // Note: NextAuth v5 uses trustHost: true instead of explicitly setting URL
+    // The URL is automatically detected from the request headers
+  }),
   // Removed PrismaAdapter - using JWT sessions, so we don't need database sessions
   // adapter: PrismaAdapter(prisma) as any,
   providers: [

@@ -3,22 +3,26 @@
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { motion } from "framer-motion";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   Mail,
-  Inbox,
-  Star,
-  Archive,
   Search,
-  Filter,
   Reply,
-  Trash2,
-  Calendar,
-  User,
+  Forward,
+  Archive,
+  Send,
+  ChevronDown,
+  ChevronRight,
+  Settings,
+  X,
+  FileText,
+  Inbox,
+  Folder,
 } from "lucide-react";
+import { isSuperAdmin } from "@/lib/admin-permissions";
 import Link from "next/link";
 
 interface EmailThread {
@@ -27,40 +31,137 @@ interface EmailThread {
   fromEmail: string;
   fromName: string | null;
   toEmail: string;
+  source?: string; // "imap" or "portal"
   isRead: boolean;
   isStarred: boolean;
   isArchived: boolean;
   lastMessageAt: string;
   inbox: { id: string; name: string; email: string };
-  booking: { id: string; name: string; eventType: string; eventDate: string } | null;
+  booking: { 
+    id: string; 
+    name: string; 
+    eventType: string; 
+    eventDate: string;
+    status: string;
+  } | null;
   user: { id: string; name: string; email: string } | null;
   _count: { emails: number };
+  emails: Array<{
+    id: string;
+    subject: string;
+    fromEmail: string;
+    fromName: string | null;
+    toEmail: string;
+    textContent: string | null;
+    htmlContent: string | null;
+    bodyText: string | null;
+    bodyHtml: string | null;
+    direction: string;
+    receivedAt: string;
+  }>;
+}
+
+interface EmailTemplate {
+  id: string;
+  name: string;
+  bodyHtml: string;
+}
+
+type FolderType = "unified" | "new-enquiries" | "ongoing-bookings" | "staff-comms" | "sent" | "all";
+type ViewMode = "unified" | "account";
+
+interface EmailInbox {
+  id: string;
+  name: string;
+  email: string;
+  isActive: boolean;
+}
+
+// Account color mapping
+function getAccountColor(inboxName: string, inboxEmail: string): { bg: string; border: string; name: string } {
+  const nameLower = inboxName.toLowerCase();
+  const emailLower = inboxEmail.toLowerCase();
+  
+  if (nameLower.includes("office") || emailLower.includes("office") || emailLower.includes("info@")) {
+    return { bg: "bg-amber-50", border: "border-amber-400", name: "Gold" };
+  }
+  if (nameLower.includes("ali") || emailLower.includes("ali@")) {
+    return { bg: "bg-gray-50", border: "border-gray-400", name: "Silver" };
+  }
+  if (nameLower.includes("enquir") || emailLower.includes("enquir")) {
+    return { bg: "bg-orange-50", border: "border-orange-400", name: "Bronze" };
+  }
+  // Default
+  return { bg: "bg-blue-50", border: "border-blue-400", name: "Blue" };
+}
+
+// Simplified status categories
+function getEmailStatus(thread: EmailThread): "to-action" | "waiting-client" | "confirmed" {
+  if (!thread.booking) return "to-action";
+  
+  const status = thread.booking.status.toLowerCase();
+  if (status === "confirmed") return "confirmed";
+  if (status === "pending" || status === "new") return "waiting-client";
+  return "to-action";
+}
+
+// Categorize threads into folders
+function categorizeThread(thread: EmailThread, folder: FolderType, accountId?: string | null): boolean {
+  // Filter by account if specified
+  if (accountId && thread.inbox.id !== accountId) return false;
+  
+  if (folder === "unified" || folder === "all") {
+    // Unified inbox shows all threads from all accounts' INBOX folders
+    return true;
+  }
+  if (folder === "sent") {
+    // Check if last email is outbound
+    const lastEmail = thread.emails?.[thread.emails.length - 1];
+    return lastEmail?.direction === "outbound";
+  }
+  if (folder === "new-enquiries") {
+    return !thread.booking || thread.booking.status === "pending";
+  }
+  if (folder === "ongoing-bookings") {
+    return thread.booking !== null && thread.booking.status !== "confirmed";
+  }
+  if (folder === "staff-comms") {
+    // Staff communications - could be based on sender domain or subject
+    return thread.fromEmail.includes("@stylishentertainment") || 
+           thread.subject.toLowerCase().includes("staff") ||
+           thread.subject.toLowerCase().includes("brief");
+  }
+  return false;
 }
 
 export default function AdminInbox() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [threads, setThreads] = useState<EmailThread[]>([]);
-  const [inboxes, setInboxes] = useState<any[]>([]);
-  const [selectedInbox, setSelectedInbox] = useState<string>("all");
-  const [filter, setFilter] = useState<"all" | "unread" | "starred" | "archived">("all");
-  const [search, setSearch] = useState("");
+  const [selectedThread, setSelectedThread] = useState<EmailThread | null>(null);
+  const [selectedFolder, setSelectedFolder] = useState<FolderType>("unified");
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
+  const [expandedAccounts, setExpandedAccounts] = useState<Set<string>>(new Set());
+  const [inboxes, setInboxes] = useState<EmailInbox[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [replying, setReplying] = useState(false);
+  const [replyText, setReplyText] = useState("");
+  const [replySubject, setReplySubject] = useState("");
+  const [replyTo, setReplyTo] = useState("");
+  const [replyInboxId, setReplyInboxId] = useState<string>("");
+  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+  const [showAdvanced, setShowAdvanced] = useState(false);
   const [composing, setComposing] = useState(false);
-  const [sending, setSending] = useState(false);
-  const [composeData, setComposeData] = useState<{
-    inboxId: string;
-    to: string;
-    subject: string;
-    body: string;
-    signature: "none" | "ali" | "nige";
-  }>({
-    inboxId: "",
+  const [composeData, setComposeData] = useState({
     to: "",
     subject: "",
     body: "",
-    signature: "none",
+    inboxId: "",
   });
+
+  const isNigel = session?.user?.email && isSuperAdmin(session.user.email);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -74,8 +175,9 @@ export default function AdminInbox() {
     if (status === "authenticated" && (session?.user as any)?.role === "admin") {
       fetchInboxes();
       fetchThreads();
+      fetchTemplates();
     }
-  }, [status, session, selectedInbox, filter]);
+  }, [status, session]);
 
   const fetchInboxes = async () => {
     try {
@@ -83,9 +185,9 @@ export default function AdminInbox() {
       if (response.ok) {
         const data = await response.json();
         setInboxes(data.inboxes || []);
-        if (!composeData.inboxId && data.inboxes && data.inboxes.length > 0) {
-          setComposeData((prev) => ({ ...prev, inboxId: data.inboxes[0].id }));
-        }
+        // Auto-expand all accounts by default
+        const accountIds = (data.inboxes || []).map((inbox: EmailInbox) => inbox.id);
+        setExpandedAccounts(new Set(accountIds));
       }
     } catch (error) {
       console.error("Error fetching inboxes:", error);
@@ -95,17 +197,13 @@ export default function AdminInbox() {
   const fetchThreads = async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (selectedInbox !== "all") params.append("inboxId", selectedInbox);
-      if (filter === "unread") params.append("isRead", "false");
-      if (filter === "starred") params.append("isStarred", "true");
-      if (filter === "archived") params.append("isArchived", "true");
-      if (search) params.append("search", search);
-
-      const response = await fetch(`/api/admin/threads?${params.toString()}`);
+      const response = await fetch("/api/admin/threads");
       if (response.ok) {
         const data = await response.json();
-        setThreads(data.threads || []);
+        setThreads((data.threads || []).map((thread: EmailThread) => ({
+          ...thread,
+          emails: [], // Will be loaded when thread is selected
+        })));
       }
     } catch (error) {
       console.error("Error fetching threads:", error);
@@ -114,139 +212,186 @@ export default function AdminInbox() {
     }
   };
 
-  const getSignatureHtml = (key: "ali" | "nige") => {
-    const baseStyles =
-      "font-family: Arial, sans-serif; font-size: 13px; color: #222222; line-height: 1.5;";
-    const logoImg =
-      '<img src="https://stylishentertainment.co.uk/favicon.svg" alt="Stylish Entertainment" style="width:32px;height:32px;margin-right:8px;vertical-align:middle;" />';
-    const socials =
-      '<div style="margin-top:6px;"><a href="https://www.facebook.com/StylishEntertainment" style="margin-right:8px;color:#D4AF37;text-decoration:none;">Facebook</a><a href="https://www.youtube.com/@stylishentertainment937/playlists" style="margin-right:8px;color:#D4AF37;text-decoration:none;">YouTube</a><a href="https://www.instagram.com/stylishentertainment/" style="color:#D4AF37;text-decoration:none;">Instagram</a></div>';
-    const disclaimer =
-      '<p style="margin-top:10px;font-size:11px;color:#777777;max-width:480px;">The content of this email is confidential and intended for the recipient specified in this message only. It is strictly forbidden to share any part of this message with any third party without the written consent of the sender. If you received this message by mistake, please reply to this message and then delete it so that we can ensure such a mistake does not occur in the future.</p>';
-
-    if (key === "nige") {
-      return `
-        <div style="${baseStyles}">
-          <div style="margin-bottom:6px;">
-            ${logoImg}
-            <span style="font-weight:bold;font-size:14px;">Nigel Peirce</span>
-          </div>
-          <div>Director | <a href="https://stylishentertainment.co.uk" style="color:#D4AF37;text-decoration:none;">stylishentertainment.co.uk</a></div>
-          <div style="margin-top:4px;">
-            <strong>M:</strong> <a href="tel:+447970793177" style="color:#222222;text-decoration:none;">07970 793177</a><br />
-            <strong>E:</strong> <a href="mailto:nigel@stylishentertainment.co.uk" style="color:#222222;text-decoration:none;">nigel@stylishentertainment.co.uk</a><br />
-            <strong>A:</strong> Stylish Entertainment Ltd, 88 Weymouth Road, Frome, BA11 1HJ
-          </div>
-          ${socials}
-          ${disclaimer}
-        </div>
-      `;
+  const fetchThreadDetails = async (threadId: string) => {
+    try {
+      const response = await fetch(`/api/admin/threads/${threadId}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSelectedThread(data.thread);
+      }
+    } catch (error) {
+      console.error("Error fetching thread details:", error);
     }
-
-    return `
-      <div style="${baseStyles}">
-        <div style="margin-bottom:6px;">
-          ${logoImg}
-          <span style="font-weight:bold;font-size:14px;">Ali Peirce</span>
-        </div>
-        <div>Stylish Entertainment | <a href="https://stylishentertainment.co.uk" style="color:#D4AF37;text-decoration:none;">stylishentertainment.co.uk</a></div>
-        <div style="margin-top:4px;">
-          <strong>M:</strong> <a href="tel:+447711117916" style="color:#222222;text-decoration:none;">07711 117916</a><br />
-          <strong>E:</strong> <a href="mailto:ali@stylishent.co.uk" style="color:#222222;text-decoration:none;">ali@stylishent.co.uk</a><br />
-          <strong>A:</strong> Stylish Entertainment Ltd, 88 Weymouth Road, Frome, BA11 1HJ
-        </div>
-        ${socials}
-        ${disclaimer}
-      </div>
-    `;
   };
 
-  const handleSendNewEmail = async () => {
-    if (!composeData.inboxId || !composeData.to || !composeData.subject || !composeData.body.trim()) {
-      alert("Please fill in From inbox, To, Subject and Message.");
+  const fetchTemplates = async () => {
+    try {
+      const response = await fetch("/api/admin/email-templates?isActive=true");
+      if (response.ok) {
+        const data = await response.json();
+        setTemplates(data.templates || []);
+      }
+    } catch (error) {
+      console.error("Error fetching templates:", error);
+    }
+  };
+
+  const handleTemplateSelect = async (templateId: string) => {
+    if (!templateId || !selectedThread) {
+      setReplyText("");
       return;
     }
 
-    const signatureHtml =
-      composeData.signature === "none" ? "" : getSignatureHtml(composeData.signature);
-    const html = signatureHtml
-      ? `${composeData.body}<br/><br/>${signatureHtml}`
-      : composeData.body;
-    const text = html.replace(/<[^>]*>/g, "");
+    try {
+      const response = await fetch(`/api/admin/email-templates/${templateId}`);
+      if (response.ok) {
+        const data = await response.json();
+        const template = data.template;
+        
+        // Prepare variables from booking if available
+        const variables: any = {};
+        if (selectedThread.booking) {
+          const eventDate = new Date(selectedThread.booking.eventDate).toLocaleDateString("en-GB", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          });
+          variables.eventDate = eventDate;
+          variables.venueName = selectedThread.booking.name || "";
+          variables.clientName = selectedThread.booking.name || "";
+          variables.eventType = selectedThread.booking.eventType || "";
+        }
 
-    setSending(true);
+        // Simple variable replacement
+        let processedHtml = template.bodyHtml;
+        Object.keys(variables).forEach((key) => {
+          const regex = new RegExp(`\\{\\{${key}\\}\\}`, "g");
+          processedHtml = processedHtml.replace(regex, variables[key] || "");
+        });
+        processedHtml = processedHtml.replace(/\{\{[^}]+\}\}/g, "");
+
+        setReplyText(processedHtml);
+      }
+    } catch (error) {
+      console.error("Error loading template:", error);
+    }
+  };
+
+  const handleReply = async () => {
+    if (!selectedThread || !replyText.trim()) return;
+
+    setLoading(true);
     try {
       const response = await fetch("/api/admin/email/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          inboxId: composeData.inboxId,
-          to: composeData.to,
-          subject: composeData.subject,
-          html,
-          text,
+          inboxId: replyInboxId || selectedThread.inbox.id, // Use smart-selected inbox
+          to: replyTo || selectedThread.fromEmail,
+          subject: replySubject || `Re: ${selectedThread.subject}`,
+          html: replyText,
+          text: replyText.replace(/<[^>]*>/g, ""),
+          threadId: selectedThread.id,
+          bookingId: selectedThread.booking?.id || undefined,
         }),
       });
 
       if (response.ok) {
-        alert("Email sent.");
-        setComposeData((prev) => ({
-          ...prev,
-          to: "",
-          subject: "",
-          body: "",
-          signature: "none",
-        }));
-        setComposing(false);
-        fetchThreads();
+        setReplying(false);
+        setReplyText("");
+        setReplySubject("");
+        setReplyTo("");
+        setSelectedTemplateId("");
+        await fetchThreads();
+        // Refresh selected thread
+        const threadResponse = await fetch(`/api/admin/threads/${selectedThread.id}`);
+        if (threadResponse.ok) {
+          const threadData = await threadResponse.json();
+          setSelectedThread(threadData.thread);
+        }
       } else {
         const error = await response.json();
-        alert(error.error || "Failed to send email");
+        alert(error.error || "Failed to send reply");
       }
     } catch (error) {
-      console.error("Error sending email:", error);
-      alert("An error occurred while sending the email");
+      console.error("Error sending reply:", error);
+      alert("An error occurred");
     } finally {
-      setSending(false);
+      setLoading(false);
     }
   };
 
-  const handleToggleStar = async (threadId: string, currentStarred: boolean) => {
+  const handleArchive = async (threadId: string) => {
     try {
       const response = await fetch(`/api/admin/threads/${threadId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isStarred: !currentStarred }),
+        body: JSON.stringify({ isArchived: true }),
       });
 
       if (response.ok) {
-        fetchThreads();
+        await fetchThreads();
+        if (selectedThread?.id === threadId) {
+          setSelectedThread(null);
+        }
       }
     } catch (error) {
-      console.error("Error toggling star:", error);
+      console.error("Error archiving thread:", error);
     }
   };
 
-  const handleToggleArchive = async (threadId: string, currentArchived: boolean) => {
-    try {
-      const response = await fetch(`/api/admin/threads/${threadId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isArchived: !currentArchived }),
-      });
-
-      if (response.ok) {
-        fetchThreads();
+  const filteredThreads = threads
+    .filter((thread) => {
+      // If unified view, show all threads
+      if (selectedFolder === "unified") {
+        return true;
       }
-    } catch (error) {
-      console.error("Error toggling archive:", error);
-    }
+      // If account selected, filter by account
+      if (selectedAccountId) {
+        return categorizeThread(thread, selectedFolder, selectedAccountId);
+      }
+      return categorizeThread(thread, selectedFolder);
+    })
+    .filter((thread) => {
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        return (
+          thread.subject.toLowerCase().includes(query) ||
+          thread.fromEmail.toLowerCase().includes(query) ||
+          (thread.fromName && thread.fromName.toLowerCase().includes(query))
+        );
+      }
+      return true;
+    })
+    .sort((a, b) => {
+      // Sort by last message date, newest first
+      return new Date(b.lastMessageAt).getTime() - new Date(a.lastMessageAt).getTime();
+    });
+
+  const getStatusBadge = (status: "to-action" | "waiting-client" | "confirmed") => {
+    const styles = {
+      "to-action": "bg-orange-100 text-orange-700 border-orange-300",
+      "waiting-client": "bg-blue-100 text-blue-700 border-blue-300",
+      "confirmed": "bg-green-100 text-green-700 border-green-300",
+    };
+    return (
+      <span className={`px-2 py-0.5 text-xs font-medium rounded border ${styles[status]}`}>
+        {status === "to-action" ? "To Action" : status === "waiting-client" ? "Waiting for Client" : "Confirmed"}
+      </span>
+    );
+  };
+
+  const getEmailPreview = (thread: EmailThread): string => {
+    // For preview, we'll use a simple placeholder since we don't load all emails in the list
+    // The full content will be shown when thread is selected
+    return "Click to view message...";
   };
 
   if (status === "loading" || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <div className="text-white">Loading...</div>
+      <div className="min-h-screen flex items-center justify-center bg-white">
+        <div className="text-gray-600">Loading...</div>
       </div>
     );
   }
@@ -256,115 +401,369 @@ export default function AdminInbox() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
-      <div className="container mx-auto max-w-7xl">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h1 className="text-4xl font-bold mb-2">Email Inbox</h1>
-              <p className="text-gray-400">Manage all email communications</p>
-            </div>
-            <div className="flex gap-3">
-              <Button
-                onClick={() => setComposing((prev) => !prev)}
-                className="bg-champagne-gold text-black hover:bg-gold-light"
-              >
-                <Mail className="w-4 h-4 mr-2" />
-                {composing ? "Close" : "New Email"}
-              </Button>
-              <Link href="/admin">
-                <Button variant="outline" className="border-champagne-gold text-champagne-gold">
-                  Back to Dashboard
+    <div className="h-screen flex flex-col bg-gray-50">
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <h1 className="text-xl font-semibold text-gray-900">Mail</h1>
+          {isNigel && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="text-gray-600 hover:text-gray-900"
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Advanced
+            </Button>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {isNigel && showAdvanced && (
+            <>
+              <Link href="/admin/settings">
+                <Button variant="ghost" size="sm" className="text-gray-600">
+                  Sync Emails
                 </Button>
               </Link>
+              <Link href="/admin/email-audit">
+                <Button variant="ghost" size="sm" className="text-gray-600">
+                  Email Audit
+                </Button>
+              </Link>
+            </>
+          )}
+          {composing ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setComposing(false);
+                setComposeData({ to: "", subject: "", body: "" });
+              }}
+              className="text-gray-600"
+            >
+              <X className="w-4 h-4 mr-2" />
+              Cancel
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setComposing(true);
+                setSelectedThread(null);
+                setReplying(false);
+                // Default to first inbox
+                if (inboxes.length > 0 && !composeData.inboxId) {
+                  setComposeData({ ...composeData, inboxId: inboxes[0].id });
+                }
+              }}
+              className="text-gray-600"
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              New Message
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Left Sidebar - Folders */}
+        <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
+          <div className="p-4 border-b border-gray-200">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search"
+                className="pl-9 bg-gray-50 border-gray-200 text-sm"
+              />
             </div>
           </div>
+          
+          <nav className="flex-1 overflow-y-auto p-2">
+            {/* Unified Inbox */}
+            <button
+              onClick={() => {
+                setSelectedFolder("unified");
+                setSelectedAccountId(null);
+              }}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors mb-2 ${
+                selectedFolder === "unified" && !selectedAccountId
+                  ? "bg-blue-50 text-blue-700"
+                  : "text-gray-700 hover:bg-gray-50"
+              }`}
+            >
+              <Inbox className="w-4 h-4 inline mr-2" />
+              Unified Inbox
+            </button>
 
-          {/* Filters */}
-          <div className="flex flex-wrap gap-4 mb-6">
-            <div className="flex-1 min-w-[200px]">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  value={search}
-                  onChange={(e) => {
-                    setSearch(e.target.value);
-                    // Debounce search
-                    setTimeout(() => fetchThreads(), 500);
-                  }}
-                  placeholder="Search emails..."
-                  className="bg-gray-800 text-white border-gray-700 pl-10"
-                />
+            {/* Account Grouping */}
+            <div className="border-t border-gray-200 pt-2 mt-2">
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-3">
+                Accounts
+              </div>
+              {inboxes.map((inbox) => {
+                const isExpanded = expandedAccounts.has(inbox.id);
+                const isSelected = selectedAccountId === inbox.id;
+                const accountColor = getAccountColor(inbox.name, inbox.email);
+                
+                return (
+                  <div key={inbox.id} className="mb-1">
+                    <button
+                      onClick={() => {
+                        if (isExpanded) {
+                          setExpandedAccounts((prev) => {
+                            const next = new Set(prev);
+                            next.delete(inbox.id);
+                            return next;
+                          });
+                        } else {
+                          setExpandedAccounts((prev) => new Set(prev).add(inbox.id));
+                        }
+                        setSelectedAccountId(inbox.id);
+                        setSelectedFolder("all");
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-between ${
+                        isSelected
+                          ? "bg-blue-50 text-blue-700"
+                          : "text-gray-700 hover:bg-gray-50"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div
+                          className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                            accountColor.bg.replace("bg-", "bg-").includes("amber")
+                              ? "bg-amber-400"
+                              : accountColor.bg.replace("bg-", "bg-").includes("gray")
+                              ? "bg-gray-400"
+                              : "bg-orange-400"
+                          }`}
+                          title={accountColor.name}
+                        />
+                        <span className="truncate">{inbox.name}</span>
+                      </div>
+                      {isExpanded ? (
+                        <ChevronDown className="w-4 h-4 flex-shrink-0" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 flex-shrink-0" />
+                      )}
+                    </button>
+                    {isExpanded && (
+                      <div className="ml-4 mt-1 space-y-1">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedAccountId(inbox.id);
+                            setSelectedFolder("all");
+                          }}
+                          className={`w-full text-left px-3 py-1.5 rounded text-xs transition-colors ${
+                            isSelected && selectedFolder === "all"
+                              ? "bg-blue-50 text-blue-700"
+                              : "text-gray-600 hover:bg-gray-50"
+                          }`}
+                        >
+                          <Folder className="w-3 h-3 inline mr-2" />
+                          Inbox
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedAccountId(inbox.id);
+                            setSelectedFolder("sent");
+                          }}
+                          className={`w-full text-left px-3 py-1.5 rounded text-xs transition-colors ${
+                            isSelected && selectedFolder === "sent"
+                              ? "bg-blue-50 text-blue-700"
+                              : "text-gray-600 hover:bg-gray-50"
+                          }`}
+                        >
+                          <Folder className="w-3 h-3 inline mr-2" />
+                          Sent
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Category Folders */}
+            <div className="border-t border-gray-200 pt-2 mt-2">
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-3">
+                Categories
+              </div>
+              <button
+                onClick={() => {
+                  setSelectedFolder("new-enquiries");
+                  setSelectedAccountId(null);
+                }}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  selectedFolder === "new-enquiries" && !selectedAccountId
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                New Enquiries
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedFolder("ongoing-bookings");
+                  setSelectedAccountId(null);
+                }}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  selectedFolder === "ongoing-bookings" && !selectedAccountId
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                Ongoing Bookings
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedFolder("staff-comms");
+                  setSelectedAccountId(null);
+                }}
+                className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  selectedFolder === "staff-comms" && !selectedAccountId
+                    ? "bg-blue-50 text-blue-700"
+                    : "text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                Staff Comms
+              </button>
+            </div>
+          </nav>
+
+          {/* Status Summary */}
+          <div className="p-4 border-t border-gray-200 space-y-2">
+            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+              Status
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">To Action</span>
+                <span className="text-gray-900 font-medium">
+                  {threads.filter((t) => getEmailStatus(t) === "to-action").length}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">Waiting for Client</span>
+                <span className="text-gray-900 font-medium">
+                  {threads.filter((t) => getEmailStatus(t) === "waiting-client").length}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-gray-600">Confirmed</span>
+                <span className="text-gray-900 font-medium">
+                  {threads.filter((t) => getEmailStatus(t) === "confirmed").length}
+                </span>
               </div>
             </div>
+          </div>
+        </div>
 
-            <select
-              value={selectedInbox}
-              onChange={(e) => setSelectedInbox(e.target.value)}
-              className="bg-gray-800 text-white border border-gray-700 rounded px-4 py-2"
-            >
-              <option value="all">All Inboxes</option>
-              {inboxes.map((inbox) => (
-                <option key={inbox.id} value={inbox.id}>
-                  {inbox.name}
-                </option>
-              ))}
-            </select>
-
-            <div className="flex gap-2">
-              <Button
-                onClick={() => setFilter("all")}
-                variant={filter === "all" ? "default" : "outline"}
-                size="sm"
-              >
-                All
-              </Button>
-              <Button
-                onClick={() => setFilter("unread")}
-                variant={filter === "unread" ? "default" : "outline"}
-                size="sm"
-              >
-                Unread
-              </Button>
-              <Button
-                onClick={() => setFilter("starred")}
-                variant={filter === "starred" ? "default" : "outline"}
-                size="sm"
-              >
-                Starred
-              </Button>
-              <Button
-                onClick={() => setFilter("archived")}
-                variant={filter === "archived" ? "default" : "outline"}
-                size="sm"
-              >
-                Archived
-              </Button>
+        {/* Middle Column - Email List */}
+        <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
+          <div className="p-3 border-b border-gray-200">
+            <div className="text-sm font-medium text-gray-900">
+              {filteredThreads.length} {filteredThreads.length === 1 ? "message" : "messages"}
             </div>
           </div>
-        </motion.div>
+          
+          <div className="flex-1 overflow-y-auto">
+            {filteredThreads.length === 0 ? (
+              <div className="p-8 text-center text-gray-500 text-sm">
+                <Mail className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                <p>No messages</p>
+              </div>
+            ) : (
+              filteredThreads.map((thread) => {
+                const emailStatus = getEmailStatus(thread);
+                const preview = getEmailPreview(thread);
+                
+                return (
+                  <button
+                    key={thread.id}
+                    onClick={() => {
+                      fetchThreadDetails(thread.id);
+                      setReplying(false);
+                      // Smart reply: auto-select the inbox that received this email
+                      setReplyInboxId(thread.inbox.id);
+                    }}
+                    className={`w-full text-left p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors relative ${
+                      selectedThread?.id === thread.id ? "bg-blue-50 border-l-4 border-l-blue-500" : ""
+                    } ${!thread.isRead ? "bg-blue-50/50" : ""}`}
+                  >
+                    {/* Color indicator tab */}
+                    <div
+                      className={`absolute left-0 top-0 bottom-0 w-1 ${
+                        getAccountColor(thread.inbox.name, thread.inbox.email).bg.replace("bg-", "bg-").includes("amber")
+                          ? "bg-amber-400"
+                          : getAccountColor(thread.inbox.name, thread.inbox.email).bg.replace("bg-", "bg-").includes("gray")
+                          ? "bg-gray-400"
+                          : "bg-orange-400"
+                      }`}
+                      title={`${getAccountColor(thread.inbox.name, thread.inbox.email).name} - ${thread.inbox.name}`}
+                    />
+                    <div className="flex items-start justify-between mb-1 pl-1">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          <span className={`text-sm font-semibold truncate ${
+                            !thread.isRead ? "text-gray-900" : "text-gray-700"
+                          }`}>
+                            {thread.fromName || thread.fromEmail}
+                          </span>
+                          {thread.source === "portal" && (
+                            <span className="px-2 py-0.5 text-xs font-medium rounded border bg-purple-100 text-purple-700 border-purple-300">
+                              Portal
+                            </span>
+                          )}
+                          {getStatusBadge(emailStatus)}
+                        </div>
+                        <p className={`text-sm truncate mb-1 ${
+                          !thread.isRead ? "text-gray-900 font-medium" : "text-gray-600"
+                        }`}>
+                          {thread.subject}
+                        </p>
+                        {preview && (
+                          <p className="text-xs text-gray-500 line-clamp-2">
+                            {preview}
+                          </p>
+                        )}
+                      </div>
+                      <span className="text-xs text-gray-400 ml-2 flex-shrink-0">
+                        {new Date(thread.lastMessageAt).toLocaleDateString("en-GB", {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
 
-        {/* Compose New Email */}
-        {composing && (
-          <div className="mb-8">
-            <Card className="bg-gray-800 border-champagne-gold/30">
-              <CardHeader>
-                <CardTitle>New Email</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm text-gray-300">From Inbox</label>
+        {/* Right Pane - Email Content */}
+        <div className="flex-1 bg-white flex flex-col overflow-hidden">
+          {composing ? (
+            /* Compose New Email */
+            <div className="flex-1 flex flex-col">
+              <div className="border-b border-gray-200 p-4">
+                <h2 className="text-lg font-semibold text-gray-900">New Message</h2>
+              </div>
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="max-w-2xl space-y-4">
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 mb-1 block">From</Label>
                     <select
                       value={composeData.inboxId}
-                      onChange={(e) =>
-                        setComposeData((prev) => ({ ...prev, inboxId: e.target.value }))
-                      }
-                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white"
+                      onChange={(e) => setComposeData({ ...composeData, inboxId: e.target.value })}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-white"
                     >
                       <option value="">Select inbox...</option>
                       {inboxes.map((inbox) => (
@@ -374,217 +773,302 @@ export default function AdminInbox() {
                       ))}
                     </select>
                   </div>
-                  <div className="space-y-2">
-                    <label className="text-sm text-gray-300">Signature</label>
-                    <select
-                      value={composeData.signature}
-                      onChange={(e) =>
-                        setComposeData((prev) => ({
-                          ...prev,
-                          signature: e.target.value as "none" | "ali" | "nige",
-                        }))
-                      }
-                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white"
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 mb-1 block">To</Label>
+                    <Input
+                      value={composeData.to}
+                      onChange={(e) => setComposeData({ ...composeData, to: e.target.value })}
+                      placeholder="recipient@example.com"
+                      className="text-sm"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 mb-1 block">Subject</Label>
+                    <Input
+                      value={composeData.subject}
+                      onChange={(e) => setComposeData({ ...composeData, subject: e.target.value })}
+                      placeholder="Subject"
+                      className="text-sm"
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-sm font-medium text-gray-700 mb-1 block">Message</Label>
+                    <Textarea
+                      value={composeData.body}
+                      onChange={(e) => setComposeData({ ...composeData, body: e.target.value })}
+                      rows={12}
+                      className="text-sm font-sans"
+                      placeholder="Type your message..."
+                    />
+                  </div>
+                  <div className="flex items-center justify-end gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setComposing(false);
+                        setComposeData({ to: "", subject: "", body: "", inboxId: "" });
+                      }}
+                      className="text-gray-700"
                     >
-                      <option value="none">No signature</option>
-                      <option value="ali">Ali signature</option>
-                      <option value="nige">Nige signature</option>
-                    </select>
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={async () => {
+                        if (!composeData.to || !composeData.subject || !composeData.body.trim()) {
+                          alert("Please fill in all fields");
+                          return;
+                        }
+                        // Use selected inbox or default to first inbox
+                        const inboxId = composeData.inboxId || inboxes[0]?.id;
+                        if (inboxId) {
+                          const response = await fetch("/api/admin/email/send", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              inboxId,
+                              to: composeData.to,
+                              subject: composeData.subject,
+                              html: composeData.body,
+                              text: composeData.body.replace(/<[^>]*>/g, ""),
+                            }),
+                          });
+                          if (response.ok) {
+                            setComposing(false);
+                            setComposeData({ to: "", subject: "", body: "", inboxId: "" });
+                            await fetchThreads();
+                          } else {
+                            const error = await response.json();
+                            alert(error.error || "Failed to send email");
+                          }
+                        } else {
+                          alert("Please select an inbox to send from");
+                        }
+                      }}
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <Send className="w-4 h-4 mr-2" />
+                      Send
+                    </Button>
                   </div>
                 </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm text-gray-300">To</label>
-                  <Input
-                    value={composeData.to}
-                    onChange={(e) =>
-                      setComposeData((prev) => ({ ...prev, to: e.target.value }))
-                    }
-                    placeholder="client@example.com"
-                    className="bg-gray-900 text-white border-gray-700"
-                  />
+              </div>
+            </div>
+          ) : selectedThread ? (
+            <>
+              {/* Email Header with Actions */}
+              <div className="border-b border-gray-200 p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h2 className="text-lg font-semibold text-gray-900">
+                    {selectedThread.subject}
+                  </h2>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setReplying(true);
+                        setReplyTo(selectedThread.fromEmail);
+                        setReplySubject(`Re: ${selectedThread.subject}`);
+                        // Smart reply: auto-select the inbox that received this email
+                        setReplyInboxId(selectedThread.inbox.id);
+                      }}
+                      className="text-gray-700 hover:bg-gray-100"
+                    >
+                      <Reply className="w-4 h-4 mr-2" />
+                      Reply
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-gray-700 hover:bg-gray-100"
+                    >
+                      <Forward className="w-4 h-4 mr-2" />
+                      Forward
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleArchive(selectedThread.id)}
+                      className="text-gray-700 hover:bg-gray-100"
+                    >
+                      <Archive className="w-4 h-4 mr-2" />
+                      Archive
+                    </Button>
+                  </div>
                 </div>
-
-                <div className="space-y-2">
-                  <label className="text-sm text-gray-300">Subject</label>
-                  <Input
-                    value={composeData.subject}
-                    onChange={(e) =>
-                      setComposeData((prev) => ({ ...prev, subject: e.target.value }))
-                    }
-                    className="bg-gray-900 text-white border-gray-700"
-                  />
+                <div className="text-sm text-gray-600 space-y-1">
+                  <p>
+                    <span className="font-medium">From:</span> {selectedThread.fromName || selectedThread.fromEmail}
+                  </p>
+                  <p>
+                    <span className="font-medium">To:</span> {selectedThread.toEmail}
+                  </p>
+                  <p>
+                    <span className="font-medium">Date:</span>{" "}
+                    {new Date(selectedThread.lastMessageAt).toLocaleString("en-GB", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
                 </div>
+              </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm text-gray-300">Message</label>
-                  <textarea
-                    value={composeData.body}
-                    onChange={(e) =>
-                      setComposeData((prev) => ({ ...prev, body: e.target.value }))
-                    }
-                    rows={10}
-                    className="w-full bg-gray-900 text-white border border-gray-700 rounded-md p-3 font-mono text-sm"
-                    placeholder="Type your message..."
-                  />
-                </div>
-
-                <div className="flex gap-3">
-                  <Button
-                    onClick={handleSendNewEmail}
-                    disabled={sending}
-                    className="bg-champagne-gold text-black hover:bg-gold-light"
-                  >
-                    {sending ? "Sending..." : "Send Email"}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="border-gray-600 text-gray-300"
-                    onClick={() => {
-                      setComposing(false);
-                      setComposeData({
-                        inboxId: composeData.inboxId,
-                        to: "",
-                        subject: "",
-                        body: "",
-                        signature: "none",
-                      });
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
-
-        {/* Threads List */}
-        <div className="space-y-2">
-          {threads.length === 0 ? (
-            <Card className="bg-gray-800 border-champagne-gold/30">
-              <CardContent className="p-12 text-center">
-                <Inbox className="w-16 h-16 mx-auto mb-4 text-gray-600" />
-                <p className="text-gray-400 text-lg">No emails found</p>
-                <p className="text-gray-500 text-sm mt-2">
-                  {inboxes.length === 0
-                    ? "Configure email inboxes in Settings first"
-                    : "Emails will appear here once synced"}
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            threads.map((thread) => (
-              <motion.div
-                key={thread.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-              >
-                <Link href={`/admin/inbox/${thread.id}`}>
-                  <Card
-                    className={`bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer ${
-                      !thread.isRead ? "border-l-4 border-l-champagne-gold" : ""
-                    }`}
-                  >
-                    <CardContent className="p-4">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0">
-                        <div className="w-10 h-10 rounded-full bg-champagne-gold/20 flex items-center justify-center">
-                          <Mail className="w-5 h-5 text-champagne-gold" />
-                        </div>
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <h3
-                              className={`font-semibold truncate ${
-                                !thread.isRead ? "text-white" : "text-gray-300"
-                              }`}
-                            >
-                              {thread.fromName || thread.fromEmail}
-                            </h3>
-                            {thread.isStarred && (
-                              <Star className="w-4 h-4 text-champagne-gold fill-champagne-gold" />
-                            )}
-                            {thread.booking && (
-                              <span className="px-2 py-0.5 bg-blue-900/30 text-blue-400 text-xs rounded border border-blue-500/30">
-                                <Calendar className="w-3 h-3 inline mr-1" />
-                                {thread.booking.eventType}
-                              </span>
-                            )}
-                          </div>
-                          <span className="text-xs text-gray-500 ml-2">
-                            {new Date(thread.lastMessageAt).toLocaleDateString()}
-                          </span>
-                        </div>
-
-                        <p className="text-sm text-gray-400 mb-2 truncate">
-                          {thread.subject}
+              {/* Reply Compose Window */}
+              {replying && (
+                <div className="border-b border-gray-200 bg-gray-50 p-4">
+                  <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                    <div className="p-4 space-y-3">
+                      <div>
+                        <Label className="text-xs text-gray-600 mb-1 block">From</Label>
+                        <select
+                          value={replyInboxId}
+                          onChange={(e) => setReplyInboxId(e.target.value)}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-white"
+                        >
+                          {inboxes.map((inbox) => (
+                            <option key={inbox.id} value={inbox.id}>
+                              {inbox.name} ({inbox.email})
+                            </option>
+                          ))}
+                        </select>
+                        <p className="text-xs text-gray-500 mt-1">
+                          Automatically selected based on the inbox that received this email
                         </p>
-
-                        <div className="flex items-center gap-4 text-xs text-gray-500">
-                          <span>{thread.inbox.name}</span>
-                          <span>•</span>
-                          <span>{thread._count.emails} message{thread._count.emails !== 1 ? "s" : ""}</span>
-                          {thread.booking && (
-                            <>
-                              <span>•</span>
-                              <Link
-                                href={`/admin/bookings?bookingId=${thread.booking.id}`}
-                                className="text-champagne-gold hover:text-gold-light"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                View Booking
-                              </Link>
-                            </>
-                          )}
-                        </div>
                       </div>
-
-                      <div className="flex-shrink-0 flex gap-2">
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleToggleStar(thread.id, thread.isStarred);
+                      <div>
+                        <Label className="text-xs text-gray-600 mb-1 block">To</Label>
+                        <Input
+                          value={replyTo}
+                          onChange={(e) => setReplyTo(e.target.value)}
+                          className="text-sm"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-gray-600 mb-1 block">Subject</Label>
+                        <Input
+                          value={replySubject}
+                          onChange={(e) => setReplySubject(e.target.value)}
+                          className="text-sm"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-xs text-gray-600 mb-1 block">Use Template</Label>
+                        <select
+                          value={selectedTemplateId}
+                          onChange={(e) => {
+                            setSelectedTemplateId(e.target.value);
+                            handleTemplateSelect(e.target.value);
                           }}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-white"
+                        >
+                          <option value="">None</option>
+                          {templates.map((template) => (
+                            <option key={template.id} value={template.id}>
+                              {template.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <Label className="text-xs text-gray-600 mb-1 block">Message</Label>
+                        <Textarea
+                          value={replyText}
+                          onChange={(e) => setReplyText(e.target.value)}
+                          rows={8}
+                          className="text-sm font-sans"
+                          placeholder="Type your message..."
+                        />
+                      </div>
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
                           variant="ghost"
                           size="sm"
-                          className={thread.isStarred ? "text-champagne-gold" : "text-gray-400"}
+                          onClick={() => {
+                            setReplying(false);
+                            setReplyText("");
+                            setReplySubject("");
+                            setSelectedTemplateId("");
+                          }}
+                          className="text-gray-700"
                         >
-                          <Star
-                            className={`w-4 h-4 ${thread.isStarred ? "fill-current" : ""}`}
-                          />
+                          Cancel
                         </Button>
                         <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleToggleArchive(thread.id, thread.isArchived);
-                          }}
-                          variant="ghost"
                           size="sm"
-                          className="text-gray-400"
+                          onClick={handleReply}
+                          disabled={!replyText.trim()}
+                          className="bg-blue-600 hover:bg-blue-700 text-white"
                         >
-                          <Archive className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            router.push(`/admin/inbox/${thread.id}`);
-                          }}
-                          variant="ghost"
-                          size="sm"
-                          className="text-champagne-gold"
-                        >
-                          <Reply className="w-4 h-4" />
+                          <Send className="w-4 h-4 mr-2" />
+                          Send
                         </Button>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-                </Link>
-              </motion.div>
-            ))
+                  </div>
+                </div>
+              )}
+
+              {/* Email Content */}
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="max-w-3xl space-y-6">
+                  {selectedThread.emails && selectedThread.emails.length > 0 ? (
+                    selectedThread.emails.map((email, index) => (
+                    <div
+                      key={email.id}
+                      className={`p-4 rounded-lg border ${
+                        email.direction === "outbound"
+                          ? "bg-blue-50 border-blue-200"
+                          : "bg-white border-gray-200"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <p className="font-semibold text-gray-900 text-sm">
+                            {email.direction === "outbound"
+                              ? "You"
+                              : email.fromName || email.fromEmail}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {new Date(email.receivedAt).toLocaleString("en-GB")}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-sm text-gray-700 prose prose-sm max-w-none">
+                        {email.htmlContent || email.bodyHtml ? (
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: email.htmlContent || email.bodyHtml || "",
+                            }}
+                          />
+                        ) : (
+                          <p className="whitespace-pre-wrap">
+                            {email.textContent || email.bodyText}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    ))
+                  ) : (
+                    <div className="text-center text-gray-500 py-8">
+                      <p>Loading email content...</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-gray-400">
+              <div className="text-center">
+                <Mail className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+                <p>Select a message to view</p>
+              </div>
+            </div>
           )}
         </div>
       </div>

@@ -43,8 +43,9 @@ function getDJTestimonials(djName: string) {
   });
 }
 
-const djs = [
-  {
+// Hardcoded fallback data for legacy DJs with full content
+const legacyDJs: { [key: string]: any } = {
+  "DJ Nige": {
     name: "DJ Nige",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163297/Mirjam-and-Ben-1062-1_vy1hgx.jpg",
     alt: "DJ Nige performing at Mirjam and Ben's wedding at Babington House, Somerset, showcasing professional wedding DJ services with elegant lighting",
@@ -88,7 +89,7 @@ For more on Nige's technical expertise and industry recognition, including his A
       "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2Fnigelpeirce1%2Fuk-garage-old-skool-minimix%2F",
     ],
   },
-  {
+  "DJ Rich": {
     name: "DJ Rich",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163359/Rich-S-DJ_qxsnht.jpg",
     alt: "Professional wedding DJ Rich S performing at a luxury London venue, showcasing professional DJ services with high-quality sound and lighting",
@@ -103,7 +104,7 @@ Through a vast knowledge of music past and present, his range and ability to pla
       "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FDjrichsmith%2Fwedding-mix%2F",
     ],
   },
-  {
+  "James H DJ": {
     name: "James H DJ",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163392/james-Malin_ovqqnf.jpg",
     alt: "Professional DJ James H Hudson performing at wedding and party events, showcasing professional DJ services with expert mixing and entertainment",
@@ -118,7 +119,7 @@ Through a vast knowledge of music past and present, his range and ability to pla
       "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FJamesMalinHudson%2Fshotgun-alternativeindierock%2F",
     ],
   },
-];
+};
 
 // Import venues data from venues page
 const venuesUnsorted = [
@@ -248,6 +249,8 @@ const allVenues = formatVenues();
 
 export default function DJs() {
   const [venueSearch, setVenueSearch] = useState("");
+  const [djs, setDjs] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     document.title = "DJs | Professional Wedding DJs | Stylish Entertainment";
@@ -255,6 +258,115 @@ export default function DJs() {
     if (metaDescription) {
       metaDescription.setAttribute("content", "Meet our talented DJs. Professional wedding entertainment across the West Country including London, Somerset, Bath, Bristol, Dorset, and Devon with mixing styles and genre specialties.");
     }
+
+    // Fetch DJs from API
+    const fetchDJs = async () => {
+      try {
+        const response = await fetch("/api/djs");
+        if (response.ok) {
+          const data = await response.json();
+          // Map database DJs to the format expected by the UI
+          // Helper function to normalize YouTube URLs to embed format
+          const normalizeYouTubeUrl = (url: string | null | undefined): string | null => {
+            if (!url || url.trim() === "") return null;
+            
+            let normalized = url.trim();
+            
+            // Extract video ID from various YouTube URL formats
+            let videoId: string | null = null;
+            
+            // Handle embed URLs (already correct format)
+            if (normalized.includes('/embed/')) {
+              videoId = normalized.split('/embed/')[1]?.split('?')[0]?.split('&')[0];
+              if (videoId) {
+                // Preserve query parameters if they exist
+                const queryParams = normalized.includes('?') ? normalized.split('?')[1] : '';
+                return `https://www.youtube.com/embed/${videoId}${queryParams ? '?' + queryParams : ''}`;
+              }
+            }
+            // Handle watch URLs: youtube.com/watch?v=VIDEO_ID
+            else if (normalized.includes('youtube.com/watch?v=') || normalized.includes('youtube.com/watch?v=')) {
+              videoId = normalized.split('v=')[1]?.split('&')[0];
+            }
+            // Handle short URLs: youtu.be/VIDEO_ID
+            else if (normalized.includes('youtu.be/')) {
+              videoId = normalized.split('youtu.be/')[1]?.split('?')[0];
+            }
+            // Handle URLs missing protocol
+            else if (normalized.includes('youtube.com') || normalized.includes('youtu.be')) {
+              // Add https:// if missing
+              if (!normalized.startsWith('http://') && !normalized.startsWith('https://')) {
+                normalized = `https://${normalized}`;
+              }
+              // Try to extract video ID again after adding protocol
+              if (normalized.includes('/embed/')) {
+                videoId = normalized.split('/embed/')[1]?.split('?')[0];
+              } else if (normalized.includes('watch?v=')) {
+                videoId = normalized.split('v=')[1]?.split('&')[0];
+              } else if (normalized.includes('youtu.be/')) {
+                videoId = normalized.split('youtu.be/')[1]?.split('?')[0];
+              }
+            }
+            
+            // If we extracted a video ID, create embed URL
+            if (videoId) {
+              return `https://www.youtube.com/embed/${videoId}`;
+            }
+            
+            // If it's already an embed URL but missing protocol, add it
+            if (normalized.includes('/embed/') && !normalized.startsWith('http')) {
+              return `https://${normalized}`;
+            }
+            
+            // If it looks like a valid YouTube URL but not embed format, return as-is with https
+            if (normalized.includes('youtube.com') && !normalized.startsWith('http')) {
+              return `https://${normalized}`;
+            }
+            
+            // If it already starts with https://, return as-is
+            if (normalized.startsWith('https://')) {
+              return normalized;
+            }
+            
+            // If it starts with http://, upgrade to https://
+            if (normalized.startsWith('http://')) {
+              return normalized.replace('http://', 'https://');
+            }
+            
+            // If we can't normalize it, return null
+            return null;
+          };
+
+          const mappedDJs = data.djs.map((dj: any) => {
+            const legacy = legacyDJs[dj.name];
+            // Handle youtubeEmbed: use database value if it's a valid URL, otherwise fall back to legacy
+            const dbYoutubeEmbed = normalizeYouTubeUrl(dj.youtubeEmbed);
+            const legacyYoutubeEmbed = normalizeYouTubeUrl(legacy?.youtubeEmbed);
+            const youtubeEmbed = dbYoutubeEmbed || legacyYoutubeEmbed || null;
+            
+            return {
+              name: dj.name,
+              image: dj.imageUrl || legacy?.image || null,
+              alt: legacy?.alt || `${dj.name} performing at weddings and events, showcasing professional DJ services`,
+              mixingStyle: legacy?.mixingStyle || "Professional DJ Services",
+              bio: dj.bio || legacy?.bio || "",
+              fullBio: legacy?.fullBio || dj.bio || "",
+              youtubeEmbed: youtubeEmbed,
+              mixcloudEmbeds: legacy?.mixcloudEmbeds || (dj.mixcloudUrl ? [dj.mixcloudUrl] : []),
+            };
+          });
+          setDjs(mappedDJs);
+        }
+      } catch (error) {
+        console.error("Error fetching DJs:", error);
+        // Fallback to empty array or legacy DJs if API fails
+        setDjs([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDJs();
   }, []);
   return (
     <div>
@@ -512,8 +624,17 @@ export default function DJs() {
           </motion.div>
 
           <div className="max-w-6xl mx-auto">
-            <Slider>
-              {djs.map((dj, index) => (
+            {loading ? (
+              <div className="text-center py-12 text-gray-400">
+                <p>Loading DJs...</p>
+              </div>
+            ) : djs.length === 0 ? (
+              <div className="text-center py-12 text-gray-400">
+                <p>No DJs available at the moment.</p>
+              </div>
+            ) : (
+              <Slider>
+                {djs.map((dj, index) => (
                 <div key={dj.name} className="px-4">
                   <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:border-champagne-gold/60 group">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:items-stretch">
@@ -691,19 +812,21 @@ export default function DJs() {
                         </div>
 
                         <div className="space-y-3 sm:space-y-4">
-                          <div>
-                            <h4 className="font-semibold mb-2 text-white text-xs sm:text-sm uppercase tracking-wider">Watch</h4>
-                            <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black/10 shadow-lg">
-                              <LazyIframe
-                                src={dj.youtubeEmbed}
-                                title={`${dj.name} - Video`}
-                                className="absolute inset-0 w-full h-full"
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                allowFullScreen
-                                referrerPolicy="strict-origin-when-cross-origin"
-                              />
+                          {dj.youtubeEmbed && dj.youtubeEmbed.trim() !== "" && dj.youtubeEmbed.startsWith('http') && (
+                            <div>
+                              <h4 className="font-semibold mb-2 text-white text-xs sm:text-sm uppercase tracking-wider">Watch</h4>
+                              <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black/10 shadow-lg">
+                                <LazyIframe
+                                  src={dj.youtubeEmbed}
+                                  title={`${dj.name} - Video`}
+                                  className="absolute inset-0 w-full h-full"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                  allowFullScreen
+                                  referrerPolicy="strict-origin-when-cross-origin"
+                                />
+                              </div>
                             </div>
-                          </div>
+                          )}
                           <div>
                             <h4 className="font-semibold mb-2 text-white text-xs sm:text-sm uppercase tracking-wider">Listen</h4>
                             <div className="space-y-3">
@@ -738,6 +861,7 @@ export default function DJs() {
                 </div>
               ))}
             </Slider>
+            )}
           </div>
         </div>
       </section>

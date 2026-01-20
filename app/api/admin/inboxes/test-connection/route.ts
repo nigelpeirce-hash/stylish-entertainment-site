@@ -58,10 +58,19 @@ export async function POST(request: NextRequest) {
     };
 
     try {
+      // Measure connection latency
+      const startTime = Date.now();
       const connection = await imap.connect(config as any);
+      const connectTime = Date.now() - startTime;
+      
+      const openStartTime = Date.now();
       await connection.openBox("INBOX");
+      const openTime = Date.now() - openStartTime;
+      
       await connection.closeBox(true);
       connection.end();
+
+      const totalLatency = Date.now() - startTime;
 
       return NextResponse.json({
         success: true,
@@ -71,6 +80,11 @@ export async function POST(request: NextRequest) {
           host: inbox.imapHost,
           port: inbox.imapPort,
           secure: inbox.imapSecure,
+        },
+        latency: {
+          connect: connectTime,
+          openBox: openTime,
+          total: totalLatency,
         },
       });
     } catch (error: any) {

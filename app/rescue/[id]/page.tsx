@@ -50,7 +50,7 @@ export default function LeadRescuePage() {
         }
       } catch (err: any) {
         console.error("Error extending retention:", err);
-        setError("An error occurred. Please contact us directly at office@stylishentertainment.co.uk");
+        setError("An error occurred. Please contact us directly at info@stylishentertainment.co.uk");
       } finally {
         setLoading(false);
       }
@@ -164,10 +164,10 @@ export default function LeadRescuePage() {
                   <p className="text-sm text-gray-500">
                     or email us at{" "}
                     <a
-                      href="mailto:office@stylishentertainment.co.uk"
+                      href="mailto:info@stylishentertainment.co.uk"
                       className="text-champagne-gold hover:underline"
                     >
-                      office@stylishentertainment.co.uk
+                      info@stylishentertainment.co.uk
                     </a>
                   </p>
                 </div>
@@ -204,10 +204,10 @@ export default function LeadRescuePage() {
                   <p className="text-sm text-gray-500">
                     Email us at{" "}
                     <a
-                      href="mailto:office@stylishentertainment.co.uk"
+                      href="mailto:info@stylishentertainment.co.uk"
                       className="text-champagne-gold hover:underline"
                     >
-                      office@stylishentertainment.co.uk
+                      info@stylishentertainment.co.uk
                     </a>
                   </p>
                 </div>

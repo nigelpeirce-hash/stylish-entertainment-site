@@ -39,6 +39,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // Optimized query - only fetch needed fields
     const user = await prisma.user.findUnique({
       where: {
         id: userId,

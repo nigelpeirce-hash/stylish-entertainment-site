@@ -120,7 +120,7 @@ ${LUXE_STYLES}
     
     <div class="footer">
       <p>STYLISH Entertainment & Production</p>
-      <p>office@stylishentertainment.co.uk</p>
+      <p>info@stylishentertainment.co.uk</p>
     </div>
   </div>
 </body>

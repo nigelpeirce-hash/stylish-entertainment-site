@@ -31,6 +31,7 @@ export async function POST(request: NextRequest) {
     // For now, we'll check for the most recent pending booking
     // In production, you may want to add an acceptance_ip or visitor_ip field to Booking model
     
+    // Optimized query - limit to most recent pending bookings
     const provisionalBookings = await prisma.booking.findMany({
       where: {
         status: "pending", // Provisional bookings
@@ -48,7 +49,7 @@ export async function POST(request: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
-      take: 10, // Limit to recent bookings for performance
+      take: 5, // Reduced from 10 to 5 for faster queries
     });
 
     // Check if any booking matches the IP

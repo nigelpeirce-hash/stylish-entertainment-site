@@ -1,9 +1,21 @@
-@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
+/* Fonts are now loaded via next/font in layout.tsx for zero layout shift */
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes throb {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-throb {
+  animation: throb 2s ease-in-out infinite;
+}
 
 /* Screen reader only - for SEO content that should be crawlable but not visible */
 .sr-only {
@@ -290,6 +302,70 @@
   p, span, div, a, li {
     font-weight: 300;
     color: rgb(241 245 249) !important; /* slate-200 / gray-100 */
+  }
+  
+  /* Ensure input and textarea text is visible in admin areas */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="tel"],
+  input[type="url"],
+  textarea,
+  select {
+    color: inherit;
+  }
+  
+  /* Force white text when bg-gray is used on inputs/textarea */
+  input.bg-gray-900,
+  input.bg-gray-800,
+  input.bg-gray-900\/50,
+  input.bg-gray-800\/50,
+  textarea.bg-gray-900,
+  textarea.bg-gray-800,
+  textarea.bg-gray-900\/50,
+  textarea.bg-gray-800\/50 {
+    color: rgb(255 255 255) !important;
+  }
+  
+  /* Force white text for inputs inside dark containers */
+  .bg-gray-900 input:not([class*="text-"]),
+  .bg-gray-800 input:not([class*="text-"]),
+  .bg-gray-900 textarea:not([class*="text-"]),
+  .bg-gray-800 textarea:not([class*="text-"]),
+  [class*="bg-gray-900"] input:not([class*="text-"]),
+  [class*="bg-gray-800"] input:not([class*="text-"]) {
+    color: rgb(255 255 255) !important;
+  }
+  
+  /* Placeholder text should be visible on dark backgrounds */
+  input.bg-gray-900::placeholder,
+  input.bg-gray-800::placeholder,
+  input.bg-gray-900\/50::placeholder,
+  input.bg-gray-800\/50::placeholder,
+  textarea.bg-gray-900::placeholder,
+  textarea.bg-gray-800::placeholder,
+  textarea.bg-gray-900\/50::placeholder,
+  textarea.bg-gray-800\/50::placeholder,
+  input[class*="bg-gray-900"]::placeholder,
+  input[class*="bg-gray-800"]::placeholder,
+  textarea[class*="bg-gray-900"]::placeholder,
+  textarea[class*="bg-gray-800"]::placeholder {
+    color: rgb(209 213 219) !important; /* gray-300 - lighter and more visible */
+    opacity: 1 !important;
+  }
+  
+  /* Also target inputs inside dark containers */
+  .bg-gray-900 input::placeholder,
+  .bg-gray-800 input::placeholder,
+  .bg-gray-900 textarea::placeholder,
+  .bg-gray-800 textarea::placeholder,
+  [class*="bg-gray-900"] input::placeholder,
+  [class*="bg-gray-800"] input::placeholder,
+  [class*="bg-gray-900"] textarea::placeholder,
+  [class*="bg-gray-800"] textarea::placeholder {
+    color: rgb(209 213 219) !important; /* gray-300 */
+    opacity: 1 !important;
   }
   
   /* Override for specific gray text classes - make them brighter */

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -39,28 +39,25 @@ export function WhatsAppThread({ bookingId, phoneNumber, eventDate, clientName }
   const [replyText, setReplyText] = useState("");
   const [showSplitThread, setShowSplitThread] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Use refs to track polling state and prevent duplicate intervals
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const bookingIdRef = useRef(bookingId);
+
+  // Update ref when bookingId changes
   useEffect(() => {
-    if (bookingId) {
-      fetchMessages();
-      // Poll for new messages every 5 seconds
-      const interval = setInterval(fetchMessages, 5000);
-      return () => clearInterval(interval);
-    }
+    bookingIdRef.current = bookingId;
   }, [bookingId]);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  // Fetch messages function using ref to avoid dependency issues
+  const fetchMessages = useCallback(async () => {
+    const currentBookingId = bookingIdRef.current;
+    if (!currentBookingId) return;
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const fetchMessages = async () => {
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}/whatsapp-messages`);
+      const response = await fetch(`/api/admin/bookings/${currentBookingId}/whatsapp-messages`);
       if (response.ok) {
         const data = await response.json();
         setMessages(data.messages || []);
@@ -69,6 +66,62 @@ export function WhatsAppThread({ bookingId, phoneNumber, eventDate, clientName }
       console.error("Error fetching WhatsApp messages:", error);
     } finally {
       setLoading(false);
+    }
+  }, []); // Empty dependency array - uses ref instead
+
+  useEffect(() => {
+    if (!bookingId) return;
+
+    // Clear any existing interval
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+
+    // Initial fetch
+    fetchMessages();
+
+    // Poll for new messages every 30 seconds (increased to reduce load)
+    intervalRef.current = setInterval(() => {
+      fetchMessages();
+    }, 30000); // 30 seconds instead of 10
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [bookingId, fetchMessages]); // Keep fetchMessages but it's stable now
+
+  useEffect(() => {
+    // Only scroll within the container, not the whole page
+    if (messagesContainerRef.current) {
+      const container = messagesContainerRef.current;
+      const isNearBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+      
+      // Only auto-scroll if user is near the bottom (hasn't manually scrolled up) or if it's the first load
+      if (isNearBottom || messages.length === 0) {
+        // Use setTimeout to ensure DOM is updated
+        setTimeout(() => {
+          if (container) {
+            container.scrollTo({
+              top: container.scrollHeight,
+              behavior: "smooth",
+            });
+          }
+        }, 100);
+      }
+    }
+  }, [messages]);
+
+  const scrollToBottom = () => {
+    // Scroll within the container, not the whole page
+    if (messagesContainerRef.current && messagesEndRef.current) {
+      messagesContainerRef.current.scrollTo({
+        top: messagesContainerRef.current.scrollHeight,
+        behavior: "smooth",
+      });
     }
   };
 
@@ -174,11 +227,11 @@ export function WhatsAppThread({ bookingId, phoneNumber, eventDate, clientName }
   }
 
   return (
-    <Card className="bg-gray-800 border-champagne-gold/30">
-      <CardHeader>
+    <Card className="bg-white border-gray-200 shadow-sm">
+      <CardHeader className="bg-green-600 text-white">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <MessageCircle className="w-5 h-5 text-green-500" />
+          <CardTitle className="flex items-center gap-2 text-lg text-white">
+            <MessageCircle className="w-5 h-5" />
             WhatsApp Conversation
           </CardTitle>
           {phoneNumber && (
@@ -186,7 +239,7 @@ export function WhatsAppThread({ bookingId, phoneNumber, eventDate, clientName }
               onClick={handleSplitThread}
               variant="outline"
               size="sm"
-              className="border-orange-500/50 text-orange-400 hover:bg-orange-900/20"
+              className="border-white/30 text-white hover:bg-white/20 bg-white/10"
             >
               <Split className="w-4 h-4 mr-2" />
               Split Thread
@@ -196,18 +249,21 @@ export function WhatsAppThread({ bookingId, phoneNumber, eventDate, clientName }
       </CardHeader>
       <CardContent className="p-0">
         {/* Date Anchor - Prominently displayed at top */}
-        <div className="bg-gradient-to-r from-green-600/20 to-green-500/10 border-b border-green-500/30 p-4">
-          <div className="flex items-center gap-2 text-green-400">
+        <div className="bg-gradient-to-r from-green-50 to-green-100 border-b border-green-200 p-4">
+          <div className="flex items-center gap-2 text-green-700">
             <Calendar className="w-5 h-5" />
             <div>
-              <p className="text-xs text-green-300/80 uppercase tracking-wide mb-1">Event Date</p>
-              <p className="text-lg font-bold text-white">{formatEventDate(eventDate)}</p>
+              <p className="text-xs text-green-600 uppercase tracking-wide mb-1">Event Date</p>
+              <p className="text-lg font-bold text-gray-900">{formatEventDate(eventDate)}</p>
             </div>
           </div>
         </div>
 
         {/* Messages Container - WhatsApp Style */}
-        <div className="h-[500px] overflow-y-auto bg-[#0b141a] p-4 space-y-3">
+        <div 
+          ref={messagesContainerRef}
+          className="h-[calc(100vh-24rem)] min-h-[400px] max-h-[600px] overflow-y-auto bg-[#0b141a] p-4 space-y-3"
+        >
           {messages.length === 0 ? (
             <div className="text-center text-gray-500 py-8">
               <MessageCircle className="w-12 h-12 mx-auto mb-2 text-gray-600" />
@@ -296,8 +352,8 @@ export function WhatsAppThread({ bookingId, phoneNumber, eventDate, clientName }
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Reply Input - Large WhatsApp Reply Button */}
-        <div className="border-t border-gray-700 p-4 bg-gray-900/50">
+        {/* Reply Input - Large WhatsApp Reply Button - Sticky at bottom */}
+        <div className="sticky bottom-0 border-t border-gray-700 p-4 bg-gray-900/95 backdrop-blur-sm">
           <div className="space-y-3">
             {/* File Upload */}
             <div className="flex items-center gap-2">

@@ -22,6 +22,7 @@ const inboxSchema = z.object({
   smtpPassword: z.string().optional(),
   syncEnabled: z.boolean().optional(),
   syncInterval: z.number().int().optional(),
+  assignedUsers: z.array(z.string().email()).optional(),
 });
 
 // Get all inboxes
@@ -32,39 +33,61 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const inboxes = await prisma.emailInbox.findMany({
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        isActive: true,
-        syncEnabled: true,
-        lastSyncedAt: true,
-        syncInterval: true,
-        createdAt: true,
-        updatedAt: true,
-        // IMAP (no password)
-        imapHost: true,
-        imapPort: true,
-        imapSecure: true,
-        imapUsername: true,
-        // SMTP (no password)
-        smtpHost: true,
-        smtpPort: true,
-        smtpSecure: true,
-        smtpUsername: true,
-        // Never return passwords
-        imapPassword: false,
-        smtpPassword: false,
-      },
-    });
+    const baseSelect = {
+      id: true,
+      name: true,
+      email: true,
+      isActive: true,
+      syncEnabled: true,
+      lastSyncedAt: true,
+      syncInterval: true,
+      createdAt: true,
+      updatedAt: true,
+      // IMAP (no password)
+      imapHost: true,
+      imapPort: true,
+      imapSecure: true,
+      imapUsername: true,
+      // SMTP (no password)
+      smtpHost: true,
+      smtpPort: true,
+      smtpSecure: true,
+      smtpUsername: true,
+      // Never return passwords
+      imapPassword: false,
+      smtpPassword: false,
+    };
+
+    // Try to fetch with assignedUsers first, fall back if column doesn't exist
+    let inboxes;
+    try {
+      // First attempt: try with assignedUsers (if migration has been run)
+      inboxes = await prisma.emailInbox.findMany({
+        orderBy: { createdAt: "desc" },
+        select: ({ ...baseSelect, assignedUsers: true } as any),
+      });
+    } catch (error: any) {
+      // If assignedUsers column doesn't exist, fetch without it
+      if (error?.message?.includes("assignedUsers") || error?.code === "P2009" || error?.message?.includes("Unknown field")) {
+        inboxes = await prisma.emailInbox.findMany({
+          orderBy: { createdAt: "desc" },
+          select: baseSelect,
+        });
+        // Add default empty array for assignedUsers
+        inboxes.forEach((inbox: any) => {
+          (inbox as any).assignedUsers = [];
+        });
+      } else {
+        // Re-throw if it's a different error
+        throw error;
+      }
+    }
 
     return NextResponse.json({ inboxes });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching inboxes:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Internal server error", details: error?.message || "Unknown error" },
       { status: 500 }
     );
   }
@@ -81,35 +104,59 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = inboxSchema.parse(body);
 
-    const inbox = await prisma.emailInbox.create({
-      data: {
-        ...validatedData,
-        isActive: true,
-        syncEnabled: validatedData.syncEnabled ?? true,
-        syncInterval: validatedData.syncInterval ?? 5,
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        isActive: true,
-        syncEnabled: true,
-        lastSyncedAt: true,
-        syncInterval: true,
-        // IMAP (no password)
-        imapHost: true,
-        imapPort: true,
-        imapSecure: true,
-        imapUsername: true,
-        // SMTP (no password)
-        smtpHost: true,
-        smtpPort: true,
-        smtpSecure: true,
-        smtpUsername: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    const baseSelect = {
+      id: true,
+      name: true,
+      email: true,
+      isActive: true,
+      syncEnabled: true,
+      lastSyncedAt: true,
+      syncInterval: true,
+      // IMAP (no password)
+      imapHost: true,
+      imapPort: true,
+      imapSecure: true,
+      imapUsername: true,
+      // SMTP (no password)
+      smtpHost: true,
+      smtpPort: true,
+      smtpSecure: true,
+      smtpUsername: true,
+      createdAt: true,
+      updatedAt: true,
+    };
+
+    let inbox;
+    try {
+      // Try to create with assignedUsers in select (if migration has been run)
+      inbox = await prisma.emailInbox.create({
+        data: {
+          ...validatedData,
+          isActive: true,
+          syncEnabled: validatedData.syncEnabled ?? true,
+          syncInterval: validatedData.syncInterval ?? 5,
+        },
+        select: ({ ...baseSelect, assignedUsers: true } as any),
+      });
+    } catch (error: any) {
+      // If assignedUsers column doesn't exist, create without it
+      if (error?.message?.includes("assignedUsers") || error?.code === "P2009" || error?.message?.includes("Unknown field")) {
+        inbox = await prisma.emailInbox.create({
+          data: {
+            ...validatedData,
+            isActive: true,
+            syncEnabled: validatedData.syncEnabled ?? true,
+            syncInterval: validatedData.syncInterval ?? 5,
+          },
+          select: baseSelect,
+        });
+        // Add default empty array
+        (inbox as any).assignedUsers = [];
+      } else {
+        // Re-throw if it's a different error
+        throw error;
+      }
+    }
 
     return NextResponse.json({ inbox }, { status: 201 });
   } catch (error: any) {

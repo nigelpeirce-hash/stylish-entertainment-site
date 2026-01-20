@@ -52,7 +52,7 @@ export async function inviteUserByEmail(
   try {
     // Invite user via Supabase Admin Auth API
     const { data, error } = await supabase.auth.admin.inviteUserByEmail(email, {
-      redirectTo: options?.redirectTo || `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
+      redirectTo: options?.redirectTo || (process.env.NEXT_PUBLIC_SITE_URL ? `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback` : '/auth/callback'),
       data: {
         role,
         ...options?.data,
@@ -139,6 +139,31 @@ export async function updateUserRole(userId: string, role: 'admin' | 'user' | 'c
     return {
       success: false,
       error: error.message || 'Failed to update user role',
+    };
+  }
+}
+
+/**
+ * Delete a user from Supabase Auth
+ */
+export async function deleteUser(userId: string) {
+  const supabase = getSupabaseAdmin();
+  
+  try {
+    const { error } = await supabase.auth.admin.deleteUser(userId);
+
+    if (error) {
+      throw error;
+    }
+
+    return {
+      success: true,
+    };
+  } catch (error: any) {
+    console.error('Error deleting user:', error);
+    return {
+      success: false,
+      error: error.message || 'Failed to delete user',
     };
   }
 }

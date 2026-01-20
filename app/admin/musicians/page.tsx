@@ -7,15 +7,21 @@ import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
 import { Plus, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Edit, Trash2, Music, CheckCircle2, XCircle } from "lucide-react";
+import { Edit, Trash2, Music } from "lucide-react";
 import Image from "next/image";
+import { MusicianForm } from "./MusicianForm";
+import { Toast } from "@/components/ui/toast";
+import Link from "next/link";
 
 interface Musician {
   id: string;
   name: string;
   instrument: string | null;
   imageUrl: string | null;
+  bio: string | null;
+  youtubeEmbed: string | null;
   isActive: boolean;
+  displayOrder: number;
 }
 
 export function MusicianCard({ musician, onEdit, onDelete }: { 
@@ -63,11 +69,42 @@ export function MusicianCard({ musician, onEdit, onDelete }: {
   );
 }
 
+type ToastState = {
+  id: string;
+  message: string;
+  type: "success" | "error" | "info";
+} | null;
+
+// Helper function to generate slug from name
+function generateSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "") // Remove special characters
+    .replace(/[\s_-]+/g, "-") // Replace spaces and underscores with hyphens
+    .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+}
+
 export default function MusiciansPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [musicians, setMusicians] = useState<Musician[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAdding, setIsAdding] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [toast, setToast] = useState<ToastState>(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    instrument: "",
+    bio: "",
+    youtubeEmbed: "",
+    seoTitle: "",
+    seoDescription: "",
+    imageUrl: "",
+    isActive: true,
+    displayOrder: 0,
+  });
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -93,20 +130,136 @@ export default function MusiciansPage() {
       }
     } catch (error) {
       console.error("Error fetching musicians:", error);
+      showToast("Failed to load musicians", "error");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEdit = (musician: Musician) => {
-    // TODO: Implement edit functionality
-    console.log("Edit musician:", musician);
+  const showToast = (message: string, type: "success" | "error" | "info" = "info") => {
+    setToast({
+      id: Date.now().toString(),
+      message,
+      type,
+    } as ToastState);
+  };
+
+  const handleSave = async () => {
+    if (!formData.name.trim()) {
+      showToast("Name is required", "error");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const slug = generateSlug(formData.name);
+      const payload = {
+        ...formData,
+        slug, // Auto-generate slug from name
+        imageUrl: formData.imageUrl || null,
+        instrument: formData.instrument || null,
+        youtubeEmbed: formData.youtubeEmbed || null,
+      };
+
+      if (editingId) {
+        // Update existing
+        const response = await fetch(`/api/admin/musicians/${editingId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+          await fetchMusicians();
+          resetForm();
+          showToast("Musician updated successfully", "success");
+        } else {
+          const error = await response.json();
+          showToast(error.error || "Failed to update musician", "error");
+        }
+      } else {
+        // Create new
+        const response = await fetch("/api/admin/musicians", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+          await fetchMusicians();
+          resetForm();
+          showToast("Musician created successfully", "success");
+        } else {
+          const error = await response.json();
+          showToast(error.error || "Failed to create musician", "error");
+        }
+      }
+    } catch (error) {
+      console.error("Error saving musician:", error);
+      showToast("An error occurred while saving", "error");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this musician?")) return;
-    // TODO: Implement delete functionality
-    console.log("Delete musician:", id);
+
+    try {
+      const response = await fetch(`/api/admin/musicians/${id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        await fetchMusicians();
+        showToast("Musician deleted successfully", "success");
+      } else {
+        showToast("Failed to delete musician", "error");
+      }
+    } catch (error) {
+      console.error("Error deleting musician:", error);
+      showToast("An error occurred while deleting", "error");
+    }
+  };
+
+  const handleEdit = (musician: Musician) => {
+    setFormData({
+      name: musician.name,
+      instrument: musician.instrument || "",
+      bio: musician.bio || "",
+      youtubeEmbed: musician.youtubeEmbed || "",
+      seoTitle: musician.seoTitle || "",
+      seoDescription: musician.seoDescription || "",
+      imageUrl: musician.imageUrl || "",
+      isActive: musician.isActive,
+      displayOrder: musician.displayOrder,
+    });
+    setEditingId(musician.id);
+    setIsAdding(true);
+    setTimeout(() => {
+      const formElement = document.getElementById("musician-form");
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
+      }
+    }, 150);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name: "",
+      instrument: "",
+      bio: "",
+      youtubeEmbed: "",
+      seoTitle: "",
+      seoDescription: "",
+      imageUrl: "",
+      isActive: true,
+      displayOrder: 0,
+    });
+    setIsAdding(false);
+    setEditingId(null);
   };
 
   if (loading) {
@@ -117,19 +270,54 @@ export default function MusiciansPage() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-900 py-12 px-4">
-      <div className="container mx-auto max-w-7xl">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-bold text-white">Musicians Management</h1>
-          <Button className="bg-champagne-gold text-black hover:bg-gold-light">
-            <Plus className="w-5 h-5 mr-2" />
-            Add Musician
-          </Button>
+  // Show loading spinner immediately if unauthenticated or loading
+  if (status === "loading" || (status === "authenticated" && loading && (session?.user as any)?.role !== "admin")) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{
+        background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
+      }}>
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-8 h-8 text-champagne-gold animate-spin" />
+          <div className="text-white">Loading...</div>
         </div>
+      </div>
+    );
+  }
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <AnimatePresence mode="popLayout">
+  // Return null if not authenticated or not admin (router will handle redirect)
+  if (!session || (session?.user as any)?.role !== "admin") {
+    return null;
+  }
+
+  return (
+    <div 
+      className="min-h-screen text-white py-12 px-4"
+      style={{
+        background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
+      }}
+    >
+      <div className="container mx-auto max-w-7xl">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8"
+        >
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h1 className="text-4xl font-bold mb-2 text-white">Musicians</h1>
+              <p className="text-gray-200">Manage musician profiles and information</p>
+            </div>
+            <Link href="/admin">
+              <Button variant="outline" className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10">
+                Back to Dashboard
+              </Button>
+            </Link>
+          </div>
+        </motion.div>
+
+        {/* Musicians List */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+          <AnimatePresence>
             {musicians.map((musician) => (
               <MusicianCard
                 key={musician.id}
@@ -141,12 +329,43 @@ export default function MusiciansPage() {
           </AnimatePresence>
         </div>
 
-        {musicians.length === 0 && !loading && (
+        {/* Add/Edit Form */}
+        {isAdding && (
+          <MusicianForm
+            editingId={editingId}
+            formData={formData}
+            onFormDataChange={setFormData}
+            onSave={handleSave}
+            onCancel={resetForm}
+            isSaving={isSaving}
+          />
+        )}
+
+        {!isAdding && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Button
+              onClick={() => setIsAdding(true)}
+              className="bg-champagne-gold text-black hover:bg-gold-light shadow-[0_0_15px_rgba(212,175,55,0.4)] hover:shadow-[0_0_25px_rgba(212,175,55,0.6)] transition-all duration-300"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Create New Musician
+            </Button>
+          </motion.div>
+        )}
+
+        {musicians.length === 0 && !loading && !isAdding && (
           <div className="text-center py-12">
             <p className="text-gray-400">No musicians found. Add your first musician to get started.</p>
           </div>
         )}
       </div>
+
+      {/* Toast Notification */}
+      <Toast toast={toast} onClose={() => setToast(null)} />
     </div>
   );
 }

@@ -13,6 +13,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const userEmail = (admin as any)?.email;
+    if (!userEmail) {
+      return NextResponse.json({ error: "User email not found" }, { status: 401 });
+    }
+
     const { searchParams } = new URL(request.url);
     const inboxId = searchParams.get("inboxId");
     const bookingId = searchParams.get("bookingId");
@@ -22,7 +27,30 @@ export async function GET(request: NextRequest) {
 
     const where: any = {};
 
-    if (inboxId) where.inboxId = inboxId;
+    if (inboxId) {
+      where.inboxId = inboxId;
+    } else {
+      // Filter by assignedUsers if no specific inboxId provided
+      // Get all inboxes where user is assigned (or inbox has no assignedUsers = shared)
+      const inboxes = await prisma.emailInbox.findMany({
+        where: {
+          OR: [
+            { assignedUsers: { isEmpty: true } }, // Shared inboxes
+            { assignedUsers: { has: userEmail } }, // User is assigned
+          ],
+        },
+        select: { id: true },
+      });
+      
+      const inboxIds = inboxes.map(i => i.id);
+      if (inboxIds.length > 0) {
+        where.inboxId = { in: inboxIds };
+      } else {
+        // No accessible inboxes, return empty
+        return NextResponse.json({ threads: [] });
+      }
+    }
+    
     if (bookingId) where.bookingId = bookingId;
     if (searchParams.has("isArchived")) {
       where.isArchived = isArchived;
@@ -45,7 +73,10 @@ export async function GET(request: NextRequest) {
           select: { id: true, name: true, email: true },
         },
         booking: {
-          select: { id: true, name: true, eventType: true, eventDate: true },
+          select: { id: true, name: true, eventType: true, eventDate: true, status: true },
+        },
+        _count: {
+          select: { emails: true },
         },
         user: {
           select: { id: true, name: true, email: true },

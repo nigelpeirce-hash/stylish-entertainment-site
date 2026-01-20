@@ -135,6 +135,22 @@ export async function sendEmailFromCRM(options: SendEmailOptions) {
       },
     });
 
+    // If this is a reply to a portal message, also send email to client as backup
+    if (thread.source === "portal" && thread.user) {
+      try {
+        const { sendEmail } = await import("@/lib/email");
+        await sendEmail({
+          to: thread.user.email,
+          subject: options.subject,
+          html: options.html || options.text?.replace(/\n/g, "<br>"),
+          text: options.text || options.html?.replace(/<[^>]*>/g, ""),
+        });
+      } catch (emailError) {
+        console.error("Error sending backup email to client:", emailError);
+        // Don't fail the request if backup email fails
+      }
+    }
+
     return { success: true, messageId, threadId: thread.id };
   } catch (error: any) {
     console.error("Error sending email:", error);

@@ -48,33 +48,78 @@ export async function GET(request: NextRequest) {
         eventType: true,
         status: true,
         priority: true,
-        emailsSent: true, // Contains status toggles
+        depositReceived: true,
+        depositReceivedManual: true,
+        djWorksheetApproved: true,
+        djWorksheetApprovedManual: true,
+        finalDetailsConfirmed: true,
+        finalDetailsConfirmedManual: true,
+        services: true,
         createdAt: true,
+        staffAssignments: {
+          select: {
+            id: true,
+            role: true,
+            status: true,
+            briefStatus: true,
+            acknowledgedAt: true,
+            staff: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+              },
+            },
+          },
+        },
+        emailThreads: {
+          where: {
+            source: "portal",
+            isRead: false,
+            inbox: {
+              OR: [
+                { assignedUsers: { isEmpty: true } }, // Shared inboxes
+                { assignedUsers: { has: (admin as any)?.email || "" } }, // User is assigned
+              ],
+            },
+          },
+          select: {
+            id: true,
+          },
+        },
       },
       orderBy: {
         eventDate: "asc", // Closest first
       },
     });
 
-    // Calculate days remaining and extract status toggles from emailsSent
+    // Calculate days remaining and check for unread portal messages and staff pending actions
     const bookingsWithMetadata = bookings.map((booking) => {
       const eventDate = new Date(booking.eventDate);
       const daysRemaining = Math.ceil(
         (eventDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
       );
 
-      const emailsSent = (booking.emailsSent as any) || {};
-      const commandCentreStatus = emailsSent.commandCentre || {};
+      // Check if there are unread portal messages
+      const unreadPortalMessages = booking.emailThreads && booking.emailThreads.length > 0;
+
+      // Check if there are staff assignments that need action
+      // Staff has responded (status is "held" or "dispatched") but isn't yet "confirmed"
+      const staffPendingAction = booking.staffAssignments && booking.staffAssignments.some(
+        (assignment) => 
+          (assignment.status === "held" || assignment.status === "dispatched") && 
+          assignment.status !== "confirmed" &&
+          assignment.status !== "cancelled"
+      );
+
+      // Remove emailThreads from the response (we only needed it for the check)
+      const { emailThreads, ...bookingWithoutThreads } = booking;
 
       return {
-        ...booking,
+        ...bookingWithoutThreads,
         daysRemaining,
-        statusToggles: {
-          depositVerified: commandCentreStatus.depositVerified || false,
-          djWorksheetDispatched: commandCentreStatus.djWorksheetDispatched || commandCentreStatus.djBriefDispatched || false, // Support old field name for backward compatibility
-          finalPaymentReceived: commandCentreStatus.finalPaymentReceived || false,
-          siteVisitDone: commandCentreStatus.siteVisitDone || false,
-        },
+        unreadPortalMessages,
+        staffPendingAction: staffPendingAction || false,
       };
     });
 
@@ -93,12 +138,13 @@ export async function GET(request: NextRequest) {
           status: "pending",
           createdAt: new Date().toISOString(),
           daysRemaining: 22,
-          statusToggles: {
-            depositVerified: true,
-            djWorksheetDispatched: false,
-            finalPaymentReceived: false,
-            siteVisitDone: false,
-          },
+          depositReceived: true,
+          depositReceivedManual: false,
+          djWorksheetApproved: false,
+          djWorksheetApprovedManual: false,
+          finalDetailsConfirmed: false,
+          finalDetailsConfirmedManual: false,
+          services: ["DJs"],
         },
         {
           id: "demo-booking-2",
@@ -110,12 +156,13 @@ export async function GET(request: NextRequest) {
           status: "pending",
           createdAt: new Date().toISOString(),
           daysRemaining: 45,
-          statusToggles: {
-            depositVerified: true,
-            djWorksheetDispatched: true,
-            finalPaymentReceived: false,
-            siteVisitDone: true,
-          },
+          depositReceived: true,
+          depositReceivedManual: false,
+          djWorksheetApproved: true,
+          djWorksheetApprovedManual: false,
+          finalDetailsConfirmed: false,
+          finalDetailsConfirmedManual: false,
+          services: ["DJs"],
         },
         {
           id: "demo-booking-3",
@@ -127,12 +174,13 @@ export async function GET(request: NextRequest) {
           status: "pending",
           createdAt: new Date().toISOString(),
           daysRemaining: 38,
-          statusToggles: {
-            depositVerified: true,
-            djWorksheetDispatched: false,
-            finalPaymentReceived: true,
-            siteVisitDone: true,
-          },
+          depositReceived: true,
+          depositReceivedManual: false,
+          djWorksheetApproved: false,
+          djWorksheetApprovedManual: false,
+          finalDetailsConfirmed: true,
+          finalDetailsConfirmedManual: false,
+          services: ["Lighting Design"],
         },
         {
           id: "demo-booking-4",
@@ -144,12 +192,13 @@ export async function GET(request: NextRequest) {
           status: "pending",
           createdAt: new Date().toISOString(),
           daysRemaining: 15,
-          statusToggles: {
-            depositVerified: true,
-            djWorksheetDispatched: true,
-            finalPaymentReceived: false, // Should trigger red alert
-            siteVisitDone: false,
-          },
+          depositReceived: true,
+          depositReceivedManual: false,
+          djWorksheetApproved: true,
+          djWorksheetApprovedManual: false,
+          finalDetailsConfirmed: false, // Should trigger red alert
+          finalDetailsConfirmedManual: false,
+          services: ["DJs"],
         },
         {
           id: "demo-booking-5",
@@ -161,12 +210,13 @@ export async function GET(request: NextRequest) {
           status: "pending",
           createdAt: new Date().toISOString(),
           daysRemaining: 89,
-          statusToggles: {
-            depositVerified: false,
-            djWorksheetDispatched: false,
-            finalPaymentReceived: false,
-            siteVisitDone: false,
-          },
+          depositReceived: false,
+          depositReceivedManual: false,
+          djWorksheetApproved: false,
+          djWorksheetApprovedManual: false,
+          finalDetailsConfirmed: false,
+          finalDetailsConfirmedManual: false,
+          services: ["DJs"],
         },
         {
           id: "demo-booking-6",
@@ -178,12 +228,13 @@ export async function GET(request: NextRequest) {
           status: "pending",
           createdAt: new Date().toISOString(),
           daysRemaining: 52,
-          statusToggles: {
-            depositVerified: true,
-            djWorksheetDispatched: false,
-            finalPaymentReceived: false,
-            siteVisitDone: false,
-          },
+          depositReceived: true,
+          depositReceivedManual: false,
+          djWorksheetApproved: false,
+          djWorksheetApprovedManual: false,
+          finalDetailsConfirmed: false,
+          finalDetailsConfirmedManual: false,
+          services: ["DJs"],
         },
         {
           id: "demo-booking-7",
@@ -195,12 +246,13 @@ export async function GET(request: NextRequest) {
           status: "pending",
           createdAt: new Date().toISOString(),
           daysRemaining: 73,
-          statusToggles: {
-            depositVerified: true,
-            djWorksheetDispatched: true,
-            finalPaymentReceived: false,
-            siteVisitDone: false,
-          },
+          depositReceived: true,
+          depositReceivedManual: false,
+          djWorksheetApproved: true,
+          djWorksheetApprovedManual: false,
+          finalDetailsConfirmed: false,
+          finalDetailsConfirmedManual: false,
+          services: ["DJs", "Musicians"],
         },
       ];
 
@@ -236,75 +288,12 @@ export async function GET(request: NextRequest) {
 
 /**
  * Update status toggles for a booking
+ * Note: This endpoint is kept for backward compatibility but is no longer used.
+ * The frontend now uses /api/admin/bookings/[id]/manual-override instead.
  */
 export async function PATCH(request: NextRequest) {
-  try {
-    // Check if request is from localhost (development only)
-    const hostname = request.headers.get("host") || "";
-    const isLocalhost = hostname.includes("localhost") || 
-                       hostname.includes("127.0.0.1") ||
-                       process.env.NODE_ENV === "development";
-    
-    // In development/localhost, allow access even if admin check fails (for dev bypass)
-    let admin = await requireAdmin(request);
-    
-    if (!admin && !isLocalhost) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const body = await request.json();
-    const { bookingId, statusToggles } = body;
-
-    if (!bookingId || !statusToggles) {
-      return NextResponse.json(
-        { error: "bookingId and statusToggles are required" },
-        { status: 400 }
-      );
-    }
-
-    // Fetch current booking to preserve existing emailsSent data
-    const booking = await prisma.booking.findUnique({
-      where: { id: bookingId },
-      select: { emailsSent: true },
-    });
-
-    if (!booking) {
-      return NextResponse.json({ error: "Booking not found" }, { status: 404 });
-    }
-
-    // Merge new status toggles with existing emailsSent data
-    const existingEmailsSent = (booking.emailsSent as any) || {};
-    const updatedEmailsSent = {
-      ...existingEmailsSent,
-      commandCentre: {
-        ...existingEmailsSent.commandCentre,
-        ...statusToggles,
-        updatedAt: new Date().toISOString(),
-        updatedBy: admin?.name || admin?.email || "System",
-      },
-    };
-
-    // Update booking
-    await prisma.booking.update({
-      where: { id: bookingId },
-      data: {
-        emailsSent: updatedEmailsSent,
-      },
-    });
-
-    return NextResponse.json({
-      success: true,
-      message: "Status toggles updated successfully",
-    });
-  } catch (error: any) {
-    console.error("Error updating status toggles:", error);
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Internal server error",
-        message: error.message,
-      },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json(
+    { error: "This endpoint is deprecated. Please use /api/admin/bookings/[id]/manual-override instead." },
+    { status: 410 }
+  );
 }

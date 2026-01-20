@@ -50,26 +50,30 @@ interface EmailOptions {
 
 // Send email using Mailgun REST API (preferred method)
 async function sendEmailViaMailgunAPI({ to, subject, html, text, from }: EmailOptions) {
-  // Mailgun requires the "from" address to be from a verified domain
-  // If a custom "from" is provided, validate it's from the Mailgun domain
-  let fromEmail = from || process.env.SMTP_FROM_EMAIL || `info@${MAILGUN_DOMAIN}`;
-  
-  // Ensure the from email is from the verified Mailgun domain
-  // If it's not, use the default domain email
-  if (fromEmail && !fromEmail.includes(`@${MAILGUN_DOMAIN}`)) {
-    console.warn(`From email ${fromEmail} is not from verified domain ${MAILGUN_DOMAIN}. Using default.`);
-    fromEmail = `info@${MAILGUN_DOMAIN}`;
+  // Extract display name if provided
+  let displayName = "Stylish Entertainment";
+  if (from && from.includes("<")) {
+    const nameMatch = from.match(/^"([^"]+)"\s*</);
+    if (nameMatch) {
+      displayName = nameMatch[1];
+    } else {
+      const nameMatch2 = from.match(/^([^<]+)\s*</);
+      if (nameMatch2) {
+        displayName = nameMatch2[1].trim();
+      }
+    }
   }
   
-  // Final fallback if still invalid
-  if (!fromEmail || !fromEmail.includes('@')) {
-    fromEmail = `info@${MAILGUN_DOMAIN}`;
-  }
+  // Always use SMTP_USER as the verified Mailgun address
+  // This ensures we use the email address that's actually verified in Mailgun
+  const verifiedEmail = process.env.SMTP_USER || `info@${MAILGUN_DOMAIN}`;
   
-  console.log("Using from email:", fromEmail);
+  console.log("Using verified Mailgun email:", verifiedEmail);
   
   const formData = new URLSearchParams();
-  formData.append("from", `"Stylish Entertainment" <${fromEmail}>`);
+  // Mailgun requires the from address to be in format: "Display Name <email@domain.com>"
+  // The email must be from a verified Mailgun domain address (SMTP_USER)
+  formData.append("from", `"${displayName}" <${verifiedEmail}>`);
   formData.append("to", to);
   formData.append("subject", subject);
   formData.append("html", html);
@@ -80,9 +84,12 @@ async function sendEmailViaMailgunAPI({ to, subject, html, text, from }: EmailOp
   }
   
   // Add tracking and delivery options for better deliverability
+  // Note: Click tracking requires SSL certificate for email.stylishentertainment.co.uk subdomain
+  // If SSL is not configured, disable click tracking to avoid certificate errors
   formData.append("o:tracking", "yes");
-  formData.append("o:tracking-clicks", "yes");
   formData.append("o:tracking-opens", "yes");
+  // Disable click tracking until SSL certificate is configured for email subdomain
+  // formData.append("o:tracking-clicks", "yes");
 
   const response = await fetch(`${MAILGUN_API_URL}/${MAILGUN_DOMAIN}/messages`, {
     method: "POST",

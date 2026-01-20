@@ -21,7 +21,6 @@ import {
   Trash2,
   Lock,
   Unlock,
-  DollarSign,
   FileText,
   MessageSquare,
   AlertCircle,
@@ -380,7 +379,7 @@ export function FlexibleOperatorSidebar({
           <Card className="bg-gray-800/50 border-champagne-gold/30">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <DollarSign className="w-5 h-5 text-champagne-gold" />
+                <span className="text-2xl font-bold text-champagne-gold">£</span>
                 Flexible Fee Builder
               </CardTitle>
             </CardHeader>

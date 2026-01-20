@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { CheckCircle, XCircle, Package } from "lucide-react";
 import Link from "next/link";
+import { isSuperAdmin } from "@/lib/admin-permissions";
 
 export default function SeedHireItems() {
   const { data: session, status } = useSession();
@@ -17,10 +18,28 @@ export default function SeedHireItems() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    if (status === "unauthenticated") {
+    // Check for dev bypass
+    const devBypass = typeof window !== "undefined" && 
+      (process.env.NODE_ENV === "development" || window.location.hostname === "localhost") &&
+      sessionStorage.getItem("dev_admin_bypass") === "true";
+
+    // Don't redirect while session is loading
+    if (status === "loading") {
+      return;
+    }
+
+    if (status === "unauthenticated" && !devBypass) {
       router.push("/login");
-    } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+    } else if (status === "authenticated") {
+      const userRole = (session?.user as any)?.role;
+      const userEmail = session?.user?.email;
+      
+      if (userRole !== "admin") {
+        router.push("/client/dashboard");
+      } else if (!isSuperAdmin(userEmail) && !devBypass) {
+        // Not SuperAdmin - redirect to dashboard
+        router.push("/admin");
+      }
     }
   }, [status, session, router]);
 

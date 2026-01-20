@@ -1,14 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import Link from "next/link";
+import { isSuperAdmin } from "@/lib/admin-permissions";
 
 export default function DemoBookingForm() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [selectedDemo, setSelectedDemo] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Check for dev bypass
+    const devBypass = typeof window !== "undefined" && 
+      (process.env.NODE_ENV === "development" || window.location.hostname === "localhost") &&
+      sessionStorage.getItem("dev_admin_bypass") === "true";
+
+    // Don't redirect while session is loading
+    if (status === "loading") {
+      return;
+    }
+
+    if (status === "authenticated") {
+      const userRole = (session?.user as any)?.role;
+      const userEmail = session?.user?.email;
+      
+      if (userRole !== "admin") {
+        router.push("/client/dashboard");
+        return;
+      } else if (!isSuperAdmin(userEmail) && !devBypass) {
+        // Not SuperAdmin - redirect to dashboard
+        router.push("/admin");
+        return;
+      }
+    } else if (status === "unauthenticated" && !devBypass) {
+      router.push("/login");
+      return;
+    }
+  }, [status, session, router]);
 
   const demos = [
     {
