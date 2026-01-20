@@ -439,7 +439,7 @@ export default function AdminInbox() {
               size="sm"
               onClick={() => {
                 setComposing(false);
-                setComposeData({ to: "", subject: "", body: "" });
+                setComposeData({ to: "", subject: "", body: "", inboxId: "" });
               }}
               className="text-gray-600"
             >

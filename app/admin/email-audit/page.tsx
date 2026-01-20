@@ -112,7 +112,7 @@ export default function EmailAuditPage() {
       return;
     }
 
-    if (status === "unauthenticated") {
+    if ((status as string) === "unauthenticated") {
       router.push("/login");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
       router.push("/client/dashboard");

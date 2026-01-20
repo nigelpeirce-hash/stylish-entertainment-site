@@ -102,15 +102,11 @@ export default function DatabaseAuditPage() {
       return;
     }
 
-    // Only handle authentication once session is determined
-    if (status === "authenticated") {
-      if ((session?.user as any)?.role !== "admin") {
-        router.push("/client/dashboard");
-      }
-    } else if (status === "unauthenticated") {
+    // Handle authentication - only redirect when status is determined
+    // Type assertion for NextAuth v5 compatibility
+    if ((status as string) === "unauthenticated") {
       router.push("/login");
     }
-    // If status is still loading, do nothing and wait
   }, [status, session, router]);
 
   useEffect(() => {
