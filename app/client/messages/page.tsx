@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { motion } from "framer-motion";
 import { Mail, ArrowLeft, Search, Calendar, Send, Paperclip, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface EmailThread {
   id: string;
@@ -369,9 +370,11 @@ function DirectMessageForm({ bookingId }: { bookingId: string | null }) {
                   className="relative bg-gray-900 border border-gray-700 rounded p-2 flex items-center gap-2"
                 >
                   {att.preview ? (
-                    <img
+                    <Image
                       src={att.preview}
                       alt={att.file.name}
+                      width={48}
+                      height={48}
                       className="w-12 h-12 object-cover rounded"
                     />
                   ) : (

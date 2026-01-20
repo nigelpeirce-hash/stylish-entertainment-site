@@ -21,6 +21,7 @@ import {
   Trash2,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { InviteUserModal } from "@/components/InviteUserModal";
 import { getDevBypassHeaders } from "@/lib/dev-bypass";
 import { isSuperAdmin } from "@/lib/admin-permissions";

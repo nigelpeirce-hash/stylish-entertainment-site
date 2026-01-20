@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, CheckCircle, Package } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface CartItem {
   id: string;
@@ -204,9 +205,11 @@ export default function CheckoutPage() {
                 {cart.items.map((item) => (
                   <div key={item.id} className="flex gap-3">
                     {item.hireItem.imageUrl && (
-                      <img
+                      <Image
                         src={item.hireItem.imageUrl}
                         alt={item.hireItem.name}
+                        width={64}
+                        height={64}
                         className="w-16 h-16 object-cover rounded"
                       />
                     )}

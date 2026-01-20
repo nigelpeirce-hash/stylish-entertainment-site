@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import Script from "next/script";
+import Image from "next/image";
 
 // Load Google reCAPTCHA v3
 declare global {
@@ -179,13 +180,13 @@ export default function Contact() {
         {/* Hero */}
         <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-25 flex items-center justify-center">
-          <img
+          <Image
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162649/Kin-House-Mirrorball-Clusters_fi5n50.jpg"
             alt="Kin House wedding venue with elegant mirrorball clusters and professional lighting design, showcasing our wedding entertainment services"
-            className="w-full h-full object-cover object-center brightness-110"
+            fill
+            className="object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}
-            loading="eager"
-            fetchPriority="high"
+            priority
           />
         </div>
         <motion.div
