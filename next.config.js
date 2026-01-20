@@ -1,9 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Explicitly disable Turbopack for dev and build (Next.js 15 uses Webpack by default)
-  experimental: {
-    turbo: undefined,
-  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'res.cloudinary.com', pathname: '/**' },

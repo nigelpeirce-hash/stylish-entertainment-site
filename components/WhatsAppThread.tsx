@@ -29,10 +29,7 @@ interface WhatsAppThreadProps {
 }
 
 export function WhatsAppThread({ bookingId, phoneNumber, eventDate, clientName }: WhatsAppThreadProps) {
-  // Don't render if no phone number
-  if (!phoneNumber) {
-    return null;
-  }
+  // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   const [messages, setMessages] = useState<CommsLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -188,6 +185,11 @@ export function WhatsAppThread({ bookingId, phoneNumber, eventDate, clientName }
       alert(error.message || "Failed to split thread");
     }
   };
+
+  // Don't render if no phone number (after all hooks are called)
+  if (!phoneNumber) {
+    return null;
+  }
 
   const formatMessageTime = (dateString: string) => {
     try {
