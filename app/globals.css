@@ -375,7 +375,7 @@
     opacity: 1 !important;
   }
   
-  /* Fix for invalid Tailwind-generated hoverinput selector */
+  /* Fix for input/textarea hover states - ensure text is visible */
   input:hover,
   textarea:hover {
     color: rgb(255, 255, 255) !important;
