@@ -173,6 +173,22 @@ function AdminBookingsContent() {
     }
   };
 
+  const handleAssign = async (bookingId: string, assignedTo: string) => {
+    try {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/handoff`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ assignedTo }),
+      });
+
+      if (response.ok) {
+        await fetchBookings();
+      }
+    } catch (error) {
+      console.error("Error assigning booking:", error);
+    }
+  };
+
   const getFlagColor = (flag: string | null) => {
     if (flag === "user1") return "bg-blue-50 hover:bg-blue-100";
     if (flag === "user2") return "bg-purple-50 hover:bg-purple-100";
@@ -183,6 +199,42 @@ function AdminBookingsContent() {
     if (flag === "user1") return "text-blue-600";
     if (flag === "user2") return "text-purple-600";
     return "text-gray-400";
+  };
+
+  const getBorderColor = (flag: string | null) => {
+    if (flag === "user1") return "border-blue-500";
+    if (flag === "user2") return "border-purple-500";
+    return "border-transparent";
+  };
+
+  const getHandoffColor = (assignedTo: string | null, handoffStatus: string | null) => {
+    if (!assignedTo) return "border-transparent bg-gray-800 hover:bg-gray-750";
+    if (assignedTo === "wife") {
+      if (handoffStatus === "action_needed") return "border-yellow-500 bg-yellow-950/20";
+      if (handoffStatus === "tech_review") return "border-blue-500 bg-blue-950/20";
+      if (handoffStatus === "tech_alert") return "border-orange-500 bg-orange-950/20";
+      if (handoffStatus === "awaiting_quote") return "border-purple-500 bg-purple-950/20";
+      return "border-gray-500 bg-gray-800 hover:bg-gray-750";
+    }
+    if (assignedTo === "you") {
+      if (handoffStatus === "action_needed") return "border-yellow-500 bg-yellow-950/20";
+      if (handoffStatus === "tech_review") return "border-blue-500 bg-blue-950/20";
+      if (handoffStatus === "tech_alert") return "border-orange-500 bg-orange-950/20";
+      if (handoffStatus === "awaiting_quote") return "border-purple-500 bg-purple-950/20";
+      return "border-gray-500 bg-gray-800 hover:bg-gray-750";
+    }
+    return "border-transparent bg-gray-800 hover:bg-gray-750";
+  };
+
+  const getHandoffBadge = (assignedTo: string | null, handoffStatus: string | null) => {
+    if (!assignedTo || !handoffStatus) return null;
+    const statusMap: { [key: string]: string } = {
+      action_needed: "Action Needed",
+      tech_review: "Tech Review",
+      tech_alert: "Tech Alert",
+      awaiting_quote: "Awaiting Quote",
+    };
+    return statusMap[handoffStatus] || null;
   };
 
   // Check for dev bypass

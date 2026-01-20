@@ -7,7 +7,7 @@ export const runtime = 'nodejs';
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
     const admin = await requireAdmin(request);
@@ -18,7 +18,8 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const bookingId = params.id;
+    const resolvedParams = params instanceof Promise ? await params : params;
+    const bookingId = resolvedParams.id;
     const { newBookingId } = await request.json();
 
     if (!bookingId || !newBookingId) {

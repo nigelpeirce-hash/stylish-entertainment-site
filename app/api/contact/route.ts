@@ -201,7 +201,7 @@ export async function POST(request: NextRequest) {
           conflictStatus, // Mark if conflict detected
           authorizedSenders: [], // Initialize empty array
           // DO NOT mark inquiry email as sent here. Autoresponder doesn't count as admin action.
-          emailsSent: null, // Initialize as null, no admin action taken yet
+          emailsSent: null as any, // Initialize as null, no admin action taken yet
           lastEmailSentAt: null, // Initialize as null, no admin action taken yet
         },
       });
@@ -446,7 +446,7 @@ export async function POST(request: NextRequest) {
         bookingId: booking.id,
         bookingReference: booking.bookingReference, // Include booking reference
         conflictStatus: conflictCheck.status, // Include conflict status
-        conflictWarning: conflictCheck.status === "CONFLICT" 
+        conflictWarning: conflictCheck.status === "POTENTIAL_DUPLICATE" 
           ? `Warning: This event details match an existing booking under a different email (${conflictCheck.existingBooking?.email}). Please review in admin dashboard.`
           : undefined,
         emailDetails: {

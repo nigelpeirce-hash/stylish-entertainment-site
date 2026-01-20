@@ -174,7 +174,7 @@ export async function checkForBookingConflicts(
     }
 
     // Check 2: Fuzzy name matching (if postcode is different)
-    if (venuePostcode) {
+    if (venuePostcode && normalizedPostcode) {
       const eventDateObj =
         eventDate instanceof Date ? eventDate : new Date(eventDate);
 
@@ -194,7 +194,6 @@ export async function checkForBookingConflicts(
           venuePostcode: {
             not: {
               contains: normalizedPostcode,
-              mode: "insensitive",
             },
           },
         },

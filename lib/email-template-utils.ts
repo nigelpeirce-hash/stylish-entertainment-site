@@ -48,7 +48,7 @@ export async function fetchLockedEventData(bookingId: string) {
     });
 
     // Get talent type (DJ name or service type)
-    const talentType = booking.assignedDJName || 
+    const talentType = (booking as any).assignedDJName || 
                        booking.preferredDJ || 
                        (booking.services.length > 0 ? booking.services.join(", ") : "TBC");
 
@@ -98,7 +98,8 @@ export async function fetchLockedEventData(bookingId: string) {
         termsAcceptedAt: booking.termsAcceptedAt,
         finalBalance: booking.finalBalance,
         preferredDJ: booking.preferredDJ,
-        assignedDJName: booking.assignedDJName,
+        assignedDJName: (booking as any).assignedDJName,
+        bookingReference: (booking as any).bookingReference || null,
       },
     };
   } catch (error: any) {
@@ -226,7 +227,7 @@ export function populateEmailTemplate(
     tc_link: getTCLink(eventData.booking.termsAccepted, eventData.booking.termsAcceptedAt) || "",
     
     // Booking reference for Thread-ID
-    bookingReference: eventData.bookingReference || "",
+    bookingReference: (eventData as any).bookingReference || (eventData.booking as any).bookingReference || "",
   };
 
   // Only include tc_link in template if terms are accepted

@@ -66,7 +66,6 @@ export async function GET(request: NextRequest) {
         venueFingerprint: true,
         contactPreference: true,
         finalBalance: true,
-        assignedDJName: true,
         staffAssignments: {
           include: {
             staff: {

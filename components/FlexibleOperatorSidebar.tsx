@@ -726,7 +726,7 @@ export function FlexibleOperatorSidebar({
               </div>
 
               {/* DJ Worksheet Approved - Only show if DJ service is selected */}
-              {hasDJService && (
+              {booking.services?.includes("DJs") && (
                 <div className="flex items-center justify-between p-3 bg-gray-900/50 rounded-lg border border-gray-700">
                   <div className="flex items-center gap-3 flex-1">
                     <Checkbox

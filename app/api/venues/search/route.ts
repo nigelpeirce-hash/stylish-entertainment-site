@@ -80,19 +80,19 @@ export async function GET(request: NextRequest) {
             {
               venuePostcode: {
                 contains: normalizedPostcode,
-                mode: "insensitive",
+                mode: "insensitive" as const,
               },
             },
             {
               venuePostcode: {
                 contains: spacedPostcode,
-                mode: "insensitive",
+                mode: "insensitive" as const,
               },
             },
             {
               venuePostcode: {
                 contains: normalizedPostcode.replace(/\s+/g, ""),
-                mode: "insensitive",
+                mode: "insensitive" as const,
               },
             },
           ],
@@ -131,13 +131,13 @@ export async function GET(request: NextRequest) {
             {
               venueName: {
                 contains: venueNamePart || query,
-                mode: "insensitive",
+                mode: "insensitive" as const,
               },
             },
             ...(extractedPostcode ? [{
               venueName: {
                 contains: venueNamePart,
-                mode: "insensitive",
+                mode: "insensitive" as const,
               },
             }] : []),
           ],

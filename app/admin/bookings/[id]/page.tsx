@@ -578,7 +578,7 @@ export default function BookingDetail() {
               <div>
                 <p className="text-xs text-gray-400 mb-1 uppercase">Total Fee</p>
                 <p className="text-white font-semibold">
-                  {booking.finalBalance ? `£${booking.finalBalance}` : "Not set"}
+                  {(booking as any).finalBalance ? `£${(booking as any).finalBalance}` : "Not set"}
                 </p>
               </div>
               <div>
@@ -1226,7 +1226,7 @@ export default function BookingDetail() {
             status: booking.status,
             priority: booking.priority || "medium",
             conflictStatus: booking.conflictStatus || null,
-            finalBalance: booking.finalBalance || null,
+            finalBalance: (booking as any).finalBalance || null,
             services: booking.services || [],
             adminNotes: booking.adminNotes || null,
             feeBreakdown: booking.feeBreakdown || null,

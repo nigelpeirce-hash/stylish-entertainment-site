@@ -7,7 +7,7 @@ export const runtime = 'nodejs';
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
     const admin = await requireAdmin(request);
@@ -18,7 +18,8 @@ export async function PATCH(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const bookingId = params.id;
+    const resolvedParams = params instanceof Promise ? await params : params;
+    const bookingId = resolvedParams.id;
     const { status } = await request.json();
 
     if (!bookingId || !status) {

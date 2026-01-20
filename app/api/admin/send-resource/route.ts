@@ -5,6 +5,11 @@ import { getResourceById } from "@/lib/master-resources";
 import { getBrochureLink } from "@/lib/venue-assets";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin-auth";
+import { 
+  ensureBookingReference, 
+  getThreadingHeaders,
+  generateThreadIdFooter
+} from "@/lib/booking-integrity";
 
 // Lazy initialization to prevent build-time errors
 const getResend = () => {

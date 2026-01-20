@@ -98,7 +98,7 @@ export async function POST(
       {
         ...eventData,
         bookingReference: bookingReference || undefined, // Add to template variables
-      }
+      } as any // Type assertion to allow bookingReference
     );
 
     // Add Thread-ID footer to email HTML for threading (invisible in email clients)

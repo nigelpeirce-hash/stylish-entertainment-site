@@ -8,7 +8,7 @@ import { EnquiryStats } from "@/components/EnquiryStats";
 import { RefreshCw, Filter } from "lucide-react";
 import { motion } from "framer-motion";
 
-interface Enquiry {
+export interface Enquiry {
   id: string;
   name: string;
   email: string;
@@ -25,6 +25,8 @@ interface Enquiry {
   numberOfGuests: number | null;
   services: string[];
   budget: string | null;
+  source?: string; // "booking" or "new_enquiry"
+  isConflict?: boolean;
 }
 
 export function EnquiryDashboard() {

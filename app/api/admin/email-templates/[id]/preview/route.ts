@@ -4,6 +4,11 @@ import {
   fetchLockedEventData, 
   populateEmailTemplate,
 } from "@/lib/email-template-utils";
+import { 
+  ensureBookingReference, 
+  getThreadingHeaders,
+  generateThreadIdFooter
+} from "@/lib/booking-integrity";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';

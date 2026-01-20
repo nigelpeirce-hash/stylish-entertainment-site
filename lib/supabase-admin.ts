@@ -66,7 +66,7 @@ export async function inviteUserByEmail(
     return {
       success: true,
       user: data.user,
-      inviteUrl: data.user?.invite_link,
+      inviteUrl: (data.user as any)?.invite_link,
     };
   } catch (error: any) {
     console.error('Error inviting user:', error);
