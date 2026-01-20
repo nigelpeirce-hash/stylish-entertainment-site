@@ -170,7 +170,7 @@ export default function AdminDashboard() {
       hasFetchedRef.current = true;
       fetchStats();
     }
-  }, [status, session?.user?.role, fetchStats]); // Removed 'loading' from dependencies to prevent re-runs
+  }, [status, session, fetchStats]); // Removed 'loading' from dependencies to prevent re-runs
 
   const handleSyncEmails = async () => {
     try {
