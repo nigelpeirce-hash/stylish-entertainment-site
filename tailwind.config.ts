@@ -8,10 +8,6 @@ const config = {
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
   ],
-  corePlugins: {
-    // Disable preflight to avoid conflicts with our custom CSS
-    preflight: true,
-  },
   prefix: "",
   theme: {
     container: {
