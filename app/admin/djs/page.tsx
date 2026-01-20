@@ -76,6 +76,7 @@ export default function DJsPage() {
       // Only fetch DJs if authenticated as admin
       fetchDJs();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session, router]);
 
   const fetchDJs = async () => {

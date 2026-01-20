@@ -38,6 +38,7 @@ export default function ClientMessages() {
     if (session?.user) {
       fetchThreads();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, search]);
 
   const fetchThreads = async () => {

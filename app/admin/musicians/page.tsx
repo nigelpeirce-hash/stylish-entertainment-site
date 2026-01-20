@@ -24,7 +24,7 @@ interface Musician {
   displayOrder: number;
 }
 
-export function MusicianCard({ musician, onEdit, onDelete }: { 
+function MusicianCard({ musician, onEdit, onDelete }: { 
   musician: Musician, 
   onEdit: (m: Musician) => void, 
   onDelete: (id: string) => void 
@@ -119,6 +119,7 @@ export default function MusiciansPage() {
       }
       fetchMusicians();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session, router]);
 
   const fetchMusicians = async () => {

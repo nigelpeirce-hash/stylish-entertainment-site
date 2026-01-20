@@ -231,6 +231,7 @@ function AdminBookingsContent() {
     setTimeout(() => {
       fetchBookingsRef.current?.();
     }, 100);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session?.user?.id]); // Depend on status and session ID only
 
   // Separate effect for filter/search changes (debounced)
@@ -246,6 +247,7 @@ function AdminBookingsContent() {
 
     // Prevent if already fetching
     if (isFetchingRef.current) return;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
 
     // Clear any existing timeout
     if (fetchTimeoutRef.current) {

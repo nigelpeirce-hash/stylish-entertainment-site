@@ -5,6 +5,7 @@ import { useEffect, useMemo } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import BlogImage from "@/components/BlogImage";
+import Image from "next/image";
 
 export default function BlogPostLighting() {
   useEffect(() => {
@@ -37,13 +38,13 @@ export default function BlogPostLighting() {
       {/* Hero */}
       <section className="relative min-h-[50vh] flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-15 flex items-center justify-center">
-          <img
+          <Image
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163745/Pool-Party01_qe5ro0.jpg"
             alt="Venue lighting transformation"
-            className="w-full h-full object-cover object-center brightness-110"
+            fill
+            className="object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}
-            loading="eager"
-            fetchPriority="high"
+            priority
           />
         </div>
         <motion.div

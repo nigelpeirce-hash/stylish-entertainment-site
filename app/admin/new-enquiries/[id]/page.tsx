@@ -65,6 +65,7 @@ export default function NewEnquiryDetail() {
     } else {
       fetchEnquiry();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, router, enquiryId]);
 
   const fetchEnquiry = async () => {

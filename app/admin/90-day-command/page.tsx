@@ -456,6 +456,7 @@ export default function NinetyDayCommandCentre() {
     ) {
       router.push("/client/dashboard");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, (session?.user as any)?.role, router]); // Only depend on specific values
 
   const handleToggleUpdate = useCallback(async (
@@ -624,6 +625,7 @@ export default function NinetyDayCommandCentre() {
       }
       return true; // "all"
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookings, filter, shouldHighlightAlert]);
 
   // Check for dev bypass (development only)

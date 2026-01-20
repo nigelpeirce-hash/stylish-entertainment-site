@@ -99,6 +99,7 @@ export default function OrderDetailPage() {
     } else if (status === "authenticated" && (session?.user as any)?.role === "admin" && orderId) {
       fetchOrder();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session, router, orderId]);
 
   const fetchOrder = async () => {

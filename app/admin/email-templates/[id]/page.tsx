@@ -114,6 +114,7 @@ export default function EmailTemplateEditor() {
       fetchTemplate();
       fetchBookings();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session, router, templateId]);
 
   const fetchTemplate = async () => {

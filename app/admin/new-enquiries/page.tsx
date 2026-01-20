@@ -66,6 +66,7 @@ function NewEnquiriesContent() {
     } else {
       fetchEnquiries();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session, router]);
 
   const fetchEnquiries = async () => {

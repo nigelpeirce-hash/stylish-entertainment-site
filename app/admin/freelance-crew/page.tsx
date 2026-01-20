@@ -49,6 +49,7 @@ export default function FreelanceCrewPage() {
     } else if (status === "authenticated") {
       fetchCrew();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session, router]);
 
   const fetchCrew = async () => {
@@ -68,6 +69,7 @@ export default function FreelanceCrewPage() {
 
   useEffect(() => {
     fetchCrew();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showActiveOnly]);
 
   const handleDelete = async (id: string, name: string) => {

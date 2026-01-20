@@ -180,6 +180,7 @@ export default function BookingDetail() {
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
       router.push("/client/dashboard");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session, router, bookingId]);
 
   useEffect(() => {
@@ -198,6 +199,7 @@ export default function BookingDetail() {
         fetchBooking();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session, bookingId]);
 
   const fetchBooking = async () => {

@@ -19,6 +19,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface HireItem {
   id: string;
@@ -231,9 +232,11 @@ export default function HireItemsPage() {
             <Card key={item.id} className="bg-gray-800 border-champagne-gold/30">
               <CardContent className="p-4">
                 {item.imageUrl && (
-                  <img
+                  <Image
                     src={item.imageUrl}
                     alt={item.name}
+                    width={400}
+                    height={128}
                     className="w-full h-32 object-cover rounded-lg mb-3"
                   />
                 )}
@@ -402,9 +405,11 @@ export default function HireItemsPage() {
                     className="bg-gray-900 text-white border-gray-700"
                   />
                   {formData.imageUrl && (
-                    <img
+                    <Image
                       src={formData.imageUrl}
                       alt="Preview"
+                      width={128}
+                      height={128}
                       className="w-32 h-32 object-cover rounded mt-2"
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = "none";

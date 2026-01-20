@@ -138,6 +138,7 @@ export default function ThreadDetail() {
       fetchThread();
       fetchTemplates();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session, threadId]);
 
   const fetchTemplates = async () => {

@@ -330,9 +330,11 @@ export default function AdminUsers() {
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full bg-champagne-gold/20 flex items-center justify-center">
                                 {user.image ? (
-                                  <img
+                                  <Image
                                     src={user.image}
                                     alt={user.name || user.email}
+                                    width={40}
+                                    height={40}
                                     className="w-10 h-10 rounded-full"
                                   />
                                 ) : (

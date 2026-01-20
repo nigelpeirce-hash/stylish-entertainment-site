@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 const blogPosts = [
   {
@@ -50,13 +51,13 @@ export default function Blog() {
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-15 flex items-center justify-center">
-          <img
+          <Image
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163768/MartinBeddallPhotography02-e1530632660291_pabjzl.jpg"
             alt="Professional wedding lighting and entertainment blog"
-            className="w-full h-full object-cover object-center brightness-110"
+            fill
+            className="object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}
-            loading="eager"
-            fetchPriority="high"
+            priority
           />
         </div>
         <motion.div
@@ -87,10 +88,11 @@ export default function Blog() {
                 <Link href={`/about/blog/${post.slug}`}>
                   <Card className="h-full bg-gray-900 border-champagne-gold/30 hover:shadow-xl transition-all duration-300 hover:border-champagne-gold/60 group cursor-pointer">
                     <div className="relative h-64 md:h-80 overflow-hidden bg-gray-100">
-                      <img
+                      <Image
                         src={post.image}
                         alt={post.alt}
-                        className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
+                        fill
+                        className="object-cover object-center group-hover:scale-110 transition-transform duration-500"
                         loading="lazy"
                         decoding="async"
                       />

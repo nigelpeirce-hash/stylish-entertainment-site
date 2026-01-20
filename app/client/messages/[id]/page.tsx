@@ -53,6 +53,7 @@ export default function ClientThreadDetail() {
     if (session?.user && threadId) {
       fetchThread();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, threadId]);
 
   const fetchThread = async () => {
