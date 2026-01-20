@@ -26,6 +26,7 @@
     "@types/mailparser": "^3.4.6",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.0",
+    "cloudinary": "^2.9.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^11.3.19",
