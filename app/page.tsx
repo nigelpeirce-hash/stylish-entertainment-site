@@ -168,8 +168,8 @@ const gallerySliderImages = [
     alt: "Babington House wedding venue with beautiful exterior LED mood lighting in green tones, showcasing luxury wedding lighting design",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg",
-    alt: "Professional DJ setup at Babington House with custom lighting, professional sound equipment, and atmospheric wedding entertainment",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768742204/Saltburn_231005__0050_1558_y6diu8.jpg",
+    alt: "Professional wedding lighting and entertainment at Saltburn venue, showcasing elegant atmospheric lighting design and event styling",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto,c_auto,g_auto,h_667,w_1000/EmilyTomWedding-JonnyBarrattPhotography605-scaled-e1640779326843_ozksuz.jpg",
