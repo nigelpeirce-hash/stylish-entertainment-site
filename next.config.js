@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Disable Turbopack - not supported in production builds for Next.js 15.1.7
+  experimental: {
+    turbo: undefined,
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },

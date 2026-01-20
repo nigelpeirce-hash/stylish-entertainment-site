@@ -8,5 +8,6 @@
       "path": "/api/cron/monday-brief",
       "schedule": "0 8 * * 1"
     }
-  ]
+  ],
+  "buildCommand": "next build"
 }
