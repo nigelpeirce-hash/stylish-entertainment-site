@@ -268,6 +268,7 @@ function AdminBookingsContent() {
         clearTimeout(fetchTimeoutRef.current);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter, search]); // Only depend on filter and search
 
   const handleToggleFlag = async (bookingId: string, currentFlag: string | null) => {
