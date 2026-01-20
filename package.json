@@ -7,7 +7,10 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "seed:demo": "tsx scripts/seed-demo-data.ts",
+    "seed:djs": "tsx scripts/seed-existing-djs.ts",
+    "seed:hire": "tsx scripts/seed-hire-items.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
@@ -67,6 +70,7 @@
     "postcss": "^8.4.40",
     "tailwindcss": "^3.4.7",
     "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.21.0",
     "typescript": "^5.5.4"
   },
   "overrides": {
