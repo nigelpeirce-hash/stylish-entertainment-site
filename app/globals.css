@@ -332,7 +332,10 @@
   .bg-gray-900 input:not([class*="text-"]),
   .bg-gray-800 input:not([class*="text-"]),
   .bg-gray-900 textarea:not([class*="text-"]),
-  .bg-gray-800 textarea:not([class*="text-"]),
+  .bg-gray-800 textarea:not([class*="text-"]) {
+    color: rgb(255 255 255) !important;
+  }
+  
   [class*="bg-gray-900"] input:not([class*="text-"]),
   [class*="bg-gray-800"] input:not([class*="text-"]) {
     color: rgb(255 255 255) !important;
@@ -359,7 +362,11 @@
   .bg-gray-900 input::placeholder,
   .bg-gray-800 input::placeholder,
   .bg-gray-900 textarea::placeholder,
-  .bg-gray-800 textarea::placeholder,
+  .bg-gray-800 textarea::placeholder {
+    color: rgb(209 213 219) !important; /* gray-300 */
+    opacity: 1 !important;
+  }
+  
   [class*="bg-gray-900"] input::placeholder,
   [class*="bg-gray-800"] input::placeholder,
   [class*="bg-gray-900"] textarea::placeholder,
