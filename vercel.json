@@ -1,4 +1,9 @@
 {
+  "buildCommand": "TURBOPACK=0 next build",
+  "framework": null,
+  "env": {
+    "TURBOPACK": "0"
+  },
   "crons": [
     {
       "path": "/api/cron/email-journey",
