@@ -388,7 +388,7 @@ export default function AdminInbox() {
     return "Click to view message...";
   };
 
-  if (status === "loading" || loading) {
+  if ((status !== "authenticated" && status !== "unauthenticated") || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-gray-600">Loading...</div>

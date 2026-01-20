@@ -162,7 +162,7 @@ export default function EmailTemplates() {
     setEditingId(null);
   };
 
-  if (status === "loading" || loading) {
+  if (status !== "authenticated" && status !== "unauthenticated" || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
         <div className="text-white">Loading...</div>

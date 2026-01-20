@@ -98,7 +98,7 @@ export default function FixDatesPage() {
     }
   };
 
-  if (status === "loading" || loading) {
+  if ((status !== "authenticated" && status !== "unauthenticated") || loading) {
     return (
       <div className="min-h-screen bg-gray-900 text-white p-8">
         <div className="container mx-auto max-w-6xl">

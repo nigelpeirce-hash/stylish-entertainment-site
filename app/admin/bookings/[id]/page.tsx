@@ -92,13 +92,28 @@ interface Booking {
   venuePhoneNumber?: string | null;
   assignedDJEmail?: string | null;
   assignedDJName?: string | null;
-  bookingReference?: string | null;
-  priority?: string;
-  conflictStatus?: string | null;
+  bookingReference: string | null;
+  priority: string;
+  conflictStatus: string | null;
   assignedTo?: string | null;
   handoffStatus?: string | null;
   handoffNote?: string | null;
+  finalBalance: string | null;
   adminNotes?: string | null;
+  feeBreakdown?: Array<{
+    id: string;
+    description: string;
+    amount: number;
+  }> | null;
+  taxInclusive?: boolean | null;
+  taxRate?: number | null;
+  selectedTemplate?: string | null;
+  depositReceived?: boolean | null;
+  depositReceivedManual?: boolean | null;
+  finalDetailsConfirmed?: boolean | null;
+  finalDetailsConfirmedManual?: boolean | null;
+  djWorksheetApproved?: boolean | null;
+  djWorksheetApprovedManual?: boolean | null;
   user: { id: string; name: string; email: string } | null;
   staffAssignments?: Array<{
     id: string;
@@ -322,7 +337,7 @@ export default function BookingDetail() {
   // Check if DJ service is selected
   const hasDJService = booking?.services?.includes("DJs") || false;
 
-  if (status === "loading" || loading) {
+  if ((status !== "authenticated" && status !== "unauthenticated") || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
         <div className="text-white">Loading...</div>

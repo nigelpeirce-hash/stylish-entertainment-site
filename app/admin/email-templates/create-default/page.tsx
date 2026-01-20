@@ -139,7 +139,7 @@ Kind regards,`,
     }
   };
 
-  if (status === "loading") {
+  if (status !== "authenticated" && status !== "unauthenticated") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
         <div className="text-white">Loading...</div>

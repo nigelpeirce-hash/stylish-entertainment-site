@@ -212,7 +212,7 @@ function AdminBookingsContent() {
     const isAdmin = session && (session?.user as any)?.role === "admin";
 
     // Wait for session to load
-    if (status === "loading") return;
+    if (status !== "authenticated" && status !== "unauthenticated") return;
     
     // Check if we should allow access
     if (!isAdmin && !devBypass && !isLocalhost) return;
@@ -376,7 +376,7 @@ function AdminBookingsContent() {
     (typeof window !== "undefined" && sessionStorage.getItem("dev_admin_bypass") === "true");
   const isAdmin = session && (session?.user as any)?.role === "admin";
 
-  if (status === "loading" || loading) {
+  if (status !== "authenticated" && status !== "unauthenticated" || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
         <div className="text-white">Loading...</div>

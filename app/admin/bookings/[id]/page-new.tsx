@@ -89,13 +89,28 @@ interface Booking {
   venuePhoneNumber?: string | null;
   assignedDJEmail?: string | null;
   assignedDJName?: string | null;
-  bookingReference?: string | null;
-  priority?: string;
-  conflictStatus?: string | null;
+  bookingReference: string | null;
+  priority: string;
+  conflictStatus: string | null;
   assignedTo?: string | null;
   handoffStatus?: string | null;
   handoffNote?: string | null;
+  finalBalance: string | null;
   adminNotes?: string | null;
+  feeBreakdown?: Array<{
+    id: string;
+    description: string;
+    amount: number;
+  }> | null;
+  taxInclusive?: boolean | null;
+  taxRate?: number | null;
+  selectedTemplate?: string | null;
+  depositReceived?: boolean | null;
+  depositReceivedManual?: boolean | null;
+  finalDetailsConfirmed?: boolean | null;
+  finalDetailsConfirmedManual?: boolean | null;
+  djWorksheetApproved?: boolean | null;
+  djWorksheetApprovedManual?: boolean | null;
   user: { id: string; name: string; email: string } | null;
   staffAssignments?: Array<{
     id: string;
@@ -729,9 +744,22 @@ export default function BookingDetail() {
       </Dialog>
 
       {/* Flexible Operator Sidebar */}
-      {isSidebarOpen && (
+      {isSidebarOpen && booking && (
         <FlexibleOperatorSidebar
-          booking={booking}
+          booking={{
+            ...booking,
+            feeBreakdown: booking.feeBreakdown || null,
+            taxInclusive: booking.taxInclusive ?? null,
+            taxRate: booking.taxRate ?? null,
+            selectedTemplate: booking.selectedTemplate || null,
+            depositReceived: booking.depositReceived ?? null,
+            depositReceivedManual: booking.depositReceivedManual ?? null,
+            finalDetailsConfirmed: booking.finalDetailsConfirmed ?? null,
+            finalDetailsConfirmedManual: booking.finalDetailsConfirmedManual ?? null,
+            djWorksheetApproved: booking.djWorksheetApproved ?? null,
+            djWorksheetApprovedManual: booking.djWorksheetApprovedManual ?? null,
+          } as any}
+          isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
           onUpdate={fetchBooking}
         />

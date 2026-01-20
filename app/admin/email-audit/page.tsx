@@ -79,7 +79,7 @@ export default function EmailAuditPage() {
       sessionStorage.getItem("dev_admin_bypass") === "true";
 
     // Don't redirect while session is loading
-    if (status === "loading") {
+    if (status !== "authenticated" && status !== "unauthenticated") {
       return;
     }
 
@@ -108,7 +108,7 @@ export default function EmailAuditPage() {
     }
 
     // Don't redirect while session is loading
-    if (status === "loading") {
+    if (status !== "authenticated" && status !== "unauthenticated") {
       return;
     }
 
@@ -193,7 +193,7 @@ export default function EmailAuditPage() {
     sessionStorage.getItem("dev_admin_bypass") === "true";
 
   // Show loading state while session is loading or audit is running
-  if ((status === "loading" || (loading && status !== "authenticated")) && !devBypass) {
+  if (((status !== "authenticated" && status !== "unauthenticated") || (loading && status !== "authenticated")) && !devBypass) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-900">
         <div className="text-white">Loading...</div>

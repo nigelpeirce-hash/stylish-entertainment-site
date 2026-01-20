@@ -74,7 +74,7 @@ export default function DatabaseAuditPage() {
       sessionStorage.getItem("dev_admin_bypass") === "true";
 
     // Don't redirect while session is loading
-    if (status === "loading") {
+    if (status !== "authenticated" && status !== "unauthenticated") {
       return;
     }
 
@@ -102,16 +102,15 @@ export default function DatabaseAuditPage() {
       return;
     }
 
-    // Don't redirect while session is loading
-    if (status === "loading") {
-      return;
-    }
-
-    if (status === "unauthenticated") {
+    // Only handle authentication once session is determined
+    if (status === "authenticated") {
+      if ((session?.user as any)?.role !== "admin") {
+        router.push("/client/dashboard");
+      }
+    } else if (status === "unauthenticated") {
       router.push("/login");
-    } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
     }
+    // If status is still loading, do nothing and wait
   }, [status, session, router]);
 
   useEffect(() => {
