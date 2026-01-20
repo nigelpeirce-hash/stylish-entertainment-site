@@ -143,7 +143,7 @@ export default function AdminDashboard() {
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
       router.push("/client/dashboard");
     }
-  }, [status, session?.user?.role, router]); // Only depend on specific values, not entire session
+  }, [status, session, router]); // Only depend on specific values, not entire session
 
   useEffect(() => {
     // Wait for session to load - don't do anything while loading
