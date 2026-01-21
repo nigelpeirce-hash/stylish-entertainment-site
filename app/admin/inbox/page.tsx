@@ -106,6 +106,12 @@ function getEmailStatus(thread: EmailThread): "to-action" | "waiting-client" | "
   return "to-action";
 }
 
+// Check if email is from a VIP/Venue
+function isVenueEmail(thread: EmailThread): boolean {
+  const email = thread.fromEmail.toLowerCase();
+  return email.includes('sohohouse.com') || email.includes('babingtonhouse.co.uk');
+}
+
 // Categorize threads into folders
 function categorizeThread(thread: EmailThread, folder: FolderType, accountId?: string | null): boolean {
   // Filter by account if specified
@@ -728,7 +734,9 @@ export default function AdminInbox() {
                     }}
                     className={`w-full text-left p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors relative ${
                       selectedThread?.id === thread.id ? "bg-blue-50 border-l-4 border-l-blue-500" : ""
-                    } ${!thread.isRead ? "bg-blue-50/50" : ""}`}
+                    } ${!thread.isRead ? "bg-blue-50/50" : ""} ${
+                      isVenueEmail(thread) ? "border-l-2 border-l-champagne-gold bg-gradient-to-r from-champagne-gold/5 to-transparent" : ""
+                    }`}
                   >
                     {/* Color indicator tab */}
                     <div
@@ -744,6 +752,9 @@ export default function AdminInbox() {
                     <div className="flex items-start justify-between mb-1 pl-1">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
+                          {isVenueEmail(thread) && (
+                            <span className="text-lg" title="Venue Email">🏛️</span>
+                          )}
                           <span className={`text-sm font-semibold truncate ${
                             !thread.isRead ? "text-gray-900" : "text-gray-700"
                           }`}>
@@ -752,6 +763,11 @@ export default function AdminInbox() {
                           {thread.source === "portal" && (
                             <span className="px-2 py-0.5 text-xs font-medium rounded border bg-purple-100 text-purple-700 border-purple-300">
                               Portal
+                            </span>
+                          )}
+                          {isVenueEmail(thread) && (
+                            <span className="px-2 py-0.5 text-xs font-medium rounded border bg-champagne-gold/20 text-champagne-gold border-champagne-gold/40">
+                              Venue
                             </span>
                           )}
                           {getStatusBadge(emailStatus)}
