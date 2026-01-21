@@ -78,12 +78,12 @@ export async function GET(request: NextRequest) {
         User: {
           select: { id: true, name: true, email: true },
         },
-        emails: {
+        Email: {
           orderBy: { receivedAt: "asc" },
           take: 1, // Just get count, we'll load full emails separately
         },
         _count: {
-          select: { emails: true },
+          select: { Email: true },
         },
       },
       orderBy: { lastMessageAt: "desc" },
