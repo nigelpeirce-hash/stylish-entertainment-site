@@ -6,17 +6,23 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-// Helper function to get connection string with SSL mode
+// Helper function to get connection string with proper SSL mode for Supabase
 function getConnectionString(): string | undefined {
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) return undefined;
   
-  // Ensure SSL is enabled for Supabase connections
+  // For Supabase, use sslmode=no-verify which is equivalent to rejectUnauthorized: false
   if (dbUrl.includes('supabase.com')) {
-    // Add sslmode=require if not already present
-    if (!dbUrl.includes('sslmode=')) {
-      return dbUrl + (dbUrl.includes('?') ? '&' : '?') + 'sslmode=require';
-    }
+    // Remove any existing sslmode and add no-verify
+    let cleanUrl = dbUrl.replace(/[?&]sslmode=[^&]*/g, '');
+    cleanUrl = cleanUrl.replace(/\?$/, '');
+    // Add sslmode=no-verify
+    return cleanUrl + (cleanUrl.includes('?') ? '&' : '?') + 'sslmode=no-verify';
+  }
+  
+  // For other databases, remove sslmode to use Pool SSL config
+  if (dbUrl.includes('sslmode=')) {
+    return dbUrl.replace(/[?&]sslmode=[^&]*/g, '').replace(/\?$/, '');
   }
   return dbUrl;
 }
@@ -33,11 +39,10 @@ function createAdapter() {
   try {
     // Determine SSL configuration based on connection string
     const isSupabase = connectionString.includes('supabase.com');
-    const sslConfig = isSupabase 
-      ? { rejectUnauthorized: false } // Supabase uses self-signed certificates
-      : undefined; // Use default SSL behavior for other databases
     
-    const newPool = new Pool({ 
+    // For Supabase, we need to configure SSL to accept self-signed certificates
+    // The Pool's ssl config takes precedence over connection string sslmode
+    const poolConfig: any = {
       connectionString,
       // Add connection timeout to prevent hangs
       connectionTimeoutMillis: 10000,
@@ -45,9 +50,22 @@ function createAdapter() {
       max: 10,
       // Don't try to connect immediately during build
       idleTimeoutMillis: 30000,
-      // SSL configuration - always set for Supabase
-      ...(sslConfig && { ssl: sslConfig }),
-    });
+    };
+    
+    // SSL configuration for Supabase
+    // Note: We use sslmode=no-verify in the connection string for Supabase
+    // This is equivalent to rejectUnauthorized: false
+    // We also set it in Pool config as a backup
+    if (isSupabase) {
+      poolConfig.ssl = {
+        rejectUnauthorized: false, // Required for Supabase's self-signed certificates
+      };
+      if (process.env.NODE_ENV === "development") {
+        console.log("🔒 SSL configured for Supabase connection");
+      }
+    }
+    
+    const newPool = new Pool(poolConfig);
     return new PrismaPg(newPool);
   } catch (error) {
     // If adapter creation fails, log error but continue
