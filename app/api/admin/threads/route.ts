@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
         Booking: {
           select: { id: true, name: true, eventType: true, eventDate: true, status: true },
         },
-        user: {
+        User: {
           select: { id: true, name: true, email: true },
         },
         emails: {
