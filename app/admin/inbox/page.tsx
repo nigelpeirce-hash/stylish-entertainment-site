@@ -1224,6 +1224,12 @@ export default function AdminInbox() {
           )}
         </div>
       </div>
+      
+      {/* Toast Notification */}
+      <Toast 
+        toast={toast} 
+        onClose={() => setToast(null)} 
+      />
     </div>
   );
 }
