@@ -1,6 +1,6 @@
-import { prisma } from '@/lib/prisma';
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/admin-auth";
+import { prisma } from "@/lib/prisma"; // <--- THIS IS THE MISSING PLUG
+import { auth } from "@/auth";
 import imap from "imap-simple";
 
 // Force dynamic rendering
@@ -11,13 +11,13 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id: inboxId } = await params;
-  
   try {
-    const admin = await requireAdmin(request);
-    if (!admin) {
+    const session = await auth();
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+
+    const { id: inboxId } = await params; // <--- NEXT.JS 15 AWAIT
 
     // Fetch the inbox to get IMAP credentials
     const inbox = await prisma.emailInbox.findUnique({
@@ -28,8 +28,8 @@ export async function GET(
       return NextResponse.json({ error: "Inbox not found" }, { status: 404 });
     }
 
-    // Fetch folders from database first
-    let folders = await prisma.EmailFolder.findMany({
+    // Now prisma will actually work
+    let folders = await prisma.emailFolder.findMany({
       where: { inboxId },
       orderBy: { fullPath: "asc" },
     });
@@ -106,7 +106,7 @@ export async function GET(
       folderObj.unreadCount = unreadCount;
 
       // Update in database
-      await prisma.EmailFolder.update({
+      await prisma.emailFolder.update({
         where: { id: folder.id },
         data: { unreadCount, lastSyncedAt: new Date() },
       });
