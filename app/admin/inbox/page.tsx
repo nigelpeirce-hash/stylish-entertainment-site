@@ -1019,7 +1019,18 @@ export default function AdminInbox() {
         </div>
 
         {/* Middle Column - Email List */}
-        <div className="w-80 bg-[#1a1a1a] border-r border-gray-800 flex flex-col">
+        <div className="w-80 bg-[#1a1a1a] border-r border-gray-800 flex flex-col relative">
+          {/* Glass Loading Overlay */}
+          {(refreshing || syncing) && (
+            <div className="absolute inset-0 bg-[#1a1a1a]/80 backdrop-blur-sm z-50 flex items-center justify-center">
+              <div className="flex flex-col items-center gap-3">
+                <RefreshCw className="w-8 h-8 text-[#D4AF37] animate-spin" />
+                <p className="text-sm text-gray-300 font-medium">
+                  {syncing ? "Syncing emails..." : "Refreshing..."}
+                </p>
+              </div>
+            </div>
+          )}
           <div className="p-4 border-b border-gray-800 bg-[#1a1a1a]">
             <div className="text-sm font-semibold text-white">
               {filteredThreads.length} {filteredThreads.length === 1 ? "message" : "messages"}
