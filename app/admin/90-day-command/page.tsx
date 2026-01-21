@@ -663,15 +663,15 @@ export default function NinetyDayCommandCentre() {
   const getStatusBadgeClass = useCallback((status: string): string => {
     switch (status.toLowerCase()) {
       case "confirmed":
-        return "bg-emerald-100 text-emerald-700";
+        return "bg-emerald-100 text-black";
       case "pending":
-        return "bg-amber-100 text-amber-700";
+        return "bg-amber-100 text-black";
       case "cancelled":
-        return "bg-gray-100 text-gray-700";
+        return "bg-gray-100 text-black";
       case "provisional":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 text-black";
       default:
-        return "bg-gray-100 text-gray-700";
+        return "bg-gray-100 text-black";
     }
   }, []);
 
@@ -933,7 +933,7 @@ export default function NinetyDayCommandCentre() {
                               <div className="flex items-center gap-2">
                                 {isUnassigned ? (
                                   <Badge 
-                                    className={`bg-red-100 text-red-700 border border-red-200 rounded-full px-2 py-1 text-xs ${
+                                    className={`bg-red-100 text-black border border-red-200 rounded-full px-2 py-1 text-xs ${
                                       shouldPulse ? "animate-pulse" : ""
                                     }`}
                                   >
