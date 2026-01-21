@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog";
 import { Calendar, Clock, Mail, FileText, Send } from "lucide-react";
 import { createBooking } from "@/lib/actions/booking-actions";
+import { Select } from "@/components/ui/select";
 
 interface AddBookingModalProps {
   open: boolean;
@@ -32,9 +33,23 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
     startDate: "",
     startTime: "",
     endTime: "",
+    serviceType: "",
     notes: "",
     sendPortalInvite: false,
   });
+
+  const serviceTypeOptions = [
+    { value: "", label: "Select service type..." },
+    { value: "DJs", label: "DJs" },
+    { value: "Musicians", label: "Musicians" },
+    { value: "Entertainment", label: "Entertainment" },
+    { value: "Lighting Design", label: "Lighting Design" },
+    { value: "Venue Styling", label: "Venue Styling" },
+    { value: "Production", label: "Production" },
+    { value: "Event Production", label: "Event Production" },
+    { value: "Kit Hire", label: "Kit Hire" },
+    { value: "Other", label: "Other" },
+  ];
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,7 +58,7 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
 
     try {
       // Validate required fields
-      if (!formData.title || !formData.clientEmail || !formData.startDate || !formData.startTime || !formData.endTime) {
+      if (!formData.title || !formData.clientEmail || !formData.startDate || !formData.startTime || !formData.endTime || !formData.serviceType) {
         setError("Please fill in all required fields");
         setLoading(false);
         return;
@@ -82,6 +97,7 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
         clientEmail: formData.clientEmail,
         startTime: startDateTime,
         endTime: endDateTime,
+        serviceType: formData.serviceType,
         notes: formData.notes || undefined,
         sendPortalInvite: formData.sendPortalInvite,
       });
@@ -94,6 +110,7 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
           startDate: "",
           startTime: "",
           endTime: "",
+          serviceType: "",
           notes: "",
           sendPortalInvite: false,
         });
@@ -119,6 +136,7 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
         startDate: "",
         startTime: "",
         endTime: "",
+        serviceType: "",
         notes: "",
         sendPortalInvite: false,
       });

@@ -659,6 +659,22 @@ export default function NinetyDayCommandCentre() {
     }
   }, [mutate]);
 
+  // Services that require staff assignments
+  const SERVICES_REQUIRING_STAFF = ['Lighting', 'Styling', 'Production', 'Event Production', 'Lighting Design', 'Venue Styling'];
+
+  // Helper function to check if a booking needs staff
+  const needsStaffing = useCallback((booking: Booking): boolean => {
+    if (!booking.services || booking.services.length === 0) {
+      return false; // No services = no staff needed
+    }
+    // Check if any service requires staff
+    return booking.services.some(service => 
+      SERVICES_REQUIRING_STAFF.some(requiredService => 
+        service.toLowerCase().includes(requiredService.toLowerCase())
+      )
+    );
+  }, []);
+
   // Get status badge color
   const getStatusBadgeClass = useCallback((status: string): string => {
     switch (status.toLowerCase()) {
@@ -896,7 +912,8 @@ export default function NinetyDayCommandCentre() {
                         const isToday = isEventToday(booking.eventDate);
                         const isTomorrow = isEventTomorrow(booking.daysRemaining);
                         const isUnassigned = !booking.staffAssignments || booking.staffAssignments.length === 0;
-                        const shouldPulse = isUnassigned && booking.daysRemaining <= 14;
+                        const requiresStaff = needsStaffing(booking);
+                        const shouldPulse = requiresStaff && isUnassigned && booking.daysRemaining <= 14;
                         
                         return (
                           <tr
@@ -931,22 +948,26 @@ export default function NinetyDayCommandCentre() {
                             </td>
                             <td className="p-4">
                               <div className="flex items-center gap-2">
-                                {isUnassigned ? (
-                                  <Badge 
-                                    className={`bg-red-100 text-black border border-red-200 rounded-full px-2 py-1 text-xs ${
-                                      shouldPulse ? "animate-pulse" : ""
-                                    }`}
-                                  >
-                                    Unassigned
-                                  </Badge>
+                                {requiresStaff ? (
+                                  isUnassigned ? (
+                                    <Badge 
+                                      className={`bg-red-100 text-black border border-red-200 rounded-full px-2 py-1 text-xs ${
+                                        shouldPulse ? "animate-pulse" : ""
+                                      }`}
+                                    >
+                                      Unassigned
+                                    </Badge>
+                                  ) : (
+                                    <div className="flex flex-col gap-1">
+                                      {booking.staffAssignments?.map((assignment) => (
+                                        <span key={assignment.id} className="text-sm text-gray-300">
+                                          {assignment.staff.name}
+                                        </span>
+                                      ))}
+                                    </div>
+                                  )
                                 ) : (
-                                  <div className="flex flex-col gap-1">
-                                    {booking.staffAssignments?.map((assignment) => (
-                                      <span key={assignment.id} className="text-sm text-gray-300">
-                                        {assignment.staff.name}
-                                      </span>
-                                    ))}
-                                  </div>
+                                  <span className="text-sm text-gray-500 italic">No staff needed</span>
                                 )}
                               </div>
                             </td>

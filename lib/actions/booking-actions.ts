@@ -10,6 +10,7 @@ interface CreateBookingInput {
   clientEmail: string;
   startTime: Date;
   endTime: Date;
+  serviceType: string;
   notes?: string;
   sendPortalInvite?: boolean;
 }
@@ -43,6 +44,7 @@ export async function createBooking(input: CreateBookingInput) {
         eventType: "wedding", // Default, can be changed later
         venueName: "TBD", // Placeholder, can be updated
         status: "pending",
+        services: [input.serviceType], // Store service type in services array
         adminNotes: input.notes || null,
         bookingReference,
         createdAt: new Date(),
