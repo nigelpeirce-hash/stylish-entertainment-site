@@ -441,7 +441,39 @@ export default function AdminInbox() {
       const response = await fetch(`/api/admin/inboxes/${inboxId}/folders`);
       if (response.ok) {
         const data = await response.json();
-        setFolders((prev) => ({ ...prev, [inboxId]: data.folders || [] }));
+        // API returns folders array directly or wrapped in { folders }
+        const foldersArray = Array.isArray(data) ? data : (data.folders || []);
+        
+        // Build folder tree structure from flat array
+        const folderMap = new Map<string, any>();
+        const rootFolders: any[] = [];
+        
+        // First pass: create folder objects
+        foldersArray.forEach((folder: any) => {
+          folderMap.set(folder.id, {
+            ...folder,
+            children: [],
+          });
+        });
+        
+        // Second pass: build tree (only if parentId exists)
+        foldersArray.forEach((folder: any) => {
+          const folderObj = folderMap.get(folder.id)!;
+          if (folder.parentId) {
+            const parent = folderMap.get(folder.parentId);
+            if (parent) {
+              parent.children.push(folderObj);
+            } else {
+              // Parent not found, treat as root
+              rootFolders.push(folderObj);
+            }
+          } else {
+            // No parent, it's a root folder
+            rootFolders.push(folderObj);
+          }
+        });
+        
+        setFolders((prev) => ({ ...prev, [inboxId]: rootFolders }));
       }
     } catch (error) {
       console.error("Error fetching folders:", error);
