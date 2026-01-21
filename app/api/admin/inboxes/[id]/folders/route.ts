@@ -31,6 +31,15 @@ export async function GET(
     }
 
     // Fetch folders from database first - Prisma client uses camelCase (emailFolder)
+    // Verify emailFolder model is available
+    if (!prisma.emailFolder) {
+      console.error("Prisma emailFolder model not found. Run: npx prisma generate");
+      return NextResponse.json(
+        { error: "Database model not available. Please regenerate Prisma client." },
+        { status: 500 }
+      );
+    }
+
     let folders = await prisma.emailFolder.findMany({
       where: { inboxId },
       orderBy: { fullPath: "asc" },
