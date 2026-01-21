@@ -10,6 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from "framer-motion";
 import { Calendar, Clock, AlertTriangle, RefreshCw, ArrowLeft, MessageSquare, UserCheck, Activity } from "lucide-react";
 import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { SafetyDeleteButton } from "@/components/SafetyDeleteButton";
 
 interface StaffAssignment {
   id: string;
@@ -357,6 +359,7 @@ export default function NinetyDayCommandCentre() {
   const [updating, setUpdating] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "within30" | "needsAttention">("all");
   const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);
+  const [viewMode, setViewMode] = useState<"cards" | "table">("table");
 
   // Use SWR for data fetching with caching and background refresh
   // Only enable SWR if user is authorized (prevents unnecessary fetches)
@@ -614,6 +617,62 @@ export default function NinetyDayCommandCentre() {
     return reasons;
   }, []);
 
+  // Check if event is today
+  const isEventToday = useCallback((eventDate: string): boolean => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const event = new Date(eventDate);
+    event.setHours(0, 0, 0, 0);
+    return today.getTime() === event.getTime();
+  }, []);
+
+  // Check if event is tomorrow
+  const isEventTomorrow = useCallback((daysRemaining: number): boolean => {
+    return daysRemaining === 1;
+  }, []);
+
+  // Handle booking deletion
+  const handleDeleteBooking = useCallback(async (bookingId: string, bookingName: string) => {
+    if (!confirm(`Are you sure you want to delete the booking for ${bookingName}? This action cannot be undone.`)) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/admin/bookings/${bookingId}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete booking");
+      }
+
+      // Refresh the bookings list
+      await mutate();
+    } catch (error) {
+      console.error("Error deleting booking:", error);
+      alert("Failed to delete booking. Please try again.");
+    }
+  }, [mutate]);
+
+  // Get status badge color
+  const getStatusBadgeClass = useCallback((status: string): string => {
+    switch (status.toLowerCase()) {
+      case "confirmed":
+        return "bg-emerald-100 text-emerald-700";
+      case "pending":
+        return "bg-amber-100 text-amber-700";
+      case "cancelled":
+        return "bg-gray-100 text-gray-700";
+      case "provisional":
+        return "bg-blue-100 text-blue-800";
+      default:
+        return "bg-gray-100 text-gray-700";
+    }
+  }, []);
+
   // Filter bookings based on selected filter
   const filteredBookings = useMemo(() => {
     return bookings.filter((booking) => {
@@ -682,6 +741,24 @@ export default function NinetyDayCommandCentre() {
               </p>
             </div>
             <div className="flex gap-3">
+              <div className="flex gap-2 border border-gray-700 rounded-lg p-1">
+                <Button
+                  onClick={() => setViewMode("table")}
+                  variant="ghost"
+                  size="sm"
+                  className={`${viewMode === "table" ? "bg-champagne-gold/20 text-champagne-gold" : "text-gray-400"}`}
+                >
+                  Table
+                </Button>
+                <Button
+                  onClick={() => setViewMode("cards")}
+                  variant="ghost"
+                  size="sm"
+                  className={`${viewMode === "cards" ? "bg-champagne-gold/20 text-champagne-gold" : "text-gray-400"}`}
+                >
+                  Cards
+                </Button>
+              </div>
               <Button
                 onClick={() => mutate()}
                 variant="outline"
@@ -767,38 +844,157 @@ export default function NinetyDayCommandCentre() {
           </div>
         )}
 
-        {/* Flight Board Style List */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="space-y-3"
-        >
-          {filteredBookings.length === 0 ? (
-            <Card className="bg-gray-900 border-gray-700">
-              <CardContent className="p-12 text-center">
-                <Calendar className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-                <p className="text-gray-400 text-lg">
-                  No events scheduled within the next 90 days
-                </p>
-              </CardContent>
-            </Card>
-          ) : (
-            filteredBookings.map((booking, index) => (
-              <BookingCard
-                key={booking.id}
-                booking={booking}
-                index={index}
-                updating={updating}
-                onToggleUpdate={handleToggleUpdate}
-                formatDaysRemaining={formatDaysRemaining}
-                calculateProgress={calculateProgress}
-                shouldHighlightAlert={shouldHighlightAlert}
-                getAttentionReasons={getAttentionReasons}
-              />
-            ))
-          )}
-        </motion.div>
+        {/* Table or Card View */}
+        {viewMode === "table" ? (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            {filteredBookings.length === 0 ? (
+              <Card className="bg-gray-900 border-gray-700">
+                <CardContent className="p-12 text-center">
+                  <Calendar className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-400 text-lg">
+                    No events scheduled within the next 90 days
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="bg-gray-900 border-gray-700 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="bg-gray-800 border-b border-gray-700">
+                        <th className="text-left p-4 text-sm font-semibold text-gray-300">Event</th>
+                        <th className="text-left p-4 text-sm font-semibold text-gray-300">Date</th>
+                        <th className="text-left p-4 text-sm font-semibold text-gray-300">Days</th>
+                        <th className="text-left p-4 text-sm font-semibold text-gray-300">Status</th>
+                        <th className="text-left p-4 text-sm font-semibold text-gray-300">Staff</th>
+                        <th className="text-left p-4 text-sm font-semibold text-gray-300">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredBookings.map((booking) => {
+                        const isToday = isEventToday(booking.eventDate);
+                        const isTomorrow = isEventTomorrow(booking.daysRemaining);
+                        const isUnassigned = !booking.staffAssignments || booking.staffAssignments.length === 0;
+                        const shouldPulse = isUnassigned && booking.daysRemaining <= 14;
+                        
+                        return (
+                          <tr
+                            key={booking.id}
+                            className={`border-b border-gray-800 hover:bg-gray-800/50 transition-colors ${
+                              isToday ? "bg-blue-50/10" : isTomorrow ? "bg-amber-50/50" : ""
+                            }`}
+                          >
+                            <td className="p-4">
+                              <div>
+                                <div className="font-medium text-white">{booking.name}</div>
+                                <div className="text-sm text-gray-400">{booking.venueName}</div>
+                              </div>
+                            </td>
+                            <td className="p-4 text-gray-300">
+                              {new Date(booking.eventDate).toLocaleDateString("en-GB", {
+                                weekday: "short",
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              })}
+                            </td>
+                            <td className="p-4">
+                              <span className="text-champagne-gold font-semibold">
+                                {formatDaysRemaining(booking.daysRemaining)}
+                              </span>
+                            </td>
+                            <td className="p-4">
+                              <Badge className={`${getStatusBadgeClass(booking.status)} rounded-full px-2 py-1 text-xs border`}>
+                                {booking.status}
+                              </Badge>
+                            </td>
+                            <td className="p-4">
+                              <div className="flex items-center gap-2">
+                                {isUnassigned ? (
+                                  <Badge 
+                                    className={`bg-red-100 text-red-700 border border-red-200 rounded-full px-2 py-1 text-xs ${
+                                      shouldPulse ? "animate-pulse" : ""
+                                    }`}
+                                  >
+                                    Unassigned
+                                  </Badge>
+                                ) : (
+                                  <div className="flex flex-col gap-1">
+                                    {booking.staffAssignments?.map((assignment) => (
+                                      <span key={assignment.id} className="text-sm text-gray-300">
+                                        {assignment.staff.name}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </td>
+                            <td className="p-4">
+                              <div className="flex items-center gap-2">
+                                <Link href={`/admin/bookings/${booking.id}`}>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="border border-zinc-200 text-gray-300 hover:bg-gray-800"
+                                  >
+                                    View
+                                  </Button>
+                                </Link>
+                                <div className="scale-75 origin-left">
+                                  <SafetyDeleteButton
+                                    onDelete={() => handleDeleteBooking(booking.id, booking.name)}
+                                    itemName={booking.name}
+                                    itemDetails={`${booking.venueName} - ${new Date(booking.eventDate).toLocaleDateString("en-GB")}`}
+                                  />
+                                </div>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </Card>
+            )}
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="space-y-3"
+          >
+            {filteredBookings.length === 0 ? (
+              <Card className="bg-gray-900 border-gray-700">
+                <CardContent className="p-12 text-center">
+                  <Calendar className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+                  <p className="text-gray-400 text-lg">
+                    No events scheduled within the next 90 days
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              filteredBookings.map((booking, index) => (
+                <BookingCard
+                  key={booking.id}
+                  booking={booking}
+                  index={index}
+                  updating={updating}
+                  onToggleUpdate={handleToggleUpdate}
+                  formatDaysRemaining={formatDaysRemaining}
+                  calculateProgress={calculateProgress}
+                  shouldHighlightAlert={shouldHighlightAlert}
+                  getAttentionReasons={getAttentionReasons}
+                />
+              ))
+            )}
+          </motion.div>
+        )}
 
         {/* System Health Indicator */}
         {systemHealth && (
