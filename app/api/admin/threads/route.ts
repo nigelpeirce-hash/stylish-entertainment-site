@@ -86,6 +86,9 @@ export async function GET(request: NextRequest) {
         User: {
           select: { id: true, name: true, email: true },
         },
+        EmailFolder: {
+          select: { id: true, name: true, fullPath: true },
+        },
         Email: {
           orderBy: { receivedAt: "desc" },
           take: 1, // Get the most recent email for snippets
