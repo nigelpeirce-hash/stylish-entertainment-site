@@ -92,6 +92,12 @@ export async function syncEmailInbox(inboxId: string, options: SyncOptions = {})
           try {
             const all = result.parts?.find((part: any) => part.which === "");
 
+            // Extract IMAP flags (Flagged/Starred)
+            const flags = result.attributes?.flags || [];
+            const isFlagged = flags.some((flag: string) => 
+              flag === '\\Flagged' || flag === '\\Starred' || flag === 'Flagged' || flag === 'Starred'
+            );
+
             if (all && all.body) {
               const parsed = await simpleParser(all.body);
               const p: any = parsed;
@@ -157,6 +163,7 @@ export async function syncEmailInbox(inboxId: string, options: SyncOptions = {})
                 })),
                 direction,
                 folder: folderName,
+                isFlagged: isFlagged, // Add IMAP flag status
               });
             }
           } catch (error) {
@@ -465,6 +472,11 @@ async function processEmailMessage(
         updatedAt: new Date(),
       };
 
+      // Update thread starred status if any email in thread is flagged
+      if (message.isFlagged) {
+        updateData.isStarred = true;
+      }
+
       // If thread doesn't have booking/user but we found one, update it
       if (!thread.bookingId && bookingId) {
         updateData.bookingId = bookingId;
@@ -520,12 +532,14 @@ async function processEmailMessage(
         attachments: attachmentsMetadata as any,
         direction: message.direction,
         isRead: false,
-        isStarred: false,
+        isStarred: message.isFlagged || false, // Map IMAP \Flagged/\Starred to isStarred
         receivedAt: message.date,
       },
       update: {
         // Update thread association in case it changed
         threadId: thread.id,
+        // Update starred status from IMAP flags if provided
+        ...(message.isFlagged !== undefined && { isStarred: message.isFlagged }),
         // Update read status if needed (keep existing if already read)
         // Don't update other fields to preserve original data
       },

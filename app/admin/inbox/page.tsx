@@ -24,6 +24,8 @@ import {
   RefreshCw,
   FolderOpen,
   Move,
+  Star,
+  Flag,
 } from "lucide-react";
 import { isSuperAdmin } from "@/lib/admin-permissions";
 import Link from "next/link";
