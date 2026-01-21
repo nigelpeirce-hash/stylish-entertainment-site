@@ -79,8 +79,13 @@ export async function GET(request: NextRequest) {
           select: { id: true, name: true, email: true },
         },
         Email: {
-          orderBy: { receivedAt: "asc" },
-          take: 1, // Just get count, we'll load full emails separately
+          orderBy: { receivedAt: "desc" },
+          take: 1, // Get the most recent email for snippets
+          select: {
+            id: true,
+            bodyText: true,
+            receivedAt: true,
+          },
         },
         _count: {
           select: { Email: true },

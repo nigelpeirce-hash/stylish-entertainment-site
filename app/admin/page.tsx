@@ -29,6 +29,7 @@ import { NewSubmissionNotifier } from "@/components/NewSubmissionNotifier";
 import { BookingIntegrityWarning } from "@/components/BookingIntegrityWarning";
 import { ConflictCountBadge } from "@/components/ConflictCountBadge";
 import { isSuperAdmin } from "@/lib/admin-permissions";
+import { Badge } from "@/components/ui/badge";
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
@@ -44,6 +45,8 @@ export default function AdminDashboard() {
     urgent: 0,
     medium: 0,
   });
+  const [unreadThreads, setUnreadThreads] = useState<any[]>([]);
+  const [recentThreads, setRecentThreads] = useState<any[]>([]);
 
   // Track redirect to prevent multiple redirects
   const redirectAttemptedRef = useRef(false);
@@ -93,6 +96,16 @@ export default function AdminDashboard() {
         urgent,
         medium,
       });
+
+      // Fetch unread threads for display (limit to 5)
+      const unreadRes = await fetch("/api/admin/threads?isRead=false");
+      const unreadData = await unreadRes.json();
+      setUnreadThreads((unreadData.threads || []).slice(0, 5));
+
+      // Fetch recent threads (limit to 5)
+      const recentRes = await fetch("/api/admin/threads");
+      const recentData = await recentRes.json();
+      setRecentThreads((recentData.threads || []).slice(0, 5));
     } catch (error) {
       console.error("Error fetching stats:", error);
     } finally {
@@ -471,6 +484,138 @@ export default function AdminDashboard() {
                   <Clock className="w-6 h-6 text-champagne-gold" />
                 </div>
               </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+
+        {/* Unread Emails & Recent Activity */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"
+        >
+          {/* Unread Emails */}
+          <Card className="bg-gray-800 border-champagne-gold/30">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-champagne-gold" />
+                  Unread Emails
+                </CardTitle>
+                <Link href="/admin/inbox?isRead=false">
+                  <Button variant="ghost" size="sm" className="text-xs text-champagne-gold hover:text-champagne-gold/80">
+                    View All
+                  </Button>
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {unreadThreads.length === 0 ? (
+                <p className="text-gray-400 text-sm">No unread emails</p>
+              ) : (
+                <div className="space-y-3">
+                  {unreadThreads.map((thread: any) => {
+                    const inboxName = thread.EmailInbox?.name || "Unknown";
+                    const inboxBadgeColor = inboxName.toLowerCase().includes("gmail") 
+                      ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
+                      : inboxName.toLowerCase().includes("123") || inboxName.toLowerCase().includes("reg")
+                      ? "bg-champagne-gold/20 text-champagne-gold border-champagne-gold/30"
+                      : "bg-gray-700/50 text-gray-300 border-gray-600/30";
+                    
+                    const senderName = thread.fromName || thread.fromEmail || "Unknown";
+                    const lastEmail = thread.Email?.[0];
+                    const snippet = lastEmail?.bodyText 
+                      ? lastEmail.bodyText.substring(0, 50).replace(/\s+/g, " ").trim() + (lastEmail.bodyText.length > 50 ? "..." : "")
+                      : "No preview available";
+
+                    return (
+                      <Link 
+                        key={thread.id} 
+                        href={`/admin/inbox?threadId=${thread.id}`}
+                        className="block p-3 rounded-lg bg-gray-900/50 hover:bg-gray-900/80 border border-gray-700/50 hover:border-champagne-gold/30 transition-all"
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-semibold text-white text-sm truncate">{senderName}</span>
+                              <Badge className={`text-xs ${inboxBadgeColor}`}>
+                                {inboxName}
+                              </Badge>
+                            </div>
+                            <p className="text-sm font-medium text-gray-200 truncate">{thread.subject || "No subject"}</p>
+                          </div>
+                        </div>
+                        {snippet && (
+                          <p className="text-xs text-gray-400 line-clamp-2">{snippet}</p>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Recent Activity */}
+          <Card className="bg-gray-800 border-champagne-gold/30">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-champagne-gold" />
+                  Recent Activity
+                </CardTitle>
+                <Link href="/admin/inbox">
+                  <Button variant="ghost" size="sm" className="text-xs text-champagne-gold hover:text-champagne-gold/80">
+                    View All
+                  </Button>
+                </Link>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {recentThreads.length === 0 ? (
+                <p className="text-gray-400 text-sm">No recent activity</p>
+              ) : (
+                <div className="space-y-3">
+                  {recentThreads.map((thread: any) => {
+                    const inboxName = thread.EmailInbox?.name || "Unknown";
+                    const inboxBadgeColor = inboxName.toLowerCase().includes("gmail") 
+                      ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
+                      : inboxName.toLowerCase().includes("123") || inboxName.toLowerCase().includes("reg")
+                      ? "bg-champagne-gold/20 text-champagne-gold border-champagne-gold/30"
+                      : "bg-gray-700/50 text-gray-300 border-gray-600/30";
+                    
+                    const senderName = thread.fromName || thread.fromEmail || "Unknown";
+                    const lastEmail = thread.Email?.[0];
+                    const snippet = lastEmail?.bodyText 
+                      ? lastEmail.bodyText.substring(0, 50).replace(/\s+/g, " ").trim() + (lastEmail.bodyText.length > 50 ? "..." : "")
+                      : "No preview available";
+
+                    return (
+                      <Link 
+                        key={thread.id} 
+                        href={`/admin/inbox?threadId=${thread.id}`}
+                        className="block p-3 rounded-lg bg-gray-900/50 hover:bg-gray-900/80 border border-gray-700/50 hover:border-champagne-gold/30 transition-all"
+                      >
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-semibold text-white text-sm truncate">{senderName}</span>
+                              <Badge className={`text-xs ${inboxBadgeColor}`}>
+                                {inboxName}
+                              </Badge>
+                            </div>
+                            <p className="text-sm font-medium text-gray-200 truncate">{thread.subject || "No subject"}</p>
+                          </div>
+                        </div>
+                        {snippet && (
+                          <p className="text-xs text-gray-400 line-clamp-2">{snippet}</p>
+                        )}
+                      </Link>
+                    );
+                  })}
+                </div>
+              )}
             </CardContent>
           </Card>
         </motion.div>
