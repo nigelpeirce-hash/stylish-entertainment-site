@@ -3,6 +3,10 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin-auth";
 import imap from "imap-simple";
 
+// Force dynamic rendering
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -13,9 +17,18 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Next.js 15: params is now a Promise
+    // Next.js 15: params is now a Promise - await it before accessing
     const resolvedParams = await params;
     const inboxId = resolvedParams.id;
+
+    // Verify prisma is available
+    if (!prisma) {
+      console.error("Prisma client is not initialized");
+      return NextResponse.json(
+        { error: "Database connection error" },
+        { status: 500 }
+      );
+    }
 
     // Fetch the inbox to get IMAP credentials
     const inbox = await prisma.emailInbox.findUnique({
@@ -26,7 +39,7 @@ export async function GET(
       return NextResponse.json({ error: "Inbox not found" }, { status: 404 });
     }
 
-    // Fetch folders from database first
+    // Fetch folders from database first - using EmailFolder (capitalized) to match schema
     let folders = await prisma.emailFolder.findMany({
       where: { inboxId },
       orderBy: { fullPath: "asc" },
