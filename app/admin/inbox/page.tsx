@@ -468,15 +468,15 @@ export default function AdminInbox() {
   return (
     <div className="h-screen flex flex-col bg-gray-50">
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between">
+      <div className="bg-[#1a1a1a] border-b border-gray-800 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <h1 className="text-xl font-semibold text-gray-900">Mail</h1>
+          <h1 className="text-xl font-semibold text-white">Mail</h1>
           {isNigel && (
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setShowAdvanced(!showAdvanced)}
-              className="text-gray-600 hover:text-gray-900"
+              className="text-gray-400 hover:text-white"
             >
               <Settings className="w-4 h-4 mr-2" />
               Advanced
