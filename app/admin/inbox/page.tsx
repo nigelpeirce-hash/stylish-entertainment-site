@@ -284,6 +284,7 @@ export default function AdminInbox() {
   const [showMoveMenu, setShowMoveMenu] = useState(false);
   const [syncing, setSyncing] = useState(false);
   const [syncingInboxId, setSyncingInboxId] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
   const isNigel = session?.user?.email && isSuperAdmin(session.user.email);
 
@@ -334,9 +335,11 @@ export default function AdminInbox() {
     }
   };
 
-  const fetchThreads = async (skip: number = 0, append: boolean = false) => {
+  const fetchThreads = async (skip: number = 0, append: boolean = false, showOverlay: boolean = false) => {
     if (append) {
       setLoadingMore(true);
+    } else if (showOverlay) {
+      setRefreshing(true);
     } else {
       setLoading(true);
     }
@@ -366,6 +369,7 @@ export default function AdminInbox() {
     } finally {
       setLoading(false);
       setLoadingMore(false);
+      setRefreshing(false);
     }
   };
 
@@ -503,14 +507,17 @@ export default function AdminInbox() {
         type: "success",
       });
 
-      // Refresh data without redirecting
-      await fetchThreads(0, false);
+      // Refresh data without redirecting - use overlay instead of clearing screen
+      await fetchThreads(0, false, true);
       await fetchInboxes();
       
       // Refresh folders for all synced inboxes
       for (const inbox of inboxesToSync) {
         if (inbox) await fetchFolders(inbox.id);
       }
+      
+      // Use router.refresh() for Next.js cache invalidation
+      router.refresh();
     } catch (error: any) {
       console.error("Error syncing:", error);
       setToast({
@@ -757,24 +764,6 @@ export default function AdminInbox() {
         <div className="flex items-center gap-2">
           {isNigel && showAdvanced && (
             <>
-              <Button
-                size="sm"
-                onClick={() => handleSync()}
-                disabled={syncing}
-                className="bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-black border border-[#D4AF37] transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {syncing ? (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                    Syncing...
-                  </>
-                ) : (
-                  <>
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Sync Emails
-                  </>
-                )}
-              </Button>
               <Link href="/admin/email-audit">
                 <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
                   Email Audit
@@ -833,20 +822,32 @@ export default function AdminInbox() {
           
           <nav className="flex-1 overflow-y-auto p-3 space-y-1">
             {/* Unified Inbox */}
-            <button
-              onClick={() => {
-                setSelectedFolder("unified");
-                setSelectedAccountId(null);
-              }}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                selectedFolder === "unified" && !selectedAccountId
-                  ? "bg-[#D4AF37]/20 text-white border border-[#D4AF37]/40"
-                  : "text-gray-300 hover:bg-[#252525]"
-              }`}
-            >
-              <Inbox className="w-4 h-4 flex-shrink-0" />
-              <span>Unified Inbox</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setSelectedFolder("unified");
+                  setSelectedAccountId(null);
+                }}
+                className={`flex-1 text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                  selectedFolder === "unified" && !selectedAccountId
+                    ? "bg-[#D4AF37]/20 text-white border border-[#D4AF37]/40"
+                    : "text-gray-300 hover:bg-[#252525]"
+                }`}
+              >
+                <Inbox className="w-4 h-4 flex-shrink-0" />
+                <span>Unified Inbox</span>
+              </button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => handleSync()}
+                disabled={syncing || refreshing}
+                className="p-2 h-8 w-8 text-[#D4AF37] hover:text-white hover:bg-[#D4AF37]/20 border border-transparent hover:border-[#D4AF37]/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Sync Emails"
+              >
+                <RefreshCw className={`w-4 h-4 ${syncing || refreshing ? 'animate-spin' : ''}`} />
+              </Button>
+            </div>
 
             {/* Account Grouping */}
             <div className="border-t border-gray-800 pt-3 mt-3">
