@@ -459,6 +459,7 @@ async function processEmailMessage(
           bookingId: bookingId,
           userId: userId,
           lastMessageAt: message.date,
+          isStarred: message.isFlagged || false, // Set thread starred if email is flagged
           updatedAt: new Date(),
         },
       });
