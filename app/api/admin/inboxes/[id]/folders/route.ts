@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { prisma } from '@/lib/prisma';
+import { PrismaClient } from "@prisma/client";
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // Move the initialization INSIDE the function so it cannot be undefined
+  const prisma = new PrismaClient();
+  
   try {
     const session = await auth();
     if (!session?.user) {
@@ -14,7 +17,6 @@ export async function GET(
 
     const { id: inboxId } = await params;
     
-    // Use the local prisma variable defined above
     const folders = await prisma.emailFolder.findMany({
       where: { inboxId },
       orderBy: { fullPath: "asc" },
@@ -24,5 +26,8 @@ export async function GET(
   } catch (error) {
     console.error("Error fetching folders:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  } finally {
+    // IMPORTANT: Disconnect to prevent memory leaks since we are init-ing inside the function
+    await prisma.$disconnect();
   }
 }
