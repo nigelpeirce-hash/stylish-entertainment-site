@@ -34,9 +34,9 @@ export function Toast({ toast, onClose }: ToastProps) {
   };
 
   const colors = {
-    success: "bg-green-600 border-green-500",
-    error: "bg-red-600 border-red-500",
-    info: "bg-blue-600 border-blue-500",
+    success: "bg-[#D4AF37] border-[#D4AF37] text-black",
+    error: "bg-red-600 border-red-500 text-white",
+    info: "bg-blue-600 border-blue-500 text-white",
   };
 
   return (
@@ -46,7 +46,7 @@ export function Toast({ toast, onClose }: ToastProps) {
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -50, scale: 0.95 }}
         transition={{ duration: 0.2 }}
-        className={`fixed top-4 right-4 z-50 ${colors[toast.type]} text-white px-4 py-3 rounded-lg shadow-xl border-2 flex items-center gap-3 min-w-[300px] max-w-md`}
+        className={`fixed top-4 right-4 z-50 ${colors[toast.type]} px-4 py-3 rounded-lg shadow-xl border-2 flex items-center gap-3 min-w-[300px] max-w-md font-semibold`}
       >
         {icons[toast.type]}
         <p className="flex-1 font-medium">{toast.message}</p>
