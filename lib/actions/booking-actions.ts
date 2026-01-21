@@ -26,6 +26,12 @@ export async function createBooking(input: CreateBookingInput) {
     // Generate booking reference
     const bookingReference = `BK-${Date.now()}-${Math.random().toString(36).substring(2, 9).toUpperCase()}`;
 
+    // Format endTime as string for djFinishTime field (since it's String? in schema)
+    const endTimeString = input.endTime.toLocaleTimeString("en-GB", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
     // Create the booking
     const booking = await prisma.booking.create({
       data: {
@@ -33,6 +39,7 @@ export async function createBooking(input: CreateBookingInput) {
         name: input.title,
         email: input.clientEmail.toLowerCase(),
         eventDate: input.startTime,
+        djFinishTime: endTimeString, // Store end time as formatted string
         eventType: "wedding", // Default, can be changed later
         venueName: "TBD", // Placeholder, can be updated
         status: "pending",
