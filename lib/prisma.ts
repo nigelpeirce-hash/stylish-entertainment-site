@@ -155,8 +155,15 @@ export const prisma = new Proxy({} as PrismaClient, {
     return prop in instance;
   },
   ownKeys(_target) {
-    const instance = getPrisma();
-    return Object.keys(instance);
+    try {
+      const instance = getPrisma();
+      return Object.keys(instance);
+    } catch (error) {
+      // If Prisma client can't be initialized (e.g., missing DATABASE_URL),
+      // return an empty array to prevent errors during inspection
+      // The actual delegates will be available once the client is properly initialized
+      return [];
+    }
   },
   getOwnPropertyDescriptor(_target, prop) {
     const instance = getPrisma();
