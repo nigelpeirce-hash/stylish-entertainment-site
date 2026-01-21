@@ -525,8 +525,8 @@ export default function AdminDashboard() {
                     
                     const senderName = thread.fromName || thread.fromEmail || "Unknown";
                     const lastEmail = thread.Email?.[0];
-                    const snippet = lastEmail?.bodyText 
-                      ? lastEmail.bodyText.substring(0, 50).replace(/\s+/g, " ").trim() + (lastEmail.bodyText.length > 50 ? "..." : "")
+                    const snippet = lastEmail?.textContent 
+                      ? lastEmail.textContent.substring(0, 50).replace(/\s+/g, " ").trim() + (lastEmail.textContent.length > 50 ? "..." : "")
                       : "No preview available";
 
                     return (
@@ -587,8 +587,8 @@ export default function AdminDashboard() {
                     
                     const senderName = thread.fromName || thread.fromEmail || "Unknown";
                     const lastEmail = thread.Email?.[0];
-                    const snippet = lastEmail?.bodyText 
-                      ? lastEmail.bodyText.substring(0, 50).replace(/\s+/g, " ").trim() + (lastEmail.bodyText.length > 50 ? "..." : "")
+                    const snippet = lastEmail?.textContent 
+                      ? lastEmail.textContent.substring(0, 50).replace(/\s+/g, " ").trim() + (lastEmail.textContent.length > 50 ? "..." : "")
                       : "No preview available";
 
                     return (
