@@ -1133,48 +1133,53 @@ export default function AdminInbox() {
               {/* Email Content */}
               <div className="flex-1 overflow-y-auto p-6">
                 <div className="max-w-3xl space-y-6">
-                  {selectedThread.emails && selectedThread.emails.length > 0 ? (
-                    selectedThread.emails.map((email, index) => (
-                    <div
-                      key={email.id}
-                      className={`p-4 rounded-lg border ${
-                        email.direction === "outbound"
-                          ? "bg-blue-50 border-blue-200"
-                          : "bg-white border-gray-200"
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <div>
-                          <p className="font-semibold text-gray-900 text-sm">
-                            {email.direction === "outbound"
-                              ? "You"
-                              : email.fromName || email.fromEmail}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {new Date(email.receivedAt).toLocaleString("en-GB")}
-                          </p>
+                  {(() => {
+                    const emails = selectedThread.Email || selectedThread.emails || [];
+                    if (emails.length > 0) {
+                      return emails.map((email: any, index: number) => (
+                        <div
+                          key={email.id || index}
+                          className={`p-4 rounded-lg border ${
+                            email.direction === "outbound"
+                              ? "bg-blue-50 border-blue-200"
+                              : "bg-white border-gray-200"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <div>
+                              <p className="font-semibold text-gray-900 text-sm">
+                                {email.direction === "outbound"
+                                  ? "You"
+                                  : email.fromName || email.fromEmail || "Unknown"}
+                              </p>
+                              <p className="text-xs text-gray-500">
+                                {email.receivedAt ? new Date(email.receivedAt).toLocaleString("en-GB") : ""}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-sm text-gray-700 prose prose-sm max-w-none">
+                            {email.htmlContent || email.bodyHtml ? (
+                              <div
+                                dangerouslySetInnerHTML={{
+                                  __html: email.htmlContent || email.bodyHtml || "",
+                                }}
+                              />
+                            ) : (
+                              <p className="whitespace-pre-wrap">
+                                {email.textContent || email.bodyText || "No content available"}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                      <div className="text-sm text-gray-700 prose prose-sm max-w-none">
-                        {email.htmlContent || email.bodyHtml ? (
-                          <div
-                            dangerouslySetInnerHTML={{
-                              __html: email.htmlContent || email.bodyHtml || "",
-                            }}
-                          />
-                        ) : (
-                          <p className="whitespace-pre-wrap">
-                            {email.textContent || email.bodyText}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    ))
-                  ) : (
-                    <div className="text-center text-gray-500 py-8">
-                      <p>Loading email content...</p>
-                    </div>
-                  )}
+                      ));
+                    } else {
+                      return (
+                        <div className="text-center text-gray-500 py-8">
+                          <p>Loading email content...</p>
+                        </div>
+                      );
+                    }
+                  })()}
                 </div>
               </div>
             </>
