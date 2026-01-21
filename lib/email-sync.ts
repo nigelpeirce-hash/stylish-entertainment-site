@@ -415,6 +415,12 @@ async function processEmailMessage(
       : inboxEmail;
 
     // Create or update email record using upsert to prevent unique constraint errors
+    // Ensure messageId is not null/undefined before upserting
+    if (!message.messageId) {
+      console.warn(`Skipping email with missing messageId: ${message.subject}`);
+      return;
+    }
+    
     await prisma.email.upsert({
       where: { messageId: message.messageId },
       create: {

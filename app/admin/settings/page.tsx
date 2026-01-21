@@ -424,10 +424,13 @@ export default function AdminSettings() {
             </Card>
           ) : (
             inboxes.map((inbox, index) => {
+            if (!inbox || !inbox.id) {
+              return null; // Skip invalid inboxes
+            }
             const status = connectionStatus[inbox.id];
             const isConnected = status?.status === "success";
             const stability: "high" | "medium" | "low" | "offline" = 
-              isConnected && status.latency 
+              isConnected && status?.latency 
                 ? status.latency < 100 ? "high" : status.latency < 500 ? "medium" : "low"
                 : "offline";
             
@@ -448,11 +451,11 @@ export default function AdminSettings() {
                         {/* Heartbeat Graph with Routing Badge */}
                         <div className="flex-shrink-0 flex flex-col items-center gap-2">
                           <HeartbeatGraph 
-                            isActive={inbox.isActive && inbox.syncEnabled}
+                            isActive={inbox?.isActive && inbox?.syncEnabled}
                             stability={stability}
                           />
                           <span className="px-2 py-0.5 bg-slate-700/50 text-slate-300 text-[10px] rounded border border-slate-600/50 font-medium whitespace-nowrap">
-                            Routed to: {getRoutingLabel(inbox)}
+                            Routed to: {inbox ? getRoutingLabel(inbox) : "Unknown"}
                           </span>
                         </div>
 
@@ -460,9 +463,9 @@ export default function AdminSettings() {
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-3 mb-2">
                             <Mail className="w-5 h-5 text-champagne-gold flex-shrink-0" />
-                            <h3 className="text-xl font-semibold text-white truncate">{inbox.name}</h3>
-                            <span className="text-sm text-gray-400 truncate">({inbox.email})</span>
-                            {inbox.isActive && (
+                            <h3 className="text-xl font-semibold text-white truncate">{inbox?.name || "Unnamed Inbox"}</h3>
+                            <span className="text-sm text-gray-400 truncate">({inbox?.email || "No email"})</span>
+                            {inbox?.isActive && (
                               <span className="px-2 py-1 bg-green-900/40 text-green-400 text-xs rounded border border-green-500/50 font-semibold">
                                 ACTIVE
                               </span>
@@ -474,7 +477,7 @@ export default function AdminSettings() {
                             <span className="text-xs text-gray-400 font-medium">Permissions:</span>
                             <div className="flex items-center gap-2">
                               {ADMIN_USERS.map((user) => {
-                                const isSelected = inbox.assignedUsers?.includes(user.email) ?? false;
+                                const isSelected = inbox?.assignedUsers?.includes(user.email) ?? false;
                                 return (
                                   <UserAvatar
                                     key={user.email}
@@ -482,7 +485,8 @@ export default function AdminSettings() {
                                     email={user.email}
                                     isSelected={isSelected}
                                     onClick={() => {
-                                      const currentUsers = inbox.assignedUsers || [];
+                                      if (!inbox?.id) return;
+                                      const currentUsers = inbox?.assignedUsers || [];
                                       const newUsers = isSelected
                                         ? currentUsers.filter(e => e !== user.email)
                                         : [...currentUsers, user.email];
@@ -511,7 +515,17 @@ export default function AdminSettings() {
                             </div>
                             {inbox.lastSyncedAt ? (
                               <div className="text-gray-400">
-                                Last: <span className="text-gray-300">{new Date(inbox.lastSyncedAt).toLocaleString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}</span>
+                                Last: <span className="text-gray-300">
+                                  {(() => {
+                                    try {
+                                      const date = new Date(inbox.lastSyncedAt);
+                                      if (isNaN(date.getTime())) return "Invalid date";
+                                      return date.toLocaleString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+                                    } catch {
+                                      return "Invalid date";
+                                    }
+                                  })()}
+                                </span>
                               </div>
                             ) : (
                               <span className="text-yellow-400">Never synced</span>
@@ -521,18 +535,18 @@ export default function AdminSettings() {
                           {/* Configuration Status */}
                           <div className="flex items-center gap-4 mt-2 text-xs">
                             <div className={`flex items-center gap-1 ${
-                              inbox.imapHost && inbox.imapUsername ? "text-green-400" : "text-red-400"
+                              inbox?.imapHost && inbox?.imapUsername ? "text-green-400" : "text-red-400"
                             }`}>
                               <div className={`w-2 h-2 rounded-full ${
-                                inbox.imapHost && inbox.imapUsername ? "bg-green-500" : "bg-red-500"
+                                inbox?.imapHost && inbox?.imapUsername ? "bg-green-500" : "bg-red-500"
                               }`} />
                               <span>IMAP</span>
                             </div>
                             <div className={`flex items-center gap-1 ${
-                              inbox.smtpHost && inbox.smtpUsername ? "text-green-400" : "text-gray-500"
+                              inbox?.smtpHost && inbox?.smtpUsername ? "text-green-400" : "text-gray-500"
                             }`}>
                               <div className={`w-2 h-2 rounded-full ${
-                                inbox.smtpHost && inbox.smtpUsername ? "bg-green-500" : "bg-gray-500"
+                                inbox?.smtpHost && inbox?.smtpUsername ? "bg-green-500" : "bg-gray-500"
                               }`} />
                               <span>SMTP</span>
                             </div>
@@ -544,7 +558,7 @@ export default function AdminSettings() {
                       <div className="flex-shrink-0">
                         <div className="grid grid-cols-2 gap-2 mt-4">
                           <Button
-                            onClick={() => handleSync(inbox.id, false)}
+                            onClick={() => inbox?.id && handleSync(inbox.id, false)}
                             size="sm"
                             variant="outline"
                             className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10"
@@ -553,7 +567,7 @@ export default function AdminSettings() {
                             Sync
                           </Button>
                           <Button
-                            onClick={() => handleSync(inbox.id, true)}
+                            onClick={() => inbox?.id && handleSync(inbox.id, true)}
                             size="sm"
                             variant="outline"
                             className="border-purple-500/50 text-purple-400 hover:bg-purple-900/20"
@@ -563,17 +577,17 @@ export default function AdminSettings() {
                             Deep Sync
                           </Button>
                           <Button
-                            onClick={() => handleTestConnection(inbox.id)}
+                            onClick={() => inbox?.id && handleTestConnection(inbox.id)}
                             size="sm"
                             variant="outline"
                             className={`border-blue-500/50 text-blue-400 hover:bg-blue-900/20 ${
                               status?.status === "success" ? "border-green-500/50 text-green-400" :
                               status?.status === "error" ? "border-red-500/50 text-red-400" : ""
                             }`}
-                            disabled={testingInboxId === inbox.id || !inbox.imapHost || !inbox.imapUsername}
+                            disabled={testingInboxId === inbox?.id || !inbox?.imapHost || !inbox?.imapUsername}
                           >
                             <RefreshCw className={`w-4 h-4 mr-2 ${testingInboxId === inbox.id ? "animate-spin" : ""}`} />
-                            {testingInboxId === inbox.id
+                            {testingInboxId === inbox?.id
                               ? "Testing..."
                               : status?.status === "success" 
                               ? "✓"
@@ -583,14 +597,14 @@ export default function AdminSettings() {
                           </Button>
                           <div className="col-span-2">
                             <SafetyDeleteButton
-                              onDelete={() => handleDelete(inbox.id)}
-                              itemName={`Inbox: ${inbox.name}`}
-                              itemDetails={`Email: ${inbox.email}`}
+                              onDelete={() => inbox?.id && handleDelete(inbox.id)}
+                              itemName={`Inbox: ${inbox?.name || "Unknown"}`}
+                              itemDetails={`Email: ${inbox?.email || "No email"}`}
                             />
                           </div>
                         </div>
                         <Button
-                          onClick={() => handleEdit(inbox)}
+                          onClick={() => inbox && handleEdit(inbox)}
                           size="sm"
                           variant="outline"
                           className="border-gray-600/50 text-gray-300 hover:bg-gray-800 mt-2 w-full"

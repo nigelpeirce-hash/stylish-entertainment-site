@@ -88,13 +88,49 @@ export async function POST(request: NextRequest) {
         },
       });
     } catch (error: any) {
-      console.error("IMAP test connection error:", error);
+      // Enhanced error logging for debugging
+      const errorMessage = error?.message || "Unknown error";
+      const errorCode = error?.code || "NO_CODE";
+      const errorType = error?.type || "UNKNOWN";
+      
+      // Determine error category
+      let errorCategory = "Connection";
+      if (errorMessage.toLowerCase().includes("password") || 
+          errorMessage.toLowerCase().includes("authentication") ||
+          errorMessage.toLowerCase().includes("auth") ||
+          errorCode === "EAUTH") {
+        errorCategory = "Password/Authentication";
+      } else if (errorMessage.toLowerCase().includes("host") ||
+                 errorMessage.toLowerCase().includes("dns") ||
+                 errorMessage.toLowerCase().includes("resolve") ||
+                 errorCode === "ENOTFOUND" || errorCode === "ECONNREFUSED") {
+        errorCategory = "Host/Network";
+      } else if (errorMessage.toLowerCase().includes("timeout") ||
+                 errorCode === "ETIMEDOUT") {
+        errorCategory = "Timeout";
+      }
+      
+      console.error(`[IMAP Test Connection] ${errorCategory} Error:`, {
+        category: errorCategory,
+        message: errorMessage,
+        code: errorCode,
+        type: errorType,
+        host: inbox.imapHost,
+        port: inbox.imapPort,
+        username: inbox.imapUsername,
+        secure: inbox.imapSecure,
+      });
+      
       return NextResponse.json(
         {
           success: false,
-          error:
-            error?.message ||
-            "Failed to connect to IMAP server. Please check your settings.",
+          error: errorMessage,
+          errorCategory,
+          details: {
+            code: errorCode,
+            type: errorType,
+            category: errorCategory,
+          },
         },
         { status: 500 }
       );
