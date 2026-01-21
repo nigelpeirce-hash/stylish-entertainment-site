@@ -12,7 +12,7 @@ export default function BabingtonWeddingInfo() {
     "@type": "Organization",
     "name": "Stylish Entertainment",
     "url": "https://www.stylishentertainment.co.uk",
-    "logo": "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/logo-header.svg",
+    "logo": "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/logo.png",
     "sameAs": [
       "https://www.instagram.com/stylishentertainment",
     ],
@@ -50,7 +50,7 @@ export default function BabingtonWeddingInfo() {
       "name": "Stylish Entertainment",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/logo-header.svg"
+        "url": "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/logo.png"
       }
     },
     "datePublished": "2024-01-01",

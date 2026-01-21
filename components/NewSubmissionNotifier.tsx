@@ -156,8 +156,8 @@ export function NewSubmissionNotifier() {
                 body: newEnquiries.length === 1 
                   ? `From ${newEnquiries[0].name}${urgentMsg ? " - URGENT" : ""}`
                   : `${newEnquiries.length} new contact form submissions${urgentMsg}`,
-                icon: "/logo-header.svg",
-                badge: "/logo-header.svg",
+                icon: "/logo.png",
+                badge: "/logo.png",
                 tag: "new-enquiry",
                 requireInteraction: urgentEnquiries.length > 0, // Require interaction for urgent
               });

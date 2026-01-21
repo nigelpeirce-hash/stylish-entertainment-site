@@ -263,7 +263,7 @@ export async function POST(request: NextRequest) {
     } else if (process.env.VERCEL_URL) {
       baseUrl = `https://${process.env.VERCEL_URL}`;
     }
-    const logoUrl = `${baseUrl}/logo-header.svg`;
+    const logoUrl = `${baseUrl}/logo.png`;
 
     // Create email content
     const emailSubject = `New Contact Form Submission from ${name}`;
