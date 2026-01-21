@@ -1,25 +1,61 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
+import { requireAdmin } from "@/lib/admin-auth";
+import imap from "imap-simple";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
+    const admin = await requireAdmin(request);
+    if (!admin) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const inboxId = params.id;
 
-    // Fetch all folders for this inbox
-    const folders = await prisma.emailFolder.findMany({
+    // Fetch the inbox to get IMAP credentials
+    const inbox = await prisma.emailInbox.findUnique({
+      where: { id: inboxId },
+    });
+
+    if (!inbox) {
+      return NextResponse.json({ error: "Inbox not found" }, { status: 404 });
+    }
+
+    // Fetch folders from database first
+    let folders = await prisma.emailFolder.findMany({
       where: { inboxId },
       orderBy: { fullPath: "asc" },
     });
+
+    // If no folders in database, try to discover them via IMAP
+    if (folders.length === 0 && inbox.syncEnabled) {
+      try {
+        const config = {
+          imap: {
+            user: inbox.imapUsername,
+            password: inbox.imapPassword,
+            host: inbox.imapHost,
+            port: inbox.imapPort,
+            tls: inbox.imapSecure,
+            tlsOptions: { rejectUnauthorized: false },
+            authTimeout: 3000,
+          },
+        };
+
+        const connection = await imap.connect(config);
+        const boxes = await connection.getBoxes();
+        
+        // Discover and store folders (this will be handled by email-sync, but we can trigger it here)
+        // For now, just return empty array and let the sync process handle folder discovery
+        connection.end();
+      } catch (error) {
+        console.error("Error connecting to IMAP for folder discovery:", error);
+        // Continue with empty folders - sync will discover them later
+      }
+    }
 
     // Build folder tree structure
     const folderMap = new Map<string, any>();
