@@ -1326,18 +1326,36 @@ export default function AdminInbox() {
         <div className="flex-1 bg-[#1a1a1a] flex flex-col overflow-hidden">
           {composing ? (
             /* Compose New Email */
-            <div className="flex-1 flex flex-col">
-              <div className="border-b border-gray-200 p-4">
-                <h2 className="text-lg font-semibold text-gray-900">New Message</h2>
+            <div className="flex-1 flex flex-col bg-white">
+              {/* Header Bar with Title and Close Button */}
+              <div className="border-b border-gray-200 bg-gray-50 px-6 py-4 flex items-center justify-between">
+                <h2 className="text-lg font-semibold text-gray-900">Compose</h2>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setComposing(false);
+                    setComposeData({ to: "", subject: "", body: "", inboxId: "" });
+                  }}
+                  className="h-8 w-8 p-0 text-gray-500 hover:text-gray-900 hover:bg-gray-200"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
               </div>
+              
+              {/* Compose Form */}
               <div className="flex-1 overflow-y-auto p-6">
-                <div className="max-w-2xl space-y-4">
+                <div className="max-w-3xl mx-auto space-y-5">
+                  {/* From Field */}
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 mb-1 block">From</Label>
+                    <Label htmlFor="compose-from" className="text-sm font-medium text-gray-700 mb-2 block">
+                      From
+                    </Label>
                     <select
+                      id="compose-from"
                       value={composeData.inboxId}
                       onChange={(e) => setComposeData({ ...composeData, inboxId: e.target.value })}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-white"
+                      className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-0 focus:border-[#D4AF37] transition-colors"
                     >
                       <option value="">Select inbox...</option>
                       {inboxes.map((inbox) => (
@@ -1347,86 +1365,136 @@ export default function AdminInbox() {
                       ))}
                     </select>
                   </div>
+                  
+                  {/* To Field */}
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 mb-1 block">To</Label>
+                    <Label htmlFor="compose-to" className="text-sm font-medium text-gray-700 mb-2 block">
+                      To
+                    </Label>
                     <Input
+                      id="compose-to"
+                      type="email"
                       value={composeData.to}
                       onChange={(e) => setComposeData({ ...composeData, to: e.target.value })}
                       placeholder="recipient@example.com"
-                      className="text-sm"
+                      className="text-sm focus:outline-none focus:ring-0 focus:border-[#D4AF37] transition-colors"
                     />
                   </div>
+                  
+                  {/* Subject Field */}
                   <div>
-                    <Label className="text-sm font-medium text-gray-700 mb-1 block">Subject</Label>
+                    <Label htmlFor="compose-subject" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Subject
+                    </Label>
                     <Input
+                      id="compose-subject"
                       value={composeData.subject}
                       onChange={(e) => setComposeData({ ...composeData, subject: e.target.value })}
-                      placeholder="Subject"
-                      className="text-sm"
+                      placeholder="Enter subject line..."
+                      className="text-sm focus:outline-none focus:ring-0 focus:border-[#D4AF37] transition-colors"
                     />
                   </div>
-                  <div>
-                    <Label className="text-sm font-medium text-gray-700 mb-1 block">Message</Label>
+                  
+                  {/* Message Field */}
+                  <div className="flex-1">
+                    <Label htmlFor="compose-message" className="text-sm font-medium text-gray-700 mb-2 block">
+                      Message
+                    </Label>
                     <Textarea
+                      id="compose-message"
                       value={composeData.body}
                       onChange={(e) => setComposeData({ ...composeData, body: e.target.value })}
-                      rows={12}
-                      className="text-sm font-sans"
-                      placeholder="Type your message..."
+                      rows={16}
+                      className="text-sm font-sans min-h-[400px] resize-y focus:outline-none focus:ring-0 focus:border-[#D4AF37] transition-colors"
+                      placeholder="Type your message here..."
                     />
                   </div>
-                  <div className="flex items-center justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => {
+                </div>
+              </div>
+              
+              {/* Footer with Action Buttons */}
+              <div className="border-t border-gray-200 bg-gray-50 px-6 py-4 flex items-center justify-end gap-3">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setComposing(false);
+                    setComposeData({ to: "", subject: "", body: "", inboxId: "" });
+                  }}
+                  className="text-gray-700 hover:text-gray-900 hover:bg-gray-200"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    // TODO: Implement save draft functionality
+                    setToast({
+                      id: Date.now().toString(),
+                      message: "Draft saved",
+                      type: "info",
+                    });
+                  }}
+                  className="border-gray-300 text-gray-700 hover:bg-gray-100"
+                >
+                  Save Draft
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={async () => {
+                    if (!composeData.to || !composeData.subject || !composeData.body.trim()) {
+                      setToast({
+                        id: Date.now().toString(),
+                        message: "Please fill in all fields",
+                        type: "error",
+                      });
+                      return;
+                    }
+                    // Use selected inbox or default to first inbox
+                    const inboxId = composeData.inboxId || inboxes[0]?.id;
+                    if (inboxId) {
+                      const response = await fetch("/api/admin/email/send", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          inboxId,
+                          to: composeData.to,
+                          subject: composeData.subject,
+                          html: composeData.body,
+                          text: composeData.body.replace(/<[^>]*>/g, ""),
+                        }),
+                      });
+                      if (response.ok) {
                         setComposing(false);
                         setComposeData({ to: "", subject: "", body: "", inboxId: "" });
-                      }}
-                      className="text-gray-700"
-                    >
-                      Cancel
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={async () => {
-                        if (!composeData.to || !composeData.subject || !composeData.body.trim()) {
-                          alert("Please fill in all fields");
-                          return;
-                        }
-                        // Use selected inbox or default to first inbox
-                        const inboxId = composeData.inboxId || inboxes[0]?.id;
-                        if (inboxId) {
-                          const response = await fetch("/api/admin/email/send", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              inboxId,
-                              to: composeData.to,
-                              subject: composeData.subject,
-                              html: composeData.body,
-                              text: composeData.body.replace(/<[^>]*>/g, ""),
-                            }),
-                          });
-                          if (response.ok) {
-                            setComposing(false);
-                            setComposeData({ to: "", subject: "", body: "", inboxId: "" });
-                            await fetchThreads();
-                          } else {
-                            const error = await response.json();
-                            alert(error.error || "Failed to send email");
-                          }
-                        } else {
-                          alert("Please select an inbox to send from");
-                        }
-                      }}
-                      className="bg-charcoal hover:bg-charcoal/90 text-white"
-                    >
-                      <Send className="w-4 h-4 mr-2" />
-                      Send
-                    </Button>
-                  </div>
-                </div>
+                        setToast({
+                          id: Date.now().toString(),
+                          message: "Email sent successfully",
+                          type: "success",
+                        });
+                        await fetchThreads();
+                      } else {
+                        const error = await response.json();
+                        setToast({
+                          id: Date.now().toString(),
+                          message: error.error || "Failed to send email",
+                          type: "error",
+                        });
+                      }
+                    } else {
+                      setToast({
+                        id: Date.now().toString(),
+                        message: "Please select an inbox to send from",
+                        type: "error",
+                      });
+                    }
+                  }}
+                  className="bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-black font-semibold border border-[#D4AF37]"
+                >
+                  <Send className="w-4 h-4 mr-2" />
+                  Send
+                </Button>
               </div>
             </div>
           ) : selectedThread ? (
