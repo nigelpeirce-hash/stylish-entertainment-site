@@ -27,12 +27,12 @@ export async function GET(request: NextRequest) {
     const skip = parseInt(searchParams.get("skip") || "0", 10);
     const take = parseInt(searchParams.get("take") || "100", 10);
 
-    // Filter to last 6 months for performance
-    const sixMonthsAgo = new Date();
-    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    // Filter to last 180 days for performance
+    const oneHundredEightyDaysAgo = new Date();
+    oneHundredEightyDaysAgo.setDate(oneHundredEightyDaysAgo.getDate() - 180);
 
     const where: any = {
-      lastMessageAt: { gte: sixMonthsAgo },
+      lastMessageAt: { gte: oneHundredEightyDaysAgo },
     };
 
     if (inboxId) {

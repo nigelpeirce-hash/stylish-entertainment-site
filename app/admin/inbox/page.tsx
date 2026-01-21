@@ -535,15 +535,15 @@ export default function AdminInbox() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Left Sidebar - Folders */}
-        <div className="w-64 bg-white border-r border-gray-200 flex flex-col">
-          <div className="p-4 border-b border-gray-200">
+        <div className="w-64 bg-[#1a1a1a] border-r border-gray-800 flex flex-col">
+          <div className="p-4 border-b border-gray-800">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search"
-                className="pl-9 bg-gray-50 border-gray-200 text-sm"
+                placeholder="Search by sender or subject..."
+                className="pl-9 bg-[#1a1a1a] border-gray-700 text-white placeholder:text-gray-500 text-sm focus:border-[#D4AF37] focus:ring-[#D4AF37]"
               />
             </div>
           </div>
@@ -735,18 +735,18 @@ export default function AdminInbox() {
         </div>
 
         {/* Middle Column - Email List */}
-        <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col">
-          <div className="p-4 border-b border-gray-200 bg-white">
-            <div className="text-sm font-semibold text-gray-900">
+        <div className="w-80 bg-[#1a1a1a] border-r border-gray-800 flex flex-col">
+          <div className="p-4 border-b border-gray-800 bg-[#1a1a1a]">
+            <div className="text-sm font-semibold text-white">
               {filteredThreads.length} {filteredThreads.length === 1 ? "message" : "messages"}
             </div>
           </div>
           
-          <div className="flex-1 overflow-y-auto bg-white">
+          <div className="flex-1 overflow-y-auto bg-[#1a1a1a]">
             {filteredThreads.length === 0 ? (
-              <div className="p-8 text-center text-gray-500 text-sm">
-                <Mail className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-                <p>No messages</p>
+              <div className="p-8 text-center text-gray-400 text-sm">
+                <Mail className="w-8 h-8 mx-auto mb-2 text-gray-500" />
+                <p className="text-gray-400">No messages</p>
               </div>
             ) : (
               <>
@@ -779,67 +779,48 @@ export default function AdminInbox() {
                         setReplyInboxId(inboxId);
                       }
                     }}
-                    className={`w-full text-left p-4 border-b border-gray-100 transition-all relative group ${
+                    className={`w-full text-left p-4 border-b border-gray-800 transition-all relative group ${
                       isSelected 
-                        ? "bg-gradient-to-r from-champagne-gold/10 to-white border-l-4 border-l-champagne-gold shadow-sm" 
-                        : "bg-white hover:bg-gray-50"
-                    } ${!thread.isRead ? "bg-charcoal/5 border-l-2 border-l-charcoal/20" : ""} ${
-                      isVenueEmail(thread) ? "border-l-2 border-l-champagne-gold/50" : ""
+                        ? "bg-[#2a2a2a] border-l-4 border-l-[#D4AF37]" 
+                        : "bg-[#1a1a1a] hover:bg-[#252525]"
                     }`}
                   >
-                    {/* Color indicator tab - only show if not selected */}
-                    {!isSelected && (
-                      <div
-                        className={`absolute left-0 top-0 bottom-0 w-0.5 ${
-                          getAccountColor(inboxName, inboxEmail).bg.replace("bg-", "bg-").includes("amber")
-                            ? "bg-amber-400"
-                            : getAccountColor(inboxName, inboxEmail).bg.replace("bg-", "bg-").includes("gray")
-                            ? "bg-gray-400"
-                            : "bg-orange-400"
-                        }`}
-                        title={`${getAccountColor(inboxName, inboxEmail).name} - ${inboxName}`}
-                      />
-                    )}
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1 min-w-0 space-y-2">
-                        {/* Sender Name - Bold and Primary Color */}
+                        {/* Sender Name - Pure White and Bold */}
                         <div className="flex items-center gap-2 flex-wrap">
                           {isVenueEmail(thread) && (
                             <span className="text-base" title="Venue Email">🏛️</span>
                           )}
-                          <span className={`text-sm font-bold truncate ${
-                            !thread.isRead ? "text-charcoal" : isSelected ? "text-charcoal" : "text-gray-800"
-                          }`}>
+                          <span className="text-sm font-bold truncate text-white">
                             {fromName || fromEmail || 'Anonymous'}
                           </span>
                           {thread.source === "portal" && (
-                            <span className="px-2 py-0.5 text-xs font-medium rounded-full border bg-purple-500/10 text-purple-700 border-purple-500/30">
+                            <span className="px-2 py-0.5 text-xs font-medium rounded-full border bg-purple-900/50 text-purple-300 border-purple-700">
                               Portal
                             </span>
                           )}
                           {isVenueEmail(thread) && (
-                            <span className="px-2 py-0.5 text-xs font-medium rounded-full border bg-champagne-gold/20 text-champagne-gold border-champagne-gold/40">
+                            <span className="px-2 py-0.5 text-xs font-medium rounded-full border bg-[#D4AF37]/20 text-[#D4AF37] border-[#D4AF37]/40">
                               Venue
                             </span>
                           )}
                           {getStatusBadge(emailStatus)}
                         </div>
                         
-                        {/* Subject Line - Larger and High Contrast */}
-                        <p className={`text-base font-semibold truncate ${
-                          !thread.isRead ? "text-charcoal" : isSelected ? "text-charcoal" : "text-gray-800"
-                        }`}>
+                        {/* Subject Line - Light Gold or Silver */}
+                        <p className="text-base font-semibold truncate text-[#D4AF37]">
                           {subject}
                         </p>
                         
-                        {/* Message Snippet - Muted Grey */}
+                        {/* Message Snippet - Medium Grey */}
                         {preview && preview !== "Click to view message..." && (
-                          <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
+                          <p className="text-xs text-[#a0a0a0] line-clamp-2 leading-relaxed">
                             {preview}
                           </p>
                         )}
                       </div>
-                      <span className="text-xs text-gray-400 flex-shrink-0 mt-1">
+                      <span className="text-xs text-gray-500 flex-shrink-0 mt-1">
                         {thread.lastMessageAt ? new Date(thread.lastMessageAt).toLocaleDateString("en-GB", {
                           month: "short",
                           day: "numeric",
@@ -876,7 +857,7 @@ export default function AdminInbox() {
         </div>
 
         {/* Right Pane - Email Content */}
-        <div className="flex-1 bg-white flex flex-col overflow-hidden">
+        <div className="flex-1 bg-[#1a1a1a] flex flex-col overflow-hidden">
           {composing ? (
             /* Compose New Email */
             <div className="flex-1 flex flex-col">
@@ -985,10 +966,10 @@ export default function AdminInbox() {
           ) : selectedThread ? (
             <>
               {/* Email Header with Actions */}
-              <div className="border-b border-gray-200 p-4">
+              <div className="border-b border-gray-800 p-4 bg-[#1a1a1a]">
                 <div className="flex items-center justify-between mb-3">
-                  <h2 className="text-lg font-semibold text-gray-900">
-                    {selectedThread.subject}
+                  <h2 className="text-lg font-semibold text-white">
+                    {selectedThread.subject || 'No Subject'}
                   </h2>
                   <div className="flex items-center gap-2">
                     <Button
@@ -1028,31 +1009,33 @@ export default function AdminInbox() {
                     </Button>
                   </div>
                 </div>
-                <div className="text-sm text-gray-600 space-y-1">
+                <div className="text-sm text-gray-300 space-y-1">
                   <p>
-                    <span className="font-medium">From:</span> {selectedThread.fromName || selectedThread.fromEmail}
+                    <span className="font-medium text-white">From:</span> <span className="text-[#D4AF37]">{selectedThread.fromName || selectedThread.fromEmail}</span>
                   </p>
                   <p>
-                    <span className="font-medium">To:</span> {selectedThread.toEmail}
+                    <span className="font-medium text-white">To:</span> <span className="text-gray-300">{selectedThread.toEmail}</span>
                   </p>
                   <p>
-                    <span className="font-medium">Date:</span>{" "}
-                    {new Date(selectedThread.lastMessageAt).toLocaleString("en-GB", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                    <span className="font-medium text-white">Date:</span>{" "}
+                    <span className="text-gray-400">
+                      {selectedThread.lastMessageAt ? new Date(selectedThread.lastMessageAt).toLocaleString("en-GB", {
+                        weekday: "long",
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }) : ''}
+                    </span>
                   </p>
                 </div>
               </div>
 
               {/* Reply Compose Window */}
               {replying && (
-                <div className="border-b border-gray-200 bg-gray-50 p-4">
-                  <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
+                <div className="border-b border-gray-800 bg-[#252525] p-4">
+                  <div className="bg-[#1a1a1a] rounded-lg border border-gray-800 shadow-sm">
                     <div className="p-4 space-y-3">
                       <div>
                         <Label className="text-xs text-gray-600 mb-1 block">From</Label>
@@ -1145,7 +1128,7 @@ export default function AdminInbox() {
               )}
 
               {/* Email Content */}
-              <div className="flex-1 overflow-y-auto p-6">
+              <div className="flex-1 overflow-y-auto p-6 bg-[#1a1a1a]">
                 <div className="max-w-3xl space-y-6">
                   {(() => {
                     const emails = selectedThread.Email || selectedThread.emails || [];
@@ -1155,31 +1138,32 @@ export default function AdminInbox() {
                           key={email.id || index}
                           className={`p-4 rounded-lg border ${
                             email.direction === "outbound"
-                              ? "bg-champagne-gold/5 border-champagne-gold/20"
-                              : "bg-white border-gray-200"
+                              ? "bg-[#2a2a2a] border-[#D4AF37]/30"
+                              : "bg-[#252525] border-gray-800"
                           }`}
                         >
                           <div className="flex items-center justify-between mb-3">
                             <div>
-                              <p className="font-semibold text-gray-900 text-sm">
+                              <p className="font-semibold text-white text-sm">
                                 {email.direction === "outbound"
                                   ? "You"
                                   : email.fromName || email.fromEmail || "Unknown"}
                               </p>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-xs text-gray-400">
                                 {email.receivedAt ? new Date(email.receivedAt).toLocaleString("en-GB") : ""}
                               </p>
                             </div>
                           </div>
-                          <div className="text-sm text-gray-700 prose prose-sm max-w-none">
+                          <div className="text-sm text-gray-200 prose prose-sm max-w-none prose-invert">
                             {email.htmlContent || email.bodyHtml ? (
                               <div
+                                className="text-gray-200"
                                 dangerouslySetInnerHTML={{
                                   __html: email.htmlContent || email.bodyHtml || "",
                                 }}
                               />
                             ) : (
-                              <p className="whitespace-pre-wrap">
+                              <p className="whitespace-pre-wrap text-gray-200">
                                 {email.textContent || email.bodyText || "No content available"}
                               </p>
                             )}
@@ -1188,7 +1172,7 @@ export default function AdminInbox() {
                       ));
                     } else {
                       return (
-                        <div className="text-center text-gray-500 py-8">
+                        <div className="text-center text-gray-400 py-8">
                           <p>Loading email content...</p>
                         </div>
                       );
@@ -1198,13 +1182,13 @@ export default function AdminInbox() {
               </div>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center bg-gray-50">
+            <div className="flex-1 flex items-center justify-center bg-[#1a1a1a]">
               <div className="text-center max-w-sm">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
-                  <Mail className="w-8 h-8 text-gray-400" />
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-800 flex items-center justify-center">
+                  <Mail className="w-8 h-8 text-gray-500" />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">No message selected</h3>
-                <p className="text-sm text-gray-500">Select a message from the list to view its contents</p>
+                <h3 className="text-lg font-semibold text-white mb-2">No message selected</h3>
+                <p className="text-sm text-gray-400">Select a message from the list to view its contents</p>
               </div>
             </div>
           )}
