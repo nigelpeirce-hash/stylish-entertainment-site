@@ -1127,6 +1127,9 @@ export default function AdminInbox() {
                       <div className="flex-1 min-w-0 space-y-2">
                         {/* Sender Name - Pure White and Bold */}
                         <div className="flex items-center gap-2 flex-wrap">
+                          {thread.isStarred && (
+                            <Star className="w-4 h-4 text-[#D4AF37] fill-[#D4AF37] flex-shrink-0" title="Flagged/Starred" />
+                          )}
                           {isVenueEmail(thread) && (
                             <span className="text-base" title="Venue Email">🏛️</span>
                           )}
