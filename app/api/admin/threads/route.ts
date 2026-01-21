@@ -85,7 +85,10 @@ export async function GET(request: NextRequest) {
           take: 1, // Get the most recent email for snippets
           select: {
             id: true,
-            bodyText: true,
+            textContent: true,
+            subject: true,
+            fromName: true,
+            fromEmail: true,
             receivedAt: true,
           },
         },
