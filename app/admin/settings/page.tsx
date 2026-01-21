@@ -52,6 +52,7 @@ export default function AdminSettings() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [connectionStatus, setConnectionStatus] = useState<Record<string, { status: "success" | "error" | "testing" | null; message: string; latency?: number }>>({});
   const [revealedPasswords, setRevealedPasswords] = useState<Record<string, { imap: boolean; smtp: boolean }>>({});
+  const [apiErrors, setApiErrors] = useState<Record<string, string>>({});
   
   // Helper function to get routing label
   const getRoutingLabel = (inbox: EmailInbox): string => {
@@ -250,29 +251,33 @@ export default function AdminSettings() {
   };
 
   const handleEdit = (inbox: EmailInbox) => {
+    if (!inbox) return;
+    
     setFormData({
-      name: inbox.name,
-      email: inbox.email,
-      imapHost: inbox.imapHost || "",
-      imapPort: inbox.imapPort || 993,
-      imapSecure: inbox.imapSecure ?? true,
-      imapUsername: inbox.imapUsername || "",
+      name: inbox?.name || "",
+      email: inbox?.email || "",
+      imapHost: inbox?.imapHost || "",
+      imapPort: inbox?.imapPort || 993,
+      imapSecure: inbox?.imapSecure ?? true,
+      imapUsername: inbox?.imapUsername || "",
       imapPassword: "", // Never populate password fields for security
-      smtpHost: inbox.smtpHost || "",
-      smtpPort: inbox.smtpPort || 587,
-      smtpSecure: inbox.smtpSecure ?? true,
-      smtpUsername: inbox.smtpUsername || "",
+      smtpHost: inbox?.smtpHost || "",
+      smtpPort: inbox?.smtpPort || 587,
+      smtpSecure: inbox?.smtpSecure ?? true,
+      smtpUsername: inbox?.smtpUsername || "",
       smtpPassword: "", // Never populate password fields for security
-      syncEnabled: inbox.syncEnabled,
-      syncInterval: inbox.syncInterval,
+      syncEnabled: inbox?.syncEnabled ?? true,
+      syncInterval: inbox?.syncInterval || 5,
     });
-    setEditingId(inbox.id);
+    setEditingId(inbox?.id || null);
     setIsAdding(true);
     // Set masked passwords to show they exist
-    setRevealedPasswords(prev => ({
-      ...prev,
-      [inbox.id]: { imap: false, smtp: false }
-    }));
+    if (inbox?.id) {
+      setRevealedPasswords(prev => ({
+        ...prev,
+        [inbox.id]: { imap: false, smtp: false }
+      }));
+    }
   };
 
   const resetForm = () => {
@@ -304,12 +309,30 @@ export default function AdminSettings() {
         return;
       }
 
+      // Clear any previous errors for this inbox
+      setApiErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[inboxId];
+        return newErrors;
+      });
+
       const headers = { ...getDevBypassHeaders(), "Content-Type": "application/json" };
       const response = await fetch("/api/admin/email/sync", {
         method: "POST",
         headers,
         body: JSON.stringify({ inboxId, deepSync }),
       });
+
+      // Handle 500 errors gracefully
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+        setApiErrors(prev => ({
+          ...prev,
+          [inboxId]: errorData.error || `Sync failed with status ${response.status}`
+        }));
+        alert(errorData.error || "Failed to sync. Please check the console for details.");
+        return;
+      }
 
       const result = await response.json();
       if (result.success) {
@@ -320,11 +343,19 @@ export default function AdminSettings() {
         );
         await fetchInboxes();
       } else {
+        setApiErrors(prev => ({
+          ...prev,
+          [inboxId]: result.error || "Failed to sync"
+        }));
         alert(result.error || "Failed to sync");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error syncing:", error);
-      alert("An error occurred");
+      setApiErrors(prev => ({
+        ...prev,
+        [inboxId]: error?.message || "An error occurred while syncing"
+      }));
+      alert("An error occurred while syncing. Please check the console for details.");
     }
   };
 
@@ -333,6 +364,13 @@ export default function AdminSettings() {
       setTestingInboxId(inboxId);
       setConnectionStatus(prev => ({ ...prev, [inboxId]: { status: "testing", message: "Testing connection..." } }));
       
+      // Clear any previous errors for this inbox
+      setApiErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[inboxId];
+        return newErrors;
+      });
+      
       const headers = { ...getDevBypassHeaders(), "Content-Type": "application/json" };
       const response = await fetch("/api/admin/inboxes/test-connection", {
         method: "POST",
@@ -340,9 +378,27 @@ export default function AdminSettings() {
         body: JSON.stringify({ inboxId }),
       });
 
+      // Handle 500 errors gracefully
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+        const errorMessage = errorData.error || errorData.message || `Connection test failed with status ${response.status}`;
+        setConnectionStatus(prev => ({ 
+          ...prev, 
+          [inboxId]: { 
+            status: "error", 
+            message: errorMessage
+          } 
+        }));
+        setApiErrors(prev => ({
+          ...prev,
+          [inboxId]: errorMessage
+        }));
+        return;
+      }
+
       const result = await response.json();
 
-      if (response.ok && result.success) {
+      if (result.success) {
         setConnectionStatus(prev => ({ 
           ...prev, 
           [inboxId]: { 
@@ -360,22 +416,32 @@ export default function AdminSettings() {
           });
         }, 5000);
       } else {
+        const errorMessage = result.error || result.message || "Connection failed. Check your IMAP settings.";
         setConnectionStatus(prev => ({ 
           ...prev, 
           [inboxId]: { 
             status: "error", 
-            message: result.error || result.message || "Connection failed. Check your IMAP settings." 
+            message: errorMessage
           } 
+        }));
+        setApiErrors(prev => ({
+          ...prev,
+          [inboxId]: errorMessage
         }));
       }
     } catch (error: any) {
       console.error("Error testing connection:", error);
+      const errorMessage = error?.message || "An error occurred while testing the connection";
       setConnectionStatus(prev => ({ 
         ...prev, 
         [inboxId]: { 
           status: "error", 
-          message: error?.message || "An error occurred while testing the connection" 
+          message: errorMessage
         } 
+      }));
+      setApiErrors(prev => ({
+        ...prev,
+        [inboxId]: errorMessage
       }));
     } finally {
       setTestingInboxId(null);
@@ -686,7 +752,7 @@ export default function AdminSettings() {
                     <div className="space-y-2">
                       <Label>IMAP Host</Label>
                       <Input
-                        value={formData.imapHost}
+                        value={formData.imapHost || ""}
                         onChange={(e) => setFormData({ ...formData, imapHost: e.target.value })}
                         placeholder="imap.gmail.com or mail.example.com"
                         className="bg-gray-900 text-white border-gray-700"
@@ -696,7 +762,7 @@ export default function AdminSettings() {
                       <Label>IMAP Port</Label>
                       <Input
                         type="number"
-                        value={formData.imapPort}
+                        value={formData.imapPort || 993}
                         onChange={(e) => setFormData({ ...formData, imapPort: parseInt(e.target.value) || 993 })}
                         className="bg-gray-900 text-white border-gray-700"
                       />
@@ -704,7 +770,7 @@ export default function AdminSettings() {
                     <div className="space-y-2">
                       <Label>IMAP Username</Label>
                       <Input
-                        value={formData.imapUsername}
+                        value={formData.imapUsername || ""}
                         onChange={(e) => setFormData({ ...formData, imapUsername: e.target.value })}
                         placeholder="Your email or username"
                         className="bg-gray-900 text-white border-gray-700"
@@ -745,7 +811,7 @@ export default function AdminSettings() {
                     <div className="space-y-2">
                       <Label>SMTP Host</Label>
                       <Input
-                        value={formData.smtpHost}
+                        value={formData.smtpHost || ""}
                         onChange={(e) => setFormData({ ...formData, smtpHost: e.target.value })}
                         placeholder="smtp.gmail.com or smtp.example.com"
                         className="bg-gray-900 text-white border-gray-700"
@@ -755,7 +821,7 @@ export default function AdminSettings() {
                       <Label>SMTP Port</Label>
                       <Input
                         type="number"
-                        value={formData.smtpPort}
+                        value={formData.smtpPort || 587}
                         onChange={(e) => setFormData({ ...formData, smtpPort: parseInt(e.target.value) || 587 })}
                         className="bg-gray-900 text-white border-gray-700"
                       />
@@ -763,7 +829,7 @@ export default function AdminSettings() {
                     <div className="space-y-2">
                       <Label>SMTP Username</Label>
                       <Input
-                        value={formData.smtpUsername}
+                        value={formData.smtpUsername || ""}
                         onChange={(e) => setFormData({ ...formData, smtpUsername: e.target.value })}
                         placeholder="Your email or username"
                         className="bg-gray-900 text-white border-gray-700"
@@ -797,7 +863,7 @@ export default function AdminSettings() {
                       <Label>Sync Interval (minutes)</Label>
                       <Input
                         type="number"
-                        value={formData.syncInterval}
+                        value={formData.syncInterval || 5}
                         onChange={(e) => setFormData({ ...formData, syncInterval: parseInt(e.target.value) || 5 })}
                         className="bg-gray-900 text-white border-gray-700"
                       />
