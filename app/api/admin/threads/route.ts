@@ -72,7 +72,7 @@ export async function GET(request: NextRequest) {
         EmailInbox: {
           select: { id: true, name: true, email: true },
         },
-        booking: {
+        Booking: {
           select: { id: true, name: true, eventType: true, eventDate: true, status: true },
         },
         user: {
