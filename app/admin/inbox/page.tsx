@@ -22,6 +22,8 @@ import {
   Inbox,
   Folder,
   RefreshCw,
+  FolderOpen,
+  Move,
 } from "lucide-react";
 import { isSuperAdmin } from "@/lib/admin-permissions";
 import Link from "next/link";
@@ -131,6 +133,90 @@ function isVenueEmail(thread: EmailThread): boolean {
   return email.includes('sohohouse.com') || email.includes('babingtonhouse.co.uk');
 }
 
+// Recursive Folder Tree Component
+function FolderTree({
+  folders,
+  onSelect,
+  expandedFolders,
+  setExpandedFolders,
+  level = 0,
+}: {
+  folders: any[];
+  onSelect: (folderId: string) => void;
+  expandedFolders: Set<string>;
+  setExpandedFolders: (setter: (prev: Set<string>) => Set<string>) => void;
+  level?: number;
+}) {
+  return (
+    <div className="space-y-1">
+      {folders.map((folder) => {
+        const hasChildren = folder.children && folder.children.length > 0;
+        const isExpanded = expandedFolders.has(folder.id);
+        
+        return (
+          <div key={folder.id}>
+            <button
+              onClick={() => {
+                if (hasChildren) {
+                  setExpandedFolders((prev) => {
+                    const next = new Set(prev);
+                    if (isExpanded) {
+                      next.delete(folder.id);
+                    } else {
+                      next.add(folder.id);
+                    }
+                    return next;
+                  });
+                } else {
+                  onSelect(folder.id);
+                }
+              }}
+              className={`w-full text-left px-3 py-2 rounded text-sm transition-colors flex items-center gap-2 ${
+                level > 0 ? `pl-${(level + 1) * 4}` : ""
+              } ${
+                hasChildren
+                  ? "text-gray-300 hover:bg-[#252525]"
+                  : "text-gray-400 hover:bg-[#252525] hover:text-white cursor-pointer"
+              }`}
+              style={{ paddingLeft: `${(level + 1) * 12}px` }}
+            >
+              {hasChildren ? (
+                isExpanded ? (
+                  <ChevronDown className="w-3 h-3 flex-shrink-0" />
+                ) : (
+                  <ChevronRight className="w-3 h-3 flex-shrink-0" />
+                )
+              ) : (
+                <div className="w-3 h-3 flex-shrink-0" />
+              )}
+              {isExpanded && hasChildren ? (
+                <FolderOpen className="w-4 h-4 flex-shrink-0" />
+              ) : (
+                <Folder className="w-4 h-4 flex-shrink-0" />
+              )}
+              <span className="flex-1 truncate">{folder.name}</span>
+              {folder.unreadCount > 0 && (
+                <span className="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-[#D4AF37] text-black">
+                  {folder.unreadCount}
+                </span>
+              )}
+            </button>
+            {hasChildren && isExpanded && (
+              <FolderTree
+                folders={folder.children}
+                onSelect={onSelect}
+                expandedFolders={expandedFolders}
+                setExpandedFolders={setExpandedFolders}
+                level={level + 1}
+              />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // Categorize threads into folders
 function categorizeThread(thread: EmailThread, folder: FolderType, accountId?: string | null): boolean {
   // Filter by account if specified
@@ -193,6 +279,11 @@ export default function AdminInbox() {
     body: "",
     inboxId: "",
   });
+  const [folders, setFolders] = useState<Record<string, any[]>>({}); // inboxId -> folder tree
+  const [expandedFolders, setExpandedFolders] = useState<Set<string>>(new Set());
+  const [showMoveMenu, setShowMoveMenu] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+  const [syncingInboxId, setSyncingInboxId] = useState<string | null>(null);
 
   const isNigel = session?.user?.email && isSuperAdmin(session.user.email);
 
@@ -211,6 +302,15 @@ export default function AdminInbox() {
       fetchTemplates();
     }
   }, [status, session]);
+
+  // Fetch folders when inboxes are loaded
+  useEffect(() => {
+    if (inboxes.length > 0) {
+      inboxes.forEach((inbox) => {
+        fetchFolders(inbox.id);
+      });
+    }
+  }, [inboxes]);
 
   // Reset pagination when filters change
   useEffect(() => {
@@ -295,6 +395,132 @@ export default function AdminInbox() {
       }
     } catch (error) {
       console.error("Error fetching templates:", error);
+    }
+  };
+
+  const fetchFolders = async (inboxId: string) => {
+    try {
+      const response = await fetch(`/api/admin/inboxes/${inboxId}/folders`);
+      if (response.ok) {
+        const data = await response.json();
+        setFolders((prev) => ({ ...prev, [inboxId]: data.folders || [] }));
+      }
+    } catch (error) {
+      console.error("Error fetching folders:", error);
+    }
+  };
+
+  const handleMoveToFolder = async (threadId: string, folderId: string) => {
+    try {
+      const response = await fetch(`/api/admin/threads/${threadId}/move`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ folderId }),
+      });
+
+      if (response.ok) {
+        // Optimistic UI: update thread immediately
+        setThreads((prev) =>
+          prev.map((t) => (t.id === threadId ? { ...t, folderId } : t))
+        );
+        
+        setToast({
+          id: Date.now().toString(),
+          message: "Message moved successfully",
+          type: "success",
+        });
+        setShowMoveMenu(false);
+        
+        // Refresh folders to update counts
+        if (selectedThread?.EmailInbox?.id || selectedThread?.inbox?.id) {
+          const inboxId = selectedThread.EmailInbox?.id || selectedThread.inbox?.id;
+          if (inboxId) fetchFolders(inboxId);
+        }
+      } else {
+        setToast({
+          id: Date.now().toString(),
+          message: "Failed to move message",
+          type: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Error moving thread:", error);
+      setToast({
+        id: Date.now().toString(),
+        message: "Error moving message",
+        type: "error",
+      });
+    }
+  };
+
+  const handleSync = async (inboxId?: string, deepSync: boolean = false) => {
+    // If no inboxId provided, sync all active inboxes
+    const inboxesToSync = inboxId 
+      ? [inboxes.find(i => i.id === inboxId)].filter(Boolean)
+      : inboxes.filter(i => i.isActive && i.syncEnabled);
+
+    if (inboxesToSync.length === 0) {
+      setToast({
+        id: Date.now().toString(),
+        message: "No inboxes to sync",
+        type: "error",
+      });
+      return;
+    }
+
+    setSyncing(true);
+    
+    try {
+      const syncPromises = inboxesToSync.map(async (inbox) => {
+        if (!inbox) return;
+        setSyncingInboxId(inbox.id);
+        
+        const response = await fetch("/api/admin/email/sync", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ inboxId: inbox.id, deepSync }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({ error: "Unknown error" }));
+          throw new Error(errorData.error || `Sync failed for ${inbox.name}`);
+        }
+
+        const result = await response.json();
+        if (!result.success) {
+          throw new Error(result.error || `Sync failed for ${inbox.name}`);
+        }
+
+        return result;
+      });
+
+      const results = await Promise.all(syncPromises);
+      const totalCount = results.reduce((sum, r) => sum + (r?.count || 0), 0);
+
+      setToast({
+        id: Date.now().toString(),
+        message: `Inbox updated successfully${totalCount > 0 ? `: ${totalCount} emails synced` : ""}`,
+        type: "success",
+      });
+
+      // Refresh data without redirecting
+      await fetchThreads(0, false);
+      await fetchInboxes();
+      
+      // Refresh folders for all synced inboxes
+      for (const inbox of inboxesToSync) {
+        if (inbox) await fetchFolders(inbox.id);
+      }
+    } catch (error: any) {
+      console.error("Error syncing:", error);
+      setToast({
+        id: Date.now().toString(),
+        message: error.message || "Failed to sync inboxes",
+        type: "error",
+      });
+    } finally {
+      setSyncing(false);
+      setSyncingInboxId(null);
     }
   };
 
@@ -531,11 +757,24 @@ export default function AdminInbox() {
         <div className="flex items-center gap-2">
           {isNigel && showAdvanced && (
             <>
-              <Link href="/admin/settings">
-                <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
-                  Sync Emails
-                </Button>
-              </Link>
+              <Button
+                size="sm"
+                onClick={() => handleSync()}
+                disabled={syncing}
+                className="bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-black border border-[#D4AF37] transition-all font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {syncing ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                    Syncing...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Sync Emails
+                  </>
+                )}
+              </Button>
               <Link href="/admin/email-audit">
                 <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
                   Email Audit
@@ -1028,22 +1267,54 @@ export default function AdminInbox() {
                           setReplyInboxId(inbox.id);
                         }
                       }}
-                      className="bg-[#2a2a2a] hover:bg-[#D4AF37] text-white hover:text-black border border-gray-700 hover:border-[#D4AF37] transition-all font-semibold"
+                      className="bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-black border border-[#D4AF37] transition-all font-semibold"
                     >
                       <Reply className="w-4 h-4 mr-2" />
                       Reply
                     </Button>
                     <Button
                       size="sm"
-                      className="bg-[#2a2a2a] hover:bg-[#D4AF37] text-white hover:text-black border border-gray-700 hover:border-[#D4AF37] transition-all font-semibold"
+                      className="bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-black border border-[#D4AF37] transition-all font-semibold"
                     >
                       <Forward className="w-4 h-4 mr-2" />
                       Forward
                     </Button>
+                    <div className="relative">
+                      <Button
+                        size="sm"
+                        onClick={() => setShowMoveMenu(!showMoveMenu)}
+                        className="bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-black border border-[#D4AF37] transition-all font-semibold"
+                      >
+                        <Move className="w-4 h-4 mr-2" />
+                        Move
+                      </Button>
+                      {showMoveMenu && selectedThread && (
+                        <div className="absolute right-0 top-full mt-2 w-64 bg-[#2a2a2a] border border-gray-700 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+                          <div className="p-2">
+                            {(() => {
+                              const inboxId = selectedThread.EmailInbox?.id || selectedThread.inbox?.id;
+                              const folderTree = inboxId ? folders[inboxId] || [] : [];
+                              return folderTree.length > 0 ? (
+                                <FolderTree
+                                  folders={folderTree}
+                                  onSelect={(folderId) => {
+                                    handleMoveToFolder(selectedThread.id, folderId);
+                                  }}
+                                  expandedFolders={expandedFolders}
+                                  setExpandedFolders={setExpandedFolders}
+                                />
+                              ) : (
+                                <div className="p-3 text-sm text-gray-400">No folders available</div>
+                              );
+                            })()}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                     <Button
                       size="sm"
                       onClick={() => handleArchive(selectedThread.id)}
-                      className="bg-[#2a2a2a] hover:bg-[#D4AF37] text-white hover:text-black border border-gray-700 hover:border-[#D4AF37] transition-all font-semibold"
+                      className="bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-black border border-[#D4AF37] transition-all font-semibold"
                     >
                       <Archive className="w-4 h-4 mr-2" />
                       Archive
