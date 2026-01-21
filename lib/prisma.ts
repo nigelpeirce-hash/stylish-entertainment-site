@@ -135,13 +135,19 @@ function getPrisma(): PrismaClient {
 }
 
 // Export prisma as a Proxy to lazily initialize on first access
+// This Proxy ensures the PrismaClient is only created when first accessed
 export const prisma = new Proxy({} as PrismaClient, {
   get(_target, prop, receiver) {
     const instance = getPrisma();
-    const value = instance[prop as keyof PrismaClient];
+    // Use 'any' to access dynamic model delegates (like emailFolder) that aren't in the type definition
+    const value = (instance as any)[prop];
+    
+    // If it's a function, bind it to the instance
     if (typeof value === 'function') {
       return value.bind(instance);
     }
+    
+    // Return the value (could be a model delegate like emailFolder)
     return value;
   },
   has(_target, prop) {

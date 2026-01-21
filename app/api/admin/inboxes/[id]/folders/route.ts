@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { prisma } from "@/lib/prisma"; // Go back to the shared plug
+import { prisma } from "@/lib/prisma";
 
 export async function GET(
   request: Request,
@@ -13,14 +13,18 @@ export async function GET(
     }
 
     // Next.js 15 requires awaiting params
-    const resolvedParams = await params;
-    const inboxId = resolvedParams.id;
+    const { id: inboxId } = await params;
 
-    // Safety Check: If prisma is somehow undefined, we throw a clear error
-    if (!prisma) {
-      throw new Error("Prisma client failed to initialize globally.");
+    // Debug: Log available Prisma delegates (only in development)
+    if (process.env.NODE_ENV === "development") {
+      const delegates = Object.keys(prisma).filter(
+        (key) => !key.startsWith("$") && typeof (prisma as any)[key] === "object"
+      );
+      console.log("Available Prisma delegates:", delegates);
+      console.log("emailFolder exists:", "emailFolder" in prisma);
     }
 
+    // Access the emailFolder delegate through the Proxy
     const folders = await prisma.emailFolder.findMany({
       where: { inboxId },
       orderBy: { fullPath: "asc" },
@@ -29,8 +33,17 @@ export async function GET(
     return NextResponse.json(folders);
   } catch (error) {
     console.error("Error fetching folders:", error);
+    
+    // Provide more detailed error information
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorDetails = error instanceof Error ? error.stack : String(error);
+    
     return NextResponse.json(
-      { error: "Internal Server Error", details: error instanceof Error ? error.message : "Unknown error" }, 
+      { 
+        error: "Internal Server Error", 
+        details: errorMessage,
+        ...(process.env.NODE_ENV === "development" && { stack: errorDetails })
+      }, 
       { status: 500 }
     );
   }
