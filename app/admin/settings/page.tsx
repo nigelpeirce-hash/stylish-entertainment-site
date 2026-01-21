@@ -881,6 +881,24 @@ export default function AdminSettings() {
                         id="imapPassword"
                         maskedValue={editingId ? "••••••••" : undefined}
                       />
+                      {(formData.email?.includes("@stylishentertainment.co.uk") || 
+                        formData.email?.includes("@outlook.com") || 
+                        formData.email?.includes("@hotmail.com") || 
+                        formData.email?.includes("@live.com") ||
+                        formData.email?.includes("@msn.com")) && (
+                        <div className="mt-2 p-3 bg-blue-900/20 border border-blue-500/30 rounded text-xs text-blue-300">
+                          <strong className="text-blue-400">💡 Microsoft/GoDaddy Email Tip:</strong>
+                          <p className="mt-1 text-blue-200">
+                            If your regular password doesn't work, you'll need an <strong>App Password</strong> from your Microsoft/GoDaddy account:
+                          </p>
+                          <ol className="mt-2 ml-4 list-decimal space-y-1 text-blue-200">
+                            <li>Go to your Microsoft account security settings</li>
+                            <li>Navigate to "App passwords" or "Security" → "Advanced security options"</li>
+                            <li>Create a new app password for "Mail" or "Other app"</li>
+                            <li>Copy the generated password and paste it here</li>
+                          </ol>
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center space-x-2 md:col-span-2">
                       <Checkbox
@@ -940,6 +958,18 @@ export default function AdminSettings() {
                         id="smtpPassword"
                         maskedValue={editingId ? "••••••••" : undefined}
                       />
+                      {(formData.email?.includes("@stylishentertainment.co.uk") || 
+                        formData.email?.includes("@outlook.com") || 
+                        formData.email?.includes("@hotmail.com") || 
+                        formData.email?.includes("@live.com") ||
+                        formData.email?.includes("@msn.com")) && (
+                        <div className="mt-2 p-3 bg-blue-900/20 border border-blue-500/30 rounded text-xs text-blue-300">
+                          <strong className="text-blue-400">💡 Microsoft/GoDaddy Email Tip:</strong>
+                          <p className="mt-1 text-blue-200">
+                            Use the same <strong>App Password</strong> for both IMAP and SMTP if your regular password doesn't work.
+                          </p>
+                        </div>
+                      )}
                     </div>
                     <div className="flex items-center space-x-2 md:col-span-2">
                       <Checkbox
