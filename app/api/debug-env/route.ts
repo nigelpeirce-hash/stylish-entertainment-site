@@ -17,6 +17,7 @@ export async function GET() {
     let prismaError = null;
     
     try {
+      // Test connection with a simple query
       await prisma.$queryRaw`SELECT 1`;
       prismaConnectionTest = "SUCCESS ✅";
     } catch (error: any) {
