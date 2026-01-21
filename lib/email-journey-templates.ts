@@ -450,13 +450,3 @@ export function getJourneyEmail(
       throw new Error(`Unknown journey stage: ${stage}`);
   }
 }
-
-// Export all functions for easier importing
-export {
-  inquiryAutoresponder,
-  gentleReminder,
-  bookingConfirmation,
-  fourWeekCheckin,
-  weekOfExcitement,
-  postWeddingMagic,
-};
