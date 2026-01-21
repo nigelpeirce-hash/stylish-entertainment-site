@@ -12,6 +12,7 @@ import { Calendar, Clock, AlertTriangle, RefreshCw, ArrowLeft, MessageSquare, Us
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { SafetyDeleteButton } from "@/components/SafetyDeleteButton";
+import { CommandMenu } from "@/components/admin/command-menu";
 
 interface StaffAssignment {
   id: string;
