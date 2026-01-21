@@ -513,7 +513,6 @@ export default function AdminInbox() {
             </Button>
           ) : (
             <Button
-              variant="ghost"
               size="sm"
               onClick={() => {
                 setComposing(true);
@@ -524,7 +523,7 @@ export default function AdminInbox() {
                   setComposeData({ ...composeData, inboxId: inboxes[0].id });
                 }
               }}
-              className="text-gray-400 hover:text-white"
+              className="bg-[#D4AF37] hover:bg-[#D4AF37]/90 text-black font-semibold border border-[#D4AF37]"
             >
               <Mail className="w-4 h-4 mr-2" />
               New Message
@@ -985,7 +984,7 @@ export default function AdminInbox() {
                           setReplyInboxId(inbox.id);
                         }
                       }}
-                      className="text-gray-700 hover:bg-gray-100"
+                      className="text-white hover:text-[#D4AF37] hover:bg-[#D4AF37]/10 border border-transparent hover:border-[#D4AF37]/30 transition-all"
                     >
                       <Reply className="w-4 h-4 mr-2" />
                       Reply
@@ -993,7 +992,7 @@ export default function AdminInbox() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-gray-700 hover:bg-gray-100"
+                      className="text-white hover:text-[#D4AF37] hover:bg-[#D4AF37]/10 border border-transparent hover:border-[#D4AF37]/30 transition-all"
                     >
                       <Forward className="w-4 h-4 mr-2" />
                       Forward
@@ -1002,23 +1001,23 @@ export default function AdminInbox() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleArchive(selectedThread.id)}
-                      className="text-gray-700 hover:bg-gray-100"
+                      className="text-white hover:text-[#D4AF37] hover:bg-[#D4AF37]/10 border border-transparent hover:border-[#D4AF37]/30 transition-all"
                     >
                       <Archive className="w-4 h-4 mr-2" />
                       Archive
                     </Button>
                   </div>
                 </div>
-                <div className="text-sm text-gray-300 space-y-1">
+                <div className="text-sm space-y-1">
                   <p>
-                    <span className="font-medium text-white">From:</span> <span className="text-[#D4AF37]">{selectedThread.fromName || selectedThread.fromEmail}</span>
+                    <span className="font-medium text-gray-400">From:</span> <span className="text-white ml-2">{selectedThread.fromName || selectedThread.fromEmail}</span>
                   </p>
                   <p>
-                    <span className="font-medium text-white">To:</span> <span className="text-gray-300">{selectedThread.toEmail}</span>
+                    <span className="font-medium text-gray-400">To:</span> <span className="text-white ml-2">{selectedThread.toEmail}</span>
                   </p>
                   <p>
-                    <span className="font-medium text-white">Date:</span>{" "}
-                    <span className="text-gray-400">
+                    <span className="font-medium text-gray-400">Date:</span>{" "}
+                    <span className="text-white ml-2">
                       {selectedThread.lastMessageAt ? new Date(selectedThread.lastMessageAt).toLocaleString("en-GB", {
                         weekday: "long",
                         year: "numeric",
@@ -1128,45 +1127,48 @@ export default function AdminInbox() {
               )}
 
               {/* Email Content */}
-              <div className="flex-1 overflow-y-auto p-6 bg-[#1a1a1a]">
-                <div className="max-w-3xl space-y-6">
+              <div className="flex-1 overflow-y-auto p-6 bg-[#252525]">
+                <div className="max-w-3xl mx-auto space-y-6">
                   {(() => {
                     const emails = selectedThread.Email || selectedThread.emails || [];
                     if (emails.length > 0) {
                       return emails.map((email: any, index: number) => (
                         <div
                           key={email.id || index}
-                          className={`p-4 rounded-lg border ${
+                          className={`rounded-lg border overflow-hidden ${
                             email.direction === "outbound"
                               ? "bg-[#2a2a2a] border-[#D4AF37]/30"
-                              : "bg-[#252525] border-gray-800"
+                              : "bg-[#1a1a1a] border-gray-800"
                           }`}
                         >
-                          <div className="flex items-center justify-between mb-3">
-                            <div>
-                              <p className="font-semibold text-white text-sm">
-                                {email.direction === "outbound"
-                                  ? "You"
-                                  : email.fromName || email.fromEmail || "Unknown"}
-                              </p>
-                              <p className="text-xs text-gray-400">
-                                {email.receivedAt ? new Date(email.receivedAt).toLocaleString("en-GB") : ""}
-                              </p>
+                          <div className="p-4 border-b border-gray-800">
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <p className="font-semibold text-white text-sm">
+                                  {email.direction === "outbound"
+                                    ? "You"
+                                    : email.fromName || email.fromEmail || "Unknown"}
+                                </p>
+                                <p className="text-xs text-gray-400 mt-1">
+                                  {email.receivedAt ? new Date(email.receivedAt).toLocaleString("en-GB") : ""}
+                                </p>
+                              </div>
                             </div>
                           </div>
-                          <div className="text-sm text-gray-200 prose prose-sm max-w-none prose-invert">
-                            {email.htmlContent || email.bodyHtml ? (
-                              <div
-                                className="text-gray-200"
-                                dangerouslySetInnerHTML={{
-                                  __html: email.htmlContent || email.bodyHtml || "",
-                                }}
-                              />
-                            ) : (
-                              <p className="whitespace-pre-wrap text-gray-200">
-                                {email.textContent || email.bodyText || "No content available"}
-                              </p>
-                            )}
+                          <div className="p-6 bg-white">
+                            <div className="text-sm text-gray-900 prose prose-sm max-w-none">
+                              {email.htmlContent || email.bodyHtml ? (
+                                <div
+                                  dangerouslySetInnerHTML={{
+                                    __html: email.htmlContent || email.bodyHtml || "",
+                                  }}
+                                />
+                              ) : (
+                                <p className="whitespace-pre-wrap">
+                                  {email.textContent || email.bodyText || "No content available"}
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </div>
                       ));
