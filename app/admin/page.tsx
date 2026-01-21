@@ -540,6 +540,20 @@ export default function AdminDashboard() {
               </Card>
             </Link>
 
+            <Link href="/admin/email-demo">
+              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                    <Mail className="w-6 h-6 text-champagne-gold" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Email Templates</h3>
+                    <p className="text-sm text-gray-400">Preview all email templates</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
             {isSuperAdminUser && (
               <Link href="/admin/users">
                 <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
