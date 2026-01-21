@@ -254,6 +254,54 @@ async function main() {
       status: "pending",
       priority: "low",
     },
+    {
+      name: "Sarah & Tom",
+      email: "sarah.tom@example.com",
+      userId: createdClients[0]?.id,
+      eventDate: new Date(today.getTime() + 22 * 24 * 60 * 60 * 1000), // 22 days from now
+      venueName: "Babington House",
+      venueTown: "Somerset",
+      venuePostcode: "BA11 3RW",
+      status: "pending",
+      priority: "medium",
+      depositReceived: true,
+    },
+    {
+      name: "Lucy & Mike",
+      email: "lucy.mike@example.com",
+      userId: createdClients[1]?.id,
+      eventDate: new Date(today.getTime() + 15 * 24 * 60 * 60 * 1000), // 15 days from now
+      venueName: "Mells Barn",
+      venueTown: "Frome",
+      venuePostcode: "BA11 3QE",
+      status: "pending",
+      priority: "high",
+      depositReceived: true,
+      finalDetailsConfirmed: false,
+    },
+    {
+      name: "Sophie & Daniel",
+      email: "sophie.daniel@example.com",
+      userId: createdClients[2]?.id,
+      eventDate: new Date(today.getTime() + 52 * 24 * 60 * 60 * 1000), // 52 days from now
+      venueName: "Dene Farm",
+      venueTown: "Hampshire",
+      venuePostcode: "SO21 2AB",
+      status: "confirmed",
+      priority: "medium",
+      depositReceived: false,
+    },
+    {
+      name: "Charlotte & Rob",
+      email: "charlotte.rob@example.com",
+      eventDate: new Date(today.getTime() + 73 * 24 * 60 * 60 * 1000), // 73 days from now
+      venueName: "Penarth Pier Pavilion",
+      venueTown: "Wales",
+      venuePostcode: "CF64 3AT",
+      status: "pending",
+      priority: "low",
+      depositReceived: true,
+    },
   ];
 
   const createdBookings = [];
