@@ -89,27 +89,28 @@ export function useClientStatus() {
 
             const recognitionData = await recognitionResponse.json();
 
-          // If IP match found, automatically trigger isReturning state
-          if (recognitionData.recognized === true) {
-            setIsReturning(true);
-            
-            // Store client name if available
-            if (recognitionData.clientName) {
-              setClientName(recognitionData.clientName);
-              sessionStorage.setItem('stylish_client_name', recognitionData.clientName);
-            }
-            
-            // Mark as recognized in sessionStorage for persistence
-            sessionStorage.setItem('stylish_returning_status', 'true');
-            
-            // Store booking ID for later use (e.g., in secure-booking page)
-            if (recognitionData.bookingId) {
-              sessionStorage.setItem('stylish_booking_id', recognitionData.bookingId);
-            }
-            
-            // Also store other booking details if needed
-            if (recognitionData.venueName) {
-              sessionStorage.setItem('stylish_venue_name', recognitionData.venueName);
+            // If IP match found, automatically trigger isReturning state
+            if (recognitionData.recognized === true) {
+              setIsReturning(true);
+              
+              // Store client name if available
+              if (recognitionData.clientName) {
+                setClientName(recognitionData.clientName);
+                sessionStorage.setItem('stylish_client_name', recognitionData.clientName);
+              }
+              
+              // Mark as recognized in sessionStorage for persistence
+              sessionStorage.setItem('stylish_returning_status', 'true');
+              
+              // Store booking ID for later use (e.g., in secure-booking page)
+              if (recognitionData.bookingId) {
+                sessionStorage.setItem('stylish_booking_id', recognitionData.bookingId);
+              }
+              
+              // Also store other booking details if needed
+              if (recognitionData.venueName) {
+                sessionStorage.setItem('stylish_venue_name', recognitionData.venueName);
+              }
             }
           } catch (fetchError) {
             // Silently handle fetch errors - IP recognition is optional
