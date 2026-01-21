@@ -557,8 +557,8 @@ export default function AdminInbox() {
               }}
               className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
                 selectedFolder === "unified" && !selectedAccountId
-                  ? "bg-champagne-gold/10 text-charcoal border border-champagne-gold/20"
-                  : "text-gray-700 hover:bg-gray-50"
+                  ? "bg-[#D4AF37]/20 text-white border border-[#D4AF37]/40"
+                  : "text-gray-300 hover:bg-[#252525]"
               }`}
             >
               <Inbox className="w-4 h-4 flex-shrink-0" />
@@ -594,8 +594,8 @@ export default function AdminInbox() {
                         }}
                         className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-between ${
                           isSelected
-                            ? "bg-champagne-gold/10 text-charcoal border border-champagne-gold/20"
-                            : "text-gray-700 hover:bg-gray-50"
+                            ? "bg-[#D4AF37]/20 text-white border border-[#D4AF37]/40"
+                            : "text-gray-300 hover:bg-[#252525]"
                         }`}
                       >
                         <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -627,8 +627,8 @@ export default function AdminInbox() {
                             }}
                             className={`w-full text-left px-3 py-1.5 rounded text-xs transition-colors flex items-center gap-2 ${
                               isSelected && selectedFolder === "all"
-                                ? "bg-champagne-gold/10 text-charcoal"
-                                : "text-gray-600 hover:bg-gray-50"
+                                ? "bg-[#D4AF37]/20 text-white"
+                                : "text-gray-400 hover:bg-[#252525]"
                             }`}
                           >
                             <Folder className="w-3 h-3 flex-shrink-0" />
@@ -642,8 +642,8 @@ export default function AdminInbox() {
                             }}
                             className={`w-full text-left px-3 py-1.5 rounded text-xs transition-colors flex items-center gap-2 ${
                               isSelected && selectedFolder === "sent"
-                                ? "bg-champagne-gold/10 text-charcoal"
-                                : "text-gray-600 hover:bg-gray-50"
+                                ? "bg-[#D4AF37]/20 text-white"
+                                : "text-gray-400 hover:bg-[#252525]"
                             }`}
                           >
                             <Folder className="w-3 h-3 flex-shrink-0" />
@@ -670,8 +670,8 @@ export default function AdminInbox() {
                   }}
                   className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                     selectedFolder === "new-enquiries" && !selectedAccountId
-                      ? "bg-champagne-gold/10 text-charcoal border border-champagne-gold/20"
-                      : "text-gray-700 hover:bg-gray-50"
+                      ? "bg-[#D4AF37]/20 text-white border border-[#D4AF37]/40"
+                      : "text-gray-300 hover:bg-[#252525]"
                   }`}
                 >
                   New Enquiries
@@ -707,26 +707,26 @@ export default function AdminInbox() {
           </nav>
 
           {/* Status Summary */}
-          <div className="p-4 border-t border-gray-200 space-y-2">
-            <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
+          <div className="p-4 border-t border-gray-800 space-y-2">
+            <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
               Status
             </div>
             <div className="space-y-1">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">To Action</span>
-                <span className="text-gray-900 font-medium">
+                <span className="text-gray-400">To Action</span>
+                <span className="text-white font-medium">
                   {threads.filter((t) => getEmailStatus(t) === "to-action").length}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Waiting for Client</span>
-                <span className="text-gray-900 font-medium">
+                <span className="text-gray-400">Waiting for Client</span>
+                <span className="text-white font-medium">
                   {threads.filter((t) => getEmailStatus(t) === "waiting-client").length}
                 </span>
               </div>
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Confirmed</span>
-                <span className="text-gray-900 font-medium">
+                <span className="text-gray-400">Confirmed</span>
+                <span className="text-white font-medium">
                   {threads.filter((t) => getEmailStatus(t) === "confirmed").length}
                 </span>
               </div>
