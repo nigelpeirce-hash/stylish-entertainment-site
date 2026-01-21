@@ -1,22 +1,26 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { PrismaClient } from "@prisma/client";
+import { prisma } from "@/lib/prisma"; // Go back to the shared plug
 
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  // Move the initialization INSIDE the function so it cannot be undefined
-  const prisma = new PrismaClient();
-  
   try {
     const session = await auth();
     if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { id: inboxId } = await params;
-    
+    // Next.js 15 requires awaiting params
+    const resolvedParams = await params;
+    const inboxId = resolvedParams.id;
+
+    // Safety Check: If prisma is somehow undefined, we throw a clear error
+    if (!prisma) {
+      throw new Error("Prisma client failed to initialize globally.");
+    }
+
     const folders = await prisma.emailFolder.findMany({
       where: { inboxId },
       orderBy: { fullPath: "asc" },
@@ -25,9 +29,9 @@ export async function GET(
     return NextResponse.json(folders);
   } catch (error) {
     console.error("Error fetching folders:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  } finally {
-    // IMPORTANT: Disconnect to prevent memory leaks since we are init-ing inside the function
-    await prisma.$disconnect();
+    return NextResponse.json(
+      { error: "Internal Server Error", details: error instanceof Error ? error.message : "Unknown error" }, 
+      { status: 500 }
+    );
   }
 }
