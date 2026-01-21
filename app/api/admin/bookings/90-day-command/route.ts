@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 
+// Force module re-resolution
+
 // Force dynamic rendering for API routes that interact with the database
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
