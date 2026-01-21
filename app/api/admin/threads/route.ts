@@ -74,43 +74,87 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    const threads = await prisma.emailThread.findMany({
-      where,
-      include: {
-        EmailInbox: {
-          select: { id: true, name: true, email: true },
-        },
-        Booking: {
-          select: { id: true, name: true, eventType: true, eventDate: true, status: true },
-        },
-        User: {
-          select: { id: true, name: true, email: true },
-        },
-        // EmailFolder is optional - only include if folderId exists
-        // Note: Prisma will return null if folderId is null, which is safe
-        EmailFolder: {
-          select: { id: true, name: true, fullPath: true },
-        },
-        Email: {
-          orderBy: { receivedAt: "desc" },
-          take: 1, // Get the most recent email for snippets
-          select: {
-            id: true,
-            textContent: true,
-            subject: true,
-            fromName: true,
-            fromEmail: true,
-            receivedAt: true,
+    // Try to fetch threads with EmailFolder relation
+    // If it fails with P2022, retry without EmailFolder (it's optional)
+    let threads;
+    try {
+      threads = await prisma.emailThread.findMany({
+        where,
+        include: {
+          EmailInbox: {
+            select: { id: true, name: true, email: true },
+          },
+          Booking: {
+            select: { id: true, name: true, eventType: true, eventDate: true, status: true },
+          },
+          User: {
+            select: { id: true, name: true, email: true },
+          },
+          EmailFolder: {
+            select: { id: true, name: true, fullPath: true },
+          },
+          Email: {
+            orderBy: { receivedAt: "desc" },
+            take: 1, // Get the most recent email for snippets
+            select: {
+              id: true,
+              textContent: true,
+              subject: true,
+              fromName: true,
+              fromEmail: true,
+              receivedAt: true,
+            },
+          },
+          _count: {
+            select: { Email: true },
           },
         },
-        _count: {
-          select: { Email: true },
-        },
-      },
-      orderBy: { lastMessageAt: "desc" },
-      skip: skip,
-      take: take,
-    });
+        orderBy: { lastMessageAt: "desc" },
+        skip: skip,
+        take: take,
+      });
+    } catch (includeError: any) {
+      // If P2022 error (column not available), retry without EmailFolder
+      if (includeError?.code === 'P2022') {
+        console.warn("P2022 error with EmailFolder relation, retrying without it:", includeError.message);
+        threads = await prisma.emailThread.findMany({
+          where,
+          include: {
+            EmailInbox: {
+              select: { id: true, name: true, email: true },
+            },
+            Booking: {
+              select: { id: true, name: true, eventType: true, eventDate: true, status: true },
+            },
+            User: {
+              select: { id: true, name: true, email: true },
+            },
+            // Skip EmailFolder if it causes column errors
+            Email: {
+              orderBy: { receivedAt: "desc" },
+              take: 1,
+              select: {
+                id: true,
+                textContent: true,
+                subject: true,
+                fromName: true,
+                fromEmail: true,
+                receivedAt: true,
+              },
+            },
+            _count: {
+              select: { Email: true },
+            },
+          },
+          orderBy: { lastMessageAt: "desc" },
+          skip: skip,
+          take: take,
+        });
+      } else {
+        // Re-throw if it's a different error
+        throw includeError;
+      }
+    }
 
     // Get total count for pagination info (respects the 6-month date filter)
     const totalCount = await prisma.emailThread.count({ where });

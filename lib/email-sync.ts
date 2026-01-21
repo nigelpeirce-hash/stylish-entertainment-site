@@ -60,6 +60,8 @@ export async function syncEmailInbox(inboxId: string, options: SyncOptions = {})
 
     // Get available mailboxes/folders
     const boxes = await connection.getBoxes();
+    console.log(`[IMAP] Retrieved boxes structure for ${inbox.email}`);
+    
     const folderNames = findFolders(boxes, ["INBOX", "Sent", "Sent Messages", "[Gmail]/Sent Mail", "[Gmail]/All Mail", "Archive"]);
     
     // Discover and store all folders in database
@@ -210,69 +212,113 @@ async function discoverAndStoreFolders(inbox: any, boxes: any, connection: any) 
     const allFolders: Array<{ name: string; fullPath: string; parentPath: string | null; attributes: any }> = [];
 
     // Recursively collect all folders with their paths
+    // getBoxes() returns an object where each key is a folder name and value is a box object
     function collectFolders(box: any, prefix = "", parentPath: string | null = null) {
-      if (box.children) {
-        for (const [name, child] of Object.entries(box.children)) {
-          const fullPath = prefix ? `${prefix}${delimiter}${name}` : name;
-          const childBox = child as any;
-          
-          allFolders.push({
-            name,
-            fullPath,
-            parentPath,
-            attributes: childBox.attributes || {},
-          });
-          
-          collectFolders(childBox, fullPath, fullPath);
+      // Handle root level: boxes is an object with folder names as keys
+      if (box && typeof box === 'object') {
+        // If it has 'children', it's a nested box structure
+        if (box.children) {
+          for (const [name, child] of Object.entries(box.children)) {
+            const fullPath = prefix ? `${prefix}${delimiter}${name}` : name;
+            const childBox = child as any;
+            
+            allFolders.push({
+              name,
+              fullPath,
+              parentPath,
+              attributes: childBox.attributes || {},
+            });
+            
+            collectFolders(childBox, fullPath, fullPath);
+          }
+        } else {
+          // Root level: iterate over top-level folders
+          for (const [name, childBox] of Object.entries(box)) {
+            // Skip special properties
+            if (name === 'children' || name === 'attributes' || name === 'delimiter') continue;
+            
+            const fullPath = prefix ? `${prefix}${delimiter}${name}` : name;
+            const boxData = childBox as any;
+            
+            allFolders.push({
+              name,
+              fullPath,
+              parentPath,
+              attributes: boxData.attributes || {},
+            });
+            
+            // Recursively process children
+            if (boxData.children) {
+              collectFolders(boxData, fullPath, fullPath);
+            }
+          }
         }
       }
     }
 
+    // Start collection from root boxes
     collectFolders(boxes);
 
-    // Store folders in database
-    for (const folder of allFolders) {
-      // Find parent folder ID if parentPath exists
-      let parentId: string | null = null;
-      if (folder.parentPath) {
-        const parentFolder = await prisma.emailFolder.findUnique({
+    console.log(`[Folder Discovery] Found ${allFolders.length} folders for ${inbox.email}`);
+
+    // Store folders in database (process in order to handle parent-child relationships)
+    // First, sort to ensure parents are processed before children
+    const sortedFolders = allFolders.sort((a, b) => {
+      // Sort by path depth (shorter paths first)
+      const depthA = a.fullPath.split(delimiter).length;
+      const depthB = b.fullPath.split(delimiter).length;
+      return depthA - depthB;
+    });
+
+    for (const folder of sortedFolders) {
+      try {
+        // Find parent folder ID if parentPath exists
+        let parentId: string | null = null;
+        if (folder.parentPath) {
+          const parentFolder = await prisma.emailFolder.findUnique({
+            where: {
+              inboxId_fullPath: {
+                inboxId: inbox.id,
+                fullPath: folder.parentPath,
+              },
+            },
+          });
+          parentId = parentFolder?.id || null;
+        }
+
+        // Upsert folder with debug logging
+        console.log(`[Folder Sync] Syncing folder: ${folder.fullPath} (parent: ${parentId || 'none'})`);
+        
+        await prisma.emailFolder.upsert({
           where: {
             inboxId_fullPath: {
               inboxId: inbox.id,
-              fullPath: folder.parentPath,
+              fullPath: folder.fullPath,
             },
           },
-        });
-        parentId = parentFolder?.id || null;
-      }
-
-      // Upsert folder
-      await prisma.emailFolder.upsert({
-        where: {
-          inboxId_fullPath: {
+          create: {
+            id: randomUUID(),
             inboxId: inbox.id,
+            name: folder.name,
             fullPath: folder.fullPath,
+            parentId: parentId,
+            delimiter: delimiter,
+            attributes: folder.attributes,
           },
-        },
-        create: {
-          id: randomUUID(),
-          inboxId: inbox.id,
-          name: folder.name,
-          fullPath: folder.fullPath,
-          parentId: parentId,
-          delimiter: delimiter,
-          attributes: folder.attributes,
-        },
-        update: {
-          attributes: folder.attributes,
-          updatedAt: new Date(),
-        },
-      });
+          update: {
+            attributes: folder.attributes,
+            updatedAt: new Date(),
+          },
+        });
+      } catch (folderError) {
+        console.error(`[Folder Sync] Error syncing folder ${folder.fullPath}:`, folderError);
+        // Continue with other folders even if one fails
+      }
     }
 
-    console.log(`Discovered and stored ${allFolders.length} folders for ${inbox.email}`);
+    console.log(`[Folder Discovery] Successfully stored ${allFolders.length} folders for ${inbox.email}`);
   } catch (error) {
-    console.error("Error discovering folders:", error);
+    console.error("[Folder Discovery] Error discovering folders:", error);
     // Don't throw - folder discovery failure shouldn't break email sync
   }
 }
