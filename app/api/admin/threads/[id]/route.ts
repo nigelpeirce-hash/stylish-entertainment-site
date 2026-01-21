@@ -39,12 +39,6 @@ export async function GET(
           select: { id: true, name: true, email: true },
         },
         Email: {
-          include: {
-            User: {
-              select: { id: true, name: true, email: true },
-            },
-          },
-          orderBy: { receivedAt: "asc" },
           select: {
             id: true,
             subject: true,
@@ -59,7 +53,11 @@ export async function GET(
             isStarred: true,
             receivedAt: true,
             createdAt: true,
+            User: {
+              select: { id: true, name: true, email: true },
+            },
           },
+          orderBy: { receivedAt: "asc" },
         },
       },
     });
