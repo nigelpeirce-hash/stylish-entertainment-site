@@ -261,6 +261,30 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
             </div>
           </div>
 
+          {/* Service Type */}
+          <div>
+            <Label htmlFor="serviceType" className="text-sm font-medium text-gray-700 mb-2 block">
+              Service Type <span className="text-red-500">*</span>
+            </Label>
+            <Select
+              id="serviceType"
+              value={formData.serviceType}
+              onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
+              className="w-full focus:outline-none focus:ring-0 focus:border-amber-500 transition-colors"
+              required
+              disabled={loading}
+            >
+              {serviceTypeOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </Select>
+            <p className="text-xs text-gray-500 mt-1">
+              Select the primary service for this booking.
+            </p>
+          </div>
+
           {/* Notes */}
           <div>
             <Label htmlFor="notes" className="text-sm font-medium text-gray-700 mb-2 block">
