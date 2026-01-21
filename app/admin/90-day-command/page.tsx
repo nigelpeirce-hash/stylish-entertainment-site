@@ -361,6 +361,7 @@ export default function NinetyDayCommandCentre() {
   const [filter, setFilter] = useState<"all" | "within30" | "needsAttention">("all");
   const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);
   const [viewMode, setViewMode] = useState<"cards" | "table">("table");
+  const [commandMenuOpen, setCommandMenuOpen] = useState(false);
 
   // Use SWR for data fetching with caching and background refresh
   // Only enable SWR if user is authorized (prevents unnecessary fetches)
@@ -713,8 +714,23 @@ export default function NinetyDayCommandCentre() {
     return null;
   }
 
+  // Keyboard shortcut handler for command menu (Cmd+K or Ctrl+K)
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setCommandMenuOpen((open) => !open);
+      }
+    };
+
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gray-950 text-white py-12 px-4">
+    <>
+      <CommandMenu open={commandMenuOpen} onOpenChange={setCommandMenuOpen} />
+      <div className="min-h-screen bg-gray-950 text-white py-12 px-4">
       <div className="container mx-auto max-w-7xl">
         {/* Dev Mode Banner */}
         {devBypass && (
@@ -1012,5 +1028,6 @@ export default function NinetyDayCommandCentre() {
         )}
       </div>
     </div>
+    </>
   );
 }
