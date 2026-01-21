@@ -86,6 +86,8 @@ export async function GET(request: NextRequest) {
         User: {
           select: { id: true, name: true, email: true },
         },
+        // EmailFolder is optional - only include if folderId exists
+        // Note: Prisma will return null if folderId is null, which is safe
         EmailFolder: {
           select: { id: true, name: true, fullPath: true },
         },
@@ -124,8 +126,32 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error fetching threads:", error);
+    
+    // Provide detailed error info for P2022 (column not available) errors
+    if (error instanceof Error) {
+      const prismaError = error as any;
+      if (prismaError.code === 'P2022') {
+        console.error("P2022 Error Details:", {
+          code: prismaError.code,
+          meta: prismaError.meta,
+          message: prismaError.message,
+        });
+        return NextResponse.json(
+          { 
+            error: "Database column error",
+            details: prismaError.meta?.message || prismaError.message,
+            code: prismaError.code,
+          },
+          { status: 500 }
+        );
+      }
+    }
+    
     return NextResponse.json(
-      { error: "Internal server error" },
+      { 
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
       { status: 500 }
     );
   }

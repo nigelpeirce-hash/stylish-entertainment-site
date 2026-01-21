@@ -441,14 +441,26 @@ export default function AdminInbox() {
       const response = await fetch(`/api/admin/inboxes/${inboxId}/folders`);
       if (response.ok) {
         const data = await response.json();
-        // API returns folders array directly or wrapped in { folders }
+        // API returns folders array directly (not wrapped in { folders })
         const foldersArray = Array.isArray(data) ? data : (data.folders || []);
+        
+        // Debug logging
+        if (process.env.NODE_ENV === "development") {
+          console.log(`[fetchFolders] Inbox ${inboxId}:`, {
+            rawCount: foldersArray.length,
+            folders: foldersArray.map((f: any) => ({
+              name: f.name,
+              fullPath: f.fullPath,
+              parentId: f.parentId,
+            })),
+          });
+        }
         
         // Build folder tree structure from flat array
         const folderMap = new Map<string, any>();
         const rootFolders: any[] = [];
         
-        // First pass: create folder objects
+        // First pass: create folder objects with children array
         foldersArray.forEach((folder: any) => {
           folderMap.set(folder.id, {
             ...folder,
@@ -456,7 +468,7 @@ export default function AdminInbox() {
           });
         });
         
-        // Second pass: build tree (only if parentId exists)
+        // Second pass: build tree structure
         foldersArray.forEach((folder: any) => {
           const folderObj = folderMap.get(folder.id)!;
           if (folder.parentId) {
@@ -464,19 +476,33 @@ export default function AdminInbox() {
             if (parent) {
               parent.children.push(folderObj);
             } else {
-              // Parent not found, treat as root
+              // Parent not found in map, treat as root folder
               rootFolders.push(folderObj);
             }
           } else {
-            // No parent, it's a root folder
+            // No parentId, it's a root folder
             rootFolders.push(folderObj);
           }
         });
         
+        // Debug: Log built tree
+        if (process.env.NODE_ENV === "development") {
+          console.log(`[fetchFolders] Built tree for inbox ${inboxId}:`, {
+            rootCount: rootFolders.length,
+            rootFolders: rootFolders.map((f: any) => ({
+              name: f.name,
+              fullPath: f.fullPath,
+              childrenCount: f.children?.length || 0,
+            })),
+          });
+        }
+        
         setFolders((prev) => ({ ...prev, [inboxId]: rootFolders }));
+      } else {
+        console.error(`[fetchFolders] Failed to fetch folders for inbox ${inboxId}:`, response.status, response.statusText);
       }
     } catch (error) {
-      console.error("Error fetching folders:", error);
+      console.error(`[fetchFolders] Error fetching folders for inbox ${inboxId}:`, error);
     }
   };
 
@@ -1011,25 +1037,53 @@ export default function AdminInbox() {
                           {/* Display actual folders from API - root folders only (parentId is null) */}
                           {(() => {
                             const accountFolders = folders[inbox.id] || [];
+                            
+                            // Debug: Log folders for this inbox
+                            if (process.env.NODE_ENV === "development" && accountFolders.length > 0) {
+                              console.log(`[Inbox ${inbox.email}] Folders found:`, accountFolders.map((f: any) => ({
+                                name: f.name,
+                                fullPath: f.fullPath,
+                                parentId: f.parentId,
+                                hasChildren: f.children?.length > 0
+                              })));
+                            }
+                            
                             // Filter to show root folders (no parentId) and non-system folders
+                            // Also exclude folders that are named exactly "INBOX" or "Sent" (case-insensitive)
                             const rootFolders = accountFolders.filter(
-                              (f: any) => !f.parentId && f.name.toLowerCase() !== "inbox" && f.name.toLowerCase() !== "sent"
+                              (f: any) => {
+                                const nameLower = f.name?.toLowerCase() || "";
+                                const isSystemFolder = nameLower === "inbox" || nameLower === "sent" || nameLower === "inbox/";
+                                return !f.parentId && !isSystemFolder;
+                              }
                             );
                             
                             if (rootFolders.length > 0) {
                               return (
-                                <FolderTree
-                                  folders={rootFolders}
-                                  onSelect={(folderId) => {
-                                    setSelectedAccountId(inbox.id);
-                                    setSelectedFolder(folderId);
-                                  }}
-                                  expandedFolders={expandedFolders}
-                                  setExpandedFolders={setExpandedFolders}
-                                  level={0}
-                                />
+                                <div className="mt-1">
+                                  <FolderTree
+                                    folders={rootFolders}
+                                    onSelect={(folderId) => {
+                                      setSelectedAccountId(inbox.id);
+                                      setSelectedFolder(folderId);
+                                    }}
+                                    expandedFolders={expandedFolders}
+                                    setExpandedFolders={setExpandedFolders}
+                                    level={0}
+                                  />
+                                </div>
                               );
                             }
+                            
+                            // Show message if no folders found (for debugging)
+                            if (process.env.NODE_ENV === "development" && accountFolders.length === 0) {
+                              return (
+                                <div className="px-3 py-1 text-xs text-gray-500 italic">
+                                  No folders synced yet
+                                </div>
+                              );
+                            }
+                            
                             return null;
                           })()}
                         </div>
