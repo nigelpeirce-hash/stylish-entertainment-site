@@ -21,15 +21,6 @@ export async function GET(
     const resolvedParams = await params;
     const inboxId = resolvedParams.id;
 
-    // Verify prisma is available
-    if (!prisma) {
-      console.error("Prisma client is not initialized");
-      return NextResponse.json(
-        { error: "Database connection error" },
-        { status: 500 }
-      );
-    }
-
     // Fetch the inbox to get IMAP credentials
     const inbox = await prisma.emailInbox.findUnique({
       where: { id: inboxId },
@@ -39,7 +30,7 @@ export async function GET(
       return NextResponse.json({ error: "Inbox not found" }, { status: 404 });
     }
 
-    // Fetch folders from database first - using EmailFolder (capitalized) to match schema
+    // Fetch folders from database first - Prisma client uses camelCase (emailFolder)
     let folders = await prisma.emailFolder.findMany({
       where: { inboxId },
       orderBy: { fullPath: "asc" },
