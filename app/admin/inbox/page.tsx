@@ -197,7 +197,12 @@ function FolderTree({
               ) : (
                 <Folder className="w-4 h-4 flex-shrink-0" />
               )}
-              <span className="flex-1 truncate">{folder.name}</span>
+              <span className="flex-1 truncate" title={folder.fullPath}>
+                {folder.name}
+                {folder.inboxName && (
+                  <span className="text-xs text-gray-500 ml-1">({folder.inboxName})</span>
+                )}
+              </span>
               {folder.unreadCount > 0 && (
                 <span className="px-1.5 py-0.5 text-xs font-semibold rounded-full bg-[#D4AF37] text-black">
                   {folder.unreadCount}
@@ -1034,26 +1039,36 @@ export default function AdminInbox() {
                             <Folder className="w-3 h-3 flex-shrink-0" />
                             <span>Sent</span>
                           </button>
-                          {/* Display actual folders from API - root folders only (parentId is null) */}
+                          {/* Display actual folders from API - show ALL root folders (tree structure already built) */}
                           {(() => {
                             const accountFolders = folders[inbox.id] || [];
                             
                             // Debug: Log folders for this inbox
-                            if (process.env.NODE_ENV === "development" && accountFolders.length > 0) {
-                              console.log(`[Inbox ${inbox.email}] Folders found:`, accountFolders.map((f: any) => ({
-                                name: f.name,
-                                fullPath: f.fullPath,
-                                parentId: f.parentId,
-                                hasChildren: f.children?.length > 0
-                              })));
+                            if (process.env.NODE_ENV === "development") {
+                              console.log(`[Inbox ${inbox.email}] Folders in state:`, {
+                                total: accountFolders.length,
+                                folders: accountFolders.map((f: any) => ({
+                                  name: f.name,
+                                  fullPath: f.fullPath,
+                                  parentId: f.parentId,
+                                  childrenCount: f.children?.length || 0,
+                                })),
+                              });
                             }
                             
-                            // Filter to show root folders (no parentId) and non-system folders
-                            // Also exclude folders that are named exactly "INBOX" or "Sent" (case-insensitive)
+                            // Show ALL root folders (tree structure already includes nested children)
+                            // Only exclude system folders that are already shown as buttons above
                             const rootFolders = accountFolders.filter(
                               (f: any) => {
                                 const nameLower = f.name?.toLowerCase() || "";
-                                const isSystemFolder = nameLower === "inbox" || nameLower === "sent" || nameLower === "inbox/";
+                                const fullPathLower = f.fullPath?.toLowerCase() || "";
+                                // Exclude only exact matches for system folders (already shown as buttons)
+                                const isSystemFolder = 
+                                  nameLower === "inbox" || 
+                                  nameLower === "sent" ||
+                                  fullPathLower === "inbox" ||
+                                  fullPathLower === "sent";
+                                // Show all root folders (parentId is null) except system ones
                                 return !f.parentId && !isSystemFolder;
                               }
                             );
@@ -1075,8 +1090,8 @@ export default function AdminInbox() {
                               );
                             }
                             
-                            // Show message if no folders found (for debugging)
-                            if (process.env.NODE_ENV === "development" && accountFolders.length === 0) {
+                            // Show message if no folders found
+                            if (accountFolders.length === 0) {
                               return (
                                 <div className="px-3 py-1 text-xs text-gray-500 italic">
                                   No folders synced yet
