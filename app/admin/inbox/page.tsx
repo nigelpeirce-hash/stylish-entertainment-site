@@ -386,6 +386,18 @@ export default function AdminInbox() {
   };
 
   const handleArchive = async (threadId: string) => {
+    // Optimistic UI: immediately update the UI before API call
+    const previousThreads = threads;
+    const previousSelectedThread = selectedThread;
+    
+    // Immediately remove from list
+    setThreads((prev) => prev.filter((t) => t.id !== threadId));
+    
+    // Immediately clear selection
+    if (selectedThread?.id === threadId) {
+      setSelectedThread(null);
+    }
+    
     try {
       const response = await fetch(`/api/admin/threads/${threadId}`, {
         method: "PATCH",
@@ -394,14 +406,6 @@ export default function AdminInbox() {
       });
 
       if (response.ok) {
-        // Immediate UI update: filter out the archived thread
-        setThreads((prev) => prev.filter((t) => t.id !== threadId));
-        
-        // Clear selection if this thread was selected
-        if (selectedThread?.id === threadId) {
-          setSelectedThread(null);
-        }
-        
         // Show success toast
         setToast({
           id: Date.now().toString(),
@@ -412,6 +416,10 @@ export default function AdminInbox() {
         // Refresh threads list to update counts (optional, but ensures consistency)
         await fetchThreads(0, false);
       } else {
+        // Revert optimistic update on error
+        setThreads(previousThreads);
+        setSelectedThread(previousSelectedThread);
+        
         // Show error toast if archive failed
         setToast({
           id: Date.now().toString(),
@@ -421,6 +429,11 @@ export default function AdminInbox() {
       }
     } catch (error) {
       console.error("Error archiving thread:", error);
+      
+      // Revert optimistic update on error
+      setThreads(previousThreads);
+      setSelectedThread(previousSelectedThread);
+      
       setToast({
         id: Date.now().toString(),
         message: "Error archiving message",
