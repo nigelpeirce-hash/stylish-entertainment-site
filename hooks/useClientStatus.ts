@@ -71,17 +71,23 @@ export function useClientStatus() {
 
         if (userIp && userIp !== 'Unknown') {
           // Check if IP matches any provisional bookings in database
-          const recognitionResponse = await fetch('/api/client/check-ip-recognition', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ip: userIp }),
-          });
+          try {
+            const recognitionResponse = await fetch('/api/client/check-ip-recognition', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ip: userIp }),
+            });
 
-          if (!recognitionResponse.ok) {
-            throw new Error(`API response not ok: ${recognitionResponse.status}`);
-          }
+            // Silently handle errors - IP recognition is optional
+            if (!recognitionResponse.ok) {
+              // Log in development only, but don't throw
+              if (process.env.NODE_ENV === 'development') {
+                console.warn('IP recognition API returned:', recognitionResponse.status);
+              }
+              return; // Exit early, don't process response
+            }
 
-          const recognitionData = await recognitionResponse.json();
+            const recognitionData = await recognitionResponse.json();
 
           // If IP match found, automatically trigger isReturning state
           if (recognitionData.recognized === true) {
@@ -104,6 +110,11 @@ export function useClientStatus() {
             // Also store other booking details if needed
             if (recognitionData.venueName) {
               sessionStorage.setItem('stylish_venue_name', recognitionData.venueName);
+            }
+          } catch (fetchError) {
+            // Silently handle fetch errors - IP recognition is optional
+            if (process.env.NODE_ENV === 'development') {
+              console.warn('IP recognition fetch error:', fetchError);
             }
           }
         }
