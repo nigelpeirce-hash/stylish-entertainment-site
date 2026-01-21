@@ -132,8 +132,26 @@ export default function AdminSettings() {
         // ID mismatch - reset to first inbox or clear editing
         console.warn(`Editing ID ${editingId} not found in inboxes array. Resetting.`);
         if (inboxes[0]?.id) {
-          setEditingId(inboxes[0].id);
-          handleEdit(inboxes[0]);
+          // Use the inbox data directly instead of calling handleEdit to avoid dependency issues
+          const currentInbox = inboxes[0];
+          setFormData({
+            name: currentInbox?.name || "",
+            email: currentInbox?.email || "",
+            imapHost: currentInbox?.imapHost || "",
+            imapPort: currentInbox?.imapPort || 993,
+            imapSecure: currentInbox?.imapSecure ?? true,
+            imapUsername: currentInbox?.imapUsername || "",
+            imapPassword: "",
+            smtpHost: currentInbox?.smtpHost || "",
+            smtpPort: currentInbox?.smtpPort || 587,
+            smtpSecure: currentInbox?.smtpSecure ?? true,
+            smtpUsername: currentInbox?.smtpUsername || "",
+            smtpPassword: "",
+            syncEnabled: currentInbox?.syncEnabled ?? true,
+            syncInterval: currentInbox?.syncInterval || 5,
+          });
+          setEditingId(currentInbox.id);
+          setIsAdding(true);
         } else {
           setEditingId(null);
           setIsAdding(false);
