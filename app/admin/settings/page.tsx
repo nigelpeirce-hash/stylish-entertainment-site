@@ -790,14 +790,26 @@ export default function AdminSettings() {
         {/* Add/Edit Form */}
         {isAdding && (
           <motion.div
+            id="inbox-form"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
           >
             <Card className="bg-gray-800 border-champagne-gold/30">
               <CardHeader>
-                <CardTitle>
-                  {editingId ? "Edit Inbox" : "Add New Email Inbox"}
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle>
+                    {editingId ? "Edit Inbox" : "Add New Email Inbox"}
+                  </CardTitle>
+                  <Button
+                    onClick={clearCache}
+                    variant="outline"
+                    size="sm"
+                    className="border-gray-600 text-gray-300 hover:bg-gray-800"
+                    title="Clear cache and reset form"
+                  >
+                    Clear Cache
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
