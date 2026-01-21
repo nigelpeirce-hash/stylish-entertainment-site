@@ -6,6 +6,13 @@ export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  // PASTE THESE HERE:
+  console.log("--- PRISMA DEBUG ---");
+  console.log("DB URL Defined:", !!process.env.DATABASE_URL);
+  console.log("emailFolder exists in prisma:", "emailFolder" in prisma);
+  console.log("Prisma delegates:", Object.keys(prisma).filter(k => !k.startsWith('$')).slice(0, 10));
+  console.log("--------------------");
+
   try {
     const session = await auth();
     if (!session?.user) {
