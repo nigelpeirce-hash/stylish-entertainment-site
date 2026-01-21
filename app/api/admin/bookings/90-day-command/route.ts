@@ -76,7 +76,7 @@ export async function GET(request: NextRequest) {
           where: {
             source: "portal",
             isRead: false,
-            inbox: {
+            EmailInbox: {
               OR: [
                 { assignedUsers: { isEmpty: true } }, // Shared inboxes
                 { assignedUsers: { has: (admin as any)?.email || "" } }, // User is assigned

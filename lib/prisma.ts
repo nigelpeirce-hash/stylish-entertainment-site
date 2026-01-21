@@ -7,7 +7,15 @@ const globalForPrisma = globalThis as unknown as {
 };
 
 // Create PostgreSQL connection pool
-const connectionString = process.env.DATABASE_URL;
+let connectionString = process.env.DATABASE_URL;
+
+// Ensure SSL is enabled for Supabase connections
+if (connectionString && connectionString.includes('supabase.com')) {
+  // Add sslmode=require if not already present
+  if (!connectionString.includes('sslmode=')) {
+    connectionString += (connectionString.includes('?') ? '&' : '?') + 'sslmode=require';
+  }
+}
 
 // Prisma 7 with adapter requires adapter to be provided to PrismaClient
 // We MUST create the adapter synchronously if DATABASE_URL exists
@@ -16,14 +24,22 @@ let adapter: PrismaPg | undefined;
 
 if (connectionString) {
   try {
+    // Determine SSL configuration based on connection string
+    const isSupabase = connectionString.includes('supabase.com');
+    const sslConfig = isSupabase 
+      ? { rejectUnauthorized: false } // Supabase uses self-signed certificates
+      : undefined; // Use default SSL behavior for other databases
+    
     pool = new Pool({ 
       connectionString,
       // Add connection timeout to prevent hangs
-      connectionTimeoutMillis: 5000,
+      connectionTimeoutMillis: 10000,
       // Limit pool size
       max: 10,
       // Don't try to connect immediately during build
       idleTimeoutMillis: 30000,
+      // SSL configuration
+      ...(sslConfig && { ssl: sslConfig }),
     });
     adapter = new PrismaPg(pool);
   } catch (error) {
@@ -49,11 +65,19 @@ function createPrismaClient() {
     
     // Retry adapter creation if initial attempt failed
     try {
+      // Determine SSL configuration based on connection string
+      const isSupabase = connectionString.includes('supabase.com');
+      const sslConfig = isSupabase 
+        ? { rejectUnauthorized: false } // Supabase uses self-signed certificates
+        : undefined; // Use default SSL behavior for other databases
+      
       const retryPool = new Pool({ 
         connectionString,
         connectionTimeoutMillis: 5000,
         max: 10,
         idleTimeoutMillis: 30000,
+        // SSL configuration
+        ...(sslConfig && { ssl: sslConfig }),
       });
       clientAdapter = new PrismaPg(retryPool);
     } catch (error) {
