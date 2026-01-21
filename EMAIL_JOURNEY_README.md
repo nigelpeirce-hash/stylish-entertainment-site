@@ -6,7 +6,7 @@ The Email Journey Manager provides a complete customer lifecycle email system wi
 
 ## Journey Stages
 
-1. **Inquiry Auto-Responder** - Immediate thank you with PDF brochure link
+1. **Enquiry Auto-Responder** - Immediate thank you with PDF brochure link
 2. **Booking Confirmation** - Sent after deposit, includes Client Admin link
 3. **4-Week Check-in** - Automation for final song choices/logistics
 4. **Week-of Excitement** - Short "We're ready for you" note
@@ -56,7 +56,7 @@ Visit `/admin/emails` to:
 **Request Body:**
 ```json
 {
-  "stage": "inquiry-autoresponder",
+  "stage": "enquiry-autoresponder",
   "clientEmail": "client@example.com",
   "bookingId": "optional-booking-id",
   "clientData": {
@@ -90,7 +90,7 @@ Visit `/admin/emails` to:
 
 ### Valid Stages
 
-- `inquiry-autoresponder`
+- `enquiry-autoresponder`
 - `booking-confirmation`
 - `4-week-checkin`
 - `week-of-excitement`
@@ -131,7 +131,7 @@ All emails feature:
 
 ## Notes
 
-- Inquiry email explicitly mentions Nigel and Ali
+- Enquiry email explicitly mentions Nigel and Ali
 - All CTAs link to appropriate pages
 - Post-wedding email includes Google Review and Instagram links
 - Templates are mobile-responsive

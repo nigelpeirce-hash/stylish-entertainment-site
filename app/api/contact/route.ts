@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
 import { getBrochureLink } from "@/lib/venue-assets";
-import { inquiryAutoresponder } from "@/lib/email-journey-templates";
+import { enquiryAutoresponder } from "@/lib/email-journey-templates";
 import { getResendConfig } from "@/lib/email-config";
 import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
@@ -201,7 +201,7 @@ export async function POST(request: NextRequest) {
           bookingReference, // Add booking reference for email threading
           conflictStatus, // Mark if conflict detected
           authorizedSenders: [], // Initialize empty array
-          // DO NOT mark inquiry email as sent here. Autoresponder doesn't count as admin action.
+          // DO NOT mark enquiry email as sent here. Autoresponder doesn't count as admin action.
           emailsSent: null as any, // Initialize as null, no admin action taken yet
           lastEmailSentAt: null, // Initialize as null, no admin action taken yet
         },
@@ -381,7 +381,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Send automated inquiry autoresponder email to the client
+    // Send automated enquiry autoresponder email to the client
     // Fetch brochure link from venue_assets table based on venueName
     // Query: SELECT pdf_url FROM venue_assets WHERE venue_name = [clientVenueName] AND is_active = true
     let brochureUrl: string;
@@ -416,8 +416,8 @@ export async function POST(request: NextRequest) {
         })
       : undefined;
 
-    // Generate inquiry autoresponder email using the template
-    const inquiryEmail = inquiryAutoresponder({
+    // Generate enquiry autoresponder email using the template
+    const enquiryEmail = enquiryAutoresponder({
       clientName: name,
       eventType: eventType || "your event",
       eventDate: formattedEventDate || "your event date",
@@ -425,7 +425,7 @@ export async function POST(request: NextRequest) {
       brochureUrl: brochureUrl,
     });
 
-    // Send inquiry autoresponder email using Resend (with centralized config)
+    // Send enquiry autoresponder email using Resend (with centralized config)
     const emailConfig = getResendConfig("booking");
     let confirmationResult;
     
@@ -434,16 +434,16 @@ export async function POST(request: NextRequest) {
         from: emailConfig.from,
         replyTo: emailConfig.replyTo,
         to: [email],
-        subject: inquiryEmail.subject,
-        html: inquiryEmail.html,
+        subject: enquiryEmail.subject,
+        html: enquiryEmail.html,
       });
     } catch (resendError) {
-      console.error("Error sending inquiry autoresponder via Resend:", resendError);
+      console.error("Error sending enquiry autoresponder via Resend:", resendError);
       // Fallback to SMTP if Resend fails
       confirmationResult = await sendEmail({
         to: email,
-        subject: inquiryEmail.subject,
-        html: inquiryEmail.html,
+        subject: enquiryEmail.subject,
+        html: enquiryEmail.html,
       });
     }
 

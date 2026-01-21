@@ -15,7 +15,7 @@ import {
   StaffCancellationData 
 } from "@/lib/email-staff-cancellation";
 import {
-  inquiryAutoresponder,
+  enquiryAutoresponder,
   gentleReminder,
   bookingConfirmation,
   fourWeekCheckin,
@@ -316,11 +316,11 @@ const emailTemplates: EmailTemplate[] = [
   },
   // Client Journey Templates
   {
-    id: "inquiry-autoresponder",
+    id: "enquiry-autoresponder",
     name: "New Enquiry Auto-Responder",
     category: "client",
     trigger: "Triggered immediately when a new enquiry is submitted via contact form or booking form",
-    generatePreview: () => inquiryAutoresponder(mockJourneyData),
+    generatePreview: () => enquiryAutoresponder(mockJourneyData),
   },
   {
     id: "gentle-reminder",

@@ -6,7 +6,7 @@ The Smart Intake & Conflict Detection system automatically processes new inquiri
 
 ## Features
 
-### 1. **Public Inquiry Form**
+### 1. **Public Enquiry Form**
 - Simple form at `/new-inquiry`
 - Captures: Name, Email, Phone (optional), Event Date, Venue Postcode
 - Validates required fields
@@ -15,7 +15,7 @@ The Smart Intake & Conflict Detection system automatically processes new inquiri
 ### 2. **Automated First Touch Email**
 - Sent immediately upon submission
 - Personal message: "Hi [Name], thanks for reaching out about [Date]!"
-- Confirms inquiry received and checking availability
+- Confirms enquiry received and checking availability
 - Uses Resend API
 
 ### 3. **Conflict Detection Engine**
@@ -163,7 +163,7 @@ MOBILE_NOTIFICATION_WEBHOOK_URL=https://your-webhook-url.com/notify
 ### 3. Access Routes
 
 **Public Form:**
-- `/new-inquiry` - Submit new inquiry
+- `/new-inquiry` - Submit new enquiry
 
 **Admin Dashboard:**
 - `/admin/new-enquiries` - View all new enquiries
@@ -172,7 +172,7 @@ MOBILE_NOTIFICATION_WEBHOOK_URL=https://your-webhook-url.com/notify
 ## API Routes
 
 ### `POST /api/inquiries/new`
-Processes new inquiry submission:
+Processes new enquiry submission:
 - Validates input
 - Detects conflicts (Date + Postcode)
 - Sends first touch email
@@ -237,8 +237,8 @@ If match found:
 3. System will POST JSON payload:
 ```json
 {
-  "message": "New Inquiry: John Doe - 31 Dec 2024 at SW1A1AA",
-  "title": "📧 New Inquiry",
+  "message": "New Enquiry: John Doe - 31 Dec 2024 at SW1A1AA",
+  "title": "📧 New Enquiry",
   "url": "https://yourapp.com/admin/new-enquiries/123",
   "priority": 0
 }
@@ -249,7 +249,7 @@ If match found:
 ### For Clients
 1. Visit `/new-inquiry`
 2. Fill out form (Name, Email, Event Date, Venue Postcode)
-3. Submit inquiry
+3. Submit enquiry
 4. Receive immediate confirmation email
 5. Wait for response from team
 
@@ -281,7 +281,7 @@ If match found:
 
 1. Run database migration
 2. Set environment variables
-3. Test inquiry submission
+3. Test enquiry submission
 4. Verify email delivery
 5. Configure mobile notifications
 6. Test conflict detection with duplicate dates

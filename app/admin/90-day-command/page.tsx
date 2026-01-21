@@ -597,7 +597,7 @@ export default function NinetyDayCommandCentre() {
   const getAttentionReasons = useCallback((booking: Booking): string[] => {
     const reasons: string[] = [];
     if (booking.priority === "urgent") {
-      reasons.push("Event within 2 weeks of inquiry");
+      reasons.push("Event within 2 weeks of enquiry");
     }
     if (booking.daysRemaining <= 30 && !booking.finalDetailsConfirmed) {
       reasons.push("Final details not confirmed");

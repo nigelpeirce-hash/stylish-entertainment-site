@@ -302,7 +302,7 @@ export default function EmailTemplates() {
                     <Input
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="e.g., DJ Inquiry Response"
+                      placeholder="e.g., DJ Enquiry Response"
                       className="bg-gray-900 text-white border-gray-700"
                     />
                   </div>
@@ -311,7 +311,7 @@ export default function EmailTemplates() {
                     <Input
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                      placeholder="e.g., inquiry, confirmation"
+                      placeholder="e.g., enquiry, confirmation"
                       className="bg-gray-900 text-white border-gray-700"
                     />
                   </div>
@@ -322,7 +322,7 @@ export default function EmailTemplates() {
                   <Input
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                    placeholder="Re: Your inquiry for {{eventDate}}"
+                    placeholder="Re: Your enquiry for {{eventDate}}"
                     className="bg-gray-900 text-white border-gray-700"
                   />
                   <p className="text-xs text-gray-400">You can use variables like {"{{eventDate}}"}</p>
@@ -386,7 +386,7 @@ export default function EmailTemplates() {
                 className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10"
               >
                 <Sparkles className="w-4 h-4 mr-2" />
-                Create Default DJ Inquiry Template
+                Create Default DJ Enquiry Template
               </Button>
             </Link>
           </div>

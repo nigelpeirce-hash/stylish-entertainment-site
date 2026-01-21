@@ -251,8 +251,8 @@ function MasonryGrid({ photos }: { photos: ImagePhoto[] }) {
   );
 }
 
-// Interactive Lighting Inquiry CTA Bar
-function LightingInquiryBar() {
+// Interactive Lighting Enquiry CTA Bar
+function LightingEnquiryBar() {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -281,7 +281,7 @@ function LightingInquiryBar() {
             className="pointer-events-auto bg-white/10 backdrop-blur-xl border-2 border-champagne-gold/50 text-white px-8 py-4 rounded-full font-bold shadow-[0_10px_30px_rgba(212,175,55,0.3)] hover:scale-105 transition-all duration-300 hover:bg-white/15 hover:border-champagne-gold flex items-center gap-3 group"
           >
             <Sparkles className="w-5 h-5 text-champagne-gold group-hover:rotate-12 transition-transform" />
-            <span>Lighting Inquiry</span>
+            <span>Lighting Enquiry</span>
           </Link>
         </motion.div>
       )}
@@ -567,8 +567,8 @@ export default function PartyLightingClient() {
         </div>
       </section>
 
-      {/* Interactive Lighting Inquiry Bar */}
-      <LightingInquiryBar />
+      {/* Interactive Lighting Enquiry Bar */}
+      <LightingEnquiryBar />
     </div>
   );
 }

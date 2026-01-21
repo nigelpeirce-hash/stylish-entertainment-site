@@ -423,7 +423,7 @@ export default function ProfilePage() {
                 <div className="text-center py-8">
                   <p className="text-gray-400 mb-4">No upcoming events</p>
                   <p className="text-sm text-gray-500">
-                    Your event dates will appear here once you submit a booking inquiry
+                    Your event dates will appear here once you submit a booking enquiry
                   </p>
                 </div>
               ) : (

@@ -6,7 +6,7 @@
  */
 
 export type JourneyStage =
-  | "inquiry-autoresponder"
+  | "enquiry-autoresponder"
   | "gentle-reminder"
   | "booking-confirmation"
   | "4-week-checkin"
@@ -212,10 +212,10 @@ function buildEmailTemplate(
 }
 
 /**
- * 1. Inquiry Auto-Responder
+ * 1. Enquiry Auto-Responder
  * Immediate 'Thank you' with PDF brochure link (venue-specific or general)
  */
-export function inquiryAutoresponder(data: JourneyEmailData) {
+export function enquiryAutoresponder(data: JourneyEmailData) {
   // Check if we have a venue-specific brochure URL (not general and not undefined)
   const hasVenueBrochure = data.brochureUrl && !data.brochureUrl.includes("general") && !data.brochureUrl.includes("brochure.pdf");
   const venueName = data.venueName || "";
@@ -244,7 +244,7 @@ export function inquiryAutoresponder(data: JourneyEmailData) {
   }
 
   const contentHtml = `
-    <h1>Thank You for Your Inquiry</h1>
+    <h1>Thank You for Your Enquiry</h1>
     <p>Dear {{clientName}},</p>
     <p>Thank you for reaching out to Stylish Entertainment. We're delighted that you're considering us for {{eventType}} on {{eventDate}}.</p>
     <p>We're excited to learn more about your vision and help bring it to life. We specialise in creating unforgettable celebrations with our expert DJ services, elegant lighting design, and sophisticated venue styling.</p>
@@ -258,7 +258,7 @@ export function inquiryAutoresponder(data: JourneyEmailData) {
   `;
 
   return buildEmailTemplate(
-    "Thank You for Your Inquiry - Stylish Entertainment",
+    "Thank You for Your Enquiry - Stylish Entertainment",
     contentHtml,
     data
   );
@@ -266,7 +266,7 @@ export function inquiryAutoresponder(data: JourneyEmailData) {
 
 /**
  * 1.5. Gentle Reminder (3-Day Follow-up)
- * A friendly, gentle follow-up sent 3 days after initial inquiry if no booking confirmed
+ * A friendly, gentle follow-up sent 3 days after initial enquiry if no booking confirmed
  */
 export function gentleReminder(data: JourneyEmailData) {
   const contentHtml = `
@@ -434,8 +434,8 @@ export function getJourneyEmail(
   data: JourneyEmailData
 ): { subject: string; html: string } {
   switch (stage) {
-    case "inquiry-autoresponder":
-      return inquiryAutoresponder(data);
+    case "enquiry-autoresponder":
+      return enquiryAutoresponder(data);
     case "gentle-reminder":
       return gentleReminder(data);
     case "booking-confirmation":

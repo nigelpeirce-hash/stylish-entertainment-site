@@ -28,9 +28,9 @@ export default function CreateDefaultTemplate() {
     setResult(null);
 
     const defaultTemplate = {
-      name: "DJ Inquiry Response",
-      category: "inquiry",
-      subject: "Re: Your inquiry for {{eventDate}}",
+      name: "DJ Enquiry Response",
+      category: "enquiry",
+      subject: "Re: Your enquiry for {{eventDate}}",
       bodyHtml: `Any questions? Thank you very much for your enquiry and congratulations on your forthcoming {{eventType}} at {{venueName}}, a stunning space to get married.
 
 We have three DJs available on {{eventDate}} who may be a great fit for your celebration. Details and fees are below.
@@ -160,7 +160,7 @@ Kind regards,`,
         >
           <Card className="bg-gray-800 border-champagne-gold/30">
             <CardContent className="p-6 text-center space-y-4">
-              <h1 className="text-2xl font-bold">Create Default DJ Inquiry Template</h1>
+              <h1 className="text-2xl font-bold">Create Default DJ Enquiry Template</h1>
               <p className="text-gray-400">
                 This will create a template based on your current email format with variables for DJ fee, event date, and timings.
               </p>

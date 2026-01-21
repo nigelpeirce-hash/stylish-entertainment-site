@@ -113,7 +113,7 @@ export async function POST(
             </div>
             <div class="content">
               <div class="alert">
-                <strong>Action Required:</strong> A client has requested more time for their inquiry.
+                <strong>Action Required:</strong> A client has requested more time for their enquiry.
               </div>
               
               <div class="details">

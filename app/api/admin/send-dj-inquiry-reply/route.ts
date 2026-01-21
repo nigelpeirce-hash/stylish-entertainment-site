@@ -248,7 +248,7 @@ export async function POST(request: NextRequest) {
               <div class="divider"></div>
             </div>
             <div class="content">
-              <h1>Your DJ Inquiry - Details & Quote</h1>
+              <h1>Your DJ Enquiry - Details & Quote</h1>
               <p>Dear ${clientName},</p>
               ${customIntro ? `<p>${customIntro}</p>` : ""}
               <p>Thank you for your interest in our DJ services for your event at <strong>${venueName}</strong> on <strong>${formattedDate}</strong>.</p>
@@ -302,7 +302,7 @@ export async function POST(request: NextRequest) {
       from: emailConfig.from,
       replyTo: emailConfig.replyTo,
       to: [clientEmail],
-      subject: `Your DJ Inquiry - ${venueName} on ${formattedDate}`,
+      subject: `Your DJ Enquiry - ${venueName} on ${formattedDate}`,
       html: emailHtml,
     });
 
@@ -343,12 +343,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       messageId: result.data?.id,
-      message: "DJ inquiry reply sent successfully",
+      message: "DJ enquiry reply sent successfully",
     });
   } catch (error: any) {
-    console.error("Error sending DJ inquiry reply:", error);
+    console.error("Error sending DJ enquiry reply:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to send DJ inquiry reply" },
+      { error: error.message || "Failed to send DJ enquiry reply" },
       { status: 500 }
     );
   }

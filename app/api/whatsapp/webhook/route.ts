@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
           orderBy: { createdAt: "desc" },
         });
 
-        // If no booking exists, create a draft inquiry
+        // If no booking exists, create a draft enquiry
         if (!booking) {
           booking = await prisma.booking.create({
             data: {
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
               flaggedFor: "wife", // Flag for wife to review
               assignedTo: "wife",
               handoffStatus: "action_needed",
-              message: "Draft inquiry created from WhatsApp message",
+              message: "Draft enquiry created from WhatsApp message",
             },
           });
         }

@@ -28,7 +28,7 @@ export default function NewInquiry() {
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    document.title = "New Inquiry | STYLISH Entertainment";
+    document.title = "New Enquiry | STYLISH Entertainment";
   }, []);
 
   const {
@@ -57,7 +57,7 @@ export default function NewInquiry() {
       const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || "Failed to submit inquiry");
+        throw new Error(result.error || "Failed to submit enquiry");
       }
 
       setSubmitSuccess(true);
@@ -85,7 +85,7 @@ export default function NewInquiry() {
           <Card className="bg-gray-800 border-champagne-gold/30">
             <CardHeader>
               <CardTitle className="text-3xl md:text-4xl text-white font-serif">
-                New Inquiry
+                New Enquiry
               </CardTitle>
               <CardDescription className="text-gray-300 text-sm sm:text-base">
                 Tell us about your event and we'll get back to you shortly
@@ -99,7 +99,7 @@ export default function NewInquiry() {
                   className="p-4 bg-green-900/30 border-2 border-green-500/50 rounded-md text-green-400 font-medium mb-6 flex items-center gap-2"
                 >
                   <CheckCircle2 className="w-5 h-5" />
-                  Thank you! We've received your inquiry and will contact you soon.
+                  Thank you! We've received your enquiry and will contact you soon.
                 </motion.div>
               )}
 
@@ -224,7 +224,7 @@ export default function NewInquiry() {
                       Submitting...
                     </>
                   ) : (
-                    "Submit Inquiry"
+                    "Submit Enquiry"
                   )}
                 </Button>
               </form>

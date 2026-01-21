@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
 
     // Validate stage
     const validStages: JourneyStage[] = [
-      "inquiry-autoresponder",
+      "enquiry-autoresponder",
       "booking-confirmation",
       "4-week-checkin",
       "week-of-excitement",
@@ -89,8 +89,8 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Generate venue-specific brochure URL (for inquiry-autoresponder only)
-    if (stage === "inquiry-autoresponder") {
+    // Generate venue-specific brochure URL (for enquiry-autoresponder only)
+    if (stage === "enquiry-autoresponder") {
       // Get brochure link using simple mapping: venueAssets[venueName] || venueAssets["General"]
       const brochureLink = await getBrochureLink(emailData.venueName);
       

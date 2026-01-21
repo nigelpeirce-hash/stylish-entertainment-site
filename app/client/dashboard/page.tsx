@@ -156,7 +156,7 @@ export default function ClientDashboard() {
                 </div>
                 <div className="hidden md:block">
                   <h3 className="text-lg font-semibold text-white">New Booking</h3>
-                  <p className="text-sm text-gray-200">Submit a new inquiry</p>
+                  <p className="text-sm text-gray-200">Submit a new enquiry</p>
                 </div>
               </CardContent>
             </Card>

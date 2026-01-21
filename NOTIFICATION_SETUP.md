@@ -62,7 +62,7 @@ PUSHOVER_API_KEY=your_pushover_api_key_here
 
 ### New Lead Notifications
 
-When a new inquiry is saved to the `Booking` table:
+When a new enquiry is saved to the `Booking` table:
 - ✅ Fetches push keys for both Ali and Nigel from `Staff_Settings`
 - ✅ Sends notification to both phones
 - ✅ Title: `🆕 New Lead: [Client Name]`

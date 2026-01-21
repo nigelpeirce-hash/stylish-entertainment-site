@@ -30,8 +30,8 @@ export async function POST(request: NextRequest) {
       priority: "medium",
       contactPreference: "Email",
       emailsSent: {
-        inquiry: true,
-        "inquiry-sent-at": new Date().toISOString(),
+        enquiry: true,
+        "enquiry-sent-at": new Date().toISOString(),
       },
       lastEmailSentAt: new Date(),
     };

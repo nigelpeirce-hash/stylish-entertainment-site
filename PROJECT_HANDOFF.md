@@ -275,7 +275,7 @@ All email templates are located in:
 
 ### Email Journey Stages
 
-1. **inquiry-autoresponder** - Immediate thank you with brochure
+1. **enquiry-autoresponder** - Immediate thank you with brochure
 2. **gentle-reminder** - 3-day follow-up if no booking
 3. **booking-confirmation** - After deposit received
 4. **4-week-checkin** - Final details reminder

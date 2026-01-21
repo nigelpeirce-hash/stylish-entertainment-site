@@ -5,8 +5,8 @@
 ### 1. **Email Journey Templates**
 We have 6 email templates ready for automation:
 
-1. **Inquiry Auto-Responder** ✅ (Already automated - sends immediately on contact form submit)
-2. **Gentle Reminder** ✅ (NEW - 3-day follow-up after initial inquiry)
+1. **Enquiry Auto-Responder** ✅ (Already automated - sends immediately on contact form submit)
+2. **Gentle Reminder** ✅ (NEW - 3-day follow-up after initial enquiry)
 3. **Booking Confirmation** (Manual send after deposit)
 4. **4-Week Check-in** (Automated - 4 weeks before event)
 5. **Week-of Excitement** (Automated - 7 days before event)
@@ -19,7 +19,7 @@ We have 6 email templates ready for automation:
 This endpoint automatically sends journey emails based on triggers:
 
 #### **Triggers:**
-- **3-Day Reminder**: Sent 3 days after inquiry autoresponder if booking status is still "pending" or "inquiry"
+- **3-Day Reminder**: Sent 3 days after enquiry autoresponder if booking status is still "pending" or "inquiry"
 - **4-Week Check-in**: Sent 28 days before event date (for confirmed bookings)
 - **Week-of Excitement**: Sent 7 days before event date
 - **Post-Wedding Magic**: Sent 3 days after event date
@@ -38,7 +38,7 @@ All emails are tracked in the `Booking.emailsSent` JSON field:
 
 ```json
 {
-  "inquiryAutoresponder": { "sentAt": "2024-01-15T10:00:00Z", "messageId": "..." },
+  "enquiryAutoresponder": { "sentAt": "2024-01-15T10:00:00Z", "messageId": "..." },
   "gentleReminder": { "sentAt": "2024-01-18T09:00:00Z", "messageId": "..." },
   "fourWeekCheckin": { "sentAt": "2024-02-15T09:00:00Z", "messageId": "..." },
   "weekOfExcitement": { "sentAt": "2024-03-01T09:00:00Z", "messageId": "..." },
@@ -96,7 +96,7 @@ Or visit the URL in your browser (will require authentication if `CRON_SECRET` i
 
 ```
 1. Contact Form Submitted
-   └─> Inquiry Auto-Responder sent immediately ✅
+   └─> Enquiry Auto-Responder sent immediately ✅
 
 2. 3 Days Later (if no booking confirmed)
    └─> Gentle Reminder sent automatically 🤖

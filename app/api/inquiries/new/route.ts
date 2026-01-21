@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
       await resend.emails.send({
         from: process.env.RESEND_FROM_EMAIL || "noreply@stylishentertainment.co.uk",
         to: email,
-        subject: `Thank you for your inquiry - ${parsedEventDate.toLocaleDateString("en-GB")}`,
+        subject: `Thank you for your enquiry - ${parsedEventDate.toLocaleDateString("en-GB")}`,
         html: emailHtml,
       });
 
@@ -153,11 +153,11 @@ export async function POST(request: NextRequest) {
       enquiryId: enquiry.id,
       conflictDetected: !!existingBooking,
       message: existingBooking
-        ? "Inquiry received. A potential conflict was detected and flagged for review."
-        : "Inquiry received successfully. We'll contact you soon.",
+        ? "Enquiry received. A potential conflict was detected and flagged for review."
+        : "Enquiry received successfully. We'll contact you soon.",
     });
   } catch (error: any) {
-    console.error("Error creating inquiry:", error);
+    console.error("Error creating enquiry:", error);
     return NextResponse.json(
       { error: error.message || "Internal server error" },
       { status: 500 }
@@ -182,12 +182,12 @@ async function sendMobileNotification(enquiry: any, existingBooking: any) {
   const deepLinkUrl = dashboardUrl;
 
   const message = existingBooking
-    ? `⚠️ CONFLICT DETECTED: New inquiry from ${enquiry.name} for ${new Date(enquiry.eventDate).toLocaleDateString()} at ${enquiry.venuePostcode}. Conflicting with existing booking for ${existingBooking.name}.`
-    : `📧 New Inquiry: ${enquiry.name} - ${new Date(enquiry.eventDate).toLocaleDateString()} at ${enquiry.venuePostcode}`;
+    ? `⚠️ CONFLICT DETECTED: New enquiry from ${enquiry.name} for ${new Date(enquiry.eventDate).toLocaleDateString()} at ${enquiry.venuePostcode}. Conflicting with existing booking for ${existingBooking.name}.`
+    : `📧 New Enquiry: ${enquiry.name} - ${new Date(enquiry.eventDate).toLocaleDateString()} at ${enquiry.venuePostcode}`;
 
   const payload: any = {
     message,
-    title: existingBooking ? "⚠️ Conflict Detected" : "📧 New Inquiry",
+    title: existingBooking ? "⚠️ Conflict Detected" : "📧 New Enquiry",
     url: deepLinkUrl,
     priority: existingBooking ? 1 : 0, // High priority for conflicts
   };
@@ -200,7 +200,7 @@ async function sendMobileNotification(enquiry: any, existingBooking: any) {
       title: payload.title,
       message: payload.message,
       url: payload.url,
-      url_title: "View Inquiry",
+      url_title: "View Enquiry",
       priority: payload.priority,
     };
 
@@ -229,7 +229,7 @@ async function sendMobileNotification(enquiry: any, existingBooking: any) {
               type: "button",
               text: {
                 type: "plain_text",
-                text: "View Inquiry",
+                text: "View Enquiry",
               },
               url: payload.url,
               style: existingBooking ? "danger" : "primary",

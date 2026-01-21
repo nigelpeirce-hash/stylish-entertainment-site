@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  inquiryAutoresponder,
+  enquiryAutoresponder,
   gentleReminder,
   bookingConfirmation,
   fourWeekCheckin,
@@ -92,15 +92,15 @@ export default function EmailDemoPage() {
 
   const journeyEmails = [
     {
-      id: "inquiry",
-      title: "Inquiry Auto-Responder",
+      id: "enquiry",
+      title: "Enquiry Auto-Responder",
       description: "Sent immediately after contact form submission",
-      ...inquiryAutoresponder(demoClientData),
+      ...enquiryAutoresponder(demoClientData),
     },
     {
       id: "reminder",
       title: "Gentle Reminder",
-      description: "Sent 3 days after inquiry if no booking confirmed",
+      description: "Sent 3 days after enquiry if no booking confirmed",
       ...gentleReminder(demoClientData),
     },
     {
@@ -254,7 +254,7 @@ export default function EmailDemoPage() {
             <div className="mb-4 p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
               <h2 className="text-xl font-semibold mb-2">Customer Journey Emails</h2>
               <p className="text-sm text-gray-400">
-                Automated emails sent throughout the customer lifecycle, from initial inquiry to post-event feedback.
+                Automated emails sent throughout the customer lifecycle, from initial enquiry to post-event feedback.
               </p>
             </div>
             {journeyEmails.map(renderEmailCard)}

@@ -23,8 +23,8 @@ const JOURNEY_STAGES: {
   description: string;
 }[] = [
   {
-    stage: "inquiry-autoresponder",
-    title: "Inquiry Auto-Responder",
+    stage: "enquiry-autoresponder",
+    title: "Enquiry Auto-Responder",
     description: "Immediate 'Thank you' with PDF brochure link",
   },
   {
@@ -62,7 +62,7 @@ const PLACEHOLDER_DATA: JourneyEmailData = {
 export default function EmailJourneyPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const [selectedStage, setSelectedStage] = useState<JourneyStage>("inquiry-autoresponder");
+  const [selectedStage, setSelectedStage] = useState<JourneyStage>("enquiry-autoresponder");
   const [previewHtml, setPreviewHtml] = useState<string>("");
   const [previewSubject, setPreviewSubject] = useState<string>("");
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);

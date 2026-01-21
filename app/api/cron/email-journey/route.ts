@@ -23,7 +23,7 @@ export const runtime = 'nodejs';
  * This endpoint should be called periodically (e.g., daily via Vercel Cron)
  * to automatically send journey emails based on triggers:
  * 
- * 1. 3-Day Reminder: After inquiry autoresponder sent, send gentle reminder if no booking confirmed
+ * 1. 3-Day Reminder: After enquiry autoresponder sent, send gentle reminder if no booking confirmed
  * 2. 4-Week Check-in: 4 weeks before event date
  * 3. Week-of Excitement: 7 days before event date
  * 4. Post-Wedding Magic: 3 days after event date
@@ -32,7 +32,7 @@ export const runtime = 'nodejs';
  */
 
 interface EmailJourneyStatus {
-  inquiryAutoresponder?: { sentAt: string; messageId?: string };
+  enquiryAutoresponder?: { sentAt: string; messageId?: string };
   threeDayReminder?: { sentAt: string; messageId?: string };
   bookingConfirmation?: { sentAt: string; messageId?: string };
   fourWeekCheckin?: { sentAt: string; messageId?: string };
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
   };
 
   try {
-    // 1. Find bookings that need 3-day reminder (inquiry sent 3+ days ago, no booking confirmed)
+    // 1. Find bookings that need 3-day reminder (enquiry sent 3+ days ago, no booking confirmed)
     const threeDaysAgo = new Date(now);
     threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
     // Filter in code to check JSON field paths
     const bookingsNeedingReminder = bookingsNeedingReminderRaw.filter((booking) => {
       const emailsSent = booking.emailsSent as any;
-      return emailsSent?.inquiryAutoresponder && !emailsSent?.threeDayReminder;
+      return emailsSent?.enquiryAutoresponder && !emailsSent?.threeDayReminder;
     });
 
     // 2. Find bookings needing 4-week check-in (event date is 28-29 days away)

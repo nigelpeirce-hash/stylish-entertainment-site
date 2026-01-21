@@ -168,7 +168,7 @@ export default function NewBookingPage() {
         >
           <Card className="bg-gray-800 border-champagne-gold/30">
             <CardHeader>
-              <CardTitle className="text-2xl">New Booking Inquiry</CardTitle>
+              <CardTitle className="text-2xl">New Booking Enquiry</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

@@ -93,7 +93,7 @@ export default function LeadRescuePage() {
                   Processing Your Request
                 </h1>
                 <p className="text-gray-600">
-                  Please wait while we extend your inquiry retention period...
+                  Please wait while we extend your enquiry retention period...
                 </p>
               </div>
             </div>
@@ -134,7 +134,7 @@ export default function LeadRescuePage() {
                 </div>
 
                 <p className="text-lg text-gray-700 leading-relaxed max-w-xl mx-auto">
-                  We have paused the cleanup and will keep your inquiry active for another 30 days. 
+                  We have paused the cleanup and will keep your enquiry active for another 30 days. 
                   One of our team will reach out shortly to see if there is anything specific we can help with during this time.
                 </p>
 

@@ -83,7 +83,7 @@ export async function POST(request: NextRequest) {
     const result = await sendEmailFromCRM({
       inboxId: validatedData.inboxId,
       to: validatedData.to,
-      subject: subject || "Re: Your inquiry",
+      subject: subject || "Re: Your enquiry",
       text: text || html.replace(/<[^>]*>/g, ""),
       html: html || undefined,
       replyToMessageId: validatedData.replyToMessageId,

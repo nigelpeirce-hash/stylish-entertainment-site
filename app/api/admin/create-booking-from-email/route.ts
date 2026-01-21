@@ -117,8 +117,8 @@ export async function POST(request: NextRequest) {
         priority,
         contactPreference: "Email",
         emailsSent: {
-          inquiry: true,
-          "inquiry-sent-at": new Date().toISOString(),
+          enquiry: true,
+          "enquiry-sent-at": new Date().toISOString(),
         },
         lastEmailSentAt: new Date(),
       },

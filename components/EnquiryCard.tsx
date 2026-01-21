@@ -109,7 +109,7 @@ export function EnquiryCard({
               )}
               {enquiry.source === "new_enquiry" && (
                 <div className="flex items-center gap-1 text-blue-400 text-xs mt-1">
-                  <span className="px-1.5 py-0.5 bg-blue-600/20 rounded text-[10px]">New Inquiry</span>
+                  <span className="px-1.5 py-0.5 bg-blue-600/20 rounded text-[10px]">New Enquiry</span>
                 </div>
               )}
             </div>

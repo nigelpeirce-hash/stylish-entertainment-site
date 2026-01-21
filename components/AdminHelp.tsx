@@ -67,7 +67,7 @@ Track all bookings within the next 90 days with a flight board-style interface.
 # Upload Venue Brochures
 
 ## Overview
-Upload venue-specific PDF brochures using Cloudinary. Files are automatically saved to the database and linked to inquiry emails.
+Upload venue-specific PDF brochures using Cloudinary. Files are automatically saved to the database and linked to enquiry emails.
 
 ## Process
 1. Select the **Venue** from dropdown (e.g., Babington House, Kin House)
@@ -83,7 +83,7 @@ All PDFs are stored in: \`brochures/\` folder in Cloudinary
 
 ## Database Sync
 - PDF URL is automatically saved to \`venue_assets\` table
-- Linked to inquiry emails based on client's selected venue
+- Linked to enquiry emails based on client's selected venue
 - Latest year for each venue is used automatically
 
 ## Usage
@@ -132,16 +132,16 @@ Send PDF resources directly to clients from their booking detail page.
     `,
   },
   {
-    id: "inquiry-emails",
-    title: "Automated Inquiry Emails",
+    id: "enquiry-emails",
+    title: "Automated Enquiry Emails",
     category: "Email Automation",
     icon: Mail,
-    keywords: ["inquiry", "email", "autoresponder", "brochure", "venue", "automation"],
+    keywords: ["enquiry", "email", "autoresponder", "brochure", "venue", "automation"],
     content: `
-# Automated Inquiry Emails
+# Automated Enquiry Emails
 
 ## Overview
-When clients submit an inquiry through the contact form, they automatically receive a thank-you email with venue-specific brochure.
+When clients submit an enquiry through the contact form, they automatically receive a thank-you email with venue-specific brochure.
 
 ## Workflow
 1. Client submits contact form with venue name
@@ -162,9 +162,9 @@ When clients submit an inquiry through the contact form, they automatically rece
 - Falls back to static \`staticVenueAssets["General"]\` if database unavailable
 
 ## Manual Trigger
-To manually send inquiry emails:
+To manually send enquiry emails:
 1. Go to Admin → Email Journey Manager
-2. Select "Inquiry Auto-Responder" stage
+2. Select "Enquiry Auto-Responder" stage
 3. Enter client email and booking data
 4. Click "Send Email"
     `,
@@ -224,7 +224,7 @@ Send event details to assigned DJ/Artist after reviewing final client submission
 Preview and send customer lifecycle emails across 5 key stages.
 
 ## Email Stages
-1. **Inquiry Auto-Responder**: Immediate thank-you with brochure
+1. **Enquiry Auto-Responder**: Immediate thank-you with brochure
 2. **Booking Confirmation**: Sent after deposit, includes Client Admin link
 3. **4-Week Check-in**: Final music preferences and logistics
 4. **Week-of Excitement**: "We're ready" confirmation

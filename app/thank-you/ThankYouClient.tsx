@@ -51,7 +51,7 @@ export default function ThankYouClient() {
             Thank You!
           </h1>
           <p className="text-lg md:text-xl text-gray-200 mb-8">
-            We&apos;ve received your inquiry and will get back to you as soon as possible.
+            We&apos;ve received your enquiry and will get back to you as soon as possible.
           </p>
           <p className="text-base text-gray-300 mb-8">
             We typically respond within 24-48 hours. If you have any urgent questions, please call us at{" "}

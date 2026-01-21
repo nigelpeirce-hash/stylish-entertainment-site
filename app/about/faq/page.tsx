@@ -194,7 +194,7 @@ export default function FAQ() {
                     How do we book?
                   </h3>
                   <p className="text-gray-300 leading-relaxed">
-                    If you make an inquiry we will email you with artists available for your date and a fee. To book, we will need your names, address and contact numbers. We will then email you a deposit invoice with t&cs. Once payment and t&c's have been received, we will email you a booking confirmation.
+                    If you make an enquiry we will email you with artists available for your date and a fee. To book, we will need your names, address and contact numbers. We will then email you a deposit invoice with t&cs. Once payment and t&c's have been received, we will email you a booking confirmation.
                   </p>
                 </div>
 

@@ -164,16 +164,16 @@ export function DJInquiryReply({
       <DialogTrigger asChild>
         <Button variant="outline" className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10">
           <Send className="w-4 h-4 mr-2" />
-          Send DJ Inquiry Reply
+          Send DJ Enquiry Reply
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-gray-900 text-white border-champagne-gold/30">
         <DialogHeader>
           <DialogTitle className="text-2xl font-serif text-champagne-gold">
-            DJ Inquiry Reply
+            DJ Enquiry Reply
           </DialogTitle>
           <p className="text-sm text-gray-400 mt-1">
-            {djName ? `Reply for ${djName}` : "Reply for DJ Inquiry"} - {venueName} on {formattedDate}
+            {djName ? `Reply for ${djName}` : "Reply for DJ Enquiry"} - {venueName} on {formattedDate}
           </p>
         </DialogHeader>
 
@@ -337,7 +337,7 @@ export function DJInquiryReply({
 
           {success && (
             <div className="p-3 bg-green-900/30 border border-green-500/50 rounded text-green-400 text-sm">
-              DJ Inquiry Reply sent successfully!
+              DJ Enquiry Reply sent successfully!
             </div>
           )}
 
