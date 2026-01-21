@@ -244,7 +244,7 @@ export async function POST(request: NextRequest) {
         <body>
           <div class="email-container">
             <div class="header">
-              <div class="logo">S</div>
+              <img src="https://res.cloudinary.com/drtwveoqo/image/upload/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment Logo" style="max-width: 200px; height: auto; margin-bottom: 10px;" />
               <div class="divider"></div>
             </div>
             <div class="content">
