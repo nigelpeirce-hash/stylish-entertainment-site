@@ -705,6 +705,21 @@ export default function NinetyDayCommandCentre() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [bookings, filter, shouldHighlightAlert]);
 
+  // Keyboard shortcut handler for command menu (Cmd+K or Ctrl+K)
+  // MUST be before any early returns to comply with Rules of Hooks
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setCommandMenuOpen((open) => !open);
+      }
+    };
+
+    document.addEventListener("keydown", down);
+    return () => document.removeEventListener("keydown", down);
+  }, []);
+
+  // Early returns - moved to bottom after all hooks
   // Check for dev bypass (development only)
   const isLocalhost = typeof window !== "undefined" && 
     (process.env.NODE_ENV === "development" || 
@@ -729,19 +744,6 @@ export default function NinetyDayCommandCentre() {
   if (!isAdmin && !devBypass) {
     return null;
   }
-
-  // Keyboard shortcut handler for command menu (Cmd+K or Ctrl+K)
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setCommandMenuOpen((open) => !open);
-      }
-    };
-
-    document.addEventListener("keydown", down);
-    return () => document.removeEventListener("keydown", down);
-  }, []);
 
   return (
     <>
