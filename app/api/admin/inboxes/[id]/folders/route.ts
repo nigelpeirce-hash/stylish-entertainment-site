@@ -1,6 +1,5 @@
-// Import prisma client - must be at the top
-import { prisma } from "@/lib/prisma";
-import { NextRequest, NextResponse } from "next/server";
+import { prisma } from '@/lib/prisma';
+import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import imap from "imap-simple";
 
@@ -9,26 +8,16 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 export async function GET(
-  request: NextRequest,
+  request: Request,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id: inboxId } = await params;
+  
   try {
-    // Verify prisma is available
-    if (!prisma) {
-      console.error("Prisma client is not initialized");
-      return NextResponse.json(
-        { error: "Database connection not available" },
-        { status: 500 }
-      );
-    }
-
     const admin = await requireAdmin(request);
     if (!admin) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    // Next.js 15: params is now a Promise - await it before accessing
-    const { id: inboxId } = await params;
 
     // Fetch the inbox to get IMAP credentials
     const inbox = await prisma.emailInbox.findUnique({
@@ -39,8 +28,8 @@ export async function GET(
       return NextResponse.json({ error: "Inbox not found" }, { status: 404 });
     }
 
-    // Fetch folders from database first - Prisma client uses camelCase (emailFolder)
-    let folders = await prisma.emailFolder.findMany({
+    // Fetch folders from database first
+    let folders = await prisma.EmailFolder.findMany({
       where: { inboxId },
       orderBy: { fullPath: "asc" },
     });
@@ -117,7 +106,7 @@ export async function GET(
       folderObj.unreadCount = unreadCount;
 
       // Update in database
-      await prisma.emailFolder.update({
+      await prisma.EmailFolder.update({
         where: { id: folder.id },
         data: { unreadCount, lastSyncedAt: new Date() },
       });
