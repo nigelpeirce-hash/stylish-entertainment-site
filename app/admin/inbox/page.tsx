@@ -96,6 +96,7 @@ interface EmailInbox {
   name: string;
   email: string;
   isActive: boolean;
+  lastSyncedAt?: string | null;
 }
 
 // Account color mapping
@@ -335,6 +336,37 @@ export default function AdminInbox() {
     }
   };
 
+  // Get the most recent sync time from all inboxes
+  const getLastSyncTime = (): string | null => {
+    const syncTimes = inboxes
+      .filter(inbox => inbox.lastSyncedAt)
+      .map(inbox => new Date(inbox.lastSyncedAt!).getTime())
+      .sort((a, b) => b - a);
+    
+    if (syncTimes.length === 0) return null;
+    
+    const mostRecent = new Date(syncTimes[0]);
+    const now = new Date();
+    const diffMs = now.getTime() - mostRecent.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 7) return `${diffDays}d ago`;
+    
+    return mostRecent.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   const fetchThreads = async (skip: number = 0, append: boolean = false, showOverlay: boolean = false) => {
     if (append) {
       setLoadingMore(true);
@@ -511,12 +543,14 @@ export default function AdminInbox() {
       await fetchThreads(0, false, true);
       await fetchInboxes();
       
-      // Refresh folders for all synced inboxes
+      // Refresh folders for all synced inboxes (including Ali's folders)
       for (const inbox of inboxesToSync) {
-        if (inbox) await fetchFolders(inbox.id);
+        if (inbox) {
+          await fetchFolders(inbox.id);
+        }
       }
       
-      // Use router.refresh() for Next.js cache invalidation
+      // Use router.refresh() for Next.js cache invalidation (no white flash)
       router.refresh();
     } catch (error: any) {
       console.error("Error syncing:", error);
@@ -822,31 +856,38 @@ export default function AdminInbox() {
           
           <nav className="flex-1 overflow-y-auto p-3 space-y-1">
             {/* Unified Inbox */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  setSelectedFolder("unified");
-                  setSelectedAccountId(null);
-                }}
-                className={`flex-1 text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
-                  selectedFolder === "unified" && !selectedAccountId
-                    ? "bg-[#D4AF37]/20 text-white border border-[#D4AF37]/40"
-                    : "text-gray-300 hover:bg-[#252525]"
-                }`}
-              >
-                <Inbox className="w-4 h-4 flex-shrink-0" />
-                <span>Unified Inbox</span>
-              </button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => handleSync()}
-                disabled={syncing || refreshing}
-                className="p-2 h-8 w-8 text-[#D4AF37] hover:text-white hover:bg-[#D4AF37]/20 border border-transparent hover:border-[#D4AF37]/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                title="Sync Emails"
-              >
-                <RefreshCw className={`w-4 h-4 ${syncing || refreshing ? 'animate-spin' : ''}`} />
-              </Button>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setSelectedFolder("unified");
+                    setSelectedAccountId(null);
+                  }}
+                  className={`flex-1 text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                    selectedFolder === "unified" && !selectedAccountId
+                      ? "bg-[#D4AF37]/20 text-white border border-[#D4AF37]/40"
+                      : "text-gray-300 hover:bg-[#252525]"
+                  }`}
+                >
+                  <Inbox className="w-4 h-4 flex-shrink-0" />
+                  <span>Unified Inbox</span>
+                </button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => handleSync()}
+                  disabled={syncing || refreshing}
+                  className="p-2 h-8 w-8 text-[#D4AF37] hover:text-white hover:bg-[#D4AF37]/20 border border-transparent hover:border-[#D4AF37]/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  title="Sync Emails"
+                >
+                  <RefreshCw className={`w-4 h-4 ${syncing || refreshing ? 'animate-spin' : ''}`} />
+                </Button>
+              </div>
+              {getLastSyncTime() && (
+                <div className="px-3 text-xs text-gray-500">
+                  Last synced: {getLastSyncTime()}
+                </div>
+              )}
             </div>
 
             {/* Account Grouping */}
