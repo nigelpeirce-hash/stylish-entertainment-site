@@ -14,7 +14,12 @@ After running the RLS migration, you have 4 remaining warnings:
 
 ## Solution
 
-Run `supabase-fix-remaining-warnings.sql` in Supabase SQL Editor.
+Run these 4 SQL files **in order** in Supabase SQL Editor (split into steps to avoid parsing errors):
+
+1. `supabase-fix-warnings-step1.sql` - Fix update_updated_at_column function
+2. `supabase-fix-warnings-step2.sql` - Fix FormSubmission RLS policy
+3. `supabase-fix-warnings-step3.sql` - Fix generate_booking_fingerprint function (if exists)
+4. `supabase-fix-warnings-step4.sql` - Fix log_booking_change function (if exists)
 
 ### What This Fix Does
 
