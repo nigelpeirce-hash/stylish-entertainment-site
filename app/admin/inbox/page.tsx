@@ -1377,7 +1377,7 @@ export default function AdminInbox() {
                       value={composeData.to}
                       onChange={(e) => setComposeData({ ...composeData, to: e.target.value })}
                       placeholder="recipient@example.com"
-                      className="text-sm focus:outline-none focus:ring-0 focus:border-[#D4AF37] transition-colors"
+                      className="text-sm px-4 py-2.5 focus:outline-none focus:ring-0 focus:border-amber-500 transition-colors"
                     />
                   </div>
                   
@@ -1391,7 +1391,7 @@ export default function AdminInbox() {
                       value={composeData.subject}
                       onChange={(e) => setComposeData({ ...composeData, subject: e.target.value })}
                       placeholder="Enter subject line..."
-                      className="text-sm focus:outline-none focus:ring-0 focus:border-[#D4AF37] transition-colors"
+                      className="text-sm px-4 py-2.5 focus:outline-none focus:ring-0 focus:border-amber-500 transition-colors"
                     />
                   </div>
                   
@@ -1405,7 +1405,7 @@ export default function AdminInbox() {
                       value={composeData.body}
                       onChange={(e) => setComposeData({ ...composeData, body: e.target.value })}
                       rows={16}
-                      className="text-sm font-sans min-h-[400px] resize-y focus:outline-none focus:ring-0 focus:border-[#D4AF37] transition-colors"
+                      className="text-sm font-sans min-h-[400px] resize-y px-4 py-3 focus:outline-none focus:ring-0 focus:border-amber-500 transition-colors"
                       placeholder="Type your message here..."
                     />
                   </div>

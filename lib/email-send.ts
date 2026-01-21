@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 
 interface SendEmailOptions {
@@ -90,8 +91,14 @@ export async function sendEmailFromCRM(options: SendEmailOptions) {
         where: { email: firstTo },
       });
 
+      // Validate inboxId is not undefined
+      if (!inbox.id) {
+        throw new Error("Invalid inbox: inboxId is missing");
+      }
+
       thread = await prisma.emailThread.create({
         data: {
+          id: randomUUID(), // Generate UUID for EmailThread id
           subject: options.subject,
           fromEmail: inbox.email.toLowerCase(),
           fromName: inbox.name || null,
@@ -113,6 +120,7 @@ export async function sendEmailFromCRM(options: SendEmailOptions) {
     // Store email in database
     await prisma.email.create({
       data: {
+        id: randomUUID(), // Generate UUID for Email id
         messageId: messageId,
         inReplyTo: options.replyToMessageId || null,
         threadId: thread.id,
