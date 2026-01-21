@@ -466,7 +466,7 @@ export default function AdminInbox() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50">
+    <div className="h-screen flex flex-col bg-[#1a1a1a]">
       {/* Header */}
       <div className="bg-[#1a1a1a] border-b border-gray-800 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
@@ -487,12 +487,12 @@ export default function AdminInbox() {
           {isNigel && showAdvanced && (
             <>
               <Link href="/admin/settings">
-                <Button variant="ghost" size="sm" className="text-gray-600">
+                <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
                   Sync Emails
                 </Button>
               </Link>
               <Link href="/admin/email-audit">
-                <Button variant="ghost" size="sm" className="text-gray-600">
+                <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
                   Email Audit
                 </Button>
               </Link>
@@ -506,7 +506,7 @@ export default function AdminInbox() {
                 setComposing(false);
                 setComposeData({ to: "", subject: "", body: "", inboxId: "" });
               }}
-              className="text-gray-600"
+              className="text-gray-400 hover:text-white"
             >
               <X className="w-4 h-4 mr-2" />
               Cancel
@@ -524,7 +524,7 @@ export default function AdminInbox() {
                   setComposeData({ ...composeData, inboxId: inboxes[0].id });
                 }
               }}
-              className="text-gray-600"
+              className="text-gray-400 hover:text-white"
             >
               <Mail className="w-4 h-4 mr-2" />
               New Message
