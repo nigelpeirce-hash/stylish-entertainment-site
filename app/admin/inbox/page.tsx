@@ -566,8 +566,8 @@ export default function AdminInbox() {
             </button>
 
             {/* Account Grouping */}
-            <div className="border-t border-gray-200 pt-3 mt-3">
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 px-3">
+            <div className="border-t border-gray-800 pt-3 mt-3">
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3 px-3">
                 Accounts
               </div>
               <div className="space-y-1">
@@ -658,8 +658,8 @@ export default function AdminInbox() {
             </div>
 
             {/* Category Folders */}
-            <div className="border-t border-gray-200 pt-3 mt-3">
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 px-3">
+            <div className="border-t border-gray-800 pt-3 mt-3">
+              <div className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3 px-3">
                 Categories
               </div>
               <div className="space-y-1">
