@@ -69,14 +69,11 @@ export async function GET(request: NextRequest) {
     const threads = await prisma.emailThread.findMany({
       where,
       include: {
-        inbox: {
+        EmailInbox: {
           select: { id: true, name: true, email: true },
         },
         booking: {
           select: { id: true, name: true, eventType: true, eventDate: true, status: true },
-        },
-        _count: {
-          select: { emails: true },
         },
         user: {
           select: { id: true, name: true, email: true },
