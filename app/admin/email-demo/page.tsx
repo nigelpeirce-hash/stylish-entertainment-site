@@ -209,10 +209,14 @@ export default function EmailDemoPage() {
         </div>
       </CardHeader>
       <CardContent>
-        <div
-          className="border border-gray-700 rounded-lg p-4 bg-white max-h-96 overflow-auto"
-          dangerouslySetInnerHTML={{ __html: email.html }}
-        />
+        <div className="border border-gray-700 rounded-lg overflow-hidden bg-gray-800">
+          <iframe
+            srcDoc={email.html}
+            className="w-full h-96 border-0"
+            title={`Preview of ${email.title}`}
+            sandbox="allow-same-origin"
+          />
+        </div>
       </CardContent>
     </Card>
   );
