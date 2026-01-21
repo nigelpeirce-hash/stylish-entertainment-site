@@ -18,8 +18,7 @@ export async function GET(
     }
 
     // Next.js 15: params is now a Promise - await it before accessing
-    const resolvedParams = await params;
-    const inboxId = resolvedParams.id;
+    const { id: inboxId } = await params;
 
     // Fetch the inbox to get IMAP credentials
     const inbox = await prisma.emailInbox.findUnique({
@@ -92,6 +91,8 @@ export async function GET(
     }
 
     // Calculate unread counts from threads
+    // Note: IMAP \Flagged/\Starred flags are mapped to isStarred field by email-sync.ts
+    // The threads API includes isStarred in the response, so gold stars appear automatically
     for (const folder of folders) {
       const unreadCount = await prisma.emailThread.count({
         where: {
