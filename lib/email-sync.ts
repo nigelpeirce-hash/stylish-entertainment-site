@@ -214,44 +214,28 @@ async function discoverAndStoreFolders(inbox: any, boxes: any, connection: any) 
     // Recursively collect all folders with their paths
     // getBoxes() returns an object where each key is a folder name and value is a box object
     function collectFolders(box: any, prefix = "", parentPath: string | null = null) {
-      // Handle root level: boxes is an object with folder names as keys
-      if (box && typeof box === 'object') {
-        // If it has 'children', it's a nested box structure
-        if (box.children) {
-          for (const [name, child] of Object.entries(box.children)) {
-            const fullPath = prefix ? `${prefix}${delimiter}${name}` : name;
-            const childBox = child as any;
-            
-            allFolders.push({
-              name,
-              fullPath,
-              parentPath,
-              attributes: childBox.attributes || {},
-            });
-            
-            collectFolders(childBox, fullPath, fullPath);
-          }
-        } else {
-          // Root level: iterate over top-level folders
-          for (const [name, childBox] of Object.entries(box)) {
-            // Skip special properties
-            if (name === 'children' || name === 'attributes' || name === 'delimiter') continue;
-            
-            const fullPath = prefix ? `${prefix}${delimiter}${name}` : name;
-            const boxData = childBox as any;
-            
-            allFolders.push({
-              name,
-              fullPath,
-              parentPath,
-              attributes: boxData.attributes || {},
-            });
-            
-            // Recursively process children
-            if (boxData.children) {
-              collectFolders(boxData, fullPath, fullPath);
-            }
-          }
+      if (!box || typeof box !== 'object') return;
+      
+      // getBoxes() returns an object where keys are folder names
+      // Each value is a box object with: { attributes, children, delimiter }
+      for (const [name, childBox] of Object.entries(box)) {
+        // Skip special properties that might exist on the root object
+        if (name === 'delimiter' || name === 'attributes') continue;
+        
+        const boxData = childBox as any;
+        const fullPath = prefix ? `${prefix}${delimiter}${name}` : name;
+        
+        // Add this folder to the list
+        allFolders.push({
+          name,
+          fullPath,
+          parentPath,
+          attributes: boxData.attributes || {},
+        });
+        
+        // Recursively process children if they exist
+        if (boxData.children && typeof boxData.children === 'object') {
+          collectFolders(boxData.children, fullPath, fullPath);
         }
       }
     }
