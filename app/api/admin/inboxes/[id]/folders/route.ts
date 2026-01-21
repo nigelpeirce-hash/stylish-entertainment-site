@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/auth";
-import { PrismaClient } from "@prisma/client";
-
-// This ensures a fresh connection if the global one is failing
-const prisma = new PrismaClient();
+import { prisma } from '@/lib/prisma';
 
 export async function GET(
   request: Request,
