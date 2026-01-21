@@ -333,7 +333,7 @@ model EmailThread {
   inboxId       String
   folderId      String?
   createdAt     DateTime     @default(now())
-  updatedAt     DateTime
+  updatedAt     DateTime     @updatedAt
   Email         Email[]
   Booking       Booking?     @relation(fields: [bookingId], references: [id])
   EmailInbox    EmailInbox   @relation(fields: [inboxId], references: [id])
