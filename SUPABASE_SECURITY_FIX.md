@@ -25,12 +25,25 @@ We've created a SQL migration script (`supabase-enable-rls-security.sql`) that:
 
 ## How to Apply the Fix
 
-### Option 1: Via Supabase Dashboard (Recommended)
-1. Go to your Supabase project dashboard
-2. Navigate to **SQL Editor**
-3. Create a new query
-4. Copy and paste the contents of `supabase-enable-rls-security.sql`
-5. Click **Run** to execute
+### Option 1: Via Supabase Dashboard (Recommended - Run in 3 Steps)
+
+**IMPORTANT:** Supabase SQL Editor may have issues with large files. Run these in order:
+
+**Step 1:** Enable RLS on all tables
+1. Go to Supabase Dashboard → **SQL Editor**
+2. Create a new query
+3. Copy and paste the contents of `supabase-enable-rls-security-step1.sql`
+4. Click **Run**
+
+**Step 2:** Create public read policies
+1. Create a new query in SQL Editor
+2. Copy and paste the contents of `supabase-enable-rls-security-step2.sql`
+3. Click **Run**
+
+**Step 3:** Create deny policies for sensitive tables
+1. Create a new query in SQL Editor
+2. Copy and paste the contents of `supabase-enable-rls-security-step3.sql`
+3. Click **Run**
 
 ### Option 2: Via Supabase CLI
 ```bash
