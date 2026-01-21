@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
     const templates = await prisma.emailTemplate.findMany({
       where,
       include: {
-        createdBy: {
+        User: {
           select: { id: true, name: true, email: true },
         },
       },
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
         createdById: admin.id,
       },
       include: {
-        createdBy: {
+        User: {
           select: { id: true, name: true, email: true },
         },
       },
