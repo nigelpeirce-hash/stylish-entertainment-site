@@ -431,12 +431,12 @@ export default function AdminInbox() {
 
   const getStatusBadge = (status: "to-action" | "waiting-client" | "confirmed") => {
     const styles = {
-      "to-action": "bg-orange-100 text-orange-700 border-orange-300",
-      "waiting-client": "bg-blue-100 text-blue-700 border-blue-300",
-      "confirmed": "bg-green-100 text-green-700 border-green-300",
+      "to-action": "bg-orange-500/10 text-orange-700 border-orange-500/30",
+      "waiting-client": "bg-blue-500/10 text-blue-700 border-blue-500/30",
+      "confirmed": "bg-green-500/10 text-green-700 border-green-500/30",
     };
     return (
-      <span className={`px-2 py-0.5 text-xs font-medium rounded border ${styles[status]}`}>
+      <span className={`px-2 py-0.5 text-xs font-medium rounded-full border ${styles[status]}`}>
         {status === "to-action" ? "To Action" : status === "waiting-client" ? "Waiting for Client" : "Confirmed"}
       </span>
     );
@@ -548,157 +548,161 @@ export default function AdminInbox() {
             </div>
           </div>
           
-          <nav className="flex-1 overflow-y-auto p-2">
+          <nav className="flex-1 overflow-y-auto p-3 space-y-1">
             {/* Unified Inbox */}
             <button
               onClick={() => {
                 setSelectedFolder("unified");
                 setSelectedAccountId(null);
               }}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors mb-2 ${
+              className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
                 selectedFolder === "unified" && !selectedAccountId
                   ? "bg-blue-50 text-blue-700"
                   : "text-gray-700 hover:bg-gray-50"
               }`}
             >
-              <Inbox className="w-4 h-4 inline mr-2" />
-              Unified Inbox
+              <Inbox className="w-4 h-4 flex-shrink-0" />
+              <span>Unified Inbox</span>
             </button>
 
             {/* Account Grouping */}
-            <div className="border-t border-gray-200 pt-2 mt-2">
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-3">
+            <div className="border-t border-gray-200 pt-3 mt-3">
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 px-3">
                 Accounts
               </div>
-              {inboxes.map((inbox) => {
-                const isExpanded = expandedAccounts.has(inbox.id);
-                const isSelected = selectedAccountId === inbox.id;
-                const accountColor = getAccountColor(inbox.name, inbox.email);
-                
-                return (
-                  <div key={inbox.id} className="mb-1">
-                    <button
-                      onClick={() => {
-                        if (isExpanded) {
-                          setExpandedAccounts((prev) => {
-                            const next = new Set(prev);
-                            next.delete(inbox.id);
-                            return next;
-                          });
-                        } else {
-                          setExpandedAccounts((prev) => new Set(prev).add(inbox.id));
-                        }
-                        setSelectedAccountId(inbox.id);
-                        setSelectedFolder("all");
-                      }}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-between ${
-                        isSelected
-                          ? "bg-blue-50 text-blue-700"
-                          : "text-gray-700 hover:bg-gray-50"
-                      }`}
-                    >
-                      <div className="flex items-center gap-2 flex-1 min-w-0">
-                        <div
-                          className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                            accountColor.bg.replace("bg-", "bg-").includes("amber")
-                              ? "bg-amber-400"
-                              : accountColor.bg.replace("bg-", "bg-").includes("gray")
-                              ? "bg-gray-400"
-                              : "bg-orange-400"
-                          }`}
-                          title={accountColor.name}
-                        />
-                        <span className="truncate">{inbox.name}</span>
-                      </div>
-                      {isExpanded ? (
-                        <ChevronDown className="w-4 h-4 flex-shrink-0" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4 flex-shrink-0" />
+              <div className="space-y-1">
+                {inboxes.map((inbox) => {
+                  const isExpanded = expandedAccounts.has(inbox.id);
+                  const isSelected = selectedAccountId === inbox.id;
+                  const accountColor = getAccountColor(inbox.name, inbox.email);
+                  
+                  return (
+                    <div key={inbox.id}>
+                      <button
+                        onClick={() => {
+                          if (isExpanded) {
+                            setExpandedAccounts((prev) => {
+                              const next = new Set(prev);
+                              next.delete(inbox.id);
+                              return next;
+                            });
+                          } else {
+                            setExpandedAccounts((prev) => new Set(prev).add(inbox.id));
+                          }
+                          setSelectedAccountId(inbox.id);
+                          setSelectedFolder("all");
+                        }}
+                        className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-between ${
+                          isSelected
+                            ? "bg-blue-50 text-blue-700"
+                            : "text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <div
+                            className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                              accountColor.bg.replace("bg-", "bg-").includes("amber")
+                                ? "bg-amber-400"
+                                : accountColor.bg.replace("bg-", "bg-").includes("gray")
+                                ? "bg-gray-400"
+                                : "bg-orange-400"
+                            }`}
+                            title={accountColor.name}
+                          />
+                          <span className="truncate">{inbox.name}</span>
+                        </div>
+                        {isExpanded ? (
+                          <ChevronDown className="w-4 h-4 flex-shrink-0" />
+                        ) : (
+                          <ChevronRight className="w-4 h-4 flex-shrink-0" />
+                        )}
+                      </button>
+                      {isExpanded && (
+                        <div className="ml-4 mt-1 space-y-0.5">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedAccountId(inbox.id);
+                              setSelectedFolder("all");
+                            }}
+                            className={`w-full text-left px-3 py-1.5 rounded text-xs transition-colors flex items-center gap-2 ${
+                              isSelected && selectedFolder === "all"
+                                ? "bg-blue-50 text-blue-700"
+                                : "text-gray-600 hover:bg-gray-50"
+                            }`}
+                          >
+                            <Folder className="w-3 h-3 flex-shrink-0" />
+                            <span>Inbox</span>
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedAccountId(inbox.id);
+                              setSelectedFolder("sent");
+                            }}
+                            className={`w-full text-left px-3 py-1.5 rounded text-xs transition-colors flex items-center gap-2 ${
+                              isSelected && selectedFolder === "sent"
+                                ? "bg-blue-50 text-blue-700"
+                                : "text-gray-600 hover:bg-gray-50"
+                            }`}
+                          >
+                            <Folder className="w-3 h-3 flex-shrink-0" />
+                            <span>Sent</span>
+                          </button>
+                        </div>
                       )}
-                    </button>
-                    {isExpanded && (
-                      <div className="ml-4 mt-1 space-y-1">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedAccountId(inbox.id);
-                            setSelectedFolder("all");
-                          }}
-                          className={`w-full text-left px-3 py-1.5 rounded text-xs transition-colors ${
-                            isSelected && selectedFolder === "all"
-                              ? "bg-blue-50 text-blue-700"
-                              : "text-gray-600 hover:bg-gray-50"
-                          }`}
-                        >
-                          <Folder className="w-3 h-3 inline mr-2" />
-                          Inbox
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedAccountId(inbox.id);
-                            setSelectedFolder("sent");
-                          }}
-                          className={`w-full text-left px-3 py-1.5 rounded text-xs transition-colors ${
-                            isSelected && selectedFolder === "sent"
-                              ? "bg-blue-50 text-blue-700"
-                              : "text-gray-600 hover:bg-gray-50"
-                          }`}
-                        >
-                          <Folder className="w-3 h-3 inline mr-2" />
-                          Sent
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
 
             {/* Category Folders */}
-            <div className="border-t border-gray-200 pt-2 mt-2">
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2 px-3">
+            <div className="border-t border-gray-200 pt-3 mt-3">
+              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3 px-3">
                 Categories
               </div>
-              <button
-                onClick={() => {
-                  setSelectedFolder("new-enquiries");
-                  setSelectedAccountId(null);
-                }}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedFolder === "new-enquiries" && !selectedAccountId
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                New Enquiries
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedFolder("ongoing-bookings");
-                  setSelectedAccountId(null);
-                }}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedFolder === "ongoing-bookings" && !selectedAccountId
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                Ongoing Bookings
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedFolder("staff-comms");
-                  setSelectedAccountId(null);
-                }}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  selectedFolder === "staff-comms" && !selectedAccountId
-                    ? "bg-blue-50 text-blue-700"
-                    : "text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                Staff Comms
-              </button>
+              <div className="space-y-1">
+                <button
+                  onClick={() => {
+                    setSelectedFolder("new-enquiries");
+                    setSelectedAccountId(null);
+                  }}
+                  className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    selectedFolder === "new-enquiries" && !selectedAccountId
+                      ? "bg-blue-50 text-blue-700"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  New Enquiries
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedFolder("ongoing-bookings");
+                    setSelectedAccountId(null);
+                  }}
+                  className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    selectedFolder === "ongoing-bookings" && !selectedAccountId
+                      ? "bg-blue-50 text-blue-700"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  Ongoing Bookings
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedFolder("staff-comms");
+                    setSelectedAccountId(null);
+                  }}
+                  className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    selectedFolder === "staff-comms" && !selectedAccountId
+                      ? "bg-blue-50 text-blue-700"
+                      : "text-gray-700 hover:bg-gray-50"
+                  }`}
+                >
+                  Staff Comms
+                </button>
+              </div>
             </div>
           </nav>
 
@@ -731,14 +735,14 @@ export default function AdminInbox() {
         </div>
 
         {/* Middle Column - Email List */}
-        <div className="w-80 bg-white border-r border-gray-200 flex flex-col">
-          <div className="p-3 border-b border-gray-200">
-            <div className="text-sm font-medium text-gray-900">
+        <div className="w-80 bg-gray-50 border-r border-gray-200 flex flex-col">
+          <div className="p-4 border-b border-gray-200 bg-white">
+            <div className="text-sm font-semibold text-gray-900">
               {filteredThreads.length} {filteredThreads.length === 1 ? "message" : "messages"}
             </div>
           </div>
           
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto bg-white">
             {filteredThreads.length === 0 ? (
               <div className="p-8 text-center text-gray-500 text-sm">
                 <Mail className="w-8 h-8 mx-auto mb-2 text-gray-300" />
@@ -762,6 +766,7 @@ export default function AdminInbox() {
                 const subject = thread.subject || 'No Subject';
                 const fromName = thread.fromName || 'Anonymous';
                 const fromEmail = thread.fromEmail || '';
+                const isSelected = selectedThread?.id === thread.id;
                 
                 return (
                   <button
@@ -774,58 +779,67 @@ export default function AdminInbox() {
                         setReplyInboxId(inboxId);
                       }
                     }}
-                    className={`w-full text-left p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors relative ${
-                      selectedThread?.id === thread.id ? "bg-blue-50 border-l-4 border-l-blue-500" : ""
-                    } ${!thread.isRead ? "bg-blue-50/50" : ""} ${
-                      isVenueEmail(thread) ? "border-l-2 border-l-champagne-gold bg-gradient-to-r from-champagne-gold/5 to-transparent" : ""
+                    className={`w-full text-left p-4 border-b border-gray-100 transition-all relative group ${
+                      isSelected 
+                        ? "bg-gradient-to-r from-champagne-gold/5 to-white border-l-4 border-l-champagne-gold" 
+                        : "bg-white hover:bg-gray-50"
+                    } ${!thread.isRead ? "bg-blue-50/30" : ""} ${
+                      isVenueEmail(thread) ? "border-l-2 border-l-champagne-gold/50" : ""
                     }`}
                   >
-                    {/* Color indicator tab */}
-                    <div
-                      className={`absolute left-0 top-0 bottom-0 w-1 ${
-                        getAccountColor(inboxName, inboxEmail).bg.replace("bg-", "bg-").includes("amber")
-                          ? "bg-amber-400"
-                          : getAccountColor(inboxName, inboxEmail).bg.replace("bg-", "bg-").includes("gray")
-                          ? "bg-gray-400"
-                          : "bg-orange-400"
-                      }`}
-                      title={`${getAccountColor(inboxName, inboxEmail).name} - ${inboxName}`}
-                    />
-                    <div className="flex items-start justify-between mb-1 pl-1">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    {/* Color indicator tab - only show if not selected */}
+                    {!isSelected && (
+                      <div
+                        className={`absolute left-0 top-0 bottom-0 w-0.5 ${
+                          getAccountColor(inboxName, inboxEmail).bg.replace("bg-", "bg-").includes("amber")
+                            ? "bg-amber-400"
+                            : getAccountColor(inboxName, inboxEmail).bg.replace("bg-", "bg-").includes("gray")
+                            ? "bg-gray-400"
+                            : "bg-orange-400"
+                        }`}
+                        title={`${getAccountColor(inboxName, inboxEmail).name} - ${inboxName}`}
+                      />
+                    )}
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0 space-y-2">
+                        {/* Sender Name - Bold and Primary Color */}
+                        <div className="flex items-center gap-2 flex-wrap">
                           {isVenueEmail(thread) && (
-                            <span className="text-lg" title="Venue Email">🏛️</span>
+                            <span className="text-base" title="Venue Email">🏛️</span>
                           )}
-                          <span className={`text-sm font-semibold truncate ${
-                            !thread.isRead ? "text-gray-900" : "text-gray-700"
+                          <span className={`text-sm font-bold truncate ${
+                            !thread.isRead ? "text-gray-900" : "text-gray-800"
                           }`}>
                             {fromName || fromEmail || 'Anonymous'}
                           </span>
                           {thread.source === "portal" && (
-                            <span className="px-2 py-0.5 text-xs font-medium rounded border bg-purple-100 text-purple-700 border-purple-300">
+                            <span className="px-2 py-0.5 text-xs font-medium rounded-full border bg-purple-500/10 text-purple-700 border-purple-500/30">
                               Portal
                             </span>
                           )}
                           {isVenueEmail(thread) && (
-                            <span className="px-2 py-0.5 text-xs font-medium rounded border bg-champagne-gold/20 text-champagne-gold border-champagne-gold/40">
+                            <span className="px-2 py-0.5 text-xs font-medium rounded-full border bg-champagne-gold/20 text-champagne-gold border-champagne-gold/40">
                               Venue
                             </span>
                           )}
                           {getStatusBadge(emailStatus)}
                         </div>
-                        <p className={`text-sm truncate mb-1 ${
-                          !thread.isRead ? "text-gray-900 font-medium" : "text-gray-600"
+                        
+                        {/* Subject Line - Larger and High Contrast */}
+                        <p className={`text-base font-semibold truncate ${
+                          !thread.isRead ? "text-gray-900" : "text-gray-800"
                         }`}>
                           {subject}
                         </p>
-                        {preview && (
-                          <p className="text-xs text-gray-500 line-clamp-2">
+                        
+                        {/* Message Snippet - Muted Grey */}
+                        {preview && preview !== "Click to view message..." && (
+                          <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
                             {preview}
                           </p>
                         )}
                       </div>
-                      <span className="text-xs text-gray-400 ml-2 flex-shrink-0">
+                      <span className="text-xs text-gray-400 flex-shrink-0 mt-1">
                         {thread.lastMessageAt ? new Date(thread.lastMessageAt).toLocaleDateString("en-GB", {
                           month: "short",
                           day: "numeric",
@@ -1184,10 +1198,13 @@ export default function AdminInbox() {
               </div>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-gray-400">
-              <div className="text-center">
-                <Mail className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                <p>Select a message to view</p>
+            <div className="flex-1 flex items-center justify-center bg-gray-50">
+              <div className="text-center max-w-sm">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-100 flex items-center justify-center">
+                  <Mail className="w-8 h-8 text-gray-400" />
+                </div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No message selected</h3>
+                <p className="text-sm text-gray-500">Select a message from the list to view its contents</p>
               </div>
             </div>
           )}
