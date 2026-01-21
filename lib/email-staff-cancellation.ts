@@ -37,15 +37,6 @@ const LUXE_STYLES = `
       text-align: center;
     }
     
-    .logo {
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      font-size: 32px;
-      font-weight: 700;
-      color: #1A1A1A;
-      letter-spacing: 2px;
-      margin-bottom: 10px;
-    }
-    
     .divider {
       height: 1px;
       background-color: #D4AF37;

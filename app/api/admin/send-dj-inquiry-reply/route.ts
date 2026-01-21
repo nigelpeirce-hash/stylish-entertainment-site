@@ -41,15 +41,6 @@ const LUXE_STYLES = `
       text-align: center;
     }
     
-    .logo {
-      font-family: 'Playfair Display', serif;
-      font-size: 32px;
-      font-weight: 700;
-      color: #1a1a1a;
-      letter-spacing: 2px;
-      margin-bottom: 10px;
-    }
-    
     .divider {
       height: 1px;
       background-color: #D4AF37;
