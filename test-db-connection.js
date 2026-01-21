@@ -14,7 +14,8 @@ console.log('🔍 Testing database connection...');
 console.log('Connection string (masked):', connectionString.replace(/:[^:@]+@/, ':****@'));
 
 // Parse connection string and add SSL config
-const url = new URL(connectionString.replace('postgresql://', 'https://'));
+// Use a temporary protocol for URL parsing (not a hardcoded connection string)
+const url = new URL(connectionString.replace(/^postgresql:\/\//, 'https://'));
 const pool = new Pool({
   connectionString,
   ssl: {
