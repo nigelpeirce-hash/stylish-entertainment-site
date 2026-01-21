@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { isSuperAdmin } from "@/lib/admin-permissions";
 import Link from "next/link";
+import { Toast } from "@/components/ui/toast";
 
 interface EmailThread {
   id: string;
@@ -176,6 +177,7 @@ export default function AdminInbox() {
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(false);
   const [pagination, setPagination] = useState({ skip: 0, take: 50, total: 0 });
+  const [toast, setToast] = useState<{ id: string; message: string; type: "success" | "error" | "info" } | null>(null);
   const [replying, setReplying] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [replySubject, setReplySubject] = useState("");
@@ -239,7 +241,8 @@ export default function AdminInbox() {
       setLoading(true);
     }
     try {
-      const response = await fetch(`/api/admin/threads?skip=${skip}&take=50`);
+      // Explicitly filter out archived threads
+      const response = await fetch(`/api/admin/threads?skip=${skip}&take=50&isArchived=false`);
       if (response.ok) {
         const data = await response.json();
         const newThreads = (data.threads || []).map((thread: EmailThread) => ({
@@ -391,13 +394,38 @@ export default function AdminInbox() {
       });
 
       if (response.ok) {
-        await fetchThreads();
+        // Immediate UI update: filter out the archived thread
+        setThreads((prev) => prev.filter((t) => t.id !== threadId));
+        
+        // Clear selection if this thread was selected
         if (selectedThread?.id === threadId) {
           setSelectedThread(null);
         }
+        
+        // Show success toast
+        setToast({
+          id: Date.now().toString(),
+          message: "Message Archived",
+          type: "success",
+        });
+        
+        // Refresh threads list to update counts (optional, but ensures consistency)
+        await fetchThreads(0, false);
+      } else {
+        // Show error toast if archive failed
+        setToast({
+          id: Date.now().toString(),
+          message: "Failed to archive message",
+          type: "error",
+        });
       }
     } catch (error) {
       console.error("Error archiving thread:", error);
+      setToast({
+        id: Date.now().toString(),
+        message: "Error archiving message",
+        type: "error",
+      });
     }
   };
 
