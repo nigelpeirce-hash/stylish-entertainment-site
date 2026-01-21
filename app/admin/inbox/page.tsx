@@ -178,10 +178,17 @@ export default function AdminInbox() {
   useEffect(() => {
     if (status === "authenticated" && (session?.user as any)?.role === "admin") {
       fetchInboxes();
-      fetchThreads();
+      fetchThreads(0, false); // Reset to first page
       fetchTemplates();
     }
   }, [status, session]);
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    if (status === "authenticated" && (session?.user as any)?.role === "admin") {
+      fetchThreads(0, false); // Reset to first page when filters change
+    }
+  }, [selectedFolder, selectedAccountId, searchQuery]);
 
   const fetchInboxes = async () => {
     try {
