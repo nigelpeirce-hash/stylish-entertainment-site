@@ -652,7 +652,7 @@ export default function AdminSettings() {
                             }`}
                             disabled={testingInboxId === inbox?.id || !inbox?.imapHost || !inbox?.imapUsername}
                           >
-                            <RefreshCw className={`w-4 h-4 mr-2 ${testingInboxId === inbox.id ? "animate-spin" : ""}`} />
+                            <RefreshCw className={`w-4 h-4 mr-2 ${testingInboxId === inbox?.id ? "animate-spin" : ""}`} />
                             {testingInboxId === inbox?.id
                               ? "Testing..."
                               : status?.status === "success" 
@@ -694,6 +694,13 @@ export default function AdminSettings() {
                         {status.status === "success" && "✅ "}
                         {status.status === "error" && "❌ "}
                         {status.message}
+                      </div>
+                    )}
+                    
+                    {/* API Error Message */}
+                    {apiErrors[inbox?.id || ""] && (
+                      <div className="mt-3 p-2 rounded text-xs border bg-red-900/20 text-red-400 border-red-500/30">
+                        ⚠️ {apiErrors[inbox.id]}
                       </div>
                     )}
                   </CardContent>
