@@ -15,15 +15,13 @@ export interface StaffConfirmationData {
 
 const LUXE_STYLES = `
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
-    
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 16px;
       line-height: 1.6;
-      color: #1a1a1a;
+      color: #1A1A1A;
       background-color: #ffffff;
     }
     
@@ -31,6 +29,7 @@ const LUXE_STYLES = `
       max-width: 600px;
       margin: 0 auto;
       background-color: #ffffff;
+      border-top: 2px solid #000000;
     }
     
     .header {
@@ -39,10 +38,10 @@ const LUXE_STYLES = `
     }
     
     .logo {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 32px;
       font-weight: 700;
-      color: #1a1a1a;
+      color: #1A1A1A;
       letter-spacing: 2px;
       margin-bottom: 10px;
     }
@@ -59,21 +58,31 @@ const LUXE_STYLES = `
     
     p {
       margin: 0 0 16px;
-      color: #333333;
+      color: #1A1A1A;
     }
     
     .highlight {
       font-weight: 500;
-      color: #1a1a1a;
+      color: #1A1A1A;
+    }
+    
+    a {
+      color: #D4AF37;
+      text-decoration: underline;
     }
     
     .footer {
       padding: 20px 30px;
       text-align: center;
-      font-size: 12px;
-      color: #666666;
+      font-size: 14px;
+      color: #1A1A1A;
       border-top: 1px solid #E5E5E5;
       margin-top: 30px;
+    }
+    
+    .footer a {
+      color: #D4AF37;
+      text-decoration: underline;
     }
   </style>
 `;
@@ -113,14 +122,19 @@ ${LUXE_STYLES}
       
       <p>Please reply to this email to acknowledge.</p>
       
-      <p>Best regards,<br>${data.senderName}<br>STYLISH Entertainment</p>
+      <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e5e5; font-size: 14px; color: #555555;">
+        Best regards,<br><strong>${data.senderName}</strong><br>STYLISH Entertainment
+      </p>
     </div>
     
     <div class="divider"></div>
     
     <div class="footer">
-      <p>STYLISH Entertainment & Production</p>
-      <p>info@stylishentertainment.co.uk</p>
+      <p style="margin-bottom: 8px;">STYLISH Entertainment & Production</p>
+      <p style="margin-bottom: 8px;">info@stylishentertainment.co.uk</p>
+      <p style="margin-top: 15px;">
+        <a href="https://stylishentertainment.co.uk">stylishentertainment.co.uk</a>
+      </p>
     </div>
   </div>
 </body>

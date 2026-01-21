@@ -23,15 +23,13 @@ export interface JourneyEmailData {
 
 const LUXE_STYLES = `
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
-    
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 16px;
       line-height: 1.6;
-      color: #1a1a1a;
+      color: #1A1A1A;
       background-color: #ffffff;
     }
     
@@ -39,6 +37,7 @@ const LUXE_STYLES = `
       max-width: 600px;
       margin: 0 auto;
       background-color: #ffffff;
+      border-top: 2px solid #000000;
     }
     
     .header {
@@ -47,10 +46,10 @@ const LUXE_STYLES = `
     }
     
     .logo {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 32px;
       font-weight: 700;
-      color: #1a1a1a;
+      color: #1A1A1A;
       letter-spacing: 2px;
       margin-bottom: 10px;
     }
@@ -66,35 +65,37 @@ const LUXE_STYLES = `
     }
     
     h1 {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 28px;
       font-weight: 600;
-      color: #1a1a1a;
+      color: #1A1A1A;
       margin: 0 0 20px;
       line-height: 1.3;
     }
     
     h2 {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 22px;
       font-weight: 600;
-      color: #1a1a1a;
+      color: #1A1A1A;
       margin: 25px 0 15px;
     }
     
     p {
       margin: 0 0 16px;
-      color: #333333;
+      color: #1A1A1A;
     }
     
     .button {
       display: inline-block;
-      padding: 14px 32px;
-      background-color: #1a1a1a;
-      color: #ffffff !important;
+      padding: 12px 24px;
+      background-color: #000000;
+      color: #FFFFFF !important;
       text-decoration: none;
       border-radius: 2px;
-      font-weight: 500;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
       margin: 20px 0;
       transition: background-color 0.3s;
     }
@@ -105,27 +106,25 @@ const LUXE_STYLES = `
     
     .button-luxe {
       display: inline-block;
-      padding: 14px 32px;
-      background-color: #ffffff;
-      color: #D4AF37 !important;
+      padding: 12px 24px;
+      background-color: #000000;
+      color: #FFFFFF !important;
       text-decoration: none;
       border-radius: 2px;
-      border: 2px solid #D4AF37;
-      font-family: 'Playfair Display', serif;
-      font-weight: 600;
-      font-size: 16px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
       margin: 20px 0;
-      transition: all 0.3s;
+      transition: background-color 0.3s;
     }
     
     .button-luxe:hover {
-      background-color: #D4AF37;
-      color: #1a1a1a !important;
+      background-color: #333333;
     }
     
     .link {
       color: #D4AF37;
-      text-decoration: none;
+      text-decoration: underline;
     }
     
     .link:hover {
@@ -136,15 +135,26 @@ const LUXE_STYLES = `
       padding: 30px;
       text-align: center;
       font-size: 14px;
-      color: #666666;
+      color: #1A1A1A;
       border-top: 1px solid #e5e5e5;
       margin-top: 30px;
+    }
+    
+    .footer a {
+      color: #D4AF37;
+      text-decoration: underline;
     }
     
     .signature {
       margin-top: 30px;
       padding-top: 20px;
       border-top: 1px solid #e5e5e5;
+      font-size: 14px;
+      color: #555555;
+    }
+    
+    .signature strong {
+      color: #555555;
     }
     
     .highlight {
@@ -186,10 +196,10 @@ function buildEmailTemplate(
             ${processedHtml}
           </div>
           <div class="footer">
-            <p>Stylish Entertainment</p>
-            <p>West Country | London | Nationwide</p>
+            <p style="margin-bottom: 8px;">Stylish Entertainment</p>
+            <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
             <p style="margin-top: 15px;">
-              <a href="https://stylishentertainment.co.uk" class="link" style="color: #D4AF37;">Visit our website</a>
+              <a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a>
             </p>
           </div>
         </div>

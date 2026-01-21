@@ -21,34 +21,34 @@ export function generateMondayBriefEmail(brief: MondayBrief, baseUrl?: string): 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Monday Morning Brief - STYLISH Entertainment</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
-    
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       background-color: #f5f5f5;
-      color: #1a1a1a;
+      color: #1A1A1A;
       line-height: 1.6;
     }
     
     .email-container {
-      max-width: 700px;
+      max-width: 600px;
       margin: 0 auto;
       background-color: #ffffff;
+      border-top: 2px solid #000000;
     }
     
     .header {
-      background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+      background-color: #ffffff;
       padding: 40px 30px;
       text-align: center;
+      border-bottom: 1px solid #e5e5e5;
     }
     
     .header h1 {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 32px;
       font-weight: 600;
-      color: #d4af37;
+      color: #1A1A1A;
       margin: 0;
       letter-spacing: 0.5px;
     }
@@ -60,9 +60,9 @@ export function generateMondayBriefEmail(brief: MondayBrief, baseUrl?: string): 
     }
     
     .greeting p {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 18px;
-      color: #1a1a1a;
+      color: #1A1A1A;
       margin: 0;
       line-height: 1.8;
     }
@@ -83,11 +83,12 @@ export function generateMondayBriefEmail(brief: MondayBrief, baseUrl?: string): 
     }
     
     .section-title {
-      font-family: 'Playfair Display', serif;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 24px;
       font-weight: 600;
       margin: 0;
       margin-left: 12px;
+      color: #1A1A1A;
     }
     
     .section-title.red {
@@ -160,69 +161,83 @@ export function generateMondayBriefEmail(brief: MondayBrief, baseUrl?: string): 
     .action-title {
       font-weight: 600;
       font-size: 16px;
-      color: #1a1a1a;
+      color: #1A1A1A;
       margin: 0;
     }
     
     .action-days {
       font-size: 14px;
-      color: #6b7280;
+      color: #1A1A1A;
       font-weight: 500;
     }
     
     .action-details {
       font-size: 14px;
-      color: #4b5563;
+      color: #1A1A1A;
       margin: 8px 0;
     }
     
     .action-reason {
       font-size: 13px;
-      color: #6b7280;
+      color: #1A1A1A;
       font-style: italic;
       margin: 8px 0;
+    }
+    
+    a {
+      color: #D4AF37;
+      text-decoration: underline;
     }
     
     .action-button {
       display: inline-block;
       margin-top: 12px;
-      padding: 10px 20px;
-      background-color: #1a1a1a;
-      color: #ffffff;
+      padding: 12px 24px;
+      background-color: #000000;
+      color: #FFFFFF;
       text-decoration: none;
-      border-radius: 6px;
+      border-radius: 2px;
       font-size: 14px;
-      font-weight: 500;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
       transition: background-color 0.2s;
     }
     
     .action-button:hover {
-      background-color: #2a2a2a;
+      background-color: #333333;
     }
     
     .action-button.red {
-      background-color: #dc2626;
+      background-color: #000000;
+      color: #FFFFFF;
     }
     
     .action-button.red:hover {
-      background-color: #b91c1c;
+      background-color: #333333;
     }
     
     .action-button.gold {
-      background-color: #d4af37;
-      color: #1a1a1a;
+      background-color: #000000;
+      color: #FFFFFF;
     }
     
     .action-button.gold:hover {
-      background-color: #c4a027;
+      background-color: #333333;
     }
     
     .action-button.blue {
-      background-color: #2563eb;
+      background-color: #000000;
+      color: #FFFFFF;
     }
     
     .action-button.blue:hover {
-      background-color: #1d4ed8;
+      background-color: #333333;
+    }
+    
+    a {
+      color: #D4AF37;
+      text-decoration: underline;
     }
     
     .footer {
@@ -371,21 +386,20 @@ function generateAllClearEmail(weekOf: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Monday Morning Brief - All Clear</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap');
-    
     body {
       margin: 0;
       padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       background-color: #f5f5f5;
-      color: #1a1a1a;
+      color: #1A1A1A;
       line-height: 1.6;
     }
     
     .email-container {
-      max-width: 700px;
+      max-width: 600px;
       margin: 0 auto;
       background-color: #ffffff;
+      border-top: 2px solid #000000;
     }
     
     .header {
