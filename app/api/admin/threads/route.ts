@@ -24,6 +24,8 @@ export async function GET(request: NextRequest) {
     const isArchived = searchParams.get("isArchived") === "true";
     const isRead = searchParams.get("isRead");
     const search = searchParams.get("search");
+    const skip = parseInt(searchParams.get("skip") || "0", 10);
+    const take = parseInt(searchParams.get("take") || "50", 10);
 
     const where: any = {};
 
@@ -92,10 +94,22 @@ export async function GET(request: NextRequest) {
         },
       },
       orderBy: { lastMessageAt: "desc" },
-      take: 50,
+      skip: skip,
+      take: take,
     });
 
-    return NextResponse.json({ threads });
+    // Get total count for pagination info
+    const totalCount = await prisma.emailThread.count({ where });
+
+    return NextResponse.json({ 
+      threads,
+      pagination: {
+        skip,
+        take,
+        total: totalCount,
+        hasMore: skip + take < totalCount,
+      },
+    });
   } catch (error) {
     console.error("Error fetching threads:", error);
     return NextResponse.json(

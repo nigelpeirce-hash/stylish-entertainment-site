@@ -21,6 +21,7 @@ import {
   FileText,
   Inbox,
   Folder,
+  RefreshCw,
 } from "lucide-react";
 import { isSuperAdmin } from "@/lib/admin-permissions";
 import Link from "next/link";
@@ -145,6 +146,9 @@ export default function AdminInbox() {
   const [inboxes, setInboxes] = useState<EmailInbox[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(false);
+  const [pagination, setPagination] = useState({ skip: 0, take: 50, total: 0 });
   const [replying, setReplying] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [replySubject, setReplySubject] = useState("");
@@ -194,22 +198,43 @@ export default function AdminInbox() {
     }
   };
 
-  const fetchThreads = async () => {
-    setLoading(true);
+  const fetchThreads = async (skip: number = 0, append: boolean = false) => {
+    if (append) {
+      setLoadingMore(true);
+    } else {
+      setLoading(true);
+    }
     try {
-      const response = await fetch("/api/admin/threads");
+      const response = await fetch(`/api/admin/threads?skip=${skip}&take=50`);
       if (response.ok) {
         const data = await response.json();
-        setThreads((data.threads || []).map((thread: EmailThread) => ({
+        const newThreads = (data.threads || []).map((thread: EmailThread) => ({
           ...thread,
           emails: [], // Will be loaded when thread is selected
-        })));
+        }));
+        
+        if (append) {
+          setThreads((prev) => [...prev, ...newThreads]);
+        } else {
+          setThreads(newThreads);
+        }
+        
+        if (data.pagination) {
+          setPagination(data.pagination);
+          setHasMore(data.pagination.hasMore || false);
+        }
       }
     } catch (error) {
       console.error("Error fetching threads:", error);
     } finally {
       setLoading(false);
+      setLoadingMore(false);
     }
+  };
+
+  const handleLoadMore = () => {
+    const nextSkip = pagination.skip + pagination.take;
+    fetchThreads(nextSkip, true);
   };
 
   const fetchThreadDetails = async (threadId: string) => {
@@ -680,7 +705,8 @@ export default function AdminInbox() {
                 <p>No messages</p>
               </div>
             ) : (
-              filteredThreads.map((thread) => {
+              <>
+                {filteredThreads.map((thread) => {
                 const emailStatus = getEmailStatus(thread);
                 const preview = getEmailPreview(thread);
                 
@@ -743,7 +769,29 @@ export default function AdminInbox() {
                     </div>
                   </button>
                 );
-              })
+              })}
+                {hasMore && (
+                  <div className="p-4 border-t border-gray-200">
+                    <Button
+                      onClick={handleLoadMore}
+                      disabled={loadingMore}
+                      variant="outline"
+                      className="w-full text-sm"
+                    >
+                      {loadingMore ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                          Loading...
+                        </>
+                      ) : (
+                        <>
+                          Load More ({pagination.total - (pagination.skip + pagination.take)} remaining)
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
