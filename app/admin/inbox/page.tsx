@@ -432,7 +432,7 @@ export default function AdminInbox() {
   const getStatusBadge = (status: "to-action" | "waiting-client" | "confirmed") => {
     const styles = {
       "to-action": "bg-orange-500/10 text-orange-700 border-orange-500/30",
-      "waiting-client": "bg-blue-500/10 text-blue-700 border-blue-500/30",
+      "waiting-client": "bg-champagne-gold/10 text-champagne-gold border-champagne-gold/30",
       "confirmed": "bg-green-500/10 text-green-700 border-green-500/30",
     };
     return (
@@ -557,7 +557,7 @@ export default function AdminInbox() {
               }}
               className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
                 selectedFolder === "unified" && !selectedAccountId
-                  ? "bg-blue-50 text-blue-700"
+                  ? "bg-champagne-gold/10 text-charcoal border border-champagne-gold/20"
                   : "text-gray-700 hover:bg-gray-50"
               }`}
             >
@@ -594,7 +594,7 @@ export default function AdminInbox() {
                         }}
                         className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center justify-between ${
                           isSelected
-                            ? "bg-blue-50 text-blue-700"
+                            ? "bg-champagne-gold/10 text-charcoal border border-champagne-gold/20"
                             : "text-gray-700 hover:bg-gray-50"
                         }`}
                       >
@@ -627,7 +627,7 @@ export default function AdminInbox() {
                             }}
                             className={`w-full text-left px-3 py-1.5 rounded text-xs transition-colors flex items-center gap-2 ${
                               isSelected && selectedFolder === "all"
-                                ? "bg-blue-50 text-blue-700"
+                                ? "bg-champagne-gold/10 text-charcoal"
                                 : "text-gray-600 hover:bg-gray-50"
                             }`}
                           >
@@ -642,7 +642,7 @@ export default function AdminInbox() {
                             }}
                             className={`w-full text-left px-3 py-1.5 rounded text-xs transition-colors flex items-center gap-2 ${
                               isSelected && selectedFolder === "sent"
-                                ? "bg-blue-50 text-blue-700"
+                                ? "bg-champagne-gold/10 text-charcoal"
                                 : "text-gray-600 hover:bg-gray-50"
                             }`}
                           >
@@ -670,7 +670,7 @@ export default function AdminInbox() {
                   }}
                   className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                     selectedFolder === "new-enquiries" && !selectedAccountId
-                      ? "bg-blue-50 text-blue-700"
+                      ? "bg-champagne-gold/10 text-charcoal border border-champagne-gold/20"
                       : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
@@ -781,9 +781,9 @@ export default function AdminInbox() {
                     }}
                     className={`w-full text-left p-4 border-b border-gray-100 transition-all relative group ${
                       isSelected 
-                        ? "bg-gradient-to-r from-champagne-gold/5 to-white border-l-4 border-l-champagne-gold" 
+                        ? "bg-gradient-to-r from-champagne-gold/10 to-white border-l-4 border-l-champagne-gold shadow-sm" 
                         : "bg-white hover:bg-gray-50"
-                    } ${!thread.isRead ? "bg-blue-50/30" : ""} ${
+                    } ${!thread.isRead ? "bg-charcoal/5 border-l-2 border-l-charcoal/20" : ""} ${
                       isVenueEmail(thread) ? "border-l-2 border-l-champagne-gold/50" : ""
                     }`}
                   >
@@ -808,7 +808,7 @@ export default function AdminInbox() {
                             <span className="text-base" title="Venue Email">🏛️</span>
                           )}
                           <span className={`text-sm font-bold truncate ${
-                            !thread.isRead ? "text-gray-900" : "text-gray-800"
+                            !thread.isRead ? "text-charcoal" : isSelected ? "text-charcoal" : "text-gray-800"
                           }`}>
                             {fromName || fromEmail || 'Anonymous'}
                           </span>
@@ -827,7 +827,7 @@ export default function AdminInbox() {
                         
                         {/* Subject Line - Larger and High Contrast */}
                         <p className={`text-base font-semibold truncate ${
-                          !thread.isRead ? "text-gray-900" : "text-gray-800"
+                          !thread.isRead ? "text-charcoal" : isSelected ? "text-charcoal" : "text-gray-800"
                         }`}>
                           {subject}
                         </p>
@@ -973,7 +973,7 @@ export default function AdminInbox() {
                           alert("Please select an inbox to send from");
                         }
                       }}
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      className="bg-charcoal hover:bg-charcoal/90 text-white"
                     >
                       <Send className="w-4 h-4 mr-2" />
                       Send
@@ -1133,7 +1133,7 @@ export default function AdminInbox() {
                           size="sm"
                           onClick={handleReply}
                           disabled={!replyText.trim()}
-                          className="bg-blue-600 hover:bg-blue-700 text-white"
+                          className="bg-charcoal hover:bg-charcoal/90 text-white"
                         >
                           <Send className="w-4 h-4 mr-2" />
                           Send
@@ -1155,7 +1155,7 @@ export default function AdminInbox() {
                           key={email.id || index}
                           className={`p-4 rounded-lg border ${
                             email.direction === "outbound"
-                              ? "bg-blue-50 border-blue-200"
+                              ? "bg-champagne-gold/5 border-champagne-gold/20"
                               : "bg-white border-gray-200"
                           }`}
                         >
