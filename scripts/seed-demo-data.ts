@@ -9,7 +9,16 @@ import bcrypt from "bcryptjs";
 // Load environment variables
 config({ path: resolve(process.cwd(), ".env.local") });
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL! });
+// Parse connection string and add SSL mode if using Supabase
+let connectionString = process.env.DATABASE_URL!;
+if (connectionString.includes('supabase.com') && !connectionString.includes('sslmode=')) {
+  connectionString += (connectionString.includes('?') ? '&' : '?') + 'sslmode=require';
+}
+
+const pool = new Pool({ 
+  connectionString,
+  ssl: connectionString.includes('supabase.com') ? { rejectUnauthorized: false } : undefined,
+});
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter, log: ["error", "warn"] });
 
@@ -35,7 +44,9 @@ async function main() {
   const now = new Date();
   const nigel = await prisma.user.upsert({
     where: { email: "nigel@stylishentertainment.co.uk" },
-    update: {},
+    update: {
+      password: hashedPassword, // Always update password to ensure it's correct
+    },
     create: {
       id: randomUUID(),
       email: "nigel@stylishentertainment.co.uk",
@@ -51,7 +62,9 @@ async function main() {
 
   const ali = await prisma.user.upsert({
     where: { email: "ali@stylishentertainment.co.uk" },
-    update: {},
+    update: {
+      password: hashedPassword, // Always update password to ensure it's correct
+    },
     create: {
       id: randomUUID(),
       email: "ali@stylishentertainment.co.uk",

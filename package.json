@@ -8,9 +8,10 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",
-    "seed:demo": "tsx scripts/seed-demo-data.ts",
-    "seed:djs": "tsx scripts/seed-existing-djs.ts",
-    "seed:hire": "tsx scripts/seed-hire-items.ts"
+    "seed:demo": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/seed-demo-data.ts",
+    "seed:djs": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/seed-existing-djs.ts",
+    "seed:hire": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/seed-hire-items.ts",
+    "reset:admin-password": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/reset-admin-password.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",

@@ -38,27 +38,8 @@ export default function LoginPage() {
     setError("");
 
     try {
-      // First, check if email exists in database
-      let emailExists = false;
-      const emailCheck = await fetch("/api/auth/check-credentials", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: data.email, password: data.password }),
-      });
-
-      if (!emailCheck.ok) {
-        const emailError = await emailCheck.json();
-        if (emailError.error === "EMAIL_NOT_RECOGNIZED") {
-          setError("Email not recognised. Please check your email address and try again.");
-          setIsLoading(false);
-          return;
-        }
-      } else {
-        // Email exists in database
-        emailExists = true;
-      }
-
-      // Email exists, proceed with authentication
+      // Proceed directly with NextAuth authentication
+      // NextAuth will handle email/password validation
       const result = await signIn("credentials", {
         email: data.email,
         password: data.password,
@@ -75,15 +56,8 @@ export default function LoginPage() {
           console.error("⚠️ NextAuth Configuration Error - Check server logs for details");
           console.error("   This usually means NEXTAUTH_SECRET is missing or invalid");
         } else if (result.error === "CredentialsSignin") {
-          // Since we checked the email first, if we get here and email exists,
-          // it means the password is wrong
-          if (emailExists) {
-            errorMessage = "Invalid password. Please try again.";
-          } else {
-            // Fallback (shouldn't happen if email check worked)
-            errorMessage = "Invalid email or password. Please try again.";
-          }
-          // Authentication failed (invalid password or credentials)
+          // Authentication failed - could be wrong email or password
+          errorMessage = "Invalid email or password. Please try again.";
         }
         setError(errorMessage);
         setIsLoading(false);

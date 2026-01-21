@@ -86,6 +86,15 @@ export const authOptions: NextAuthConfig = {
           console.error("Authorization error:", error);
           console.error("Error type:", error?.constructor?.name);
           console.error("Error message:", error?.message);
+          console.error("Error code:", error?.code);
+          console.error("Error meta:", error?.meta);
+          
+          // Check for database connection errors
+          if (error?.code === "P1001" || error?.message?.includes("Can't reach database")) {
+            console.error("❌ Database connection error - check DATABASE_URL and network");
+            // Return null to show generic error to user
+            return null;
+          }
           
           // In NextAuth v5 beta, throwing errors can cause "Configuration" errors
           // Instead, log the error and return null for all cases
