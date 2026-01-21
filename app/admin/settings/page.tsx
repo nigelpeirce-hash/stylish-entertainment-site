@@ -541,58 +541,63 @@ export default function AdminSettings() {
                       </div>
 
                       {/* Right: Actions */}
-                      <div className="flex items-center gap-2 flex-shrink-0">
-                        <Button
-                          onClick={() => handleSync(inbox.id, false)}
-                          size="sm"
-                          variant="outline"
-                          className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10"
-                        >
-                          <RefreshCw className="w-4 h-4 mr-2" />
-                          Sync
-                        </Button>
-                        <Button
-                          onClick={() => handleSync(inbox.id, true)}
-                          size="sm"
-                          variant="outline"
-                          className="border-purple-500/50 text-purple-400 hover:bg-purple-900/20"
-                          title="Deep Sync: Fetch 6 months of history from all folders"
-                        >
-                          <History className="w-4 h-4 mr-2" />
-                          Deep Sync
-                        </Button>
-                        <Button
-                          onClick={() => handleTestConnection(inbox.id)}
-                          size="sm"
-                          variant="outline"
-                          className={`border-blue-500/50 text-blue-400 hover:bg-blue-900/20 ${
-                            status?.status === "success" ? "border-green-500/50 text-green-400" :
-                            status?.status === "error" ? "border-red-500/50 text-red-400" : ""
-                          }`}
-                          disabled={testingInboxId === inbox.id || !inbox.imapHost || !inbox.imapUsername}
-                        >
-                          <RefreshCw className={`w-4 h-4 mr-2 ${testingInboxId === inbox.id ? "animate-spin" : ""}`} />
-                          {testingInboxId === inbox.id
-                            ? "Testing..."
-                            : status?.status === "success" 
-                            ? "✓"
-                            : status?.status === "error"
-                            ? "✗"
-                            : "Test"}
-                        </Button>
+                      <div className="flex-shrink-0">
+                        <div className="grid grid-cols-2 gap-2 mt-4">
+                          <Button
+                            onClick={() => handleSync(inbox.id, false)}
+                            size="sm"
+                            variant="outline"
+                            className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10"
+                          >
+                            <RefreshCw className="w-4 h-4 mr-2" />
+                            Sync
+                          </Button>
+                          <Button
+                            onClick={() => handleSync(inbox.id, true)}
+                            size="sm"
+                            variant="outline"
+                            className="border-purple-500/50 text-purple-400 hover:bg-purple-900/20"
+                            title="Deep Sync: Fetch 6 months of history from all folders"
+                          >
+                            <History className="w-4 h-4 mr-2" />
+                            Deep Sync
+                          </Button>
+                          <Button
+                            onClick={() => handleTestConnection(inbox.id)}
+                            size="sm"
+                            variant="outline"
+                            className={`border-blue-500/50 text-blue-400 hover:bg-blue-900/20 ${
+                              status?.status === "success" ? "border-green-500/50 text-green-400" :
+                              status?.status === "error" ? "border-red-500/50 text-red-400" : ""
+                            }`}
+                            disabled={testingInboxId === inbox.id || !inbox.imapHost || !inbox.imapUsername}
+                          >
+                            <RefreshCw className={`w-4 h-4 mr-2 ${testingInboxId === inbox.id ? "animate-spin" : ""}`} />
+                            {testingInboxId === inbox.id
+                              ? "Testing..."
+                              : status?.status === "success" 
+                              ? "✓"
+                              : status?.status === "error"
+                              ? "✗"
+                              : "Test"}
+                          </Button>
+                          <div className="col-span-2">
+                            <SafetyDeleteButton
+                              onDelete={() => handleDelete(inbox.id)}
+                              itemName={`Inbox: ${inbox.name}`}
+                              itemDetails={`Email: ${inbox.email}`}
+                            />
+                          </div>
+                        </div>
                         <Button
                           onClick={() => handleEdit(inbox)}
                           size="sm"
                           variant="outline"
-                          className="border-gray-600/50 text-gray-300 hover:bg-gray-800"
+                          className="border-gray-600/50 text-gray-300 hover:bg-gray-800 mt-2 w-full"
                         >
-                          <Settings className="w-4 h-4" />
+                          <Settings className="w-4 h-4 mr-2" />
+                          Settings
                         </Button>
-                        <SafetyDeleteButton
-                          onDelete={() => handleDelete(inbox.id)}
-                          itemName={`Inbox: ${inbox.name}`}
-                          itemDetails={`Email: ${inbox.email}`}
-                        />
                       </div>
                     </div>
 
