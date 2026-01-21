@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import * as z from "zod";
-import { randomUUID } from 'crypto';
 
 // Force dynamic rendering to prevent database connection during build
 export const dynamic = 'force-dynamic';
@@ -104,7 +103,6 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const validatedData = inboxSchema.parse(body);
-    const inboxId = randomUUID();
 
     const baseSelect = {
       id: true,
@@ -133,13 +131,10 @@ export async function POST(request: NextRequest) {
       // Try to create with assignedUsers in select (if migration has been run)
       inbox = await prisma.emailInbox.create({
         data: {
-          id: inboxId,
           ...validatedData,
           isActive: true,
           syncEnabled: validatedData.syncEnabled ?? true,
           syncInterval: validatedData.syncInterval ?? 5,
-          createdAt: new Date(),
-          updatedAt: new Date(),
         },
         select: ({ ...baseSelect, assignedUsers: true } as any),
       });
@@ -148,13 +143,10 @@ export async function POST(request: NextRequest) {
       if (error?.message?.includes("assignedUsers") || error?.code === "P2009" || error?.message?.includes("Unknown field")) {
         inbox = await prisma.emailInbox.create({
           data: {
-            id: inboxId,
             ...validatedData,
             isActive: true,
             syncEnabled: validatedData.syncEnabled ?? true,
             syncInterval: validatedData.syncInterval ?? 5,
-            createdAt: new Date(),
-            updatedAt: new Date(),
           },
           select: baseSelect,
         });
