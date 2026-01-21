@@ -12,19 +12,19 @@ DROP POLICY IF EXISTS "Allow public insert to form submissions" ON "FormSubmissi
 CREATE POLICY "Allow public read access to active DJs"
   ON "DJ"
   FOR SELECT
-  USING (isActive = true);
+  USING ("isActive" = true);
 
 -- Musician table: Allow public read access for active musicians
 CREATE POLICY "Allow public read access to active musicians"
   ON "Musician"
   FOR SELECT
-  USING (isActive = true);
+  USING ("isActive" = true);
 
 -- HireItem table: Allow public read access for active hire items
 CREATE POLICY "Allow public read access to active hire items"
   ON "HireItem"
   FOR SELECT
-  USING (isActive = true);
+  USING ("isActive" = true);
 
 -- VenueAsset table: Allow public read access
 CREATE POLICY "Allow public read access to venue assets"
