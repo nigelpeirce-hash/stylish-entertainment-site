@@ -1,7 +1,8 @@
 /**
  * Email Journey Templates
- * Customer Lifecycle Email Templates with Luxe Gatsby Branding
+ * Customer Lifecycle Email Templates with Luxury Brand Aesthetic
  * British English spelling throughout
+ * Updated: Luxury brand styling - Charcoal typography, black buttons, gold links
  */
 
 export type JourneyStage =
