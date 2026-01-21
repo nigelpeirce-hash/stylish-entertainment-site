@@ -133,7 +133,6 @@ export async function GET(request: NextRequest) {
       success: true,
       bookings: allBookings,
       count: allBookings.length,
-      demoDataIncluded: demoData.length > 0,
     });
   } catch (error: any) {
     console.error("Error fetching 90-day command centre bookings:", error);
