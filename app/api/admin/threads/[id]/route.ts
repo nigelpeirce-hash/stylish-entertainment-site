@@ -21,10 +21,10 @@ export async function GET(
     const thread = await prisma.emailThread.findUnique({
       where: { id },
       include: {
-        inbox: {
+        EmailInbox: {
           select: { id: true, name: true, email: true },
         },
-        booking: {
+        Booking: {
           select: {
             id: true,
             name: true,
@@ -35,16 +35,31 @@ export async function GET(
             status: true,
           },
         },
-        user: {
+        User: {
           select: { id: true, name: true, email: true },
         },
-        emails: {
+        Email: {
           include: {
-            sentByUser: {
+            User: {
               select: { id: true, name: true, email: true },
             },
           },
           orderBy: { receivedAt: "asc" },
+          select: {
+            id: true,
+            subject: true,
+            fromEmail: true,
+            fromName: true,
+            toEmail: true,
+            toName: true,
+            textContent: true,
+            htmlContent: true,
+            direction: true,
+            isRead: true,
+            isStarred: true,
+            receivedAt: true,
+            createdAt: true,
+          },
         },
       },
     });
@@ -100,10 +115,10 @@ export async function PATCH(
       where: { id },
       data: updateData,
       include: {
-        inbox: {
+        EmailInbox: {
           select: { id: true, name: true, email: true },
         },
-        booking: {
+        Booking: {
           select: {
             id: true,
             name: true,
