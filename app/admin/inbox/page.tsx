@@ -463,12 +463,12 @@ export default function AdminInbox() {
 
   const getStatusBadge = (status: "to-action" | "waiting-client" | "confirmed") => {
     const styles = {
-      "to-action": "bg-orange-500/10 text-orange-700 border-orange-500/30",
-      "waiting-client": "bg-champagne-gold/10 text-champagne-gold border-champagne-gold/30",
-      "confirmed": "bg-green-500/10 text-green-700 border-green-500/30",
+      "to-action": "bg-[#D4AF37] text-black border-[#D4AF37]",
+      "waiting-client": "bg-[#D4AF37]/20 text-[#D4AF37] border-[#D4AF37]/40",
+      "confirmed": "bg-green-500/20 text-green-400 border-green-500/40",
     };
     return (
-      <span className={`px-2 py-0.5 text-xs font-medium rounded-full border ${styles[status]}`}>
+      <span className={`px-2 py-0.5 text-xs font-semibold rounded-full border ${styles[status]}`}>
         {status === "to-action" ? "To Action" : status === "waiting-client" ? "Waiting for Client" : "Confirmed"}
       </span>
     );
@@ -839,14 +839,14 @@ export default function AdminInbox() {
                           {getStatusBadge(emailStatus)}
                         </div>
                         
-                        {/* Subject Line - Light Gold or Silver */}
-                        <p className="text-base font-semibold truncate text-[#D4AF37]">
+                        {/* Subject Line - White for High Contrast */}
+                        <p className="text-base font-semibold truncate text-white">
                           {subject}
                         </p>
                         
-                        {/* Message Snippet - Medium Grey */}
+                        {/* Message Snippet - Light Grey */}
                         {preview && preview !== "Click to view message..." && (
-                          <p className="text-xs text-[#a0a0a0] line-clamp-2 leading-relaxed">
+                          <p className="text-xs text-gray-300 line-clamp-2 leading-relaxed">
                             {preview}
                           </p>
                         )}
@@ -1004,7 +1004,6 @@ export default function AdminInbox() {
                   </h2>
                   <div className="flex items-center gap-2">
                     <Button
-                      variant="ghost"
                       size="sm"
                       onClick={() => {
                         setReplying(true);
@@ -1016,24 +1015,22 @@ export default function AdminInbox() {
                           setReplyInboxId(inbox.id);
                         }
                       }}
-                      className="text-white hover:text-[#D4AF37] hover:bg-[#D4AF37]/10 border border-transparent hover:border-[#D4AF37]/30 transition-all"
+                      className="bg-[#2a2a2a] hover:bg-[#D4AF37] text-white hover:text-black border border-gray-700 hover:border-[#D4AF37] transition-all font-semibold"
                     >
                       <Reply className="w-4 h-4 mr-2" />
                       Reply
                     </Button>
                     <Button
-                      variant="ghost"
                       size="sm"
-                      className="text-white hover:text-[#D4AF37] hover:bg-[#D4AF37]/10 border border-transparent hover:border-[#D4AF37]/30 transition-all"
+                      className="bg-[#2a2a2a] hover:bg-[#D4AF37] text-white hover:text-black border border-gray-700 hover:border-[#D4AF37] transition-all font-semibold"
                     >
                       <Forward className="w-4 h-4 mr-2" />
                       Forward
                     </Button>
                     <Button
-                      variant="ghost"
                       size="sm"
                       onClick={() => handleArchive(selectedThread.id)}
-                      className="text-white hover:text-[#D4AF37] hover:bg-[#D4AF37]/10 border border-transparent hover:border-[#D4AF37]/30 transition-all"
+                      className="bg-[#2a2a2a] hover:bg-[#D4AF37] text-white hover:text-black border border-gray-700 hover:border-[#D4AF37] transition-all font-semibold"
                     >
                       <Archive className="w-4 h-4 mr-2" />
                       Archive
@@ -1187,16 +1184,18 @@ export default function AdminInbox() {
                               </div>
                             </div>
                           </div>
-                          <div className="p-6 bg-white">
-                            <div className="text-sm text-gray-900 prose prose-sm max-w-none">
+                          <div className="p-8 bg-white">
+                            <div className="text-sm text-gray-900 prose prose-sm max-w-none [&_*]:text-gray-900 [&_*]:!text-gray-900 [&_p]:text-gray-900 [&_div]:text-gray-900 [&_span]:text-gray-900 [&_a]:text-gray-900 [&_strong]:text-gray-900 [&_em]:text-gray-900 [&_h1]:text-gray-900 [&_h2]:text-gray-900 [&_h3]:text-gray-900 [&_h4]:text-gray-900 [&_h5]:text-gray-900 [&_h6]:text-gray-900">
                               {email.htmlContent || email.bodyHtml ? (
                                 <div
+                                  className="[&_*]:text-gray-900 [&_*]:!text-gray-900"
+                                  style={{ color: '#1a1a1a' }}
                                   dangerouslySetInnerHTML={{
                                     __html: email.htmlContent || email.bodyHtml || "",
                                   }}
                                 />
                               ) : (
-                                <p className="whitespace-pre-wrap">
+                                <p className="whitespace-pre-wrap text-gray-900">
                                   {email.textContent || email.bodyText || "No content available"}
                                 </p>
                               )}
