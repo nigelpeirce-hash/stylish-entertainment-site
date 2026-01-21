@@ -976,6 +976,30 @@ export default function AdminInbox() {
                             <Folder className="w-3 h-3 flex-shrink-0" />
                             <span>Sent</span>
                           </button>
+                          {/* Display actual folders from API - root folders only (parentId is null) */}
+                          {(() => {
+                            const accountFolders = folders[inbox.id] || [];
+                            // Filter to show root folders (no parentId) and non-system folders
+                            const rootFolders = accountFolders.filter(
+                              (f: any) => !f.parentId && f.name.toLowerCase() !== "inbox" && f.name.toLowerCase() !== "sent"
+                            );
+                            
+                            if (rootFolders.length > 0) {
+                              return (
+                                <FolderTree
+                                  folders={rootFolders}
+                                  onSelect={(folderId) => {
+                                    setSelectedAccountId(inbox.id);
+                                    setSelectedFolder(folderId);
+                                  }}
+                                  expandedFolders={expandedFolders}
+                                  setExpandedFolders={setExpandedFolders}
+                                  level={0}
+                                />
+                              );
+                            }
+                            return null;
+                          })()}
                         </div>
                       )}
                     </div>
