@@ -30,6 +30,7 @@ import { BookingIntegrityWarning } from "@/components/BookingIntegrityWarning";
 import { ConflictCountBadge } from "@/components/ConflictCountBadge";
 import { isSuperAdmin } from "@/lib/admin-permissions";
 import { Badge } from "@/components/ui/badge";
+import { AddBookingModal } from "@/components/admin/bookings/add-booking-modal";
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession();
@@ -47,6 +48,7 @@ export default function AdminDashboard() {
   });
   const [unreadThreads, setUnreadThreads] = useState<any[]>([]);
   const [recentThreads, setRecentThreads] = useState<any[]>([]);
+  const [showNewBookingModal, setShowNewBookingModal] = useState(false);
 
   // Track redirect to prevent multiple redirects
   const redirectAttemptedRef = useRef(false);
@@ -271,9 +273,18 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
-      {/* Booking Integrity Warning */}
-      <BookingIntegrityWarning />
+    <>
+      <AddBookingModal
+        open={showNewBookingModal}
+        onOpenChange={setShowNewBookingModal}
+        onSuccess={() => {
+          // Refresh stats after booking creation
+          fetchStats();
+        }}
+      />
+      <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
+        {/* Booking Integrity Warning */}
+        <BookingIntegrityWarning />
       
       {/* New Submission Notifier */}
       <NewSubmissionNotifier />
@@ -910,19 +921,20 @@ export default function AdminDashboard() {
                 </Card>
               </Link>
 
-              <Link href="/demo-booking-form">
-                <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                  <CardContent className="p-6 flex items-center gap-4">
-                    <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                      <Calendar className="w-6 h-6 text-champagne-gold" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white">Booking Form Demo</h3>
-                      <p className="text-sm text-gray-400">Test DJ selection & upsells</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
+              <Card 
+                className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full"
+                onClick={() => setShowNewBookingModal(true)}
+              >
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
+                    <Calendar className="w-6 h-6 text-champagne-gold" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">New Booking</h3>
+                    <p className="text-sm text-gray-400">Create a new booking entry</p>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
           </motion.div>
         )}
@@ -941,5 +953,6 @@ export default function AdminDashboard() {
         </motion.div>
       </div>
     </div>
+    </>
   );
 }
