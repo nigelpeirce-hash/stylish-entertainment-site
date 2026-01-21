@@ -492,7 +492,20 @@ export default function AdminSettings() {
           });
         }, 5000);
       } else {
-        const errorMessage = result.error || result.message || "Connection failed. Check your IMAP settings.";
+        let errorMessage = result.error || result.message || "Connection failed. Check your IMAP settings.";
+        
+        // Enhance error message for authentication failures on Microsoft/GoDaddy emails
+        if (result.errorCategory === "Password/Authentication") {
+          const inbox = inboxes.find(i => i.id === inboxId);
+          if (inbox?.email?.includes("@stylishentertainment.co.uk") || 
+              inbox?.email?.includes("@outlook.com") || 
+              inbox?.email?.includes("@hotmail.com") || 
+              inbox?.email?.includes("@live.com") ||
+              inbox?.email?.includes("@msn.com")) {
+            errorMessage = `${errorMessage}\n\n💡 Tip: Microsoft/GoDaddy emails require an App Password. Get one from your Microsoft account security settings → App passwords.`;
+          }
+        }
+        
         setConnectionStatus(prev => ({ 
           ...prev, 
           [inboxId]: { 
