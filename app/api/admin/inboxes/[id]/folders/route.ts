@@ -5,7 +5,7 @@ import imap from "imap-simple";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const admin = await requireAdmin(request);
@@ -13,7 +13,9 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const inboxId = params.id;
+    // Next.js 15: params is now a Promise
+    const resolvedParams = await params;
+    const inboxId = resolvedParams.id;
 
     // Fetch the inbox to get IMAP credentials
     const inbox = await prisma.emailInbox.findUnique({
