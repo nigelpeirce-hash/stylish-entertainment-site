@@ -36,6 +36,7 @@ import { SendResources } from "@/components/SendResources";
 import { QuickStaffConfirm } from "@/components/QuickStaffConfirm";
 import { AddBasicStaff } from "@/components/AddBasicStaff";
 import { DJInquiryReply } from "@/components/DJInquiryReply";
+import { EmailCompositionCenter } from "@/components/EmailCompositionCenter";
 import { FlexibleOperatorSidebar } from "@/components/FlexibleOperatorSidebar";
 import { WhatsAppThread } from "@/components/WhatsAppThread";
 import { CrewAssignments } from "@/components/CrewAssignments";
@@ -693,6 +694,25 @@ export default function BookingDetail() {
                   </CardContent>
                 </Card>
               )}
+
+              {/* Email Composition Center */}
+              <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg font-semibold text-white">Email Composition Center</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <EmailCompositionCenter
+                    bookingId={booking.id}
+                    clientEmail={booking.email}
+                    clientName={booking.name}
+                    venueName={booking.venueName}
+                    venueAddress={booking.venueAddress || undefined}
+                    venuePostcode={booking.venuePostcode || undefined}
+                    eventDate={booking.eventDate}
+                    onSend={fetchBooking}
+                  />
+                </CardContent>
+              </Card>
 
               {/* DJ Worksheet - Only show if DJ service */}
               {hasDJService && (
