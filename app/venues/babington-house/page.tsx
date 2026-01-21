@@ -15,7 +15,7 @@ export default function BabingtonHousePage() {
     "@type": "Organization",
     "name": "Stylish Entertainment",
     "url": "https://www.stylishentertainment.co.uk",
-    "logo": "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/logo.png",
+    "logo": "https://res.cloudinary.com/drtwveoqo/image/upload/v1768162584/Rev-New-SE-Logo0_ow03mn.png",
     "sameAs": [
       "https://www.instagram.com/stylishentertainment",
     ],
@@ -53,7 +53,7 @@ export default function BabingtonHousePage() {
       "name": "Stylish Entertainment",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/logo.png"
+        "url": "https://res.cloudinary.com/drtwveoqo/image/upload/v1768162584/Rev-New-SE-Logo0_ow03mn.png"
       }
     },
     "datePublished": "2024-01-01",

@@ -140,7 +140,7 @@ export default function Navigation() {
           <div className="flex flex-col flex-shrink-0">
             <Link href="/" className="relative group z-20 hover:opacity-90 transition-opacity duration-300">
               <img
-                src="/logo.png"
+                src="https://res.cloudinary.com/drtwveoqo/image/upload/v1768162584/Rev-New-SE-Logo0_ow03mn.png"
                 alt="Stylish Entertainment Logo"
                 className="h-16 sm:h-20 md:h-24 lg:h-28 xl:h-32 w-auto object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]"
                 loading="eager"
