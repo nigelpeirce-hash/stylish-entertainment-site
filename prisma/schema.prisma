@@ -293,6 +293,7 @@ model EmailInbox {
   updatedAt     DateTime      @updatedAt
   Email         Email[]
   EmailThread   EmailThread[]
+  EmailFolder   EmailFolder[]
 
   @@index([email])
   @@index([isActive])
@@ -330,18 +331,45 @@ model EmailThread {
   isArchived    Boolean    @default(false)
   lastMessageAt DateTime   @default(now())
   inboxId       String
+  folderId      String?
   createdAt     DateTime   @default(now())
   updatedAt     DateTime
   Email         Email[]
   Booking       Booking?   @relation(fields: [bookingId], references: [id])
   EmailInbox    EmailInbox @relation(fields: [inboxId], references: [id])
+  EmailFolder   EmailFolder? @relation(fields: [folderId], references: [id])
   User          User?      @relation(fields: [userId], references: [id])
 
   @@index([bookingId])
   @@index([fromEmail])
   @@index([inboxId])
+  @@index([folderId])
   @@index([lastMessageAt])
   @@index([userId])
+}
+
+model EmailFolder {
+  id            String        @id @default(uuid())
+  inboxId       String
+  name          String
+  fullPath      String        // e.g., "QUOTES/DJ quotes/Better Proposal Quotes"
+  parentId      String?       // For nested folders
+  delimiter     String        @default("/") // IMAP folder delimiter
+  attributes    Json?         // IMAP folder attributes (e.g., \NoInferiors, \HasChildren)
+  unreadCount   Int           @default(0)
+  totalCount    Int           @default(0)
+  lastSyncedAt  DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  EmailInbox    EmailInbox    @relation(fields: [inboxId], references: [id], onDelete: Cascade)
+  EmailThread   EmailThread[]
+  parent        EmailFolder?  @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children      EmailFolder[] @relation("FolderHierarchy")
+
+  @@unique([inboxId, fullPath])
+  @@index([inboxId])
+  @@index([parentId])
+  @@index([fullPath])
 }
 
 model FormSubmission {

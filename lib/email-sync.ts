@@ -61,6 +61,9 @@ export async function syncEmailInbox(inboxId: string, options: SyncOptions = {})
     // Get available mailboxes/folders
     const boxes = await connection.getBoxes();
     const folderNames = findFolders(boxes, ["INBOX", "Sent", "Sent Messages", "[Gmail]/Sent Mail", "[Gmail]/All Mail", "Archive"]);
+    
+    // Discover and store all folders in database
+    await discoverAndStoreFolders(inbox, boxes, connection);
 
     const allMessages: EmailMessage[] = [];
     const fetchOptions = {
@@ -188,6 +191,82 @@ export async function syncEmailInbox(inboxId: string, options: SyncOptions = {})
   } catch (error) {
     console.error(`Error syncing inbox ${inboxId}:`, error);
     throw error;
+  }
+}
+
+/**
+ * Discover and store all IMAP folders in the database
+ */
+async function discoverAndStoreFolders(inbox: any, boxes: any, connection: any) {
+  try {
+    const delimiter = connection.delimiter || "/";
+    const allFolders: Array<{ name: string; fullPath: string; parentPath: string | null; attributes: any }> = [];
+
+    // Recursively collect all folders with their paths
+    function collectFolders(box: any, prefix = "", parentPath: string | null = null) {
+      if (box.children) {
+        for (const [name, child] of Object.entries(box.children)) {
+          const fullPath = prefix ? `${prefix}${delimiter}${name}` : name;
+          const childBox = child as any;
+          
+          allFolders.push({
+            name,
+            fullPath,
+            parentPath,
+            attributes: childBox.attributes || {},
+          });
+          
+          collectFolders(childBox, fullPath, fullPath);
+        }
+      }
+    }
+
+    collectFolders(boxes);
+
+    // Store folders in database
+    for (const folder of allFolders) {
+      // Find parent folder ID if parentPath exists
+      let parentId: string | null = null;
+      if (folder.parentPath) {
+        const parentFolder = await prisma.emailFolder.findUnique({
+          where: {
+            inboxId_fullPath: {
+              inboxId: inbox.id,
+              fullPath: folder.parentPath,
+            },
+          },
+        });
+        parentId = parentFolder?.id || null;
+      }
+
+      // Upsert folder
+      await prisma.emailFolder.upsert({
+        where: {
+          inboxId_fullPath: {
+            inboxId: inbox.id,
+            fullPath: folder.fullPath,
+          },
+        },
+        create: {
+          id: randomUUID(),
+          inboxId: inbox.id,
+          name: folder.name,
+          fullPath: folder.fullPath,
+          parentId: parentId,
+          delimiter: delimiter,
+          attributes: folder.attributes,
+        },
+        update: {
+          attributes: folder.attributes,
+          updatedAt: new Date(),
+        },
+      });
+    }
+
+    console.log(`Discovered and stored ${allFolders.length} folders for ${inbox.email}`);
+  } catch (error) {
+    console.error("Error discovering folders:", error);
+    // Don't throw - folder discovery failure shouldn't break email sync
   }
 }
 
