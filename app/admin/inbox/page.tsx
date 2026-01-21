@@ -37,17 +37,26 @@ interface EmailThread {
   isStarred: boolean;
   isArchived: boolean;
   lastMessageAt: string;
-  inbox: { id: string; name: string; email: string };
-  booking: { 
+  inbox?: { id: string; name: string; email: string };
+  EmailInbox?: { id: string; name: string; email: string };
+  booking?: { 
     id: string; 
     name: string; 
     eventType: string; 
     eventDate: string;
     status: string;
   } | null;
-  user: { id: string; name: string; email: string } | null;
-  _count: { emails: number };
-  emails: Array<{
+  Booking?: { 
+    id: string; 
+    name: string; 
+    eventType: string; 
+    eventDate: string;
+    status: string;
+  } | null;
+  user?: { id: string; name: string; email: string } | null;
+  User?: { id: string; name: string; email: string } | null;
+  _count?: { emails: number; Email?: number };
+  emails?: Array<{
     id: string;
     subject: string;
     fromEmail: string;
@@ -58,6 +67,14 @@ interface EmailThread {
     bodyText: string | null;
     bodyHtml: string | null;
     direction: string;
+    receivedAt: string;
+  }>;
+  Email?: Array<{
+    id: string;
+    subject: string;
+    fromEmail: string;
+    fromName: string | null;
+    textContent: string | null;
     receivedAt: string;
   }>;
 }
@@ -98,9 +115,10 @@ function getAccountColor(inboxName: string, inboxEmail: string): { bg: string; b
 
 // Simplified status categories
 function getEmailStatus(thread: EmailThread): "to-action" | "waiting-client" | "confirmed" {
-  if (!thread.booking) return "to-action";
+  const booking = thread.Booking || thread.booking;
+  if (!booking) return "to-action";
   
-  const status = thread.booking.status.toLowerCase();
+  const status = booking.status?.toLowerCase() || "";
   if (status === "confirmed") return "confirmed";
   if (status === "pending" || status === "new") return "waiting-client";
   return "to-action";
@@ -115,7 +133,8 @@ function isVenueEmail(thread: EmailThread): boolean {
 // Categorize threads into folders
 function categorizeThread(thread: EmailThread, folder: FolderType, accountId?: string | null): boolean {
   // Filter by account if specified
-  if (accountId && thread.inbox.id !== accountId) return false;
+  const inbox = thread.EmailInbox || thread.inbox;
+  if (accountId && inbox?.id !== accountId) return false;
   
   if (folder === "unified" || folder === "all") {
     // Unified inbox shows all threads from all accounts' INBOX folders
@@ -127,10 +146,12 @@ function categorizeThread(thread: EmailThread, folder: FolderType, accountId?: s
     return lastEmail?.direction === "outbound";
   }
   if (folder === "new-enquiries") {
-    return !thread.booking || thread.booking.status === "pending";
+    const booking = thread.Booking || thread.booking;
+    return !booking || booking.status === "pending";
   }
   if (folder === "ongoing-bookings") {
-    return thread.booking !== null && thread.booking.status !== "confirmed";
+    const booking = thread.Booking || thread.booking;
+    return booking !== null && booking.status !== "confirmed";
   }
   if (folder === "staff-comms") {
     // Staff communications - could be based on sender domain or subject
@@ -288,17 +309,18 @@ export default function AdminInbox() {
         
         // Prepare variables from booking if available
         const variables: any = {};
-        if (selectedThread.booking) {
-          const eventDate = new Date(selectedThread.booking.eventDate).toLocaleDateString("en-GB", {
+        const booking = selectedThread.Booking || selectedThread.booking;
+        if (booking) {
+          const eventDate = booking.eventDate ? new Date(booking.eventDate).toLocaleDateString("en-GB", {
             weekday: "long",
             year: "numeric",
             month: "long",
             day: "numeric",
-          });
+          }) : "";
           variables.eventDate = eventDate;
-          variables.venueName = selectedThread.booking.name || "";
-          variables.clientName = selectedThread.booking.name || "";
-          variables.eventType = selectedThread.booking.eventType || "";
+          variables.venueName = booking.name || "";
+          variables.clientName = booking.name || "";
+          variables.eventType = booking.eventType || "";
         }
 
         // Simple variable replacement
@@ -325,13 +347,13 @@ export default function AdminInbox() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          inboxId: replyInboxId || selectedThread.inbox.id, // Use smart-selected inbox
-          to: replyTo || selectedThread.fromEmail,
-          subject: replySubject || `Re: ${selectedThread.subject}`,
+          inboxId: replyInboxId || (selectedThread.EmailInbox || selectedThread.inbox)?.id || "", // Use smart-selected inbox
+          to: replyTo || selectedThread.fromEmail || "",
+          subject: replySubject || `Re: ${selectedThread.subject || "No Subject"}`,
           html: replyText,
           text: replyText.replace(/<[^>]*>/g, ""),
           threadId: selectedThread.id,
-          bookingId: selectedThread.booking?.id || undefined,
+          bookingId: (selectedThread.Booking || selectedThread.booking)?.id || undefined,
         }),
       });
 
@@ -421,8 +443,13 @@ export default function AdminInbox() {
   };
 
   const getEmailPreview = (thread: EmailThread): string => {
-    // For preview, we'll use a simple placeholder since we don't load all emails in the list
-    // The full content will be shown when thread is selected
+    // Try to get snippet from the most recent email
+    const lastEmail = thread.Email?.[0] || thread.emails?.[thread.emails.length - 1];
+    if (lastEmail?.textContent) {
+      const snippet = lastEmail.textContent.substring(0, 100).replace(/\s+/g, " ").trim();
+      return snippet.length < lastEmail.textContent.length ? snippet + "..." : snippet;
+    }
+    // Fallback placeholder
     return "Click to view message...";
   };
 
@@ -720,8 +747,21 @@ export default function AdminInbox() {
             ) : (
               <>
                 {filteredThreads.map((thread) => {
+                // Null safeguard at the top
+                if (!thread) return null;
+                
                 const emailStatus = getEmailStatus(thread);
                 const preview = getEmailPreview(thread);
+                
+                // Safe property access with defaults
+                const inbox = thread.EmailInbox || thread.inbox;
+                const inboxName = inbox?.name || 'Unknown Inbox';
+                const inboxEmail = inbox?.email || '';
+                const inboxId = inbox?.id || '';
+                
+                const subject = thread.subject || 'No Subject';
+                const fromName = thread.fromName || 'Anonymous';
+                const fromEmail = thread.fromEmail || '';
                 
                 return (
                   <button
@@ -730,7 +770,9 @@ export default function AdminInbox() {
                       fetchThreadDetails(thread.id);
                       setReplying(false);
                       // Smart reply: auto-select the inbox that received this email
-                      setReplyInboxId(thread.inbox.id);
+                      if (inboxId) {
+                        setReplyInboxId(inboxId);
+                      }
                     }}
                     className={`w-full text-left p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors relative ${
                       selectedThread?.id === thread.id ? "bg-blue-50 border-l-4 border-l-blue-500" : ""
@@ -741,13 +783,13 @@ export default function AdminInbox() {
                     {/* Color indicator tab */}
                     <div
                       className={`absolute left-0 top-0 bottom-0 w-1 ${
-                        getAccountColor(thread.inbox.name, thread.inbox.email).bg.replace("bg-", "bg-").includes("amber")
+                        getAccountColor(inboxName, inboxEmail).bg.replace("bg-", "bg-").includes("amber")
                           ? "bg-amber-400"
-                          : getAccountColor(thread.inbox.name, thread.inbox.email).bg.replace("bg-", "bg-").includes("gray")
+                          : getAccountColor(inboxName, inboxEmail).bg.replace("bg-", "bg-").includes("gray")
                           ? "bg-gray-400"
                           : "bg-orange-400"
                       }`}
-                      title={`${getAccountColor(thread.inbox.name, thread.inbox.email).name} - ${thread.inbox.name}`}
+                      title={`${getAccountColor(inboxName, inboxEmail).name} - ${inboxName}`}
                     />
                     <div className="flex items-start justify-between mb-1 pl-1">
                       <div className="flex-1 min-w-0">
@@ -758,7 +800,7 @@ export default function AdminInbox() {
                           <span className={`text-sm font-semibold truncate ${
                             !thread.isRead ? "text-gray-900" : "text-gray-700"
                           }`}>
-                            {thread.fromName || thread.fromEmail}
+                            {fromName || fromEmail || 'Anonymous'}
                           </span>
                           {thread.source === "portal" && (
                             <span className="px-2 py-0.5 text-xs font-medium rounded border bg-purple-100 text-purple-700 border-purple-300">
@@ -775,7 +817,7 @@ export default function AdminInbox() {
                         <p className={`text-sm truncate mb-1 ${
                           !thread.isRead ? "text-gray-900 font-medium" : "text-gray-600"
                         }`}>
-                          {thread.subject}
+                          {subject}
                         </p>
                         {preview && (
                           <p className="text-xs text-gray-500 line-clamp-2">
@@ -784,10 +826,10 @@ export default function AdminInbox() {
                         )}
                       </div>
                       <span className="text-xs text-gray-400 ml-2 flex-shrink-0">
-                        {new Date(thread.lastMessageAt).toLocaleDateString("en-GB", {
+                        {thread.lastMessageAt ? new Date(thread.lastMessageAt).toLocaleDateString("en-GB", {
                           month: "short",
                           day: "numeric",
-                        })}
+                        }) : ''}
                       </span>
                     </div>
                   </button>
@@ -940,10 +982,13 @@ export default function AdminInbox() {
                       size="sm"
                       onClick={() => {
                         setReplying(true);
-                        setReplyTo(selectedThread.fromEmail);
-                        setReplySubject(`Re: ${selectedThread.subject}`);
+                        setReplyTo(selectedThread.fromEmail || "");
+                        setReplySubject(`Re: ${selectedThread.subject || "No Subject"}`);
                         // Smart reply: auto-select the inbox that received this email
-                        setReplyInboxId(selectedThread.inbox.id);
+                        const inbox = selectedThread.EmailInbox || selectedThread.inbox;
+                        if (inbox?.id) {
+                          setReplyInboxId(inbox.id);
+                        }
                       }}
                       className="text-gray-700 hover:bg-gray-100"
                     >
