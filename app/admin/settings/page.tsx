@@ -124,6 +124,24 @@ export default function AdminSettings() {
     }
   }, [status, session]);
 
+  // Validate editingId against current inboxes array (fix ID mismatch after migration)
+  useEffect(() => {
+    if (editingId && inboxes.length > 0) {
+      const inboxExists = inboxes.find(inbox => inbox.id === editingId);
+      if (!inboxExists) {
+        // ID mismatch - reset to first inbox or clear editing
+        console.warn(`Editing ID ${editingId} not found in inboxes array. Resetting.`);
+        if (inboxes[0]?.id) {
+          setEditingId(inboxes[0].id);
+          handleEdit(inboxes[0]);
+        } else {
+          setEditingId(null);
+          setIsAdding(false);
+        }
+      }
+    }
+  }, [inboxes, editingId]);
+
   const fetchInboxes = async () => {
     try {
       const headers = { ...getDevBypassHeaders(), "Content-Type": "application/json" };
@@ -157,6 +175,16 @@ export default function AdminSettings() {
 
   const handleSave = async () => {
     try {
+      // Validate editingId exists in inboxes array before saving
+      if (editingId) {
+        const inboxExists = inboxes.find(i => i.id === editingId);
+        if (!inboxExists) {
+          alert("Error: Inbox ID mismatch. Please refresh and try again.");
+          clearCache();
+          return;
+        }
+      }
+
       // Only send password if it's been changed (not empty when editing)
       const dataToSend = { ...formData };
       if (editingId) {
@@ -183,7 +211,8 @@ export default function AdminSettings() {
           setEditingId(null);
           resetForm();
         } else {
-          alert("Failed to update inbox");
+          const error = await response.json().catch(() => ({ error: "Failed to update inbox" }));
+          alert(error.error || "Failed to update inbox");
         }
       } else {
         // Create new
@@ -251,33 +280,50 @@ export default function AdminSettings() {
   };
 
   const handleEdit = (inbox: EmailInbox) => {
-    if (!inbox) return;
+    if (!inbox || !inbox.id) {
+      console.error("Cannot edit: inbox is null or missing id");
+      return;
+    }
+    
+    // Verify inbox exists in current inboxes array (fallback to first if not found)
+    const currentInbox = inboxes.find(i => i.id === inbox.id) || inboxes[0] || inbox;
+    
+    if (!currentInbox || !currentInbox.id) {
+      console.error("Cannot edit: no valid inbox found");
+      return;
+    }
     
     setFormData({
-      name: inbox?.name || "",
-      email: inbox?.email || "",
-      imapHost: inbox?.imapHost || "",
-      imapPort: inbox?.imapPort || 993,
-      imapSecure: inbox?.imapSecure ?? true,
-      imapUsername: inbox?.imapUsername || "",
+      name: currentInbox?.name || "",
+      email: currentInbox?.email || "",
+      imapHost: currentInbox?.imapHost || "",
+      imapPort: currentInbox?.imapPort || 993,
+      imapSecure: currentInbox?.imapSecure ?? true,
+      imapUsername: currentInbox?.imapUsername || "",
       imapPassword: "", // Never populate password fields for security
-      smtpHost: inbox?.smtpHost || "",
-      smtpPort: inbox?.smtpPort || 587,
-      smtpSecure: inbox?.smtpSecure ?? true,
-      smtpUsername: inbox?.smtpUsername || "",
+      smtpHost: currentInbox?.smtpHost || "",
+      smtpPort: currentInbox?.smtpPort || 587,
+      smtpSecure: currentInbox?.smtpSecure ?? true,
+      smtpUsername: currentInbox?.smtpUsername || "",
       smtpPassword: "", // Never populate password fields for security
-      syncEnabled: inbox?.syncEnabled ?? true,
-      syncInterval: inbox?.syncInterval || 5,
+      syncEnabled: currentInbox?.syncEnabled ?? true,
+      syncInterval: currentInbox?.syncInterval || 5,
     });
-    setEditingId(inbox?.id || null);
+    setEditingId(currentInbox.id);
     setIsAdding(true);
     // Set masked passwords to show they exist
-    if (inbox?.id) {
-      setRevealedPasswords(prev => ({
-        ...prev,
-        [inbox.id]: { imap: false, smtp: false }
-      }));
-    }
+    setRevealedPasswords(prev => ({
+      ...prev,
+      [currentInbox.id]: { imap: false, smtp: false }
+    }));
+    
+    // Scroll to form
+    setTimeout(() => {
+      const formElement = document.getElementById("inbox-form");
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }, 100);
   };
 
   const resetForm = () => {
@@ -299,6 +345,18 @@ export default function AdminSettings() {
     });
     setIsAdding(false);
     setEditingId(null);
+    // Clear any API errors
+    setApiErrors({});
+  };
+
+  const clearCache = () => {
+    // Force reset all form state
+    resetForm();
+    setConnectionStatus({});
+    setApiErrors({});
+    setTestingInboxId(null);
+    // Refresh inboxes
+    fetchInboxes();
   };
 
   const handleSync = async (inboxId: string, deepSync: boolean = false) => {
