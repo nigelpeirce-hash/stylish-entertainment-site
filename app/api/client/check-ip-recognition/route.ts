@@ -32,25 +32,36 @@ export async function POST(request: NextRequest) {
     // In production, you may want to add an acceptance_ip or visitor_ip field to Booking model
     
     // Optimized query - limit to most recent pending bookings
-    const provisionalBookings = await prisma.booking.findMany({
-      where: {
-        status: "pending", // Provisional bookings
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        eventDate: true,
-        venueName: true,
-        emailsSent: true,
-        createdAt: true,
-        // If acceptance_ip is added to schema, include it here
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: 5, // Reduced from 10 to 5 for faster queries
-    });
+    // Wrap in try-catch to handle database errors gracefully
+    let provisionalBookings = [];
+    try {
+      provisionalBookings = await prisma.booking.findMany({
+        where: {
+          status: "pending", // Provisional bookings
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          eventDate: true,
+          venueName: true,
+          emailsSent: true,
+          createdAt: true,
+          // If acceptance_ip is added to schema, include it here
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        take: 5, // Reduced from 10 to 5 for faster queries
+      });
+    } catch (dbError: any) {
+      // If database query fails, log but return gracefully
+      console.error("Database error in IP recognition:", dbError);
+      return NextResponse.json({
+        recognized: false,
+        message: "Database query failed",
+      }, { status: 200 }); // Return 200 so client doesn't see error
+    }
 
     // Check if any booking matches the IP
     // Check emailsSent JSON for stored IP in multiple possible locations
@@ -123,13 +134,14 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error("Error checking IP recognition:", error);
+    // Return 200 instead of 500 to prevent client-side errors
+    // IP recognition is optional functionality
     return NextResponse.json(
       {
         recognized: false,
-        error: "Internal server error",
-        message: error.message,
+        message: "IP recognition service unavailable",
       },
-      { status: 500 }
+      { status: 200 }
     );
   }
 }
