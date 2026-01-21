@@ -248,7 +248,7 @@ async function processEmailMessage(
     message.to.forEach((t) => allParticipantEmails.add(t.address.toLowerCase()));
     message.cc?.forEach((c) => allParticipantEmails.add(c.address.toLowerCase()));
 
-    // Check if email already exists
+    // Check if email already exists (for logging purposes)
     const existingEmail = await prisma.email.findUnique({
       where: { messageId: message.messageId },
     });
@@ -414,9 +414,10 @@ async function processEmailMessage(
       ? message.to[0].address.toLowerCase()
       : inboxEmail;
 
-    // Create email record
-    await prisma.email.create({
-      data: {
+    // Create or update email record using upsert to prevent unique constraint errors
+    await prisma.email.upsert({
+      where: { messageId: message.messageId },
+      create: {
         id: randomUUID(),
         messageId: message.messageId,
         inReplyTo: message.inReplyTo || null,
@@ -436,6 +437,12 @@ async function processEmailMessage(
         isRead: false,
         isStarred: false,
         receivedAt: message.date,
+      },
+      update: {
+        // Update thread association in case it changed
+        threadId: thread.id,
+        // Update read status if needed (keep existing if already read)
+        // Don't update other fields to preserve original data
       },
     });
 

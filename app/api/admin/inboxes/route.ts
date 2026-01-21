@@ -138,6 +138,8 @@ export async function POST(request: NextRequest) {
           isActive: true,
           syncEnabled: validatedData.syncEnabled ?? true,
           syncInterval: validatedData.syncInterval ?? 5,
+          createdAt: new Date(),
+          updatedAt: new Date(),
         },
         select: ({ ...baseSelect, assignedUsers: true } as any),
       });
@@ -151,6 +153,8 @@ export async function POST(request: NextRequest) {
             isActive: true,
             syncEnabled: validatedData.syncEnabled ?? true,
             syncInterval: validatedData.syncInterval ?? 5,
+            createdAt: new Date(),
+            updatedAt: new Date(),
           },
           select: baseSelect,
         });
