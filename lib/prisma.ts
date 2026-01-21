@@ -6,23 +6,30 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
-// Create PostgreSQL connection pool
-let connectionString = process.env.DATABASE_URL;
-
-// Ensure SSL is enabled for Supabase connections
-if (connectionString && connectionString.includes('supabase.com')) {
-  // Add sslmode=require if not already present
-  if (!connectionString.includes('sslmode=')) {
-    connectionString += (connectionString.includes('?') ? '&' : '?') + 'sslmode=require';
+// Helper function to get connection string with SSL mode
+function getConnectionString(): string | undefined {
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) return undefined;
+  
+  // Ensure SSL is enabled for Supabase connections
+  if (dbUrl.includes('supabase.com')) {
+    // Add sslmode=require if not already present
+    if (!dbUrl.includes('sslmode=')) {
+      return dbUrl + (dbUrl.includes('?') ? '&' : '?') + 'sslmode=require';
+    }
   }
+  return dbUrl;
 }
 
 // Prisma 7 with adapter requires adapter to be provided to PrismaClient
-// We MUST create the adapter synchronously if DATABASE_URL exists
+// We create the adapter lazily to ensure connection string is properly configured
 let pool: Pool | undefined;
 let adapter: PrismaPg | undefined;
 
-if (connectionString) {
+function createAdapter() {
+  const connectionString = getConnectionString();
+  if (!connectionString) return undefined;
+  
   try {
     // Determine SSL configuration based on connection string
     const isSupabase = connectionString.includes('supabase.com');
@@ -30,7 +37,7 @@ if (connectionString) {
       ? { rejectUnauthorized: false } // Supabase uses self-signed certificates
       : undefined; // Use default SSL behavior for other databases
     
-    pool = new Pool({ 
+    const newPool = new Pool({ 
       connectionString,
       // Add connection timeout to prevent hangs
       connectionTimeoutMillis: 10000,
@@ -38,14 +45,24 @@ if (connectionString) {
       max: 10,
       // Don't try to connect immediately during build
       idleTimeoutMillis: 30000,
-      // SSL configuration
+      // SSL configuration - always set for Supabase
       ...(sslConfig && { ssl: sslConfig }),
     });
-    adapter = new PrismaPg(pool);
+    return new PrismaPg(newPool);
   } catch (error) {
     // If adapter creation fails, log error but continue
-    // Will retry when creating PrismaClient
     console.warn("Prisma adapter initialization warning:", error);
+    return undefined;
+  }
+}
+
+// Initialize adapter if DATABASE_URL exists
+const connectionString = getConnectionString();
+if (connectionString) {
+  adapter = createAdapter();
+  if (adapter) {
+    // Get the pool from the adapter for cleanup if needed
+    // Note: PrismaPg doesn't expose the pool directly, so we track it separately
   }
 }
 
@@ -56,7 +73,8 @@ function createPrismaClient() {
   let clientAdapter = adapter;
   
   if (!clientAdapter) {
-    if (!connectionString) {
+    const connString = getConnectionString();
+    if (!connString) {
       throw new Error(
         "DATABASE_URL environment variable is required. " +
         "Please set it in your Vercel environment variables."
@@ -64,25 +82,10 @@ function createPrismaClient() {
     }
     
     // Retry adapter creation if initial attempt failed
-    try {
-      // Determine SSL configuration based on connection string
-      const isSupabase = connectionString.includes('supabase.com');
-      const sslConfig = isSupabase 
-        ? { rejectUnauthorized: false } // Supabase uses self-signed certificates
-        : undefined; // Use default SSL behavior for other databases
-      
-      const retryPool = new Pool({ 
-        connectionString,
-        connectionTimeoutMillis: 5000,
-        max: 10,
-        idleTimeoutMillis: 30000,
-        // SSL configuration
-        ...(sslConfig && { ssl: sslConfig }),
-      });
-      clientAdapter = new PrismaPg(retryPool);
-    } catch (error) {
+    clientAdapter = createAdapter();
+    if (!clientAdapter) {
       throw new Error(
-        `Failed to create Prisma adapter: ${error instanceof Error ? error.message : String(error)}. ` +
+        "Failed to create Prisma adapter. " +
         "Please check your DATABASE_URL environment variable in Vercel."
       );
     }
