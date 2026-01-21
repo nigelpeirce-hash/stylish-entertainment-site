@@ -431,6 +431,10 @@ export default function AdminInbox() {
 
   const filteredThreads = threads
     .filter((thread) => {
+      // Always filter out archived threads
+      if (thread.isArchived) {
+        return false;
+      }
       // If unified view, show all threads
       if (selectedFolder === "unified") {
         return true;
