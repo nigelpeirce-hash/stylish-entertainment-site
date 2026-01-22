@@ -54,30 +54,51 @@ interface SystemHealth {
   lastUpdated: number;
 }
 
-// SWR fetcher function
+// SWR fetcher function with timeout and better error handling
 const fetcher = async (url: string): Promise<{ bookings: Booking[] }> => {
   const startTime = performance.now();
-  const response = await fetch(url);
-  const endTime = performance.now();
-  const loadTime = Math.round(endTime - startTime);
   
-  if (!response.ok) {
-    throw new Error("Failed to fetch bookings");
+  // Create an AbortController for timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+  
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    
+    clearTimeout(timeoutId);
+    const endTime = performance.now();
+    const loadTime = Math.round(endTime - startTime);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || errorData.message || `Failed to fetch bookings: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    // Store performance metrics
+    if (typeof window !== "undefined") {
+      const health: SystemHealth = {
+        loadTime,
+        status: loadTime < 200 ? "fast" : "slow",
+        lastUpdated: Date.now(),
+      };
+      sessionStorage.setItem("90day-command-health", JSON.stringify(health));
+    }
+    
+    return data;
+  } catch (error: any) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error("Request timed out after 15 seconds. Please check your connection and try again.");
+    }
+    throw error;
   }
-  
-  const data = await response.json();
-  
-  // Store performance metrics
-  if (typeof window !== "undefined") {
-    const health: SystemHealth = {
-      loadTime,
-      status: loadTime < 200 ? "fast" : "slow",
-      lastUpdated: Date.now(),
-    };
-    sessionStorage.setItem("90day-command-health", JSON.stringify(health));
-  }
-  
-  return data;
 };
 
 // Memoized Booking Card Component
@@ -739,10 +760,19 @@ export default function NinetyDayCommandCentre() {
 
   const isAdmin = session && (session?.user as any)?.role === "admin";
 
-  if (status === "loading" || isLoading) {
+  // Show loading only if we're actually fetching or if session is loading
+  // Don't show loading if shouldFetch is false (prevents infinite loading)
+  const isActuallyLoading = (status === "loading") || (shouldFetch && isLoading);
+  
+  if (isActuallyLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-950">
-        <div className="text-white">Loading...</div>
+        <div className="text-center">
+          <div className="text-white mb-4">Loading...</div>
+          {shouldFetch && (
+            <div className="text-gray-400 text-sm">Fetching bookings data...</div>
+          )}
+        </div>
       </div>
     );
   }
