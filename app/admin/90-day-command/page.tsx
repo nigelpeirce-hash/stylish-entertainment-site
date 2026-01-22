@@ -394,7 +394,6 @@ export default function NinetyDayCommandCentre() {
   const [mounted, setMounted] = useState(false);
   const [fetchError, setFetchError] = useState<Error | null>(null);
   const [criticalError, setCriticalError] = useState<any>(null);
-  const [criticalError, setCriticalError] = useState<any>(null);
 
   // Use SWR for data fetching with caching and background refresh
   // Only enable SWR if user is authorized (prevents unnecessary fetches)

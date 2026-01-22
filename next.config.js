@@ -5,8 +5,8 @@ const nextConfig = {
     return config;
   },
   experimental: {
-    // Explicitly ensure turbo is disabled
-    turbo: false,
+    // Explicitly ensure turbo is disabled (Next.js 15 expects an object)
+    turbo: {},
   },
   eslint: {
     ignoreDuringBuilds: true,
