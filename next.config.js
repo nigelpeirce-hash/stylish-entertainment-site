@@ -6,11 +6,6 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
-  // Explicitly disable Turbopack for production builds
-  // Turbopack is not yet supported for `next build` command
-  experimental: {
-    turbo: false,
-  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'res.cloudinary.com', pathname: '/**' },
