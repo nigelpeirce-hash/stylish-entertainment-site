@@ -1,8 +1,7 @@
 "use client";
 
 // Force dynamic rendering (prevents static generation/caching)
-export const dynamic = 'force-dynamic';
-export const runtime = 'edge'; // Use edge runtime for better error visibility
+// Note: This is a client component, so dynamic/static doesn't apply, but it's here for clarity
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -395,6 +394,7 @@ export default function NinetyDayCommandCentre() {
   const [mounted, setMounted] = useState(false);
   const [fetchError, setFetchError] = useState<Error | null>(null);
   const [criticalError, setCriticalError] = useState<any>(null);
+  const [criticalError, setCriticalError] = useState<any>(null);
 
   // Use SWR for data fetching with caching and background refresh
   // Only enable SWR if user is authorized (prevents unnecessary fetches)
@@ -419,10 +419,22 @@ export default function NinetyDayCommandCentre() {
     shouldFetch && mounted ? "/api/admin/bookings/90-day-command" : null, // null key prevents fetch until mounted
     async (url: string) => {
       try {
+        console.log("LOG_CHECK: Starting data fetch for 90-day command");
         setFetchError(null);
-        return await fetcher(url);
+        setCriticalError(null);
+        const result = await fetcher(url);
+        console.log("LOG_CHECK: Data fetch successful", { bookingCount: result?.bookings?.length || 0 });
+        return result;
       } catch (err: any) {
+        console.error("CRITICAL_DATA_ERROR:", err);
+        console.error("CRITICAL_DATA_ERROR Details:", {
+          message: err?.message,
+          stack: err?.stack,
+          name: err?.name,
+          status: err?.status,
+        });
         setFetchError(err);
+        setCriticalError(err);
         throw err;
       }
     },
@@ -839,8 +851,9 @@ export default function NinetyDayCommandCentre() {
   }
 
   // Display error state if API call failed (use fetchError or error from SWR)
-  const displayError = fetchError || error;
+  const displayError = fetchError || error || criticalError;
   if (displayError) {
+    console.error("LOG_CHECK: Rendering error state", displayError);
     return (
       <div className="min-h-screen bg-gray-950 text-white py-12 px-4">
         <div className="container mx-auto max-w-7xl">
@@ -855,10 +868,19 @@ export default function NinetyDayCommandCentre() {
             <p className="text-gray-400 text-sm mb-6">
               This could be due to a database timeout or connection issue. Click "Retry Sync" to try again.
             </p>
+            {/* Basic UI Fallback - Show error details for debugging */}
+            <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 mb-6">
+              <h3 className="text-sm font-semibold text-red-400 mb-2">Error Details (for debugging):</h3>
+              <pre className="text-xs text-gray-300 overflow-auto max-h-64">
+                {JSON.stringify(displayError, Object.getOwnPropertyNames(displayError), 2)}
+              </pre>
+            </div>
             <div className="flex gap-3">
               <Button
                 onClick={() => {
+                  console.log("LOG_CHECK: Retry button clicked");
                   setFetchError(null);
+                  setCriticalError(null);
                   mutate();
                 }}
                 className="bg-red-600 hover:bg-red-700 text-white"
