@@ -386,6 +386,8 @@ export default function NinetyDayCommandCentre() {
   const [systemHealth, setSystemHealth] = useState<SystemHealth | null>(null);
   const [viewMode, setViewMode] = useState<"cards" | "table">("table");
   const [commandMenuOpen, setCommandMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [fetchError, setFetchError] = useState<Error | null>(null);
 
   // Use SWR for data fetching with caching and background refresh
   // Only enable SWR if user is authorized (prevents unnecessary fetches)
@@ -749,7 +751,25 @@ export default function NinetyDayCommandCentre() {
     return () => document.removeEventListener("keydown", down);
   }, []);
 
+  // Set mounted state on client-side only
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Early returns - moved to bottom after all hooks
+  // Show loading spinner until component is mounted (prevents hydration mismatch)
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-950">
+        <div className="text-center">
+          <RefreshCw className="w-8 h-8 text-champagne-gold animate-spin mx-auto mb-4" />
+          <div className="text-white mb-2">Loading...</div>
+          <div className="text-gray-400 text-sm">Initializing dashboard...</div>
+        </div>
+      </div>
+    );
+  }
+
   // Check for dev bypass (development only)
   const isLocalhost = typeof window !== "undefined" && 
     (process.env.NODE_ENV === "development" || 
@@ -771,6 +791,7 @@ export default function NinetyDayCommandCentre() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-950">
         <div className="text-center">
+          <RefreshCw className="w-8 h-8 text-champagne-gold animate-spin mx-auto mb-4" />
           <div className="text-white mb-4">Loading...</div>
           {shouldFetch && (
             <div className="text-gray-400 text-sm">Fetching bookings data...</div>
@@ -784,8 +805,9 @@ export default function NinetyDayCommandCentre() {
     return null;
   }
 
-  // Display error state if API call failed
-  if (error) {
+  // Display error state if API call failed (use fetchError or error from SWR)
+  const displayError = fetchError || error;
+  if (displayError) {
     return (
       <div className="min-h-screen bg-gray-950 text-white py-12 px-4">
         <div className="container mx-auto max-w-7xl">
@@ -795,15 +817,21 @@ export default function NinetyDayCommandCentre() {
               Error Loading 90-Day Command Centre
             </h2>
             <p className="text-red-300 mb-4">
-              {error.message || "Failed to load bookings data. Please check your connection and try again."}
+              {displayError.message || "Failed to load bookings data. Please check your connection and try again."}
+            </p>
+            <p className="text-gray-400 text-sm mb-6">
+              This could be due to a database timeout or connection issue. Click "Retry Sync" to try again.
             </p>
             <div className="flex gap-3">
               <Button
-                onClick={() => mutate()}
+                onClick={() => {
+                  setFetchError(null);
+                  mutate();
+                }}
                 className="bg-red-600 hover:bg-red-700 text-white"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Retry
+                Retry Sync
               </Button>
               <Link href="/admin" prefetch={false}>
                 <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800">
