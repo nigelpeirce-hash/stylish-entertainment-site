@@ -403,13 +403,26 @@ export default function NinetyDayCommandCentre() {
   
   const shouldFetch = isAuthorizedForSWR || devBypassForSWR;
 
+  // Set mounted state on client-side only (must be before SWR hook)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const { data, error, isLoading, mutate } = useSWR<{ bookings: Booking[] }>(
-    shouldFetch ? "/api/admin/bookings/90-day-command" : null, // null key prevents fetch
-    fetcher,
+    shouldFetch && mounted ? "/api/admin/bookings/90-day-command" : null, // null key prevents fetch until mounted
+    async (url: string) => {
+      try {
+        setFetchError(null);
+        return await fetcher(url);
+      } catch (err: any) {
+        setFetchError(err);
+        throw err;
+      }
+    },
     {
       revalidateOnFocus: false, // Disable to prevent loops on focus
       revalidateOnReconnect: true, // Refresh when network reconnects
-      refreshInterval: shouldFetch ? 60000 : 0, // Refresh every 60 seconds (increased from 30), or 0 if not authorized
+      refreshInterval: shouldFetch && mounted ? 60000 : 0, // Refresh every 60 seconds, or 0 if not authorized/mounted
       dedupingInterval: 10000, // Dedupe requests within 10 seconds (increased from 5)
       keepPreviousData: true, // Keep previous data while fetching new data
       loadingTimeout: 10000, // Timeout after 10 seconds
@@ -419,12 +432,18 @@ export default function NinetyDayCommandCentre() {
         // Don't retry on 401/403 errors
         if (error.status === 401 || error.status === 403) return;
         // Retry up to 3 times
-        if (retryCount >= 3) return;
+        if (retryCount >= 3) {
+          setFetchError(error);
+          return;
+        }
         // Retry after 5 seconds
         setTimeout(() => revalidate({ retryCount }), 5000);
       },
       onLoadingSlow: () => {
         console.warn("[90-Day Command] API request is taking longer than expected");
+      },
+      onError: (error) => {
+        setFetchError(error);
       },
     }
   );
@@ -749,11 +768,6 @@ export default function NinetyDayCommandCentre() {
 
     document.addEventListener("keydown", down);
     return () => document.removeEventListener("keydown", down);
-  }, []);
-
-  // Set mounted state on client-side only
-  useEffect(() => {
-    setMounted(true);
   }, []);
 
   // Early returns - moved to bottom after all hooks
