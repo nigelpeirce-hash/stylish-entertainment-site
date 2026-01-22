@@ -33,7 +33,7 @@ NEXTAUTH_URL=https://stylishentertainment.co.uk
 
 For local development:
 ```env
-NEXT_PUBLIC_SITE_URL=http://localhost:4000
+NEXT_PUBLIC_SITE_URL=http://localhost:3001
 # NEXTAUTH_URL will be auto-set from NEXT_PUBLIC_SITE_URL
 ```
 

@@ -4,7 +4,7 @@
 
 ### Site URL (Development)
 ```
-http://localhost:4000
+http://localhost:3001
 ```
 **Note:** Your dev server runs on port **4000** (not 3000), so use port 4000.
 
@@ -12,17 +12,17 @@ http://localhost:4000
 Add these URLs to your Supabase **Redirect URLs** list:
 
 ```
-http://localhost:4000/auth/callback
-http://localhost:4000/auth/setup
-http://localhost:4000/api/auth/callback/credentials
+http://localhost:3001/auth/callback
+http://localhost:3001/auth/setup
+http://localhost:3001/api/auth/callback/credentials
 ```
 
 ### Complete Development Setup:
-1. **Site URL**: `http://localhost:4000`
+1. **Site URL**: `http://localhost:3001`
 2. **Redirect URLs**:
-   - `http://localhost:4000/auth/callback`
-   - `http://localhost:4000/auth/setup`
-   - `http://localhost:4000/api/auth/callback/credentials`
+   - `http://localhost:3001/auth/callback`
+   - `http://localhost:3001/auth/setup`
+   - `http://localhost:3001/api/auth/callback/credentials`
 
 ---
 
@@ -54,7 +54,7 @@ https://stylishentertainment.co.uk/api/auth/callback/credentials
 ## ⚠️ Current Issue
 
 **Your current Supabase config:**
-- ✅ Site URL: `http://localhost:3000` → **Change to `http://localhost:4000`**
+- ✅ Site URL: `http://localhost:3001` → **Updated to port 3001**
 - ✅ Redirect URL: `https://stylishentertainment.co.uk` → **Good for production**
 - ❌ **Missing**: Localhost redirect URLs for development
 
@@ -70,9 +70,9 @@ https://stylishentertainment.co.uk/api/auth/callback/credentials
 Add **ALL** URLs to the Redirect URLs list:
 
 ```
-http://localhost:4000/auth/callback
-http://localhost:4000/auth/setup
-http://localhost:4000/api/auth/callback/credentials
+http://localhost:3001/auth/callback
+http://localhost:3001/auth/setup
+http://localhost:3001/api/auth/callback/credentials
 https://stylishentertainment.co.uk/auth/callback
 https://stylishentertainment.co.uk/auth/setup
 https://stylishentertainment.co.uk/api/auth/callback/credentials
@@ -86,7 +86,7 @@ https://stylishentertainment.co.uk/api/auth/callback/credentials
 
 1. Go to Supabase Dashboard → **Authentication** → **URL Configuration**
 2. **Site URL**: 
-   - For dev: `http://localhost:4000`
+   - For dev: `http://localhost:3001`
    - For prod: `https://stylishentertainment.co.uk`
 3. **Redirect URLs**: Click "Add URL" and add all the URLs listed above
 4. Click **"Save changes"**
@@ -97,7 +97,7 @@ https://stylishentertainment.co.uk/api/auth/callback/credentials
 
 ### Test Development:
 1. Start dev server: `npm run dev`
-2. Try logging in at `http://localhost:4000/login`
+2. Try logging in at `http://localhost:3001/login`
 3. Check browser console for CORS errors
 4. Verify redirects work after login
 

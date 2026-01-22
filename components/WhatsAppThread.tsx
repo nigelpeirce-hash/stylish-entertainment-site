@@ -16,7 +16,7 @@ interface CommsLog {
   mediaFileName: string | null;
   createdAt: string;
   contactName: string | null;
-  sentByUser: {
+  User: {
     name: string | null;
   } | null;
 }

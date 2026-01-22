@@ -35,7 +35,7 @@ export async function GET(
         createdAt: "asc",
       },
       include: {
-        sentByUser: {
+        User: {
           select: {
             name: true,
           },

@@ -20,11 +20,11 @@ cat > .env.local << EOF
 DATABASE_URL="postgresql://postgres:${PASSWORD}@db.qraijuzzktertoujrwat.supabase.co:5432/postgres?sslmode=require"
 
 # NextAuth Configuration (update these if needed)
-NEXTAUTH_URL="http://localhost:4000"
+NEXTAUTH_URL="http://localhost:3001"
 NEXTAUTH_SECRET="your-secret-key-here"
 
 # Site URL
-NEXT_PUBLIC_SITE_URL="http://localhost:4000"
+NEXT_PUBLIC_SITE_URL="http://localhost:3001"
 EOF
 
 echo "✅ Created .env.local file!"

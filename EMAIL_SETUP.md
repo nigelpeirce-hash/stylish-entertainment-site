@@ -103,7 +103,7 @@ Create an Azure Function with a timer trigger that calls the endpoint.
 #### Option C: Local Testing
 
 For local development, you can:
-1. Call the endpoint manually: `GET http://localhost:3000/api/cron/send-scheduled-emails?auth=your-secret`
+1. Call the endpoint manually: `GET http://localhost:3001/api/cron/send-scheduled-emails?auth=your-secret`
 2. Set up a local cron job
 3. Use a service like EasyCron or cron-job.org to call your production endpoint
 

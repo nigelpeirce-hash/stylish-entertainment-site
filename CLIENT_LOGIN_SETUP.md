@@ -49,7 +49,7 @@ Add these to your `.env.local` file:
 DATABASE_URL="postgresql://user:password@localhost:5432/stylish_entertainment?schema=public"
 
 # NextAuth
-NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_URL="http://localhost:3001"
 NEXTAUTH_SECRET="your-secret-key-here-generate-with-openssl-rand-base64-32"
 
 # Email (for notifications - optional for now)

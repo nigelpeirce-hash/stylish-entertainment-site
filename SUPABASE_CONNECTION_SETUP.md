@@ -79,7 +79,7 @@ This guide will help you connect your Next.js application to your Supabase datab
    ```
 
 2. **Test the connection** by visiting:
-   - `http://localhost:4000/admin` (should load without database errors)
+   - `http://localhost:3001/admin` (should load without database errors)
    - Or check the terminal for any connection errors
 
 ### Production:

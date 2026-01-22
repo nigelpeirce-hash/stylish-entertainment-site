@@ -222,7 +222,7 @@ If you're using a subdomain or different domain:
 
 ### Development vs Production
 
-- **Development**: Use `http://localhost:4000` (or your dev port)
+- **Development**: Use `http://localhost:3001` (or your dev port)
 - **Production**: Use `https://stylishentertainment.co.uk`
 
 The middleware automatically skips HTTPS redirects for localhost.

@@ -74,7 +74,7 @@ After adding the API key:
    npm run dev
    ```
 
-2. Visit: http://localhost:4000/galleries/videos
+2. Visit: http://localhost:3001/galleries/videos
 
 3. Check browser console:
    - Should see: "YouTube API Key found, fetching videos..."

@@ -63,7 +63,7 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 # Required (for invite emails)
 RESEND_API_KEY=your-resend-api-key
-NEXT_PUBLIC_SITE_URL=http://localhost:3000  # or https://stylishentertainment.co.uk
+NEXT_PUBLIC_SITE_URL=http://localhost:3001  # or https://stylishentertainment.co.uk
 ```
 
 ### 3. Install Dependencies

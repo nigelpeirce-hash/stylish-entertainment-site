@@ -79,7 +79,7 @@ You can manually trigger the brief by calling the API endpoint with the secret:
 
 ```bash
 # Replace YOUR_SECRET with your actual CRON_SECRET
-curl "http://localhost:4000/api/cron/monday-brief?secret=YOUR_SECRET"
+curl "http://localhost:3001/api/cron/monday-brief?secret=YOUR_SECRET"
 ```
 
 #### Production Test (Manual)

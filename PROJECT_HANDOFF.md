@@ -190,8 +190,8 @@ DATABASE_URL="postgresql://postgres:[PASSWORD]@aws-1-eu-west-1.pooler.supabase.c
 
 # Authentication
 NEXTAUTH_SECRET="nPnXf6GcRsfYWdtQi8K1dXAPnKJ3YR0MEI1U3j7lbDw="
-NEXTAUTH_URL="http://localhost:4000"
-NEXT_PUBLIC_SITE_URL="http://localhost:4000"
+NEXTAUTH_URL="http://localhost:3001"
+NEXT_PUBLIC_SITE_URL="http://localhost:3001"
 
 # Email (Resend)
 RESEND_API_KEY="re_xxxxxxxxxxxxx"
@@ -322,7 +322,7 @@ All email templates are located in:
 6. **Start Development Server**
    ```bash
    npm run dev
-   # Server runs on http://localhost:4000
+   # Server runs on http://localhost:3001
    ```
 
 ### Production Deployment (Vercel)

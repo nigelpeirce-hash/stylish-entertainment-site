@@ -42,7 +42,7 @@ npm run dev
 
 4. **Open your browser to:**
    ```
-   http://localhost:3000
+   http://localhost:3001
    ```
 
 ## Troubleshooting

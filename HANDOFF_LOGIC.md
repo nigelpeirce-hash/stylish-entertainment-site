@@ -47,7 +47,7 @@ When Nigel assigns a booking to Ali, a Pushover notification is sent:
 When logged in as admin, you can view Ali's dashboard by:
 
 1. **Using the Query Parameter**: Add `?view=ali` to the admin dashboard URL
-   - Example: `http://localhost:4000/admin?view=ali`
+   - Example: `http://localhost:3001/admin?view=ali`
 
 2. **Using the "View as Ali" Button**: If you're a SuperAdmin (Nigel), you'll see buttons:
    - "👁️ View as Ali" - Switch to Ali's view

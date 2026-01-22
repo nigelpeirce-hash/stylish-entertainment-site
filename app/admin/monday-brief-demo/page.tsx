@@ -8,7 +8,7 @@ import { useState } from "react";
 
 export default function MondayBriefDemo() {
   const [viewMode, setViewMode] = useState<"desktop" | "mobile">("desktop");
-  const baseUrl = typeof window !== "undefined" ? window.location.origin : "http://localhost:4000";
+  const baseUrl = typeof window !== "undefined" ? window.location.origin : "http://localhost:3001";
 
   // Sample brief data for demo
   const demoBrief = {
