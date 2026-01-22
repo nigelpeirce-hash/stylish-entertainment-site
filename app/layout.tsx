@@ -12,6 +12,20 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import { Providers } from "@/components/Providers";
 import WelcomeBackBanner from "@/components/WelcomeBackBanner";
 
+// Global error handler for Next.js prefetch failures (non-critical)
+if (typeof window !== "undefined") {
+  window.addEventListener("unhandledrejection", (event) => {
+    // Silently handle prefetch failures - they're not critical
+    if (event.reason?.message?.includes("Failed to fetch") || 
+        event.reason?.message?.includes("fetch")) {
+      // Prefetch failures are expected in some scenarios (offline, server down, etc.)
+      // They don't affect actual navigation, so we can safely ignore them
+      event.preventDefault();
+      console.debug("[Prefetch] Silently handling prefetch failure:", event.reason?.message);
+    }
+  });
+}
+
 const raleway = Raleway({
   subsets: ["latin"],
   variable: "--font-sans",

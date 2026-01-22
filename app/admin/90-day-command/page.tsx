@@ -224,7 +224,10 @@ const BookingCard = memo(function BookingCard({
               )}
             </div>
             <div className="flex-shrink-0">
-              <Link href={booking.unreadPortalMessages ? `/admin/bookings/${booking.id}#communications` : `/admin/bookings/${booking.id}`}>
+              <Link 
+                href={booking.unreadPortalMessages ? `/admin/bookings/${booking.id}#communications` : `/admin/bookings/${booking.id}`}
+                prefetch={false}
+              >
                 <Button
                   variant="outline"
                   size="sm"
@@ -802,7 +805,7 @@ export default function NinetyDayCommandCentre() {
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Retry
               </Button>
-              <Link href="/admin">
+              <Link href="/admin" prefetch={false}>
                 <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Dashboard
@@ -1053,7 +1056,7 @@ export default function NinetyDayCommandCentre() {
                             </td>
                             <td className="p-4">
                               <div className="flex items-center gap-2">
-                                <Link href={`/admin/bookings/${booking.id}`}>
+                                <Link href={`/admin/bookings/${booking.id}`} prefetch={false}>
                                   <Button
                                     variant="ghost"
                                     size="sm"
