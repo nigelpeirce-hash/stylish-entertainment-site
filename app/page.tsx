@@ -75,13 +75,6 @@ const services = [
 ];
 
 
-const featuredVenues = [
-  { name: "Babington House", url: "/babington-wedding-info" },
-  { name: "Kin House", url: "/kin-house-wiltshire" },
-  { name: "Pennard House", url: "/pennard-house-lighting" },
-  { name: "Mells Barn", url: "/mells-barn-weddings" },
-  { name: "North Cadbury Court", url: "https://www.northcadburycourt.co.uk/" },
-];
 
 // Testimonials Section Component - Displays 3 random reviews
 const TestimonialsSection = () => {
@@ -341,59 +334,6 @@ export default function Home() {
           <div className="text-center mt-12">
             <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
               <Link href="/testi">Read All Testimonials</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Venues */}
-      <section className="pt-20 pb-8 px-4 bg-gray-800">
-        <div className="container mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
-          >
-            <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/20 rounded-full border border-champagne-gold/30">
-              <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Partners</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4">
-              Featured <span className="text-gradient">Venues</span>
-            </h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-300 px-4">
-              Trusted by the West Country&apos;s most prestigious venues
-            </p>
-          </motion.div>
-
-          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 md:gap-8 lg:gap-12 px-4 mb-8">
-            {featuredVenues.map((venue, index) => {
-              const isExternal = venue.url.startsWith("http");
-              return (
-                <motion.div
-                  key={venue.name}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="text-xl sm:text-2xl md:text-3xl font-sans text-gray-400 hover:text-champagne-gold transition-all duration-300 hover:scale-110 font-bold relative group px-2"
-                >
-                  <Link 
-                    href={venue.url} 
-                    {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    className="relative z-10 hover:text-champagne-gold transition-colors"
-                  >
-                    {venue.name}
-                  </Link>
-                  <span className="absolute inset-0 bg-gradient-to-r from-champagne-gold/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"></span>
-                </motion.div>
-              );
-            })}
-          </div>
-          <div className="text-center mt-8">
-            <Button asChild variant="outline" size="lg" className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 hover:scale-105 transition-all duration-300">
-              <Link href="/venues">Show More Venues</Link>
             </Button>
           </div>
         </div>
