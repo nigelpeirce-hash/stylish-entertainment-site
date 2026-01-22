@@ -745,6 +745,48 @@ export default function NinetyDayCommandCentre() {
     return null;
   }
 
+  // Display error state if API call failed
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-950 text-white py-12 px-4">
+        <div className="container mx-auto max-w-7xl">
+          <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-6">
+            <h2 className="text-2xl font-bold text-red-400 mb-4 flex items-center gap-2">
+              <AlertTriangle className="w-6 h-6" />
+              Error Loading 90-Day Command Centre
+            </h2>
+            <p className="text-red-300 mb-4">
+              {error.message || "Failed to load bookings data. Please check your connection and try again."}
+            </p>
+            <div className="flex gap-3">
+              <Button
+                onClick={() => mutate()}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Retry
+              </Button>
+              <Link href="/admin">
+                <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Dashboard
+                </Button>
+              </Link>
+            </div>
+            {process.env.NODE_ENV === "development" && (
+              <details className="mt-4">
+                <summary className="text-sm text-red-400 cursor-pointer">Error Details (Dev Only)</summary>
+                <pre className="mt-2 text-xs bg-gray-900 p-4 rounded overflow-auto">
+                  {JSON.stringify(error, null, 2)}
+                </pre>
+              </details>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <CommandMenu open={commandMenuOpen} onOpenChange={setCommandMenuOpen} />
