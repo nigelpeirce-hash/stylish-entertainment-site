@@ -115,59 +115,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${raleway.variable} ${bebasNeue.variable} ${dancingScript.variable} ${playfairDisplay.variable}`}>
-      <head>
-        {/* Early error handler for prefetch failures - runs before React */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                // Handle unhandled promise rejections (prefetch errors)
-                window.addEventListener('unhandledrejection', function(event) {
-                  var reason = event.reason;
-                  var errorMessage = reason?.message || reason?.toString() || '';
-                  var errorStack = reason?.stack || '';
-                  
-                  // Check if this is a prefetch-related fetch error
-                  if (
-                    errorMessage.includes('Failed to fetch') ||
-                    errorMessage.includes('fetch') ||
-                    errorStack.includes('fetch-server-response') ||
-                    errorStack.includes('prefetch-cache-utils') ||
-                    errorStack.includes('router-reducer') ||
-                    errorStack.includes('navigate-reducer')
-                  ) {
-                    // Prevent the error from showing in console
-                    event.preventDefault();
-                    event.stopPropagation();
-                  }
-                }, true);
-                
-                // Handle regular errors
-                window.addEventListener('error', function(event) {
-                  var error = event.error;
-                  var errorMessage = error?.message || event.message || '';
-                  var errorStack = error?.stack || event.filename || '';
-                  
-                  // Check if this is a prefetch-related fetch error
-                  if (
-                    errorMessage.includes('Failed to fetch') ||
-                    errorMessage.includes('fetch') ||
-                    errorStack.includes('fetch-server-response') ||
-                    errorStack.includes('prefetch-cache-utils') ||
-                    errorStack.includes('router-reducer') ||
-                    errorStack.includes('navigate-reducer')
-                  ) {
-                    // Prevent the error from showing in console
-                    event.preventDefault();
-                    event.stopPropagation();
-                    return true;
-                  }
-                }, true);
-              })();
-            `,
-          }}
-        />
-      </head>
       <body className="relative min-h-screen" style={{
         background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
       }}>
@@ -176,6 +123,59 @@ export default function RootLayout({
         <div className="fixed bottom-0 left-0 w-96 h-96 bg-champagne-gold opacity-20 rounded-full blur-3xl pointer-events-none z-0" style={{ transform: 'translate(-30%, 30%)' }}></div>
         
         <Providers>
+          {/* Early error handler for prefetch failures - runs before React */}
+          <Script
+            id="prefetch-error-handler"
+            strategy="beforeInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                (function() {
+                  // Handle unhandled promise rejections (prefetch errors)
+                  window.addEventListener('unhandledrejection', function(event) {
+                    var reason = event.reason;
+                    var errorMessage = reason?.message || reason?.toString() || '';
+                    var errorStack = reason?.stack || '';
+                    
+                    // Check if this is a prefetch-related fetch error
+                    if (
+                      errorMessage.includes('Failed to fetch') ||
+                      errorMessage.includes('fetch') ||
+                      errorStack.includes('fetch-server-response') ||
+                      errorStack.includes('prefetch-cache-utils') ||
+                      errorStack.includes('router-reducer') ||
+                      errorStack.includes('navigate-reducer')
+                    ) {
+                      // Prevent the error from showing in console
+                      event.preventDefault();
+                      event.stopPropagation();
+                    }
+                  }, true);
+                  
+                  // Handle regular errors
+                  window.addEventListener('error', function(event) {
+                    var error = event.error;
+                    var errorMessage = error?.message || event.message || '';
+                    var errorStack = error?.stack || event.filename || '';
+                    
+                    // Check if this is a prefetch-related fetch error
+                    if (
+                      errorMessage.includes('Failed to fetch') ||
+                      errorMessage.includes('fetch') ||
+                      errorStack.includes('fetch-server-response') ||
+                      errorStack.includes('prefetch-cache-utils') ||
+                      errorStack.includes('router-reducer') ||
+                      errorStack.includes('navigate-reducer')
+                    ) {
+                      // Prevent the error from showing in console
+                      event.preventDefault();
+                      event.stopPropagation();
+                      return true;
+                    }
+                  }, true);
+                })();
+              `,
+            }}
+          />
           <PrefetchErrorHandler />
           <GoogleTagManager />
           <GoogleAnalytics />
