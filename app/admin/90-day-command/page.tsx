@@ -1,5 +1,9 @@
 "use client";
 
+// Force dynamic rendering (prevents static generation/caching)
+export const dynamic = 'force-dynamic';
+export const runtime = 'edge'; // Use edge runtime for better error visibility
+
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useMemo, memo, useCallback, useRef } from "react";
@@ -379,6 +383,8 @@ const BookingCard = memo(function BookingCard({
 });
 
 export default function NinetyDayCommandCentre() {
+  console.log("LOG_CHECK: 90-day page is attempting to render");
+  
   const { data: session, status } = useSession();
   const router = useRouter();
   const [updating, setUpdating] = useState<string | null>(null);
@@ -388,6 +394,7 @@ export default function NinetyDayCommandCentre() {
   const [commandMenuOpen, setCommandMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [fetchError, setFetchError] = useState<Error | null>(null);
+  const [criticalError, setCriticalError] = useState<any>(null);
 
   // Use SWR for data fetching with caching and background refresh
   // Only enable SWR if user is authorized (prevents unnecessary fetches)
@@ -449,18 +456,30 @@ export default function NinetyDayCommandCentre() {
   );
 
   const bookings = data?.bookings || [];
+  
+  console.log("LOG_CHECK: Bookings data", { 
+    hasData: !!data, 
+    bookingCount: bookings.length,
+    isLoading,
+    hasError: !!error || !!fetchError || !!criticalError
+  });
 
   // Load and update system health from sessionStorage (fetched by SWR fetcher)
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = sessionStorage.getItem("90day-command-health");
-      if (stored) {
-        try {
-          setSystemHealth(JSON.parse(stored));
-        } catch (e) {
-          // Ignore parse errors
+    try {
+      if (typeof window !== "undefined") {
+        const stored = sessionStorage.getItem("90day-command-health");
+        if (stored) {
+          try {
+            setSystemHealth(JSON.parse(stored));
+          } catch (e) {
+            console.error("CRITICAL_DATA_ERROR: Failed to parse system health", e);
+          }
         }
       }
+    } catch (err: any) {
+      console.error("CRITICAL_DATA_ERROR: Error in system health useEffect", err);
+      setCriticalError(err);
     }
   }, [data]); // Update when data changes (SWR fetcher updates sessionStorage)
 
