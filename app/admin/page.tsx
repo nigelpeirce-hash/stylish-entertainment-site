@@ -227,6 +227,17 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     setMounted(true);
+    // Load last synced time from localStorage
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("email-sync-last-synced");
+      if (stored) {
+        try {
+          setLastSynced(new Date(stored));
+        } catch (e) {
+          console.error("Error parsing last synced time:", e);
+        }
+      }
+    }
   }, []);
 
   // Check for dev bypass (development only) - allow access automatically in dev mode
