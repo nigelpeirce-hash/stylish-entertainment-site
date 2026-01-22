@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Force Webpack and disable Turbopack for production
+  webpack: (config) => {
+    return config;
+  },
+  experimental: {
+    // Explicitly ensure turbo is disabled
+    turbo: false,
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
