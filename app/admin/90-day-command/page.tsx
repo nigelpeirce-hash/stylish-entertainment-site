@@ -386,6 +386,9 @@ export default function NinetyDayCommandCentre() {
       refreshInterval: shouldFetch ? 60000 : 0, // Refresh every 60 seconds (increased from 30), or 0 if not authorized
       dedupingInterval: 10000, // Dedupe requests within 10 seconds (increased from 5)
       keepPreviousData: true, // Keep previous data while fetching new data
+      loadingTimeout: 10000, // Timeout after 10 seconds
+      errorRetryCount: 3, // Max retries
+      errorRetryInterval: 5000, // Retry after 5 seconds
       onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
         // Don't retry on 401/403 errors
         if (error.status === 401 || error.status === 403) return;
@@ -393,6 +396,9 @@ export default function NinetyDayCommandCentre() {
         if (retryCount >= 3) return;
         // Retry after 5 seconds
         setTimeout(() => revalidate({ retryCount }), 5000);
+      },
+      onLoadingSlow: () => {
+        console.warn("[90-Day Command] API request is taking longer than expected");
       },
     }
   );
