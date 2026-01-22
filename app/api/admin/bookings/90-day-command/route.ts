@@ -13,7 +13,11 @@ export const runtime = 'nodejs';
  * Sorted by eventDate (closest first)
  */
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
+  
   try {
+    console.log("[90-Day Command] API request started");
+    
     // Check if request is from localhost (development only)
     const forwardedFor = request.headers.get("x-forwarded-for");
     const realIp = request.headers.get("x-real-ip");
@@ -23,7 +27,9 @@ export async function GET(request: NextRequest) {
                        process.env.NODE_ENV === "development";
     
     // In development/localhost, allow access even if admin check fails (for dev bypass)
+    console.log("[90-Day Command] Checking admin authorization...");
     let admin = await requireAdmin(request);
+    console.log("[90-Day Command] Admin check complete:", admin ? "authorized" : "unauthorized");
     
     if (!admin && !isLocalhost) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -34,6 +40,7 @@ export async function GET(request: NextRequest) {
     ninetyDaysFromNow.setDate(now.getDate() + 90);
 
     // Fetch bookings where eventDate is within next 90 days
+    console.log("[90-Day Command] Fetching bookings from database...");
     const bookings = await prisma.booking.findMany({
       where: {
         eventDate: {
@@ -95,6 +102,8 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    console.log(`[90-Day Command] Found ${bookings.length} bookings`);
+
     // Calculate days remaining and check for unread portal messages and staff pending actions
     const bookingsWithMetadata = bookings.map((booking) => {
       const eventDate = new Date(booking.eventDate);
@@ -131,18 +140,27 @@ export async function GET(request: NextRequest) {
     // Sort by days remaining (closest first)
     allBookings.sort((a, b) => a.daysRemaining - b.daysRemaining);
 
+    const endTime = Date.now();
+    const duration = endTime - startTime;
+    console.log(`[90-Day Command] Request completed in ${duration}ms`);
+
     return NextResponse.json({
       success: true,
       bookings: allBookings,
       count: allBookings.length,
     });
   } catch (error: any) {
-    console.error("Error fetching 90-day command centre bookings:", error);
+    const endTime = Date.now();
+    const duration = endTime - startTime;
+    console.error(`[90-Day Command] Error after ${duration}ms:`, error);
+    console.error("[90-Day Command] Error stack:", error.stack);
+    
     return NextResponse.json(
       {
         success: false,
         error: "Internal server error",
-        message: error.message,
+        message: error.message || "Unknown error occurred",
+        details: process.env.NODE_ENV === "development" ? error.stack : undefined,
       },
       { status: 500 }
     );
