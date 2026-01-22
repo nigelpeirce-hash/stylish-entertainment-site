@@ -6,28 +6,15 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 // Cron job endpoint for automatic email syncing
-// Can be called by Vercel Cron or external cron service
+// DISABLED: Manual sync only - use /api/admin/sync-emails instead
+// This endpoint is kept for backward compatibility but is no longer used
 export async function GET(request: NextRequest) {
-  try {
-    // Optional: Add authentication header check
-    const authHeader = request.headers.get("authorization");
-    if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const result = await syncAllInboxes();
-
-    return NextResponse.json({
-      success: true,
-      message: "Email sync completed",
-      ...result,
-      timestamp: new Date().toISOString(),
-    });
-  } catch (error: any) {
-    console.error("Cron email sync error:", error);
-    return NextResponse.json(
-      { error: "Failed to sync emails", details: error.message },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json(
+    { 
+      success: false,
+      message: "Automatic email sync is disabled. Please use the manual 'Sync Emails' button in the admin dashboard.",
+      endpoint: "/api/admin/sync-emails"
+    },
+    { status: 410 } // 410 Gone - indicates the resource is no longer available
+  );
 }

@@ -49,6 +49,8 @@ export default function AdminDashboard() {
   const [unreadThreads, setUnreadThreads] = useState<any[]>([]);
   const [recentThreads, setRecentThreads] = useState<any[]>([]);
   const [showNewBookingModal, setShowNewBookingModal] = useState(false);
+  const [lastSynced, setLastSynced] = useState<Date | null>(null);
+  const [isSyncing, setIsSyncing] = useState(false);
 
   // Track redirect to prevent multiple redirects
   const redirectAttemptedRef = useRef(false);
@@ -188,13 +190,20 @@ export default function AdminDashboard() {
   }, [status, session, fetchStats]); // Removed 'loading' from dependencies to prevent re-runs
 
   const handleSyncEmails = async () => {
+    setIsSyncing(true);
     try {
-      const response = await fetch("/api/admin/email/sync", {
+      const response = await fetch("/api/admin/sync-emails", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });
       const result = await response.json();
       if (result.success) {
+        const syncTime = new Date();
+        setLastSynced(syncTime);
+        // Store in localStorage for persistence
+        if (typeof window !== "undefined") {
+          localStorage.setItem("email-sync-last-synced", syncTime.toISOString());
+        }
         const message = result.count 
           ? `Email sync completed! ${result.count} emails synced.`
           : result.successful 
@@ -208,6 +217,8 @@ export default function AdminDashboard() {
     } catch (error: any) {
       console.error("Error syncing emails:", error);
       alert(`Failed to sync emails: ${error?.message || "Please check your email inbox configuration in Settings"}`);
+    } finally {
+      setIsSyncing(false);
     }
   };
 
@@ -355,13 +366,21 @@ export default function AdminDashboard() {
                   90-Day Command Centre
                 </Button>
               </Link>
-              <Button
-                onClick={handleSyncEmails}
-                className="bg-champagne-gold text-black hover:bg-gold-light"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Sync Emails
-              </Button>
+              <div className="flex flex-col gap-2">
+                <Button
+                  onClick={handleSyncEmails}
+                  disabled={isSyncing}
+                  className="bg-champagne-gold text-black hover:bg-gold-light disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <RefreshCw className={`w-4 h-4 mr-2 ${isSyncing ? "animate-spin" : ""}`} />
+                  {isSyncing ? "Syncing..." : "Sync Emails"}
+                </Button>
+                {lastSynced && (
+                  <p className="text-xs text-gray-400 text-center">
+                    Last synced: {lastSynced.toLocaleTimeString()}
+                  </p>
+                )}
+              </div>
               <Button
                 onClick={() => signOut({ callbackUrl: "/login" })}
                 variant="outline"
