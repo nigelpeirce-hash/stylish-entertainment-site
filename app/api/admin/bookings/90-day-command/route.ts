@@ -39,68 +39,81 @@ export async function GET(request: NextRequest) {
     const ninetyDaysFromNow = new Date();
     ninetyDaysFromNow.setDate(now.getDate() + 90);
 
+    // Test database connection first
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      console.log("[90-Day Command] Database connection verified");
+    } catch (connError: any) {
+      console.error("[90-Day Command] Database connection failed:", connError);
+      throw new Error(`Database connection error: ${connError.message || "Unable to connect to database"}`);
+    }
+
     // Fetch bookings where eventDate is within next 90 days
     console.log("[90-Day Command] Fetching bookings from database...");
-    const bookings = await prisma.booking.findMany({
-      where: {
-        eventDate: {
-          gte: now, // Greater than or equal to today
-          lte: ninetyDaysFromNow, // Less than or equal to 90 days from now
+    
+    // Simplified query to avoid complex nested relations that might timeout
+    // Split into two queries if needed for better performance
+    let bookings;
+    try {
+      bookings = await prisma.booking.findMany({
+        where: {
+          eventDate: {
+            gte: now, // Greater than or equal to today
+            lte: ninetyDaysFromNow, // Less than or equal to 90 days from now
+          },
         },
-      },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        venueName: true,
-        eventDate: true,
-        eventType: true,
-        status: true,
-        priority: true,
-        depositReceived: true,
-        depositReceivedManual: true,
-        djWorksheetApproved: true,
-        djWorksheetApprovedManual: true,
-        finalDetailsConfirmed: true,
-        finalDetailsConfirmedManual: true,
-        services: true,
-        createdAt: true,
-        staffAssignments: {
-          select: {
-            id: true,
-            role: true,
-            status: true,
-            briefStatus: true,
-            acknowledgedAt: true,
-            staff: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-              },
+        include: {
+          staffAssignments: {
+            include: {
+              staff: true
+            }
+          },
+          // Simplified emailThreads query - just check for unread portal messages
+          emailThreads: {
+            where: {
+              source: "portal",
+              isRead: false,
             },
-          },
-        },
-        emailThreads: {
-          where: {
-            source: "portal",
-            isRead: false,
-            EmailInbox: {
-              OR: [
-                { assignedUsers: { isEmpty: true } }, // Shared inboxes
-                { assignedUsers: { has: (admin as any)?.email || "" } }, // User is assigned
-              ],
+            select: {
+              id: true,
             },
-          },
-          select: {
-            id: true,
+            take: 1, // Only need to know if any exist, not all of them
           },
         },
-      },
-      orderBy: {
-        eventDate: "asc", // Closest first
-      },
-    });
+        orderBy: {
+          eventDate: 'asc'
+        },
+        // Add timeout protection
+        take: 500, // Limit results to prevent huge queries
+      });
+    } catch (dbError: any) {
+      console.error("[90-Day Command] Database query error:", dbError);
+      // If the complex query fails, try a simpler version without emailThreads
+      console.log("[90-Day Command] Retrying with simplified query...");
+      bookings = await prisma.booking.findMany({
+        where: {
+          eventDate: {
+            gte: now,
+            lte: ninetyDaysFromNow,
+          },
+        },
+        include: {
+          staffAssignments: {
+            include: {
+              staff: true
+            }
+          },
+        },
+        orderBy: {
+          eventDate: 'asc'
+        },
+        take: 500,
+      });
+      
+      // Manually set unreadPortalMessages to false for all bookings
+      // (we'll skip the emailThreads check if the query fails)
+      bookings = bookings.map(b => ({ ...b, emailThreads: [] }));
+    }
 
     console.log(`[90-Day Command] Found ${bookings.length} bookings`);
 
@@ -154,15 +167,35 @@ export async function GET(request: NextRequest) {
     const duration = endTime - startTime;
     console.error(`[90-Day Command] Error after ${duration}ms:`, error);
     console.error("[90-Day Command] Error stack:", error.stack);
+    console.error("[90-Day Command] Error name:", error.name);
+    console.error("[90-Day Command] Error code:", error.code);
+    
+    // Provide more specific error messages
+    let errorMessage = "Internal server error";
+    let statusCode = 500;
+    
+    if (error.message?.includes("connection") || error.message?.includes("timeout") || error.code === "P1001") {
+      errorMessage = "Database connection timeout. Please try again.";
+      statusCode = 503; // Service Unavailable
+    } else if (error.message?.includes("P2002") || error.code === "P2002") {
+      errorMessage = "Database constraint error. Please contact support.";
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
     
     return NextResponse.json(
       {
         success: false,
-        error: "Internal server error",
+        error: errorMessage,
         message: error.message || "Unknown error occurred",
-        details: process.env.NODE_ENV === "development" ? error.stack : undefined,
+        details: process.env.NODE_ENV === "development" ? {
+          stack: error.stack,
+          name: error.name,
+          code: error.code,
+          duration: `${duration}ms`,
+        } : undefined,
       },
-      { status: 500 }
+      { status: statusCode }
     );
   }
 }

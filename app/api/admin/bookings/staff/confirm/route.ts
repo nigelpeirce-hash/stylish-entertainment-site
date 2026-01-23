@@ -95,6 +95,60 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "staffId or staffName is required" }, { status: 400 });
     }
 
+    // Check for staff double-booking conflicts (same staff on same date)
+    const eventDate = new Date(booking.eventDate);
+    const startOfDay = new Date(eventDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(eventDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const conflictingAssignments = await prisma.bookingStaffAssignment.findMany({
+      where: {
+        staffId: staff.id,
+        status: {
+          in: ["held", "dispatched", "confirmed"], // Only check active assignments
+        },
+        booking: {
+          eventDate: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+          id: {
+            not: bookingId, // Exclude current booking
+          },
+        },
+      },
+      include: {
+        booking: {
+          select: {
+            id: true,
+            name: true,
+            venueName: true,
+            eventDate: true,
+          },
+        },
+      },
+    });
+
+    if (conflictingAssignments.length > 0) {
+      const conflict = conflictingAssignments[0];
+      return NextResponse.json(
+        {
+          error: "Staff double-booking conflict detected",
+          conflict: {
+            message: `${staff.name} is already assigned to another booking on this date`,
+            existingBooking: {
+              id: conflict.booking.id,
+              name: conflict.booking.name,
+              venueName: conflict.booking.venueName,
+              eventDate: conflict.booking.eventDate,
+            },
+          },
+        },
+        { status: 409 } // 409 Conflict
+      );
+    }
+
     // Check if assignment already exists
     const existingAssignment = await prisma.bookingStaffAssignment.findFirst({
       where: {
@@ -126,6 +180,19 @@ export async function POST(request: NextRequest) {
             confirmationSentAt: sendEmail ? new Date() : null,
           },
         });
+
+    // Auto-update booking status from "pending" to "confirmed" when staff is assigned
+    const currentBooking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: { status: true },
+    });
+
+    if (currentBooking?.status === "pending") {
+      await prisma.booking.update({
+        where: { id: bookingId },
+        data: { status: "confirmed" },
+      });
+    }
 
     // Send confirmation email if requested and staff has email
     if (sendEmail && staff.email) {

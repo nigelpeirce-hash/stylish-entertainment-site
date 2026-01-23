@@ -4,6 +4,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // url and directUrl removed from here!
 }
 
 model Account {
@@ -26,7 +27,7 @@ model Account {
 }
 
 model AuditLog {
-  id          String   @id
+  id          String   @id @default(dbgenerated("('audit_'::text || \"substring\"(md5((random())::text), 1, 12))"))
   bookingId   String
   action      String
   description String
@@ -42,6 +43,7 @@ model Booking {
   id                          String                   @id
   userId                      String?
   name                        String
+  displayName                 String?
   email                       String
   phoneAreaCode               String?
   phoneNumber                 String?
@@ -56,6 +58,7 @@ model Booking {
   venuePostcode               String?
   venuePhoneAreaCode          String?
   venuePhoneNumber            String?
+  ceremonyTime                DateTime?
   djArrivalTime               String?
   djStartTime                 String?
   djFinishTime                String?
@@ -112,10 +115,14 @@ model Booking {
   taxInclusive                Boolean?                 @default(true)
   taxRate                     Float?                   @default(20)
   venueFingerprint            String?
+  portalToken                 String?                  @unique
   assignedTo                  assigned_member?
   AuditLog                    AuditLog[]
   User                        User?                    @relation(fields: [userId], references: [id])
   staffAssignments            BookingStaffAssignment[]
+  bookingItems                BookingItem[]
+  warehouseItems              BookingWarehouseItem[]
+  guestRequests               GuestRequest[]
   Cart                        Cart[]
   CommsLog                    CommsLog[]
   emailThreads                EmailThread[]
@@ -133,7 +140,7 @@ model Booking {
 }
 
 model BookingStaffAssignment {
-  id                    String        @id
+  id                    String        @id @default(dbgenerated("('asgn_'::text || \"substring\"(md5((random())::text), 1, 12))"))
   bookingId             String
   staffId               String
   role                  String
@@ -142,7 +149,7 @@ model BookingStaffAssignment {
   confirmationEmailSent Boolean       @default(false)
   confirmationSentAt    DateTime?
   createdAt             DateTime      @default(now())
-  updatedAt             DateTime
+  updatedAt             DateTime      @default(now())
   cancellationReason    String?
   cancelledAt           DateTime?
   briefStatus           String?       @default("pending")
@@ -154,6 +161,22 @@ model BookingStaffAssignment {
   @@index([bookingId])
   @@index([staffId])
   @@index([status])
+}
+
+model BookingItem {
+  id         String   @id @default(cuid())
+  bookingId  String
+  hireItemId String
+  quantity   Int      @default(1)
+  status     String   @default("pending_approval")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+  Booking    Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  HireItem   HireItem @relation(fields: [hireItemId], references: [id], onDelete: Cascade)
+
+  @@unique([bookingId, hireItemId])
+  @@index([bookingId])
+  @@index([hireItemId])
 }
 
 model Cart {
@@ -189,7 +212,7 @@ model CartItem {
 }
 
 model CommsLog {
-  id                String   @id
+  id                String   @id @default(dbgenerated("('log_'::text || \"substring\"(md5((random())::text), 1, 12))"))
   bookingId         String?
   platform          String
   direction         String
@@ -268,7 +291,7 @@ model Email {
   @@index([receivedAt])
   @@index([threadId])
   @@index([toEmail])
-  @@index([threadId, receivedAt(sort: Asc)])
+  @@index([threadId, receivedAt])
 }
 
 model EmailInbox {
@@ -289,12 +312,12 @@ model EmailInbox {
   syncEnabled   Boolean       @default(true)
   lastSyncedAt  DateTime?
   syncInterval  Int           @default(5)
-  assignedUsers String[]      @default([])
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  assignedUsers String[]      @default([])
   Email         Email[]
-  EmailThread   EmailThread[]
   EmailFolder   EmailFolder[]
+  EmailThread   EmailThread[]
 
   @@index([email])
   @@index([isActive])
@@ -326,19 +349,19 @@ model EmailThread {
   toEmail       String
   bookingId     String?
   userId        String?
-  source        String       @default("imap")
   isRead        Boolean      @default(false)
   isStarred     Boolean      @default(false)
   isArchived    Boolean      @default(false)
   lastMessageAt DateTime     @default(now())
   inboxId       String
-  folderId      String?
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
+  source        String       @default("imap")
+  folderId      String?
   Email         Email[]
   Booking       Booking?     @relation(fields: [bookingId], references: [id])
-  EmailInbox    EmailInbox   @relation(fields: [inboxId], references: [id])
   EmailFolder   EmailFolder? @relation(fields: [folderId], references: [id])
+  EmailInbox    EmailInbox   @relation(fields: [inboxId], references: [id])
   User          User?        @relation(fields: [userId], references: [id])
 
   @@index([bookingId])
@@ -353,19 +376,19 @@ model EmailFolder {
   id           String        @id @default(uuid())
   inboxId      String
   name         String
-  fullPath     String // e.g., "QUOTES/DJ quotes/Better Proposal Quotes"
-  parentId     String? // For nested folders
-  delimiter    String        @default("/") // IMAP folder delimiter
-  attributes   Json? // IMAP folder attributes (e.g., \NoInferiors, \HasChildren)
+  fullPath     String
+  parentId     String?
+  delimiter    String        @default("/")
+  attributes   Json?
   unreadCount  Int           @default(0)
   totalCount   Int           @default(0)
   lastSyncedAt DateTime?
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   EmailInbox   EmailInbox    @relation(fields: [inboxId], references: [id], onDelete: Cascade)
-  EmailThread  EmailThread[]
   parent       EmailFolder?  @relation("FolderHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
   children     EmailFolder[] @relation("FolderHierarchy")
+  EmailThread  EmailThread[]
 
   @@unique([inboxId, fullPath])
   @@index([inboxId])
@@ -398,6 +421,8 @@ model FreelanceCrew {
   phone                  String?
   roles                  String[]
   isActive               Boolean                  @default(true)
+  accountNumber          String?
+  sortCode               String?
   createdAt              DateTime                 @default(now())
   updatedAt              DateTime
   BookingStaffAssignment BookingStaffAssignment[]
@@ -420,6 +445,7 @@ model HireItem {
   seoDescription String?
   seoTitle       String?
   slug           String?         @unique
+  BookingItem    BookingItem[]
   CartItem       CartItem[]
   HireOrderItem  HireOrderItem[]
 
@@ -504,6 +530,8 @@ model NewEnquiry {
   eventDate             DateTime
   venuePostcode         String
   venueName             String?
+  enquiryType           String?   // "hire_only" | "general" etc.
+  selectedHireItems     Json?     // [{ hireItemId, quantity }] for hire-only
   isConflict            Boolean   @default(false)
   originalBookingId     String?
   conflictDetectedAt    DateTime?
@@ -522,6 +550,7 @@ model NewEnquiry {
   @@index([createdAt])
   @@index([email])
   @@index([eventDate, venuePostcode])
+  @@index([enquiryType])
   @@index([isConflict])
   @@index([status])
 }
@@ -591,8 +620,9 @@ model Task {
 }
 
 model User {
-  id                                      String           @id
+  id                                      String           @id @default(cuid())
   name                                    String?
+  preferredName                           String?
   email                                   String           @unique
   emailVerified                           DateTime?
   password                                String?
@@ -639,6 +669,18 @@ model VenueAsset {
   @@index([year])
 }
 
+model Venue {
+  id                    String   @id @default(cuid())
+  venueName             String   @unique
+  defaultCeremonyTime   String?  // HH:mm e.g. "14:00"
+  defaultFinishTime     String?  // HH:mm e.g. "00:00"
+  venueNotes            String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime
+
+  @@index([venueName])
+}
+
 model VerificationToken {
   identifier String
   token      String   @unique
@@ -657,4 +699,52 @@ enum assigned_member {
   ali
   husband
   none
+}
+
+model WarehouseItem {
+  id          String   @id @default(cuid())
+  name        String
+  category    String   // 'Sound', 'Lighting', 'Effects', 'Rigging'
+  weight      Float?   // in kg
+  size        String?  // e.g., "120x80x60cm"
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  bookings    BookingWarehouseItem[]
+
+  @@index([category])
+  @@index([isActive])
+  @@index([name])
+}
+
+model BookingWarehouseItem {
+  id              String         @id @default(cuid())
+  bookingId       String
+  warehouseItemId String
+  quantity        Int            @default(1)
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  Booking         Booking        @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  WarehouseItem   WarehouseItem  @relation(fields: [warehouseItemId], references: [id], onDelete: Cascade)
+
+  @@unique([bookingId, warehouseItemId])
+  @@index([bookingId])
+  @@index([warehouseItemId])
+}
+
+model GuestRequest {
+  id          String   @id @default(cuid())
+  bookingId   String
+  songTitle   String
+  artist      String?
+  guestName   String?  // Optional - guest can submit anonymously
+  status      String   @default("pending") // 'pending', 'approved', 'moved_to_official'
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  Booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@index([status])
+  @@index([createdAt])
 }

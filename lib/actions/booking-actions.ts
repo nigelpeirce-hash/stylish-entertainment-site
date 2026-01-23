@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { randomUUID } from "crypto";
 import { sendEmailFromCRM } from "@/lib/email-send";
 import { auth } from "@/auth";
+import { cleanName, getDisplayName, getGreetingName } from "@/lib/utils/name-helpers";
 
 interface CreateBookingInput {
   title: string;
@@ -33,11 +34,16 @@ export async function createBooking(input: CreateBookingInput) {
       minute: "2-digit",
     });
 
+    // Clean and normalize the name
+    const cleanedName = cleanName(input.title);
+    const displayName = getDisplayName(input.title);
+    
     // Create the booking
     const booking = await prisma.booking.create({
       data: {
         id: randomUUID(),
-        name: input.title,
+        name: cleanedName,
+        displayName: displayName,
         email: input.clientEmail.toLowerCase(),
         eventDate: input.startTime,
         djFinishTime: endTimeString, // Store end time as formatted string
@@ -84,8 +90,9 @@ export async function createBooking(input: CreateBookingInput) {
         });
 
         if (inbox) {
-          // Generate portal link (adjust URL based on your actual portal route)
-          const portalUrl = `${process.env.NEXT_PUBLIC_APP_URL || "https://stylishentertainment.co.uk"}/client/bookings/${booking.id}`;
+          // Generate portal link - use NEXT_PUBLIC_APP_URL or NEXT_PUBLIC_SITE_URL, defaulting to localhost for dev
+          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001';
+          const portalUrl = `${baseUrl}/client/bookings/${booking.id}`;
           
           const portalInviteHtml = `
             <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto;">

@@ -6,10 +6,16 @@ import { useEffect, useState, Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, CheckCircle2, Clock, User, Mail, Phone, Calendar, MapPin, ExternalLink, RefreshCw } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, User, Mail, Phone, Calendar, MapPin, ExternalLink, RefreshCw, Package } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
 import { motion } from "framer-motion";
+
+interface SelectedHireItem {
+  hireItemId: string;
+  quantity: number;
+  name?: string;
+}
 
 interface NewEnquiry {
   id: string;
@@ -20,6 +26,8 @@ interface NewEnquiry {
   eventDate: string;
   venuePostcode: string;
   venueName: string | null;
+  enquiryType?: string | null;
+  selectedHireItems?: SelectedHireItem[] | null;
   isConflict: boolean;
   originalBookingId: string | null;
   originalBooking: {
@@ -38,6 +46,7 @@ function NewEnquiriesContent() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [enquiries, setEnquiries] = useState<NewEnquiry[]>([]);
+  const [hireEnquiries, setHireEnquiries] = useState<NewEnquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -79,6 +88,7 @@ function NewEnquiriesContent() {
       if (response.ok) {
         const data = await response.json();
         setEnquiries(data.enquiries || []);
+        setHireEnquiries(data.hireEnquiries || []);
       }
     } catch (error) {
       console.error("Error fetching enquiries:", error);
@@ -121,6 +131,7 @@ function NewEnquiriesContent() {
 
   const conflictEnquiries = enquiries.filter(e => e.isConflict);
   const newEnquiries = enquiries.filter(e => !e.isConflict);
+  const nonHireEnquiries = newEnquiries.filter(e => e.enquiryType !== "hire_only");
 
   return (
     <div className="min-h-screen bg-gray-900 p-4 md:p-6 lg:p-8">
@@ -224,12 +235,91 @@ function NewEnquiriesContent() {
           </motion.div>
         )}
 
+        {/* Hire Enquiries */}
+        {hireEnquiries.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-4"
+          >
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <Package className="w-6 h-6 text-champagne-gold" />
+              Hire Enquiries ({hireEnquiries.length})
+            </h2>
+            <p className="text-gray-400 text-sm">Request Quote submissions from the public hire page.</p>
+            <div className="space-y-3">
+              {hireEnquiries.map((enquiry) => {
+                const items = (enquiry.selectedHireItems as SelectedHireItem[]) || [];
+                return (
+                  <Card
+                    key={enquiry.id}
+                    className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/50 transition-colors"
+                  >
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-3 mb-2">
+                            <h3 className="text-xl font-bold text-white">{enquiry.name}</h3>
+                            {enquiry.status === "new" && (
+                              <Badge className="bg-champagne-gold/20 text-champagne-gold border border-champagne-gold/40">New</Badge>
+                            )}
+                          </div>
+                          <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-300">
+                            <span className="flex items-center gap-1">
+                              <Mail className="w-3.5 h-3.5 text-champagne-gold" />
+                              {enquiry.email}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Calendar className="w-3.5 h-3.5 text-champagne-gold" />
+                              {formatDate(enquiry.eventDate)}
+                            </span>
+                            {(enquiry.venueName && enquiry.venueName !== "TBC") && (
+                              <span className="flex items-center gap-1">
+                                <MapPin className="w-3.5 h-3.5 text-champagne-gold" />
+                                {enquiry.venueName}
+                              </span>
+                            )}
+                          </div>
+                          {items.length > 0 && (
+                            <div className="mt-3 pt-3 border-t border-gray-700">
+                              <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Requested items</p>
+                              <ul className="text-sm text-gray-300 space-y-0.5">
+                                {items.map((row, idx) => (
+                                  <li key={idx}>
+                                    {(row as any).name || row.hireItemId} × {row.quantity}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          <p className="text-gray-500 text-xs mt-2">
+                            Received {format(new Date(enquiry.createdAt), "d MMM yyyy 'at' HH:mm")}
+                          </p>
+                        </div>
+                        <Link href={`/admin/new-enquiries/${enquiry.id}`} className="flex-shrink-0">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10"
+                          >
+                            Review
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+
         {/* New Enquiries List */}
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-white">
-            New Enquiries ({newEnquiries.length})
+            New Enquiries ({nonHireEnquiries.length})
           </h2>
-          {newEnquiries.length === 0 && conflictEnquiries.length === 0 && (
+          {nonHireEnquiries.length === 0 && conflictEnquiries.length === 0 && hireEnquiries.length === 0 && (
             <Card className="bg-gray-800 border-gray-700">
               <CardContent className="p-12 text-center">
                 <CheckCircle2 className="w-16 h-16 text-gray-600 mx-auto mb-4" />
@@ -240,7 +330,7 @@ function NewEnquiriesContent() {
               </CardContent>
             </Card>
           )}
-          {newEnquiries.map((enquiry) => (
+          {nonHireEnquiries.map((enquiry) => (
             <Card
               key={enquiry.id}
               className="bg-gray-800 border-gray-700 hover:border-champagne-gold/50 transition-colors"

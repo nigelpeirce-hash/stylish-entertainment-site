@@ -11,6 +11,7 @@ export type JourneyStage =
   | "booking-confirmation"
   | "4-week-checkin"
   | "week-of-excitement"
+  | "final-chase"
   | "post-wedding-magic";
 
 export interface JourneyEmailData {
@@ -19,6 +20,8 @@ export interface JourneyEmailData {
   eventDate?: string;
   venueName?: string;
   clientAdminUrl?: string;
+  /** Magic-link URL for FINAL_CHASE: /client/bookings/[id]?token=... (no login required) */
+  portalMagicUrl?: string;
   brochureUrl?: string;
 }
 
@@ -100,8 +103,8 @@ const LUXE_STYLES = `
     .button-luxe {
       display: inline-block;
       padding: 12px 24px;
-      background-color: #000000;
-      color: #FFFFFF !important;
+      background-color: #D4AF37;
+      color: #1A1A1A !important;
       text-decoration: none;
       border-radius: 2px;
       font-weight: bold;
@@ -109,10 +112,11 @@ const LUXE_STYLES = `
       letter-spacing: 1px;
       margin: 20px 0;
       transition: background-color 0.3s;
+      box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
     }
     
     .button-luxe:hover {
-      background-color: #333333;
+      background-color: #E6C84A;
     }
     
     .link {
@@ -169,6 +173,7 @@ function buildEmailTemplate(
     .replace(/\{\{eventDate\}\}/g, data.eventDate || "your event date")
     .replace(/\{\{venueName\}\}/g, data.venueName || "your venue")
     .replace(/\{\{clientAdminUrl\}\}/g, data.clientAdminUrl || "#")
+    .replace(/\{\{portalMagicUrl\}\}/g, data.portalMagicUrl || data.clientAdminUrl || "#")
     .replace(/\{\{brochureUrl\}\}/g, data.brochureUrl || "#");
 
   const html = `
@@ -387,6 +392,35 @@ export function weekOfExcitement(data: JourneyEmailData) {
 }
 
 /**
+ * FINAL_CHASE – 3-day chase (event in 2–3 days)
+ * Tokenized magic link: no login required. Use {{portalMagicUrl}} for the CTA.
+ */
+export function finalChase(data: JourneyEmailData) {
+  const contentHtml = `
+    <h1>Final Details Needed – Your Event Is in 3 Days</h1>
+    <p>Dear {{clientName}},</p>
+    <p>Your {{eventType}} at {{venueName}} is almost here ({{eventDate}}). We need to lock in your final details so everything runs smoothly on the day.</p>
+    <h2>Update Your Final Details Now</h2>
+    <p>Please confirm any last-minute changes, dietary requirements, timings, or special requests. Use the link below to access your portal instantly – no login required.</p>
+    <p style="text-align: center; margin: 30px 0;">
+      <a href="{{portalMagicUrl}}" class="button-luxe">CLICK TO ACCESS PORTAL NOW (No Login Required)</a>
+    </p>
+    <p>If you have any questions, just reply to this email or give us a call. We're here to help.</p>
+    <div class="signature">
+      <p>Best regards,</p>
+      <p><strong>Ali & Nige</strong><br>
+      Stylish Entertainment</p>
+    </div>
+  `;
+
+  return buildEmailTemplate(
+    "Urgent: Final Details for Your {{eventType}} – {{eventDate}}",
+    contentHtml,
+    data
+  );
+}
+
+/**
  * 5. Post-Wedding Magic
  * Sent 3 days after the event, asking for feedback/testimonials
  */
@@ -436,6 +470,8 @@ export function getJourneyEmail(
       return fourWeekCheckin(data);
     case "week-of-excitement":
       return weekOfExcitement(data);
+    case "final-chase":
+      return finalChase(data);
     case "post-wedding-magic":
       return postWeddingMagic(data);
     default:

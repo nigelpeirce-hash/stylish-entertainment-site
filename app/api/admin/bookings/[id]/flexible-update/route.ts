@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { sendEmail } from "@/lib/email";
+import { DEPOSIT_CONFIRMED } from "@/lib/email-templates";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -31,6 +33,27 @@ export async function PATCH(
     const bookingId = resolvedParams.id;
     const body = await request.json();
 
+    // Fetch current booking state to detect changes
+    const currentBooking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        eventDate: true,
+        eventType: true,
+        venueName: true,
+        depositReceivedManual: true,
+      },
+    });
+
+    if (!currentBooking) {
+      return NextResponse.json(
+        { error: "Booking not found" },
+        { status: 404 }
+      );
+    }
+
     const {
       finalBalance,
       adminNotes,
@@ -42,6 +65,12 @@ export async function PATCH(
       selectedTemplate,
       eventDate,
       venueName,
+      venuePostcode,
+      ceremonyTime,
+      djFinishTime,
+      depositReceivedManual,
+      message,
+      status,
     } = body;
 
     // Validate override mode
@@ -77,17 +106,37 @@ export async function PATCH(
     if (selectedTemplate !== undefined) {
       updateData.selectedTemplate = selectedTemplate;
     }
+    if (ceremonyTime !== undefined) {
+      updateData.ceremonyTime = ceremonyTime ? new Date(ceremonyTime) : null;
+    }
+    if (djFinishTime !== undefined) {
+      updateData.djFinishTime = djFinishTime === null || djFinishTime === "" ? null : String(djFinishTime);
+    }
+    if (depositReceivedManual !== undefined) {
+      updateData.depositReceivedManual = depositReceivedManual;
+    }
+    // Venue Name and Venue Postcode: always allow updates (no override required)
+    if (venueName !== undefined) {
+      updateData.venueName = venueName;
+    }
+    if (venuePostcode !== undefined) {
+      updateData.venuePostcode = venuePostcode;
+    }
+    if (message !== undefined) {
+      updateData.message = message === null || message === "" ? null : String(message);
+    }
+    if (status !== undefined) {
+      updateData.status = String(status);
+    }
 
-    // Only update locked fields if override mode is enabled
+    // Only update locked fields (eventDate) if override mode is enabled
     if (overrideMode) {
       if (eventDate) {
         updateData.eventDate = new Date(eventDate);
       }
-      if (venueName) {
-        updateData.venueName = venueName;
+      if (overrideReason) {
+        updateData.overrideReason = overrideReason;
       }
-      // Log override action
-      updateData.overrideReason = overrideReason;
     }
 
     // Update booking
@@ -105,8 +154,55 @@ export async function PATCH(
         selectedTemplate: true,
         eventDate: true,
         venueName: true,
+        venuePostcode: true,
+        ceremonyTime: true,
+        djFinishTime: true,
+        depositReceivedManual: true,
+        message: true,
+        status: true,
+        updatedAt: true,
       },
     });
+
+    // Check if depositReceivedManual is being set to true (and wasn't already true)
+    // This ensures the email only sends once when the deposit is first confirmed
+    const wasDepositReceived = currentBooking.depositReceivedManual === true;
+    const isNowDepositReceived = depositReceivedManual === true;
+    const shouldSendEmail = !wasDepositReceived && isNowDepositReceived;
+
+    if (shouldSendEmail) {
+      try {
+        // Generate portal URL — unique per booking so Sarah & Tim go to /client/bookings/{id}
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001';
+        const portalUrl = `${baseUrl}/client/bookings/${bookingId}`;
+
+        // Use updated booking data for email (eventDate/venueName may have changed this request)
+        const emailContent = DEPOSIT_CONFIRMED({
+          booking: {
+            name: currentBooking.name,
+            eventDate: updatedBooking.eventDate,
+            eventType: currentBooking.eventType || undefined,
+            venueName: updatedBooking.venueName || undefined,
+            bookingId: bookingId,
+          },
+          portalUrl,
+        });
+
+        // Send email
+        await sendEmail({
+          to: currentBooking.email,
+          subject: emailContent.subject,
+          html: emailContent.html,
+          text: emailContent.text,
+        });
+
+        console.log(`✅ Deposit confirmation email sent to ${currentBooking.email} for booking ${bookingId}`);
+      } catch (emailError) {
+        // Log error but don't fail the request
+        console.error("Error sending deposit confirmation email:", emailError);
+        // Continue with the response even if email fails
+      }
+    }
 
     return NextResponse.json({
       success: true,

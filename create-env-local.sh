@@ -23,8 +23,12 @@ DATABASE_URL="postgresql://postgres:${PASSWORD}@db.qraijuzzktertoujrwat.supabase
 NEXTAUTH_URL="http://localhost:3001"
 NEXTAUTH_SECRET="your-secret-key-here"
 
-# Site URL
+# Site URL (used for portal links and general site references)
 NEXT_PUBLIC_SITE_URL="http://localhost:3001"
+
+# Portal/App URL (alternative to NEXT_PUBLIC_SITE_URL for portal links)
+# If not set, will fall back to NEXT_PUBLIC_SITE_URL
+NEXT_PUBLIC_APP_URL="http://localhost:3001"
 EOF
 
 echo "✅ Created .env.local file!"

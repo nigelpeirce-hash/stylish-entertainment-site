@@ -5,7 +5,6 @@ import { useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthButton } from "@/components/AuthButton";
-import WaveDivider from "@/components/WaveDivider";
 import { useClientStatus } from "@/hooks/useClientStatus";
 
 export default function Navigation() {
@@ -517,8 +516,6 @@ export default function Navigation() {
           )}
         </AnimatePresence>
         
-        {/* Wave Divider at bottom of header */}
-        <WaveDivider />
       </nav>
 
     </>

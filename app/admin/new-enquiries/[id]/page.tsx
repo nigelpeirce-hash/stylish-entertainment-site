@@ -6,10 +6,16 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, ArrowLeft, User, Mail, Phone, Calendar, MapPin, CheckCircle2, Clock } from "lucide-react";
+import { AlertTriangle, ArrowLeft, User, Mail, Phone, Calendar, MapPin, CheckCircle2, Clock, Package } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
 import { motion } from "framer-motion";
+
+interface SelectedHireItem {
+  hireItemId: string;
+  quantity: number;
+  name?: string;
+}
 
 interface NewEnquiry {
   id: string;
@@ -20,6 +26,8 @@ interface NewEnquiry {
   eventDate: string;
   venuePostcode: string;
   venueName: string | null;
+  enquiryType?: string | null;
+  selectedHireItems?: SelectedHireItem[] | null;
   isConflict: boolean;
   originalBookingId: string | null;
   originalBooking: {
@@ -184,9 +192,16 @@ export default function NewEnquiryDetail() {
               <CardTitle className="text-2xl font-bold text-white font-serif">
                 {enquiry.name}
               </CardTitle>
-              <Badge className={enquiry.isConflict ? "bg-amber-600 text-white" : "bg-blue-600 text-white"}>
-                {enquiry.isConflict ? "Conflict" : "New"}
-              </Badge>
+              <div className="flex items-center gap-2">
+                {enquiry.enquiryType === "hire_only" && (
+                  <Badge className="bg-champagne-gold/20 text-champagne-gold border border-champagne-gold/40">
+                    Hire only
+                  </Badge>
+                )}
+                <Badge className={enquiry.isConflict ? "bg-amber-600 text-white" : "bg-blue-600 text-white"}>
+                  {enquiry.isConflict ? "Conflict" : "New"}
+                </Badge>
+              </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -226,6 +241,23 @@ export default function NewEnquiryDetail() {
               </div>
             </div>
 
+            {/* Hire-only: Requested items */}
+            {enquiry.enquiryType === "hire_only" && (enquiry.selectedHireItems as SelectedHireItem[])?.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                  <Package className="w-5 h-5 text-champagne-gold" />
+                  Requested items
+                </h3>
+                <ul className="space-y-1 p-3 bg-gray-700/50 rounded-lg">
+                  {(enquiry.selectedHireItems as SelectedHireItem[]).map((row, idx) => (
+                    <li key={idx} className="text-white">
+                      {(row as any).name || row.hireItemId} × {row.quantity}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {/* Event Details */}
             <div>
               <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
@@ -240,9 +272,13 @@ export default function NewEnquiryDetail() {
                 <div className="p-3 bg-gray-700/50 rounded-lg">
                   <p className="text-xs text-gray-400 mb-1 flex items-center gap-1">
                     <MapPin className="w-3 h-3" />
-                    Venue Postcode
+                    {enquiry.enquiryType === "hire_only" ? "Venue" : "Venue Postcode"}
                   </p>
-                  <p className="text-white font-semibold">{enquiry.venuePostcode}</p>
+                  <p className="text-white font-semibold">
+                    {enquiry.enquiryType === "hire_only" && enquiry.venueName && enquiry.venueName !== "TBC"
+                      ? enquiry.venueName
+                      : enquiry.venuePostcode}
+                  </p>
                 </div>
               </div>
             </div>
@@ -304,15 +340,36 @@ export default function NewEnquiryDetail() {
                     const response = await fetch(`/api/admin/new-enquiries/${enquiry.id}/convert`, {
                       method: "POST",
                     });
+                    const data = await response.json();
+                    
                     if (response.ok) {
-                      const data = await response.json();
+                      // Success - redirect to booking
+                      if (data.existing) {
+                        // Booking already existed
+                        alert(`Booking already exists. Redirecting to booking ${data.bookingId}`);
+                      }
                       router.push(`/admin/bookings/${data.bookingId}`);
                     } else {
-                      alert("Failed to convert enquiry to booking");
+                      // Handle specific error cases
+                      if (data.code === "DUPLICATE_BOOKING") {
+                        alert(`Duplicate booking detected: ${data.error}`);
+                      } else if (data.code === "NOT_FOUND") {
+                        alert(`Error: ${data.error}`);
+                      } else if (response.status === 400 && data.existing) {
+                        // Already converted
+                        if (data.bookingId) {
+                          alert(`This enquiry has already been converted. Redirecting to booking ${data.bookingId}`);
+                          router.push(`/admin/bookings/${data.bookingId}`);
+                        } else {
+                          alert(data.error || "This enquiry has already been converted");
+                        }
+                      } else {
+                        alert(data.error || "Failed to convert enquiry to booking");
+                      }
                     }
                   } catch (error) {
                     console.error("Error converting enquiry:", error);
-                    alert("Failed to convert enquiry to booking");
+                    alert("Network error: Failed to convert enquiry to booking");
                   }
                 }}
                 className="bg-champagne-gold text-black hover:bg-champagne-gold/90"

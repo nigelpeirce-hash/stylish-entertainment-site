@@ -22,9 +22,20 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get("activeOnly") === "true";
+    const role = searchParams.get("role"); // Filter by role (e.g., "DJ", "Lighting")
+
+    const whereClause: any = {};
+    if (activeOnly) {
+      whereClause.isActive = true;
+    }
+    if (role) {
+      whereClause.roles = {
+        has: role, // Check if roles array contains the specified role
+      };
+    }
 
     const crew = await prisma.freelanceCrew.findMany({
-      where: activeOnly ? { isActive: true } : undefined,
+      where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
       orderBy: { name: "asc" },
     });
 

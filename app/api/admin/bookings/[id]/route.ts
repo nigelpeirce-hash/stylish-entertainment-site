@@ -1,30 +1,78 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { deduplicateName } from "@/lib/utils/name-helpers";
 
 // Force dynamic rendering to prevent database connection during build
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+
+/**
+ * Include config aligned with schema to avoid P2022.
+ * - Booking has no direct `staff` relation; it's many-to-many via staffAssignments.
+ * - staffAssignments -> BookingStaffAssignment; staff -> FreelanceCrew (staff: true, no select).
+ * - Booking.User (User.id, name, email).
+ * - Booking.bookingItems -> BookingItem (status); HireItem (id, name, price, category).
+ * No role filtering: admin sees all talent + crew.
+ */
+const BOOKING_INCLUDE = {
+  User: {
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+  },
+  staffAssignments: {
+    include: {
+      staff: true,
+    },
+  },
+  bookingItems: {
+    where: { status: "pending_approval" as const },
+    include: {
+      HireItem: {
+        select: { id: true, name: true, price: true, category: true },
+      },
+    },
+  },
+  warehouseItems: {
+    include: {
+      WarehouseItem: true,
+    },
+    orderBy: [
+      { WarehouseItem: { category: "asc" } },
+      { WarehouseItem: { name: "asc" } },
+    ],
+  },
+} as const;
+
+function prismaErrorPayload(error: unknown): { error: string; prismaCode?: string; prismaMessage?: string; prismaMeta?: unknown } {
+  const e = error as { code?: string; message?: string; meta?: unknown };
+  return {
+    error: "Database error",
+    prismaCode: e?.code,
+    prismaMessage: e?.message,
+    prismaMeta: e?.meta,
+  };
+}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    // Check if request is from localhost (development only)
     const hostname = request.headers.get("host") || "";
     const isLocalhost = hostname.includes("localhost") || 
                        hostname.includes("127.0.0.1") ||
                        process.env.NODE_ENV === "development";
     
-    // In development/localhost, allow access even if admin check fails (for dev bypass)
     const admin = await requireAdmin(request);
     
     if (!admin && !isLocalhost) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Handle both Promise and direct params (for Next.js 15 compatibility)
     const resolvedParams = params instanceof Promise ? await params : params;
     const bookingId = resolvedParams.id;
 
@@ -32,52 +80,44 @@ export async function GET(
       return NextResponse.json({ error: "Booking ID is required" }, { status: 400 });
     }
 
-    const booking = await prisma.booking.findUnique({
-      where: { id: bookingId },
-      include: {
-        User: {
+    let booking: Awaited<ReturnType<typeof prisma.booking.findUnique<{ include: typeof BOOKING_INCLUDE }>>> | null = null;
+
+    try {
+      booking = await prisma.booking.findUnique({
+        where: { id: bookingId },
+        include: BOOKING_INCLUDE,
+      });
+    } catch (dbError) {
+      console.error("Booking GET Prisma error (full query):", dbError);
+      try {
+        const safeBooking = await prisma.booking.findUnique({
+          where: { id: bookingId },
           select: {
             id: true,
             name: true,
-            email: true,
-          },
-        },
-        staffAssignments: {
-          include: {
-            staff: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-              },
-            },
-          },
-        },
-      },
-    });
-
-    // Fetch email threads separately if booking exists
-    // Using the same pattern as /api/admin/threads/route.ts
-    let emailThreads: any[] = [];
-    if (booking) {
-      try {
-        emailThreads = await prisma.emailThread.findMany({
-          where: { bookingId: booking.id },
-          take: 5,
-          orderBy: { lastMessageAt: "desc" },
-          select: {
-            id: true,
-            subject: true,
-            fromEmail: true,
-            lastMessageAt: true,
-            isRead: true,
+            venueName: true,
+            eventDate: true,
           },
         });
-      } catch (threadError: any) {
-        // If emailThread model isn't available, continue without it
-        // This can happen if the dev server needs a restart after Prisma regeneration
-        console.log("Note: Email threads not available. If you just regenerated Prisma, restart your dev server.");
-        emailThreads = [];
+        if (!safeBooking) {
+          return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+        }
+        const out = {
+          ...safeBooking,
+          name: deduplicateName(safeBooking.name),
+          staffAssignments: [],
+          emailThreads: [] as { id: string; subject: string; fromEmail: string; lastMessageAt: Date; isRead: boolean }[],
+        };
+        return NextResponse.json(
+          { booking: out, fallback: true },
+          { status: 200 }
+        );
+      } catch (safeError) {
+        console.error("Booking GET safe fallback also failed:", safeError);
+        return NextResponse.json(
+          prismaErrorPayload(safeError),
+          { status: 500 }
+        );
       }
     }
 
@@ -85,33 +125,67 @@ export async function GET(
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ 
-      booking: {
-        ...booking,
-        emailThreads,
-      }
-    });
+    let emailThreads: { id: string; subject: string; fromEmail: string; lastMessageAt: Date; isRead: boolean }[] = [];
+    try {
+      emailThreads = await prisma.emailThread.findMany({
+        where: { bookingId: booking.id },
+        take: 5,
+        orderBy: { lastMessageAt: "desc" },
+        select: {
+          id: true,
+          subject: true,
+          fromEmail: true,
+          lastMessageAt: true,
+          isRead: true,
+        },
+      });
+    } catch (threadError) {
+      console.log("Note: Email threads not available.", threadError);
+    }
+
+    const out = {
+      ...booking,
+      name: deduplicateName(booking.name),
+      emailThreads,
+      staffAssignments: Array.isArray(booking.staffAssignments) ? booking.staffAssignments : [],
+    };
+    return NextResponse.json({ booking: out }, { status: 200 });
   } catch (error) {
     console.error("Error fetching booking:", error);
+    const payload = prismaErrorPayload(error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { ...payload, error: (error as Error)?.message || "Internal server error" },
       { status: 500 }
     );
   }
 }
+
+/** Whitelist of Booking scalar fields allowed in PATCH. Excludes relations (User, staffAssignments, etc.) to avoid P2022. */
+const PATCH_ALLOWED_KEYS = new Set([
+  "userId", "name", "displayName", "email", "phoneAreaCode", "phoneNumber", "eventType", "eventDate",
+  "venueName", "venueContact", "venueAddress", "venueAddress2", "venueTown", "venueCounty", "venuePostcode",
+  "venuePhoneAreaCode", "venuePhoneNumber", "ceremonyTime", "djArrivalTime", "djStartTime", "djFinishTime",
+  "djSetupLocation", "djParking", "soundLimiter", "numberOfGuests", "services", "message", "budget", "status",
+  "contactPreference", "finalBalance", "paymentMethod", "paymentPayerName", "termsAccepted", "termsAcceptedAt",
+  "completedTasks", "emailsSent", "lastEmailSentAt", "musicNotesToDJ", "musicNotesToStylish", "firstDance",
+  "lastSong", "musicDislikes", "musicRequests", "musicFileUrl", "preferredDJ", "upsellItems", "priority",
+  "adminNotes", "authorizedSenders", "bookingReference", "conflictResolvedAt", "conflictStatus",
+  "depositReceived", "depositReceivedManual", "djWorksheetApproved", "djWorksheetApprovedManual",
+  "feeBreakdown", "finalDetailsConfirmed", "finalDetailsConfirmedManual", "flaggedFor", "handoffNote",
+  "handoffStatus", "isTechReady", "overrideReason", "purgeAt", "rescuedAt", "selectedTemplate",
+  "talentStatus", "taxInclusive", "taxRate", "venueFingerprint", "assignedTo",
+]);
 
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    // Check if request is from localhost (development only)
     const hostname = request.headers.get("host") || "";
     const isLocalhost = hostname.includes("localhost") || 
                        hostname.includes("127.0.0.1") ||
                        process.env.NODE_ENV === "development";
     
-    // In development/localhost, allow access even if admin check fails (for dev bypass)
     const admin = await requireAdmin(request);
     
     if (!admin && !isLocalhost) {
@@ -126,34 +200,47 @@ export async function PATCH(
       return NextResponse.json({ error: "Booking ID is required" }, { status: 400 });
     }
 
-    // Validate eventDate if provided
-    if (body.eventDate) {
-      const parsedDate = new Date(body.eventDate);
-      if (isNaN(parsedDate.getTime())) {
-        return NextResponse.json({ error: "Invalid date format" }, { status: 400 });
-      }
-      body.eventDate = parsedDate;
+    const data: Record<string, unknown> = {};
+    for (const key of Object.keys(body)) {
+      if (PATCH_ALLOWED_KEYS.has(key)) data[key] = body[key];
     }
 
-    const updatedBooking = await prisma.booking.update({
-      where: { id: bookingId },
-      data: body,
-      include: {
-        User: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
-    });
+    if (data.eventDate) {
+      const parsed = new Date(data.eventDate as string);
+      if (isNaN(parsed.getTime())) {
+        return NextResponse.json({ error: "Invalid date format" }, { status: 400 });
+      }
+      data.eventDate = parsed;
+    }
+    if (data.ceremonyTime !== undefined && data.ceremonyTime !== null) {
+      const parsed = new Date(data.ceremonyTime as string);
+      data.ceremonyTime = isNaN(parsed.getTime()) ? null : parsed;
+    }
 
-    return NextResponse.json({ booking: updatedBooking });
+    let updatedBooking;
+    try {
+      updatedBooking = await prisma.booking.update({
+        where: { id: bookingId },
+        data,
+        include: BOOKING_INCLUDE,
+      });
+    } catch (dbError) {
+      console.error("Booking PATCH Prisma error:", dbError);
+      return NextResponse.json(
+        prismaErrorPayload(dbError),
+        { status: 500 }
+      );
+    }
+
+    const out = {
+      ...updatedBooking,
+      name: deduplicateName(updatedBooking.name),
+    };
+    return NextResponse.json({ booking: out });
   } catch (error) {
     console.error("Error updating booking:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { ...prismaErrorPayload(error), error: (error as Error)?.message || "Internal server error" },
       { status: 500 }
     );
   }
@@ -164,13 +251,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    // Check if request is from localhost (development only)
     const hostname = request.headers.get("host") || "";
     const isLocalhost = hostname.includes("localhost") || 
                        hostname.includes("127.0.0.1") ||
                        process.env.NODE_ENV === "development";
     
-    // In development/localhost, allow access even if admin check fails (for dev bypass)
     const admin = await requireAdmin(request);
     
     if (!admin && !isLocalhost) {
@@ -184,43 +269,41 @@ export async function DELETE(
       return NextResponse.json({ error: "Booking ID is required" }, { status: 400 });
     }
 
-    // Check if booking exists
-    const booking = await prisma.booking.findUnique({
-      where: { id: bookingId },
-      include: {
-        staffAssignments: true,
-        emailThreads: true,
-      },
-    });
+    let booking: { id: string } | null;
+    try {
+      booking = await prisma.booking.findUnique({
+        where: { id: bookingId },
+        select: { id: true },
+      });
+    } catch (dbError) {
+      console.error("Booking DELETE findUnique Prisma error:", dbError);
+      return NextResponse.json(
+        prismaErrorPayload(dbError),
+        { status: 500 }
+      );
+    }
 
     if (!booking) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
-    // Delete related records first (cascading delete)
-    // Delete email threads
-    await prisma.emailThread.deleteMany({
-      where: { bookingId: bookingId },
-    });
+    try {
+      await prisma.emailThread.deleteMany({ where: { bookingId } });
+      await prisma.bookingStaffAssignment.deleteMany({ where: { bookingId } });
+      await prisma.booking.delete({ where: { id: bookingId } });
+    } catch (dbError) {
+      console.error("Booking DELETE Prisma error:", dbError);
+      return NextResponse.json(
+        prismaErrorPayload(dbError),
+        { status: 500 }
+      );
+    }
 
-    // Delete staff assignments
-    await prisma.bookingStaffAssignment.deleteMany({
-      where: { bookingId: bookingId },
-    });
-
-    // Delete the booking
-    await prisma.booking.delete({
-      where: { id: bookingId },
-    });
-
-    return NextResponse.json({ 
-      success: true,
-      message: "Booking permanently deleted" 
-    });
+    return NextResponse.json({ success: true, message: "Booking permanently deleted" });
   } catch (error) {
     console.error("Error deleting booking:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { ...prismaErrorPayload(error), error: (error as Error)?.message || "Internal server error" },
       { status: 500 }
     );
   }

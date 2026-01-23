@@ -16,6 +16,7 @@ import {
   MapPin,
 } from "lucide-react";
 import Link from "next/link";
+import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
 
 interface Booking {
   id: string;
@@ -35,6 +36,16 @@ interface Booking {
   numberOfGuests: number | null;
   services: string[];
   user: { id: string; name: string; email: string } | null;
+  staffAssignments?: Array<{
+    id: string;
+    role: string;
+    status: string;
+    staff: {
+      id: string;
+      name: string;
+      email: string | null;
+    };
+  }>;
 }
 
 // Helper function to get initials from name
@@ -505,8 +516,8 @@ function AdminBookingsContent() {
                         {/* Center: Client Name, Date, Venue */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-3 flex-wrap">
-                            <h3 className="font-bold text-white text-lg truncate">
-                              {booking.name}
+                            <h3 className="font-medium text-white text-lg truncate">
+                              {deduplicateName(getDisplayName(booking.name) || booking.name)}
                             </h3>
                             {getHandoffBadge(booking.assignedTo, booking.handoffStatus) && (
                               <span className="px-2 py-1 rounded text-xs font-medium bg-gray-700 text-white border border-gray-600">
@@ -517,11 +528,14 @@ function AdminBookingsContent() {
                               {formatEventDate(booking.eventDate)}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 mt-1 text-gray-200 text-sm">
-                            <MapPin className="w-4 h-4" />
-                            <span className="truncate">{booking.venueName}</span>
+                          <div className="mt-1">
+                            <div className="text-xs text-amber-500/70 uppercase">
+                              {booking.venueName || "Venue TBD"}
+                            </div>
                             {booking.venuePostcode && (
-                              <span className="text-gray-300 font-semibold">({booking.venuePostcode})</span>
+                              <div className="text-xs text-gray-400 mt-0.5">
+                                {booking.venuePostcode}
+                              </div>
                             )}
                           </div>
                         </div>
@@ -586,6 +600,24 @@ function AdminBookingsContent() {
                         🛠️ For {yourName}
                       </Button>
                     </div>
+                    {/* Updated for 50% larger size */}
+                    {booking.staffAssignments && booking.staffAssignments.length > 0 && (
+                      <div className="bg-champagne-gold/5 p-2 rounded-md mt-2 border border-champagne-gold/10">
+                        <div className="flex flex-wrap gap-3 lg:flex-row flex-col">
+                          {booking.staffAssignments.map((assignment: any) => (
+                            <span 
+                              key={assignment.id} 
+                              className="text-[16px] font-extrabold text-champagne-gold flex items-center gap-2"
+                            >
+                              <span className="text-[20px]">
+                                {assignment.role?.toLowerCase().includes('dj') ? '🎧' : '💡'}
+                              </span>
+                              {assignment.staff?.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               );

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,11 +13,39 @@ const STORAGE_KEY_EVENT_DATE = "stylishentertainment_event_date";
 const STORAGE_KEY_PROMPT_SHOWN = "stylishentertainment_prompt_shown";
 
 export default function EventDatePrompt() {
+  const pathname = usePathname();
+  const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [eventDate, setEventDate] = useState("");
   const [hasDate, setHasDate] = useState(false);
 
   useEffect(() => {
+    // Broad bypass: Never show on client dashboard or booking pages
+    const isClientPage = pathname?.startsWith("/client/dashboard") || pathname?.includes("/client/bookings/");
+    if (isClientPage) {
+      // Clean up any localStorage keys that might interfere
+      // These are only for the main site, not client portals
+      localStorage.removeItem(STORAGE_KEY_EVENT_DATE);
+      localStorage.removeItem(STORAGE_KEY_PROMPT_SHOWN);
+      return; // Exit early, don't show modal
+    }
+
+    // Admin Bypass: If user is admin, disable popup entirely
+    const isAdmin = session?.user && (session.user as any).role === "admin";
+    if (isAdmin) {
+      // Force disable for admins - they shouldn't see onboarding prompts
+      localStorage.setItem(STORAGE_KEY_PROMPT_SHOWN, "true");
+      return; // Exit early, don't show modal
+    }
+
+    // User Data Check: If user is authenticated, disable prompt
+    // Authenticated users likely have bookings or don't need onboarding
+    if (status === "authenticated" && session?.user) {
+      // Force localStorage to prevent prompt from showing
+      localStorage.setItem(STORAGE_KEY_PROMPT_SHOWN, "true");
+      return; // Exit early, don't show modal
+    }
+
     // Check if prompt has been shown before
     const promptShown = localStorage.getItem(STORAGE_KEY_PROMPT_SHOWN);
     const storedDate = localStorage.getItem(STORAGE_KEY_EVENT_DATE);
@@ -32,7 +62,7 @@ export default function EventDatePrompt() {
       
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [pathname, session, status]);
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setEventDate(e.target.value);
@@ -63,6 +93,23 @@ export default function EventDatePrompt() {
     setEventDate("");
     window.dispatchEvent(new Event("storage"));
   };
+
+  // Don't render at all on client pages (dashboard or bookings)
+  const isClientPage = pathname?.startsWith("/client/dashboard") || pathname?.includes("/client/bookings/");
+  if (isClientPage) {
+    return null;
+  }
+
+  // Don't render for admins
+  const isAdmin = session?.user && (session.user as any).role === "admin";
+  if (isAdmin) {
+    return null;
+  }
+
+  // Don't render for authenticated users
+  if (status === "authenticated" && session?.user) {
+    return null;
+  }
 
   return (
     <>

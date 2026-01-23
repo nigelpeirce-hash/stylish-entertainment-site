@@ -16,6 +16,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { SafetyDeleteButton } from "@/components/SafetyDeleteButton";
 import { CommandMenu } from "@/components/admin/command-menu";
+import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
 
 interface StaffAssignment {
   id: string;
@@ -185,10 +186,15 @@ const BookingCard = memo(function BookingCard({
                   </div>
                 )}
               </div>
-              <h3 className="text-xl font-semibold text-white mb-1">
-                {booking.name} @ {booking.venueName}
-              </h3>
-              <p className="text-sm text-gray-400">
+              <div className="mb-2">
+                <h3 className="text-xl font-medium text-white mb-0.5">
+                  {deduplicateName(getDisplayName(booking.name) || booking.name)}
+                </h3>
+                <p className="text-xs text-amber-500/70 uppercase">
+                  {booking.venueName || "Venue TBD"}
+                </p>
+              </div>
+              <p className="text-sm text-gray-400 whitespace-nowrap">
                 {new Date(booking.eventDate).toLocaleDateString("en-GB", {
                   weekday: "long",
                   year: "numeric",
@@ -196,33 +202,25 @@ const BookingCard = memo(function BookingCard({
                   day: "numeric",
                 })}
               </p>
-              {/* Staff Brief Acknowledgments */}
+              {/* Staff Assignments Display */}
               {booking.staffAssignments && booking.staffAssignments.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {booking.staffAssignments
-                    .filter((assignment) => assignment.status === "dispatched" || assignment.status === "confirmed")
-                    .map((assignment) => (
-                      <div
-                        key={assignment.id}
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-                          assignment.briefStatus === "acknowledged"
-                            ? "bg-green-500/20 border border-green-500/50 text-green-400"
-                            : "bg-yellow-500/20 border border-yellow-500/50 text-yellow-400"
-                        }`}
-                      >
-                        {assignment.briefStatus === "acknowledged" ? (
-                          <>
-                            <span>✅</span>
-                            <span>{assignment.staff.name} - Brief Acknowledged</span>
-                          </>
-                        ) : (
-                          <>
-                            <span>⏳</span>
-                            <span>{assignment.staff.name} - Awaiting Brief Acknowledgment</span>
-                          </>
-                        )}
-                      </div>
-                    ))}
+                  {booking.staffAssignments.map((assignment) => (
+                    <div
+                      key={assignment.id}
+                      className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-800 border border-champagne-gold/30 text-white"
+                    >
+                      <span className="text-champagne-gold">
+                        {assignment.role?.toLowerCase().includes('dj') ? '🎧' : '💡'}
+                      </span>
+                      <span>{assignment.staff.name}</span>
+                      {assignment.briefStatus === "acknowledged" ? (
+                        <span className="text-green-400 ml-1">✓</span>
+                      ) : (
+                        <span className="text-yellow-400 ml-1">⏳</span>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -397,17 +395,25 @@ export default function NinetyDayCommandCentre() {
 
   // Use SWR for data fetching with caching and background refresh
   // Only enable SWR if user is authorized (prevents unnecessary fetches)
-  const isAuthorizedForSWR = status === "authenticated" && (session?.user as any)?.role === "admin";
-  const isLocalhostForSWR = typeof window !== "undefined" && 
-    (process.env.NODE_ENV === "development" || 
-     window.location.hostname === "localhost" || 
-     window.location.hostname === "127.0.0.1" ||
-     window.location.hostname.startsWith("192.168.") ||
-     window.location.hostname.startsWith("10."));
-  const devBypassForSWR = isLocalhostForSWR || 
-    (typeof window !== "undefined" && sessionStorage.getItem("dev_admin_bypass") === "true");
+  // Memoize to prevent unnecessary recalculations and re-renders
+  const isAuthorizedForSWR = useMemo(() => {
+    return status === "authenticated" && (session?.user as any)?.role === "admin";
+  }, [status, session?.user]);
+
+  const devBypassForSWR = useMemo(() => {
+    const isLocalhost = typeof window !== "undefined" && 
+      (process.env.NODE_ENV === "development" || 
+       window.location.hostname === "localhost" || 
+       window.location.hostname === "127.0.0.1" ||
+       window.location.hostname.startsWith("192.168.") ||
+       window.location.hostname.startsWith("10."));
+    return isLocalhost || 
+      (typeof window !== "undefined" && sessionStorage.getItem("dev_admin_bypass") === "true");
+  }, []); // Empty deps - window.location and sessionStorage don't change
   
-  const shouldFetch = isAuthorizedForSWR || devBypassForSWR;
+  const shouldFetch = useMemo(() => {
+    return isAuthorizedForSWR || devBypassForSWR;
+  }, [isAuthorizedForSWR, devBypassForSWR]);
 
   // Set mounted state on client-side only (must be before SWR hook)
   useEffect(() => {
@@ -438,10 +444,10 @@ export default function NinetyDayCommandCentre() {
       }
     },
     {
-      revalidateOnFocus: false, // Disable to prevent loops on focus
-      revalidateOnReconnect: true, // Refresh when network reconnects
-      refreshInterval: shouldFetch && mounted ? 60000 : 0, // Refresh every 60 seconds, or 0 if not authorized/mounted
-      dedupingInterval: 10000, // Dedupe requests within 10 seconds (increased from 5)
+      refreshInterval: shouldFetch && mounted ? 300000 : 0, // Refresh every 5 minutes (Chill Mode), or 0 if not authorized/mounted
+      revalidateOnFocus: false, // Prevents fetch every time you click the window
+      revalidateOnReconnect: false, // Prevents fetch when your Wi-Fi flickers
+      dedupingInterval: 60000, // Ignores duplicate requests within 1 minute
       keepPreviousData: true, // Keep previous data while fetching new data
       loadingTimeout: 10000, // Timeout after 10 seconds
       errorRetryCount: 3, // Max retries
@@ -468,12 +474,15 @@ export default function NinetyDayCommandCentre() {
 
   const bookings = data?.bookings || [];
   
-  console.log("LOG_CHECK: Bookings data", { 
-    hasData: !!data, 
-    bookingCount: bookings.length,
-    isLoading,
-    hasError: !!error || !!fetchError || !!criticalError
-  });
+  // Move LOG_CHECK to useEffect to prevent logging on every render
+  useEffect(() => {
+    console.log("LOG_CHECK: Bookings data", { 
+      hasData: !!data, 
+      bookingCount: bookings.length,
+      isLoading,
+      hasError: !!error || !!fetchError || !!criticalError
+    });
+  }, [data, bookings.length, isLoading, error, fetchError, criticalError]);
 
   // Load and update system health from sessionStorage (fetched by SWR fetcher)
   useEffect(() => {
@@ -762,7 +771,7 @@ export default function NinetyDayCommandCentre() {
       case "confirmed":
         return "bg-emerald-100 text-black";
       case "pending":
-        return "bg-amber-100 text-black";
+        return "bg-amber-950/50 text-amber-500 border border-amber-500/20";
       case "cancelled":
         return "bg-gray-100 text-black";
       case "provisional":
@@ -1088,12 +1097,16 @@ export default function NinetyDayCommandCentre() {
                             }`}
                           >
                             <td className="p-4">
-                              <div>
-                                <div className="font-medium text-white">{booking.name}</div>
-                                <div className="text-sm text-gray-400">{booking.venueName}</div>
+                              <div className="flex flex-col">
+                                <div className="font-bold text-white">
+                                  {deduplicateName(getDisplayName(booking.name) || booking.name)}
+                                </div>
+                                <div className="text-xs text-amber-500/70 uppercase tracking-widest mt-0.5">
+                                  {booking.venueName || "Venue TBD"}
+                                </div>
                               </div>
                             </td>
-                            <td className="p-4 text-gray-300">
+                            <td className="p-4 text-gray-300 whitespace-nowrap">
                               {new Date(booking.eventDate).toLocaleDateString("en-GB", {
                                 weekday: "short",
                                 year: "numeric",
@@ -1107,7 +1120,7 @@ export default function NinetyDayCommandCentre() {
                               </span>
                             </td>
                             <td className="p-4">
-                              <Badge className={`${getStatusBadgeClass(booking.status)} rounded-full px-2 py-1 text-xs border`}>
+                              <Badge className={`${getStatusBadgeClass(booking.status)} rounded-full px-2 py-1 text-xs font-bold uppercase tracking-wider`}>
                                 {booking.status}
                               </Badge>
                             </td>
@@ -1116,23 +1129,29 @@ export default function NinetyDayCommandCentre() {
                                 {requiresStaff ? (
                                   isUnassigned ? (
                                     <Badge 
-                                      className={`bg-red-100 text-black border border-red-200 rounded-full px-2 py-1 text-xs ${
+                                      className={`bg-rose-950/50 text-rose-500 border border-rose-500/20 rounded-full px-2 py-1 text-xs font-bold uppercase tracking-wider ${
                                         shouldPulse ? "animate-pulse" : ""
                                       }`}
                                     >
                                       Unassigned
                                     </Badge>
                                   ) : (
-                                    <div className="flex flex-col gap-1">
+                                    <div className="flex flex-wrap gap-2">
                                       {booking.staffAssignments?.map((assignment) => (
-                                        <span key={assignment.id} className="text-sm text-gray-300">
-                                          {assignment.staff.name}
+                                        <span 
+                                          key={assignment.id} 
+                                          className="text-[16px] font-extrabold text-champagne-gold flex items-center gap-2"
+                                        >
+                                          <span className="text-[20px]">
+                                            {assignment.role?.toLowerCase().includes('dj') ? '🎧' : '💡'}
+                                          </span>
+                                          {assignment.staff?.name}
                                         </span>
                                       ))}
                                     </div>
                                   )
                                 ) : (
-                                  <span className="text-sm text-gray-500 italic">No staff needed</span>
+                                  <span className="text-gray-500 italic bg-transparent">No staff needed</span>
                                 )}
                               </div>
                             </td>

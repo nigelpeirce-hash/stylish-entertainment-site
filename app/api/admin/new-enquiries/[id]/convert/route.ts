@@ -34,6 +34,22 @@ export async function POST(
       return NextResponse.json({ error: "Enquiry not found" }, { status: 404 });
     }
 
+    // Prevent converting an already-converted enquiry
+    if (enquiry.status === "converted") {
+      const existingBooking = enquiry.originalBookingId 
+        ? await prisma.booking.findUnique({ where: { id: enquiry.originalBookingId } })
+        : null;
+      
+      return NextResponse.json({ 
+        error: "Enquiry already converted",
+        bookingId: enquiry.originalBookingId || null,
+        existing: true,
+        message: existingBooking 
+          ? "This enquiry has already been converted to a booking"
+          : "This enquiry has already been converted",
+      }, { status: 400 });
+    }
+
     // Find or create user
     let user = await prisma.user.findUnique({
       where: { email: enquiry.email },
@@ -52,40 +68,105 @@ export async function POST(
       });
     }
 
-    // Create booking from enquiry
-    const booking = await prisma.booking.create({
-      data: {
-        userId: user.id,
-        name: enquiry.name,
+    // Check if booking already exists (by email and event date)
+    const existingBooking = await prisma.booking.findFirst({
+      where: {
         email: enquiry.email,
-        phoneAreaCode: enquiry.phoneAreaCode,
-        phoneNumber: enquiry.phoneNumber,
-        eventType: "wedding",
-        eventDate: enquiry.eventDate,
-        venueName: enquiry.venueName || "TBD",
-        venuePostcode: enquiry.venuePostcode,
-        status: "pending",
-        priority: "medium",
-        conflictStatus: enquiry.isConflict ? "pending" : null,
+        eventDate: {
+          gte: new Date(new Date(enquiry.eventDate).getTime() - 24 * 60 * 60 * 1000), // Start of day
+          lte: new Date(new Date(enquiry.eventDate).getTime() + 24 * 60 * 60 * 1000), // End of day
+        },
       },
     });
 
-    // Update enquiry status
-    await prisma.newEnquiry.update({
-      where: { id: enquiryId },
-      data: {
-        status: "converted",
-        reviewedAt: new Date(),
-        reviewedBy: admin?.id || null,
-      },
+    if (existingBooking) {
+      // Update enquiry status even if booking exists (wrapped in transaction for safety)
+      await prisma.$transaction(async (tx) => {
+        await tx.newEnquiry.update({
+          where: { id: enquiryId },
+          data: {
+            status: "converted",
+            reviewedAt: new Date(),
+            reviewedBy: admin?.id || null,
+            originalBookingId: existingBooking.id,
+          },
+        });
+      });
+
+      return NextResponse.json({ 
+        bookingId: existingBooking.id,
+        message: "Booking already exists for this enquiry",
+        existing: true,
+      });
+    }
+
+    // Create booking from enquiry (wrapped in transaction for data integrity)
+    // Field Mapping:
+    // ✅ Automatic: name, email, eventDate, venueName, venuePostcode
+    // ✅ Automatic: eventType (defaults to "wedding" - can be updated manually after conversion)
+    // 🛠️ Manual: ceremonyTime (not in enquiry form, must be added via booking detail page)
+    // ❌ Not Mapped: services, numberOfGuests, message, budget (not in NewEnquiry model)
+    const booking = await prisma.$transaction(async (tx) => {
+      // Create booking
+      const newBooking = await tx.booking.create({
+        data: {
+          userId: user.id,
+          name: enquiry.name, // ✅ Automatic: Client Names
+          email: enquiry.email,
+          phoneAreaCode: enquiry.phoneAreaCode,
+          phoneNumber: enquiry.phoneNumber,
+          eventType: "wedding", // ✅ Automatic: Defaults to "wedding" (can be updated manually)
+          eventDate: enquiry.eventDate, // ✅ Automatic: Event Date
+          venueName: enquiry.venueName || "TBD", // ✅ Automatic: Venue
+          venuePostcode: enquiry.venuePostcode,
+          // 🛠️ ceremonyTime: Not available in enquiry - must be added manually via booking detail page
+          status: "pending",
+          priority: "medium",
+          conflictStatus: enquiry.isConflict ? "pending" : null,
+        },
+      });
+
+      // Update enquiry status (atomic with booking creation)
+      await tx.newEnquiry.update({
+        where: { id: enquiryId },
+        data: {
+          status: "converted",
+          reviewedAt: new Date(),
+          reviewedBy: admin?.id || null,
+          originalBookingId: newBooking.id,
+        },
+      });
+
+      return newBooking;
     });
 
     return NextResponse.json({ 
       bookingId: booking.id,
       message: "Enquiry converted to booking successfully" 
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error converting enquiry:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    
+    // Handle specific Prisma errors
+    if (error.code === 'P2002') {
+      return NextResponse.json({ 
+        error: "Duplicate booking detected. A booking with this email and date already exists.",
+        code: "DUPLICATE_BOOKING"
+      }, { status: 409 });
+    }
+    
+    if (error.code === 'P2025') {
+      return NextResponse.json({ 
+        error: "Record not found. The enquiry may have been deleted.",
+        code: "NOT_FOUND"
+      }, { status: 404 });
+    }
+
+    // Generic error fallback
+    return NextResponse.json({ 
+      error: "Internal server error",
+      details: process.env.NODE_ENV === "development" ? error.message : undefined,
+      code: "INTERNAL_ERROR"
+    }, { status: 500 });
   }
 }

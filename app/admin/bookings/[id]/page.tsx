@@ -29,6 +29,8 @@ import {
   FileText,
   MoreVertical,
   Trash2,
+  DollarSign,
+  Package,
 } from "lucide-react";
 import Link from "next/link";
 import { ArtistDispatch } from "@/components/ArtistDispatch";
@@ -38,9 +40,11 @@ import { AddBasicStaff } from "@/components/AddBasicStaff";
 import { DJInquiryReply } from "@/components/DJInquiryReply";
 import { EmailCompositionCenter } from "@/components/EmailCompositionCenter";
 import { FlexibleOperatorSidebar } from "@/components/FlexibleOperatorSidebar";
-import { WhatsAppThread } from "@/components/WhatsAppThread";
+// import { WhatsAppThread } from "@/components/WhatsAppThread"; // TEMPORARILY HIDDEN
 import { CrewAssignments } from "@/components/CrewAssignments";
 import { SafetyDeleteButton } from "@/components/SafetyDeleteButton";
+import { TeamAssignment } from "@/components/admin/TeamAssignment";
+import { TechnicalEquipment } from "@/components/admin/TechnicalEquipment";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,6 +57,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
+import { useToast } from "@/hooks/use-toast";
+import { Toast } from "@/components/ui/toast";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 
 interface Booking {
   id: string;
@@ -62,6 +71,7 @@ interface Booking {
   phoneNumber: string | null;
   eventType: string;
   eventDate: string;
+  ceremonyTime?: string | null;
   venueName: string;
   venueAddress: string | null;
   venueTown: string | null;
@@ -111,11 +121,15 @@ interface Booking {
   selectedTemplate?: string | null;
   depositReceived?: boolean | null;
   depositReceivedManual?: boolean | null;
+  updatedAt?: string;
+  lastEmailSentAt?: string | null;
   finalDetailsConfirmed?: boolean | null;
   finalDetailsConfirmedManual?: boolean | null;
   djWorksheetApproved?: boolean | null;
   djWorksheetApprovedManual?: boolean | null;
-  user: { id: string; name: string; email: string } | null;
+  /** Matches API include; Prisma returns `User` */
+  User?: { id: string; name: string; email: string } | null;
+  /** Many-to-many via BookingStaffAssignment; always default to [] when undefined. */
   staffAssignments?: Array<{
     id: string;
     role: string;
@@ -127,6 +141,25 @@ interface Booking {
       id: string;
       name: string;
       email: string | null;
+      phone?: string | null;
+      roles?: string[];
+    };
+  }>;
+  bookingItems?: Array<{
+    id: string;
+    quantity: number;
+    status: string;
+    HireItem: { id: string; name: string; price: number; category: string | null };
+  }>;
+  warehouseItems?: Array<{
+    id: string;
+    quantity: number;
+    WarehouseItem: {
+      id: string;
+      name: string;
+      category: string;
+      weight: number | null;
+      size: string | null;
     };
   }>;
 }
@@ -139,6 +172,7 @@ export default function BookingDetail() {
 
   const [booking, setBooking] = useState<Booking | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isFallbackMode, setIsFallbackMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [sendingAction, setSendingAction] = useState<string | null>(null);
@@ -147,6 +181,12 @@ export default function BookingDetail() {
   const [wifeName, setWifeName] = useState("Ali");
   const [yourName, setYourName] = useState("Nigel");
   const [deleting, setDeleting] = useState(false);
+  const [sendingPortalLink, setSendingPortalLink] = useState(false);
+  const [sendingTestEmail, setSendingTestEmail] = useState(false);
+  const [sendingDepositEmail, setSendingDepositEmail] = useState(false);
+  const [sendingFinalizeInvite, setSendingFinalizeInvite] = useState(false);
+  const [venues, setVenues] = useState<{ id: string; venueName: string; defaultCeremonyTime?: string | null; defaultFinishTime?: string | null; venueNotes?: string | null }[]>([]);
+  const { toast, toastState } = useToast();
 
   useEffect(() => {
     const isLocalhost = typeof window !== "undefined" && 
@@ -203,6 +243,14 @@ export default function BookingDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session, bookingId]);
 
+  useEffect(() => {
+    if (!showEditModal) return;
+    fetch("/api/admin/venues")
+      .then((r) => r.json())
+      .then((d) => setVenues(d.venues || []))
+      .catch(() => setVenues([]));
+  }, [showEditModal]);
+
   const fetchBooking = async () => {
     try {
       setLoading(true);
@@ -222,8 +270,10 @@ export default function BookingDetail() {
           id: data.booking?.id,
           staffAssignmentsCount: data.booking?.staffAssignments?.length || 0,
           staffAssignments: data.booking?.staffAssignments,
+          fallback: data.fallback,
         });
         setBooking(data.booking);
+        setIsFallbackMode(data.fallback === true);
       }
     } catch (error) {
       console.error("Error fetching booking:", error);
@@ -373,18 +423,38 @@ export default function BookingDetail() {
     );
   }
 
+  const staffAssignments = booking.staffAssignments ?? [];
+
   const phoneNumber = getPhoneNumber();
   const googleMapsUrl = getGoogleMapsUrl();
 
   return (
     <div className="min-h-screen bg-gray-900">
+      {/* Safe Mode Warning Banner */}
+      {isFallbackMode && (
+        <div className="sticky top-0 z-[60] bg-amber-600/90 backdrop-blur-sm border-b-2 border-amber-500 shadow-lg">
+          <div className="container mx-auto max-w-[1920px] px-6 py-3">
+            <div className="flex items-center justify-center gap-3">
+              <span className="text-2xl">⚠️</span>
+              <div className="flex-1 text-center">
+                <p className="text-white font-semibold text-sm">
+                  Safe Mode Active: Limited data loaded due to database sync issues
+                </p>
+                <p className="text-white/80 text-xs mt-1">
+                  Staff assignments and other relation data will appear once the database push succeeds
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {/* Sticky Header */}
-      <div className="sticky top-0 z-50 bg-gray-900/95 backdrop-blur-sm border-b-2 border-champagne-gold/30 shadow-lg">
+      <div className={`sticky ${isFallbackMode ? 'top-[72px]' : 'top-0'} z-50 bg-gray-900/95 backdrop-blur-sm border-b-2 border-champagne-gold/30 shadow-lg`}>
         <div className="container mx-auto max-w-[1920px] px-6 py-4">
           <div className="flex items-center justify-between gap-4">
             {/* Left: Back Button */}
             <Link href="/admin/bookings">
-              <Button variant="outline" size="sm" className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10">
+              <Button variant="outline" size="sm" className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
               </Button>
@@ -392,26 +462,142 @@ export default function BookingDetail() {
 
             {/* Center: Name, Date, Venue */}
             <div className="flex-1 text-center">
-              <h1 className="text-2xl font-bold text-white mb-1">{booking.name}</h1>
-              <div className="flex items-center justify-center gap-4 text-sm">
+              <div className="flex items-center justify-center gap-3 mb-2">
+                <h1 className="text-2xl font-bold text-white">
+                  {deduplicateName(getDisplayName(booking.name) || booking.name)}
+                </h1>
+                {booking.eventType && (
+                  <span className="border border-amber-500/30 text-amber-500 text-xs uppercase tracking-widest px-2 py-1 rounded">
+                    {booking.eventType}
+                  </span>
+                )}
+              </div>
+              <div className="flex flex-col items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-champagne-gold" />
-                  <span className="font-bold text-white text-lg">
+                  <Calendar className="w-4 h-4 text-amber-500" />
+                  <span className="font-bold text-white/70 text-lg">
                     {formatEventDate(booking.eventDate)}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-champagne-gold" />
-                  <span className="font-semibold text-gray-300">{booking.venueName}</span>
+                <div className="flex items-center gap-2 pt-2 border-t border-gray-700/50 px-4">
+                  <span className="text-lg">📍</span>
+                  <span className="font-semibold text-gray-300">{booking.venueName || "TBD"}</span>
                   {booking.venuePostcode && (
-                    <span className="font-bold text-champagne-gold">{booking.venuePostcode}</span>
+                    <span className="font-bold text-amber-500 ml-2">{booking.venuePostcode}</span>
                   )}
                 </div>
               </div>
             </div>
 
-            {/* Right: Hand-off Buttons */}
+            {/* Right: Send Portal Link, Internal Brief & Hand-off Buttons */}
             <div className="flex items-center gap-2">
+              {/* Master Internal Brief Button */}
+              <Button
+                onClick={() => {
+                  router.push(`/admin/bookings/${booking.id}/brief`);
+                }}
+                variant="outline"
+                size="sm"
+                className="border-amber-500 text-amber-500 hover:bg-amber-500/10 font-semibold"
+              >
+                <FileText className="w-4 h-4 mr-2" />
+                Generate Master Brief
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!booking) return;
+                  setSendingPortalLink(true);
+                  try {
+                    const response = await fetch(`/api/admin/bookings/${booking.id}/send-portal-link`, {
+                      method: "POST",
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                      toast({
+                        title: "Portal link sent",
+                        description: "The portal access link has been sent to the client.",
+                      });
+                    } else {
+                      toast({
+                        title: "Error",
+                        description: data.error || "Failed to send portal link",
+                        variant: "destructive",
+                      });
+                    }
+                  } catch (error) {
+                    toast({
+                      title: "Error",
+                      description: "Failed to send portal link",
+                      variant: "destructive",
+                    });
+                  } finally {
+                    setSendingPortalLink(false);
+                  }
+                }}
+                disabled={sendingPortalLink || !booking?.email}
+                size="sm"
+                className="bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+              >
+                {sendingPortalLink ? (
+                  <>
+                    <span className="animate-spin mr-2">⏳</span>
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Send Portal Access
+                  </>
+                )}
+              </Button>
+              <Button
+                onClick={async () => {
+                  if (!booking) return;
+                  setSendingTestEmail(true);
+                  try {
+                    const response = await fetch(`/api/admin/bookings/${booking.id}/send-test-email`, {
+                      method: "POST",
+                    });
+                    const data = await response.json();
+                    if (response.ok) {
+                      toast({
+                        title: "Test email sent",
+                        description: data.message || "Deposit confirmation preview sent to Nigel for visual check.",
+                      });
+                    } else {
+                      toast({
+                        title: "Error",
+                        description: data.error || "Failed to send test email",
+                        variant: "destructive",
+                      });
+                    }
+                  } catch (error) {
+                    toast({
+                      title: "Error",
+                      description: "Failed to send test email",
+                      variant: "destructive",
+                    });
+                  } finally {
+                    setSendingTestEmail(false);
+                  }
+                }}
+                disabled={sendingTestEmail}
+                size="sm"
+                variant="outline"
+                className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10"
+              >
+                {sendingTestEmail ? (
+                  <>
+                    <span className="animate-spin mr-2">⏳</span>
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="w-4 h-4 mr-2" />
+                    Send Test Email
+                  </>
+                )}
+              </Button>
               <Button
                 onClick={() => handleHandoff("ali")}
                 variant={booking.assignedTo === "ali" || booking.assignedTo === "wife" ? "default" : "outline"}
@@ -443,6 +629,15 @@ export default function BookingDetail() {
                 <Settings className="w-4 h-4" />
               </Button>
             </div>
+            {staffAssignments.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-2 border-t border-gray-800 pt-2">
+                {staffAssignments.map((assignment) => (
+                  <span key={assignment.id} className="text-xs font-bold text-champagne-gold">
+                    {assignment.role?.toLowerCase().includes('dj') ? '🎧' : '💡'} {assignment.staff.name}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -451,8 +646,8 @@ export default function BookingDetail() {
       {/* 3-Column Layout */}
       <div className="container mx-auto max-w-[1920px] px-6 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Column: WhatsApp Conversation (The Inbox) */}
-          <div className="lg:col-span-4">
+          {/* Left Column: WhatsApp Conversation (The Inbox) - TEMPORARILY HIDDEN */}
+          {/* <div className="lg:col-span-4">
             <div className="sticky top-24">
               {(booking.phoneNumber || booking.phoneAreaCode) ? (
                 <WhatsAppThread
@@ -471,10 +666,10 @@ export default function BookingDetail() {
                 </Card>
               )}
             </div>
-          </div>
+          </div> */}
 
           {/* Middle Column: The Logistics */}
-          <div className="lg:col-span-4 space-y-4">
+          <div className="lg:col-span-6 space-y-4">
             {/* Client Details */}
             <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
               <CardHeader className="pb-3">
@@ -493,7 +688,7 @@ export default function BookingDetail() {
               <CardContent className="space-y-3">
                 <div>
                   <p className="text-xs text-gray-400 mb-1">Name</p>
-                  <p className="text-white font-medium">{booking.name}</p>
+                  <p className="text-white font-medium">{deduplicateName(getDisplayName(booking.name) || booking.name)}</p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-400 mb-1">Email</p>
@@ -526,39 +721,106 @@ export default function BookingDetail() {
               </CardContent>
             </Card>
 
-            {/* Timings */}
-            {(booking.djArrivalTime || booking.djStartTime || booking.djFinishTime) && (
-              <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-champagne-gold" />
-                    Timings
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  {booking.djArrivalTime && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Arrival:</span>
-                      <span className="text-white font-medium">{booking.djArrivalTime}</span>
-                    </div>
-                  )}
-                  {booking.djStartTime && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Start:</span>
-                      <span className="text-white font-medium">{booking.djStartTime}</span>
-                    </div>
-                  )}
-                  {booking.djFinishTime && (
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">Finish:</span>
-                      <span className="text-white font-medium">{booking.djFinishTime}</span>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+            {/* Timings (booking guaranteed; data from API) */}
+            <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-champagne-gold" />
+                  Timings
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {/* Ceremony Start */}
+                <div className="flex items-center justify-between gap-2">
+                  <label htmlFor="ceremonyTime" className="text-gray-400 text-sm shrink-0">Ceremony Start:</label>
+                  <input
+                    id="ceremonyTime"
+                    type="datetime-local"
+                    defaultValue={booking.ceremonyTime ? new Date(booking.ceremonyTime).toISOString().slice(0, 16) : ""}
+                    onChange={async (e) => {
+                      const value = e.target.value;
+                      try {
+                        const response = await fetch(`/api/admin/bookings/${booking.id}`, {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            ceremonyTime: value ? new Date(value).toISOString() : null,
+                          }),
+                        });
+                        if (response.ok) {
+                          fetchBooking();
+                          toast({
+                            title: "Updated",
+                            description: "Ceremony start updated",
+                          });
+                        }
+                      } catch (error) {
+                        toast({
+                          title: "Error",
+                          description: "Failed to update ceremony start",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    className="flex-1 min-w-0 px-3 py-1.5 bg-gray-900 border border-amber-500/50 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  />
+                </div>
+                {/* Ceremony / DJ Finish */}
+                <div className="flex items-center justify-between gap-2">
+                  <label htmlFor="djFinishTime" className="text-gray-400 text-sm shrink-0">Ceremony / DJ Finish:</label>
+                  <input
+                    id="djFinishTime"
+                    type="time"
+                    defaultValue={booking.djFinishTime || ""}
+                    onChange={async (e) => {
+                      const value = e.target.value || null;
+                      try {
+                        const response = await fetch(`/api/admin/bookings/${booking.id}`, {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ djFinishTime: value }),
+                        });
+                        if (response.ok) {
+                          fetchBooking();
+                          toast({
+                            title: "Updated",
+                            description: "Finish time updated",
+                          });
+                        }
+                      } catch (error) {
+                        toast({
+                          title: "Error",
+                          description: "Failed to update finish time",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    className="flex-1 min-w-0 px-3 py-1.5 bg-gray-900 border border-amber-500/50 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  />
+                </div>
+                
+                {booking.djArrivalTime && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Arrival:</span>
+                    <span className="text-white font-medium">{booking.djArrivalTime}</span>
+                  </div>
+                )}
+                {booking.djStartTime && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Start:</span>
+                    <span className="text-white font-medium">{booking.djStartTime}</span>
+                  </div>
+                )}
+                {booking.djFinishTime && (
+                  <div className="flex justify-between">
+                    <span className="text-gray-400">Finish:</span>
+                    <span className="text-white font-medium">{booking.djFinishTime}</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
 
-            {/* Venue Info */}
+            {/* Venue Info (booking guaranteed; data from API) */}
             <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
@@ -569,7 +831,36 @@ export default function BookingDetail() {
               <CardContent className="space-y-2">
                 <div>
                   <p className="text-xs text-gray-400 mb-1">Venue Name</p>
-                  <p className="text-white font-medium">{booking.venueName}</p>
+                  <input
+                    key={`venue-${String(booking.venueName)}-${String(booking.updatedAt ?? "")}`}
+                    type="text"
+                    defaultValue={booking.venueName}
+                    onBlur={async (e) => {
+                      const value = e.target.value.trim();
+                      if (value === booking.venueName) return;
+                      try {
+                        const response = await fetch(`/api/admin/bookings/${booking.id}`, {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ venueName: value }),
+                        });
+                        if (response.ok) {
+                          fetchBooking();
+                          toast({
+                            title: "Updated",
+                            description: "Venue name updated",
+                          });
+                        }
+                      } catch (error) {
+                        toast({
+                          title: "Error",
+                          description: "Failed to update venue name",
+                          variant: "destructive",
+                        });
+                      }
+                    }}
+                    className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  />
                 </div>
                 {booking.venueAddress && (
                   <div>
@@ -632,6 +923,292 @@ export default function BookingDetail() {
               </CardContent>
             </Card>
 
+            {/* Financials & Status Section */}
+            <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+                  <DollarSign className="w-5 h-5 text-champagne-gold" />
+                  Financials & Status
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Deposit Received Toggle - High Contrast */}
+                <div className="flex items-center justify-between p-4 bg-gray-900/70 rounded-lg border-2 border-gray-600 hover:border-champagne-gold/50 transition-all">
+                  <div className="flex items-center gap-4">
+                    <Checkbox
+                      id="depositReceived"
+                      checked={booking.depositReceivedManual || false}
+                      onCheckedChange={async (checked) => {
+                        try {
+                          const response = await fetch(`/api/admin/bookings/${booking.id}/flexible-update`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              depositReceivedManual: checked,
+                            }),
+                          });
+                          if (response.ok) {
+                            await fetchBooking();
+                            toast({
+                              title: "Updated",
+                              description: checked ? "Deposit marked as received" : "Deposit marked as pending",
+                            });
+                          } else {
+                            throw new Error("Failed to update deposit status");
+                          }
+                        } catch (error) {
+                          toast({
+                            title: "Error",
+                            description: "Failed to update deposit status",
+                            variant: "destructive",
+                          });
+                        }
+                      }}
+                      className="h-6 w-6 border-2 border-champagne-gold/50 data-[state=checked]:bg-champagne-gold data-[state=checked]:border-champagne-gold"
+                    />
+                    <label htmlFor="depositReceived" className="text-white font-bold text-base cursor-pointer">
+                      Deposit Received
+                    </label>
+                  </div>
+                  <Badge
+                    className={
+                      booking.depositReceivedManual
+                        ? "bg-emerald-500/30 text-emerald-400 border-2 border-emerald-500/50 font-bold"
+                        : "bg-amber-500/30 text-amber-400 border-2 border-amber-500/50 font-bold"
+                    }
+                  >
+                    {booking.depositReceivedManual ? "Paid" : "Pending"}
+                  </Badge>
+                </div>
+
+                {/* Date Tracking */}
+                {booking.depositReceivedManual && booking.updatedAt && (
+                  <div className="text-xs text-gray-400 italic">
+                    Confirmed on: {new Date(booking.updatedAt).toLocaleDateString("en-GB", {
+                      weekday: "short",
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                )}
+
+                {/* Final Balance Display (if exists) */}
+                {booking.finalBalance && (
+                  <div className="pt-3 border-t border-gray-700">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400 text-sm">Final Balance</span>
+                      <span className="text-white font-semibold text-lg">
+                        £{parseFloat(booking.finalBalance).toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Hire Shop — Pending Approval */}
+                {booking.bookingItems && booking.bookingItems.length > 0 && (
+                  <div className="pt-3 border-t border-gray-700">
+                    <p className="text-amber-400 font-medium text-sm mb-2">Pending Approval</p>
+                    <p className="text-gray-400 text-xs mb-2">Requested via Hire Shop (client portal)</p>
+                    <ul className="space-y-1">
+                      {booking.bookingItems.map((row) => (
+                        <li key={row.id} className="flex justify-between text-sm">
+                          <span className="text-gray-300">
+                            {row.HireItem.name} × {row.quantity}
+                          </span>
+                          <span className="text-amber-500">
+                            £{(row.HireItem.price * row.quantity).toFixed(2)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                    <p className="text-gray-500 text-xs mt-2">
+                      Total: £
+                      {booking.bookingItems
+                        .reduce((s, r) => s + r.HireItem.price * r.quantity, 0)
+                        .toFixed(2)}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Manual Communication — priority action */}
+            <Card className={`bg-gray-800 border-amber-500/20 ${getSectionBgColor()} transition-colors`}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-amber-500" />
+                  Manual Communication
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {/* Deposit Received Toggle */}
+                <div className="flex items-center justify-between p-4 bg-gray-900/70 rounded-lg border-2 border-gray-600 hover:border-amber-500/30 transition-all">
+                  <div className="flex items-center gap-4">
+                    <Checkbox
+                      id="depositReceivedManual"
+                      checked={booking.depositReceivedManual || false}
+                      onCheckedChange={async (checked) => {
+                        try {
+                          const response = await fetch(`/api/admin/bookings/${booking.id}/flexible-update`, {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ depositReceivedManual: checked }),
+                          });
+                          if (response.ok) {
+                            await fetchBooking();
+                            toast({
+                              title: "Updated",
+                              description: checked ? "Deposit marked as received" : "Deposit marked as pending",
+                            });
+                          } else {
+                            throw new Error("Failed to update deposit status");
+                          }
+                        } catch (error) {
+                          toast({
+                            title: "Error",
+                            description: "Failed to update deposit status",
+                            variant: "destructive",
+                          });
+                        }
+                      }}
+                      className="h-6 w-6 border-2 border-amber-500/50 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500"
+                    />
+                    <label htmlFor="depositReceivedManual" className="text-white font-bold text-base cursor-pointer">
+                      Deposit Received
+                    </label>
+                  </div>
+                  <Badge
+                    className={
+                      booking.depositReceivedManual
+                        ? "bg-emerald-500/30 text-emerald-400 border-2 border-emerald-500/50 font-bold"
+                        : "bg-amber-500/30 text-amber-400 border-2 border-amber-500/50 font-bold"
+                    }
+                  >
+                    {booking.depositReceivedManual ? "Paid" : "Pending"}
+                  </Badge>
+                </div>
+
+                {/* Send Deposit Confirmation Email */}
+                <Button
+                  onClick={async () => {
+                    if (!booking?.email) return;
+                    setSendingDepositEmail(true);
+                    try {
+                      const response = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-email`, {
+                        method: "POST",
+                      });
+                      const data = await response.json();
+                      if (response.ok) {
+                        await fetchBooking();
+                        const clientName = deduplicateName(getDisplayName(booking.name) || booking.name);
+                        toast({
+                          title: "Email sent",
+                          description: `Email sent to ${clientName}`,
+                        });
+                      } else {
+                        throw new Error(data?.error || "Failed to send email");
+                      }
+                    } catch (error: any) {
+                      toast({
+                        title: "Error",
+                        description: error?.message || "Failed to send deposit confirmation email",
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setSendingDepositEmail(false);
+                    }
+                  }}
+                  disabled={!(booking.depositReceivedManual || false) || sendingDepositEmail || !booking?.email}
+                  className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  {sendingDepositEmail ? (
+                    <>
+                      <span className="animate-spin mr-2">⏳</span>
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 mr-2" />
+                      Send Deposit Confirmation Email
+                    </>
+                  )}
+                </Button>
+
+                {booking.lastEmailSentAt && (
+                  <p className="text-xs text-gray-400 italic">
+                    Last Sent: {new Date(booking.lastEmailSentAt).toLocaleString("en-GB", {
+                      weekday: "short",
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Finalize & Invite — set ACTIVE, magic link, send PORTAL_INVITATION */}
+            <Card className={`bg-gray-800 border-amber-500/20 ${getSectionBgColor()} transition-colors`}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+                  <ExternalLink className="w-5 h-5 text-amber-500" />
+                  Finalize & Invite
+                </CardTitle>
+                <p className="text-sm text-gray-400">
+                  Set booking to active, generate magic link, and send &quot;Welcome to Your [Venue] Wedding Portal&quot; invite.
+                </p>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  onClick={async () => {
+                    if (!booking?.email) return;
+                    setSendingFinalizeInvite(true);
+                    try {
+                      const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite`, { method: "POST" });
+                      const data = await res.json();
+                      if (res.ok) {
+                        await fetchBooking();
+                        const clientName = deduplicateName(getDisplayName(booking.name) || booking.name);
+                        toast({
+                          title: "Finalized & invite sent",
+                          description: `Status set to active, portal invite sent to ${clientName}`,
+                        });
+                      } else {
+                        throw new Error(data?.error || "Failed to finalize and send invite");
+                      }
+                    } catch (e: any) {
+                      toast({
+                        title: "Error",
+                        description: e?.message || "Failed to finalize and send invite",
+                        variant: "destructive",
+                      });
+                    } finally {
+                      setSendingFinalizeInvite(false);
+                    }
+                  }}
+                  disabled={sendingFinalizeInvite || !booking?.email}
+                  className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold disabled:opacity-50 disabled:pointer-events-none"
+                >
+                  {sendingFinalizeInvite ? (
+                    <>
+                      <span className="animate-spin mr-2">⏳</span>
+                      Finalizing &amp; sending…
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4 mr-2" />
+                      Finalize &amp; Send Invite
+                    </>
+                  )}
+                </Button>
+              </CardContent>
+            </Card>
+
             {/* Resources Dropdown */}
             <Card className="bg-gray-800 border-champagne-gold/30">
               <CardContent className="p-4">
@@ -677,7 +1254,7 @@ export default function BookingDetail() {
           </div>
 
           {/* Right Column: The Artist Wing */}
-          <div className="lg:col-span-4">
+          <div className="lg:col-span-6">
             <div className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto space-y-4">
               {/* Artist Dispatch - Only show if DJ service */}
               {hasDJService && (
@@ -714,6 +1291,22 @@ export default function BookingDetail() {
                 </CardContent>
               </Card>
 
+              {/* Technical Equipment - Warehouse Pick List */}
+              <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Package className="w-5 h-5 text-amber-500" />
+                    Technical Equipment
+                  </CardTitle>
+                  <p className="text-sm text-gray-400 mt-1">
+                    Add warehouse items to the pick list. These will appear in the Artist Dispatch and Master Internal Brief.
+                  </p>
+                </CardHeader>
+                <CardContent>
+                  <TechnicalEquipment bookingId={booking.id} onUpdate={fetchBooking} />
+                </CardContent>
+              </Card>
+
               {/* DJ Worksheet - Only show if DJ service */}
               {hasDJService && (
                 <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
@@ -736,14 +1329,21 @@ export default function BookingDetail() {
                 </Card>
               )}
 
-              {/* Crew Assignments */}
+              {/* Team Assignment - New Searchable Section */}
+              <TeamAssignment
+                bookingId={booking.id}
+                staffAssignments={staffAssignments}
+                onUpdate={fetchBooking}
+              />
+
+              {/* Crew Assignments (Venue + Timings: venueName, eventDate, djArrivalTime, djStartTime from booking) */}
               <CrewAssignments
                 bookingId={booking.id}
                 venueName={booking.venueName}
                 eventDate={booking.eventDate}
                 djArrivalTime={booking.djArrivalTime}
                 djStartTime={booking.djStartTime}
-                staffAssignments={booking.staffAssignments || []}
+                staffAssignments={staffAssignments}
                 onUpdate={fetchBooking}
               />
 
@@ -764,15 +1364,20 @@ export default function BookingDetail() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {booking.staffAssignments && booking.staffAssignments.length > 0 ? (
+                  {staffAssignments.length > 0 ? (
                     <div className="space-y-3">
-                      {booking.staffAssignments.map((assignment) => (
+                      {staffAssignments.map((assignment) => (
                         <div
                           key={assignment.id}
                           className="p-3 bg-gray-900/50 rounded-lg border border-gray-700"
                         >
                           <div className="flex items-start justify-between mb-2">
-                            <p className="text-white font-semibold">{assignment.staff.name}</p>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[20px]">
+                                {assignment.role?.toLowerCase().includes('dj') ? '🎧' : '💡'}
+                              </span>
+                              <p className="text-white font-semibold">{assignment.staff.name}</p>
+                            </div>
                             <span
                               className={`px-2 py-1 text-xs rounded ${
                                 assignment.status === "held"
@@ -786,6 +1391,19 @@ export default function BookingDetail() {
                             </span>
                           </div>
                           <p className="text-gray-400 text-xs mb-1">Role: {assignment.role}</p>
+                          {assignment.staff.email && (
+                            <p className="text-gray-400 text-xs">
+                              Email: <span className="text-champagne-gold">{assignment.staff.email}</span>
+                            </p>
+                          )}
+                          {assignment.staff.phone && (
+                            <p className="text-gray-400 text-xs">
+                              Phone: <span className="text-champagne-gold">{assignment.staff.phone}</span>
+                            </p>
+                          )}
+                          {!assignment.staff.email && !assignment.staff.phone && (
+                            <p className="text-xs text-yellow-400 mt-1">⚠️ No contact info available</p>
+                          )}
                           <p className="text-gray-400 text-xs">
                             Fee: £{assignment.agreedFee.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </p>
@@ -848,25 +1466,122 @@ export default function BookingDetail() {
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Event Date</label>
                 <input
+                  id="edit-eventDate"
                   type="datetime-local"
                   defaultValue={new Date(booking.eventDate).toISOString().slice(0, 16)}
-                  className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Quick select venue</label>
+                <select
+                  id="edit-venueSelect"
+                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    if (!v) return;
+                    const vn = document.getElementById("edit-venueName") as HTMLInputElement;
+                    if (vn) vn.value = v;
+                    const venue = venues.find((x) => x.venueName === v);
+                    if (!venue) return;
+                    const ev = document.getElementById("edit-eventDate") as HTMLInputElement;
+                    const eventVal = ev?.value;
+                    if (venue.defaultCeremonyTime && eventVal) {
+                      const [d] = eventVal.split("T");
+                      const ceremonyEl = document.getElementById("edit-ceremonyTime") as HTMLInputElement;
+                      if (ceremonyEl) ceremonyEl.value = `${d}T${venue.defaultCeremonyTime}`;
+                    }
+                    if (venue.defaultFinishTime) {
+                      const finishEl = document.getElementById("edit-djFinishTime") as HTMLInputElement;
+                      if (finishEl) finishEl.value = venue.defaultFinishTime;
+                    }
+                    if (venue.venueNotes) {
+                      const msgEl = document.getElementById("edit-message") as HTMLTextAreaElement;
+                      if (msgEl) msgEl.value = venue.venueNotes;
+                    }
+                  }}
+                >
+                  <option value="">— Select venue to pre-fill —</option>
+                  {venues.map((v) => (
+                    <option key={v.id} value={v.venueName}>{v.venueName}</option>
+                  ))}
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Venue Name</label>
                 <input
+                  id="edit-venueName"
                   type="text"
                   defaultValue={booking.venueName}
-                  className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 />
+              </div>
+              <div className="col-span-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10"
+                  onClick={async () => {
+                    const vn = (document.getElementById("edit-venueName") as HTMLInputElement)?.value?.trim();
+                    if (!vn) {
+                      toast({ title: "Enter venue name", description: "Type or select a venue first.", variant: "destructive" });
+                      return;
+                    }
+                    const res = await fetch(`/api/admin/venues?name=${encodeURIComponent(vn)}`);
+                    const data = await res.json();
+                    const list = data.venues || [];
+                    const venue = list.find((x: { venueName: string }) => x.venueName.toLowerCase() === vn.toLowerCase()) || list[0];
+                    if (!venue) {
+                      toast({ title: "Venue not found", description: `No defaults for "${vn}".`, variant: "destructive" });
+                      return;
+                    }
+                    const ev = document.getElementById("edit-eventDate") as HTMLInputElement;
+                    const eventVal = ev?.value;
+                    if (venue.defaultCeremonyTime && eventVal) {
+                      const [d] = eventVal.split("T");
+                      const ceremonyEl = document.getElementById("edit-ceremonyTime") as HTMLInputElement;
+                      if (ceremonyEl) ceremonyEl.value = `${d}T${venue.defaultCeremonyTime}`;
+                    }
+                    if (venue.defaultFinishTime) {
+                      const finishEl = document.getElementById("edit-djFinishTime") as HTMLInputElement;
+                      if (finishEl) finishEl.value = venue.defaultFinishTime;
+                    }
+                    if (venue.venueNotes) {
+                      const msgEl = document.getElementById("edit-message") as HTMLTextAreaElement;
+                      if (msgEl) msgEl.value = venue.venueNotes;
+                    }
+                    toast({ title: "Defaults applied", description: `Pre-filled from ${venue.venueName}.` });
+                  }}
+                >
+                  Apply venue defaults
+                </Button>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Venue Postcode</label>
                 <input
+                  id="edit-venuePostcode"
                   type="text"
                   defaultValue={booking.venuePostcode || ""}
-                  className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold font-bold"
+                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 font-bold"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Ceremony Start</label>
+                <input
+                  id="edit-ceremonyTime"
+                  type="datetime-local"
+                  defaultValue={booking.ceremonyTime ? new Date(booking.ceremonyTime).toISOString().slice(0, 16) : ""}
+                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Ceremony / DJ Finish</label>
+                <input
+                  id="edit-djFinishTime"
+                  type="time"
+                  defaultValue={booking.djFinishTime || ""}
+                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 />
               </div>
               <div>
@@ -881,6 +1596,7 @@ export default function BookingDetail() {
             <div>
               <label className="block text-sm font-medium text-gray-300 mb-1">Additional Message</label>
               <textarea
+                id="edit-message"
                 defaultValue={booking.message || ""}
                 rows={4}
                 className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
@@ -891,10 +1607,49 @@ export default function BookingDetail() {
                 Cancel
               </Button>
               <Button 
-                onClick={async () => {
-                  // Save logic would go here
-                  alert("Save functionality to be implemented");
-                  setShowEditModal(false);
+                  onClick={async () => {
+                    const venueName = (document.getElementById("edit-venueName") as HTMLInputElement)?.value?.trim();
+                    const venuePostcode = (document.getElementById("edit-venuePostcode") as HTMLInputElement)?.value?.trim() || null;
+                    const eventDateRaw = (document.getElementById("edit-eventDate") as HTMLInputElement)?.value;
+                    const ceremonyTimeRaw = (document.getElementById("edit-ceremonyTime") as HTMLInputElement)?.value;
+                    const djFinishTimeRaw = (document.getElementById("edit-djFinishTime") as HTMLInputElement)?.value || null;
+                    const messageRaw = (document.getElementById("edit-message") as HTMLTextAreaElement)?.value?.trim() || null;
+                    try {
+                      const payload: Record<string, unknown> = {
+                        venueName: venueName ?? booking.venueName,
+                        venuePostcode: (venuePostcode ?? booking.venuePostcode) || null,
+                        ceremonyTime: ceremonyTimeRaw ? new Date(ceremonyTimeRaw).toISOString() : null,
+                        djFinishTime: djFinishTimeRaw || null,
+                        message: messageRaw,
+                      };
+                      if (eventDateRaw) {
+                        payload.overrideMode = true;
+                        payload.overrideReason = "Updated via Edit booking details";
+                        payload.eventDate = new Date(eventDateRaw).toISOString();
+                      }
+                      const response = await fetch(`/api/admin/bookings/${booking.id}/flexible-update`, {
+                      method: "PATCH",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(payload),
+                    });
+                    if (response.ok) {
+                      await fetchBooking();
+                      setShowEditModal(false);
+                      toast({
+                        title: "Saved",
+                        description: "Venue, timing and ceremony details updated",
+                      });
+                    } else {
+                      const err = await response.json().catch(() => ({}));
+                      throw new Error(err?.error || "Update failed");
+                    }
+                  } catch (e: any) {
+                    toast({
+                      title: "Error",
+                      description: e?.message || "Failed to save changes",
+                      variant: "destructive",
+                    });
+                  }
                 }}
                 className="bg-champagne-gold hover:bg-champagne-gold/90 text-black"
               >
@@ -944,10 +1699,18 @@ export default function BookingDetail() {
         <SafetyDeleteButton
           onDelete={handleDelete}
           deleting={deleting}
-          itemName={`Booking: ${booking.name}`}
+          itemName={`Booking: ${deduplicateName(getDisplayName(booking.name) || booking.name)}`}
           itemDetails={`Event: ${formatEventDate(booking.eventDate)} at ${booking.venueName}`}
         />
       </div>
+      
+      {/* Toast Notification */}
+      <Toast 
+        toast={toastState} 
+        onClose={() => {
+          // Clear toast state manually if needed (auto-dismiss is handled by the hook)
+        }} 
+      />
     </div>
   );
 }

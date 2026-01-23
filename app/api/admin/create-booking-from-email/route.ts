@@ -96,6 +96,32 @@ export async function POST(request: NextRequest) {
     // Default event date
     const bookingEventDate = eventDate ? new Date(eventDate) : new Date("2099-12-31");
 
+    // Check if booking already exists (by email and event date)
+    const existingBooking = await prisma.booking.findFirst({
+      where: {
+        email: email,
+        eventDate: {
+          gte: new Date(bookingEventDate.getTime() - 24 * 60 * 60 * 1000), // Start of day
+          lte: new Date(bookingEventDate.getTime() + 24 * 60 * 60 * 1000), // End of day
+        },
+      },
+    });
+
+    if (existingBooking) {
+      return NextResponse.json({
+        success: false,
+        error: "Booking already exists",
+        booking: {
+          id: existingBooking.id,
+          name: existingBooking.name,
+          email: existingBooking.email,
+          status: existingBooking.status,
+          createdAt: existingBooking.createdAt,
+        },
+        message: "Booking with this email and event date already exists",
+      });
+    }
+
     // Create booking
     const booking = await prisma.booking.create({
       data: {

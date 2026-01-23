@@ -37,49 +37,22 @@ export async function GET(request: NextRequest) {
 
     const bookings = await prisma.booking.findMany({
       where,
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        phoneAreaCode: true,
-        phoneNumber: true,
-        eventType: true,
-        eventDate: true,
-        venueName: true,
-        venueAddress: true,
-        venueTown: true,
-        venuePostcode: true,
-        numberOfGuests: true,
-        services: true,
-        upsellItems: true,
-        preferredDJ: true,
-        message: true,
-        budget: true,
-        status: true,
-        priority: true,
-        conflictStatus: true,
-        flaggedFor: true,
-        assignedTo: true,
-        handoffStatus: true,
-        handoffNote: true,
-        isTechReady: true,
-        venueFingerprint: true,
-        contactPreference: true,
-        finalBalance: true,
+      include: {
+        // Include all staff assignments (no role filtering for admin - they need to see everything)
         staffAssignments: {
           include: {
             staff: {
               select: {
+                id: true,
                 name: true,
                 email: true,
+                phone: true,
+                roles: true,
+                isActive: true,
               },
             },
           },
         },
-        createdAt: true,
-        updatedAt: true,
-        emailsSent: true,
-        lastEmailSentAt: true,
         User: {
           select: { id: true, name: true, email: true },
         },
@@ -112,10 +85,14 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({ bookings: sortedBookings });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error fetching bookings:", error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { 
+        error: "Internal server error",
+        details: process.env.NODE_ENV === "development" ? error.message : undefined,
+        stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
+      },
       { status: 500 }
     );
   }

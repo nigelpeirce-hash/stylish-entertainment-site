@@ -73,6 +73,28 @@ export async function createBookingsFromICal(
       const nameMatch = event.summary.match(/^(.+?)\s*[-–]\s*(.+)$/);
       const name = nameMatch ? nameMatch[1].trim() : event.summary;
 
+      // SAFEGUARD: Check if booking already exists (by email + event date)
+      const eventDate = new Date(event.start);
+      const startOfDay = new Date(eventDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(eventDate);
+      endOfDay.setHours(23, 59, 59, 999);
+
+      const existingBooking = await prisma.booking.findFirst({
+        where: {
+          email: email,
+          eventDate: {
+            gte: startOfDay,
+            lte: endOfDay,
+          },
+        },
+      });
+
+      if (existingBooking) {
+        console.log(`Skipping duplicate booking: ${name} on ${eventDate.toISOString()}`);
+        continue; // Skip creating duplicate
+      }
+
       const booking = await prisma.booking.create({
         data: {
           name: name,

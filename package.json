@@ -11,6 +11,7 @@
     "seed:demo": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/seed-demo-data.ts",
     "seed:djs": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/seed-existing-djs.ts",
     "seed:hire": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/seed-hire-items.ts",
+    "seed:venues": "tsx scripts/seed-venues.ts",
     "reset:admin-password": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/reset-admin-password.ts",
     "cleanup:test-bookings": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/cleanup-test-bookings.ts"
   },
@@ -20,16 +21,19 @@
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/resolvers": "^3.3.4",
-    "@prisma/adapter-pg": "^7.2.0",
+    "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.2.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-popover": "^1.1.15",
     "@radix-ui/react-select": "^2.2.6",
     "@radix-ui/react-slot": "^1.2.4",
     "@supabase/supabase-js": "^2.90.1",
+    "@types/canvas-confetti": "^1.9.0",
     "@types/imap-simple": "^4.2.10",
     "@types/mailparser": "^3.4.6",
     "bcryptjs": "^3.0.3",
+    "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.0",
     "cloudinary": "^2.9.0",
     "clsx": "^2.1.1",
@@ -48,7 +52,7 @@
     "next-auth": "^5.0.0-beta.30",
     "node-ical": "^0.23.1",
     "nodemailer": "^7.0.12",
-    "pg": "^8.16.3",
+    "pg": "^8.17.2",
     "prisma": "^7.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -57,6 +61,7 @@
     "resend": "^6.7.0",
     "swr": "^2.3.8",
     "tailwind-merge": "^2.5.2",
+    "uuid": "^13.0.0",
     "yet-another-react-lightbox": "^3.28.0",
     "zod": "^3.23.8"
   },
@@ -65,8 +70,10 @@
     "@types/mustache": "^4.2.6",
     "@types/node": "^20.14.12",
     "@types/nodemailer": "^7.0.5",
+    "@types/pg": "^8.16.0",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
+    "@types/uuid": "^10.0.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^8.57.0",
     "eslint-config-next": "14.2.5",
@@ -78,5 +85,8 @@
   },
   "overrides": {
     "nodemailer": "^7.0.12"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   }
 }

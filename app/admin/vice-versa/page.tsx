@@ -23,6 +23,7 @@ import {
   FileText,
 } from "lucide-react";
 import Link from "next/link";
+import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
 
 interface Booking {
   id: string;
@@ -332,7 +333,7 @@ function ViceVersaContent() {
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <h3 className="text-3xl font-bold text-white mb-2">
-                                  {booking.name}
+                                  {deduplicateName(getDisplayName(booking.name) || booking.name)}
                                 </h3>
                                 <div className="flex items-center gap-4 text-xl text-gray-300">
                                   <div className="flex items-center gap-2">
@@ -392,7 +393,7 @@ function ViceVersaContent() {
                             <div className="flex items-start justify-between">
                               <div className="flex-1">
                                 <h3 className="text-2xl font-bold text-white mb-2">
-                                  {booking.name}
+                                  {deduplicateName(getDisplayName(booking.name) || booking.name)}
                                 </h3>
                                 <p className="text-lg text-gray-300 mb-3">
                                   {formatEventDate(booking.eventDate)}
@@ -423,16 +424,17 @@ function ViceVersaContent() {
                             {booking.staffAssignments && booking.staffAssignments.length > 0 && (
                               <div className="pt-4 border-t border-gray-700">
                                 <h4 className="text-lg font-semibold text-white mb-3">Staff Assignments</h4>
-                                <div className="space-y-2">
+                                <div className="flex flex-wrap gap-3">
                                   {booking.staffAssignments.map((assignment) => (
-                                    <div
-                                      key={assignment.id}
-                                      className="p-3 bg-gray-900/50 rounded border border-gray-700"
+                                    <span 
+                                      key={assignment.id} 
+                                      className="text-[16px] font-extrabold text-champagne-gold flex items-center gap-2"
                                     >
-                                      <p className="text-white font-medium">{assignment.staff.name}</p>
-                                      <p className="text-gray-400 text-sm">Role: {assignment.role}</p>
-                                      <p className="text-gray-400 text-sm">Status: {assignment.status}</p>
-                                    </div>
+                                      <span className="text-[20px]">
+                                        {assignment.role?.toLowerCase().includes('dj') ? '🎧' : '💡'}
+                                      </span>
+                                      {assignment.staff?.name}
+                                    </span>
                                   ))}
                                 </div>
                               </div>

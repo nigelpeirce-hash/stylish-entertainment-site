@@ -45,9 +45,22 @@ export const authOptions: NextAuthConfig = {
           console.log("Attempting to authorize user:", credentials.email);
 
           // First, check if user exists in database
-          const user = await prisma.user.findUnique({
-            where: { email: (credentials as any).email as string },
-          });
+          // Wrap in try-catch to handle database connection errors gracefully
+          let user;
+          try {
+            user = await prisma.user.findUnique({
+              where: { email: (credentials as any).email as string },
+            });
+          } catch (dbError: any) {
+            // If database connection fails, return null to show generic error
+            console.error("Database connection error during login:", dbError?.message || dbError);
+            if (dbError?.code === "P1001" || dbError?.message?.includes("Tenant or user not found") || dbError?.message?.includes("Can't reach database")) {
+              console.error("❌ Database connection error - check DATABASE_URL and network");
+              return null;
+            }
+            // Re-throw other errors
+            throw dbError;
+          }
 
           // Email not found - throw specific error that can be caught
           if (!user) {
@@ -141,8 +154,11 @@ export const authOptions: NextAuthConfig = {
             console.log("JWT callback - fetched role from DB:", dbUser.role);
             token.role = dbUser.role || "client";
           }
-        } catch (error) {
-          console.error("Error fetching user role:", error);
+        } catch (error: any) {
+          // Silently handle database errors - use existing token role
+          // This prevents session endpoint from returning HTML error pages
+          console.error("Error fetching user role (using cached role):", error?.message || error);
+          // Keep the existing token.role - don't fail the session
         }
       }
       console.log("JWT callback - final token role:", token.role);

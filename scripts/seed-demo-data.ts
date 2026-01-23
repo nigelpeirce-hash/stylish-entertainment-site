@@ -307,6 +307,30 @@ async function main() {
   const createdBookings = [];
   for (let i = 0; i < bookings.length; i++) {
     const bookingData = { ...bookings[i], bookingReference: generateBookingRef(i) };
+    
+    // SAFEGUARD: Check if booking already exists (by email + event date)
+    const eventDate = new Date(bookingData.eventDate);
+    const startOfDay = new Date(eventDate);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(eventDate);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const existingBooking = await prisma.booking.findFirst({
+      where: {
+        email: bookingData.email,
+        eventDate: {
+          gte: startOfDay,
+          lte: endOfDay,
+        },
+      },
+    });
+
+    if (existingBooking) {
+      console.log(`- Skipped: ${bookingData.name} - ${bookingData.venueName} (already exists)`);
+      createdBookings.push(existingBooking);
+      continue; // Skip creating duplicate
+    }
+
     const booking = await prisma.booking.create({
       data: {
         id: randomUUID(),

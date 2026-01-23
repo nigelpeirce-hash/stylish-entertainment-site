@@ -78,10 +78,10 @@ export function WhatsAppThread({ bookingId, phoneNumber, eventDate, clientName }
     // Initial fetch
     fetchMessages();
 
-    // Poll for new messages every 30 seconds (increased to reduce load)
+    // Poll for new messages every 5 minutes (Chill Mode)
     intervalRef.current = setInterval(() => {
       fetchMessages();
-    }, 30000); // 30 seconds instead of 10
+    }, 300000);
 
     return () => {
       if (intervalRef.current) {

@@ -43,4 +43,58 @@ if (handlers && typeof handlers.GET === 'function' && typeof handlers.POST === '
   console.error("❌ NextAuth handlers not properly initialized!");
 }
 
-export const { GET, POST } = handlers;
+// Wrap handlers to ensure JSON responses even on errors
+const handleRequest = async (req: Request, handler: (req: Request) => Promise<Response>) => {
+  try {
+    return await handler(req);
+  } catch (error: any) {
+    // If handler throws, return JSON error instead of HTML
+    console.error("NextAuth handler error:", error);
+    return new Response(
+      JSON.stringify({ 
+        error: "Authentication error",
+        message: error?.message || "An error occurred",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+};
+
+export const GET = async (req: Request) => {
+  try {
+    return await handlers.GET(req);
+  } catch (error: any) {
+    console.error("NextAuth GET error:", error);
+    return new Response(
+      JSON.stringify({ 
+        error: "Session error",
+        message: error?.message || "Unable to fetch session",
+      }),
+      {
+        status: 200, // Return 200 with error so client can handle it
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+};
+
+export const POST = async (req: Request) => {
+  try {
+    return await handlers.POST(req);
+  } catch (error: any) {
+    console.error("NextAuth POST error:", error);
+    return new Response(
+      JSON.stringify({ 
+        error: "Authentication error",
+        message: error?.message || "An error occurred",
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+};

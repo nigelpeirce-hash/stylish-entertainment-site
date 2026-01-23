@@ -42,11 +42,11 @@ export function EnquiryDashboard() {
   useEffect(() => {
     fetchEnquiries();
     fetchStats();
-    // Auto-refresh every 30 seconds
+    // Auto-refresh every 5 minutes (Chill Mode)
     const interval = setInterval(() => {
       fetchEnquiries(true);
       fetchStats(true);
-    }, 30000);
+    }, 300000);
     return () => clearInterval(interval);
   }, []);
 

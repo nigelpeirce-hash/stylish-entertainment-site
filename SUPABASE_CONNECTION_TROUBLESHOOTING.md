@@ -20,7 +20,7 @@ Connection to Supabase database is being refused. Error: `Can't reach database s
 
 Update `.env.local`:
 ```env
-DATABASE_URL="postgresql://postgres.qraijuzzktertoujrwat:pu2yhJbZwqPaRUBy@aws-0-eu-west-2.pooler.supabase.com:6543/postgres?sslmode=require&pgbouncer=true"
+DATABASE_URL="postgresql://postgres.qraijuzzktertoujrwat:YOUR_PASSWORD_HERE@aws-0-eu-west-2.pooler.supabase.com:6543/postgres?sslmode=require&pgbouncer=true"
 ```
 
 **Note:** You'll need to get the correct pooler hostname from:

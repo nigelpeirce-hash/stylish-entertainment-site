@@ -38,7 +38,10 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ enquiries });
+    return NextResponse.json({
+      enquiries,
+      hireEnquiries: enquiries.filter((e: any) => e.enquiryType === "hire_only"),
+    });
   } catch (error) {
     console.error("Error fetching new enquiries:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

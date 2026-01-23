@@ -1,13 +1,21 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShoppingCart, Plus, Minus, X, Package, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ShoppingCart, Plus, Minus, X, Package, ChevronDown, ChevronUp, CheckCircle2, Loader2 } from "lucide-react";
 import Link from "next/link";
+
+const STORAGE_KEY = "public_hire_basket";
 
 interface HireItem {
   id: string;
@@ -20,150 +28,169 @@ interface HireItem {
   slug?: string | null;
 }
 
-interface CartItem {
-  id: string;
+interface BasketEntry {
+  hireItemId: string;
   quantity: number;
-  price: number;
-  hireItem: HireItem;
 }
 
-interface Cart {
-  id: string;
-  items: CartItem[];
+function loadBasket(): BasketEntry[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    const items = Array.isArray(parsed?.items) ? parsed.items : [];
+    return items.filter(
+      (x: any) => typeof x?.hireItemId === "string" && typeof x?.quantity === "number" && x.quantity >= 1
+    );
+  } catch {
+    return [];
+  }
+}
+
+function saveBasket(items: BasketEntry[]) {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({ items }));
+  } catch {
+    /* ignore */
+  }
 }
 
 export default function HirePage() {
   const [items, setItems] = useState<HireItem[]>([]);
-  const [cart, setCart] = useState<Cart | null>(null);
+  const [basket, setBasket] = useState<BasketEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCart, setShowCart] = useState(false);
-  const [sessionId, setSessionId] = useState<string>("");
+  const [showForm, setShowForm] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successDate, setSuccessDate] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [form, setForm] = useState({ name: "", email: "", eventDate: "", venue: "" });
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    // Generate or get session ID for guest carts
-    let sid = localStorage.getItem("cartSessionId");
-    if (!sid) {
-      sid = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem("cartSessionId", sid);
-    }
-    setSessionId(sid);
-
-    fetchItems();
-    fetchCart(sid);
+  const persistBasket = useCallback((next: BasketEntry[]) => {
+    setBasket(next);
+    saveBasket(next);
   }, []);
 
-  const fetchItems = async () => {
-    try {
-      const response = await fetch("/api/hire-items");
-      if (response.ok) {
-        const data = await response.json();
-        setItems(data.items || []);
-        console.log("Fetched items:", data.items?.length || 0);
-      } else {
-        const error = await response.json();
-        console.error("Error fetching items:", error);
+  useEffect(() => {
+    setBasket(loadBasket());
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch("/api/hire-items");
+        const d = await r.json();
+        if (!cancelled) setItems(d.items || []);
+      } catch {
+        if (!cancelled) setItems([]);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-    } catch (error) {
-      console.error("Error fetching items:", error);
-    } finally {
-      setLoading(false);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const addToBasket = (item: HireItem, qty: number = 1) => {
+    const next = [...basket];
+    const i = next.findIndex((x) => x.hireItemId === item.id);
+    if (i >= 0) {
+      const cap = item.stockAvailable > 0 ? Math.min(next[i].quantity + qty, item.stockAvailable) : next[i].quantity + qty;
+      next[i] = { ...next[i], quantity: cap };
+    } else {
+      const cap = item.stockAvailable > 0 ? Math.min(qty, item.stockAvailable) : qty;
+      next.push({ hireItemId: item.id, quantity: cap });
     }
+    persistBasket(next);
+    setShowCart(true);
   };
 
-  const fetchCart = async (sid: string) => {
-    try {
-      const response = await fetch(`/api/cart?sessionId=${sid}`);
-      if (response.ok) {
-        const data = await response.json();
-        setCart(data.cart);
-      } else {
-        const error = await response.json();
-        console.error("Error fetching cart:", error);
-      }
-    } catch (error) {
-      console.error("Error fetching cart:", error);
-    }
+  const updateQty = (hireItemId: string, delta: number) => {
+    const next = basket.map((e) => {
+      if (e.hireItemId !== hireItemId) return e;
+      const n = e.quantity + delta;
+      if (n < 1) return null;
+      const item = items.find((i) => i.id === hireItemId);
+      const cap = item && item.stockAvailable > 0 ? Math.min(n, item.stockAvailable) : n;
+      return { ...e, quantity: cap };
+    }).filter(Boolean) as BasketEntry[];
+    persistBasket(next);
   };
 
-  const addToCart = async (item: HireItem, quantity: number = 1) => {
-    try {
-      const response = await fetch("/api/cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          hireItemId: item.id,
-          quantity,
-          sessionId,
-        }),
-      });
-
-      if (response.ok) {
-        await fetchCart(sessionId);
-        setShowCart(true);
-      } else {
-        const error = await response.json();
-        alert(error.error || "Failed to add to cart");
-      }
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      alert("An error occurred");
-    }
+  const removeFromBasket = (hireItemId: string) => {
+    persistBasket(basket.filter((e) => e.hireItemId !== hireItemId));
   };
 
-  const updateQuantity = async (cartItemId: string, quantity: number) => {
-    if (quantity < 1) {
-      removeFromCart(cartItemId);
+  const resolveBasket = () => {
+    return basket.map((e) => {
+      const hireItem = items.find((i) => i.id === e.hireItemId);
+      return { ...e, hireItem };
+    }).filter((x) => x.hireItem) as (BasketEntry & { hireItem: HireItem })[];
+  };
+
+  const resolved = resolveBasket();
+  const cartTotal = resolved.reduce((s, x) => s + x.hireItem.price * x.quantity, 0);
+  const cartCount = resolved.reduce((s, x) => s + x.quantity, 0);
+
+  const openRequestQuote = () => {
+    setFormError(null);
+    setForm({ name: "", email: "", eventDate: "", venue: "" });
+    setShowForm(true);
+  };
+
+  const submitRequestQuote = async () => {
+    setFormError(null);
+    if (!form.name.trim()) {
+      setFormError("Full name is required");
+      return;
+    }
+    if (!form.email.trim()) {
+      setFormError("Email is required");
+      return;
+    }
+    if (!form.eventDate.trim()) {
+      setFormError("Event date is required");
+      return;
+    }
+    const selectedItems = basket.map((e) => ({ hireItemId: e.hireItemId, quantity: e.quantity }));
+    if (selectedItems.length === 0) {
+      setFormError("Add at least one item to your basket first");
       return;
     }
 
+    setSubmitting(true);
     try {
-      const response = await fetch("/api/cart", {
-        method: "PUT",
+      const r = await fetch("/api/public/hire-enquiry", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          cartItemId,
-          quantity,
+          name: form.name.trim(),
+          email: form.email.trim(),
+          eventDate: form.eventDate,
+          venue: form.venue.trim() || undefined,
+          selectedItems,
         }),
       });
-
-      if (response.ok) {
-        await fetchCart(sessionId);
-      } else {
-        const error = await response.json();
-        alert(error.error || "Failed to update quantity");
+      const d = await r.json();
+      if (!r.ok) {
+        setFormError(d?.error || "Something went wrong");
+        return;
       }
-    } catch (error) {
-      console.error("Error updating quantity:", error);
-      alert("An error occurred");
+      setSuccessDate(d.dateLabel || form.eventDate);
+      persistBasket([]);
+      setShowCart(false);
+      setShowForm(false);
+      setShowSuccess(true);
+    } catch (e: any) {
+      setFormError(e?.message || "Failed to submit");
+    } finally {
+      setSubmitting(false);
     }
   };
-
-  const removeFromCart = async (cartItemId: string) => {
-    try {
-      const response = await fetch(`/api/cart?cartItemId=${cartItemId}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        await fetchCart(sessionId);
-      } else {
-        alert("Failed to remove item");
-      }
-    } catch (error) {
-      console.error("Error removing from cart:", error);
-      alert("An error occurred");
-    }
-  };
-
-  const cartTotal = cart?.items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  ) || 0;
-  const cartItemCount = cart?.items.reduce(
-    (sum, item) => sum + item.quantity,
-    0
-  ) || 0;
 
   if (loading) {
     return (
@@ -183,20 +210,18 @@ export default function HirePage() {
               ← What We Do
             </Button>
           </Link>
-          <div className="flex items-center gap-4">
-            <Button
-              onClick={() => setShowCart(!showCart)}
-              className="bg-champagne-gold text-black hover:bg-gold-light relative"
-            >
-              <ShoppingCart className="w-5 h-5 mr-2" />
-              Basket
-              {cartItemCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
-                  {cartItemCount}
-                </span>
-              )}
-            </Button>
-          </div>
+          <Button
+            onClick={() => setShowCart(!showCart)}
+            className="bg-champagne-gold text-black hover:bg-amber-200 relative"
+          >
+            <ShoppingCart className="w-5 h-5 mr-2" />
+            Basket
+            {cartCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full min-w-[1.5rem] h-6 flex items-center justify-center px-1">
+                {cartCount}
+              </span>
+            )}
+          </Button>
         </div>
       </div>
 
@@ -206,14 +231,16 @@ export default function HirePage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <h1 className="text-4xl font-bold mb-2">Hire Items</h1>
-          <p className="text-gray-400">Browse and add items to your basket</p>
+          <h1 className="text-4xl font-bold mb-2">Create Your Setup</h1>
+          <p className="text-gray-400">Add items to your basket, then request a quote. No payment now.</p>
         </motion.div>
 
         {/* Items Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {items.map((item) => {
             const isExpanded = expandedItems.has(item.id);
+            const inBasket = basket.find((e) => e.hireItemId === item.id);
+            const qty = inBasket?.quantity ?? 0;
             return (
               <Card key={item.id} className="bg-gray-800 border-champagne-gold/30">
                 <CardContent className="p-6">
@@ -237,46 +264,31 @@ export default function HirePage() {
                       </h3>
                     </Link>
                     {item.description && (
-                      <p className="text-sm text-gray-400 mb-2 line-clamp-2">
-                        {item.description}
-                      </p>
+                      <p className="text-sm text-gray-400 mb-2 line-clamp-2">{item.description}</p>
                     )}
                     <div className="flex justify-between items-center mb-4">
                       <span className="text-2xl font-bold text-champagne-gold">
                         £{item.price.toFixed(2)}
                       </span>
-                      <span className="text-sm text-gray-400">
-                        {item.stockAvailable} available
-                      </span>
+                      <span className="text-sm text-gray-400">{item.stockAvailable} available</span>
                     </div>
 
-                    {/* Read More Section */}
                     <div className="mb-4">
                       <button
                         onClick={() => {
-                          const newExpanded = new Set(expandedItems);
-                          if (isExpanded) {
-                            newExpanded.delete(item.id);
-                          } else {
-                            newExpanded.add(item.id);
-                          }
-                          setExpandedItems(newExpanded);
+                          const next = new Set(expandedItems);
+                          if (isExpanded) next.delete(item.id);
+                          else next.add(item.id);
+                          setExpandedItems(next);
                         }}
-                        className="flex items-center gap-2 text-sm text-champagne-gold hover:text-gold-light transition-colors"
+                        className="flex items-center gap-2 text-sm text-champagne-gold hover:text-amber-200 transition-colors"
                       >
                         {isExpanded ? (
-                          <>
-                            <ChevronUp className="w-4 h-4" />
-                            Read Less
-                          </>
+                          <><ChevronUp className="w-4 h-4" /> Read Less</>
                         ) : (
-                          <>
-                            <ChevronDown className="w-4 h-4" />
-                            Read More
-                          </>
+                          <><ChevronDown className="w-4 h-4" /> Read More</>
                         )}
                       </button>
-
                       {isExpanded && (
                         <motion.div
                           initial={{ opacity: 0, height: 0 }}
@@ -284,75 +296,51 @@ export default function HirePage() {
                           exit={{ opacity: 0, height: 0 }}
                           className="mt-3 pt-3 border-t border-gray-700 space-y-2"
                         >
-                          <div>
-                            <h4 className="text-sm font-semibold text-white mb-1">Dimensions</h4>
-                            <p className="text-xs text-gray-400">
-                              {item.name === "Lanterns" && "Various sizes available: Small (15cm), Medium (25cm), Large (35cm)"}
-                              {item.name === "Candlesticks" && "Height: 25cm, Base diameter: 8cm. Available in brass or silver finish"}
-                              {item.name === "Mirroballs" && "Standard size: 30cm diameter. Can be suspended from ceiling or mounted on stand"}
-                              {item.name === "Vases" && "Various sizes: Small (20cm), Medium (30cm), Large (40cm). Clear glass or colored options"}
-                              {item.name === "Crooks" && "Height: 120cm (4ft). Traditional shepherd's crook design, perfect for hanging lanterns or floral displays"}
-                            </p>
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-semibold text-white mb-1">Additional Details</h4>
-                            <ul className="text-xs text-gray-400 space-y-1">
-                              {item.name === "Lanterns" && (
-                                <>
-                                  <li>• Battery operated LED candles included</li>
-                                  <li>• Weather resistant for outdoor use</li>
-                                  <li>• Available in various finishes</li>
-                                </>
-                              )}
-                              {item.name === "Candlesticks" && (
-                                <>
-                                  <li>• Suitable for standard taper candles</li>
-                                  <li>• Easy to clean and maintain</li>
-                                  <li>• Elegant design for formal events</li>
-                                </>
-                              )}
-                              {item.name === "Mirroballs" && (
-                                <>
-                                  <li>• Motor included for rotation</li>
-                                  <li>• Requires spotlight for best effect</li>
-                                  <li>• Professional installation available</li>
-                                </>
-                              )}
-                              {item.name === "Vases" && (
-                                <>
-                                  <li>• Water-tight for fresh flowers</li>
-                                  <li>• Easy to clean</li>
-                                  <li>• Versatile for various arrangements</li>
-                                </>
-                              )}
-                              {item.name === "Crooks" && (
-                                <>
-                                  <li>• Perfect for creating elegant entrance displays</li>
-                                  <li>• Can be used with lanterns or floral arrangements</li>
-                                  <li>• Sturdy construction for outdoor use</li>
-                                  <li>• Traditional rustic design</li>
-                                </>
-                              )}
-                            </ul>
-                          </div>
-                          <div>
-                            <h4 className="text-sm font-semibold text-white mb-1">Hire Period</h4>
-                            <p className="text-xs text-gray-400">
-                              Standard hire period: 3 days (collection day, event day, return day)
-                            </p>
-                          </div>
+                          <p className="text-xs text-gray-400">
+                            {item.name === "Lanterns" && "Various sizes. Battery LED candles included."}
+                            {item.name === "Candlesticks" && "Height 25cm. Brass or silver finish."}
+                            {item.name === "Mirroballs" && "30cm diameter. Motor included."}
+                            {item.name === "Vases" && "Various sizes. Clear or coloured glass."}
+                            {item.name === "Crooks" && "120cm shepherd's crook. For lanterns or florals."}
+                            {!["Lanterns", "Candlesticks", "Mirroballs", "Vases", "Crooks"].includes(item.name) && "Standard 3-day hire."}
+                          </p>
                         </motion.div>
                       )}
                     </div>
                   </div>
-                  <Button
-                    onClick={() => addToCart(item, 1)}
-                    disabled={item.stockAvailable === 0}
-                    className="w-full bg-champagne-gold text-black hover:bg-gold-light"
-                  >
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add to Basket
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    {qty > 0 ? (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-gray-600 text-gray-300"
+                          onClick={() => updateQty(item.id, -1)}
+                        >
+                          <Minus className="w-4 h-4" />
+                        </Button>
+                        <span className="text-white font-semibold w-8 text-center">{qty}</span>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="border-gray-600 text-gray-300"
+                          onClick={() => updateQty(item.id, 1)}
+                          disabled={item.stockAvailable > 0 && qty >= item.stockAvailable}
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                      </>
+                    ) : (
+                      <Button
+                        onClick={() => addToBasket(item, 1)}
+                        disabled={item.stockAvailable === 0}
+                        className="flex-1 bg-champagne-gold text-black hover:bg-amber-200"
+                      >
+                        <Plus className="w-4 h-4 mr-2" />
+                        Add to Basket
+                      </Button>
+                    )}
+                  </div>
                 </CardContent>
               </Card>
             );
@@ -369,13 +357,14 @@ export default function HirePage() {
         )}
       </div>
 
-      {/* Shopping Cart Sidebar */}
+      {/* Basket sidebar */}
       <AnimatePresence>
         {showCart && (
           <>
             <div
               className="fixed inset-0 bg-black/50 z-50"
               onClick={() => setShowCart(false)}
+              aria-hidden="true"
             />
             <motion.div
               initial={{ x: "100%" }}
@@ -387,34 +376,27 @@ export default function HirePage() {
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold">Basket</h2>
-                  <Button
-                    onClick={() => setShowCart(false)}
-                    variant="ghost"
-                    size="sm"
-                    className="text-gray-400"
-                  >
+                  <Button variant="ghost" size="sm" className="text-gray-400" onClick={() => setShowCart(false)}>
                     <X className="w-5 h-5" />
                   </Button>
                 </div>
 
-                {cart && cart.items.length > 0 ? (
+                {resolved.length > 0 ? (
                   <>
                     <div className="space-y-4 mb-6">
-                      {cart.items.map((item) => (
-                        <Card key={item.id} className="bg-gray-900 border-gray-700">
+                      {resolved.map(({ hireItemId, quantity, hireItem }) => (
+                        <Card key={hireItemId} className="bg-gray-900 border-gray-700">
                           <CardContent className="p-4">
                             <div className="flex justify-between items-start mb-2">
                               <div className="flex-1">
-                                <h3 className="font-semibold text-white">{item.hireItem.name}</h3>
-                                <p className="text-sm text-gray-400">
-                                  £{item.price.toFixed(2)} each
-                                </p>
+                                <h3 className="font-semibold text-white">{hireItem.name}</h3>
+                                <p className="text-sm text-gray-400">£{hireItem.price.toFixed(2)} each</p>
                               </div>
                               <Button
-                                onClick={() => removeFromCart(item.id)}
                                 variant="ghost"
                                 size="sm"
                                 className="text-gray-400 hover:text-red-400"
+                                onClick={() => removeFromBasket(hireItemId)}
                               >
                                 <X className="w-4 h-4" />
                               </Button>
@@ -422,47 +404,43 @@ export default function HirePage() {
                             <div className="flex items-center justify-between mt-3">
                               <div className="flex items-center gap-2">
                                 <Button
-                                  onClick={() => updateQuantity(item.id, item.quantity - 1)}
                                   variant="outline"
                                   size="sm"
                                   className="border-gray-600 text-gray-300"
+                                  onClick={() => updateQty(hireItemId, -1)}
                                 >
                                   <Minus className="w-4 h-4" />
                                 </Button>
-                                <span className="text-white font-semibold w-8 text-center">
-                                  {item.quantity}
-                                </span>
+                                <span className="text-white font-semibold w-8 text-center">{quantity}</span>
                                 <Button
-                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
                                   variant="outline"
                                   size="sm"
                                   className="border-gray-600 text-gray-300"
-                                  disabled={item.quantity >= item.hireItem.stockAvailable}
+                                  onClick={() => updateQty(hireItemId, 1)}
+                                  disabled={hireItem.stockAvailable > 0 && quantity >= hireItem.stockAvailable}
                                 >
                                   <Plus className="w-4 h-4" />
                                 </Button>
                               </div>
                               <span className="text-champagne-gold font-bold">
-                                £{(item.price * item.quantity).toFixed(2)}
+                                £{(hireItem.price * quantity).toFixed(2)}
                               </span>
                             </div>
                           </CardContent>
                         </Card>
                       ))}
                     </div>
-
                     <div className="border-t border-gray-700 pt-4 mb-4">
                       <div className="flex justify-between items-center mb-4">
                         <span className="text-xl font-semibold">Total</span>
-                        <span className="text-2xl font-bold text-champagne-gold">
-                          £{cartTotal.toFixed(2)}
-                        </span>
+                        <span className="text-2xl font-bold text-champagne-gold">£{cartTotal.toFixed(2)}</span>
                       </div>
-                      <Link href="/checkout" className="block">
-                        <Button className="w-full bg-champagne-gold text-black hover:bg-gold-light">
-                          Proceed to Checkout
-                        </Button>
-                      </Link>
+                      <Button
+                        onClick={openRequestQuote}
+                        className="w-full bg-champagne-gold text-black hover:bg-amber-200 font-semibold"
+                      >
+                        Request Quote
+                      </Button>
                     </div>
                   </>
                 ) : (
@@ -476,6 +454,86 @@ export default function HirePage() {
           </>
         )}
       </AnimatePresence>
+
+      {/* Request Quote form modal */}
+      <Dialog open={showForm} onOpenChange={setShowForm}>
+        <DialogContent className="bg-gray-900 border-champagne-gold/30 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle>Request a quote</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            {formError && (
+              <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+                {formError}
+              </p>
+            )}
+            <div>
+              <Label className="text-gray-300">Full name</Label>
+              <Input
+                value={form.name}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+                placeholder="e.g. Jane Smith"
+                className="bg-gray-800 border-gray-600 text-white mt-1"
+              />
+            </div>
+            <div>
+              <Label className="text-gray-300">Email</Label>
+              <Input
+                type="email"
+                value={form.email}
+                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                placeholder="jane@example.com"
+                className="bg-gray-800 border-gray-600 text-white mt-1"
+              />
+            </div>
+            <div>
+              <Label className="text-gray-300">Event date</Label>
+              <Input
+                type="date"
+                value={form.eventDate}
+                onChange={(e) => setForm((f) => ({ ...f, eventDate: e.target.value }))}
+                className="bg-gray-800 border-gray-600 text-white mt-1"
+              />
+            </div>
+            <div>
+              <Label className="text-gray-300">Venue (optional)</Label>
+              <Input
+                value={form.venue}
+                onChange={(e) => setForm((f) => ({ ...f, venue: e.target.value }))}
+                placeholder="e.g. Babington House"
+                className="bg-gray-800 border-gray-600 text-white mt-1"
+              />
+            </div>
+            <Button
+              onClick={submitRequestQuote}
+              disabled={submitting}
+              className="w-full bg-champagne-gold text-black hover:bg-amber-200 font-semibold"
+            >
+              {submitting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Sending…
+                </>
+              ) : (
+                "Submit"
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Success confirmation modal */}
+      <Dialog open={showSuccess} onOpenChange={setShowSuccess}>
+        <DialogContent className="bg-gray-900 border-champagne-gold/30 text-white max-w-md text-center">
+          <div className="py-6">
+            <CheckCircle2 className="w-16 h-16 text-champagne-gold mx-auto mb-4" />
+            <h2 className="text-xl font-bold text-white mb-2">Thank you!</h2>
+            <p className="text-gray-300">
+              Nigel will check availability for {successDate} and send your custom quote shortly.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

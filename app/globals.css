@@ -17,6 +17,39 @@
   animation: throb 2s ease-in-out infinite;
 }
 
+@keyframes shimmer {
+  0%, 100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.8;
+    filter: brightness(1.4);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(212, 175, 55, 0.4);
+  }
+}
+
 /* Screen reader only - for SEO content that should be crawlable but not visible */
 .sr-only {
   position: absolute;

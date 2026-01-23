@@ -48,6 +48,7 @@ export async function POST(
     let recipientEmail = assignedDJEmail;
     let recipientName = assignedDJName;
     let briefToken: string | null = null;
+    let staffRole: string = '';
 
     if (staffAssignmentId) {
       // This is a staff assignment final brief
@@ -74,6 +75,7 @@ export async function POST(
 
       recipientEmail = staffAssignment.staff.email;
       recipientName = staffAssignment.staff.name;
+      staffRole = staffAssignment.role || '';
 
       // Generate token for brief confirmation
       briefToken = generateBriefToken();
@@ -99,6 +101,30 @@ export async function POST(
     // Fetch booking data
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
+      include: {
+        staffAssignments: {
+          include: {
+            staff: true
+          }
+        },
+        warehouseItems: {
+          include: {
+            WarehouseItem: true,
+          },
+          orderBy: [
+            { WarehouseItem: { category: "asc" } },
+            { WarehouseItem: { name: "asc" } },
+          ],
+        },
+        guestRequests: {
+          where: {
+            status: { in: ["pending", "approved", "moved_to_official"] },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+      },
     });
 
     if (!booking) {
@@ -114,6 +140,12 @@ export async function POST(
           day: "numeric",
         })
       : "Date not set";
+    
+    // Detect if this is a musician dispatch (for custom sections)
+    const isMusicianDispatch = staffAssignment && (
+      staffRole?.toLowerCase().includes('musician') || 
+      staffRole?.toLowerCase().includes('band')
+    );
 
     // Generate professional event summary email
     const eventSummary = `
@@ -286,14 +318,38 @@ export async function POST(
         </div>` : ''}
       </div>` : ''}
 
+      ${staffAssignment && (staffRole?.toLowerCase().includes('musician') || staffRole?.toLowerCase().includes('band')) ? `<div class="section">
+        <div class="section-title" style="color: #D4AF37; font-weight: 600;">🎷 Live Performance Technical Requirements</div>
+        <div class="detail-row">
+          <span class="detail-label">PA System:</span>
+          <span class="detail-value">${booking.services?.includes('DJ') || booking.services?.includes('Sound System') ? 'Provided by DJ/Sound System' : 'Please confirm if PA system is required'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Staging Area:</span>
+          <span class="detail-value">${finalDetails.djSetupLocation || booking.djSetupLocation || 'To be confirmed with venue'}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Power Requirements:</span>
+          <span class="detail-value">Standard power outlet required near performance area. Please confirm if additional power is needed.</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">Audio Connection:</span>
+          <span class="detail-value">${booking.services?.includes('DJ') ? 'Can connect to DJ mixer if needed' : 'Standalone performance'}</span>
+        </div>
+        ${finalDetails.musicNotesToDJ || booking.musicNotesToDJ ? `<div class="detail-row">
+          <span class="detail-label">Performance Notes:</span>
+          <span class="detail-value" style="white-space: pre-wrap;">${finalDetails.musicNotesToDJ || booking.musicNotesToDJ}</span>
+        </div>` : ''}
+      </div>` : ''}
+
       ${finalDetails.firstDance || booking.firstDance || finalDetails.lastSong || booking.lastSong || finalDetails.musicRequests || booking.musicRequests || finalDetails.musicDislikes || booking.musicDislikes || finalDetails.musicNotesToDJ || booking.musicNotesToDJ ? `<div class="section">
-        <div class="section-title">Music Preferences</div>
+        <div class="section-title">${staffAssignment && (staffRole?.toLowerCase().includes('musician') || staffRole?.toLowerCase().includes('band')) ? '🎵 Ceremony Music Choices (For Live Performance)' : 'Music Preferences'}</div>
         ${finalDetails.firstDance || booking.firstDance ? `<div class="detail-row">
-          <span class="detail-label">First Dance:</span>
+          <span class="detail-label">${staffAssignment && (staffRole?.toLowerCase().includes('musician') || staffRole?.toLowerCase().includes('band')) ? 'First Dance (Live Performance):' : 'First Dance:'}</span>
           <span class="detail-value">${finalDetails.firstDance || booking.firstDance}</span>
         </div>` : ''}
         ${finalDetails.lastSong || booking.lastSong ? `<div class="detail-row">
-          <span class="detail-label">Last Song:</span>
+          <span class="detail-label">${staffAssignment && (staffRole?.toLowerCase().includes('musician') || staffRole?.toLowerCase().includes('band')) ? 'Processional/Recessional (Live Performance):' : 'Last Song:'}</span>
           <span class="detail-value">${finalDetails.lastSong || booking.lastSong}</span>
         </div>` : ''}
         ${finalDetails.musicRequests || booking.musicRequests ? `<div class="detail-row">
@@ -305,9 +361,53 @@ export async function POST(
           <span class="detail-value" style="white-space: pre-wrap;">${finalDetails.musicDislikes || booking.musicDislikes}</span>
         </div>` : ''}
         ${finalDetails.musicNotesToDJ || booking.musicNotesToDJ ? `<div class="detail-row">
-          <span class="detail-label">Additional Notes to DJ/Musician:</span>
+          <span class="detail-label">Additional Notes ${staffAssignment && (staffRole?.toLowerCase().includes('musician') || staffRole?.toLowerCase().includes('band')) ? 'for Live Performance:' : 'to DJ/Musician:'}</span>
           <span class="detail-value" style="white-space: pre-wrap;">${finalDetails.musicNotesToDJ || booking.musicNotesToDJ}</span>
         </div>` : ''}
+        ${staffAssignment && (staffRole?.toLowerCase().includes('musician') || staffRole?.toLowerCase().includes('band')) && booking.services?.includes('DJ') ? `<div class="detail-row" style="background-color: #f9f9f9; padding: 10px; border-left: 3px solid #D4AF37; margin-top: 10px;">
+          <span class="detail-label" style="font-weight: 600;">Note:</span>
+          <span class="detail-value">DJ will handle reception music. Your live performance is for the ceremony (First Dance, Processional, etc.).</span>
+        </div>` : ''}
+      </div>` : ''}
+
+      ${booking.guestRequests && booking.guestRequests.length > 0 ? `<div class="section">
+        <div class="section-title" style="color: #D4AF37; font-weight: 600;">🎵 Guest Song Requests</div>
+        <p style="margin-bottom: 15px; color: #666; font-size: 14px;">Songs requested by your guests. These are crowd favorites to consider.</p>
+        <ul style="list-style: none; padding: 0; margin: 0;">
+          ${booking.guestRequests.map((req: any) => `
+            <li style="padding: 8px 0; border-bottom: 1px solid #e5e5e5;">
+              <span style="font-weight: 500; color: #1a1a1a;">${req.songTitle}</span>
+              ${req.artist ? `<span style="color: #666; margin-left: 8px;">by ${req.artist}</span>` : ''}
+              ${req.guestName ? `<span style="color: #999; font-size: 12px; margin-left: 8px;">— ${req.guestName}</span>` : ''}
+              ${req.status === "moved_to_official" ? `<span style="background-color: #D4AF37; color: #1a1a1a; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; margin-left: 8px; text-transform: uppercase;">Added to Official List</span>` : ''}
+            </li>
+          `).join('')}
+        </ul>
+      </div>` : ''}
+
+      ${booking.warehouseItems && booking.warehouseItems.length > 0 ? `<div class="section">
+        <div class="section-title" style="color: #D4AF37; font-weight: 600;">📦 Kit Provided by Stylish</div>
+        ${Object.entries(
+          booking.warehouseItems.reduce((acc: Record<string, typeof booking.warehouseItems>, item) => {
+            const cat = item.WarehouseItem.category;
+            if (!acc[cat]) acc[cat] = [];
+            acc[cat].push(item);
+            return acc;
+          }, {})
+        ).map(([category, items]) => `
+          <div style="margin-bottom: 15px;">
+            <div style="font-weight: 600; color: #1a1a1a; margin-bottom: 8px; text-transform: uppercase; font-size: 12px; letter-spacing: 0.5px;">${category}</div>
+            <ul style="list-style: none; padding: 0; margin: 0;">
+              ${items.map((item: any) => `
+                <li style="padding: 6px 0; border-bottom: 1px solid #e5e5e5;">
+                  <span style="font-weight: 500; color: #1a1a1a;">${item.quantity}x ${item.WarehouseItem.name}</span>
+                  ${item.WarehouseItem.size ? `<span style="color: #666; font-size: 12px; margin-left: 8px;">(${item.WarehouseItem.size})</span>` : ''}
+                  ${item.WarehouseItem.weight ? `<span style="color: #666; font-size: 12px; margin-left: 8px;">${item.WarehouseItem.weight}kg</span>` : ''}
+                </li>
+              `).join('')}
+            </ul>
+          </div>
+        `).join('')}
       </div>` : ''}
     </div>
     ${briefToken ? `
