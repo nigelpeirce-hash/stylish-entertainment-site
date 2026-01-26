@@ -138,10 +138,10 @@ export default function WeddingLandingClient() {
         {/* Background */}
         <div className="absolute inset-0">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1/galleries/stylish/wedding-dj-hero"
-            alt="Wedding DJ Setup"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163688/Nigel-DJ-Babs-House-0008-1_ol2gkr.jpg"
+            alt="Wedding DJ performing at Babington House"
             fill
-            className="object-cover opacity-40"
+            className="object-cover opacity-50"
             priority
           />
           <div className="absolute inset-0 bg-gradient-to-b from-gray-900/80 via-gray-900/60 to-gray-900" />
