@@ -95,7 +95,7 @@ export async function getStaffPushKeys(): Promise<{
   nigel: string | null;
 }> {
   try {
-    const staff = await prisma.staffSettings.findMany({
+    const staff = await prisma.staff_Settings.findMany({
       where: {
         name: {
           in: ["Ali", "Nigel"],

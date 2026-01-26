@@ -571,7 +571,7 @@ export default function PortalView({ booking: initialBooking, isPreview = false 
                 </CardTitle>
                 {isSecured ? (
                   <div className="inline-block shadow-[0_0_20px_rgba(212,175,55,0.4)] rounded-full animate-[glowPulse_3s_ease-in-out_infinite]">
-                    <Badge className="border-2 border-amber-400 bg-amber-500/20 text-amber-300 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] flex items-center gap-2 opacity-0 animate-[fadeIn_1s_ease-in-out_forwards] animate-pulse shadow-[0_0_12px_rgba(245,158,11,0.3)]">
+                    <Badge className="border-2 border-[#d4af37] bg-[#d4af37]/20 text-[#f4cf6d] px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] flex items-center gap-2 opacity-0 animate-[fadeIn_1s_ease-in-out_forwards] animate-pulse shadow-[0_0_12px_rgba(212,175,55,0.5)]">
                       <ShieldCheck className="w-4 h-4 opacity-0 animate-[fadeIn_1s_ease-in-out_0.3s_forwards] transition-opacity duration-1000" />
                       Officially Secured
                     </Badge>

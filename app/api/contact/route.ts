@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 import { sendEmail } from "@/lib/email";
 import { getBrochureLink } from "@/lib/venue-assets";
 import { enquiryAutoresponder } from "@/lib/email-journey-templates";
@@ -20,7 +21,7 @@ export const runtime = 'nodejs';
 const getResend = () => {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    throw new Error("RESEND_API_KEY environment variable is not set");
+    return null; // Return null if not configured, will fallback to SMTP
   }
   return new Resend(apiKey);
 };
@@ -67,6 +68,7 @@ export async function POST(request: NextRequest) {
           name,
           phone: phone || null,
           role: "client",
+          updatedAt: new Date(),
         },
       });
     } else {
@@ -74,13 +76,13 @@ export async function POST(request: NextRequest) {
       if (name && user.name !== name) {
         user = await prisma.user.update({
           where: { id: user.id },
-          data: { name },
+          data: { name, updatedAt: new Date() },
         });
       }
       if (phone && user.phone !== phone) {
         user = await prisma.user.update({
           where: { id: user.id },
-          data: { phone },
+          data: { phone, updatedAt: new Date() },
         });
       }
     }
@@ -181,6 +183,7 @@ export async function POST(request: NextRequest) {
     try {
       booking = await prisma.booking.create({
         data: {
+          id: randomUUID(),
           userId: user.id,
           name,
           email,
@@ -204,6 +207,7 @@ export async function POST(request: NextRequest) {
           // DO NOT mark enquiry email as sent here. Autoresponder doesn't count as admin action.
           emailsSent: null as any, // Initialize as null, no admin action taken yet
           lastEmailSentAt: null, // Initialize as null, no admin action taken yet
+          updatedAt: new Date(),
         },
       });
       console.log("✅ Booking created successfully:", booking.id, "Status:", booking.status, "Priority:", (booking as any).priority);
@@ -429,17 +433,28 @@ export async function POST(request: NextRequest) {
     const emailConfig = getResendConfig("booking");
     let confirmationResult;
     
-    try {
-      confirmationResult = await getResend().emails.send({
-        from: emailConfig.from,
-        replyTo: emailConfig.replyTo,
-        to: [email],
-        subject: enquiryEmail.subject,
-        html: enquiryEmail.html,
-      });
-    } catch (resendError) {
-      console.error("Error sending enquiry autoresponder via Resend:", resendError);
-      // Fallback to SMTP if Resend fails
+    const resend = getResend();
+    if (resend) {
+      try {
+        confirmationResult = await resend.emails.send({
+          from: emailConfig.from,
+          replyTo: emailConfig.replyTo,
+          to: [email],
+          subject: enquiryEmail.subject,
+          html: enquiryEmail.html,
+        });
+      } catch (resendError) {
+        console.error("Error sending enquiry autoresponder via Resend:", resendError);
+        // Fallback to SMTP if Resend fails
+        confirmationResult = await sendEmail({
+          to: email,
+          subject: enquiryEmail.subject,
+          html: enquiryEmail.html,
+        });
+      }
+    } else {
+      // No Resend API key, use SMTP directly
+      console.log("RESEND_API_KEY not set, using SMTP for autoresponder");
       confirmationResult = await sendEmail({
         to: email,
         subject: enquiryEmail.subject,
@@ -475,9 +490,13 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    console.error("Contact form error:", error);
+    console.error("❌ Contact form error:", error);
+    console.error("❌ Error stack:", error instanceof Error ? error.stack : "No stack");
     return NextResponse.json(
-      { error: "An error occurred. Please try again later." },
+      { 
+        error: "An error occurred. Please try again later.",
+        details: process.env.NODE_ENV === "development" ? (error instanceof Error ? error.message : String(error)) : undefined
+      },
       { status: 500 }
     );
   }
