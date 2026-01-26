@@ -27,7 +27,7 @@ export function trackEvent(
 
 /**
  * Track enquiry form completion - CONVERSION EVENT
- * Uses existing GA4 event name: stylish_ent_form_submit
+ * Uses existing GA4 event name: Form_Submission
  */
 export function trackEnquiryComplete(params: {
   eventType?: string;
@@ -35,7 +35,7 @@ export function trackEnquiryComplete(params: {
   source?: string;
 }) {
   // Fire the existing event name that's already set up as a key event
-  trackEvent('stylish_ent_form_submit', {
+  trackEvent('Form_Submission', {
     event_category: 'enquiry',
     event_type: params.eventType || 'general',
     event_date: params.eventDate,
