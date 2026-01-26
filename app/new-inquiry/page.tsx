@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { trackEnquiryComplete } from "@/lib/analytics";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -59,6 +60,13 @@ export default function NewInquiry() {
       if (!response.ok) {
         throw new Error(result.error || "Failed to submit enquiry");
       }
+
+      // Track conversion in Google Analytics
+      trackEnquiryComplete({
+        eventType: 'general',
+        eventDate: data.eventDate,
+        source: 'new_inquiry_form',
+      });
 
       setSubmitSuccess(true);
       reset();

@@ -19,6 +19,7 @@ import { formSchema, type FormData, referralOptions, eventTypeOptions, djOptions
 import DJSelectionModal from "@/components/DJSelectionModal";
 import { AnimatePresence } from "framer-motion";
 import { VenueAutocomplete } from "@/components/VenueAutocomplete";
+import { trackEnquiryComplete } from "@/lib/analytics";
 
 // Load Google reCAPTCHA v3
 declare global {
@@ -126,6 +127,13 @@ export default function ContactForm() {
 
       // Redirect to thank-you page on success (status 200)
       if (response.status === 200) {
+        // Track conversion in Google Analytics
+        trackEnquiryComplete({
+          eventType: data.eventType,
+          eventDate: data.eventDate,
+          source: 'contact_form',
+        });
+        
         // Store booking details in sessionStorage for thank-you page
         if (result.bookingId) {
           sessionStorage.setItem("recentBookingId", result.bookingId);

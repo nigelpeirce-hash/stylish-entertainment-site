@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { useState, useEffect } from "react";
 import Script from "next/script";
 import Image from "next/image";
+import { trackEnquiryComplete } from "@/lib/analytics";
 
 // Load Google reCAPTCHA v3
 declare global {
@@ -138,6 +139,13 @@ export default function Contact() {
         console.error("API Error Response:", result);
         throw new Error(result.error || result.details || "Failed to send message");
       }
+      
+      // Track conversion in Google Analytics
+      trackEnquiryComplete({
+        eventType: 'wedding',
+        eventDate: data.weddingDate,
+        source: 'contact_page_form',
+      });
       
       setIsSubmitting(false);
       setSubmitSuccess(true);

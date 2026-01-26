@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { ShoppingCart, Plus, Minus, X, Package, ChevronDown, ChevronUp, CheckCircle2, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { trackEnquiryComplete } from "@/lib/analytics";
 
 const STORAGE_KEY = "public_hire_basket";
 
@@ -180,6 +181,14 @@ export default function HirePage() {
         setFormError(d?.error || "Something went wrong");
         return;
       }
+      
+      // Track conversion in Google Analytics
+      trackEnquiryComplete({
+        eventType: 'hire',
+        eventDate: form.eventDate,
+        source: 'hire_enquiry_form',
+      });
+      
       setSuccessDate(d.dateLabel || form.eventDate);
       persistBasket([]);
       setShowCart(false);
