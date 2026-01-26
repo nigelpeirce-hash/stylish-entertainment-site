@@ -272,7 +272,8 @@ export async function createBooking(input: CreateBookingInput) {
                       <!-- Header with Logo -->
                       <tr>
                         <td style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px 40px; text-align: center;">
-                          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment" width="180" style="display: block; margin: 0 auto;">
+                          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" width="180" style="display: block; margin: 0 auto;">
+                          <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 8px 0 0 0; font-family: Arial, sans-serif;">Stylish Entertainment</p>
                         </td>
                       </tr>
                       
@@ -498,7 +499,8 @@ function generateArtistConfirmationEmail(params: {
               <!-- Header -->
               <tr>
                 <td style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px 40px; text-align: center;">
-                  <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment" width="180" style="display: block; margin: 0 auto;">
+                  <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" width="180" style="display: block; margin: 0 auto;">
+                  <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 8px 0 0 0; font-family: Arial, sans-serif;">Stylish Entertainment</p>
                 </td>
               </tr>
               

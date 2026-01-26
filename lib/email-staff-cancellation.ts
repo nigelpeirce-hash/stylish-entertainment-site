@@ -98,7 +98,8 @@ ${LUXE_STYLES}
 <body>
   <div class="email-container">
     <div class="header">
-      <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment Logo" style="max-width: 200px; height: auto; margin-bottom: 10px;" />
+      <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 200px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
+      <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0; font-family: Arial, sans-serif; text-align: center;">Stylish Entertainment</p>
     </div>
     <div class="divider"></div>
     

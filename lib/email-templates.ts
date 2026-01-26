@@ -219,7 +219,8 @@ export function depositEmailWeddingCelebration({
     <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%);">
       <div style="background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15); border: 1px solid ${GOLD}40;">
         <div style="text-align: center; margin-bottom: 32px;">
-          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment" style="max-width: 220px; height: auto; margin-bottom: 20px;" />
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 220px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
+          <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 12px 0;">Stylish Entertainment</p>
           <p style="font-size: 14px; color: ${GOLD}; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; margin: 0;">Wedding Celebration</p>
         </div>
         <div style="text-align: center; margin-bottom: 28px;">
@@ -273,7 +274,8 @@ export function depositEmailEventConfirmed({
     <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
       <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e5e7eb;">
         <div style="text-align: center; margin-bottom: 28px;">
-          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment" style="max-width: 200px; height: auto; margin-bottom: 16px; opacity: 0.95;" />
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 200px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto; opacity: 0.95;" />
+          <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 8px 0;">Stylish Entertainment</p>
           <p style="font-size: 13px; color: ${ACCENT}; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin: 0;">Event Confirmed</p>
         </div>
         <div style="text-align: center; margin-bottom: 24px;">
@@ -324,7 +326,8 @@ export function DEPOSIT_CONFIRMED({ booking, portalUrl }: { booking: BookingDeta
       <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <!-- Header with Logo -->
         <div style="text-align: center; margin-bottom: 40px;">
-          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment Logo" style="max-width: 250px; height: auto; margin-bottom: 20px;" />
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 250px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
+          <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 12px 0;">Stylish Entertainment</p>
         </div>
         
         <!-- Main Content - premium invitation tone -->
