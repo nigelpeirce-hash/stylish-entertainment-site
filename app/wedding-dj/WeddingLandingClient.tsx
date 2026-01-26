@@ -212,6 +212,148 @@ export default function WeddingLandingClient() {
         </motion.div>
       </section>
 
+      {/* Features Section */}
+      <section className="py-20 px-4 bg-gray-800/50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              More Than Just a DJ
+            </h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              We&apos;ve built technology that makes planning your wedding entertainment effortless
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {features.map((feature, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <Card className="bg-gray-800 border-gray-700 h-full hover:border-champagne-gold/50 transition-colors">
+                  <CardContent className="p-6">
+                    <div className="w-12 h-12 rounded-lg bg-champagne-gold/20 flex items-center justify-center mb-4">
+                      <feature.icon className="w-6 h-6 text-champagne-gold" />
+                    </div>
+                    <h3 className="text-white font-semibold text-lg mb-2">
+                      {feature.title}
+                    </h3>
+                    <p className="text-gray-400 text-sm">
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Portal Preview Section */}
+      <section className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <span className="text-champagne-gold text-sm font-medium uppercase tracking-wider">
+                Exclusive Feature
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold text-white mt-2 mb-6">
+                Your Personal Wedding Portal
+              </h2>
+              <p className="text-gray-300 text-lg mb-8">
+                Every couple gets access to their own private portal where you can:
+              </p>
+              <ul className="space-y-4">
+                {[
+                  "Add your must-play and do-not-play songs",
+                  "Share a request link with your guests",
+                  "View and manage all song requests",
+                  "See your timeline and event details",
+                  "Message us directly anytime",
+                ].map((item, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-champagne-gold flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-300">{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link href="/contact-us" className="inline-block mt-8">
+                <Button className="bg-champagne-gold text-black hover:bg-gold-light">
+                  See It In Action
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </Link>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="relative"
+            >
+              <div className="bg-gray-800 rounded-2xl p-4 border border-gray-700">
+                <div className="bg-gray-900 rounded-xl p-6">
+                  {/* Mock Portal UI */}
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-10 h-10 rounded-full bg-champagne-gold/20 flex items-center justify-center">
+                      <Heart className="w-5 h-5 text-champagne-gold" />
+                    </div>
+                    <div>
+                      <div className="text-white font-semibold">Sarah & James</div>
+                      <div className="text-gray-500 text-sm">15th March 2025 • Babington House</div>
+                    </div>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    <div className="bg-gray-800 rounded-lg p-4">
+                      <div className="text-2xl font-bold text-champagne-gold">23</div>
+                      <div className="text-gray-400 text-sm">Song Requests</div>
+                    </div>
+                    <div className="bg-gray-800 rounded-lg p-4">
+                      <div className="text-2xl font-bold text-green-400">Ready</div>
+                      <div className="text-gray-400 text-sm">Portal Status</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="bg-gray-800 rounded-lg p-3 flex items-center gap-3">
+                      <div className="w-8 h-8 rounded bg-purple-500/20 flex items-center justify-center">
+                        <Music className="w-4 h-4 text-purple-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-white text-sm truncate">Blinding Lights</div>
+                        <div className="text-gray-500 text-xs">The Weeknd • Uncle Frank</div>
+                      </div>
+                    </div>
+                    <div className="bg-gray-800 rounded-lg p-3 flex items-center gap-3">
+                      <div className="w-8 h-8 rounded bg-pink-500/20 flex items-center justify-center">
+                        <Music className="w-4 h-4 text-pink-400" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-white text-sm truncate">First Dance Song</div>
+                        <div className="text-gray-500 text-xs">Your Choice • Must Play</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Floating badge */}
+              <div className="absolute -bottom-4 -right-4 bg-champagne-gold text-black px-4 py-2 rounded-full font-semibold text-sm shadow-lg">
+                Included Free!
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* Meet Our DJs Section */}
       <section className="py-20 px-4 bg-black">
         <div className="max-w-6xl mx-auto">
@@ -381,148 +523,6 @@ export default function WeddingLandingClient() {
               </Link>
             </div>
           )}
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 px-4 bg-gray-800/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              More Than Just a DJ
-            </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              We&apos;ve built technology that makes planning your wedding entertainment effortless
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Card className="bg-gray-800 border-gray-700 h-full hover:border-champagne-gold/50 transition-colors">
-                  <CardContent className="p-6">
-                    <div className="w-12 h-12 rounded-lg bg-champagne-gold/20 flex items-center justify-center mb-4">
-                      <feature.icon className="w-6 h-6 text-champagne-gold" />
-                    </div>
-                    <h3 className="text-white font-semibold text-lg mb-2">
-                      {feature.title}
-                    </h3>
-                    <p className="text-gray-400 text-sm">
-                      {feature.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Portal Preview Section */}
-      <section className="py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-            >
-              <span className="text-champagne-gold text-sm font-medium uppercase tracking-wider">
-                Exclusive Feature
-              </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mt-2 mb-6">
-                Your Personal Wedding Portal
-              </h2>
-              <p className="text-gray-300 text-lg mb-8">
-                Every couple gets access to their own private portal where you can:
-              </p>
-              <ul className="space-y-4">
-                {[
-                  "Add your must-play and do-not-play songs",
-                  "Share a request link with your guests",
-                  "View and manage all song requests",
-                  "See your timeline and event details",
-                  "Message us directly anytime",
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-champagne-gold flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-300">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link href="/contact-us" className="inline-block mt-8">
-                <Button className="bg-champagne-gold text-black hover:bg-gold-light">
-                  See It In Action
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </Link>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="relative"
-            >
-              <div className="bg-gray-800 rounded-2xl p-4 border border-gray-700">
-                <div className="bg-gray-900 rounded-xl p-6">
-                  {/* Mock Portal UI */}
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-full bg-champagne-gold/20 flex items-center justify-center">
-                      <Heart className="w-5 h-5 text-champagne-gold" />
-                    </div>
-                    <div>
-                      <div className="text-white font-semibold">Sarah & James</div>
-                      <div className="text-gray-500 text-sm">15th March 2025 • Babington House</div>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gray-800 rounded-lg p-4">
-                      <div className="text-2xl font-bold text-champagne-gold">23</div>
-                      <div className="text-gray-400 text-sm">Song Requests</div>
-                    </div>
-                    <div className="bg-gray-800 rounded-lg p-4">
-                      <div className="text-2xl font-bold text-green-400">Ready</div>
-                      <div className="text-gray-400 text-sm">Portal Status</div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="bg-gray-800 rounded-lg p-3 flex items-center gap-3">
-                      <div className="w-8 h-8 rounded bg-purple-500/20 flex items-center justify-center">
-                        <Music className="w-4 h-4 text-purple-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-white text-sm truncate">Blinding Lights</div>
-                        <div className="text-gray-500 text-xs">The Weeknd • Uncle Frank</div>
-                      </div>
-                    </div>
-                    <div className="bg-gray-800 rounded-lg p-3 flex items-center gap-3">
-                      <div className="w-8 h-8 rounded bg-pink-500/20 flex items-center justify-center">
-                        <Music className="w-4 h-4 text-pink-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-white text-sm truncate">First Dance Song</div>
-                        <div className="text-gray-500 text-xs">Your Choice • Must Play</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Floating badge */}
-              <div className="absolute -bottom-4 -right-4 bg-champagne-gold text-black px-4 py-2 rounded-full font-semibold text-sm shadow-lg">
-                Included Free!
-              </div>
-            </motion.div>
-          </div>
         </div>
       </section>
 
