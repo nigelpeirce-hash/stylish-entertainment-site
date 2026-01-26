@@ -564,6 +564,177 @@ export default function WeddingLandingClient() {
         </div>
       </section>
 
+      {/* Upsell - Complete Your Wedding */}
+      <section className="py-20 px-4 bg-black">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Complete Your <span className="text-champagne-gold">Wedding Package</span>
+            </h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              Enhance your celebration with our additional services - book together and save
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Lighting Design */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0 }}
+            >
+              <Link href="/services/lighting-design">
+                <Card className="bg-gray-900 border-gray-700 overflow-hidden group hover:border-champagne-gold/50 transition-all h-full">
+                  <div className="relative h-48 overflow-hidden">
+                    <Image
+                      src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163633/Stretch-Marquee-Lighting-e1483614284289_lmsqwr.jpg"
+                      alt="Venue Lighting Design"
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent" />
+                    <div className="absolute top-3 right-3 bg-champagne-gold text-black text-xs font-bold px-2 py-1 rounded">
+                      POPULAR
+                    </div>
+                  </div>
+                  <CardContent className="p-4">
+                    <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-champagne-gold transition-colors">
+                      Lighting Design
+                    </h3>
+                    <p className="text-gray-400 text-sm mb-3">
+                      Transform your venue with uplighting, festoons, and atmospheric mood lighting.
+                    </p>
+                    <span className="text-champagne-gold text-sm font-medium flex items-center gap-1">
+                      Learn more <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
+
+            {/* Live Musicians */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+            >
+              <Link href="/artists/musicians">
+                <Card className="bg-gray-900 border-gray-700 overflow-hidden group hover:border-champagne-gold/50 transition-all h-full">
+                  <div className="relative h-48 overflow-hidden">
+                    <Image
+                      src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163506/DJ-Nige-white-dance-floor-lighting_kigdwb.jpg"
+                      alt="Live Musicians"
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent" />
+                  </div>
+                  <CardContent className="p-4">
+                    <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-champagne-gold transition-colors">
+                      Live Musicians
+                    </h3>
+                    <p className="text-gray-400 text-sm mb-3">
+                      Add a live saxophone, percussion, or vocalist to elevate your DJ set.
+                    </p>
+                    <span className="text-champagne-gold text-sm font-medium flex items-center gap-1">
+                      Learn more <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
+
+            {/* Venue Styling */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              <Link href="/services/venue-styling">
+                <Card className="bg-gray-900 border-gray-700 overflow-hidden group hover:border-champagne-gold/50 transition-all h-full">
+                  <div className="relative h-48 overflow-hidden">
+                    <Image
+                      src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162330/Venue-Styling-Candles-and-autumn-floristry_tbjfee.jpg"
+                      alt="Venue Styling"
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent" />
+                  </div>
+                  <CardContent className="p-4">
+                    <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-champagne-gold transition-colors">
+                      Venue Styling
+                    </h3>
+                    <p className="text-gray-400 text-sm mb-3">
+                      Candles, floristry, draping, and decor to create your perfect aesthetic.
+                    </p>
+                    <span className="text-champagne-gold text-sm font-medium flex items-center gap-1">
+                      Learn more <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
+
+            {/* Fire Pit Hire */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+            >
+              <Link href="/services/fire-pit-hire">
+                <Card className="bg-gray-900 border-gray-700 overflow-hidden group hover:border-champagne-gold/50 transition-all h-full">
+                  <div className="relative h-48 overflow-hidden">
+                    <Image
+                      src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163430/Fire-Pits-and-Marshmallows_ke3nk5.jpg"
+                      alt="Fire Pit Hire"
+                      fill
+                      className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent" />
+                  </div>
+                  <CardContent className="p-4">
+                    <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-champagne-gold transition-colors">
+                      Fire Pit Hire
+                    </h3>
+                    <p className="text-gray-400 text-sm mb-3">
+                      Create a cosy outdoor gathering spot with our fire pits and marshmallow stations.
+                    </p>
+                    <span className="text-champagne-gold text-sm font-medium flex items-center gap-1">
+                      Learn more <ArrowRight className="w-4 h-4" />
+                    </span>
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
+          </div>
+
+          {/* Bundle CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mt-12 text-center"
+          >
+            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-champagne-gold/20 to-champagne-gold/10 border border-champagne-gold/30 rounded-full px-6 py-3">
+              <Sparkles className="w-5 h-5 text-champagne-gold" />
+              <span className="text-white font-medium">
+                Bundle DJ + Lighting and save 10% on your booking
+              </span>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-20 px-4">
         <div className="max-w-4xl mx-auto text-center">
