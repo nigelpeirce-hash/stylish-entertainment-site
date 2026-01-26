@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -19,9 +19,20 @@ import {
   Smartphone,
   Share2,
   ListMusic,
+  ChevronLeft,
+  ChevronRight,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+interface DJ {
+  id: string;
+  name: string;
+  image: string | null;
+  bio: string | null;
+  mixingStyle: string | null;
+}
 
 const features = [
   {
@@ -72,13 +83,35 @@ const stats = [
 ];
 
 export default function WeddingLandingClient() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    date: "",
-    venue: "",
-  });
+  const [djs, setDjs] = useState<DJ[]>([]);
+  const [loadingDJs, setLoadingDJs] = useState(true);
+  const [currentDJIndex, setCurrentDJIndex] = useState(0);
+
+  // Fetch DJs
+  useEffect(() => {
+    const fetchDJs = async () => {
+      try {
+        const response = await fetch("/api/djs");
+        if (response.ok) {
+          const data = await response.json();
+          setDjs(data);
+        }
+      } catch (error) {
+        console.error("Error fetching DJs:", error);
+      } finally {
+        setLoadingDJs(false);
+      }
+    };
+    fetchDJs();
+  }, []);
+
+  const nextDJ = () => {
+    setCurrentDJIndex((prev) => (prev + 1) % djs.length);
+  };
+
+  const prevDJ = () => {
+    setCurrentDJIndex((prev) => (prev - 1 + djs.length) % djs.length);
+  };
 
   return (
     <div className="min-h-screen bg-gray-900">
@@ -159,6 +192,133 @@ export default function WeddingLandingClient() {
             <div className="w-1.5 h-3 bg-white/50 rounded-full" />
           </div>
         </motion.div>
+      </section>
+
+      {/* Meet Our DJs Section */}
+      <section className="py-20 px-4 bg-black">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
+              Meet Our <span className="text-champagne-gold">DJs</span>
+            </h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              Experienced professionals who know how to read a room and keep your dance floor packed
+            </p>
+          </motion.div>
+
+          {loadingDJs ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 text-champagne-gold animate-spin" />
+            </div>
+          ) : djs.length > 0 ? (
+            <div className="relative">
+              {/* DJ Card */}
+              <motion.div
+                key={currentDJIndex}
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                transition={{ duration: 0.3 }}
+              >
+                <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden max-w-4xl mx-auto">
+                  <div className="grid md:grid-cols-2 gap-0">
+                    {/* DJ Image */}
+                    <div className="relative h-72 md:h-96 overflow-hidden">
+                      {djs[currentDJIndex]?.image ? (
+                        <Image
+                          src={djs[currentDJIndex].image!}
+                          alt={djs[currentDJIndex].name}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, 50vw"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+                          <Music className="w-16 h-16 text-gray-600" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    </div>
+
+                    {/* DJ Info */}
+                    <CardHeader className="p-6 md:p-8 flex flex-col justify-center">
+                      <CardTitle className="text-2xl md:text-3xl text-white font-bold mb-2">
+                        {djs[currentDJIndex]?.name}
+                      </CardTitle>
+                      {djs[currentDJIndex]?.mixingStyle && (
+                        <div className="inline-flex items-center gap-2 text-champagne-gold text-sm mb-4">
+                          <Music className="w-4 h-4" />
+                          {djs[currentDJIndex].mixingStyle}
+                        </div>
+                      )}
+                      <p className="text-gray-300 leading-relaxed mb-6 line-clamp-4">
+                        {djs[currentDJIndex]?.bio || "Professional DJ with years of experience in wedding entertainment."}
+                      </p>
+                      <Link href="/artists/djs">
+                        <Button variant="outline" className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold hover:text-black">
+                          View Full Profile
+                          <ArrowRight className="ml-2 w-4 h-4" />
+                        </Button>
+                      </Link>
+                    </CardHeader>
+                  </div>
+                </Card>
+              </motion.div>
+
+              {/* Navigation Arrows */}
+              {djs.length > 1 && (
+                <>
+                  <button
+                    onClick={prevDJ}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 w-12 h-12 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-white hover:bg-champagne-gold hover:text-black transition-colors"
+                    aria-label="Previous DJ"
+                  >
+                    <ChevronLeft className="w-6 h-6" />
+                  </button>
+                  <button
+                    onClick={nextDJ}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 w-12 h-12 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-white hover:bg-champagne-gold hover:text-black transition-colors"
+                    aria-label="Next DJ"
+                  >
+                    <ChevronRight className="w-6 h-6" />
+                  </button>
+                </>
+              )}
+
+              {/* Dots Indicator */}
+              {djs.length > 1 && (
+                <div className="flex items-center justify-center gap-2 mt-6">
+                  {djs.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentDJIndex(index)}
+                      className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                        index === currentDJIndex
+                          ? "bg-champagne-gold"
+                          : "bg-gray-600 hover:bg-gray-500"
+                      }`}
+                      aria-label={`Go to DJ ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-gray-400">
+              <p>Meet our talented DJs on the full roster</p>
+              <Link href="/artists/djs">
+                <Button className="mt-4 bg-champagne-gold text-black hover:bg-gold-light">
+                  View All DJs
+                </Button>
+              </Link>
+            </div>
+          )}
+        </div>
       </section>
 
       {/* Features Section */}
