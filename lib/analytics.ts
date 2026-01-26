@@ -27,25 +27,17 @@ export function trackEvent(
 
 /**
  * Track enquiry form completion - CONVERSION EVENT
- * This should be set up as a conversion in GA4 Admin
+ * Uses existing GA4 event name: stylish_ent_form_submit
  */
 export function trackEnquiryComplete(params: {
   eventType?: string;
   eventDate?: string;
   source?: string;
 }) {
-  trackEvent('generate_lead', {
-    currency: 'GBP',
-    value: 1, // Placeholder value for lead
+  // Fire the existing event name that's already set up as a key event
+  trackEvent('stylish_ent_form_submit', {
     event_category: 'enquiry',
-    event_label: params.eventType || 'general',
-    ...params,
-  });
-  
-  // Also fire custom event for easier filtering
-  trackEvent('enquiry_complete', {
-    event_category: 'conversion',
-    event_type: params.eventType,
+    event_type: params.eventType || 'general',
     event_date: params.eventDate,
     source: params.source || 'contact_form',
   });
