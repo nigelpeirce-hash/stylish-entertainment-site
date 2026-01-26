@@ -161,7 +161,7 @@ export default function Navigation() {
             }}
           >
             <h2 
-              className="font-semibold text-center whitespace-nowrap"
+              className="font-semibold text-center whitespace-nowrap italic"
               style={{
                 fontSize: 'clamp(0.625rem, 1.2vw + 0.25rem, 1rem)',
                 color: '#000000',
