@@ -35,6 +35,8 @@ export async function POST(
         eventDate: true,
         venueName: true,
         displayName: true,
+        eventType: true,
+        djFinishTime: true,
       },
     });
 
@@ -64,43 +66,192 @@ export async function POST(
     const eventDate = new Date(booking.eventDate);
     const formattedDate = eventDate.toLocaleDateString("en-GB", {
       weekday: "long",
-      year: "numeric",
-      month: "long",
       day: "numeric",
+      month: "long",
+      year: "numeric",
     });
+
+    // Check if wedding
+    const isWedding = (booking.eventType || "").toLowerCase() === "wedding";
+    
+    // Content based on event type
+    const headline = isWedding ? "Your Wedding Portal is Ready!" : "Your Booking Portal is Ready!";
+    const greeting = isWedding ? `Dear ${displayName},` : `Hello ${greetingName || "there"},`;
+    const intro = isWedding 
+      ? "We're so excited to be part of your special day! Your personal wedding portal is ready for you to explore."
+      : "Thank you for booking with Stylish Entertainment Ltd! Your personal portal is ready for you to explore.";
+    const portalIntro = isWedding
+      ? "In your portal you can manage your entertainment details, share your music preferences, view your booking information, and communicate with us directly."
+      : "In your portal you can view your booking details, manage your preferences, and communicate with us directly.";
+    const subject = isWedding 
+      ? `Your Wedding Portal - ${displayName}`
+      : `Your Booking Portal - ${displayName}`;
+    const ctaText = isWedding ? "Access Your Wedding Portal" : "Access Your Booking Portal";
 
     // Create email HTML
     const portalInviteHtml = `
-      <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto;">
-        <div style="border-top: 2px solid #000000; padding-top: 20px; margin-top: 20px;"></div>
-        <h1 style="font-size: 24px; font-weight: 600; color: #1A1A1A; margin: 20px 0;">Manage Your Booking</h1>
-        <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 20px 0;">
-          Hello ${greetingName || "there"},
-        </p>
-        <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 20px 0;">
-          You can now access your booking portal to view and manage your event details for <strong>${displayName}</strong> on <strong>${formattedDate}</strong>.
-        </p>
-        <div style="text-align: center; margin: 40px 0;">
-          <a href="${portalUrl}" style="display: inline-block; background-color: #D4AF37; color: #000000; padding: 14px 28px; text-decoration: none; font-weight: 600; border-radius: 4px; font-size: 16px;">
-            Access Your Booking Portal
-          </a>
-        </div>
-        <p style="font-size: 14px; line-height: 1.6; color: #666666; margin: 20px 0;">
-          If you have any questions or need to make changes, please don't hesitate to contact us.
-        </p>
-        <p style="font-size: 14px; line-height: 1.6; color: #666666; margin: 20px 0;">
-          Best regards,<br />
-          Stylish Entertainment
-        </p>
-      </div>
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      </head>
+      <body style="margin: 0; padding: 0; background-color: #f8f8f8; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8f8f8; padding: 40px 20px;">
+          <tr>
+            <td align="center">
+              <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                
+                <!-- Header with Logo -->
+                <tr>
+                  <td style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px 40px; text-align: center;">
+                    <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment" width="180" style="display: block; margin: 0 auto;">
+                  </td>
+                </tr>
+                
+                ${isWedding ? `
+                <!-- Gold Accent Bar for Weddings -->
+                <tr>
+                  <td style="background: linear-gradient(90deg, #D4AF37 0%, #F4D03F 50%, #D4AF37 100%); height: 4px;"></td>
+                </tr>
+                ` : `
+                <!-- Accent Bar -->
+                <tr>
+                  <td style="background-color: #D4AF37; height: 4px;"></td>
+                </tr>
+                `}
+                
+                <!-- Main Content -->
+                <tr>
+                  <td style="padding: 40px;">
+                    
+                    <!-- Headline -->
+                    <h1 style="font-size: 28px; font-weight: 700; color: #1a1a1a; margin: 0 0 24px 0; text-align: center; ${isWedding ? 'font-family: Georgia, serif;' : ''}">
+                      ${headline}
+                    </h1>
+                    
+                    <!-- Greeting -->
+                    <p style="font-size: 16px; color: #333333; line-height: 1.8; margin: 0 0 16px 0;">
+                      ${greeting}
+                    </p>
+                    
+                    <!-- Intro -->
+                    <p style="font-size: 16px; color: #333333; line-height: 1.8; margin: 0 0 24px 0;">
+                      ${intro}
+                    </p>
+                    
+                    <!-- Event Details Card -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background: ${isWedding ? 'linear-gradient(135deg, #fdfbf7 0%, #f9f5ed 100%)' : '#f9f9f9'}; border-radius: 8px; margin: 24px 0; ${isWedding ? 'border: 1px solid #D4AF37;' : 'border: 1px solid #e5e5e5;'}">
+                      <tr>
+                        <td style="padding: 24px;">
+                          ${isWedding ? '<p style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #D4AF37; margin: 0 0 16px 0; font-weight: 600;">Your Wedding Details</p>' : '<p style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #888888; margin: 0 0 16px 0; font-weight: 600;">Event Details</p>'}
+                          <table width="100%" cellpadding="0" cellspacing="0">
+                            <tr>
+                              <td width="80" style="font-size: 14px; color: #666666; padding: 8px 0; vertical-align: top;">Event</td>
+                              <td style="font-size: 16px; color: #1a1a1a; font-weight: 600; padding: 8px 0;">${displayName}</td>
+                            </tr>
+                            <tr>
+                              <td width="80" style="font-size: 14px; color: #666666; padding: 8px 0; vertical-align: top;">Date</td>
+                              <td style="font-size: 16px; color: #1a1a1a; font-weight: 600; padding: 8px 0;">${formattedDate}</td>
+                            </tr>
+                            ${booking.venueName ? `
+                            <tr>
+                              <td width="80" style="font-size: 14px; color: #666666; padding: 8px 0; vertical-align: top;">Venue</td>
+                              <td style="font-size: 16px; color: #1a1a1a; font-weight: 600; padding: 8px 0;">${booking.venueName}</td>
+                            </tr>
+                            ` : ''}
+                          </table>
+                        </td>
+                      </tr>
+                    </table>
+                    
+                    <!-- Portal Info -->
+                    <p style="font-size: 16px; color: #333333; line-height: 1.8; margin: 24px 0;">
+                      ${portalIntro}
+                    </p>
+                    
+                    <!-- CTA Button -->
+                    <table width="100%" cellpadding="0" cellspacing="0" style="margin: 32px 0;">
+                      <tr>
+                        <td align="center">
+                          <a href="${portalUrl}" style="display: inline-block; padding: 16px 40px; background: ${isWedding ? 'linear-gradient(135deg, #D4AF37 0%, #B8960C 100%)' : '#1a1a1a'}; color: ${isWedding ? '#1a1a1a' : '#ffffff'}; text-decoration: none; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; border-radius: 4px; box-shadow: 0 4px 12px ${isWedding ? 'rgba(212, 175, 55, 0.4)' : 'rgba(0, 0, 0, 0.2)'};">
+                            ${ctaText}
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+                    
+                    <!-- Questions -->
+                    <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 24px 0 0 0;">
+                      If you have any questions, we're always here to help. Simply reply to this email or use the messaging feature in your portal.
+                    </p>
+                    
+                  </td>
+                </tr>
+                
+                <!-- Footer -->
+                <tr>
+                  <td style="background-color: #1a1a1a; padding: 30px 40px;">
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="text-align: center;">
+                          <p style="font-size: 14px; color: #ffffff; margin: 0 0 4px 0; font-weight: 600;">Ali & Nige</p>
+                          <p style="font-size: 14px; color: #D4AF37; margin: 0 0 16px 0;">Stylish Entertainment Ltd</p>
+                          <p style="font-size: 13px; color: #888888; margin: 0 0 4px 0;">
+                            <a href="tel:+447970793177" style="color: #888888; text-decoration: none;">07970 793 177</a>
+                          </p>
+                          <p style="font-size: 13px; color: #888888; margin: 0 0 4px 0;">
+                            <a href="mailto:info@stylishentertainment.co.uk" style="color: #888888; text-decoration: none;">info@stylishentertainment.co.uk</a>
+                          </p>
+                          <p style="font-size: 13px; margin: 12px 0 0 0;">
+                            <a href="https://stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">stylishentertainment.co.uk</a>
+                          </p>
+                        </td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+                
+              </table>
+            </td>
+          </tr>
+        </table>
+      </body>
+      </html>
+    `;
+
+    const portalInviteText = `
+${headline}
+
+${greeting}
+
+${intro}
+
+EVENT DETAILS
+-------------
+Event: ${displayName}
+Date: ${formattedDate}
+${booking.venueName ? `Venue: ${booking.venueName}` : ''}
+
+${portalIntro}
+
+Access your portal: ${portalUrl}
+
+If you have any questions, we're always here to help.
+
+Ali & Nige
+Stylish Entertainment Ltd
+07970 793 177
+info@stylishentertainment.co.uk
+https://stylishentertainment.co.uk
     `;
 
     // Send email
     await sendEmailFromCRM({
       to: booking.email,
-      subject: `Access Your Booking Portal - ${displayName}`,
+      subject,
       html: portalInviteHtml,
-      text: `Hello ${greetingName || "there"},\n\nYou can now access your booking portal to view and manage your event details for ${displayName} on ${formattedDate}.\n\nAccess your portal: ${portalUrl}\n\nIf you have any questions, please contact us.\n\nBest regards,\nStylish Entertainment`,
+      text: portalInviteText,
     });
 
     return NextResponse.json({

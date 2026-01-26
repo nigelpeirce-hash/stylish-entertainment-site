@@ -156,8 +156,8 @@ export function NewSubmissionNotifier() {
                 body: newEnquiries.length === 1 
                   ? `From ${newEnquiries[0].name}${urgentMsg ? " - URGENT" : ""}`
                   : `${newEnquiries.length} new contact form submissions${urgentMsg}`,
-                icon: "https://res.cloudinary.com/drtwveoqo/image/upload/v1768162584/Rev-New-SE-Logo0_ow03mn.png",
-                badge: "https://res.cloudinary.com/drtwveoqo/image/upload/v1768162584/Rev-New-SE-Logo0_ow03mn.png",
+                icon: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png",
+                badge: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png",
                 tag: "new-enquiry",
                 requireInteraction: urgentEnquiries.length > 0, // Require interaction for urgent
               });

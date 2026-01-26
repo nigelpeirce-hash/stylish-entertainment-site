@@ -64,7 +64,7 @@ export default function TestimonialsClient() {
     <div>
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-15 flex items-center justify-center">
+        <div className="absolute inset-0 opacity-40 flex items-center justify-center">
           <img
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg"
             alt="Wedding reception with professional lighting design showcasing elegant table settings and ambient lighting at a West Country venue"

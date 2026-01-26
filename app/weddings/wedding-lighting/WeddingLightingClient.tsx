@@ -93,7 +93,7 @@ export default function WeddingLightingClient() {
     <div>
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-25 flex items-center justify-center">
+        <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <img
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163797/150730_sami-tammy_ria-mishaal-photography_775_bbo9bb.jpg"
             alt="Sami and Tammy's wedding with beautiful lighting design creating an elegant and romantic atmosphere, captured by Ria Mishaal Photography"

@@ -235,7 +235,7 @@ export async function POST(request: NextRequest) {
         <body>
           <div class="email-container">
             <div class="header">
-              <img src="https://res.cloudinary.com/drtwveoqo/image/upload/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment Logo" style="max-width: 200px; height: auto; margin-bottom: 10px;" />
+              <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment Logo" style="max-width: 200px; height: auto; margin-bottom: 10px;" />
               <div class="divider"></div>
             </div>
             <div class="content">
@@ -267,16 +267,27 @@ export async function POST(request: NextRequest) {
 
               ${riderSection}
 
+              <div style="text-align: center; margin: 30px 0; padding: 30px; background: linear-gradient(135deg, #1a1a1a, #2a2a2a); border-radius: 8px;">
+                <p style="color: #ffffff; font-size: 18px; margin: 0 0 20px; font-family: 'Playfair Display', serif;">Ready to secure your DJ?</p>
+                <a href="mailto:info@stylishentertainment.co.uk?subject=Booking%20Confirmation%20-%20${encodeURIComponent(venueName || '')}%20${encodeURIComponent(formattedDate)}" style="display: inline-block; background: #D4AF37; color: #000000; padding: 16px 40px; border-radius: 6px; font-weight: 700; text-decoration: none; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">Book Your DJ</a>
+                <p style="color: #888888; font-size: 13px; margin: 15px 0 0;">Reply to this email or click above to confirm your booking</p>
+              </div>
+
               <p>If you have any questions or would like to discuss any of these details further, please don't hesitate to get in touch.</p>
               
               <div class="signature">
                 <p>Best regards,</p>
-                <p><strong>Ali & Nige</strong><br>
-                Stylish Entertainment</p>
+                <p style="margin-bottom: 20px;"><strong>Ali & Nige</strong><br>
+                Stylish Entertainment Ltd</p>
+                <div style="background: #f8f9fa; padding: 15px 20px; border-radius: 6px; font-size: 14px;">
+                  <p style="margin: 0 0 8px; color: #333;"><strong>📞 Call us:</strong> <a href="tel:+447970793177" style="color: #D4AF37; text-decoration: none;">+44 7970 793177</a></p>
+                  <p style="margin: 0 0 8px; color: #333;"><strong>✉️ Email:</strong> <a href="mailto:info@stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">info@stylishentertainment.co.uk</a></p>
+                  <p style="margin: 0; color: #333;"><strong>🌐 Website:</strong> <a href="https://stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">stylishentertainment.co.uk</a></p>
+                </div>
               </div>
             </div>
             <div class="footer">
-              <p>Stylish Entertainment</p>
+              <p>Stylish Entertainment Ltd</p>
               <p>West Country | London | Nationwide</p>
               <p style="margin-top: 15px;">
                 <a href="https://stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">Visit our website</a>

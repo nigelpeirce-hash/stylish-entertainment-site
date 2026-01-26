@@ -377,7 +377,7 @@ export default function DJs() {
           <div className="absolute top-10 right-10 w-72 h-72 bg-champagne-gold/5 rounded-full blur-3xl"></div>
           <div className="absolute bottom-10 left-10 w-72 h-72 bg-champagne-gold/5 rounded-full blur-3xl"></div>
         </div>
-        <div className="absolute inset-0 opacity-25 flex items-center justify-center">
+        <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <Image
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163785/Nigel-DJ-Babs-House-0002-1_ktgbaf.jpg"
             alt="DJ Nige performing at Babington House, showcasing professional wedding DJ services with elegant lighting"

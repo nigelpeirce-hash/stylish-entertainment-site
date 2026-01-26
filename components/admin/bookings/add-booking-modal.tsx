@@ -14,10 +14,26 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Calendar, Clock, Mail, FileText, Send, Lightbulb } from "lucide-react";
+import { Calendar, Clock, Mail, FileText, Send, Lightbulb, Users, X, Plus, Loader2 } from "lucide-react";
 import { createBooking } from "@/lib/actions/booking-actions";
 import { Select } from "@/components/ui/select";
 import { getNameFormatSuggestions, isValidNameFormat, getDisplayName } from "@/lib/utils/name-helpers";
+import Image from "next/image";
+
+interface TeamMember {
+  id: string;
+  name: string;
+  imageUrl?: string | null;
+  role?: string;
+}
+
+interface AssignedMember {
+  id: string;
+  name: string;
+  imageUrl?: string | null;
+  role: string;
+  fee?: string;
+}
 
 interface AddBookingModalProps {
   open: boolean;
@@ -28,19 +44,29 @@ interface AddBookingModalProps {
 export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [availableTeam, setAvailableTeam] = useState<TeamMember[]>([]);
+  const [loadingTeam, setLoadingTeam] = useState(false);
+  const [assignedMembers, setAssignedMembers] = useState<AssignedMember[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     clientEmail: "",
     startDate: "",
     startTime: "",
     endTime: "",
-    serviceType: "",
+    eventType: "wedding" as "wedding" | "party" | "corporate",
+    serviceTypes: [] as string[],
     notes: "",
     sendPortalInvite: false,
+    earlySetup: false,
   });
 
+  const eventTypeOptions = [
+    { value: "wedding", label: "Wedding", description: "Wedding-specific content & messaging" },
+    { value: "party", label: "Party", description: "Birthday, anniversary, celebration" },
+    { value: "corporate", label: "Corporate", description: "Business events, conferences" },
+  ];
+
   const serviceTypeOptions = [
-    { value: "", label: "Select service type..." },
     { value: "DJs", label: "DJs" },
     { value: "Musicians", label: "Musicians" },
     { value: "Entertainment", label: "Entertainment" },
@@ -52,10 +78,11 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
     { value: "Other", label: "Other" },
   ];
 
-  // Generate time options in 15-minute increments
+  // Generate time options in 15-minute increments starting from midday (12:00)
   const generateTimeOptions = () => {
     const options = [];
-    for (let hour = 0; hour < 24; hour++) {
+    // Start from 12:00 (midday) and go to 23:45, then 00:00 to 03:00 for late nights
+    for (let hour = 12; hour < 24; hour++) {
       for (let minute = 0; minute < 60; minute += 15) {
         const timeString = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
         const displayTime = new Date(`2000-01-01T${timeString}`).toLocaleTimeString("en-GB", {
@@ -66,10 +93,31 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
         options.push({ value: timeString, label: displayTime });
       }
     }
+    // Add early morning hours for late-night events (00:00 - 03:00)
+    for (let hour = 0; hour < 4; hour++) {
+      for (let minute = 0; minute < 60; minute += 15) {
+        const timeString = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
+        const displayTime = new Date(`2000-01-01T${timeString}`).toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
+        options.push({ value: timeString, label: `${displayTime} (next day)` });
+      }
+    }
     return options;
   };
 
   const timeOptions = generateTimeOptions();
+
+  const toggleServiceType = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      serviceTypes: prev.serviceTypes.includes(value)
+        ? prev.serviceTypes.filter(t => t !== value)
+        : [...prev.serviceTypes, value],
+    }));
+  };
 
   // Reset form when modal opens
   useEffect(() => {
@@ -80,13 +128,112 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
         startDate: "",
         startTime: "",
         endTime: "",
-        serviceType: "",
+        eventType: "wedding",
+        serviceTypes: [],
         notes: "",
         sendPortalInvite: false,
+        earlySetup: false,
       });
+      setAssignedMembers([]);
+      setAvailableTeam([]);
       setError(null);
     }
   }, [open]);
+
+  // Fetch available team when service types change
+  useEffect(() => {
+    const fetchTeam = async () => {
+      if (formData.serviceTypes.length === 0) {
+        setAvailableTeam([]);
+        return;
+      }
+
+      setLoadingTeam(true);
+      try {
+        const allMembers: TeamMember[] = [];
+        
+        // Fetch DJs if selected
+        if (formData.serviceTypes.includes("DJs")) {
+          const response = await fetch("/api/admin/djs");
+          if (response.ok) {
+            const data = await response.json();
+            const djs = (data.djs || []).map((m: any) => ({
+              id: m.id,
+              name: m.name,
+              imageUrl: m.imageUrl,
+              role: "DJ",
+            }));
+            allMembers.push(...djs);
+          }
+        }
+        
+        // Fetch Musicians if selected
+        if (formData.serviceTypes.includes("Musicians")) {
+          const response = await fetch("/api/admin/musicians");
+          if (response.ok) {
+            const data = await response.json();
+            const musicians = (data.musicians || []).map((m: any) => ({
+              id: m.id,
+              name: m.name,
+              imageUrl: m.imageUrl,
+              role: m.instrument || "Musician",
+            }));
+            allMembers.push(...musicians);
+          }
+        }
+        
+        // Fetch Freelance Crew for production roles
+        const crewRoles = ["Lighting Design", "Venue Styling", "Production", "Event Production"];
+        const selectedCrewRoles = formData.serviceTypes.filter(t => crewRoles.includes(t));
+        if (selectedCrewRoles.length > 0) {
+          const response = await fetch("/api/admin/freelance-crew");
+          if (response.ok) {
+            const data = await response.json();
+            const crew = (data.crew || []).map((m: any) => ({
+              id: m.id,
+              name: m.name,
+              imageUrl: null,
+              role: m.roles?.[0] || "Crew",
+            }));
+            allMembers.push(...crew);
+          }
+        }
+
+        setAvailableTeam(allMembers);
+      } catch (err) {
+        console.error("Error fetching team:", err);
+        setAvailableTeam([]);
+      } finally {
+        setLoadingTeam(false);
+      }
+    };
+
+    fetchTeam();
+  }, [formData.serviceTypes]);
+
+  const addTeamMember = (member: TeamMember) => {
+    if (assignedMembers.find(m => m.id === member.id)) return;
+    setAssignedMembers([
+      ...assignedMembers,
+      {
+        id: member.id,
+        name: member.name,
+        imageUrl: member.imageUrl,
+        role: member.role || formData.serviceType,
+        fee: "",
+      },
+    ]);
+  };
+
+  const removeTeamMember = (id: string) => {
+    setAssignedMembers(assignedMembers.filter(m => m.id !== id));
+  };
+
+  const updateMemberFee = (id: string, fee: string) => {
+    setAssignedMembers(assignedMembers.map(m => 
+      m.id === id ? { ...m, fee } : m
+    ));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,8 +242,8 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
 
     try {
       // Validate required fields
-      if (!formData.title || !formData.clientEmail || !formData.startDate || !formData.startTime || !formData.endTime || !formData.serviceType) {
-        setError("Please fill in all required fields");
+      if (!formData.title || !formData.clientEmail || !formData.startDate || !formData.startTime || !formData.endTime || formData.serviceTypes.length === 0) {
+        setError("Please fill in all required fields including at least one service type");
         setLoading(false);
         return;
       }
@@ -118,8 +265,16 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
 
       // Combine date and time for startTime
       const startDateTime = new Date(`${formData.startDate}T${formData.startTime}`);
-      // For endTime, use the same date with the end time
-      const endDateTime = new Date(`${formData.startDate}T${formData.endTime}`);
+      
+      // For endTime, check if it's an early morning time (00:00-03:45) which means next day
+      const endHour = parseInt(formData.endTime.split(":")[0]);
+      const isNextDayEndTime = endHour >= 0 && endHour < 4;
+      
+      let endDateTime = new Date(`${formData.startDate}T${formData.endTime}`);
+      if (isNextDayEndTime) {
+        // Add one day for early morning end times
+        endDateTime.setDate(endDateTime.getDate() + 1);
+      }
 
       // Validate dates
       if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
@@ -130,7 +285,7 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
 
       // Validate end time is after start time
       if (endDateTime <= startDateTime) {
-        setError("End time must be after start time");
+        setError("End time must be after start time. For late-night events ending after midnight, select an early morning time.");
         setLoading(false);
         return;
       }
@@ -141,9 +296,17 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
         clientEmail: formData.clientEmail,
         startTime: startDateTime,
         endTime: endDateTime,
-        serviceType: formData.serviceType,
+        eventType: formData.eventType,
+        serviceTypes: formData.serviceTypes,
         notes: formData.notes || undefined,
         sendPortalInvite: formData.sendPortalInvite,
+        earlySetup: formData.earlySetup,
+        assignedTeam: assignedMembers.length > 0 ? assignedMembers.map(m => ({
+          id: m.id,
+          name: m.name,
+          role: m.role,
+          fee: m.fee ? parseFloat(m.fee) : undefined,
+        })) : undefined,
       });
 
       if (result.success) {
@@ -154,10 +317,14 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
           startDate: "",
           startTime: "",
           endTime: "",
-          serviceType: "",
+          eventType: "wedding",
+          serviceTypes: [],
           notes: "",
           sendPortalInvite: false,
+          earlySetup: false,
         });
+        setAssignedMembers([]);
+        setAvailableTeam([]);
         
         // Close modal and trigger success callback
         onOpenChange(false);
@@ -180,10 +347,14 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
         startDate: "",
         startTime: "",
         endTime: "",
-        serviceType: "",
+        eventType: "wedding",
+        serviceTypes: [],
         notes: "",
         sendPortalInvite: false,
+        earlySetup: false,
       });
+      setAssignedMembers([]);
+      setAvailableTeam([]);
       setError(null);
       onOpenChange(false);
     }
@@ -249,6 +420,38 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
                     required
                     disabled={loading}
                   />
+                </div>
+              </div>
+
+              {/* Event Type */}
+              <div className="space-y-2 pt-2">
+                <Label className="text-sm font-medium text-gray-300">
+                  Event Type <span className="text-red-400">*</span>
+                </Label>
+                <div className="grid grid-cols-3 gap-3">
+                  {eventTypeOptions.map((option) => {
+                    const isSelected = formData.eventType === option.value;
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, eventType: option.value as "wedding" | "party" | "corporate" })}
+                        disabled={loading}
+                        className={`p-3 rounded-lg text-left transition-all border ${
+                          isSelected
+                            ? "bg-amber-500/20 border-amber-500 ring-1 ring-amber-500"
+                            : "bg-white/5 border-white/10 hover:border-amber-500/50"
+                        }`}
+                      >
+                        <div className={`text-sm font-medium ${isSelected ? "text-amber-400" : "text-white"}`}>
+                          {option.label}
+                        </div>
+                        <div className="text-xs text-gray-400 mt-0.5">
+                          {option.description}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -318,26 +521,152 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
             <div className="space-y-4">
               <h3 className="text-xs font-semibold text-amber-500 uppercase tracking-widest">Service Details</h3>
               
-              {/* Service Type */}
+              {/* Service Types - Multi-select */}
               <div className="space-y-2">
-                <Label htmlFor="serviceType" className="text-sm font-medium text-gray-300">
-                  Service Type <span className="text-red-400">*</span>
+                <Label className="text-sm font-medium text-gray-300">
+                  Service Types <span className="text-red-400">*</span>
                 </Label>
-                <Select
-                  id="serviceType"
-                  value={formData.serviceType}
-                  onChange={(e) => setFormData({ ...formData, serviceType: e.target.value })}
-                  className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all outline-none [&>option]:bg-gray-800 [&>option]:text-white"
-                  required
-                  disabled={loading}
-                >
-                  {serviceTypeOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </Select>
+                <div className="flex flex-wrap gap-2">
+                  {serviceTypeOptions.map((option) => {
+                    const isSelected = formData.serviceTypes.includes(option.value);
+                    return (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => toggleServiceType(option.value)}
+                        disabled={loading}
+                        className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                          isSelected
+                            ? "bg-amber-500 text-black border border-amber-500"
+                            : "bg-white/5 text-gray-300 border border-white/10 hover:border-amber-500/50"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                {formData.serviceTypes.length > 0 && (
+                  <p className="text-xs text-gray-400">
+                    Selected: {formData.serviceTypes.join(", ")}
+                  </p>
+                )}
               </div>
+
+              {/* Early Setup Checkbox - Show when DJs or Musicians selected */}
+              {(formData.serviceTypes.includes("DJs") || formData.serviceTypes.includes("Musicians")) && (
+                <div className="flex items-center space-x-2 p-3 bg-amber-500/10 rounded-lg border border-amber-500/30">
+                  <Checkbox
+                    id="earlySetup"
+                    checked={formData.earlySetup}
+                    onCheckedChange={(checked) =>
+                      setFormData({ ...formData, earlySetup: checked === true })
+                    }
+                    disabled={loading}
+                    className="border-amber-500/50 data-[state=checked]:bg-amber-500"
+                  />
+                  <Label
+                    htmlFor="earlySetup"
+                    className="text-sm text-amber-200 cursor-pointer"
+                  >
+                    Early Setup Required (artist arrives earlier in the day)
+                  </Label>
+                </div>
+              )}
+
+              {/* Team Assignment */}
+              {formData.serviceTypes.length > 0 && (formData.serviceTypes.includes("DJs") || formData.serviceTypes.includes("Musicians") || formData.serviceTypes.includes("Lighting Design") || formData.serviceTypes.includes("Venue Styling") || formData.serviceTypes.includes("Production") || formData.serviceTypes.includes("Event Production")) && (
+                <div className="space-y-3 p-4 bg-white/5 rounded-lg border border-white/10">
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4 text-amber-500" />
+                    <Label className="text-sm font-medium text-gray-300">
+                      Assign Team
+                    </Label>
+                  </div>
+
+                  {/* Available Team Members */}
+                  {loadingTeam ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="w-5 h-5 animate-spin text-amber-500" />
+                    </div>
+                  ) : availableTeam.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {availableTeam.map((member) => {
+                        const isAssigned = assignedMembers.some(m => m.id === member.id);
+                        return (
+                          <button
+                            key={member.id}
+                            type="button"
+                            onClick={() => !isAssigned && addTeamMember(member)}
+                            disabled={isAssigned || loading}
+                            className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-all ${
+                              isAssigned
+                                ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                                : "bg-white/5 text-gray-300 border border-white/10 hover:border-amber-500/50 hover:bg-amber-500/10"
+                            }`}
+                          >
+                            {member.imageUrl && (
+                              <Image
+                                src={member.imageUrl}
+                                alt={member.name}
+                                width={20}
+                                height={20}
+                                className="rounded-full"
+                              />
+                            )}
+                            <span>{member.name}</span>
+                            {!isAssigned && <Plus className="w-3 h-3" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-gray-500">No team members available for this service type</p>
+                  )}
+
+                  {/* Assigned Members with Fee */}
+                  {assignedMembers.length > 0 && (
+                    <div className="space-y-2 mt-4 pt-4 border-t border-white/10">
+                      <Label className="text-xs text-gray-400">Assigned ({assignedMembers.length})</Label>
+                      {assignedMembers.map((member) => (
+                        <div key={member.id} className="flex items-center gap-3 bg-white/5 rounded-lg p-2">
+                          {member.imageUrl && (
+                            <Image
+                              src={member.imageUrl}
+                              alt={member.name}
+                              width={32}
+                              height={32}
+                              className="rounded-full"
+                            />
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-white truncate">{member.name}</p>
+                            <p className="text-xs text-gray-400">{member.role}</p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="number"
+                              placeholder="Fee £"
+                              value={member.fee}
+                              onChange={(e) => updateMemberFee(member.id, e.target.value)}
+                              className="w-24 bg-white/10 border-none text-white text-sm p-2 h-8"
+                              disabled={loading}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeTeamMember(member.id)}
+                              className="text-gray-400 hover:text-red-400 transition-colors"
+                              disabled={loading}
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Notes */}
               <div className="space-y-2">

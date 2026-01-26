@@ -11,15 +11,15 @@ export default function ContactUsClient() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162649/Kin-House-Mirrorball-Clusters_fi5n50.jpg"
-            alt="Kin House wedding venue with elegant mirrorball clusters and professional lighting design, showcasing our wedding entertainment services"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/w_1200,h_600,f_auto,q_auto/IMG_2866_zhs5sz.jpg"
+            alt="Contact Us Hero"
             fill
-            className="object-cover object-center opacity-25 brightness-110"
+            className="object-cover object-center opacity-50 brightness-110"
             priority
             sizes="100vw"
           />
         </div>
-        <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/70 via-black/40 to-gray-900" />
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/50 via-black/30 to-gray-900" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

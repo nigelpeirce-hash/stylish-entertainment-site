@@ -19,6 +19,7 @@ export async function POST(request: NextRequest) {
       eventDate,
       venue,
       selectedItems,
+      eventType,
     } = body;
 
     if (!name || typeof name !== "string" || !name.trim()) {
@@ -72,6 +73,7 @@ export async function POST(request: NextRequest) {
         eventDate: parsedDate,
         venuePostcode,
         venueName,
+        eventType: eventType || null, // Store event type if provided
         enquiryType: "hire_only",
         selectedHireItems: selectedHireItems.length ? (selectedHireItems as any) : null,
         isConflict: false,

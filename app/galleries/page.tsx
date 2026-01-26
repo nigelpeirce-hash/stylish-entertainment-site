@@ -244,7 +244,7 @@ export default function Galleries() {
     <div>
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-25 flex items-center justify-center">
+        <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <img
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw"
             alt="Enchanting fairy light tunnel at Babington House showcasing our wedding lighting design"

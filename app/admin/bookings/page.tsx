@@ -35,6 +35,7 @@ interface Booking {
   handoffNote: string | null;
   numberOfGuests: number | null;
   services: string[];
+  archivedAt: string | null;
   user: { id: string; name: string; email: string } | null;
   staffAssignments?: Array<{
     id: string;
@@ -84,6 +85,7 @@ function AdminBookingsContent() {
   const [filter, setFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [showArchived, setShowArchived] = useState(false);
   // Priority flag names - can be customized
   const [user1Name, setUser1Name] = useState("Nigel");
   const [user2Name, setUser2Name] = useState("Ali");
@@ -94,6 +96,7 @@ function AdminBookingsContent() {
   // Use refs to track previous values and prevent unnecessary fetches
   const prevFilterRef = useRef<string>("all");
   const prevSearchRef = useRef<string>("");
+  const prevShowArchivedRef = useRef<boolean>(false);
   const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasInitializedRef = useRef(false);
   const isFetchingRef = useRef(false);
@@ -133,9 +136,11 @@ function AdminBookingsContent() {
       const params = new URLSearchParams();
       const currentFilter = prevFilterRef.current;
       const currentSearch = prevSearchRef.current;
+      const currentShowArchived = prevShowArchivedRef.current;
       
       if (currentFilter !== "all") params.append("status", currentFilter);
       if (currentSearch) params.append("search", currentSearch);
+      if (currentShowArchived) params.append("archivedOnly", "true");
 
       console.log("Fetching bookings:", params.toString());
       const response = await fetch(`/api/admin/bookings?${params.toString()}`);
@@ -245,16 +250,17 @@ function AdminBookingsContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session?.user?.id]); // Depend on status and session ID only
 
-  // Separate effect for filter/search changes (debounced)
+  // Separate effect for filter/search/archive changes (debounced)
   useEffect(() => {
     // Don't run until initialized
     if (!hasInitializedRef.current) return;
 
-    // Only fetch if filter or search has actually changed
+    // Only fetch if filter, search, or showArchived has actually changed
     const filterChanged = prevFilterRef.current !== filter;
     const searchChanged = prevSearchRef.current !== search;
+    const archivedChanged = prevShowArchivedRef.current !== showArchived;
     
-    if (!filterChanged && !searchChanged) return;
+    if (!filterChanged && !searchChanged && !archivedChanged) return;
 
     // Prevent if already fetching
     if (isFetchingRef.current) return;
@@ -271,6 +277,7 @@ function AdminBookingsContent() {
       if (isFetchingRef.current) return;
       prevFilterRef.current = filter;
       prevSearchRef.current = search;
+      prevShowArchivedRef.current = showArchived;
       fetchBookingsRef.current?.();
     }, 500); // Increased debounce time
 
@@ -280,7 +287,7 @@ function AdminBookingsContent() {
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter, search]); // Only depend on filter and search
+  }, [filter, search, showArchived]); // Depend on filter, search, and showArchived
 
   const handleToggleFlag = async (bookingId: string, currentFlag: string | null) => {
     try {
@@ -327,6 +334,23 @@ function AdminBookingsContent() {
       }
     } catch (error) {
       console.error("Error assigning booking:", error);
+    }
+  };
+
+  const handleRestore = async (bookingId: string) => {
+    try {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/restore`, {
+        method: "POST",
+      });
+
+      if (response.ok) {
+        // Refresh the list
+        await fetchBookingsRef.current?.();
+      } else {
+        console.error("Failed to restore booking");
+      }
+    } catch (error) {
+      console.error("Error restoring booking:", error);
     }
   };
 
@@ -443,25 +467,33 @@ function AdminBookingsContent() {
             </div>
             <div className="flex gap-2">
               <Button
-                onClick={() => setFilter("all")}
-                variant={filter === "all" ? "default" : "outline"}
+                onClick={() => { setFilter("all"); setShowArchived(false); }}
+                variant={filter === "all" && !showArchived ? "default" : "outline"}
                 size="sm"
               >
                 All
               </Button>
               <Button
-                onClick={() => setFilter("pending")}
-                variant={filter === "pending" ? "default" : "outline"}
+                onClick={() => { setFilter("pending"); setShowArchived(false); }}
+                variant={filter === "pending" && !showArchived ? "default" : "outline"}
                 size="sm"
               >
                 Pending
               </Button>
               <Button
-                onClick={() => setFilter("confirmed")}
-                variant={filter === "confirmed" ? "default" : "outline"}
+                onClick={() => { setFilter("confirmed"); setShowArchived(false); }}
+                variant={filter === "confirmed" && !showArchived ? "default" : "outline"}
                 size="sm"
               >
                 Confirmed
+              </Button>
+              <Button
+                onClick={() => { setFilter("all"); setShowArchived(true); }}
+                variant={showArchived ? "default" : "outline"}
+                size="sm"
+                className={showArchived ? "bg-gray-600 hover:bg-gray-700" : ""}
+              >
+                Archived
               </Button>
             </div>
           </div>
@@ -567,39 +599,58 @@ function AdminBookingsContent() {
                       </div>
                     </Link>
 
-                    {/* Assignment Buttons */}
-                    <div className="flex gap-2 mt-2 pt-2 border-t border-gray-700">
-                      <Button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleAssign(booking.id, "ali");
-                        }}
-                        size="sm"
-                        className={`flex-1 ${
-                          booking.assignedTo === "ali" || booking.assignedTo === "wife"
-                            ? "bg-blue-600 hover:bg-blue-700 text-white"
-                            : "bg-blue-900/30 hover:bg-blue-900/50 text-black border border-blue-500/50 font-medium"
-                        }`}
-                      >
-                        🙋‍♀️ For {wifeName}
-                      </Button>
-                      <Button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handleAssign(booking.id, "you");
-                        }}
-                        size="sm"
-                        className={`flex-1 ${
-                          booking.assignedTo === "you"
-                            ? "bg-purple-600 hover:bg-purple-700 text-white"
-                            : "bg-purple-900/30 hover:bg-purple-900/50 text-black border border-purple-500/50 font-medium"
-                        }`}
-                      >
-                        🛠️ For {yourName}
-                      </Button>
-                    </div>
+                    {/* Assignment Buttons - Hide for archived, show Restore instead */}
+                    {showArchived ? (
+                      <div className="flex gap-2 mt-2 pt-2 border-t border-gray-700">
+                        <Button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleRestore(booking.id);
+                          }}
+                          size="sm"
+                          className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                        >
+                          ↩️ Restore Booking
+                        </Button>
+                        <span className="text-xs text-gray-500 self-center">
+                          Archived {booking.archivedAt ? new Date(booking.archivedAt).toLocaleDateString() : ""}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2 mt-2 pt-2 border-t border-gray-700">
+                        <Button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleAssign(booking.id, "ali");
+                          }}
+                          size="sm"
+                          className={`flex-1 ${
+                            booking.assignedTo === "ali" || booking.assignedTo === "wife"
+                              ? "bg-blue-600 hover:bg-blue-700 text-white"
+                              : "bg-blue-900/30 hover:bg-blue-900/50 text-black border border-blue-500/50 font-medium"
+                          }`}
+                        >
+                          🙋‍♀️ For {wifeName}
+                        </Button>
+                        <Button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleAssign(booking.id, "you");
+                          }}
+                          size="sm"
+                          className={`flex-1 ${
+                            booking.assignedTo === "you"
+                              ? "bg-purple-600 hover:bg-purple-700 text-white"
+                              : "bg-purple-900/30 hover:bg-purple-900/50 text-black border border-purple-500/50 font-medium"
+                          }`}
+                        >
+                          🛠️ For {yourName}
+                        </Button>
+                      </div>
+                    )}
                     {/* Updated for 50% larger size */}
                     {booking.staffAssignments && booking.staffAssignments.length > 0 && (
                       <div className="bg-champagne-gold/5 p-2 rounded-md mt-2 border border-champagne-gold/10">

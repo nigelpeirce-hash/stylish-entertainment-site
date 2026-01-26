@@ -86,9 +86,9 @@ export async function POST(
       <p><strong>Event:</strong> ${booking.eventType || "Event"} at ${venue}</p>
       <p><strong>Date:</strong> ${dateStr}</p>
       <p>If you have any questions, please check in with the office.</p>
-      <p>Best,<br>Stylish Entertainment</p>
+      <p>Best,<br>Stylish Entertainment Ltd</p>
     `;
-    const text = `Final payment received – ${booking.name} @ ${venue}\n\nEvent: ${booking.eventType || "Event"} at ${venue}\nDate: ${dateStr}\n\nThe client has confirmed they have sent the final payment.\n\nBest, Stylish Entertainment`;
+    const text = `Final payment received – ${booking.name} @ ${venue}\n\nEvent: ${booking.eventType || "Event"} at ${venue}\nDate: ${dateStr}\n\nThe client has confirmed they have sent the final payment.\n\nBest, Stylish Entertainment Ltd`;
 
     for (const a of assignments) {
       const email = a.staff.email;

@@ -51,7 +51,7 @@ const services = [
   {
     title: "Hire Shop",
     href: "/hire",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/v1768163613/IMG_3400_twcvbw.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163613/IMG_3400_twcvbw.jpg",
     alt: "Decorative hire items including lanterns, candlesticks, mirror balls and vases for weddings across the West Country",
   },
   {

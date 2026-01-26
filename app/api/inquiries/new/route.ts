@@ -17,7 +17,7 @@ const getResend = () => {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, phoneAreaCode, phoneNumber, eventDate, venuePostcode } = body;
+    const { name, email, phoneAreaCode, phoneNumber, eventDate, venuePostcode, eventType } = body;
 
     // Validate required fields
     if (!name || !email || !eventDate || !venuePostcode) {
@@ -72,6 +72,7 @@ export async function POST(request: NextRequest) {
         phoneNumber: phoneNumber || null,
         eventDate: parsedEventDate,
         venuePostcode: normalizedPostcode,
+        eventType: eventType || null, // Store event type from form
         isConflict: !!existingBooking,
         originalBookingId: existingBooking?.id || null,
         conflictDetectedAt: existingBooking ? new Date() : null,

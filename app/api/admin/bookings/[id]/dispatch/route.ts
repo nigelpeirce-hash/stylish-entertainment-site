@@ -420,7 +420,7 @@ export async function POST(
     </div>
     ` : ''}
     <div class="footer">
-      <p>Stylish Entertainment</p>
+      <p>Stylish Entertainment Ltd</p>
       <p>This is an automated dispatch. Please confirm receipt.</p>
     </div>
   </div>

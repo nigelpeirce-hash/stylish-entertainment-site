@@ -27,7 +27,7 @@ export function PORTAL_INVITATION(input: PortalInvitationInput): {
   const displayName = deduplicateName(getDisplayName(input.name) || input.name) || input.name;
   const venue = (input.venueName || "your venue").trim();
 
-  const subject = `Welcome to Your ${venue} Wedding Portal | Stylish Entertainment`;
+  const subject = `Welcome to Your ${venue} Wedding Portal | Stylish Entertainment Ltd`;
 
   const html = `
     <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto;">
@@ -49,12 +49,12 @@ export function PORTAL_INVITATION(input: PortalInvitationInput): {
       </p>
       <p style="font-size: 14px; line-height: 1.6; color: #666666; margin: 20px 0;">
         Best regards,<br />
-        <strong>Stylish Entertainment</strong>
+        <strong>Stylish Entertainment Ltd</strong>
       </p>
     </div>
   `;
 
-  const text = `Hi ${greetingName},\n\nWe've set up your personal planning portal for your wedding at ${venue}. We've already added the key timings and venue details for you.\n\nStep Into Your Portal: ${input.portalUrl}\n\nYou can access your portal anytime using the link above — no password required.\n\nBest regards,\nStylish Entertainment`;
+  const text = `Hi ${greetingName},\n\nWe've set up your personal planning portal for your wedding at ${venue}. We've already added the key timings and venue details for you.\n\nStep Into Your Portal: ${input.portalUrl}\n\nYou can access your portal anytime using the link above — no password required.\n\nBest regards,\nStylish Entertainment Ltd`;
 
   return { subject, html, text };
 }

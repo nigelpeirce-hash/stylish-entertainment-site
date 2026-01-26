@@ -101,7 +101,7 @@ export default function Musicians() {
           <div className="absolute top-10 right-10 w-72 h-72 bg-champagne-gold/5 rounded-full blur-3xl"></div>
           <div className="absolute bottom-10 left-10 w-72 h-72 bg-champagne-gold/5 rounded-full blur-3xl"></div>
         </div>
-        <div className="absolute inset-0 opacity-25 flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 opacity-50 flex items-center justify-center overflow-hidden">
           <Image
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,c_fill,w_1920,h_1080,g_center/v1768163730/Cuban-Brothers-at-Private-Party_iuletb.jpg"
             alt="The Cuban Brothers performing at a private party, showcasing energetic live wedding entertainment"

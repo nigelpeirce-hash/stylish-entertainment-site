@@ -86,6 +86,8 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
           email: true,
         },
       },
+      guestRequestToken: true,
+      guestRequestsEnabled: true,
       guestRequests: {
         where: {
           status: { in: ["pending", "approved"] },
@@ -95,9 +97,12 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
         },
         select: {
           id: true,
-          songTitle: true,
-          artist: true,
+          trackName: true,
+          artistName: true,
+          albumArtUrl: true,
+          spotifyUrl: true,
           guestName: true,
+          note: true,
           status: true,
         },
       },

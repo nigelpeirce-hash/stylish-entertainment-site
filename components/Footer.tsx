@@ -27,7 +27,7 @@ export default function Footer() {
       <div className="container mx-auto px-4 sm:px-6 relative z-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           <div>
-            <h3 className="font-sans text-xl mb-4 font-bold" style={{ color: '#000000' }}>Stylish Entertainment</h3>
+            <h3 className="font-sans text-xl mb-4 font-bold" style={{ color: '#000000' }}>Stylish Entertainment Ltd</h3>
             <p className="mb-3 drop-shadow-sm" style={{ textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }}>
               Professional DJs, live musicians, lighting design, and venue styling for weddings, parties, and corporate events. We are a trusted supplier to prestigious venues across the UK. Strictly no YMCA.
             </p>
@@ -66,7 +66,7 @@ export default function Footer() {
           <div>
             <h4 className="font-sans text-lg mb-4 font-bold" style={{ color: '#000000' }}>Contact</h4>
             <address className="not-italic" style={{ textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }}>
-              <p className="font-semibold">Stylish Entertainment</p>
+              <p className="font-semibold">Stylish Entertainment Ltd</p>
               <p>88 Weymouth Road</p>
               <p>Frome, Somerset</p>
               <p>BA11 1HJ</p>
@@ -101,7 +101,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="border-t border-black/20 mt-6 pt-6 text-center" style={{ textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }}>
-          <p className="mb-2 drop-shadow-sm" style={{ textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }}>&copy; {new Date().getFullYear()} Stylish Entertainment. All rights reserved.</p>
+          <p className="mb-2 drop-shadow-sm" style={{ textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }}>&copy; {new Date().getFullYear()} Stylish Entertainment Ltd. All rights reserved.</p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link href="/privacy-policy/" className="hover:text-black font-medium underline transition-colors drop-shadow-sm" style={{ textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }}>
               Privacy Policy

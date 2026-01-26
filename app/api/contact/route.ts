@@ -267,7 +267,7 @@ export async function POST(request: NextRequest) {
     } else if (process.env.VERCEL_URL) {
       baseUrl = `https://${process.env.VERCEL_URL}`;
     }
-    const logoUrl = "https://res.cloudinary.com/drtwveoqo/image/upload/v1768162584/Rev-New-SE-Logo0_ow03mn.png";
+    const logoUrl = "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png";
 
     // Create email content
     const emailSubject = `New Contact Form Submission from ${name}`;

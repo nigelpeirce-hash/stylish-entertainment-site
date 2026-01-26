@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       const bookings = await prisma.booking.findMany({
         where: {
           venueName: {
-            contains: venueNamePart,
+            startsWith: venueNamePart,
             mode: "insensitive",
           },
         },
@@ -130,13 +130,13 @@ export async function GET(request: NextRequest) {
           OR: [
             {
               venueName: {
-                contains: venueNamePart || query,
+                startsWith: venueNamePart || query,
                 mode: "insensitive" as const,
               },
             },
             ...(extractedPostcode ? [{
               venueName: {
-                contains: venueNamePart,
+                startsWith: venueNamePart,
                 mode: "insensitive" as const,
               },
             }] : []),

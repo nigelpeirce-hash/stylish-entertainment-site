@@ -126,7 +126,7 @@ export default function WeddingEntertainmentClient() {
     <div>
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-25 flex items-center justify-center">
+        <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <Image
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163781/Emma-Conrad-2-9-23-682_utvftj.jpg"
             alt="Emma and Conrad's wedding with professional entertainment, elegant lighting design, and beautiful wedding atmosphere captured by The Falkenburgs Photography"
@@ -391,7 +391,7 @@ export default function WeddingEntertainmentClient() {
               <div className="absolute -inset-4 border border-champagne-gold/20 translate-x-8 translate-y-8 hidden lg:block" />
               <div className="relative z-10 rounded-2xl overflow-hidden shadow-2xl aspect-[4/3]">
                  <Image 
-                   src="https://res.cloudinary.com/drtwveoqo/image/upload/v1768162258/Fairy-light-Tunnel_sc40ed.jpg" 
+                   src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162258/Fairy-light-Tunnel_sc40ed.jpg" 
                    alt="Luxury wedding lighting"
                    fill
                    className="object-cover grayscale hover:grayscale-0 transition-all duration-700"

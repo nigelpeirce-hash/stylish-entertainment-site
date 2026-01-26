@@ -102,7 +102,8 @@ export async function POST(
           day: "numeric",
         });
 
-        const senderName = "Nigel"; // TODO: Could be determined from session or config
+        // Ali runs the office and sends staff communications
+        const senderName = "Ali";
 
         const emailData = staffCancellationEmail({
           staffName: assignment.staff.name,

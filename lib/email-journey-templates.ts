@@ -187,14 +187,14 @@ function buildEmailTemplate(
       <body>
         <div class="email-container">
           <div class="header">
-            <img src="https://res.cloudinary.com/drtwveoqo/image/upload/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment Logo" style="max-width: 200px; height: auto; margin-bottom: 10px;" />
+            <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment Logo" style="max-width: 200px; height: auto; margin-bottom: 10px;" />
             <div class="divider"></div>
           </div>
           <div class="content">
             ${processedHtml}
           </div>
           <div class="footer">
-            <p style="margin-bottom: 8px;">Stylish Entertainment</p>
+            <p style="margin-bottom: 8px;">Stylish Entertainment Ltd</p>
             <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
             <p style="margin-top: 15px;">
               <a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a>
@@ -243,19 +243,19 @@ export function enquiryAutoresponder(data: JourneyEmailData) {
   const contentHtml = `
     <h1>Thank You for Your Enquiry</h1>
     <p>Dear {{clientName}},</p>
-    <p>Thank you for reaching out to Stylish Entertainment. We're delighted that you're considering us for {{eventType}} on {{eventDate}}.</p>
+    <p>Thank you for reaching out to Stylish Entertainment Ltd. We're delighted that you're considering us for {{eventType}} on {{eventDate}}.</p>
     <p>We're excited to learn more about your vision and help bring it to life. We specialise in creating unforgettable celebrations with our expert DJ services, elegant lighting design, and sophisticated venue styling.</p>
     ${brochureSection}
     <p>We'll be in touch within 24 hours to discuss your requirements in detail. In the meantime, if you have any questions, please don't hesitate to get in touch.</p>
     <div class="signature">
       <p>Warm regards,</p>
       <p><strong>Ali & Nige</strong><br>
-      Stylish Entertainment</p>
+      Stylish Entertainment Ltd</p>
     </div>
   `;
 
   return buildEmailTemplate(
-    "Thank You for Your Enquiry - Stylish Entertainment",
+    "Thank You for Your Enquiry - Stylish Entertainment Ltd",
     contentHtml,
     data
   );
@@ -281,7 +281,7 @@ export function gentleReminder(data: JourneyEmailData) {
     <div class="signature">
       <p>Warm regards,</p>
       <p><strong>Ali & Nige</strong><br>
-      Stylish Entertainment</p>
+      Stylish Entertainment Ltd</p>
     </div>
   `;
 
@@ -317,7 +317,7 @@ export function bookingConfirmation(data: JourneyEmailData) {
     <div class="signature">
       <p>Best regards,</p>
       <p><strong>Ali & Nige</strong><br>
-      Stylish Entertainment</p>
+      Stylish Entertainment Ltd</p>
     </div>
   `;
 
@@ -353,7 +353,7 @@ export function fourWeekCheckin(data: JourneyEmailData) {
     <div class="signature">
       <p>Warm regards,</p>
       <p><strong>Ali & Nige</strong><br>
-      Stylish Entertainment</p>
+      Stylish Entertainment Ltd</p>
     </div>
   `;
 
@@ -380,7 +380,7 @@ export function weekOfExcitement(data: JourneyEmailData) {
     <div class="signature">
       <p>Looking forward to celebrating with you,</p>
       <p><strong>Ali & Nige</strong><br>
-      Stylish Entertainment</p>
+      Stylish Entertainment Ltd</p>
     </div>
   `;
 
@@ -409,7 +409,7 @@ export function finalChase(data: JourneyEmailData) {
     <div class="signature">
       <p>Best regards,</p>
       <p><strong>Ali & Nige</strong><br>
-      Stylish Entertainment</p>
+      Stylish Entertainment Ltd</p>
     </div>
   `;
 
@@ -437,11 +437,11 @@ export function postWeddingMagic(data: JourneyEmailData) {
       <a href="https://www.instagram.com/stylishentertainment/" class="button" style="background-color: #E1306C;">Share on Instagram</a>
     </p>
     <p>We'd also love to see any photos from your day if you'd like to share them with us. Tag us <a href="https://www.instagram.com/stylishentertainment/" class="link">@stylishentertainment</a> on Instagram or send them directly to us.</p>
-    <p>Thank you again for choosing Stylish Entertainment. It was an honour to be part of your celebration.</p>
+    <p>Thank you again for choosing Stylish Entertainment Ltd. It was an honour to be part of your celebration.</p>
     <div class="signature">
       <p>With warmest regards,</p>
       <p><strong>Ali & Nige</strong><br>
-      Stylish Entertainment</p>
+      Stylish Entertainment Ltd</p>
     </div>
   `;
 

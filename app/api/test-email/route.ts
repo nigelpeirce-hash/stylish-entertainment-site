@@ -24,7 +24,7 @@ export async function GET() {
     
     const result = await sendEmail({
       to: testEmail,
-      subject: "Test Email from Stylish Entertainment",
+      subject: "Test Email from Stylish Entertainment Ltd",
       html: `
         <h1>Test Email</h1>
         <p>This is a test email to verify Mailgun SMTP is working.</p>

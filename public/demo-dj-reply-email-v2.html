@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DJ Enquiry Reply v2 - Multi-Option Demo</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
+      
+      * { box-sizing: border-box; }
+      
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+        font-size: 16px;
+        line-height: 1.6;
+        color: #1a1a1a;
+        background-color: #f5f5f5;
+      }
+      
+      .demo-header {
+        max-width: 600px;
+        margin: 0 auto 20px;
+        padding: 15px 20px;
+        background: linear-gradient(135deg, #1a1a1a, #333);
+        color: white;
+        border-radius: 8px 8px 0 0;
+      }
+      
+      .demo-header h1 { margin: 0 0 5px; font-size: 18px; font-weight: 600; }
+      .demo-header p { margin: 0; font-size: 13px; opacity: 0.8; }
+      
+      .demo-badge {
+        display: inline-block;
+        background: #D4AF37;
+        color: black;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-left: 10px;
+      }
+      
+      .email-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        border-radius: 0 0 8px 8px;
+      }
+      
+      .header {
+        padding: 40px 30px 20px;
+        text-align: center;
+      }
+      
+      .divider {
+        height: 1px;
+        background-color: #D4AF37;
+        margin: 20px 30px;
+      }
+      
+      .content { padding: 30px; }
+      
+      h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 28px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0 0 20px;
+        line-height: 1.3;
+      }
+      
+      h2 {
+        font-family: 'Playfair Display', serif;
+        font-size: 20px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 25px 0 15px;
+      }
+      
+      p { margin: 0 0 16px; color: #333333; }
+      
+      /* Event Details Box */
+      .event-box {
+        background-color: #f8f9fa;
+        border-left: 4px solid #D4AF37;
+        padding: 20px;
+        margin: 20px 0;
+      }
+      
+      .event-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #e5e5e5;
+      }
+      
+      .event-row:last-child { border-bottom: none; }
+      .event-label { font-weight: 600; color: #1a1a1a; }
+      .event-value { color: #333333; text-align: right; }
+      
+      /* DJ Option Cards */
+      .dj-options {
+        margin: 25px 0;
+      }
+      
+      .dj-card {
+        border: 2px solid #e5e5e5;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+        position: relative;
+        transition: border-color 0.2s;
+      }
+      
+      .dj-card.recommended {
+        border-color: #D4AF37;
+        background: linear-gradient(to bottom, #fffef5, #ffffff);
+      }
+      
+      .recommended-badge {
+        position: absolute;
+        top: -10px;
+        right: 20px;
+        background: #D4AF37;
+        color: #000;
+        padding: 4px 12px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      
+      .dj-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        margin-bottom: 15px;
+      }
+      
+      .dj-photo {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #D4AF37;
+      }
+      
+      .dj-info { flex: 1; }
+      
+      .dj-name {
+        font-family: 'Playfair Display', serif;
+        font-size: 22px;
+        font-weight: 600;
+        color: #1a1a1a;
+        margin: 0 0 5px;
+      }
+      
+      .dj-tagline {
+        font-size: 14px;
+        color: #666;
+        margin: 0;
+        font-style: italic;
+      }
+      
+      .dj-bio {
+        font-size: 14px;
+        color: #444;
+        line-height: 1.6;
+        margin: 15px 0;
+        padding: 15px;
+        background: #f9f9f9;
+        border-radius: 6px;
+      }
+      
+      .dj-fee-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 15px;
+        border-top: 1px solid #e5e5e5;
+        margin-top: 15px;
+      }
+      
+      .dj-fee-label {
+        font-weight: 600;
+        color: #1a1a1a;
+      }
+      
+      .dj-fee {
+        font-size: 24px;
+        font-weight: 700;
+        color: #D4AF37;
+      }
+      
+      .dj-fee-note {
+        font-size: 12px;
+        color: #888;
+        margin-top: 5px;
+      }
+      
+      /* Musician variant */
+      .musician-card .dj-photo {
+        border-radius: 8px;
+      }
+      
+      .signature {
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #e5e5e5;
+      }
+      
+      .footer {
+        padding: 30px;
+        text-align: center;
+        font-size: 14px;
+        color: #666666;
+        border-top: 1px solid #e5e5e5;
+        margin-top: 30px;
+        background-color: #fafafa;
+        border-radius: 0 0 8px 8px;
+      }
+      
+      .footer a { color: #D4AF37; text-decoration: none; }
+      .footer a:hover { text-decoration: underline; }
+      
+      /* CTA Button */
+      .cta-section {
+        text-align: center;
+        margin: 30px 0;
+        padding: 25px;
+        background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+        border-radius: 8px;
+      }
+      
+      .cta-text {
+        color: #fff;
+        font-size: 16px;
+        margin: 0 0 15px;
+      }
+      
+      .cta-button {
+        display: inline-block;
+        background: #D4AF37;
+        color: #000;
+        padding: 14px 30px;
+        border-radius: 6px;
+        font-weight: 600;
+        text-decoration: none;
+        font-size: 16px;
+      }
+      
+      /* Demo controls */
+      .demo-controls {
+        max-width: 600px;
+        margin: 30px auto;
+        padding: 20px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      }
+      
+      .demo-controls h3 { margin: 0 0 15px; font-size: 16px; color: #333; }
+      
+      .demo-controls code {
+        display: block;
+        background: #f5f5f5;
+        padding: 15px;
+        border-radius: 4px;
+        font-size: 11px;
+        overflow-x: auto;
+        white-space: pre;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Demo Header -->
+    <div class="demo-header">
+      <h1>DJ Enquiry Reply v2 <span class="demo-badge">MULTI-OPTION</span></h1>
+      <p>Email template with multiple DJ/musician options at different price points + bios</p>
+    </div>
+    
+    <!-- Email Preview -->
+    <div class="email-container">
+      <div class="header">
+        <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment Logo" style="max-width: 200px; height: auto; margin-bottom: 10px;" />
+        <div class="divider"></div>
+      </div>
+      
+      <div class="content">
+        <h1>Your DJ Enquiry - Options & Quote</h1>
+        
+        <p>Dear John & Sarah,</p>
+        
+        <p>Thank you for getting in touch about your wedding at Babington House! We'd love to be part of your special day.</p>
+        
+        <p>Based on your requirements, we've put together two fantastic DJ options for you to consider:</p>
+        
+        <!-- Event Details -->
+        <div class="event-box">
+          <div class="event-row">
+            <span class="event-label">Event Date:</span>
+            <span class="event-value">Saturday, 15 June 2026</span>
+          </div>
+          <div class="event-row">
+            <span class="event-label">Venue:</span>
+            <span class="event-value">Babington House, Somerset</span>
+          </div>
+        </div>
+        
+        <!-- DJ Options -->
+        <div class="dj-options">
+          <h2>Your DJ Options</h2>
+          
+          <!-- Option 1: Recommended -->
+          <div class="dj-card recommended">
+            <span class="recommended-badge">Recommended</span>
+            <div class="dj-header">
+              <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,w_160,h_160,c_fill,g_face/v1768163785/Nigel-DJ-Babs-House-0002-1_ktgbaf.jpg" alt="DJ Nige" class="dj-photo" />
+              <div class="dj-info">
+                <h3 class="dj-name">DJ Nige</h3>
+                <p class="dj-tagline">Wedding specialist with 15+ years experience</p>
+              </div>
+            </div>
+            <div class="dj-bio">
+              Nige has been a resident DJ at Babington House for over a decade, with an incredible understanding of how to read a room and keep the dance floor packed. His style blends classic crowd-pleasers with contemporary hits, and he's known for seamless mixing and creating the perfect atmosphere for each moment of your celebration.
+            </div>
+            <div class="dj-fee-row">
+              <div>
+                <div class="dj-fee-label">All-inclusive fee</div>
+                <div class="dj-fee-note">Includes travel, setup & all equipment</div>
+              </div>
+              <div class="dj-fee">£950</div>
+            </div>
+          </div>
+          
+          <!-- Option 2 -->
+          <div class="dj-card">
+            <div class="dj-header">
+              <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,w_160,h_160,c_fill,g_face/v1768163359/Rich-S-DJ_qxsnht.jpg" alt="DJ Rich" class="dj-photo" />
+              <div class="dj-info">
+                <h3 class="dj-name">DJ Rich</h3>
+                <p class="dj-tagline">High-energy sets & modern sound</p>
+              </div>
+            </div>
+            <div class="dj-bio">
+              Rich brings infectious energy and a fresh, contemporary sound to every event. With a background in club DJing and a passion for weddings, he excels at building momentum throughout the evening. Perfect for couples who want a modern vibe with great crowd interaction.
+            </div>
+            <div class="dj-fee-row">
+              <div>
+                <div class="dj-fee-label">All-inclusive fee</div>
+                <div class="dj-fee-note">Includes travel, setup & all equipment</div>
+              </div>
+              <div class="dj-fee">£750</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- CTA -->
+        <div class="cta-section">
+          <p class="cta-text">Ready to secure your DJ?</p>
+          <a href="mailto:info@stylishentertainment.co.uk?subject=Booking%20Confirmation%20-%20Babington%20House%2015%20June%202026" class="cta-button">Book Your DJ</a>
+          <p style="color: #888; font-size: 13px; margin-top: 15px;">Reply to this email or click above to confirm your booking</p>
+        </div>
+
+        <p>Both DJs are available on your date. If you'd like to discuss further or arrange a quick call, just let us know!</p>
+        
+        <div class="signature">
+          <p>Best regards,</p>
+          <p style="margin-bottom: 20px;"><strong>Ali & Nige</strong><br>
+          Stylish Entertainment Ltd</p>
+          <div style="background: #f8f9fa; padding: 15px 20px; border-radius: 6px; font-size: 14px;">
+            <p style="margin: 0 0 8px; color: #333;"><strong>📞 Call us:</strong> <a href="tel:+447970793177" style="color: #D4AF37; text-decoration: none;">+44 7970 793177</a></p>
+            <p style="margin: 0 0 8px; color: #333;"><strong>✉️ Email:</strong> <a href="mailto:info@stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">info@stylishentertainment.co.uk</a></p>
+            <p style="margin: 0; color: #333;"><strong>🌐 Website:</strong> <a href="https://stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">stylishentertainment.co.uk</a></p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer">
+        <p style="margin: 0;">Stylish Entertainment Ltd</p>
+        <p style="margin: 5px 0;">West Country | London | Nationwide</p>
+        <p style="margin-top: 15px;">
+          <a href="https://stylishentertainment.co.uk">Visit our website</a>
+        </p>
+      </div>
+    </div>
+    
+    <!-- Demo Info -->
+    <div class="demo-controls">
+      <h3>📋 Proposed API Payload Structure (Multi-Option)</h3>
+      <code>{
+  "bookingId": "clx123abc",
+  "clientEmail": "john.sarah@example.com",
+  "clientName": "John & Sarah",
+  "venueName": "Babington House",
+  "venueAddress": "Somerset",
+  "eventDate": "2026-06-15",
+  "customIntro": "Thank you for getting in touch about your wedding...",
+  "options": [
+    {
+      "name": "DJ Nige",
+      "tagline": "Wedding specialist with 15+ years experience",
+      "bio": "Nige has been a resident DJ at Babington House...",
+      "photoUrl": "https://res.cloudinary.com/.../Nigel-DJ-Babs-House.jpg",
+      "fee": 950,
+      "recommended": true
+    },
+    {
+      "name": "DJ Rich",
+      "tagline": "High-energy sets & modern sound",
+      "bio": "Rich brings infectious energy and a fresh...",
+      "photoUrl": "https://res.cloudinary.com/.../Rich-S-DJ.jpg",
+      "fee": 750,
+      "recommended": false
+    }
+  ],
+  "type": "dj"  // or "musician"
+}</code>
+    </div>
+    
+  </body>
+</html>

@@ -213,11 +213,11 @@ export async function POST(request: NextRequest) {
               <div class="signature">
                 <p>Best regards,</p>
                 <p><strong>Ali & Nige</strong><br>
-                Stylish Entertainment</p>
+                Stylish Entertainment Ltd</p>
               </div>
             </div>
             <div class="footer">
-              <p>Stylish Entertainment</p>
+              <p>Stylish Entertainment Ltd</p>
               <p>West Country | London | Nationwide</p>
               <p style="margin-top: 15px;">
                 <a href="https://stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">Visit our website</a>
@@ -248,7 +248,7 @@ export async function POST(request: NextRequest) {
       from: emailConfig.from,
       replyTo: emailConfig.replyTo,
       to: [clientEmail],
-      subject: resource ? `${resource.name}${sendBrochure ? ' & Venue Guide' : ''} - Stylish Entertainment` : sendBrochure ? `${venueName ? `${venueName} ` : ''}Venue Guide - Stylish Entertainment` : 'Information - Stylish Entertainment',
+      subject: resource ? `${resource.name}${sendBrochure ? ' & Venue Guide' : ''} - Stylish Entertainment Ltd` : sendBrochure ? `${venueName ? `${venueName} ` : ''}Venue Guide - Stylish Entertainment Ltd` : 'Information - Stylish Entertainment Ltd',
       html: finalHtml, // Include Thread-ID footer
       headers: threadingHeaders, // Add In-Reply-To and References headers
     });

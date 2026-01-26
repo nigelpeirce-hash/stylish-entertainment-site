@@ -10,6 +10,7 @@ import { getGreetingName, deduplicateName, getDisplayName } from "@/lib/utils/na
 import Image from "next/image";
 import confetti from "canvas-confetti";
 import HireShop from "@/components/client/HireShop";
+import GuestRequestsView from "@/components/client/GuestRequestsView";
 
 interface StaffAssignment {
   id: string;
@@ -57,11 +58,18 @@ interface Booking {
   djFinishTime: string | null;
   musicRequests?: string | null;
   staffAssignments?: StaffAssignment[];
+  guestRequestToken?: string | null;
+  guestRequestsEnabled?: boolean;
   guestRequests?: Array<{
     id: string;
-    songTitle: string;
-    artist: string | null;
+    songTitle?: string | null;
+    artist?: string | null;
+    trackName?: string;
+    artistName?: string;
+    albumArtUrl?: string | null;
+    spotifyUrl?: string | null;
     guestName: string | null;
+    note?: string | null;
     status: string;
   }>;
   User?: {
@@ -1015,75 +1023,21 @@ export default function PortalView({ booking: initialBooking, isPreview = false 
             eventType={booking.eventType}
           />
 
-          {/* Guest Requests Card */}
-          {booking.guestRequests && booking.guestRequests.length > 0 && (
-            <Card className="bg-white/[0.02] backdrop-blur-md border-white/10">
-              <CardHeader>
-                <CardTitle className="text-xl text-white flex items-center gap-2">
-                  <Music className="w-5 h-5 text-amber-500" />
-                  Guest Song Requests
-                </CardTitle>
-                <p className="text-sm text-gray-400">
-                  Songs requested by your guests. Move them to your official list if you'd like the DJ to play them.
-                </p>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {booking.guestRequests
-                  .filter((req) => req.status === "pending" || req.status === "approved")
-                  .map((req) => (
-                    <div
-                      key={req.id}
-                      className="flex items-center justify-between py-2 px-3 bg-gray-900/50 rounded border border-gray-700"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white font-medium">
-                          {req.songTitle}
-                          {req.artist && <span className="text-gray-400"> by {req.artist}</span>}
-                        </p>
-                        {req.guestName && (
-                          <p className="text-xs text-gray-500 mt-0.5">— {req.guestName}</p>
-                        )}
-                      </div>
-                      {req.status === "pending" && (
-                        <Button
-                          size="sm"
-                          onClick={async () => {
-                            try {
-                              const res = await fetch(`/api/client/bookings/${booking.id}/guest-requests/${req.id}/move-to-official`, {
-                                method: "POST",
-                              });
-                              if (res.ok) {
-                                // Refresh booking data to get updated guest requests and musicRequests
-                                const url = token
-                                  ? `/api/client/bookings/${booking.id}?token=${encodeURIComponent(token)}`
-                                  : `/api/client/bookings/${booking.id}`;
-                                const refreshRes = await fetch(url);
-                                if (refreshRes.ok) {
-                                  const data = await refreshRes.json();
-                                  if (data?.booking) {
-                                    setBooking(data.booking);
-                                  }
-                                }
-                              }
-                            } catch (error) {
-                              console.error("Error moving to official list:", error);
-                            }
-                          }}
-                          className="bg-amber-500 hover:bg-amber-600 text-black font-semibold text-xs"
-                        >
-                          Move to Official List
-                        </Button>
-                      )}
-                      {req.status === "moved_to_official" && (
-                        <Badge className="bg-green-500/20 text-green-400 border-green-500/40 text-[10px]">
-                          Added to List
-                        </Badge>
-                      )}
-                    </div>
-                  ))}
-              </CardContent>
-            </Card>
-          )}
+          {/* Guest Song Requests - Enhanced with Spotify integration */}
+          <GuestRequestsView
+            bookingId={booking.id}
+            guestRequestToken={booking.guestRequestToken || null}
+            guestRequestsEnabled={booking.guestRequestsEnabled ?? true}
+            eventDate={new Date(booking.eventDate)}
+            onToggleEnabled={async (enabled) => {
+              const res = await fetch(`/api/client/bookings/${booking.id}/guest-requests`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ enabled }),
+              });
+              if (!res.ok) throw new Error("Failed to update");
+            }}
+          />
 
           {/* Contact Information */}
           <Card className="bg-white/[0.02] backdrop-blur-md border-white/10">

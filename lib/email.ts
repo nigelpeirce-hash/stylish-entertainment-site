@@ -51,7 +51,7 @@ interface EmailOptions {
 // Send email using Mailgun REST API (preferred method)
 async function sendEmailViaMailgunAPI({ to, subject, html, text, from }: EmailOptions) {
   // Extract display name if provided
-  let displayName = "Stylish Entertainment";
+  let displayName = "Stylish Entertainment Ltd";
   if (from && from.includes("<")) {
     const nameMatch = from.match(/^"([^"]+)"\s*</);
     if (nameMatch) {
@@ -148,7 +148,7 @@ export async function sendEmail({ to, subject, html, text, from }: EmailOptions)
     const fromEmail = from || process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER || "info@stylishentertainment.co.uk";
     
     const mailOptions = {
-      from: `"Stylish Entertainment" <${fromEmail}>`,
+      from: `"Stylish Entertainment Ltd" <${fromEmail}>`,
       to,
       subject,
       text: text || html.replace(/<[^>]*>/g, ""), // Fallback to plain text version

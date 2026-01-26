@@ -24,9 +24,24 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status");
     const search = searchParams.get("search");
+    const includeArchived = searchParams.get("includeArchived") === "true";
+    const archivedOnly = searchParams.get("archivedOnly") === "true";
 
     const where: any = {};
-    if (status) where.status = status;
+    
+    // Archive filtering: by default exclude archived bookings
+    if (archivedOnly) {
+      // Show only archived bookings
+      where.archivedAt = { not: null };
+    } else if (!includeArchived) {
+      // Default: exclude archived bookings
+      where.archivedAt = null;
+    }
+    // If includeArchived=true, no filter is applied (shows all)
+    
+    if (status && status !== "archived") {
+      where.status = status;
+    }
     if (search) {
       where.OR = [
         { name: { contains: search, mode: "insensitive" } },

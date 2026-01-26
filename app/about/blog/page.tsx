@@ -50,7 +50,7 @@ export default function Blog() {
     <div>
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-15 flex items-center justify-center">
+        <div className="absolute inset-0 opacity-40 flex items-center justify-center">
           <Image
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163768/MartinBeddallPhotography02-e1530632660291_pabjzl.jpg"
             alt="Professional wedding lighting and entertainment blog"

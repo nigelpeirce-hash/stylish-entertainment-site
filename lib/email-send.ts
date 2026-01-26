@@ -43,7 +43,7 @@ export async function sendEmailFromCRM(options: SendEmailOptions) {
     const toAddresses = toArray.map((email) => email.toLowerCase());
 
     const mailOptions: any = {
-      from: `${inbox.name || "Stylish Entertainment"} <${inbox.email}>`,
+      from: `${inbox.name || "Stylish Entertainment Ltd"} <${inbox.email}>`,
       to: toAddresses.join(", "),
       subject: options.subject,
       text: options.text,

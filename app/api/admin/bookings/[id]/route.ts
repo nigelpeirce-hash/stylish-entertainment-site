@@ -264,16 +264,20 @@ export async function DELETE(
 
     const resolvedParams = params instanceof Promise ? await params : params;
     const bookingId = resolvedParams.id;
+    
+    // Check for permanent delete flag (default is soft delete/archive)
+    const { searchParams } = new URL(request.url);
+    const permanent = searchParams.get("permanent") === "true";
 
     if (!bookingId) {
       return NextResponse.json({ error: "Booking ID is required" }, { status: 400 });
     }
 
-    let booking: { id: string } | null;
+    let booking: { id: string; name: string; email: string; archivedAt: Date | null } | null;
     try {
       booking = await prisma.booking.findUnique({
         where: { id: bookingId },
-        select: { id: true },
+        select: { id: true, name: true, email: true, archivedAt: true },
       });
     } catch (dbError) {
       console.error("Booking DELETE findUnique Prisma error:", dbError);
@@ -287,6 +291,34 @@ export async function DELETE(
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
+    // SOFT DELETE (Archive) - Default behavior
+    if (!permanent) {
+      try {
+        await prisma.booking.update({
+          where: { id: bookingId },
+          data: {
+            archivedAt: new Date(),
+            archivedBy: admin?.id || "system",
+            status: "archived",
+          },
+        });
+        
+        return NextResponse.json({ 
+          success: true, 
+          message: "Booking archived successfully",
+          archived: true,
+          booking: { id: booking.id, name: booking.name },
+        });
+      } catch (dbError) {
+        console.error("Booking ARCHIVE Prisma error:", dbError);
+        return NextResponse.json(
+          prismaErrorPayload(dbError),
+          { status: 500 }
+        );
+      }
+    }
+
+    // HARD DELETE - Only with ?permanent=true
     try {
       await prisma.emailThread.deleteMany({ where: { bookingId } });
       await prisma.bookingStaffAssignment.deleteMany({ where: { bookingId } });
@@ -299,7 +331,7 @@ export async function DELETE(
       );
     }
 
-    return NextResponse.json({ success: true, message: "Booking permanently deleted" });
+    return NextResponse.json({ success: true, message: "Booking permanently deleted", permanent: true });
   } catch (error) {
     console.error("Error deleting booking:", error);
     return NextResponse.json(

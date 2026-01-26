@@ -30,7 +30,7 @@ const ACCENT_HEX: Record<string, { cta: string; border: string }> = {
 };
 
 const LOGO_URL =
-  "https://res.cloudinary.com/drtwveoqo/image/upload/v1768162584/Rev-New-SE-Logo0_ow03mn.png";
+  "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png";
 
 const TAGLINE = "Make every gathering extraordinary";
 
@@ -164,7 +164,7 @@ export function renderEmail(options: EmailRenderOptions): string {
                 </tr>
               </table>
               <p style="margin: 24px 0 0 0; font-size: 12px; color: ${MUTED};">
-                &copy; Stylish Entertainment. All rights reserved.
+                &copy; Stylish Entertainment Ltd. All rights reserved.
               </p>
             </td>
           </tr>
@@ -190,7 +190,7 @@ ${TAGLINE}
 
 ${profile.cta}: ${portalUrl}
 
-— Stylish Entertainment`;
+— Stylish Entertainment Ltd`;
 }
 
 /**

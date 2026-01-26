@@ -88,6 +88,8 @@ model Booking {
   musicFileUrl                String?
   createdAt                   DateTime                 @default(now())
   updatedAt                   DateTime
+  archivedAt                  DateTime?                // Soft delete - when set, booking is archived
+  archivedBy                  String?                  // User ID who archived the booking
   preferredDJ                 String?
   upsellItems                 String[]
   priority                    String                   @default("medium")
@@ -116,6 +118,8 @@ model Booking {
   taxRate                     Float?                   @default(20)
   venueFingerprint            String?
   portalToken                 String?                  @unique
+  guestRequestToken           String?                  @unique @default(cuid()) // Shareable link for guest song requests
+  guestRequestsEnabled        Boolean                  @default(true) // Toggle to enable/disable guest requests
   assignedTo                  assigned_member?
   AuditLog                    AuditLog[]
   User                        User?                    @relation(fields: [userId], references: [id])
@@ -131,6 +135,7 @@ model Booking {
   Note                        Note[]
   Task                        Task[]
 
+  @@index([archivedAt])
   @@index([bookingReference])
   @@index([email])
   @@index([eventDate])
@@ -243,6 +248,8 @@ model DJ {
   id             String   @id
   name           String
   slug           String?  @unique
+  email          String?  // For booking confirmation emails
+  phone          String?
   bio            String?
   imageUrl       String?
   seoTitle       String?
@@ -504,6 +511,8 @@ model Musician {
   id             String   @id
   name           String
   slug           String?  @unique
+  email          String?  // For booking confirmation emails
+  phone          String?
   bio            String?
   imageUrl       String?
   seoTitle       String?
@@ -530,6 +539,7 @@ model NewEnquiry {
   eventDate             DateTime
   venuePostcode         String
   venueName             String?
+  eventType             String?   // "wedding" | "corporate" | "party" | "other"
   enquiryType           String?   // "hire_only" | "general" etc.
   selectedHireItems     Json?     // [{ hireItemId, quantity }] for hire-only
   isConflict            Boolean   @default(false)
@@ -736,15 +746,34 @@ model BookingWarehouseItem {
 model GuestRequest {
   id          String   @id @default(cuid())
   bookingId   String
-  songTitle   String
-  artist      String?
-  guestName   String?  // Optional - guest can submit anonymously
-  status      String   @default("pending") // 'pending', 'approved', 'moved_to_official'
+  
+  // Guest info
+  guestName   String?  // Optional - "Uncle Frank"
+  note        String?  // Optional - "Play this for father Frank!"
+  
+  // Song details from Spotify
+  spotifyTrackId   String?
+  trackName        String   // Song title
+  artistName       String   // Artist name
+  albumName        String?
+  albumArtUrl      String?  // Album artwork URL
+  previewUrl       String?  // 30-second preview URL
+  spotifyUrl       String?  // Link to full track on Spotify
+  
+  // Legacy fields (for backwards compatibility)
+  songTitle   String?  @map("song_title_legacy")
+  artist      String?  @map("artist_legacy")
+  
+  // Session tracking (3 songs per guest)
+  sessionId   String?
+  
+  status      String   @default("pending") // 'pending', 'approved', 'played'
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   Booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 
   @@index([bookingId])
+  @@index([sessionId])
   @@index([status])
   @@index([createdAt])
 }

@@ -98,10 +98,10 @@ export function welcomeEmail({ booking }: { booking: BookingDetails }): { subjec
   const name = safeClientName(booking.name);
   
   return {
-    subject: `Welcome ${name}! Your booking with Stylish Entertainment`,
+    subject: `Welcome ${name}! Your booking with Stylish Entertainment Ltd`,
     html: `
       <h1>Welcome ${name}!</h1>
-      <p>Thank you for booking with Stylish Entertainment.</p>
+      <p>Thank you for booking with Stylish Entertainment Ltd.</p>
       <p><strong>Event:</strong> ${booking.eventType || "TBC"}</p>
       <p><strong>Date:</strong> ${eventDate}</p>
       <p><strong>Venue:</strong> ${booking.venueName || "TBC"}</p>
@@ -219,7 +219,7 @@ export function depositEmailWeddingCelebration({
     <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%);">
       <div style="background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15); border: 1px solid ${GOLD}40;">
         <div style="text-align: center; margin-bottom: 32px;">
-          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment" style="max-width: 220px; height: auto; margin-bottom: 20px;" />
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment" style="max-width: 220px; height: auto; margin-bottom: 20px;" />
           <p style="font-size: 14px; color: ${GOLD}; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; margin: 0;">Wedding Celebration</p>
         </div>
         <div style="text-align: center; margin-bottom: 28px;">
@@ -233,17 +233,17 @@ export function depositEmailWeddingCelebration({
         <div style="border-top: 1px solid #eee; padding-top: 28px; margin-top: 32px; text-align: center;">
           <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">${TAGLINE}</p>
           <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
-          <p style="font-size: 14px; color: #666; margin-top: 18px;">Best regards,<br><strong style="color: #1A1A1A;">Stylish Entertainment</strong></p>
+          <p style="font-size: 14px; color: #666; margin-top: 18px;">Best regards,<br><strong style="color: #1A1A1A;">Stylish Entertainment Ltd</strong></p>
         </div>
       </div>
     </body>
     </html>
   `;
 
-  const text = `Wedding Celebration\n\nYou're in — we're thrilled to confirm it.\n\nYour ceremony date, ${eventDate}, is officially secured.${showVenue ? ` We'll be with you at ${venue}.` : ""}\n\nWe can't wait for your big day.\n\nView Your Countdown: ${portalUrl}\n\n${TAGLINE}\n\nQuestions or changes? We're here to help.\n\nBest regards,\nStylish Entertainment`;
+  const text = `Wedding Celebration\n\nYou're in — we're thrilled to confirm it.\n\nYour ceremony date, ${eventDate}, is officially secured.${showVenue ? ` We'll be with you at ${venue}.` : ""}\n\nWe can't wait for your big day.\n\nView Your Countdown: ${portalUrl}\n\n${TAGLINE}\n\nQuestions or changes? We're here to help.\n\nBest regards,\nStylish Entertainment Ltd`;
 
   return {
-    subject: `Your Date is Secured: ${clientName} x Stylish Entertainment`,
+    subject: `Your Date is Secured: ${clientName} x Stylish Entertainment Ltd`,
     html,
     text,
   };
@@ -273,7 +273,7 @@ export function depositEmailEventConfirmed({
     <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
       <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e5e7eb;">
         <div style="text-align: center; margin-bottom: 28px;">
-          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment" style="max-width: 200px; height: auto; margin-bottom: 16px; opacity: 0.95;" />
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment" style="max-width: 200px; height: auto; margin-bottom: 16px; opacity: 0.95;" />
           <p style="font-size: 13px; color: ${ACCENT}; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin: 0;">Event Confirmed</p>
         </div>
         <div style="text-align: center; margin-bottom: 24px;">
@@ -287,17 +287,17 @@ export function depositEmailEventConfirmed({
         <div style="border-top: 1px solid #e5e7eb; padding-top: 24px; margin-top: 28px; text-align: center;">
           <p style="font-size: 13px; color: #6b7280; font-style: italic; margin: 0;">${TAGLINE}</p>
           <p style="font-size: 13px; color: #6b7280; margin: 12px 0 0 0;">Questions or changes? We're here to help.</p>
-          <p style="font-size: 13px; color: #6b7280; margin-top: 16px;">Best regards,<br><strong style="color: #1A1A1A;">Stylish Entertainment</strong></p>
+          <p style="font-size: 13px; color: #6b7280; margin-top: 16px;">Best regards,<br><strong style="color: #1A1A1A;">Stylish Entertainment Ltd</strong></p>
         </div>
       </div>
     </body>
     </html>
   `;
 
-  const text = `Event Confirmed\n\nYou're in — we're thrilled to confirm it.\n\nYour ${dateLabel} date, ${eventDate}, is officially secured.${showVenue ? ` We'll be with you at ${venue}.` : ""}\n\n${closing}\n\nView Your Countdown: ${portalUrl}\n\n${TAGLINE}\n\nQuestions or changes? We're here to help.\n\nBest regards,\nStylish Entertainment`;
+  const text = `Event Confirmed\n\nYou're in — we're thrilled to confirm it.\n\nYour ${dateLabel} date, ${eventDate}, is officially secured.${showVenue ? ` We'll be with you at ${venue}.` : ""}\n\n${closing}\n\nView Your Countdown: ${portalUrl}\n\n${TAGLINE}\n\nQuestions or changes? We're here to help.\n\nBest regards,\nStylish Entertainment Ltd`;
 
   return {
-    subject: `Your Date is Secured: ${clientName} x Stylish Entertainment`,
+    subject: `Your Date is Secured: ${clientName} x Stylish Entertainment Ltd`,
     html,
     text,
   };
@@ -324,7 +324,7 @@ export function DEPOSIT_CONFIRMED({ booking, portalUrl }: { booking: BookingDeta
       <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
         <!-- Header with Logo -->
         <div style="text-align: center; margin-bottom: 40px;">
-          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment Logo" style="max-width: 250px; height: auto; margin-bottom: 20px;" />
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="Stylish Entertainment Logo" style="max-width: 250px; height: auto; margin-bottom: 20px;" />
         </div>
         
         <!-- Main Content - premium invitation tone -->
@@ -354,7 +354,7 @@ export function DEPOSIT_CONFIRMED({ booking, portalUrl }: { booking: BookingDeta
             Questions or changes? We're here to help.
           </p>
           <p style="font-size: 14px; line-height: 1.6; color: #666; margin-top: 20px;">
-            Best regards,<br><strong style="color: #1A1A1A;">Stylish Entertainment</strong>
+            Best regards,<br><strong style="color: #1A1A1A;">Stylish Entertainment Ltd</strong>
           </p>
         </div>
       </div>
@@ -381,7 +381,7 @@ Stylish Entertainment
   `;
   
   return {
-    subject: `Your Date is Secured: ${clientNames} x Stylish Entertainment`,
+    subject: `Your Date is Secured: ${clientNames} x Stylish Entertainment Ltd`,
     html,
     text,
   };

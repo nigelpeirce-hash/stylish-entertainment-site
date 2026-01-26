@@ -16,7 +16,7 @@ export async function exportBookingsToICal(userId?: string) {
       orderBy: { eventDate: "asc" },
     });
 
-    const calendar = ical({ name: "Stylish Entertainment - Bookings" });
+    const calendar = ical({ name: "Stylish Entertainment Ltd - Bookings" });
 
     bookings.forEach((booking) => {
       const startDate = new Date(booking.eventDate);
@@ -41,7 +41,7 @@ ${booking.message ? `Notes: ${booking.message}` : ""}
         location: booking.venueName + (booking.venueAddress ? `, ${booking.venueAddress}` : ""),
         url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk"}/admin/bookings/${booking.id}`,
         organizer: {
-          name: "Stylish Entertainment",
+          name: "Stylish Entertainment Ltd",
           email: "info@stylishentertainment.co.uk",
         },
       });
@@ -99,7 +99,7 @@ ${booking.message ? `Notes: ${booking.message}` : ""}
         .join(", "),
       url: `${process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk"}/admin/bookings/${booking.id}`,
       organizer: {
-        name: "Stylish Entertainment",
+        name: "Stylish Entertainment Ltd",
         email: "info@stylishentertainment.co.uk",
       },
     });

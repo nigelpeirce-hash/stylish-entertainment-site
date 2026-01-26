@@ -65,7 +65,7 @@ export function EmailCompositionCenter({
     lightingSection: `**Lighting Design**\n\nOur lighting design service will transform your venue with elegant, sophisticated lighting that complements your event's atmosphere. We'll work with you to create the perfect ambiance.\n\nLighting Fee: £{{fee}}`,
     stylingSection: `**Venue Styling**\n\nOur venue styling service includes elegant table settings, decorative elements, and overall venue transformation to match your vision.\n\nStyling Fee: £{{fee}}`,
     personalNote: "",
-    closing: `If you have any questions or would like to discuss any of these details further, please don't hesitate to get in touch.\n\nBest regards,\n\nAli & Nige\nStylish Entertainment`,
+    closing: `If you have any questions or would like to discuss any of these details further, please don't hesitate to get in touch.\n\nBest regards,\n\nAli & Nige\nStylish Entertainment Ltd`,
   });
 
   // Fetch DJs when dialog opens

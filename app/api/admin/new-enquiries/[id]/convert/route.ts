@@ -102,10 +102,20 @@ export async function POST(
 
     // Create booking from enquiry (wrapped in transaction for data integrity)
     // Field Mapping:
-    // ✅ Automatic: name, email, eventDate, venueName, venuePostcode
-    // ✅ Automatic: eventType (defaults to "wedding" - can be updated manually after conversion)
+    // ✅ Automatic: name, email, eventDate, venueName, venuePostcode, eventType
     // 🛠️ Manual: ceremonyTime (not in enquiry form, must be added via booking detail page)
     // ❌ Not Mapped: services, numberOfGuests, message, budget (not in NewEnquiry model)
+    
+    // Normalize eventType: map form values to booking values
+    const normalizeEventType = (type: string | null): string => {
+      if (!type) return "wedding";
+      const lower = type.toLowerCase();
+      if (lower === "wedding") return "wedding";
+      if (lower === "corporate") return "corporate";
+      if (lower === "private party" || lower === "party") return "party";
+      return "party"; // Default "Other" to party (non-wedding content)
+    };
+    
     const booking = await prisma.$transaction(async (tx) => {
       // Create booking
       const newBooking = await tx.booking.create({
@@ -115,7 +125,7 @@ export async function POST(
           email: enquiry.email,
           phoneAreaCode: enquiry.phoneAreaCode,
           phoneNumber: enquiry.phoneNumber,
-          eventType: "wedding", // ✅ Automatic: Defaults to "wedding" (can be updated manually)
+          eventType: normalizeEventType(enquiry.eventType), // ✅ Automatic: From enquiry form
           eventDate: enquiry.eventDate, // ✅ Automatic: Event Date
           venueName: enquiry.venueName || "TBD", // ✅ Automatic: Venue
           venuePostcode: enquiry.venuePostcode,

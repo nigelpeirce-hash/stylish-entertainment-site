@@ -204,8 +204,8 @@ export async function POST(request: NextRequest) {
           day: "numeric",
         });
 
-        // Determine sender name (default to "Nigel" - can be made dynamic based on admin)
-        const senderName = "Nigel"; // TODO: Could be determined from session or config
+        // Ali runs the office and sends staff communications
+        const senderName = "Ali";
 
         const emailData = staffConfirmationEmail({
           staffName: staff.name,

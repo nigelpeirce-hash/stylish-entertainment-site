@@ -276,7 +276,7 @@ const generateFinalBriefPreview = (): { subject: string; html: string } => {
       <a href="#">I have received and understood the final details</a>
     </div>
     <div class="footer">
-      <p>Stylish Entertainment</p>
+      <p>Stylish Entertainment Ltd</p>
       <p>This is an automated dispatch. Please confirm receipt.</p>
     </div>
   </div>

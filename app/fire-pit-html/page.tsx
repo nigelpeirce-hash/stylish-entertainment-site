@@ -73,7 +73,7 @@ export default function FirePitHire() {
     <div>
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-25 flex items-center justify-center">
+        <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <img
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162576/Fire-Pits-and-Marshmallows0_hdqcl6.jpg"
             alt="Fire pits with marshmallows creating a warm and inviting atmosphere for outdoor celebrations"
