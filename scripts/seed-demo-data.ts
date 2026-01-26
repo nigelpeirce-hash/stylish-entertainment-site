@@ -452,13 +452,104 @@ async function main() {
   }
   console.log("✓ Created email threads");
 
-  // 8. Summary
+  // 8. Create DJs for Public Showcase
+  console.log("\n🎧 Creating DJs for public showcase...");
+  const djs = [
+    {
+      name: "DJ Nige",
+      slug: "dj-nige",
+      email: "nige@stylishentertainment.co.uk",
+      bio: "With over 20 years of experience, DJ Nige is a master at reading the room and creating the perfect atmosphere for any event. Specialising in weddings and corporate events across the South West, his seamless mixing style and extensive music knowledge ensure every dance floor stays packed all night long.",
+      imageUrl: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1/stylish-entertainment/djs/nige",
+      isActive: true,
+      displayOrder: 1,
+      mixcloudUrl: "https://www.mixcloud.com/djnige/",
+      youtubeEmbed: "https://www.youtube.com/embed/example1",
+    },
+    {
+      name: "DJ Rich",
+      slug: "dj-rich",
+      email: "rich@stylishentertainment.co.uk",
+      bio: "Rich brings energy and passion to every event. Known for his eclectic taste spanning from classic soul to modern chart hits, he creates unforgettable moments on the dance floor. A favourite at venues across Somerset and beyond.",
+      imageUrl: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1/stylish-entertainment/djs/rich",
+      isActive: true,
+      displayOrder: 2,
+      mixcloudUrl: "https://www.mixcloud.com/djrich/",
+      youtubeEmbed: null,
+    },
+    {
+      name: "DJ James",
+      slug: "dj-james",
+      email: "james@stylishentertainment.co.uk",
+      bio: "James combines technical skill with an intuitive sense of what the crowd wants. His sets flow effortlessly from dinner music to peak-time bangers, making him the perfect choice for weddings that want a party atmosphere.",
+      imageUrl: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1/stylish-entertainment/djs/james",
+      isActive: true,
+      displayOrder: 3,
+      mixcloudUrl: null,
+      youtubeEmbed: null,
+    },
+    {
+      name: "DJ Brett",
+      slug: "dj-brett",
+      email: "brett@stylishentertainment.co.uk",
+      bio: "Brett specialises in creating sophisticated soundscapes for luxury events. With a background in house music and disco, he brings a refined touch to every performance while keeping the energy high.",
+      imageUrl: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1/stylish-entertainment/djs/brett",
+      isActive: true,
+      displayOrder: 4,
+      mixcloudUrl: null,
+      youtubeEmbed: null,
+    },
+  ];
+
+  let djCount = 0;
+  for (const djData of djs) {
+    // Check by email OR slug to prevent duplicates
+    const existing = await prisma.dJ.findFirst({
+      where: {
+        OR: [
+          { email: djData.email },
+          { slug: djData.slug },
+        ],
+      },
+    });
+
+    if (!existing) {
+      await prisma.dJ.create({
+        data: {
+          id: randomUUID(),
+          ...djData,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
+      djCount++;
+      console.log(`✓ Created DJ: ${djData.name}`);
+    } else {
+      // Update existing with new data
+      await prisma.dJ.update({
+        where: { id: existing.id },
+        data: {
+          bio: djData.bio,
+          imageUrl: djData.imageUrl,
+          isActive: djData.isActive,
+          displayOrder: djData.displayOrder,
+          mixcloudUrl: djData.mixcloudUrl,
+          youtubeEmbed: djData.youtubeEmbed,
+          updatedAt: new Date(),
+        },
+      });
+      console.log(`✓ Updated DJ: ${djData.name}`);
+    }
+  }
+
+  // 9. Summary
   console.log("\n✨ Demo data seeding complete!");
   console.log("\n📊 Summary:");
   console.log(`   - Admin Users: 2`);
   console.log(`   - Staff Members: ${createdStaff.length}`);
   console.log(`   - Client Users: ${createdClients.length}`);
   console.log(`   - Bookings: ${createdBookings.length}`);
+  console.log(`   - DJs: ${djCount > 0 ? djCount + ' created' : 'updated'}`);
   console.log(`   - Email Threads: Created`);
   console.log("\n🔐 Login credentials:");
   console.log(`   Email: nigel@stylishentertainment.co.uk`);
