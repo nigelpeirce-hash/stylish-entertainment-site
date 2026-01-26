@@ -217,7 +217,7 @@ export default function WeddingLandingClient() {
             </div>
           ) : djs.length > 0 ? (
             <div className="relative">
-              {/* DJ Card */}
+              {/* DJ Card - Full Width */}
               <motion.div
                 key={currentDJIndex}
                 initial={{ opacity: 0, x: 20 }}
@@ -225,47 +225,64 @@ export default function WeddingLandingClient() {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden max-w-4xl mx-auto">
-                  <div className="grid md:grid-cols-2 gap-0">
-                    {/* DJ Image */}
-                    <div className="relative h-72 md:h-96 overflow-hidden">
+                <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden max-w-5xl mx-auto">
+                  <div className="grid md:grid-cols-5 gap-0">
+                    {/* DJ Image - Larger */}
+                    <div className="relative h-80 md:h-[500px] md:col-span-2 overflow-hidden">
                       {djs[currentDJIndex]?.image ? (
                         <Image
                           src={djs[currentDJIndex].image!}
                           alt={djs[currentDJIndex].name}
                           fill
                           className="object-cover"
-                          sizes="(max-width: 768px) 100vw, 50vw"
+                          sizes="(max-width: 768px) 100vw, 40vw"
                         />
                       ) : (
                         <div className="w-full h-full bg-gray-800 flex items-center justify-center">
                           <Music className="w-16 h-16 text-gray-600" />
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent to-gray-900/30 hidden md:block" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent md:hidden" />
                     </div>
 
-                    {/* DJ Info */}
-                    <CardHeader className="p-6 md:p-8 flex flex-col justify-center">
-                      <CardTitle className="text-2xl md:text-3xl text-white font-bold mb-2">
-                        {djs[currentDJIndex]?.name}
-                      </CardTitle>
-                      {djs[currentDJIndex]?.mixingStyle && (
-                        <div className="inline-flex items-center gap-2 text-champagne-gold text-sm mb-4">
-                          <Music className="w-4 h-4" />
-                          {djs[currentDJIndex].mixingStyle}
+                    {/* DJ Info - Full Content */}
+                    <div className="p-6 md:p-8 md:col-span-3 flex flex-col">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="text-2xl md:text-3xl text-white font-bold mb-2">
+                            {djs[currentDJIndex]?.name}
+                          </h3>
+                          {djs[currentDJIndex]?.mixingStyle && (
+                            <div className="inline-flex items-center gap-2 text-champagne-gold text-sm">
+                              <Music className="w-4 h-4" />
+                              {djs[currentDJIndex].mixingStyle}
+                            </div>
+                          )}
                         </div>
-                      )}
-                      <p className="text-gray-300 leading-relaxed mb-6 line-clamp-4">
-                        {djs[currentDJIndex]?.bio || "Professional DJ with years of experience in wedding entertainment."}
-                      </p>
-                      <Link href="/artists/djs">
-                        <Button variant="outline" className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold hover:text-black">
-                          View Full Profile
-                          <ArrowRight className="ml-2 w-4 h-4" />
-                        </Button>
-                      </Link>
-                    </CardHeader>
+                        {/* DJ Counter */}
+                        <div className="text-gray-500 text-sm">
+                          {currentDJIndex + 1} / {djs.length}
+                        </div>
+                      </div>
+                      
+                      {/* Full Bio */}
+                      <div className="flex-1 overflow-y-auto max-h-[280px] md:max-h-[320px] pr-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+                        <p className="text-gray-300 leading-relaxed whitespace-pre-line">
+                          {djs[currentDJIndex]?.bio || "Professional DJ with years of experience in wedding entertainment. Specialising in reading the room and creating unforgettable dance floors."}
+                        </p>
+                      </div>
+
+                      {/* Enquire CTA */}
+                      <div className="mt-6 pt-6 border-t border-gray-800">
+                        <Link href="/contact-us">
+                          <Button className="w-full bg-champagne-gold text-black hover:bg-gold-light font-semibold py-6 text-lg">
+                            Enquire About {djs[currentDJIndex]?.name}
+                            <ArrowRight className="ml-2 w-5 h-5" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
                   </div>
                 </Card>
               </motion.div>
@@ -275,14 +292,14 @@ export default function WeddingLandingClient() {
                 <>
                   <button
                     onClick={prevDJ}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-12 w-12 h-12 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-white hover:bg-champagne-gold hover:text-black transition-colors"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 md:-translate-x-14 w-12 h-12 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-white hover:bg-champagne-gold hover:text-black transition-colors z-10"
                     aria-label="Previous DJ"
                   >
                     <ChevronLeft className="w-6 h-6" />
                   </button>
                   <button
                     onClick={nextDJ}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-12 w-12 h-12 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-white hover:bg-champagne-gold hover:text-black transition-colors"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-14 w-12 h-12 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-white hover:bg-champagne-gold hover:text-black transition-colors z-10"
                     aria-label="Next DJ"
                   >
                     <ChevronRight className="w-6 h-6" />
@@ -292,12 +309,12 @@ export default function WeddingLandingClient() {
 
               {/* Dots Indicator */}
               {djs.length > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-6">
+                <div className="flex items-center justify-center gap-2 mt-8">
                   {djs.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentDJIndex(index)}
-                      className={`w-2.5 h-2.5 rounded-full transition-colors ${
+                      className={`w-3 h-3 rounded-full transition-colors ${
                         index === currentDJIndex
                           ? "bg-champagne-gold"
                           : "bg-gray-600 hover:bg-gray-500"
@@ -309,11 +326,12 @@ export default function WeddingLandingClient() {
               )}
             </div>
           ) : (
-            <div className="text-center py-12 text-gray-400">
-              <p>Meet our talented DJs on the full roster</p>
-              <Link href="/artists/djs">
-                <Button className="mt-4 bg-champagne-gold text-black hover:bg-gold-light">
-                  View All DJs
+            <div className="text-center py-12">
+              <p className="text-gray-400 mb-6">Our talented DJs are ready for your wedding</p>
+              <Link href="/contact-us">
+                <Button className="bg-champagne-gold text-black hover:bg-gold-light font-semibold px-8 py-6 text-lg">
+                  Enquire Now
+                  <ArrowRight className="ml-2 w-5 h-5" />
                 </Button>
               </Link>
             </div>
