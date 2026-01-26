@@ -129,18 +129,17 @@ export async function sendEmail({ to, subject, html, text, from }: EmailOptions)
   try {
     console.log("sendEmail called - To:", to, "Subject:", subject);
     
-    // Prefer Mailgun API over SMTP
-    if (MAILGUN_API_KEY) {
+    // Prefer SMTP when configured (more reliable than API)
+    if (process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
+      console.log("Using SMTP (preferred)");
+    } else if (MAILGUN_API_KEY) {
+      // Fallback to Mailgun API if SMTP not configured
       console.log("Using Mailgun REST API");
       const result = await sendEmailViaMailgunAPI({ to, subject, html, text, from });
       console.log("✅ Email sent via Mailgun API:", result.messageId);
       return result;
-    }
-    
-    // Fallback to SMTP
-    console.log("Using SMTP (Mailgun API not available)");
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
-      console.warn("Email not configured - SMTP credentials missing");
+    } else {
+      console.warn("Email not configured - neither SMTP nor API credentials found");
       return { success: false, error: "Email not configured" };
     }
 
