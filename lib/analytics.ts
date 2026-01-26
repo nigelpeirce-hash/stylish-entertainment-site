@@ -12,13 +12,33 @@ declare global {
 }
 
 /**
+ * Check if analytics should be disabled (e.g., for internal users)
+ */
+function isAnalyticsDisabled(): boolean {
+  if (typeof window === 'undefined') return true;
+  
+  // Check for debug/internal flag in localStorage
+  // Set this in browser console: localStorage.setItem('disable_analytics', 'true')
+  if (localStorage.getItem('disable_analytics') === 'true') {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
  * Track a GA4 event
- * Only fires if gtag is loaded
+ * Only fires if gtag is loaded and not disabled
  */
 export function trackEvent(
   eventName: string,
   params?: Record<string, unknown>
 ) {
+  if (isAnalyticsDisabled()) {
+    console.log(`[Analytics] BLOCKED (internal): ${eventName}`, params);
+    return;
+  }
+  
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', eventName, params);
     console.log(`[Analytics] Event tracked: ${eventName}`, params);
