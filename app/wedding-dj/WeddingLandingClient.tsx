@@ -29,9 +29,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 interface DJ {
   id: string;
   name: string;
-  image: string | null;
+  slug: string | null;
+  imageUrl: string | null;
   bio: string | null;
-  mixingStyle: string | null;
+  mixcloudUrl: string | null;
+  youtubeEmbed: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
 }
 
 const features = [
@@ -94,7 +98,8 @@ export default function WeddingLandingClient() {
         const response = await fetch("/api/djs");
         if (response.ok) {
           const data = await response.json();
-          setDjs(data);
+          // API returns { djs: [...] }
+          setDjs(data.djs || []);
         }
       } catch (error) {
         console.error("Error fetching DJs:", error);
@@ -104,6 +109,19 @@ export default function WeddingLandingClient() {
     };
     fetchDJs();
   }, []);
+
+  // Helper to convert YouTube URL to embed URL
+  const getYouTubeEmbedUrl = (url: string | null): string | null => {
+    if (!url) return null;
+    // Handle various YouTube URL formats
+    const videoIdMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+    if (videoIdMatch) {
+      return `https://www.youtube.com/embed/${videoIdMatch[1]}`;
+    }
+    // If already an embed URL, return as-is
+    if (url.includes('/embed/')) return url;
+    return null;
+  };
 
   const nextDJ = () => {
     setCurrentDJIndex((prev) => (prev + 1) % djs.length);
@@ -228,10 +246,10 @@ export default function WeddingLandingClient() {
                 <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden max-w-5xl mx-auto">
                   <div className="grid md:grid-cols-5 gap-0">
                     {/* DJ Image - Larger */}
-                    <div className="relative h-80 md:h-[500px] md:col-span-2 overflow-hidden">
-                      {djs[currentDJIndex]?.image ? (
+                    <div className="relative h-80 md:h-[550px] md:col-span-2 overflow-hidden">
+                      {djs[currentDJIndex]?.imageUrl ? (
                         <Image
-                          src={djs[currentDJIndex].image!}
+                          src={djs[currentDJIndex].imageUrl!}
                           alt={djs[currentDJIndex].name}
                           fill
                           className="object-cover"
@@ -253,12 +271,10 @@ export default function WeddingLandingClient() {
                           <h3 className="text-2xl md:text-3xl text-white font-bold mb-2">
                             {djs[currentDJIndex]?.name}
                           </h3>
-                          {djs[currentDJIndex]?.mixingStyle && (
-                            <div className="inline-flex items-center gap-2 text-champagne-gold text-sm">
-                              <Music className="w-4 h-4" />
-                              {djs[currentDJIndex].mixingStyle}
-                            </div>
-                          )}
+                          <div className="inline-flex items-center gap-2 text-champagne-gold text-sm">
+                            <Music className="w-4 h-4" />
+                            Professional Wedding DJ
+                          </div>
                         </div>
                         {/* DJ Counter */}
                         <div className="text-gray-500 text-sm">
@@ -266,15 +282,44 @@ export default function WeddingLandingClient() {
                         </div>
                       </div>
                       
-                      {/* Full Bio */}
-                      <div className="flex-1 overflow-y-auto max-h-[280px] md:max-h-[320px] pr-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
-                        <p className="text-gray-300 leading-relaxed whitespace-pre-line">
+                      {/* Bio */}
+                      <div className="mb-6 max-h-[120px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
+                        <p className="text-gray-300 leading-relaxed">
                           {djs[currentDJIndex]?.bio || "Professional DJ with years of experience in wedding entertainment. Specialising in reading the room and creating unforgettable dance floors."}
                         </p>
                       </div>
 
+                      {/* YouTube Embed */}
+                      {djs[currentDJIndex]?.youtubeEmbed && getYouTubeEmbedUrl(djs[currentDJIndex].youtubeEmbed) && (
+                        <div className="mb-4">
+                          <div className="aspect-video rounded-lg overflow-hidden bg-gray-800">
+                            <iframe
+                              src={getYouTubeEmbedUrl(djs[currentDJIndex].youtubeEmbed)!}
+                              title={`${djs[currentDJIndex].name} Video`}
+                              className="w-full h-full"
+                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                              allowFullScreen
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Mixcloud Embed */}
+                      {djs[currentDJIndex]?.mixcloudUrl && (
+                        <div className="mb-4">
+                          <iframe
+                            width="100%"
+                            height="60"
+                            src={`https://www.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=${encodeURIComponent(djs[currentDJIndex].mixcloudUrl!)}`}
+                            frameBorder="0"
+                            className="rounded-lg"
+                            allow="autoplay"
+                          />
+                        </div>
+                      )}
+
                       {/* Enquire CTA */}
-                      <div className="mt-6 pt-6 border-t border-gray-800">
+                      <div className="mt-auto pt-6 border-t border-gray-800">
                         <Link href="/contact-us">
                           <Button className="w-full bg-champagne-gold text-black hover:bg-gold-light font-semibold py-6 text-lg">
                             Enquire About {djs[currentDJIndex]?.name}
