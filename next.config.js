@@ -1,7 +1,29 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Force Webpack and disable Turbopack for production
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
+    const webpack = require('webpack');
+    
+    // Fix for es6-promise trying to require 'vertx' which doesn't exist
+    // This is needed because imap-simple uses es6-promise which has a vertx fallback
+    // Ignore the vertx module completely
+    config.plugins.push(
+      new webpack.IgnorePlugin({
+        resourceRegExp: /^vertx$/,
+      })
+    );
+    
+    // Also add alias and fallback as backup
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      vertx: false,
+    };
+    
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      vertx: false,
+    };
+    
     return config;
   },
   experimental: {
