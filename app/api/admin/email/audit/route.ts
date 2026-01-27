@@ -115,17 +115,34 @@ export async function GET(request: NextRequest) {
           };
 
           const connection = await imap.connect(config);
-          await connection.openBox("INBOX");
+          const box = await connection.openBox("INBOX");
 
           // Get mailbox stats
-          const status = await connection.status("INBOX", { messages: true, recent: true, unseen: true });
+          // The box object has: messages.total, messages.new, etc.
+          let totalMessages = 0;
+          let unreadMessages = 0;
+          let recentMessages = 0;
+
+          if (box.messages) {
+            totalMessages = box.messages.total || 0;
+            recentMessages = box.messages.new || 0;
+          }
+
+          // Get unread messages count using search
+          try {
+            const unseenSearch = await connection.search(["UNSEEN"], { bodies: "", struct: true });
+            unreadMessages = Array.isArray(unseenSearch) ? unseenSearch.length : 0;
+          } catch (searchError) {
+            // If search fails, try to use new messages as fallback
+            unreadMessages = recentMessages;
+          }
           
           result.connection.status = "success";
           result.connection.message = "Successfully connected to IMAP server";
           result.serverStats = {
-            totalMessages: status.messages || 0,
-            unreadMessages: status.unseen || 0,
-            recentMessages: status.recent || 0,
+            totalMessages,
+            unreadMessages,
+            recentMessages,
           };
 
           await connection.closeBox(true);

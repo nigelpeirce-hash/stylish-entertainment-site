@@ -12,6 +12,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 import { Providers } from "@/components/Providers";
 import WelcomeBackBanner from "@/components/WelcomeBackBanner";
 import PrefetchErrorHandler from "@/components/PrefetchErrorHandler";
+import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
 
 const raleway = Raleway({
   subsets: ["latin"],
@@ -187,7 +188,9 @@ export default function RootLayout({
             <Navigation />
           </Suspense>
           <Breadcrumbs />
-          <main className="min-h-screen relative z-10">{children}</main>
+          <ErrorBoundaryWrapper>
+            <main className="min-h-screen relative z-10">{children}</main>
+          </ErrorBoundaryWrapper>
           <Footer />
         </Providers>
       </body>

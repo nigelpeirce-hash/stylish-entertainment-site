@@ -2,11 +2,23 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useMemo } from "react";
+import dynamicImport from "next/dynamic";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import LazyIframe from "@/components/LazyIframe";
-import BlogImage from "@/components/BlogImage";
 import Image from "next/image";
+
+// Force dynamic rendering to prevent build-time prerendering issues
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Dynamically import components that use useState to prevent SSR issues
+const BlogImage = dynamicImport(() => import("@/components/BlogImage"), {
+  ssr: false,
+});
+
+const LazyIframe = dynamicImport(() => import("@/components/LazyIframe"), {
+  ssr: false,
+});
 
 export default function BlogPostDecor() {
   useEffect(() => {

@@ -2,7 +2,8 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
+import useSWR from "swr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,6 +40,7 @@ import { QuickStaffConfirm } from "@/components/QuickStaffConfirm";
 import { AddBasicStaff } from "@/components/AddBasicStaff";
 import { DJInquiryReply } from "@/components/DJInquiryReply";
 import { EmailCompositionCenter } from "@/components/EmailCompositionCenter";
+import { MultiArtistReply } from "@/components/MultiArtistReply";
 import { FlexibleOperatorSidebar } from "@/components/FlexibleOperatorSidebar";
 // import { WhatsAppThread } from "@/components/WhatsAppThread"; // TEMPORARILY HIDDEN
 import { CrewAssignments } from "@/components/CrewAssignments";
@@ -62,107 +64,64 @@ import { useToast } from "@/hooks/use-toast";
 import { Toast } from "@/components/ui/toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { debug } from "@/lib/debug";
+import { SanitizedBooking } from "@/lib/transformers/booking-transformer";
+import { useBookingUpdates } from "@/lib/hooks/useBookingUpdates";
 
-interface Booking {
-  id: string;
-  name: string;
-  email: string;
-  phoneAreaCode: string | null;
-  phoneNumber: string | null;
-  eventType: string;
-  eventDate: string;
-  ceremonyTime?: string | null;
-  venueName: string;
-  venueAddress: string | null;
-  venueTown: string | null;
-  venuePostcode: string | null;
-  numberOfGuests: number | null;
-  services: string[];
-  upsellItems: string[];
-  preferredDJ: string | null;
-  message: string | null;
-  budget: string | null;
-  status: string;
-  contactPreference: string | null;
-  djArrivalTime?: string | null;
-  djStartTime?: string | null;
-  djFinishTime?: string | null;
-  djSetupLocation?: string | null;
-  djParking?: string | null;
-  soundLimiter?: boolean | null;
-  firstDance?: string | null;
-  lastSong?: string | null;
-  musicDislikes?: string | null;
-  musicRequests?: string | null;
-  musicNotesToDJ?: string | null;
-  musicFileUrl?: string | null;
-  venueContact?: string | null;
-  venueAddress2?: string | null;
-  venueCounty?: string | null;
-  venuePhoneAreaCode?: string | null;
-  venuePhoneNumber?: string | null;
-  assignedDJEmail?: string | null;
-  assignedDJName?: string | null;
-  bookingReference: string | null;
-  priority: string;
-  conflictStatus: string | null;
-  assignedTo?: string | null;
-  handoffStatus?: string | null;
-  handoffNote?: string | null;
-  finalBalance: string | null;
-  adminNotes?: string | null;
-  feeBreakdown?: Array<{
-    id: string;
-    description: string;
-    amount: number;
-  }> | null;
-  taxInclusive?: boolean | null;
-  taxRate?: number | null;
-  selectedTemplate?: string | null;
-  depositReceived?: boolean | null;
-  depositReceivedManual?: boolean | null;
-  updatedAt?: string;
-  lastEmailSentAt?: string | null;
-  finalDetailsConfirmed?: boolean | null;
-  finalDetailsConfirmedManual?: boolean | null;
-  djWorksheetApproved?: boolean | null;
-  djWorksheetApprovedManual?: boolean | null;
-  /** Matches API include; Prisma returns `User` */
-  User?: { id: string; name: string; email: string } | null;
-  /** Many-to-many via BookingStaffAssignment; always default to [] when undefined. */
-  staffAssignments?: Array<{
-    id: string;
-    role: string;
-    agreedFee: number;
-    status: string;
-    confirmationEmailSent: boolean;
-    confirmationSentAt?: Date | null;
-    staff: {
-      id: string;
-      name: string;
-      email: string | null;
-      phone?: string | null;
-      roles?: string[];
-    };
-  }>;
-  bookingItems?: Array<{
-    id: string;
-    quantity: number;
-    status: string;
-    HireItem: { id: string; name: string; price: number; category: string | null };
-  }>;
-  warehouseItems?: Array<{
-    id: string;
-    quantity: number;
-    WarehouseItem: {
-      id: string;
-      name: string;
-      category: string;
-      weight: number | null;
-      size: string | null;
-    };
-  }>;
-}
+// Use the sanitized booking interface from transformer
+// All data sanitization now happens in the API layer (lib/transformers/booking-transformer.ts)
+type Booking = SanitizedBooking;
+
+// SWR fetcher function with timeout and error handling
+const bookingFetcher = async (url: string): Promise<{ booking: SanitizedBooking; fallback?: boolean }> => {
+  const endTimer = debug.time('fetchBooking');
+  let timeoutId: NodeJS.Timeout | null = null;
+  try {
+    debug.log('Fetching booking', { url });
+    
+    // Create an AbortController for timeout
+    const controller = new AbortController();
+    timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+    
+    const response = await fetch(url, {
+      signal: controller.signal,
+      cache: 'no-store',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+      },
+    });
+    
+    if (timeoutId) clearTimeout(timeoutId);
+    
+    debug.api('GET', url, { status: response.status });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || errorData.message || `Failed to fetch booking: ${response.status} ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    
+    debug.log("Fetched booking data", {
+      id: data.booking?.id,
+      staffAssignmentsCount: data.booking?.staffAssignments?.length || 0,
+      fallback: data.fallback,
+    });
+    
+    endTimer();
+    return data;
+  } catch (error: any) {
+    if (timeoutId) clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      debug.error("Request timed out", error, { url });
+      throw new Error("Request timed out after 15 seconds. Please check your connection and try again.");
+    }
+    debug.error("Error fetching booking", error, { url });
+    throw error;
+  }
+};
 
 export default function BookingDetail() {
   const { data: session, status } = useSession();
@@ -170,9 +129,6 @@ export default function BookingDetail() {
   const params = useParams();
   const bookingId = params.id as string;
 
-  const [booking, setBooking] = useState<Booking | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isFallbackMode, setIsFallbackMode] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [sendingAction, setSendingAction] = useState<string | null>(null);
@@ -188,6 +144,83 @@ export default function BookingDetail() {
   const [venues, setVenues] = useState<{ id: string; venueName: string; defaultCeremonyTime?: string | null; defaultFinishTime?: string | null; venueNotes?: string | null }[]>([]);
   const { toast, toastState } = useToast();
 
+  // Determine if we should fetch (authorization check)
+  const isAuthorizedForSWR = useMemo(() => {
+    return status === "authenticated" && (session?.user as any)?.role === "admin";
+  }, [status, session?.user]);
+
+  const devBypassForSWR = useMemo(() => {
+    const isLocalhost = typeof window !== "undefined" && 
+      (process.env.NODE_ENV === "development" || 
+       window.location.hostname === "localhost" || 
+       window.location.hostname === "127.0.0.1" ||
+       window.location.hostname.startsWith("192.168.") ||
+       window.location.hostname.startsWith("10."));
+    return isLocalhost || 
+      (typeof window !== "undefined" && sessionStorage.getItem("dev_admin_bypass") === "true");
+  }, []); // Empty deps - window.location and sessionStorage don't change
+  
+  const shouldFetch = useMemo(() => {
+    return bookingId && (isAuthorizedForSWR || devBypassForSWR);
+  }, [bookingId, isAuthorizedForSWR, devBypassForSWR]);
+
+  // Use SWR for data fetching with caching and background refresh
+  const { data, error, isLoading, mutate } = useSWR<{ booking: SanitizedBooking; fallback?: boolean }>(
+    shouldFetch ? `/api/admin/bookings/${bookingId}` : null,
+    bookingFetcher,
+    {
+      refreshInterval: 0, // Don't auto-refresh (user can manually refresh)
+      revalidateOnFocus: false, // Prevents fetch every time you click the window
+      revalidateOnReconnect: false, // Prevents fetch when your Wi-Fi flickers
+      dedupingInterval: 30000, // Ignores duplicate requests within 30 seconds
+      keepPreviousData: true, // Keep previous data while fetching new data
+      loadingTimeout: 10000, // Timeout after 10 seconds
+      errorRetryCount: 2, // Max retries
+      errorRetryInterval: 3000, // Retry after 3 seconds
+      onErrorRetry: (error, key, config, revalidate, { retryCount }) => {
+        // Don't retry on 401/403 errors
+        if (error.status === 401 || error.status === 403) return;
+        // Retry up to 2 times
+        if (retryCount >= 2) {
+          toast({
+            title: "Error",
+            description: "Failed to load booking after retries",
+            variant: "destructive",
+          });
+          return;
+        }
+        // Retry after 3 seconds
+        setTimeout(() => revalidate({ retryCount }), 3000);
+      },
+      onError: (error) => {
+        toast({
+          title: "Error",
+          description: error.message || "Failed to load booking",
+          variant: "destructive",
+        });
+      },
+    }
+  );
+
+  // Extract booking data and fallback mode from SWR response
+  // SWR is now the single source of truth for booking data
+  const booking = data?.booking || null;
+  const isFallbackMode = data?.fallback === true;
+  const loading = isLoading;
+  
+  // Centralized update system with optimistic updates
+  const { updateBooking } = useBookingUpdates(bookingId, booking, mutate);
+  
+  // Wrapper function for child components that expect onUpdate: () => void
+  // This decouples child components from parent's fetching logic
+  // Child components can call onUpdate() after making their own API requests
+  // and the hook will handle revalidation
+  const handleBookingUpdate = useCallback(async () => {
+    // Trigger SWR revalidation to get latest data from server
+    await mutate();
+  }, [mutate]);
+
+  // Handle authentication and redirects
   useEffect(() => {
     const isLocalhost = typeof window !== "undefined" && 
       (process.env.NODE_ENV === "development" || 
@@ -200,9 +233,6 @@ export default function BookingDetail() {
       sessionStorage.setItem("dev_admin_bypass", "true");
       sessionStorage.setItem("dev_admin_role", "admin");
       sessionStorage.setItem("dev_admin_name", "Local Admin");
-      if (bookingId) {
-        fetchBooking();
-      }
       return;
     }
 
@@ -210,9 +240,6 @@ export default function BookingDetail() {
       sessionStorage.getItem("dev_admin_bypass") === "true";
 
     if (devBypass) {
-      if (bookingId) {
-        fetchBooking();
-      }
       return;
     }
 
@@ -222,26 +249,7 @@ export default function BookingDetail() {
       router.push("/client/dashboard");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, session, router, bookingId]);
-
-  useEffect(() => {
-    const devBypass = typeof window !== "undefined" && 
-      sessionStorage.getItem("dev_admin_bypass") === "true";
-    
-    const isLocalhost = typeof window !== "undefined" && 
-      (process.env.NODE_ENV === "development" || 
-       window.location.hostname === "localhost" || 
-       window.location.hostname === "127.0.0.1" ||
-       window.location.hostname.startsWith("192.168.") ||
-       window.location.hostname.startsWith("10."));
-
-    if ((status === "authenticated" && (session?.user as any)?.role === "admin") || devBypass || isLocalhost) {
-      if (bookingId) {
-        fetchBooking();
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, session, bookingId]);
+  }, [status, session, router]);
 
   useEffect(() => {
     if (!showEditModal) return;
@@ -251,36 +259,8 @@ export default function BookingDetail() {
       .catch(() => setVenues([]));
   }, [showEditModal]);
 
-  const fetchBooking = async () => {
-    try {
-      setLoading(true);
-      // Use a more aggressive cache-busting approach
-      const timestamp = Date.now();
-      const response = await fetch(`/api/admin/bookings/${bookingId}?t=${timestamp}&_=${Math.random()}`, {
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-        },
-      });
-      if (response.ok) {
-        const data = await response.json();
-        // Log to debug staff assignments
-        console.log("Fetched booking data:", {
-          id: data.booking?.id,
-          staffAssignmentsCount: data.booking?.staffAssignments?.length || 0,
-          staffAssignments: data.booking?.staffAssignments,
-          fallback: data.fallback,
-        });
-        setBooking(data.booking);
-        setIsFallbackMode(data.fallback === true);
-      }
-    } catch (error) {
-      console.error("Error fetching booking:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // All booking updates now go through useBookingUpdates hook
+  // Child components use handleBookingUpdate() callback to trigger revalidation
 
   const formatEventDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -323,7 +303,7 @@ export default function BookingDetail() {
         }),
       });
       if (!response.ok) throw new Error("Failed to update handoff");
-      await fetchBooking();
+      await handleBookingUpdate();
     } catch (error: any) {
       alert(error.message || "Failed to update handoff");
     }
@@ -739,26 +719,13 @@ export default function BookingDetail() {
                     defaultValue={booking.ceremonyTime ? new Date(booking.ceremonyTime).toISOString().slice(0, 16) : ""}
                     onChange={async (e) => {
                       const value = e.target.value;
-                      try {
-                        const response = await fetch(`/api/admin/bookings/${booking.id}`, {
-                          method: "PATCH",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({
-                            ceremonyTime: value ? new Date(value).toISOString() : null,
-                          }),
-                        });
-                        if (response.ok) {
-                          fetchBooking();
-                          toast({
-                            title: "Updated",
-                            description: "Ceremony start updated",
-                          });
-                        }
-                      } catch (error) {
+                      const result = await updateBooking({
+                        ceremonyTime: value ? new Date(value).toISOString() : null,
+                      }, { showToast: false });
+                      if (result) {
                         toast({
-                          title: "Error",
-                          description: "Failed to update ceremony start",
-                          variant: "destructive",
+                          title: "Updated",
+                          description: "Ceremony start updated",
                         });
                       }
                     }}
@@ -774,24 +741,11 @@ export default function BookingDetail() {
                     defaultValue={booking.djFinishTime || ""}
                     onChange={async (e) => {
                       const value = e.target.value || null;
-                      try {
-                        const response = await fetch(`/api/admin/bookings/${booking.id}`, {
-                          method: "PATCH",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ djFinishTime: value }),
-                        });
-                        if (response.ok) {
-                          fetchBooking();
-                          toast({
-                            title: "Updated",
-                            description: "Finish time updated",
-                          });
-                        }
-                      } catch (error) {
+                      const result = await updateBooking({ djFinishTime: value }, { showToast: false });
+                      if (result) {
                         toast({
-                          title: "Error",
-                          description: "Failed to update finish time",
-                          variant: "destructive",
+                          title: "Updated",
+                          description: "Finish time updated",
                         });
                       }
                     }}
@@ -838,24 +792,11 @@ export default function BookingDetail() {
                     onBlur={async (e) => {
                       const value = e.target.value.trim();
                       if (value === booking.venueName) return;
-                      try {
-                        const response = await fetch(`/api/admin/bookings/${booking.id}`, {
-                          method: "PATCH",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ venueName: value }),
-                        });
-                        if (response.ok) {
-                          fetchBooking();
-                          toast({
-                            title: "Updated",
-                            description: "Venue name updated",
-                          });
-                        }
-                      } catch (error) {
+                      const result = await updateBooking({ venueName: value }, { showToast: false });
+                      if (result) {
                         toast({
-                          title: "Error",
-                          description: "Failed to update venue name",
-                          variant: "destructive",
+                          title: "Updated",
+                          description: "Venue name updated",
                         });
                       }
                     }}
@@ -923,118 +864,6 @@ export default function BookingDetail() {
               </CardContent>
             </Card>
 
-            {/* Financials & Status Section */}
-            <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-                  <DollarSign className="w-5 h-5 text-champagne-gold" />
-                  Financials & Status
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Deposit Received Toggle - High Contrast */}
-                <div className="flex items-center justify-between p-4 bg-gray-900/70 rounded-lg border-2 border-gray-600 hover:border-champagne-gold/50 transition-all">
-                  <div className="flex items-center gap-4">
-                    <Checkbox
-                      id="depositReceived"
-                      checked={booking.depositReceivedManual || false}
-                      onCheckedChange={async (checked) => {
-                        try {
-                          const response = await fetch(`/api/admin/bookings/${booking.id}/flexible-update`, {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              depositReceivedManual: checked,
-                            }),
-                          });
-                          if (response.ok) {
-                            await fetchBooking();
-                            toast({
-                              title: "Updated",
-                              description: checked ? "Deposit marked as received" : "Deposit marked as pending",
-                            });
-                          } else {
-                            throw new Error("Failed to update deposit status");
-                          }
-                        } catch (error) {
-                          toast({
-                            title: "Error",
-                            description: "Failed to update deposit status",
-                            variant: "destructive",
-                          });
-                        }
-                      }}
-                      className="h-6 w-6 border-2 border-champagne-gold/50 data-[state=checked]:bg-champagne-gold data-[state=checked]:border-champagne-gold"
-                    />
-                    <label htmlFor="depositReceived" className="text-white font-bold text-base cursor-pointer">
-                      Deposit Received
-                    </label>
-                  </div>
-                  <Badge
-                    className={
-                      booking.depositReceivedManual
-                        ? "bg-emerald-500/30 text-emerald-400 border-2 border-emerald-500/50 font-bold"
-                        : "bg-amber-500/30 text-amber-400 border-2 border-amber-500/50 font-bold"
-                    }
-                  >
-                    {booking.depositReceivedManual ? "Paid" : "Pending"}
-                  </Badge>
-                </div>
-
-                {/* Date Tracking */}
-                {booking.depositReceivedManual && booking.updatedAt && (
-                  <div className="text-xs text-gray-400 italic">
-                    Confirmed on: {new Date(booking.updatedAt).toLocaleDateString("en-GB", {
-                      weekday: "short",
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </div>
-                )}
-
-                {/* Final Balance Display (if exists) */}
-                {booking.finalBalance && (
-                  <div className="pt-3 border-t border-gray-700">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-400 text-sm">Final Balance</span>
-                      <span className="text-white font-semibold text-lg">
-                        £{parseFloat(booking.finalBalance).toFixed(2)}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {/* Hire Shop — Pending Approval */}
-                {booking.bookingItems && booking.bookingItems.length > 0 && (
-                  <div className="pt-3 border-t border-gray-700">
-                    <p className="text-amber-400 font-medium text-sm mb-2">Pending Approval</p>
-                    <p className="text-gray-400 text-xs mb-2">Requested via Hire Shop (client portal)</p>
-                    <ul className="space-y-1">
-                      {booking.bookingItems.map((row) => (
-                        <li key={row.id} className="flex justify-between text-sm">
-                          <span className="text-gray-300">
-                            {row.HireItem.name} × {row.quantity}
-                          </span>
-                          <span className="text-amber-500">
-                            £{(row.HireItem.price * row.quantity).toFixed(2)}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                    <p className="text-gray-500 text-xs mt-2">
-                      Total: £
-                      {booking.bookingItems
-                        .reduce((s, r) => s + r.HireItem.price * r.quantity, 0)
-                        .toFixed(2)}
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
             {/* Manual Communication — priority action */}
             <Card className={`bg-gray-800 border-amber-500/20 ${getSectionBgColor()} transition-colors`}>
               <CardHeader className="pb-3">
@@ -1058,7 +887,7 @@ export default function BookingDetail() {
                             body: JSON.stringify({ depositReceivedManual: checked }),
                           });
                           if (response.ok) {
-                            await fetchBooking();
+                            await handleBookingUpdate();
                             toast({
                               title: "Updated",
                               description: checked ? "Deposit marked as received" : "Deposit marked as pending",
@@ -1091,6 +920,20 @@ export default function BookingDetail() {
                   </Badge>
                 </div>
 
+                {/* Date Tracking */}
+                {booking.depositReceivedManual && booking.updatedAt && (
+                  <div className="text-xs text-gray-400 italic">
+                    Confirmed on: {new Date(booking.updatedAt).toLocaleDateString("en-GB", {
+                      weekday: "short",
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                )}
+
                 {/* Send Deposit Confirmation Email */}
                 <Button
                   onClick={async () => {
@@ -1102,7 +945,7 @@ export default function BookingDetail() {
                       });
                       const data = await response.json();
                       if (response.ok) {
-                        await fetchBooking();
+                        await handleBookingUpdate();
                         const clientName = deduplicateName(getDisplayName(booking.name) || booking.name);
                         toast({
                           title: "Email sent",
@@ -1172,7 +1015,7 @@ export default function BookingDetail() {
                       const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite`, { method: "POST" });
                       const data = await res.json();
                       if (res.ok) {
-                        await fetchBooking();
+                        await handleBookingUpdate();
                         const clientName = deduplicateName(getDisplayName(booking.name) || booking.name);
                         toast({
                           title: "Finalized & invite sent",
@@ -1266,7 +1109,7 @@ export default function BookingDetail() {
                     <ArtistDispatch
                       bookingId={booking.id}
                       booking={booking}
-                      onUpdate={fetchBooking}
+                      onUpdate={handleBookingUpdate}
                     />
                   </CardContent>
                 </Card>
@@ -1286,7 +1129,26 @@ export default function BookingDetail() {
                     venueAddress={booking.venueAddress || undefined}
                     venuePostcode={booking.venuePostcode || undefined}
                     eventDate={booking.eventDate}
-                    onSend={fetchBooking}
+                    onSend={handleBookingUpdate}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Quote Builder - Multi-Service */}
+              <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-lg font-semibold text-white">Quote Builder</CardTitle>
+                  <p className="text-xs text-gray-400">Build and send quotes for DJs, musicians, lighting, styling & more</p>
+                </CardHeader>
+                <CardContent>
+                  <MultiArtistReply
+                    bookingId={booking.id}
+                    clientEmail={booking.email}
+                    clientName={booking.name}
+                    venueName={booking.venueName}
+                    venueAddress={booking.venueAddress || undefined}
+                    eventDate={booking.eventDate}
+                    onSend={handleBookingUpdate}
                   />
                 </CardContent>
               </Card>
@@ -1303,7 +1165,7 @@ export default function BookingDetail() {
                   </p>
                 </CardHeader>
                 <CardContent>
-                  <TechnicalEquipment bookingId={booking.id} onUpdate={fetchBooking} />
+                  <TechnicalEquipment bookingId={booking.id} onUpdate={handleBookingUpdate} />
                 </CardContent>
               </Card>
 
@@ -1323,7 +1185,7 @@ export default function BookingDetail() {
                       venuePostcode={booking.venuePostcode || undefined}
                       eventDate={booking.eventDate}
                       djName={booking.preferredDJ || undefined}
-                      onSend={fetchBooking}
+                      onSend={handleBookingUpdate}
                     />
                   </CardContent>
                 </Card>
@@ -1333,7 +1195,7 @@ export default function BookingDetail() {
               <TeamAssignment
                 bookingId={booking.id}
                 staffAssignments={staffAssignments}
-                onUpdate={fetchBooking}
+                onUpdate={handleBookingUpdate}
               />
 
               {/* Crew Assignments (Venue + Timings: venueName, eventDate, djArrivalTime, djStartTime from booking) */}
@@ -1344,7 +1206,7 @@ export default function BookingDetail() {
                 djArrivalTime={booking.djArrivalTime}
                 djStartTime={booking.djStartTime}
                 staffAssignments={staffAssignments}
-                onUpdate={fetchBooking}
+                onUpdate={handleBookingUpdate}
               />
 
               {/* Legacy Quick Staff (for backward compatibility) */}
@@ -1353,12 +1215,12 @@ export default function BookingDetail() {
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg font-semibold text-white">Team</CardTitle>
                     <div className="flex gap-2">
-                      <AddBasicStaff onAdd={fetchBooking} />
+                      <AddBasicStaff onAdd={handleBookingUpdate} />
                       <QuickStaffConfirm
                         bookingId={booking.id}
                         venueName={booking.venueName}
                         eventDate={booking.eventDate}
-                        onConfirm={fetchBooking}
+                        onConfirm={handleBookingUpdate}
                       />
                     </div>
                   </div>
@@ -1405,7 +1267,24 @@ export default function BookingDetail() {
                             <p className="text-xs text-yellow-400 mt-1">⚠️ No contact info available</p>
                           )}
                           <p className="text-gray-400 text-xs">
-                            Fee: £{assignment.agreedFee.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            Fee: £{(() => {
+                              const fee = assignment.agreedFee;
+                              // Ensure we always return a number, never an object
+                              if (typeof fee === 'number' && !isNaN(fee)) {
+                                return fee;
+                              }
+                              if (typeof fee === 'object' && fee !== null) {
+                                // Extract numeric value from object
+                                const obj = fee as any;
+                                const extracted = Number(obj.fee) || Number(obj.amount) || Number(obj.value) || 0;
+                                return isNaN(extracted) ? 0 : extracted;
+                              }
+                              if (typeof fee === 'string') {
+                                const parsed = parseFloat(fee);
+                                return isNaN(parsed) ? 0 : parsed;
+                              }
+                              return 0;
+                            })().toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </p>
                           {assignment.confirmationEmailSent && (
                             <p className="text-xs text-green-400 mt-1">✓ Confirmation sent</p>
@@ -1633,7 +1512,7 @@ export default function BookingDetail() {
                       body: JSON.stringify(payload),
                     });
                     if (response.ok) {
-                      await fetchBooking();
+                      await handleBookingUpdate();
                       setShowEditModal(false);
                       toast({
                         title: "Saved",
@@ -1675,9 +1554,41 @@ export default function BookingDetail() {
             priority: booking.priority || "medium",
             conflictStatus: booking.conflictStatus || null,
             finalBalance: (booking as any).finalBalance || null,
-            services: booking.services || [],
+            services: Array.isArray(booking.services) 
+              ? booking.services.map((s: any) => typeof s === 'string' ? s : String(s?.name || s?.type || 'Service'))
+              : [],
             adminNotes: booking.adminNotes || null,
-            feeBreakdown: booking.feeBreakdown || null,
+            feeBreakdown: Array.isArray(booking.feeBreakdown) 
+              ? booking.feeBreakdown
+                  .filter((item: any) => item !== null && item !== undefined)
+                  .map((item: any) => {
+                    // Safely extract amount - handle objects with {fee} or {amount} keys
+                    let amount = 0;
+                    if (item?.amount !== undefined) {
+                      if (typeof item.amount === 'number') {
+                        amount = item.amount;
+                      } else if (typeof item.amount === 'object' && item.amount !== null) {
+                        amount = Number((item.amount as any).fee) || Number((item.amount as any).amount) || Number((item.amount as any).value) || 0;
+                      } else {
+                        amount = Number(item.amount) || 0;
+                      }
+                    }
+                    if (amount === 0 && item?.fee !== undefined) {
+                      if (typeof item.fee === 'number') {
+                        amount = item.fee;
+                      } else if (typeof item.fee === 'object' && item.fee !== null) {
+                        amount = Number((item.fee as any).fee) || Number((item.fee as any).amount) || Number((item.fee as any).value) || 0;
+                      } else {
+                        amount = Number(item.fee) || 0;
+                      }
+                    }
+                    return {
+                      id: String(item?.id || `item-${Math.random()}`),
+                      description: String(item?.description || item?.name || 'Service'),
+                      amount: amount, // Always a number, never an object
+                    };
+                  })
+              : null,
             taxInclusive: booking.taxInclusive || null,
             taxRate: booking.taxRate || null,
             selectedTemplate: booking.selectedTemplate || null,
@@ -1690,7 +1601,7 @@ export default function BookingDetail() {
           }}
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
-          onUpdate={fetchBooking}
+          onUpdate={handleBookingUpdate}
         />
       )}
 

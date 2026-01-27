@@ -1,5 +1,6 @@
 /* Fonts are now loaded via next/font in layout.tsx for zero layout shift */
 
+/* Tailwind CSS directives - CSS linter warnings for @tailwind and @apply are expected and can be ignored */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -290,9 +291,8 @@
     margin-top: 0.5em !important;
     margin-bottom: 0.5em !important;
     line-height: 1.2 !important;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.02em; /* tight letter spacing */
     font-weight: 600 !important; /* font-semibold */
-    tracking-tight: true;
   }
   
   h3, h4, h5, h6 {
@@ -855,4 +855,96 @@
 .break-inside-avoid {
   break-inside: avoid;
   page-break-inside: avoid;
+}
+
+/* Admin Area Font Size Increase - +4px (0.25rem) for better readability */
+/* Applied when body has .admin-page class (added by admin layout) */
+
+/* Increase headers in admin area */
+body.admin-page h1 {
+  font-size: calc(1.5rem + 4px) !important; /* text-2xl (24px) + 4px = 28px */
+}
+
+body.admin-page h2 {
+  font-size: calc(1.25rem + 4px) !important; /* text-xl (20px) + 4px = 24px */
+}
+
+body.admin-page h3 {
+  font-size: calc(1.125rem + 4px) !important; /* text-lg (18px) + 4px = 22px */
+}
+
+body.admin-page h4 {
+  font-size: calc(1rem + 4px) !important; /* text-base (16px) + 4px = 20px */
+}
+
+body.admin-page h5 {
+  font-size: calc(0.875rem + 4px) !important; /* text-sm (14px) + 4px = 18px */
+}
+
+body.admin-page h6 {
+  font-size: calc(0.75rem + 4px) !important; /* text-xs (12px) + 4px = 16px */
+}
+
+/* Increase font sizes for admin form inputs and textareas */
+body.admin-page input[type="text"],
+body.admin-page input[type="email"],
+body.admin-page input[type="password"],
+body.admin-page input[type="number"],
+body.admin-page input[type="tel"],
+body.admin-page input[type="url"],
+body.admin-page input[type="search"],
+body.admin-page input[type="date"],
+body.admin-page input[type="time"],
+body.admin-page textarea,
+body.admin-page select {
+  font-size: calc(1rem + 4px) !important; /* 16px + 4px = 20px */
+}
+
+/* Increase font sizes for admin labels */
+body.admin-page label {
+  font-size: calc(0.875rem + 4px) !important; /* text-sm (14px) + 4px = 18px */
+}
+
+/* Increase font sizes for admin text content (but preserve icon sizes) */
+body.admin-page p {
+  font-size: calc(1rem + 4px) !important; /* 16px + 4px = 20px */
+}
+
+body.admin-page span:not([class*="icon"]):not([class*="svg"]):not([class*="lucide"]):not([class*="w-"]):not([class*="h-"]) {
+  font-size: calc(1rem + 4px) !important; /* 16px + 4px = 20px */
+}
+
+body.admin-page div:not([class*="icon"]):not([class*="svg"]):not([class*="lucide"]):not([class*="w-"]):not([class*="h-"]) {
+  font-size: calc(1rem + 4px) !important; /* 16px + 4px = 20px */
+}
+
+/* Increase font sizes for admin small text classes */
+body.admin-page .text-xs {
+  font-size: calc(0.75rem + 4px) !important; /* 12px + 4px = 16px */
+}
+
+body.admin-page .text-sm {
+  font-size: calc(0.875rem + 4px) !important; /* 14px + 4px = 18px */
+}
+
+/* Increase font sizes for admin buttons (but preserve icon-only buttons) */
+body.admin-page button:not([class*="icon"]):not([class*="svg"]):not([class*="lucide"]):not([aria-label*="icon"]) {
+  font-size: calc(0.875rem + 4px) !important; /* 14px + 4px = 18px */
+}
+
+/* Increase font sizes for admin table cells */
+body.admin-page td,
+body.admin-page th {
+  font-size: calc(0.875rem + 4px) !important; /* 14px + 4px = 18px */
+}
+
+/* Increase font sizes for admin card titles and content */
+body.admin-page [class*="CardTitle"],
+body.admin-page [class*="card-title"] {
+  font-size: calc(1.125rem + 4px) !important; /* 18px + 4px = 22px */
+}
+
+body.admin-page [class*="CardContent"],
+body.admin-page [class*="card-content"] {
+  font-size: calc(1rem + 4px) !important; /* 16px + 4px = 20px */
 }

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { deduplicateName } from "@/lib/utils/name-helpers";
+import { transformBooking } from "@/lib/transformers/booking-transformer";
 
 // Force dynamic rendering to prevent database connection during build
 export const dynamic = 'force-dynamic';
@@ -102,14 +103,15 @@ export async function GET(
         if (!safeBooking) {
           return NextResponse.json({ error: "Booking not found" }, { status: 404 });
         }
-        const out = {
+        // Transform fallback booking data
+        const fallbackBooking = {
           ...safeBooking,
           name: deduplicateName(safeBooking.name),
           staffAssignments: [],
-          emailThreads: [] as { id: string; subject: string; fromEmail: string; lastMessageAt: Date; isRead: boolean }[],
         };
+        const sanitized = transformBooking(fallbackBooking, []);
         return NextResponse.json(
-          { booking: out, fallback: true },
+          { booking: sanitized, fallback: true },
           { status: 200 }
         );
       } catch (safeError) {
@@ -143,13 +145,13 @@ export async function GET(
       console.log("Note: Email threads not available.", threadError);
     }
 
-    const out = {
+    // Transform booking data to sanitized format
+    const bookingWithDeduplicatedName = {
       ...booking,
       name: deduplicateName(booking.name),
-      emailThreads,
-      staffAssignments: Array.isArray(booking.staffAssignments) ? booking.staffAssignments : [],
     };
-    return NextResponse.json({ booking: out }, { status: 200 });
+    const sanitized = transformBooking(bookingWithDeduplicatedName, emailThreads);
+    return NextResponse.json({ booking: sanitized }, { status: 200 });
   } catch (error) {
     console.error("Error fetching booking:", error);
     const payload = prismaErrorPayload(error);
@@ -232,11 +234,13 @@ export async function PATCH(
       );
     }
 
-    const out = {
+    // Transform updated booking data to sanitized format
+    const updatedBookingWithDeduplicatedName = {
       ...updatedBooking,
       name: deduplicateName(updatedBooking.name),
     };
-    return NextResponse.json({ booking: out });
+    const sanitized = transformBooking(updatedBookingWithDeduplicatedName);
+    return NextResponse.json({ booking: sanitized });
   } catch (error) {
     console.error("Error updating booking:", error);
     return NextResponse.json(

@@ -214,11 +214,18 @@ export function CrewAssignments({
                   <div className="flex-1">
                     <p className="text-white font-semibold mb-1">{assignment.staff.name}</p>
                     <p className="text-gray-400 text-sm">Role: {assignment.role}</p>
-                    {assignment.agreedFee > 0 && (
-                      <p className="text-gray-400 text-sm">
-                        Fee: £{assignment.agreedFee.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </p>
-                    )}
+                    {(() => {
+                      const fee = typeof assignment.agreedFee === 'number' 
+                        ? assignment.agreedFee 
+                        : typeof assignment.agreedFee === 'object' && assignment.agreedFee !== null
+                          ? Number((assignment.agreedFee as any).fee) || Number((assignment.agreedFee as any).amount) || 0
+                          : Number(assignment.agreedFee) || 0;
+                      return fee > 0 ? (
+                        <p className="text-gray-400 text-sm">
+                          Fee: £{fee.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </p>
+                      ) : null;
+                    })()}
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     {getStatusBadge(assignment.status)}

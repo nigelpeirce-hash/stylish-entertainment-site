@@ -31,6 +31,11 @@ const fallbackPlaylists: Playlist[] = [
         title: "LED Furniture & Fire Pits",
         description: "Stylish LED furniture and fire pit installations for weddings",
       },
+      {
+        id: "47yP9a9lEg8",
+        title: "Venue Transformation",
+        description: "See how we transform venues with lighting and styling",
+      },
     ],
   },
   {
@@ -69,6 +74,7 @@ export default function Videos() {
     console.log("YouTube API Configuration Check:", {
       hasApiKey: !!apiKey,
       apiKeyLength: apiKey?.length || 0,
+      apiKeyPreview: apiKey ? `${apiKey.substring(0, 10)}...` : 'none',
       channelId: channelId,
       environment: typeof window !== 'undefined' ? 'client' : 'server',
     });
@@ -77,16 +83,19 @@ export default function Videos() {
       console.log("YouTube API Key found, fetching videos...");
       fetchYouTubeData(apiKey, channelId);
     } else {
-      // Only log once in development, silently use fallback in production
+      // Show helpful message in development
       if (process.env.NODE_ENV === "development") {
-        console.debug("YouTube API Key not configured. Using fallback videos.");
+        console.warn("⚠️ YouTube API Key not configured. Using fallback videos.");
+        console.warn("To enable YouTube videos, add NEXT_PUBLIC_YOUTUBE_API_KEY to .env.local");
+        console.warn("See YOUTUBE_API_SETUP.md for instructions");
       }
       // Use fallback data
       const videos = fallbackPlaylists.flatMap((playlist) => playlist.videos);
       setAllVideos(videos);
       setPlaylists(fallbackPlaylists);
       setLoading(false);
-      // Don't show error to users - fallback videos work fine
+      // Set a helpful error message for users
+      setError("YouTube API not configured. Showing sample videos. Contact admin to enable full video gallery.");
     }
   }, []);
 
@@ -119,9 +128,19 @@ export default function Videos() {
             }
           } else {
             const errorData = await channelResponse.json().catch(() => ({}));
-            lastError = `forHandle API returned ${channelResponse.status}: ${JSON.stringify(errorData)}`;
+            const errorMessage = errorData?.error?.message || 'Unknown error';
+            
+            // Check if API key is invalid
+            if (channelResponse.status === 400 && errorMessage.includes('API key not valid')) {
+              throw new Error(`Invalid API key. Please check your API key in .env.local and ensure YouTube Data API v3 is enabled in Google Cloud Console.`);
+            }
+            
+            lastError = `forHandle API returned ${channelResponse.status}: ${errorMessage}`;
           }
         } catch (e) {
+          if (e instanceof Error && e.message.includes('Invalid API key')) {
+            throw e; // Re-throw API key errors immediately
+          }
           lastError = `forHandle method failed: ${e instanceof Error ? e.message : 'Unknown error'}`;
           console.warn("forHandle method failed, trying alternatives:", e);
         }
@@ -141,9 +160,19 @@ export default function Videos() {
               found = true;
             } else {
               const errorData = await testResponse.json().catch(() => ({}));
-              lastError = `Direct handle test returned ${testResponse.status}: ${JSON.stringify(errorData)}`;
+              const errorMessage = errorData?.error?.message || 'Unknown error';
+              
+              // Check if API key is invalid
+              if (testResponse.status === 400 && errorMessage.includes('API key not valid')) {
+                throw new Error(`Invalid API key. Please check your API key in .env.local and ensure YouTube Data API v3 is enabled in Google Cloud Console.`);
+              }
+              
+              lastError = `Direct handle test returned ${testResponse.status}: ${errorMessage}`;
             }
           } catch (e) {
+            if (e instanceof Error && e.message.includes('Invalid API key')) {
+              throw e; // Re-throw API key errors immediately
+            }
             lastError = `Direct handle method failed: ${e instanceof Error ? e.message : 'Unknown error'}`;
             console.warn("Direct handle method failed:", e);
           }
@@ -169,14 +198,19 @@ export default function Videos() {
       );
 
       if (!playlistsResponse.ok) {
-        const errorText = await playlistsResponse.text();
-        console.error(`YouTube API Error (${playlistsResponse.status}):`, errorText);
+        const errorData = await playlistsResponse.json().catch(() => ({}));
+        const errorMessage = errorData?.error?.message || playlistsResponse.statusText;
+        console.error(`YouTube API Error (${playlistsResponse.status}):`, errorMessage);
         
-        if (playlistsResponse.status === 403) {
-          throw new Error(`API key error (403). Please check: 1) YouTube Data API v3 is enabled, 2) API key restrictions allow localhost, 3) API key has correct permissions.`);
+        if (playlistsResponse.status === 400 && errorMessage.includes('API key not valid')) {
+          throw new Error(`Invalid API key. Please check: 1) Your API key in .env.local is correct, 2) YouTube Data API v3 is enabled in Google Cloud Console, 3) API key restrictions allow localhost:3001`);
         }
         
-        throw new Error(`Failed to fetch playlists (${playlistsResponse.status}): ${playlistsResponse.statusText}`);
+        if (playlistsResponse.status === 403) {
+          throw new Error(`API key error (403). Please check: 1) YouTube Data API v3 is enabled, 2) API key restrictions allow localhost:3001, 3) API key has correct permissions.`);
+        }
+        
+        throw new Error(`Failed to fetch playlists (${playlistsResponse.status}): ${errorMessage}`);
       }
 
       const playlistsData = await playlistsResponse.json();
@@ -340,7 +374,14 @@ export default function Videos() {
               Browse our videos organised by category
             </p>
             {error && (
-              <p className="text-yellow-400 text-sm mt-2">{error}</p>
+              <div className="bg-yellow-900/30 border border-yellow-500/50 rounded-lg p-4 mt-4">
+                <p className="text-yellow-400 text-sm">{error}</p>
+                {process.env.NODE_ENV === "development" && (
+                  <p className="text-yellow-300 text-xs mt-2">
+                    Check browser console for details. Add NEXT_PUBLIC_YOUTUBE_API_KEY to .env.local to enable YouTube videos.
+                  </p>
+                )}
+              </div>
             )}
             {loading && (
               <p className="text-gray-400 text-sm mt-2">Loading videos...</p>

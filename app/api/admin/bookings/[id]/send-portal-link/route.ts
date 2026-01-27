@@ -97,10 +97,19 @@ export async function POST(
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
       </head>
       <body style="margin: 0; padding: 0; background-color: #f8f8f8; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+        <style>
+          /* Prevent dark mode from inverting colors */
+          @media (prefers-color-scheme: dark) {
+            .email-container { background-color: #ffffff !important; }
+            .email-text { color: #1a1a1a !important; }
+            .email-footer { background-color: #1a1a1a !important; }
+            .email-footer-text { color: #ffffff !important; }
+          }
+        </style>
         <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8f8f8; padding: 40px 20px;">
           <tr>
             <td align="center">
-              <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+              <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff !important; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);" class="email-container">
                 
                 <!-- Header with Logo -->
                 <tr>
@@ -127,17 +136,17 @@ export async function POST(
                   <td style="padding: 40px;">
                     
                     <!-- Headline -->
-                    <h1 style="font-size: 28px; font-weight: 700; color: #1a1a1a; margin: 0 0 24px 0; text-align: center; ${isWedding ? 'font-family: Georgia, serif;' : ''}">
+                    <h1 style="font-size: 28px; font-weight: 700; color: #1a1a1a !important; margin: 0 0 24px 0; text-align: center; ${isWedding ? 'font-family: Georgia, serif;' : ''}" class="email-text">
                       ${headline}
                     </h1>
                     
                     <!-- Greeting -->
-                    <p style="font-size: 16px; color: #333333; line-height: 1.8; margin: 0 0 16px 0;">
+                    <p style="font-size: 16px; color: #333333 !important; line-height: 1.8; margin: 0 0 16px 0;" class="email-text">
                       ${greeting}
                     </p>
                     
                     <!-- Intro -->
-                    <p style="font-size: 16px; color: #333333; line-height: 1.8; margin: 0 0 24px 0;">
+                    <p style="font-size: 16px; color: #333333 !important; line-height: 1.8; margin: 0 0 24px 0;" class="email-text">
                       ${intro}
                     </p>
                     
@@ -148,17 +157,17 @@ export async function POST(
                           ${isWedding ? '<p style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #D4AF37; margin: 0 0 16px 0; font-weight: 600;">Your Wedding Details</p>' : '<p style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #888888; margin: 0 0 16px 0; font-weight: 600;">Event Details</p>'}
                           <table width="100%" cellpadding="0" cellspacing="0">
                             <tr>
-                              <td width="80" style="font-size: 14px; color: #666666; padding: 8px 0; vertical-align: top;">Event</td>
-                              <td style="font-size: 16px; color: #1a1a1a; font-weight: 600; padding: 8px 0;">${displayName}</td>
+                              <td width="80" style="font-size: 14px; color: #666666 !important; padding: 8px 0; vertical-align: top;">Event</td>
+                              <td style="font-size: 16px; color: #1a1a1a !important; font-weight: 600; padding: 8px 0;">${displayName}</td>
                             </tr>
                             <tr>
-                              <td width="80" style="font-size: 14px; color: #666666; padding: 8px 0; vertical-align: top;">Date</td>
-                              <td style="font-size: 16px; color: #1a1a1a; font-weight: 600; padding: 8px 0;">${formattedDate}</td>
+                              <td width="80" style="font-size: 14px; color: #666666 !important; padding: 8px 0; vertical-align: top;">Date</td>
+                              <td style="font-size: 16px; color: #1a1a1a !important; font-weight: 600; padding: 8px 0;">${formattedDate}</td>
                             </tr>
                             ${booking.venueName ? `
                             <tr>
-                              <td width="80" style="font-size: 14px; color: #666666; padding: 8px 0; vertical-align: top;">Venue</td>
-                              <td style="font-size: 16px; color: #1a1a1a; font-weight: 600; padding: 8px 0;">${booking.venueName}</td>
+                              <td width="80" style="font-size: 14px; color: #666666 !important; padding: 8px 0; vertical-align: top;">Venue</td>
+                              <td style="font-size: 16px; color: #1a1a1a !important; font-weight: 600; padding: 8px 0;">${booking.venueName}</td>
                             </tr>
                             ` : ''}
                           </table>
@@ -167,7 +176,7 @@ export async function POST(
                     </table>
                     
                     <!-- Portal Info -->
-                    <p style="font-size: 16px; color: #333333; line-height: 1.8; margin: 24px 0;">
+                    <p style="font-size: 16px; color: #333333 !important; line-height: 1.8; margin: 24px 0;" class="email-text">
                       ${portalIntro}
                     </p>
                     
@@ -175,7 +184,7 @@ export async function POST(
                     <table width="100%" cellpadding="0" cellspacing="0" style="margin: 32px 0;">
                       <tr>
                         <td align="center">
-                          <a href="${portalUrl}" style="display: inline-block; padding: 16px 40px; background: ${isWedding ? 'linear-gradient(135deg, #D4AF37 0%, #B8960C 100%)' : '#1a1a1a'}; color: ${isWedding ? '#1a1a1a' : '#ffffff'}; text-decoration: none; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; border-radius: 4px; box-shadow: 0 4px 12px ${isWedding ? 'rgba(212, 175, 55, 0.4)' : 'rgba(0, 0, 0, 0.2)'};">
+                          <a href="${portalUrl}" style="display: inline-block; padding: 16px 40px; background: ${isWedding ? 'linear-gradient(135deg, #D4AF37 0%, #B8960C 100%)' : '#1a1a1a'} !important; color: ${isWedding ? '#1a1a1a' : '#ffffff'} !important; text-decoration: none; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; border-radius: 4px; box-shadow: 0 4px 12px ${isWedding ? 'rgba(212, 175, 55, 0.4)' : 'rgba(0, 0, 0, 0.2)'};">
                             ${ctaText}
                           </a>
                         </td>
@@ -183,7 +192,7 @@ export async function POST(
                     </table>
                     
                     <!-- Questions -->
-                    <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 24px 0 0 0;">
+                    <p style="font-size: 14px; color: #666666 !important; line-height: 1.6; margin: 24px 0 0 0;" class="email-text">
                       If you have any questions, we're always here to help. Simply reply to this email or use the messaging feature in your portal.
                     </p>
                     
@@ -192,20 +201,20 @@ export async function POST(
                 
                 <!-- Footer -->
                 <tr>
-                  <td style="background-color: #1a1a1a; padding: 30px 40px;">
+                  <td style="background-color: #1a1a1a !important; padding: 30px 40px;" class="email-footer">
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
                         <td style="text-align: center;">
-                          <p style="font-size: 14px; color: #ffffff; margin: 0 0 4px 0; font-weight: 600;">Ali & Nige</p>
-                          <p style="font-size: 14px; color: #D4AF37; margin: 0 0 16px 0;">Stylish Entertainment Ltd</p>
-                          <p style="font-size: 13px; color: #888888; margin: 0 0 4px 0;">
-                            <a href="tel:+447970793177" style="color: #888888; text-decoration: none;">07970 793 177</a>
+                          <p style="font-size: 14px; color: #ffffff !important; margin: 0 0 4px 0; font-weight: 600;" class="email-footer-text">Ali & Nige</p>
+                          <p style="font-size: 14px; color: #D4AF37 !important; margin: 0 0 16px 0;" class="email-footer-text">Stylish Entertainment Ltd</p>
+                          <p style="font-size: 13px; color: #cccccc !important; margin: 0 0 4px 0;" class="email-footer-text">
+                            <a href="tel:+447970793177" style="color: #cccccc !important; text-decoration: none;">07970 793 177</a>
                           </p>
-                          <p style="font-size: 13px; color: #888888; margin: 0 0 4px 0;">
-                            <a href="mailto:info@stylishentertainment.co.uk" style="color: #888888; text-decoration: none;">info@stylishentertainment.co.uk</a>
+                          <p style="font-size: 13px; color: #cccccc !important; margin: 0 0 4px 0;" class="email-footer-text">
+                            <a href="mailto:info@stylishentertainment.co.uk" style="color: #cccccc !important; text-decoration: none;">info@stylishentertainment.co.uk</a>
                           </p>
-                          <p style="font-size: 13px; margin: 12px 0 0 0;">
-                            <a href="https://stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">stylishentertainment.co.uk</a>
+                          <p style="font-size: 13px; margin: 12px 0 0 0;" class="email-footer-text">
+                            <a href="https://stylishentertainment.co.uk" style="color: #D4AF37 !important; text-decoration: none;">stylishentertainment.co.uk</a>
                           </p>
                         </td>
                       </tr>

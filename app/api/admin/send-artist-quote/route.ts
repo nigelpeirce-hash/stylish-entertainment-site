@@ -7,7 +7,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 const getResend = () => {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    throw new Error("RESEND_API_KEY environment variable is not set");
+    return null; // Return null instead of throwing
   }
   return new Resend(apiKey);
 };
@@ -27,6 +27,14 @@ interface ArtistOption {
 const EMAIL_STYLES = `
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500&display=swap');
+    
+    /* Prevent dark mode from inverting colors */
+    @media (prefers-color-scheme: dark) {
+      .email-container { background-color: #ffffff !important; }
+      .cta-section { background: linear-gradient(135deg, #1a1a1a, #2a2a2a) !important; }
+      .cta-text { color: #ffffff !important; }
+      .cta-subtext { color: #cccccc !important; }
+    }
     
     body {
       margin: 0;
@@ -224,15 +232,25 @@ const EMAIL_STYLES = `
       text-align: center;
       margin: 30px 0;
       padding: 30px;
-      background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+      background: linear-gradient(135deg, #1a1a1a, #2a2a2a) !important;
       border-radius: 8px;
     }
     
     .cta-text {
-      color: #ffffff;
+      color: #ffffff !important;
       font-size: 18px;
       margin: 0 0 20px;
       font-family: 'Playfair Display', serif;
+    }
+    
+    .cta-subtext {
+      color: #cccccc !important;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      .cta-section { background: linear-gradient(135deg, #1a1a1a, #2a2a2a) !important; }
+      .cta-text { color: #ffffff !important; }
+      .cta-subtext { color: #cccccc !important; }
     }
     
     .cta-button {
@@ -354,8 +372,8 @@ export async function POST(request: NextRequest) {
           <meta name="viewport" content="width=device-width, initial-scale=1.0">
           ${EMAIL_STYLES}
         </head>
-        <body>
-          <div class="email-container">
+        <body style="background-color: #ffffff;">
+          <div class="email-container" style="background-color: #ffffff !important;">
             <div class="header">
               <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 200px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
               <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0; font-family: Arial, sans-serif;">Stylish Entertainment</p>
@@ -388,7 +406,7 @@ export async function POST(request: NextRequest) {
               <div class="cta-section">
                 <p class="cta-text">Ready to secure your ${artistTypeLabel.toLowerCase()}?</p>
                 <a href="mailto:info@stylishentertainment.co.uk?subject=Booking%20Confirmation%20-%20${encodeURIComponent(venueName)}%20${encodeURIComponent(formattedDate)}" class="cta-button">Book Your ${artistTypeLabel}</a>
-                <p class="cta-subtext">Reply to this email or click above to confirm your booking</p>
+                <p class="cta-subtext" style="color: #cccccc !important;">Reply to this email or click above to confirm your booking</p>
               </div>
 
               <p>All our ${artistTypeLabelPlural.toLowerCase()} are available on your date. If you'd like to discuss further or arrange a quick call, just let us know!</p>
@@ -418,13 +436,24 @@ export async function POST(request: NextRequest) {
 
     // Send email
     const emailConfig = getResendConfig("booking");
-    const result = await getResend().emails.send({
-      from: emailConfig.from,
-      replyTo: emailConfig.replyTo,
-      to: [clientEmail],
-      subject: `Your ${artistTypeLabel} Enquiry - ${venueName} on ${formattedDate}`,
-      html: emailHtml,
-    });
+    const resend = getResend();
+    
+    let messageId = `dev-mock-${Date.now()}`;
+    
+    if (resend) {
+      const sendResult = await resend.emails.send({
+        from: emailConfig.from,
+        replyTo: emailConfig.replyTo,
+        to: [clientEmail],
+        subject: `Your ${artistTypeLabel} Enquiry - ${venueName} on ${formattedDate}`,
+        html: emailHtml,
+      });
+      messageId = sendResult.data?.id || messageId;
+    } else {
+      console.log("[DEV MODE] Would send artist quote email to:", clientEmail);
+      console.log("[DEV MODE] Subject:", `Your ${artistTypeLabel} Enquiry - ${venueName} on ${formattedDate}`);
+      console.log("[DEV MODE] Options:", options.map((o: ArtistOption) => `${o.name}: £${o.fee}`).join(", "));
+    }
 
     // Log to booking metadata
     try {
@@ -463,10 +492,14 @@ export async function POST(request: NextRequest) {
       console.error("Error logging artist quote to database:", dbError);
     }
 
+    const isDevelopment = !getResend();
     return NextResponse.json({
       success: true,
-      messageId: result.data?.id,
-      message: `${artistTypeLabel} quote sent successfully`,
+      messageId,
+      message: isDevelopment 
+        ? `[DEV MODE] ${artistTypeLabel} quote would be sent to ${clientEmail}` 
+        : `${artistTypeLabel} quote sent successfully`,
+      devMode: isDevelopment,
     });
   } catch (error: any) {
     console.error("Error sending artist quote:", error);

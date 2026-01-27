@@ -25,7 +25,12 @@ export function PORTAL_INVITATION(input: PortalInvitationInput): {
 } {
   const greetingName = getGreetingName(input.name) || "there";
   const displayName = deduplicateName(getDisplayName(input.name) || input.name) || input.name;
-  const venue = (input.venueName || "your venue").trim();
+  let venue = (input.venueName || "your venue").trim();
+  
+  // Fix common misspellings of Babington House
+  venue = venue.replace(/babington\s+hiouse/gi, "Babington House");
+  venue = venue.replace(/babington\s+houe/gi, "Babington House");
+  venue = venue.replace(/^babington\s+house$/i, "Babington House"); // Ensure proper capitalization
 
   const subject = `Welcome to Your ${venue} Wedding Portal | Stylish Entertainment Ltd`;
 
@@ -38,6 +43,9 @@ export function PORTAL_INVITATION(input: PortalInvitationInput): {
       </p>
       <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 20px 0;">
         We've set up your personal planning portal for your wedding at <strong>${venue}</strong>. We've already added the key timings and venue details for you.
+      </p>
+      <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 20px 0;">
+        This is where you can add music requests, dislikes, and your first dance song.
       </p>
       <div style="text-align: center; margin: 40px 0;">
         <a href="${input.portalUrl}" style="display: inline-block; background-color: ${GOLD}; color: #1A1A1A; padding: 16px 32px; text-decoration: none; font-weight: 700; border-radius: 6px; font-size: 16px; letter-spacing: 0.02em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);">
@@ -54,7 +62,7 @@ export function PORTAL_INVITATION(input: PortalInvitationInput): {
     </div>
   `;
 
-  const text = `Hi ${greetingName},\n\nWe've set up your personal planning portal for your wedding at ${venue}. We've already added the key timings and venue details for you.\n\nStep Into Your Portal: ${input.portalUrl}\n\nYou can access your portal anytime using the link above — no password required.\n\nBest regards,\nStylish Entertainment Ltd`;
+  const text = `Hi ${greetingName},\n\nWe've set up your personal planning portal for your wedding at ${venue}. We've already added the key timings and venue details for you.\n\nThis is where you can add music requests, dislikes, and your first dance song.\n\nStep Into Your Portal: ${input.portalUrl}\n\nYou can access your portal anytime using the link above — no password required.\n\nBest regards,\nStylish Entertainment Ltd`;
 
   return { subject, html, text };
 }

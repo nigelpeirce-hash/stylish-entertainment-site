@@ -6,23 +6,29 @@ export const runtime = 'nodejs';
 
 export async function GET() {
   const info = {
-    mailgunConfigured: !!process.env.MAILGUN_API_KEY,
-    mailgunDomain: process.env.MAILGUN_DOMAIN || "stylishentertainment.co.uk",
-    mailgunApiUrl: process.env.MAILGUN_API_URL || "https://api.eu.mailgun.net/v3",
+    resendConfigured: !!process.env.RESEND_API_KEY,
+    resendApiKeyLength: process.env.RESEND_API_KEY?.length || 0,
     recipientEmail: process.env.CONTACT_FORM_EMAIL || "info@stylishentertainment.co.uk",
     fromEmail: process.env.SMTP_FROM_EMAIL || "info@stylishentertainment.co.uk",
     smtpConfigured: !!(process.env.SMTP_USER && process.env.SMTP_PASSWORD),
   };
 
+  const primaryService = info.resendConfigured ? "Resend" : info.smtpConfigured ? "SMTP (fallback)" : "None";
+
   return NextResponse.json({
     status: "Email system configuration",
+    primaryService,
     details: info,
     checks: [
-      "1. Check Mailgun Dashboard → Logs for delivery status",
+      info.resendConfigured 
+        ? "1. ✅ Resend is configured - emails will use Resend API"
+        : "1. ⚠️ Resend not configured - add RESEND_API_KEY to .env.local",
       "2. Check spam/junk folder in your email",
       "3. Verify info@stylishentertainment.co.uk is set up to receive emails",
-      "4. Check if your email provider is blocking Mailgun emails",
-      "5. Wait 2-3 minutes for email delivery (can be delayed)",
+      "4. Wait 2-3 minutes for email delivery (can be delayed)",
+      info.resendConfigured 
+        ? "5. Check Resend Dashboard → Logs for delivery status: https://resend.com/emails"
+        : "5. Check your email service dashboard for delivery status",
     ],
   });
 }

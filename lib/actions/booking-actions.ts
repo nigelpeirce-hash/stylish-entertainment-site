@@ -262,12 +262,21 @@ export async function createBooking(input: CreateBookingInput) {
             <head>
               <meta charset="utf-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <style>
+                /* Prevent dark mode from inverting colors */
+                @media (prefers-color-scheme: dark) {
+                  .email-container { background-color: #ffffff !important; }
+                  .email-text { color: #1a1a1a !important; }
+                  .email-footer { background-color: #1a1a1a !important; }
+                  .email-footer-text { color: #ffffff !important; }
+                }
+              </style>
             </head>
             <body style="margin: 0; padding: 0; background-color: #f8f8f8; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
               <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8f8f8; padding: 40px 20px;">
                 <tr>
                   <td align="center">
-                    <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff !important; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);" class="email-container">
                       
                       <!-- Header with Logo -->
                       <tr>
@@ -294,17 +303,17 @@ export async function createBooking(input: CreateBookingInput) {
                         <td style="padding: 40px;">
                           
                           <!-- Headline -->
-                          <h1 style="font-size: 28px; font-weight: 700; color: #1a1a1a; margin: 0 0 24px 0; text-align: center; ${isWedding ? 'font-family: Georgia, serif;' : ''}">
+                          <h1 style="font-size: 28px; font-weight: 700; color: #1a1a1a !important; margin: 0 0 24px 0; text-align: center; ${isWedding ? 'font-family: Georgia, serif;' : ''}" class="email-text">
                             ${headline}
                           </h1>
                           
                           <!-- Greeting -->
-                          <p style="font-size: 16px; color: #333333; line-height: 1.8; margin: 0 0 16px 0;">
+                          <p style="font-size: 16px; color: #333333 !important; line-height: 1.8; margin: 0 0 16px 0;" class="email-text">
                             ${greeting}
                           </p>
                           
                           <!-- Intro -->
-                          <p style="font-size: 16px; color: #333333; line-height: 1.8; margin: 0 0 24px 0;">
+                          <p style="font-size: 16px; color: #333333 !important; line-height: 1.8; margin: 0 0 24px 0;" class="email-text">
                             ${intro}
                           </p>
                           
@@ -315,16 +324,16 @@ export async function createBooking(input: CreateBookingInput) {
                                 ${isWedding ? '<p style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #D4AF37; margin: 0 0 16px 0; font-weight: 600;">Your Wedding Details</p>' : '<p style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #888888; margin: 0 0 16px 0; font-weight: 600;">Event Details</p>'}
                                 <table width="100%" cellpadding="0" cellspacing="0">
                                   <tr>
-                                    <td width="80" style="font-size: 14px; color: #666666; padding: 8px 0; vertical-align: top;">Event</td>
-                                    <td style="font-size: 16px; color: #1a1a1a; font-weight: 600; padding: 8px 0;">${input.title}</td>
+                                    <td width="80" style="font-size: 14px; color: #666666 !important; padding: 8px 0; vertical-align: top;">Event</td>
+                                    <td style="font-size: 16px; color: #1a1a1a !important; font-weight: 600; padding: 8px 0;">${input.title}</td>
                                   </tr>
                                   <tr>
-                                    <td width="80" style="font-size: 14px; color: #666666; padding: 8px 0; vertical-align: top;">Date</td>
-                                    <td style="font-size: 16px; color: #1a1a1a; font-weight: 600; padding: 8px 0;">${eventDate}</td>
+                                    <td width="80" style="font-size: 14px; color: #666666 !important; padding: 8px 0; vertical-align: top;">Date</td>
+                                    <td style="font-size: 16px; color: #1a1a1a !important; font-weight: 600; padding: 8px 0;">${eventDate}</td>
                                   </tr>
                                   <tr>
-                                    <td width="80" style="font-size: 14px; color: #666666; padding: 8px 0; vertical-align: top;">Time</td>
-                                    <td style="font-size: 16px; color: #1a1a1a; font-weight: 600; padding: 8px 0;">${eventTime}</td>
+                                    <td width="80" style="font-size: 14px; color: #666666 !important; padding: 8px 0; vertical-align: top;">Time</td>
+                                    <td style="font-size: 16px; color: #1a1a1a !important; font-weight: 600; padding: 8px 0;">${eventTime}</td>
                                   </tr>
                                 </table>
                               </td>
@@ -332,7 +341,7 @@ export async function createBooking(input: CreateBookingInput) {
                           </table>
                           
                           <!-- Portal Info -->
-                          <p style="font-size: 16px; color: #333333; line-height: 1.8; margin: 24px 0;">
+                          <p style="font-size: 16px; color: #333333 !important; line-height: 1.8; margin: 24px 0;" class="email-text">
                             ${portalIntro}
                           </p>
                           
@@ -340,7 +349,7 @@ export async function createBooking(input: CreateBookingInput) {
                           <table width="100%" cellpadding="0" cellspacing="0" style="margin: 32px 0;">
                             <tr>
                               <td align="center">
-                                <a href="${portalUrl}" style="display: inline-block; padding: 16px 40px; background: ${isWedding ? 'linear-gradient(135deg, #D4AF37 0%, #B8960C 100%)' : '#1a1a1a'}; color: ${isWedding ? '#1a1a1a' : '#ffffff'}; text-decoration: none; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; border-radius: 4px; box-shadow: 0 4px 12px ${isWedding ? 'rgba(212, 175, 55, 0.4)' : 'rgba(0, 0, 0, 0.2)'};">
+                                <a href="${portalUrl}" style="display: inline-block; padding: 16px 40px; background: ${isWedding ? 'linear-gradient(135deg, #D4AF37 0%, #B8960C 100%)' : '#1a1a1a'} !important; color: ${isWedding ? '#1a1a1a' : '#ffffff'} !important; text-decoration: none; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; border-radius: 4px; box-shadow: 0 4px 12px ${isWedding ? 'rgba(212, 175, 55, 0.4)' : 'rgba(0, 0, 0, 0.2)'};">
                                   ${ctaText}
                                 </a>
                               </td>
@@ -350,8 +359,8 @@ export async function createBooking(input: CreateBookingInput) {
                           ${isWedding ? `
                           <!-- What's Next Section for Weddings -->
                           <div style="background-color: #f9f9f9; border-radius: 8px; padding: 20px; margin: 24px 0;">
-                            <p style="font-size: 14px; font-weight: 600; color: #1a1a1a; margin: 0 0 12px 0;">What happens next?</p>
-                            <ul style="font-size: 14px; color: #555555; line-height: 1.8; margin: 0; padding-left: 20px;">
+                            <p style="font-size: 14px; font-weight: 600; color: #1a1a1a !important; margin: 0 0 12px 0;" class="email-text">What happens next?</p>
+                            <ul style="font-size: 14px; color: #555555 !important; line-height: 1.8; margin: 0; padding-left: 20px;" class="email-text">
                               <li>Explore your portal and get familiar with the features</li>
                               <li>Start thinking about your music preferences</li>
                               <li>We'll be in touch to discuss your entertainment in more detail</li>
@@ -360,7 +369,7 @@ export async function createBooking(input: CreateBookingInput) {
                           ` : ''}
                           
                           <!-- Questions -->
-                          <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 24px 0 0 0;">
+                          <p style="font-size: 14px; color: #666666 !important; line-height: 1.6; margin: 24px 0 0 0;" class="email-text">
                             If you have any questions, we're always here to help. Simply reply to this email or use the messaging feature in your portal.
                           </p>
                           
@@ -369,20 +378,20 @@ export async function createBooking(input: CreateBookingInput) {
                       
                       <!-- Footer -->
                       <tr>
-                        <td style="background-color: #1a1a1a; padding: 30px 40px;">
+                        <td style="background-color: #1a1a1a !important; padding: 30px 40px;" class="email-footer">
                           <table width="100%" cellpadding="0" cellspacing="0">
                             <tr>
                               <td style="text-align: center;">
-                                <p style="font-size: 14px; color: #ffffff; margin: 0 0 4px 0; font-weight: 600;">Ali & Nige</p>
-                                <p style="font-size: 14px; color: #D4AF37; margin: 0 0 16px 0;">Stylish Entertainment Ltd</p>
-                                <p style="font-size: 13px; color: #888888; margin: 0 0 4px 0;">
-                                  <a href="tel:+447970793177" style="color: #888888; text-decoration: none;">07970 793 177</a>
+                                <p style="font-size: 14px; color: #ffffff !important; margin: 0 0 4px 0; font-weight: 600;" class="email-footer-text">Ali & Nige</p>
+                                <p style="font-size: 14px; color: #D4AF37 !important; margin: 0 0 16px 0;" class="email-footer-text">Stylish Entertainment Ltd</p>
+                                <p style="font-size: 13px; color: #cccccc !important; margin: 0 0 4px 0;" class="email-footer-text">
+                                  <a href="tel:+447970793177" style="color: #cccccc !important; text-decoration: none;">07970 793 177</a>
                                 </p>
-                                <p style="font-size: 13px; color: #888888; margin: 0 0 4px 0;">
-                                  <a href="mailto:info@stylishentertainment.co.uk" style="color: #888888; text-decoration: none;">info@stylishentertainment.co.uk</a>
+                                <p style="font-size: 13px; color: #cccccc !important; margin: 0 0 4px 0;" class="email-footer-text">
+                                  <a href="mailto:info@stylishentertainment.co.uk" style="color: #cccccc !important; text-decoration: none;">info@stylishentertainment.co.uk</a>
                                 </p>
-                                <p style="font-size: 13px; margin: 12px 0 0 0;">
-                                  <a href="https://stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">stylishentertainment.co.uk</a>
+                                <p style="font-size: 13px; margin: 12px 0 0 0;" class="email-footer-text">
+                                  <a href="https://stylishentertainment.co.uk" style="color: #D4AF37 !important; text-decoration: none;">stylishentertainment.co.uk</a>
                                 </p>
                               </td>
                             </tr>
@@ -489,12 +498,21 @@ function generateArtistConfirmationEmail(params: {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        /* Prevent dark mode from inverting colors */
+        @media (prefers-color-scheme: dark) {
+          .email-container { background-color: #ffffff !important; }
+          .email-text { color: #1a1a1a !important; }
+          .email-footer { background-color: #1a1a1a !important; }
+          .email-footer-text { color: #ffffff !important; }
+        }
+      </style>
     </head>
     <body style="margin: 0; padding: 0; background-color: #f8f8f8; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
       <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8f8f8; padding: 40px 20px;">
         <tr>
           <td align="center">
-            <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+            <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff !important; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);" class="email-container">
               
               <!-- Header -->
               <tr>
@@ -513,15 +531,15 @@ function generateArtistConfirmationEmail(params: {
               <tr>
                 <td style="padding: 40px;">
                   
-                  <h1 style="font-size: 24px; font-weight: 700; color: #1a1a1a; margin: 0 0 24px 0; text-align: center;">
+                  <h1 style="font-size: 24px; font-weight: 700; color: #1a1a1a !important; margin: 0 0 24px 0; text-align: center;" class="email-text">
                     Booking Confirmation
                   </h1>
                   
-                  <p style="font-size: 16px; color: #333333; line-height: 1.8; margin: 0 0 16px 0;">
+                  <p style="font-size: 16px; color: #333333 !important; line-height: 1.8; margin: 0 0 16px 0;" class="email-text">
                     Hi ${firstName},
                   </p>
                   
-                  <p style="font-size: 16px; color: #333333; line-height: 1.8; margin: 0 0 24px 0;">
+                  <p style="font-size: 16px; color: #333333 !important; line-height: 1.8; margin: 0 0 24px 0;" class="email-text">
                     Great news! You've been booked for the following ${eventType.toLowerCase()}. Please review the details below and let us know if you have any questions.
                   </p>
                   
@@ -532,28 +550,28 @@ function generateArtistConfirmationEmail(params: {
                         <p style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #D4AF37; margin: 0 0 16px 0; font-weight: 600;">Event Details</p>
                         <table width="100%" cellpadding="0" cellspacing="0">
                           <tr>
-                            <td width="100" style="font-size: 14px; color: #666666; padding: 8px 0; vertical-align: top;">Event</td>
-                            <td style="font-size: 16px; color: #1a1a1a; font-weight: 600; padding: 8px 0;">${eventTitle}</td>
+                            <td width="100" style="font-size: 14px; color: #666666 !important; padding: 8px 0; vertical-align: top;">Event</td>
+                            <td style="font-size: 16px; color: #1a1a1a !important; font-weight: 600; padding: 8px 0;">${eventTitle}</td>
                           </tr>
                           <tr>
-                            <td width="100" style="font-size: 14px; color: #666666; padding: 8px 0; vertical-align: top;">Type</td>
-                            <td style="font-size: 16px; color: #1a1a1a; font-weight: 600; padding: 8px 0;">${eventType}</td>
+                            <td width="100" style="font-size: 14px; color: #666666 !important; padding: 8px 0; vertical-align: top;">Type</td>
+                            <td style="font-size: 16px; color: #1a1a1a !important; font-weight: 600; padding: 8px 0;">${eventType}</td>
                           </tr>
                           <tr>
-                            <td width="100" style="font-size: 14px; color: #666666; padding: 8px 0; vertical-align: top;">Date</td>
-                            <td style="font-size: 16px; color: #1a1a1a; font-weight: 600; padding: 8px 0;">${eventDate}</td>
+                            <td width="100" style="font-size: 14px; color: #666666 !important; padding: 8px 0; vertical-align: top;">Date</td>
+                            <td style="font-size: 16px; color: #1a1a1a !important; font-weight: 600; padding: 8px 0;">${eventDate}</td>
                           </tr>
                           <tr>
-                            <td width="100" style="font-size: 14px; color: #666666; padding: 8px 0; vertical-align: top;">Time</td>
-                            <td style="font-size: 16px; color: #1a1a1a; font-weight: 600; padding: 8px 0;">${startTime} - ${endTime}</td>
+                            <td width="100" style="font-size: 14px; color: #666666 !important; padding: 8px 0; vertical-align: top;">Time</td>
+                            <td style="font-size: 16px; color: #1a1a1a !important; font-weight: 600; padding: 8px 0;">${startTime} - ${endTime}</td>
                           </tr>
                           <tr>
-                            <td width="100" style="font-size: 14px; color: #666666; padding: 8px 0; vertical-align: top;">Venue</td>
-                            <td style="font-size: 16px; color: #1a1a1a; font-weight: 600; padding: 8px 0;">${venueName || "To be confirmed"}</td>
+                            <td width="100" style="font-size: 14px; color: #666666 !important; padding: 8px 0; vertical-align: top;">Venue</td>
+                            <td style="font-size: 16px; color: #1a1a1a !important; font-weight: 600; padding: 8px 0;">${venueName || "To be confirmed"}</td>
                           </tr>
                           <tr>
-                            <td width="100" style="font-size: 14px; color: #666666; padding: 8px 0; vertical-align: top;">Reference</td>
-                            <td style="font-size: 16px; color: #1a1a1a; font-weight: 600; padding: 8px 0;">${bookingReference}</td>
+                            <td width="100" style="font-size: 14px; color: #666666 !important; padding: 8px 0; vertical-align: top;">Reference</td>
+                            <td style="font-size: 16px; color: #1a1a1a !important; font-weight: 600; padding: 8px 0;">${bookingReference}</td>
                           </tr>
                         </table>
                       </td>
@@ -567,12 +585,12 @@ function generateArtistConfirmationEmail(params: {
                         <p style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #D4AF37; margin: 0 0 16px 0; font-weight: 600;">Your Assignment</p>
                         <table width="100%" cellpadding="0" cellspacing="0">
                           <tr>
-                            <td width="100" style="font-size: 14px; color: #666666; padding: 8px 0; vertical-align: top;">Role</td>
-                            <td style="font-size: 16px; color: #1a1a1a; font-weight: 600; padding: 8px 0;">${role}</td>
+                            <td width="100" style="font-size: 14px; color: #666666 !important; padding: 8px 0; vertical-align: top;">Role</td>
+                            <td style="font-size: 16px; color: #1a1a1a !important; font-weight: 600; padding: 8px 0;">${role}</td>
                           </tr>
                           <tr>
-                            <td width="100" style="font-size: 14px; color: #666666; padding: 8px 0; vertical-align: top;">Fee</td>
-                            <td style="font-size: 20px; color: #D4AF37; font-weight: 700; padding: 8px 0;">£${fee.toFixed(2)}</td>
+                            <td width="100" style="font-size: 14px; color: #666666 !important; padding: 8px 0; vertical-align: top;">Fee</td>
+                            <td style="font-size: 20px; color: #D4AF37 !important; font-weight: 700; padding: 8px 0;">£${fee.toFixed(2)}</td>
                           </tr>
                           ${earlySetup ? `
                           <tr>
@@ -598,7 +616,7 @@ function generateArtistConfirmationEmail(params: {
                     </ul>
                   </div>
                   
-                  <p style="font-size: 14px; color: #666666; line-height: 1.6; margin: 24px 0 0 0;">
+                  <p style="font-size: 14px; color: #666666 !important; line-height: 1.6; margin: 24px 0 0 0;" class="email-text">
                     If you have any questions or need to discuss anything about this booking, please reply to this email or give us a call.
                   </p>
                   
@@ -607,17 +625,17 @@ function generateArtistConfirmationEmail(params: {
               
               <!-- Footer -->
               <tr>
-                <td style="background-color: #1a1a1a; padding: 30px 40px;">
+                <td style="background-color: #1a1a1a !important; padding: 30px 40px;" class="email-footer">
                   <table width="100%" cellpadding="0" cellspacing="0">
                     <tr>
                       <td style="text-align: center;">
-                        <p style="font-size: 14px; color: #ffffff; margin: 0 0 4px 0; font-weight: 600;">Ali & Nige</p>
-                        <p style="font-size: 14px; color: #D4AF37; margin: 0 0 16px 0;">Stylish Entertainment Ltd</p>
-                        <p style="font-size: 13px; color: #888888; margin: 0 0 4px 0;">
-                          <a href="tel:+447970793177" style="color: #888888; text-decoration: none;">07970 793 177</a>
+                        <p style="font-size: 14px; color: #ffffff !important; margin: 0 0 4px 0; font-weight: 600;" class="email-footer-text">Ali & Nige</p>
+                        <p style="font-size: 14px; color: #D4AF37 !important; margin: 0 0 16px 0;" class="email-footer-text">Stylish Entertainment Ltd</p>
+                        <p style="font-size: 13px; color: #cccccc !important; margin: 0 0 4px 0;" class="email-footer-text">
+                          <a href="tel:+447970793177" style="color: #cccccc !important; text-decoration: none;">07970 793 177</a>
                         </p>
-                        <p style="font-size: 13px; color: #888888; margin: 0 0 4px 0;">
-                          <a href="mailto:info@stylishentertainment.co.uk" style="color: #888888; text-decoration: none;">info@stylishentertainment.co.uk</a>
+                        <p style="font-size: 13px; color: #cccccc !important; margin: 0 0 4px 0;" class="email-footer-text">
+                          <a href="mailto:info@stylishentertainment.co.uk" style="color: #cccccc !important; text-decoration: none;">info@stylishentertainment.co.uk</a>
                         </p>
                       </td>
                     </tr>

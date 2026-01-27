@@ -133,11 +133,34 @@ export default function Contact() {
         body: JSON.stringify(formDataWithRecaptcha),
       });
 
-      const result = await response.json();
+      // Check if response has content before parsing
+      const contentType = response.headers.get("content-type");
+      let result: any = {};
+      
+      if (contentType && contentType.includes("application/json")) {
+        try {
+          const text = await response.text();
+          result = text ? JSON.parse(text) : {};
+        } catch (parseError) {
+          console.error("Failed to parse JSON response:", parseError);
+          throw new Error("Invalid response from server. Please try again.");
+        }
+      } else {
+        // Non-JSON response, try to get text
+        const text = await response.text();
+        if (text) {
+          try {
+            result = JSON.parse(text);
+          } catch {
+            throw new Error(text || "Server error occurred. Please try again.");
+          }
+        }
+      }
 
       if (!response.ok) {
         console.error("API Error Response:", result);
-        throw new Error(result.error || result.details || "Failed to send message");
+        const errorMessage = result.error || result.details || `Server error (${response.status}). Please try again.`;
+        throw new Error(errorMessage);
       }
       
       // Track conversion in Google Analytics
@@ -161,7 +184,18 @@ export default function Contact() {
     } catch (error) {
       console.error("Form submission error:", error);
       setIsSubmitting(false);
-      const errorMessage = error instanceof Error ? error.message : "Failed to send message. Please try again.";
+      
+      // Handle different error types
+      let errorMessage = "Failed to send message. Please try again.";
+      
+      if (error instanceof TypeError && error.message.includes("fetch")) {
+        errorMessage = "Network error. Please check your connection and try again.";
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (typeof error === "string") {
+        errorMessage = error;
+      }
+      
       setError(errorMessage);
       alert(`Error: ${errorMessage}\n\nPlease check your email settings or try again later.`);
     }

@@ -124,9 +124,28 @@ export async function syncEmailInbox(inboxId: string, options: SyncOptions = {})
                   ? p.from.value[0]
                   : null;
 
+              // Helper to extract name from email if no display name provided
+              const extractNameFromEmail = (email: string): string | undefined => {
+                if (!email) return undefined;
+                // Extract the part before @
+                const localPart = email.split('@')[0];
+                // Remove common prefixes/suffixes and format
+                let name = localPart
+                  .replace(/[._-]/g, ' ') // Replace dots, underscores, hyphens with spaces
+                  .replace(/\d+/g, '') // Remove numbers
+                  .trim();
+                // Capitalize first letter of each word
+                name = name.split(' ')
+                  .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                  .join(' ')
+                  .trim();
+                // Only return if it looks like a name (has letters and is reasonable length)
+                return name.length > 1 && name.length < 50 ? name : undefined;
+              };
+
               const from = fromAddress
                 ? {
-                    name: (fromAddress as any).name || undefined,
+                    name: (fromAddress as any).name || extractNameFromEmail((fromAddress as any).address),
                     address: (fromAddress as any).address,
                   }
                 : { address: inbox.email }; // Use inbox email as fallback for sent messages

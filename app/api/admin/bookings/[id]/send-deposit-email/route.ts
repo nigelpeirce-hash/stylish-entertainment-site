@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
-import { sendEmail } from "@/lib/email";
+import { Resend } from "resend";
+import { getResendConfig } from "@/lib/email-config";
 import {
   depositEmailWeddingCelebration,
   depositEmailEventConfirmed,
 } from "@/lib/email-templates";
 import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
+
+const getResend = () => {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey || apiKey === "re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx") {
+    return null;
+  }
+  return new Resend(apiKey);
+};
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -86,12 +95,36 @@ export async function POST(
         ? depositEmailWeddingCelebration(payload)
         : depositEmailEventConfirmed(payload);
 
-    await sendEmail({
+    // Send email via Resend
+    const resend = getResend();
+    if (!resend) {
+      return NextResponse.json(
+        { error: "Resend API key not configured" },
+        { status: 500 }
+      );
+    }
+
+    const emailConfig = getResendConfig("booking");
+    const sendResult = await resend.emails.send({
+      from: emailConfig.from,
       to: booking.email,
+      replyTo: emailConfig.replyTo,
       subject: emailContent.subject,
       html: emailContent.html,
       text: emailContent.text,
     });
+
+    if (sendResult.error) {
+      console.error("Resend error sending deposit email:", sendResult.error);
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Failed to send deposit confirmation email",
+          details: process.env.NODE_ENV === "development" ? sendResult.error.message : undefined,
+        },
+        { status: 500 }
+      );
+    }
 
     const now = new Date();
     await prisma.booking.update({

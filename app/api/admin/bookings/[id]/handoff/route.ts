@@ -32,7 +32,7 @@ export async function PATCH(
     const bookingId = resolvedParams.id;
     const body = await request.json();
 
-    const { action, assignedTo, handoffStatus, handoffNote } = body;
+    const { action, assignedTo, handoffStatus, handoffNote, assignedBy } = body;
 
     let updateData: any = {};
 

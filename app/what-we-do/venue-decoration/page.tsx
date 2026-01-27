@@ -98,7 +98,7 @@ export default function VenueDecoration() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <img
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162260/Saltburn_231005__0020_0638_fpdevj.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg"
             alt="Saltburn venue with elegant venue styling, professional wedding decoration, and sophisticated interior design creating a luxurious wedding atmosphere"
             className="w-full h-full object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}

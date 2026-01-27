@@ -84,7 +84,7 @@ export default function VenueAssetUploader() {
       resourceType: "raw", // PDF files
       sources: ["local"], // Only allow local file uploads for PDFs
       multiple: false,
-      maxFileSize: 5000000, // 5MB max
+      maxFileSize: 10000000, // 10MB max (Cloudinary free plan limit; paid plans support 20MB+)
       clientAllowedFormats: ["pdf"],
       showAdvancedOptions: false,
       showPoweredBy: false,
@@ -125,6 +125,12 @@ export default function VenueAssetUploader() {
                 // If stringification fails, use default message
               }
             }
+          }
+          
+          // Check if it's a file size error
+          const errorStr = typeof error === "string" ? error : JSON.stringify(error || {});
+          if (errorStr.includes("exceeds maximum") || errorStr.includes("file size") || errorStr.includes("too large")) {
+            errorMessage = "File size exceeds the maximum allowed limit. Please compress your PDF to under 10MB, or contact support for assistance with larger files.";
           }
           
           console.error("Upload error:", {
@@ -293,7 +299,10 @@ export default function VenueAssetUploader() {
               Click to upload PDF brochure
             </p>
             <p className="text-sm text-gray-500">
-              Drag and drop or click to browse (PDF only, max 5MB)
+              Drag and drop or click to browse (PDF only, max 10MB)
+            </p>
+            <p className="text-xs text-gray-600 mt-1">
+              💡 Tip: For files over 10MB, compress your PDF first or contact support for larger upload options
             </p>
           </div>
 

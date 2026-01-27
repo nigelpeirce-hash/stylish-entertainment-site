@@ -241,15 +241,27 @@ export function generateMondayBriefEmail(brief: MondayBrief, baseUrl?: string): 
     }
     
     .footer {
-      background-color: #1a1a1a;
+      background-color: #1a1a1a !important;
       padding: 30px;
       text-align: center;
-      color: #9ca3af;
+      color: #cccccc !important;
       font-size: 12px;
     }
     
     .footer p {
       margin: 4px 0;
+      color: #cccccc !important;
+    }
+    
+    .footer a {
+      color: #cccccc !important;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      .email-container { background-color: #ffffff !important; }
+      .footer { background-color: #1a1a1a !important; }
+      .footer p { color: #cccccc !important; }
+      .footer a { color: #cccccc !important; }
     }
     
     .empty-state {
@@ -443,15 +455,27 @@ function generateAllClearEmail(weekOf: string): string {
     }
     
     .footer {
-      background-color: #1a1a1a;
+      background-color: #1a1a1a !important;
       padding: 30px;
       text-align: center;
-      color: #9ca3af;
+      color: #cccccc !important;
       font-size: 12px;
     }
     
     .footer p {
       margin: 4px 0;
+      color: #cccccc !important;
+    }
+    
+    .footer a {
+      color: #cccccc !important;
+    }
+    
+    @media (prefers-color-scheme: dark) {
+      .email-container { background-color: #ffffff !important; }
+      .footer { background-color: #1a1a1a !important; }
+      .footer p { color: #cccccc !important; }
+      .footer a { color: #cccccc !important; }
     }
   </style>
 </head>

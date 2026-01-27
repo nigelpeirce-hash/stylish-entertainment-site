@@ -1,26 +1,40 @@
-import { cookies } from "next/headers";
+import { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
+import { authOptions } from "@/lib/auth";
 
 // Helper function to get session in API routes
-// For NextAuth v5 beta, we read the session token from cookies
-export async function getServerSession() {
+// For NextAuth v5, we use the request object to get cookies and handle authOptions internally
+export async function getServerSession(req?: NextRequest) {
   try {
-    const cookieStore = await cookies();
+    // Get cookies from request if provided, otherwise use next/headers
+    let cookieObject: Record<string, string> = {};
     
-    // Get all cookies and create a cookies object
-    const allCookies = cookieStore.getAll();
-    const cookieObject: Record<string, string> = {};
-    allCookies.forEach((cookie) => {
-      cookieObject[cookie.name] = cookie.value;
-    });
+    if (req) {
+      // Extract cookies from request headers
+      const cookieHeader = req.headers.get("cookie") || "";
+      cookieHeader.split(";").forEach((cookie) => {
+        const [name, ...rest] = cookie.trim().split("=");
+        if (name) {
+          cookieObject[name] = rest.join("=");
+        }
+      });
+    } else {
+      // Fallback to cookies() if no request provided (for backwards compatibility)
+      const { cookies } = await import("next/headers");
+      const cookieStore = await cookies();
+      const allCookies = cookieStore.getAll();
+      allCookies.forEach((cookie) => {
+        cookieObject[cookie.name] = cookie.value;
+      });
+    }
 
     // Debug: log cookie names (remove in production)
     if (process.env.NODE_ENV === "development") {
-      const cookieNames = allCookies.map((c) => c.name);
+      const cookieNames = Object.keys(cookieObject);
       console.log("Available cookies:", cookieNames);
     }
 
-    const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET;
+    const secret = authOptions.secret || process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET;
     if (!secret) {
       console.error("NEXTAUTH_SECRET or AUTH_SECRET is not set");
       return null;
@@ -31,7 +45,7 @@ export async function getServerSession() {
     const token = await getToken({
       req: {
         cookies: cookieObject,
-        headers: {},
+        headers: req?.headers || {},
       } as any,
       secret: secret,
       cookieName: process.env.NODE_ENV === "production" 

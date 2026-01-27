@@ -218,7 +218,9 @@ export function DJForm({
                   width={128}
                   height={128}
                   className="w-full h-full object-cover"
+                  unoptimized={formData.imageUrl?.includes('cloudinary.com')}
                   onError={(e) => {
+                    console.error('Preview image failed to load:', formData.imageUrl);
                     (e.target as HTMLImageElement).style.display = "none";
                   }}
                 />

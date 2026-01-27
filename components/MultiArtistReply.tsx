@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Send, Loader2, Plus, X, Star, Music, Mic2 } from "lucide-react";
 import Image from "next/image";
+import { fixCloudinaryUrlForThumbnail } from "@/lib/cloudinary-utils";
 
 interface Artist {
   id: string;
@@ -53,6 +54,7 @@ export function MultiArtistReply({
   const [loadingArtists, setLoadingArtists] = useState(false);
   const [selectedArtists, setSelectedArtists] = useState<SelectedArtist[]>([]);
   const [customIntro, setCustomIntro] = useState("");
+  const [emailOverride, setEmailOverride] = useState(clientEmail);
   const [sending, setSending] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
@@ -61,8 +63,10 @@ export function MultiArtistReply({
   useEffect(() => {
     if (isOpen) {
       fetchArtists();
+      // Reset email to booking email when dialog opens
+      setEmailOverride(clientEmail);
     }
-  }, [isOpen, artistType]);
+  }, [isOpen, artistType, clientEmail]);
 
   const fetchArtists = async () => {
     setLoadingArtists(true);
@@ -145,6 +149,11 @@ export function MultiArtistReply({
       return;
     }
 
+    if (!emailOverride || !emailOverride.trim() || !emailOverride.includes("@")) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
     setSending(true);
 
     try {
@@ -153,7 +162,7 @@ export function MultiArtistReply({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           bookingId,
-          clientEmail,
+          clientEmail: emailOverride.trim(),
           clientName,
           venueName,
           venueAddress,
@@ -182,6 +191,7 @@ export function MultiArtistReply({
         setIsOpen(false);
         setSelectedArtists([]);
         setCustomIntro("");
+        setEmailOverride(clientEmail);
         setSuccess(false);
         if (onSend) onSend();
       }, 2000);
@@ -242,6 +252,25 @@ export function MultiArtistReply({
             </Button>
           </div>
 
+          {/* Client Email - Editable */}
+          <div>
+            <Label htmlFor="client-email">Client Email Address *</Label>
+            <Input
+              id="client-email"
+              type="email"
+              value={emailOverride}
+              onChange={(e) => setEmailOverride(e.target.value)}
+              placeholder="client@example.com"
+              className="mt-2 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500"
+              required
+            />
+            {emailOverride !== clientEmail && (
+              <p className="text-xs text-yellow-400 mt-1">
+                ⚠️ Email differs from booking record ({clientEmail})
+              </p>
+            )}
+          </div>
+
           {/* Custom Introduction */}
           <div>
             <Label htmlFor="custom-intro">Introduction Message</Label>
@@ -282,11 +311,15 @@ export function MultiArtistReply({
                     >
                       {artist.imageUrl && (
                         <Image
-                          src={artist.imageUrl}
+                          src={fixCloudinaryUrlForThumbnail(artist.imageUrl) || artist.imageUrl}
                           alt={artist.name}
                           width={40}
                           height={40}
                           className="rounded-full object-cover"
+                          onError={(e) => {
+                            // Fallback if image fails to load
+                            console.error('Image failed to load:', artist.imageUrl);
+                          }}
                         />
                       )}
                       <div className="flex-1 min-w-0">
@@ -313,11 +346,15 @@ export function MultiArtistReply({
                   <div className="flex items-start gap-4">
                     {artist.imageUrl && (
                       <Image
-                        src={artist.imageUrl}
+                        src={fixCloudinaryUrlForThumbnail(artist.imageUrl) || artist.imageUrl}
                         alt={artist.name}
                         width={60}
                         height={60}
                         className="rounded-full object-cover"
+                        onError={(e) => {
+                          // Fallback if image fails to load
+                          console.error('Image failed to load:', artist.imageUrl);
+                        }}
                       />
                     )}
                     <div className="flex-1 space-y-3">
@@ -402,7 +439,7 @@ export function MultiArtistReply({
 
           {success && (
             <div className="p-3 bg-green-900/30 border border-green-500/50 rounded text-green-400 text-sm">
-              Quote sent successfully to {clientEmail}!
+              Quote sent successfully to {emailOverride}!
             </div>
           )}
 

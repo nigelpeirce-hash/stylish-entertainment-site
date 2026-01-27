@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { randomUUID } from "crypto";
+import { fixCloudinaryUrlForDisplay } from "@/lib/cloudinary-utils";
 
 // Force dynamic rendering to prevent database connection during build
 export const dynamic = 'force-dynamic';
@@ -49,7 +50,13 @@ export async function GET(request: NextRequest) {
       orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
     });
 
-    return NextResponse.json({ musicians });
+    // Fix Cloudinary URLs for all musicians to ensure they work with the resize transformation
+    const musiciansWithFixedUrls = musicians.map(musician => ({
+      ...musician,
+      imageUrl: fixCloudinaryUrlForDisplay(musician.imageUrl),
+    }));
+
+    return NextResponse.json({ musicians: musiciansWithFixedUrls });
   } catch (error) {
     console.error("Error fetching musicians:", error);
     return NextResponse.json(

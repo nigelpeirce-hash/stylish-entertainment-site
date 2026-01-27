@@ -3,6 +3,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import * as z from "zod";
 import { randomUUID } from "crypto";
+import { fixCloudinaryUrlForDisplay } from "@/lib/cloudinary-utils";
 
 // Force dynamic rendering to prevent database connection during build
 export const dynamic = 'force-dynamic';
@@ -47,7 +48,13 @@ export async function GET(request: NextRequest) {
       orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
     });
 
-    return NextResponse.json({ djs });
+    // Fix Cloudinary URLs for all DJs to ensure they work with the resize transformation
+    const djsWithFixedUrls = djs.map(dj => ({
+      ...dj,
+      imageUrl: fixCloudinaryUrlForDisplay(dj.imageUrl),
+    }));
+
+    return NextResponse.json({ djs: djsWithFixedUrls });
   } catch (error) {
     console.error("Error fetching DJs:", error);
     return NextResponse.json(

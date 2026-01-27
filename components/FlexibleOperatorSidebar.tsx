@@ -157,6 +157,62 @@ export function FlexibleOperatorSidebar({
     }
   }, [booking.adminNotes]);
 
+  // Load feeBreakdown from booking if it exists (with validation)
+  useEffect(() => {
+    if (booking.feeBreakdown && Array.isArray(booking.feeBreakdown)) {
+      // Helper to safely extract numeric fee value from potentially nested objects
+      // This prevents React errors from rendering objects directly
+      const safeNumber = (val: any, depth: number = 0): number => {
+        // Prevent infinite recursion
+        if (depth > 3) return 0;
+        
+        if (typeof val === 'number') return isNaN(val) ? 0 : val;
+        if (typeof val === 'string') {
+          const parsed = parseFloat(val);
+          return isNaN(parsed) ? 0 : parsed;
+        }
+        if (typeof val === 'object' && val !== null) {
+          // Try to extract numeric value from common keys
+          if (typeof val.fee === 'number') return val.fee;
+          if (typeof val.amount === 'number') return val.amount;
+          if (typeof val.value === 'number') return val.value;
+          // If nested object, recurse (but limit depth)
+          if (typeof val.fee === 'object' && val.fee !== null) {
+            const nested = safeNumber(val.fee, depth + 1);
+            if (nested > 0) return nested;
+          }
+          if (typeof val.amount === 'object' && val.amount !== null) {
+            const nested = safeNumber(val.amount, depth + 1);
+            if (nested > 0) return nested;
+          }
+          // Try to parse string values
+          if (typeof val.fee === 'string') {
+            const parsed = parseFloat(val.fee);
+            if (!isNaN(parsed)) return parsed;
+          }
+          if (typeof val.amount === 'string') {
+            const parsed = parseFloat(val.amount);
+            if (!isNaN(parsed)) return parsed;
+          }
+        }
+        return 0;
+      };
+      
+      // Validate and transform feeBreakdown items
+      const validItems = booking.feeBreakdown
+        .filter((item: any) => item && typeof item === 'object')
+        .map((item: any, index: number) => ({
+          id: item.id || `loaded-${index}`,
+          description: typeof item.description === 'string' ? item.description : String(item.name || 'Service Fee'),
+          amount: safeNumber(item.amount) || safeNumber(item.fee) || 0,
+        }));
+      
+      if (validItems.length > 0) {
+        setFeeItems(validItems);
+      }
+    }
+  }, [booking.feeBreakdown]);
+
   // Get system health badge color
   const getSystemHealthColor = () => {
     if (booking.conflictStatus === "pending") {

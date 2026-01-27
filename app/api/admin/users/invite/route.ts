@@ -198,14 +198,14 @@ export async function POST(request: NextRequest) {
         });
         emailSent = true;
       } catch (resendError: any) {
-        // If Resend fails, try fallback email system (Mailgun/SMTP)
+        // If Resend fails, try fallback email system (SMTP only)
         if (resendError.message?.includes("RESEND_API_KEY")) {
           try {
             const result = await sendEmail({
               to: email,
               subject: `Your STYLISH Entertainment Admin Access Has Been Updated`,
               html: emailHtml,
-              // Don't pass from - let email.ts use the verified Mailgun domain email
+              // Don't pass from - let email.ts use SMTP_FROM_EMAIL or SMTP_USER
             });
             emailSent = result.success;
           } catch (fallbackError: any) {

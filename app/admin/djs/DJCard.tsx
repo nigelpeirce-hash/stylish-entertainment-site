@@ -46,7 +46,7 @@ export function DJCard({ dj, onEdit, onDelete }: DJCardProps) {
             {dj.imageUrl && !imageError ? (
               <>
                 {!imageLoaded && (
-                  <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="absolute inset-0 flex items-center justify-center z-10">
                     <User className="w-16 h-16 text-champagne-gold/50" />
                   </div>
                 )}
@@ -54,9 +54,13 @@ export function DJCard({ dj, onEdit, onDelete }: DJCardProps) {
                   src={dj.imageUrl}
                   alt={dj.name}
                   fill
-                  className="object-cover"
+                  className={`object-cover ${!imageLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  onError={() => setImageError(true)}
+                  unoptimized={dj.imageUrl?.includes('cloudinary.com')}
+                  onError={() => {
+                    console.error('Image failed to load:', dj.imageUrl);
+                    setImageError(true);
+                  }}
                   onLoad={() => setImageLoaded(true)}
                 />
               </>

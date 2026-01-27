@@ -272,7 +272,7 @@ export function TeamAssignment({
               {staffAssignments.map((assignment) => (
                 <div
                   key={assignment.id}
-                  className="flex items-center justify-between p-2 bg-gray-900/50 rounded text-sm"
+                  className="flex items-center justify-between p-2 bg-gray-900/50 rounded text-sm group"
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-[16px]">
@@ -283,6 +283,39 @@ export function TeamAssignment({
                     </span>
                     <span className="text-gray-400 text-xs">({assignment.role})</span>
                   </div>
+                  <button
+                    onClick={async () => {
+                      if (confirm(`Remove ${assignment.staff.name} from this booking?`)) {
+                        try {
+                          const response = await fetch(
+                            `/api/admin/bookings/staff/${assignment.id}`,
+                            {
+                              method: "DELETE",
+                              headers: { "Content-Type": "application/json" },
+                            }
+                          );
+
+                          if (!response.ok) {
+                            const data = await response.json();
+                            throw new Error(data.error || "Failed to remove staff");
+                          }
+
+                          setSuccess(`${assignment.staff.name} removed successfully`);
+                          setTimeout(() => {
+                            onUpdate();
+                            setSuccess("");
+                          }, 2000);
+                        } catch (err: any) {
+                          setError(err.message || "Failed to remove staff");
+                          setTimeout(() => setError(""), 5000);
+                        }
+                      }
+                    }}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-900/30 rounded text-red-400 hover:text-red-300"
+                    title="Remove staff member"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
               ))}
             </div>

@@ -1,0 +1,150 @@
+/**
+ * Cloudinary URL utilities
+ * Fixes broken Cloudinary URLs by ensuring proper transformations
+ */
+
+/**
+ * Ensures a Cloudinary URL has proper transformations for display
+ * If the URL already has transformations, it preserves them
+ * If not, it adds standard transformations
+ */
+export function fixCloudinaryUrl(url: string | null | undefined, options?: {
+  width?: number;
+  height?: number;
+  quality?: string;
+  format?: string;
+}): string | null {
+  if (!url) return null;
+  
+  // If not a Cloudinary URL, return as-is
+  if (!url.includes('cloudinary.com')) {
+    return url;
+  }
+
+  const {
+    width = 400,
+    height = 400,
+    quality = 'auto',
+    format = 'auto',
+  } = options || {};
+
+  // Check if URL already has transformations
+  // Cloudinary URLs with transformations look like: /upload/TRANSFORMATIONS/IMAGE_ID
+  // URLs without transformations look like: /upload/IMAGE_ID or /upload/v123/IMAGE_ID
+  
+  const uploadIndex = url.indexOf('/upload/');
+  if (uploadIndex === -1) return url;
+
+  const baseUrl = url.substring(0, uploadIndex + '/upload/'.length);
+  const afterUpload = url.substring(uploadIndex + '/upload/'.length);
+  
+  // Split by '/' to separate transformations from image path
+  const parts = afterUpload.split('/');
+  
+  // Check if first part looks like transformations (contains underscores and commas)
+  // Transformations typically look like: f_auto,q_auto,w_400
+  // Or it could be a version: v123
+  const firstPart = parts[0];
+  const hasVersion = /^v\d+$/.test(firstPart); // Version like v123
+  const hasTransformations = firstPart.includes('_') && 
+    (firstPart.includes('f_') || firstPart.includes('w_') || firstPart.includes('h_') || 
+     firstPart.includes('c_') || firstPart.includes('q_') || firstPart.includes('dpr_') ||
+     firstPart.includes('g_') || firstPart.includes('r_'));
+  
+  // Helper function to check if a path has a file extension
+  const hasFileExtension = (path: string): boolean => {
+    const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg', '.bmp', '.tiff', '.ico'];
+    return imageExtensions.some(ext => path.toLowerCase().endsWith(ext));
+  };
+  
+  // Helper function to ensure URL has a file extension
+  const ensureFileExtension = (path: string): string => {
+    if (hasFileExtension(path)) {
+      return path;
+    }
+    // If no extension, try .jpg as default (Cloudinary will auto-format if needed)
+    // But first, check if it's a versioned path (v1/path) - in that case, append to the last part
+    const pathParts = path.split('/');
+    const lastPart = pathParts[pathParts.length - 1];
+    if (!hasFileExtension(lastPart)) {
+      pathParts[pathParts.length - 1] = lastPart + '.jpg';
+      return pathParts.join('/');
+    }
+    return path;
+  };
+  
+  if (hasTransformations) {
+    // URL already has transformations (e.g., f_auto,q_auto)
+    // The image path is everything after the transformations
+    const imagePath = parts.slice(1).join('/');
+    const fixedPath = ensureFileExtension(imagePath);
+    
+    // Check if it has width/height transformations
+    if (!firstPart.includes('w_') && !firstPart.includes('h_')) {
+      // Add width/height while preserving existing transformations
+      const newTransforms = `${firstPart},w_${width},h_${height},c_fill,g_face`;
+      return baseUrl + newTransforms + '/' + fixedPath;
+    }
+    
+    // Already has width/height, but ensure path has extension
+    if (fixedPath !== imagePath) {
+      // Path was fixed (extension added), rebuild URL
+      return baseUrl + firstPart + '/' + fixedPath;
+    }
+    return url;
+  }
+
+  // No transformations found
+  // Check if first part is a version number
+  if (hasVersion) {
+    // URL format: /upload/v123/image/path
+    // Correct format: /upload/v123/TRANSFORMS/image/path (version comes first)
+    const imagePath = parts.slice(1).join('/');
+    const fixedPath = ensureFileExtension(imagePath);
+    const transforms = `f_${format},q_${quality},w_${width},h_${height},c_fill,g_face`;
+    return baseUrl + firstPart + '/' + transforms + '/' + fixedPath;
+  }
+  
+  // No transformations and no version: /upload/image/path
+  // Add transformations: /upload/TRANSFORMS/image/path
+  const imagePath = afterUpload;
+  const fixedPath = ensureFileExtension(imagePath);
+  const transforms = `f_${format},q_${quality},w_${width},h_${height},c_fill,g_face`;
+  return baseUrl + transforms + '/' + fixedPath;
+}
+
+/**
+ * Fixes Cloudinary URLs for email display (smaller size)
+ */
+export function fixCloudinaryUrlForEmail(url: string | null | undefined): string | null {
+  return fixCloudinaryUrl(url, {
+    width: 160,
+    height: 160,
+    quality: 'auto',
+    format: 'auto',
+  });
+}
+
+/**
+ * Fixes Cloudinary URLs for thumbnail display
+ */
+export function fixCloudinaryUrlForThumbnail(url: string | null | undefined): string | null {
+  return fixCloudinaryUrl(url, {
+    width: 200,
+    height: 200,
+    quality: 'auto',
+    format: 'auto',
+  });
+}
+
+/**
+ * Fixes Cloudinary URLs for card/display (medium size)
+ */
+export function fixCloudinaryUrlForDisplay(url: string | null | undefined): string | null {
+  return fixCloudinaryUrl(url, {
+    width: 400,
+    height: 400,
+    quality: 'auto',
+    format: 'auto',
+  });
+}

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
-import { sendEmail } from "@/lib/email";
 import { getBrochureLink } from "@/lib/venue-assets";
 import { enquiryAutoresponder } from "@/lib/email-journey-templates";
 import { getResendConfig } from "@/lib/email-config";
@@ -21,14 +20,28 @@ export const runtime = 'nodejs';
 const getResend = () => {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    return null; // Return null if not configured, will fallback to SMTP
+    console.error("❌ RESEND_API_KEY not found in environment variables");
+    return null;
   }
+  console.log("✅ RESEND_API_KEY found, initializing Resend client");
   return new Resend(apiKey);
 };
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    let body;
+    try {
+      body = await request.json();
+    } catch (parseError) {
+      console.error("❌ Failed to parse request body:", parseError);
+      return NextResponse.json(
+        { 
+          error: "Invalid request format. Please check your form data.",
+          details: process.env.NODE_ENV === "development" ? (parseError instanceof Error ? parseError.message : String(parseError)) : undefined
+        },
+        { status: 400 }
+      );
+    }
     const { name, email, phone, eventDate, venueName, venueNamePostcode, referralSource, eventType, preferredDJ, upsells, message, recaptchaToken } = body;
     
     // Log incoming request for debugging
@@ -364,25 +377,69 @@ export async function POST(request: NextRequest) {
       </html>
     `;
 
-    // Send email to your business email
+    // Send email to your business email using Resend
     const recipientEmail = process.env.CONTACT_FORM_EMAIL || "info@stylishentertainment.co.uk";
     
-    const emailResult = await sendEmail({
-      to: recipientEmail,
-      subject: emailSubject,
-      html: emailHtml,
+    // Use Resend for business notification email
+    const emailConfig = getResendConfig("booking");
+    const resend = getResend();
+    let emailResult: any = { success: false, error: "Email not sent" };
+    
+    console.log("📧 Attempting to send business email:", {
+      hasResendClient: !!resend,
+      recipient: recipientEmail,
+      from: emailConfig.from,
     });
+    
+    try {
+      if (resend) {
+        try {
+          console.log("📤 Sending via Resend...");
+          const businessEmailResult = await resend.emails.send({
+            from: emailConfig.from,
+            replyTo: emailConfig.replyTo,
+            to: [recipientEmail],
+            subject: emailSubject,
+            html: emailHtml,
+          });
+          console.log("✅ Business email sent via Resend:", {
+            messageId: businessEmailResult.data?.id || businessEmailResult.id,
+            result: businessEmailResult,
+          });
+          emailResult = { 
+            success: true, 
+            messageId: businessEmailResult.data?.id || businessEmailResult.id 
+          };
+        } catch (resendError) {
+          console.error("❌ Error sending business email via Resend:", resendError);
+          console.error("❌ Resend error details:", JSON.stringify(resendError, null, 2));
+          emailResult = { 
+            success: false, 
+            error: resendError instanceof Error ? resendError.message : "Resend API error" 
+          };
+        }
+      } else {
+        // No Resend API key - email cannot be sent
+        console.error("❌ RESEND_API_KEY not set - email cannot be sent");
+        emailResult = { 
+          success: false, 
+          error: "RESEND_API_KEY not configured" 
+        };
+      }
+    } catch (emailError) {
+      console.error("❌ Unexpected error sending business email:", emailError);
+      emailResult = { 
+        success: false, 
+        error: emailError instanceof Error ? emailError.message : "Unknown error" 
+      };
+    }
 
-    if (!emailResult.success) {
+    if (!emailResult?.success) {
       console.error("❌ Failed to send contact form email:", (emailResult as any).error);
       console.error("Error details:", JSON.stringify(emailResult, null, 2));
-      return NextResponse.json(
-        { 
-          error: "Failed to send email. Please try again later.",
-          details: (emailResult as any).error
-        },
-        { status: 500 }
-      );
+      // Don't fail the entire request if email fails - booking was created successfully
+      // Log the error but continue to send autoresponder
+      console.warn("⚠️ Business email failed but continuing with autoresponder");
     }
 
     // Send automated enquiry autoresponder email to the client
@@ -429,45 +486,60 @@ export async function POST(request: NextRequest) {
       brochureUrl: brochureUrl,
     });
 
-    // Send enquiry autoresponder email using Resend (with centralized config)
-    const emailConfig = getResendConfig("booking");
-    let confirmationResult;
+    // Send enquiry autoresponder email using Resend (reuse existing emailConfig and resend from above)
+    let confirmationResult: any = { success: false };
     
-    const resend = getResend();
-    if (resend) {
-      try {
-        confirmationResult = await resend.emails.send({
-          from: emailConfig.from,
-          replyTo: emailConfig.replyTo,
-          to: [email],
-          subject: enquiryEmail.subject,
-          html: enquiryEmail.html,
-        });
-      } catch (resendError) {
-        console.error("Error sending enquiry autoresponder via Resend:", resendError);
-        // Fallback to SMTP if Resend fails
-        confirmationResult = await sendEmail({
-          to: email,
-          subject: enquiryEmail.subject,
-          html: enquiryEmail.html,
-        });
+    console.log("📧 Attempting to send autoresponder email:", {
+      hasResendClient: !!resend,
+      recipient: email,
+      from: emailConfig.from,
+    });
+    
+    try {
+      if (resend) {
+        try {
+          console.log("📤 Sending autoresponder via Resend...");
+          confirmationResult = await resend.emails.send({
+            from: emailConfig.from,
+            replyTo: emailConfig.replyTo,
+            to: [email],
+            subject: enquiryEmail.subject,
+            html: enquiryEmail.html,
+          });
+          console.log("✅ Autoresponder sent via Resend:", {
+            messageId: confirmationResult.data?.id || confirmationResult.id,
+          });
+        } catch (resendError) {
+          console.error("❌ Error sending enquiry autoresponder via Resend:", resendError);
+          console.error("❌ Resend error details:", JSON.stringify(resendError, null, 2));
+          confirmationResult = { 
+            success: false, 
+            error: resendError instanceof Error ? resendError.message : "Resend API error" 
+          };
+        }
+      } else {
+        // No Resend API key - email cannot be sent
+        console.error("❌ RESEND_API_KEY not set - autoresponder cannot be sent");
+        confirmationResult = { 
+          success: false, 
+          error: "RESEND_API_KEY not configured" 
+        };
       }
-    } else {
-      // No Resend API key, use SMTP directly
-      console.log("RESEND_API_KEY not set, using SMTP for autoresponder");
-      confirmationResult = await sendEmail({
-        to: email,
-        subject: enquiryEmail.subject,
-        html: enquiryEmail.html,
-      });
+    } catch (confirmationError) {
+      console.error("❌ Unexpected error sending confirmation email:", confirmationError);
+      confirmationResult = { 
+        success: false, 
+        error: confirmationError instanceof Error ? confirmationError.message : "Unknown error" 
+      };
     }
 
     // Return detailed response for debugging
-    const confirmationSuccess = 'data' in confirmationResult || (confirmationResult as any).success;
-    const confirmationMessageId = 'data' in confirmationResult 
-      ? (confirmationResult as any).data?.id 
-      : (confirmationResult as any).messageId;
+    // Resend returns { data: { id: '...' } } on success
+    const confirmationSuccess = !!(confirmationResult?.data?.id || confirmationResult?.id);
+    const confirmationMessageId = confirmationResult?.data?.id || confirmationResult?.id;
     
+    // Booking was created successfully, so return success even if emails failed
+    // Emails are logged but don't block the user experience
     return NextResponse.json(
       { 
         success: true, 
@@ -479,8 +551,9 @@ export async function POST(request: NextRequest) {
           ? `Warning: This event details match an existing booking under a different email (${conflictCheck.existingBooking?.email}). Please review in admin dashboard.`
           : undefined,
         emailDetails: {
-          businessEmailSent: emailResult.success,
-          businessEmailMessageId: emailResult.success ? (emailResult as any).messageId : undefined,
+          businessEmailSent: emailResult?.success || false,
+          businessEmailMessageId: emailResult?.success ? (emailResult as any).messageId : undefined,
+          businessEmailError: emailResult?.success ? undefined : (emailResult as any)?.error,
           confirmationEmailSent: confirmationSuccess,
           confirmationEmailMessageId: confirmationMessageId || undefined,
           businessEmailTo: recipientEmail,

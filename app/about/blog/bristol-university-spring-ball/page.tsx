@@ -2,10 +2,20 @@
 
 import { motion } from "framer-motion";
 import { useEffect } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import ImageCarousel, { ImagePhoto } from "@/components/ImageCarousel";
 import Image from "next/image";
+import type { ImagePhoto } from "@/components/ImageCarousel";
+
+// Force dynamic rendering - this page cannot be statically generated
+export const dynamic = 'force-dynamic';
+
+// Dynamically import ImageCarousel to prevent SSR issues
+const ImageCarousel = dynamic(() => import("@/components/ImageCarousel"), {
+  ssr: false,
+  loading: () => <div className="w-full h-64 bg-gray-800 animate-pulse rounded-lg" />,
+});
 
 const galleryPhotos: ImagePhoto[] = [
   {

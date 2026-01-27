@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -246,7 +246,7 @@ function categorizeThread(thread: EmailThread, folder: FolderType, accountId?: s
   }
   if (folder === "ongoing-bookings") {
     const booking = thread.Booking || thread.booking;
-    return booking !== null && booking.status !== "confirmed";
+    return booking !== null && booking !== undefined && booking.status !== "confirmed";
   }
   if (folder === "staff-comms") {
     // Staff communications - could be based on sender domain or subject
@@ -312,14 +312,17 @@ export default function AdminInbox() {
     }
   }, [status, session]);
 
-  // Fetch folders when inboxes are loaded
+  // Fetch folders when inboxes are loaded (only once per inbox)
   useEffect(() => {
     if (inboxes.length > 0) {
       inboxes.forEach((inbox) => {
+        // Only fetch if we don't already have folders for this inbox
+        // fetchFolders will check internally, but we can optimize here too
         fetchFolders(inbox.id);
       });
     }
-  }, [inboxes]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [inboxes.length]); // Only depend on length to avoid re-fetching
 
   // Reset pagination when filters change
   useEffect(() => {
@@ -441,25 +444,13 @@ export default function AdminInbox() {
     }
   };
 
-  const fetchFolders = async (inboxId: string) => {
+  const fetchFolders = useCallback(async (inboxId: string) => {
     try {
       const response = await fetch(`/api/admin/inboxes/${inboxId}/folders`);
       if (response.ok) {
         const data = await response.json();
         // API returns folders array directly (not wrapped in { folders })
         const foldersArray = Array.isArray(data) ? data : (data.folders || []);
-        
-        // Debug logging
-        if (process.env.NODE_ENV === "development") {
-          console.log(`[fetchFolders] Inbox ${inboxId}:`, {
-            rawCount: foldersArray.length,
-            folders: foldersArray.map((f: any) => ({
-              name: f.name,
-              fullPath: f.fullPath,
-              parentId: f.parentId,
-            })),
-          });
-        }
         
         // Build folder tree structure from flat array
         const folderMap = new Map<string, any>();
@@ -490,26 +481,20 @@ export default function AdminInbox() {
           }
         });
         
-        // Debug: Log built tree
-        if (process.env.NODE_ENV === "development") {
-          console.log(`[fetchFolders] Built tree for inbox ${inboxId}:`, {
-            rootCount: rootFolders.length,
-            rootFolders: rootFolders.map((f: any) => ({
-              name: f.name,
-              fullPath: f.fullPath,
-              childrenCount: f.children?.length || 0,
-            })),
-          });
-        }
-        
-        setFolders((prev) => ({ ...prev, [inboxId]: rootFolders }));
+        setFolders((prev) => {
+          // Only update if we don't already have folders for this inbox
+          if (prev[inboxId]) {
+            return prev;
+          }
+          return { ...prev, [inboxId]: rootFolders };
+        });
       } else {
         console.error(`[fetchFolders] Failed to fetch folders for inbox ${inboxId}:`, response.status, response.statusText);
       }
     } catch (error) {
       console.error(`[fetchFolders] Error fetching folders for inbox ${inboxId}:`, error);
     }
-  };
+  }, []); // No dependencies - function is stable
 
   const handleMoveToFolder = async (threadId: string, folderId: string) => {
     try {
@@ -558,7 +543,7 @@ export default function AdminInbox() {
     // If no inboxId provided, sync all active inboxes
     const inboxesToSync = inboxId 
       ? [inboxes.find(i => i.id === inboxId)].filter(Boolean)
-      : inboxes.filter(i => i.isActive && i.syncEnabled);
+      : inboxes.filter(i => i.isActive);
 
     if (inboxesToSync.length === 0) {
       setToast({
@@ -1043,19 +1028,6 @@ export default function AdminInbox() {
                           {(() => {
                             const accountFolders = folders[inbox.id] || [];
                             
-                            // Debug: Log folders for this inbox
-                            if (process.env.NODE_ENV === "development") {
-                              console.log(`[Inbox ${inbox.email}] Folders in state:`, {
-                                total: accountFolders.length,
-                                folders: accountFolders.map((f: any) => ({
-                                  name: f.name,
-                                  fullPath: f.fullPath,
-                                  parentId: f.parentId,
-                                  childrenCount: f.children?.length || 0,
-                                })),
-                              });
-                            }
-                            
                             // Show ALL root folders (tree structure already includes nested children)
                             // Only exclude system folders that are already shown as buttons above
                             const rootFolders = accountFolders.filter(
@@ -1080,7 +1052,7 @@ export default function AdminInbox() {
                                     folders={rootFolders}
                                     onSelect={(folderId) => {
                                       setSelectedAccountId(inbox.id);
-                                      setSelectedFolder(folderId);
+                                      setSelectedFolder(folderId as FolderType);
                                     }}
                                     expandedFolders={expandedFolders}
                                     setExpandedFolders={setExpandedFolders}
@@ -1227,7 +1199,21 @@ export default function AdminInbox() {
                 const inboxId = inbox?.id || '';
                 
                 const subject = thread.subject || 'No Subject';
-                const fromName = thread.fromName || 'Anonymous';
+                // Extract name from email if no name provided, or use email as fallback
+                const extractNameFromEmail = (email: string): string => {
+                  if (!email) return 'Unknown';
+                  const localPart = email.split('@')[0];
+                  let name = localPart
+                    .replace(/[._-]/g, ' ')
+                    .replace(/\d+/g, '')
+                    .trim();
+                  name = name.split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                    .join(' ')
+                    .trim();
+                  return name.length > 1 && name.length < 50 ? name : email.split('@')[0];
+                };
+                const fromName = thread.fromName || extractNameFromEmail(thread.fromEmail || '');
                 const fromEmail = thread.fromEmail || '';
                 const isSelected = selectedThread?.id === thread.id;
                 
@@ -1253,13 +1239,15 @@ export default function AdminInbox() {
                         {/* Sender Name - Pure White and Bold */}
                         <div className="flex items-center gap-2 flex-wrap">
                           {thread.isStarred && (
-                            <Star className="w-4 h-4 text-[#D4AF37] fill-[#D4AF37] flex-shrink-0" title="Flagged/Starred" />
+                            <div title="Flagged/Starred">
+                              <Star className="w-4 h-4 text-[#D4AF37] fill-[#D4AF37] flex-shrink-0" />
+                            </div>
                           )}
                           {isVenueEmail(thread) && (
                             <span className="text-base" title="Venue Email">🏛️</span>
                           )}
                           <span className="text-sm font-bold truncate text-white">
-                            {fromName || fromEmail || 'Anonymous'}
+                            {fromName || fromEmail || 'Unknown'}
                           </span>
                           {thread.source === "portal" && (
                             <span className="px-2 py-0.5 text-xs font-medium rounded-full border bg-purple-900/50 text-purple-300 border-purple-700">

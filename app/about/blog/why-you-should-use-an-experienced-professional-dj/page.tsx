@@ -2,10 +2,18 @@
 
 import { motion } from "framer-motion";
 import { useEffect, useMemo } from "react";
+import dynamicImport from "next/dynamic";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import BlogImage from "@/components/BlogImage";
 import Image from "next/image";
+
+// Force dynamic rendering to prevent build-time prerendering issues
+export const dynamic = 'force-dynamic';
+
+// Dynamically import BlogImage to prevent SSR issues
+const BlogImage = dynamicImport(() => import("@/components/BlogImage"), {
+  ssr: false,
+});
 
 export default function BlogPostProfessionalDJ() {
   useEffect(() => {
