@@ -15,7 +15,8 @@
     "reset:admin-password": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/reset-admin-password.ts",
     "cleanup:test-bookings": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/cleanup-test-bookings.ts",
     "fix:babington-spelling": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/fix-babington-spelling.ts",
-    "scaffold:blog": "./scripts/scaffold-blog.sh"
+    "scaffold:blog": "./scripts/scaffold-blog.sh",
+    "test:prisma": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/test-prisma-connection.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",

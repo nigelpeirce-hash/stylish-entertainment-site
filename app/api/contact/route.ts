@@ -562,19 +562,23 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ Contact form error:", error);
-    console.error("❌ Error type:", error instanceof Error ? error.constructor.name : typeof error);
-    console.error("❌ Error message:", error instanceof Error ? error.message : String(error));
+    console.error("❌ Error type:", error?.constructor?.name || typeof error);
+    console.error("❌ Error message:", error?.message || String(error));
+    console.error("❌ Error code:", error?.code);
+    console.error("❌ Error meta:", JSON.stringify(error?.meta || {}, null, 2));
     console.error("❌ Error stack:", error instanceof Error ? error.stack : "No stack");
     
     // Check if it's a database connection error
-    if (error instanceof Error) {
-      if (error.message.includes("Can't reach database") || 
-          error.message.includes("P1001") ||
-          error.message.includes("connection") ||
-          error.message.includes("DATABASE_URL")) {
-        console.error("❌ Database connection error detected");
+    if (error?.code) {
+      console.error(`❌ Prisma error code: ${error.code}`);
+      if (error.code === 'P2001') {
+        console.error("   💡 Table does not exist - run: npx prisma db push");
+      } else if (error.code === 'P1001') {
+        console.error("   💡 Cannot reach database server - check connection");
+      } else if (error.code === 'ETIMEDOUT') {
+        console.error("   💡 Connection timeout - check network/DATABASE_URL");
       }
     }
     

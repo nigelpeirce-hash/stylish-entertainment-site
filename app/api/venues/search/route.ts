@@ -203,10 +203,25 @@ export async function GET(request: NextRequest) {
       .slice(0, 10);
 
     return NextResponse.json({ venues });
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ Error searching venues:", error);
-    console.error("❌ Error details:", error instanceof Error ? error.message : String(error));
+    console.error("❌ Error type:", error?.constructor?.name || typeof error);
+    console.error("❌ Error message:", error?.message || String(error));
+    console.error("❌ Error code:", error?.code);
+    console.error("❌ Error meta:", JSON.stringify(error?.meta || {}, null, 2));
     console.error("❌ Error stack:", error instanceof Error ? error.stack : undefined);
+    
+    // Log Prisma-specific error details
+    if (error?.code) {
+      console.error(`❌ Prisma error code: ${error.code}`);
+      if (error.code === 'P2001') {
+        console.error("   💡 Table does not exist - run: npx prisma db push");
+      } else if (error.code === 'P2010') {
+        console.error("   💡 Raw query failed - check SQL syntax");
+      } else if (error.code === 'P1001') {
+        console.error("   💡 Cannot reach database server - check connection");
+      }
+    }
     
     // Return empty array with 200 status to prevent frontend errors
     // The frontend can handle empty results gracefully
