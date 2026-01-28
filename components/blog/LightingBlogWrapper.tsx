@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 
 // Move the ssr: false logic HERE - this is a client component
 const LightingBlogContent = dynamic(
-  () => import("../app/about/blog/five-ways-to-totally-transform-a-venue-1-lighting/LightingBlogContent"),
+  () => import("@/app/about/blog/five-ways-to-totally-transform-a-venue-1-lighting/LightingBlogContent"),
   {
     ssr: false,
     loading: () => (
