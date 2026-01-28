@@ -197,12 +197,8 @@ if (!globalForPrisma.prisma) {
   globalForPrisma.prisma = new PrismaClient({
     adapter,
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
-    // Add connection timeout for Prisma queries
-    datasources: {
-      db: {
-        url: connectionString,
-      },
-    },
+    // Connection is handled by PrismaPg adapter via the pool
+    // Do NOT include datasources when using Driver Adapters
   })
   
   // Add connection error handling for production
