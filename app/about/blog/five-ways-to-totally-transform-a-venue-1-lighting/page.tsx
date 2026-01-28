@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
-import dynamicImport from "next/dynamic";
+import LightingBlogWrapper from "@/components/blog/LightingBlogWrapper";
 
 // Additional route segment config to ensure no static generation
 export const revalidate = 0;
@@ -15,16 +15,6 @@ export async function generateStaticParams() {
   return [];
 }
 
-// Dynamically import the client component to prevent SSR/prerendering issues
-const LightingBlogContent = dynamicImport(() => import("./LightingBlogContent"), {
-  ssr: false,
-  loading: () => (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-      <div className="text-white">Loading...</div>
-    </div>
-  ),
-});
-
 export default async function BlogPostLighting() {
-  return <LightingBlogContent />;
+  return <LightingBlogWrapper />;
 }
