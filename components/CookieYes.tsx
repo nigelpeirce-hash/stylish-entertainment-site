@@ -8,6 +8,9 @@ import { useEffect, useState } from "react";
  * 
  * Website Key: 1246a38a4c6731928c675e0f
  * Only loads in production to avoid localhost domain errors
+ * 
+ * Note: If you see "website URL has changed" errors, update the registered URL
+ * in CookieYes dashboard: https://app.cookieyes.com/settings/organizations-and-sites
  */
 export default function CookieYes() {
   // CookieYes website key
@@ -57,7 +60,10 @@ export default function CookieYes() {
           console.log("CookieYes script loaded");
         }}
         onError={(e) => {
-          console.error("CookieYes script failed to load:", e);
+          // CookieYes may show URL configuration warnings, but banner usually still works
+          // Update registered URL in dashboard if banner doesn't appear:
+          // https://app.cookieyes.com/settings/organizations-and-sites
+          console.warn("CookieYes: Script load issue. Check URL configuration in dashboard.");
         }}
       />
     </>
