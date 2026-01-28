@@ -389,12 +389,18 @@ export async function POST(request: NextRequest) {
       hasResendClient: !!resend,
       recipient: recipientEmail,
       from: emailConfig.from,
+      replyTo: emailConfig.replyTo,
     });
     
     try {
       if (resend) {
         try {
-          console.log("📤 Sending via Resend...");
+          console.log("📤 Sending business notification via Resend...");
+          console.log("📤 Email details:", {
+            from: emailConfig.from,
+            to: recipientEmail,
+            subject: emailSubject.substring(0, 50) + "...",
+          });
           const businessEmailResult = await resend.emails.send({
             from: emailConfig.from,
             replyTo: emailConfig.replyTo,
@@ -402,20 +408,25 @@ export async function POST(request: NextRequest) {
             subject: emailSubject,
             html: emailHtml,
           });
+          const messageId = businessEmailResult.data?.id || businessEmailResult.id;
           console.log("✅ Business email sent via Resend:", {
-            messageId: businessEmailResult.data?.id || businessEmailResult.id,
-            result: businessEmailResult,
+            messageId: messageId,
+            to: recipientEmail,
+            from: emailConfig.from,
           });
           emailResult = { 
             success: true, 
-            messageId: businessEmailResult.data?.id || businessEmailResult.id 
+            messageId: messageId 
           };
-        } catch (resendError) {
+        } catch (resendError: any) {
           console.error("❌ Error sending business email via Resend:", resendError);
-          console.error("❌ Resend error details:", JSON.stringify(resendError, null, 2));
+          console.error("❌ Resend error type:", resendError?.constructor?.name || typeof resendError);
+          console.error("❌ Resend error message:", resendError?.message || String(resendError));
+          console.error("❌ Resend error details:", JSON.stringify(resendError, Object.getOwnPropertyNames(resendError), 2));
           emailResult = { 
             success: false, 
-            error: resendError instanceof Error ? resendError.message : "Resend API error" 
+            error: resendError instanceof Error ? resendError.message : "Resend API error",
+            errorDetails: resendError?.message || String(resendError),
           };
         }
       } else {
