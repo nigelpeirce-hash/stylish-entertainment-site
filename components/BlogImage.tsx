@@ -1,9 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import Lightbox from "yet-another-react-lightbox";
+import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import "yet-another-react-lightbox/styles.css";
+
+// Dynamically import Lightbox to prevent SSR/build issues
+const Lightbox = dynamic(
+  () => import("yet-another-react-lightbox"),
+  {
+    ssr: false,
+    loading: () => null,
+  }
+);
 
 interface BlogImageProps {
   src: string;
@@ -22,6 +30,11 @@ export default function BlogImage({
 }: BlogImageProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(index);
+
+  // Load CSS only on client side
+  useEffect(() => {
+    import("yet-another-react-lightbox/styles.css");
+  }, []);
 
   // If images array is provided, use it; otherwise create a single-item array
   const lightboxImages = images || [{ src, alt }];
