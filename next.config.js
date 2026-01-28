@@ -1,37 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Webpack configuration for production builds
-  webpack: (config, { isServer }) => {
-    const webpack = require('webpack');
-    
-    // Fix for Prisma createRequire minification bug in Next.js 15
-    // Disable server-side minification to prevent "o is not a function" errors
-    if (isServer) {
-      config.optimization.minimize = false;
-    }
-    
-    // Fix for es6-promise trying to require 'vertx' which doesn't exist
-    // This is needed because imap-simple uses es6-promise which has a vertx fallback
-    // Ignore the vertx module completely
-    config.plugins.push(
-      new webpack.IgnorePlugin({
-        resourceRegExp: /^vertx$/,
-      })
-    );
-    
-    // Also add alias and fallback as backup
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      vertx: false,
-    };
-    
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      vertx: false,
-    };
-    
-    return config;
-  },
+  webpack: (config) => config,
   experimental: {
     // Disable server source maps to prevent minification crashes
     serverSourceMaps: false,
