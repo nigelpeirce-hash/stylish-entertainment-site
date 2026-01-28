@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Force Webpack and disable Turbopack for production
+  // Webpack configuration for production builds
   webpack: (config, { isServer }) => {
     const webpack = require('webpack');
     
@@ -33,8 +33,6 @@ const nextConfig = {
     return config;
   },
   experimental: {
-    // Do NOT include 'turbo' property - Next.js expects an object, not boolean
-    // Removing it entirely disables Turbopack for production builds
     // Disable server source maps to prevent minification crashes
     serverSourceMaps: false,
   },
