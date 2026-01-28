@@ -9,7 +9,7 @@
       "schedule": "0 8 * * 1"
     }
   ],
-  "buildCommand": "NEXT_BUILD_TURBO=false next build",
+  "buildCommand": "next build --webpack",
   "framework": "nextjs",
   "installCommand": "npm install"
 }
