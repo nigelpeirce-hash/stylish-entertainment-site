@@ -8,27 +8,32 @@ export async function GET() {
   const info = {
     resendConfigured: !!process.env.RESEND_API_KEY,
     resendApiKeyLength: process.env.RESEND_API_KEY?.length || 0,
+    resendDefaultFromSet: !!process.env.RESEND_DEFAULT_FROM,
     recipientEmail: process.env.CONTACT_FORM_EMAIL || "info@stylishentertainment.co.uk",
-    fromEmail: process.env.SMTP_FROM_EMAIL || "info@stylishentertainment.co.uk",
+    fromEmail: process.env.RESEND_DEFAULT_FROM || process.env.SMTP_FROM_EMAIL || "info@stylishentertainment.co.uk",
     smtpConfigured: !!(process.env.SMTP_USER && process.env.SMTP_PASSWORD),
   };
 
   const primaryService = info.resendConfigured ? "Resend" : info.smtpConfigured ? "SMTP (fallback)" : "None";
+  const resendFullyReady = info.resendConfigured && info.resendDefaultFromSet;
+
+  const checks: string[] = [
+    info.resendConfigured
+      ? "1. ✅ RESEND_API_KEY is set"
+      : "1. ⚠️ RESEND_API_KEY missing - add to .env.local or Vercel env",
+    info.resendDefaultFromSet
+      ? "2. ✅ RESEND_DEFAULT_FROM is set (required for sendEmail)"
+      : "2. ⚠️ RESEND_DEFAULT_FROM missing - e.g. STYLISH Entertainment <info@stylishentertainment.co.uk>",
+    "3. Contact form recipient: " + info.recipientEmail,
+    "4. Check spam/junk folder if emails not received",
+    "5. Resend Dashboard: https://resend.com/emails",
+  ];
 
   return NextResponse.json({
     status: "Email system configuration",
     primaryService,
+    resendReady: resendFullyReady,
     details: info,
-    checks: [
-      info.resendConfigured 
-        ? "1. ✅ Resend is configured - emails will use Resend API"
-        : "1. ⚠️ Resend not configured - add RESEND_API_KEY to .env.local",
-      "2. Check spam/junk folder in your email",
-      "3. Verify info@stylishentertainment.co.uk is set up to receive emails",
-      "4. Wait 2-3 minutes for email delivery (can be delayed)",
-      info.resendConfigured 
-        ? "5. Check Resend Dashboard → Logs for delivery status: https://resend.com/emails"
-        : "5. Check your email service dashboard for delivery status",
-    ],
+    checks,
   });
 }

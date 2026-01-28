@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Send, Loader2, Plus, X, Star, Music, Mic2 } from "lucide-react";
 import Image from "next/image";
-import { fixCloudinaryUrlForThumbnail } from "@/lib/cloudinary-utils";
+import { ResponsiveImage } from "@/components/cloudinary";
 
 interface Artist {
   id: string;
@@ -310,17 +310,26 @@ export function MultiArtistReply({
                       }`}
                     >
                       {artist.imageUrl && (
-                        <Image
-                          src={fixCloudinaryUrlForThumbnail(artist.imageUrl) || artist.imageUrl}
-                          alt={artist.name}
-                          width={40}
-                          height={40}
-                          className="rounded-full object-cover"
-                          onError={(e) => {
-                            // Fallback if image fails to load
-                            console.error('Image failed to load:', artist.imageUrl);
-                          }}
-                        />
+                        artist.imageUrl.includes("cloudinary.com") ? (
+                          <ResponsiveImage
+                            publicId={artist.imageUrl}
+                            alt={artist.name}
+                            className="w-10 h-10 rounded-full object-cover flex-shrink-0"
+                            width={40}
+                            height={40}
+                          />
+                        ) : (
+                          <Image
+                            src={artist.imageUrl}
+                            alt={artist.name}
+                            width={40}
+                            height={40}
+                            className="rounded-full object-cover"
+                            onError={() => {
+                              console.warn("Image failed to load:", artist.imageUrl);
+                            }}
+                          />
+                        )
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-sm truncate">{artist.name}</p>
@@ -345,17 +354,26 @@ export function MultiArtistReply({
                 <Card key={artist.id} className={`p-4 ${artist.recommended ? "bg-champagne-gold/10 border-champagne-gold" : "bg-gray-800/50 border-gray-700"}`}>
                   <div className="flex items-start gap-4">
                     {artist.imageUrl && (
-                      <Image
-                        src={fixCloudinaryUrlForThumbnail(artist.imageUrl) || artist.imageUrl}
-                        alt={artist.name}
-                        width={60}
-                        height={60}
-                        className="rounded-full object-cover"
-                        onError={(e) => {
-                          // Fallback if image fails to load
-                          console.error('Image failed to load:', artist.imageUrl);
-                        }}
-                      />
+                      artist.imageUrl.includes("cloudinary.com") ? (
+                        <ResponsiveImage
+                          publicId={artist.imageUrl}
+                          alt={artist.name}
+                          className="w-[60px] h-[60px] rounded-full object-cover flex-shrink-0"
+                          width={60}
+                          height={60}
+                        />
+                      ) : (
+                        <Image
+                          src={artist.imageUrl}
+                          alt={artist.name}
+                          width={60}
+                          height={60}
+                          className="rounded-full object-cover"
+                          onError={() => {
+                            console.warn("Image failed to load:", artist.imageUrl);
+                          }}
+                        />
+                      )
                     )}
                     <div className="flex-1 space-y-3">
                       <div className="flex items-center justify-between">

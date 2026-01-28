@@ -7,6 +7,7 @@ import { Edit, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { User } from "lucide-react";
 import { motion } from "framer-motion";
+import { ResponsiveImage } from "@/components/cloudinary";
 
 interface DJ {
   id: string;
@@ -29,7 +30,7 @@ interface DJCardProps {
 
 export function DJCard({ dj, onEdit, onDelete }: DJCardProps) {
   const [imageError, setImageError] = useState(false);
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false); // used only for non-Cloudinary Image
 
   return (
     <motion.div
@@ -44,26 +45,29 @@ export function DJCard({ dj, onEdit, onDelete }: DJCardProps) {
           {/* Image with fallback */}
           <div className="relative w-full h-32 mb-3 rounded-lg overflow-hidden bg-gray-900/50">
             {dj.imageUrl && !imageError ? (
-              <>
-                {!imageLoaded && (
-                  <div className="absolute inset-0 flex items-center justify-center z-10">
-                    <User className="w-16 h-16 text-champagne-gold/50" />
-                  </div>
-                )}
+              dj.imageUrl.includes("cloudinary.com") ? (
+                <ResponsiveImage
+                  publicId={dj.imageUrl}
+                  alt={dj.name}
+                  className="absolute inset-0 w-full h-full object-cover"
+                  width={400}
+                  height={400}
+                />
+              ) : (
                 <Image
                   src={dj.imageUrl}
                   alt={dj.name}
                   fill
-                  className={`object-cover ${!imageLoaded ? 'opacity-0' : 'opacity-100'} transition-opacity duration-300`}
+                  className="object-cover"
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  unoptimized={dj.imageUrl?.includes('cloudinary.com')}
+                  unoptimized
                   onError={() => {
-                    console.error('Image failed to load:', dj.imageUrl);
+                    console.warn("Image failed to load:", dj.imageUrl);
                     setImageError(true);
                   }}
                   onLoad={() => setImageLoaded(true)}
                 />
-              </>
+              )
             ) : (
               <div className="absolute inset-0 flex items-center justify-center">
                 <User className="w-16 h-16 text-champagne-gold/50" />

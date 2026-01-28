@@ -1,7 +1,9 @@
 # ⚠️ URGENT: Update Vercel DATABASE_URL to Pooler Connection
 
 ## Problem
-Production is showing `ETIMEDOUT` errors because Vercel is using the old direct connection string instead of the pooler.
+Production and **Preview** deployments show `ETIMEDOUT` errors because:
+- Vercel is using the **direct** connection instead of the **pooler**, or
+- `DATABASE_URL` is only set for Production, so **Preview** (e.g. `*-nigel-peirces-projects.vercel.app`) has no DB.
 
 ## Solution: Update Vercel Environment Variable
 
@@ -27,7 +29,8 @@ postgresql://postgres.qraijuzzktertoujrwat:8bYD7LNFFWwPaREy@aws-1-eu-west-1.pool
 - ✅ Hostname: `aws-1-eu-west-1.pooler.supabase.com` (pooler, not direct)
 - ✅ Port: `5432` (Session Pooler)
 - ✅ SSL: `sslmode=no-verify` (required for Supabase pooler)
-- ✅ Environment: Select **ALL** (Production, Preview, Development)
+- ✅ Environment: Select **ALL** — **Production**, **Preview**, and **Development**.  
+  If you only set Production, Preview URLs (e.g. PR previews, `*-your-team.vercel.app`) will get `ETIMEDOUT`.
 
 ### Step 4: Save and Redeploy
 1. Click **Save**
@@ -61,8 +64,8 @@ postgresql://postgres.qraijuzzktertoujrwat:password@aws-1-eu-west-1.pooler.supab
 - ✅ Required for Vercel production
 
 ## Current Status
-- ✅ Local `.env.local` - Updated with pooler connection
-- ❌ Vercel `DATABASE_URL` - Still needs update (causing timeouts)
+- ✅ Local `.env.local` – Updated with pooler connection
+- ❌ Vercel `DATABASE_URL` – Wrong, missing, or not set for **Preview** (causing timeouts on form submit, venues, etc.)
 
 ## After Update
 Once Vercel is updated and redeployed, production should work correctly with no timeout errors.

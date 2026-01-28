@@ -13,20 +13,22 @@ export function fixCloudinaryUrl(url: string | null | undefined, options?: {
   height?: number;
   quality?: string;
   format?: string;
+  /** Use dpr_auto for sharp images on Retina/HiDPI; default true for display sizes */
+  dprAuto?: boolean;
 }): string | null {
   if (!url) return null;
-  
-  // If not a Cloudinary URL, return as-is
-  if (!url.includes('cloudinary.com')) {
-    return url;
-  }
+  if (!url.includes('cloudinary.com')) return url;
 
   const {
     width = 400,
     height = 400,
     quality = 'auto',
     format = 'auto',
+    dprAuto = false,
   } = options || {};
+
+  const tail = dprAuto ? ',dpr_auto' : '';
+  const baseTransforms = () => `f_${format},q_${quality},w_${width},h_${height},c_fill,g_face${tail}`;
 
   // Check if URL already has transformations
   // Cloudinary URLs with transformations look like: /upload/TRANSFORMATIONS/IMAGE_ID
@@ -81,8 +83,7 @@ export function fixCloudinaryUrl(url: string | null | undefined, options?: {
     
     // Check if it has width/height transformations
     if (!firstPart.includes('w_') && !firstPart.includes('h_')) {
-      // Add width/height while preserving existing transformations
-      const newTransforms = `${firstPart},w_${width},h_${height},c_fill,g_face`;
+      const newTransforms = `${firstPart},w_${width},h_${height},c_fill,g_face${tail}`;
       return baseUrl + newTransforms + '/' + fixedPath;
     }
     
@@ -97,20 +98,15 @@ export function fixCloudinaryUrl(url: string | null | undefined, options?: {
   // No transformations found
   // Check if first part is a version number
   if (hasVersion) {
-    // URL format: /upload/v123/image/path
-    // Correct format: /upload/v123/TRANSFORMS/image/path (version comes first)
     const imagePath = parts.slice(1).join('/');
     const fixedPath = ensureFileExtension(imagePath);
-    const transforms = `f_${format},q_${quality},w_${width},h_${height},c_fill,g_face`;
-    return baseUrl + firstPart + '/' + transforms + '/' + fixedPath;
+    const publicId = firstPart + '/' + fixedPath;
+    return baseUrl + baseTransforms() + '/' + publicId;
   }
-  
-  // No transformations and no version: /upload/image/path
-  // Add transformations: /upload/TRANSFORMS/image/path
+
   const imagePath = afterUpload;
   const fixedPath = ensureFileExtension(imagePath);
-  const transforms = `f_${format},q_${quality},w_${width},h_${height},c_fill,g_face`;
-  return baseUrl + transforms + '/' + fixedPath;
+  return baseUrl + baseTransforms() + '/' + fixedPath;
 }
 
 /**
@@ -138,7 +134,8 @@ export function fixCloudinaryUrlForThumbnail(url: string | null | undefined): st
 }
 
 /**
- * Fixes Cloudinary URLs for card/display (medium size)
+ * Fixes Cloudinary URLs for card/display (medium size).
+ * Uses dpr_auto for sharp images on Retina/HiDPI.
  */
 export function fixCloudinaryUrlForDisplay(url: string | null | undefined): string | null {
   return fixCloudinaryUrl(url, {
@@ -146,5 +143,6 @@ export function fixCloudinaryUrlForDisplay(url: string | null | undefined): stri
     height: 400,
     quality: 'auto',
     format: 'auto',
+    dprAuto: true,
   });
 }

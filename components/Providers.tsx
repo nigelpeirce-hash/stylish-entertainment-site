@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
+    if (typeof window === "undefined") return;
     // Suppress NextAuth errors in console if API route is not available
     const originalError = console.error;
     const originalWarn = console.warn;

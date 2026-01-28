@@ -3,6 +3,9 @@ import { Raleway, Bebas_Neue, Dancing_Script, Playfair_Display } from "next/font
 import Script from "next/script";
 import { Suspense } from "react";
 import "./globals.css";
+
+/** Avoid static prerender for app; framer-motion triggers useState-null during prerender. */
+export const dynamic = "force-dynamic";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import GoogleAnalytics from "@/components/GoogleAnalytics";

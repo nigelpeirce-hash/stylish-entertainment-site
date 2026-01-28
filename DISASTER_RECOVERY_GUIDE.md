@@ -2,7 +2,7 @@
 ## Stylish Entertainment Website
 
 **Last Updated:** January 28, 2026  
-**Version:** 1.3  
+**Version:** 1.4  
 **Purpose:** Complete technical documentation for rebuilding the system from scratch in case of catastrophic failure
 
 ---
@@ -201,20 +201,25 @@ npm install
 
 **1. Verify `next.config.js` has these settings:**
 ```javascript
+webpack: (config) => config,
 experimental: {
-  webpackBuildWorker: false,  // Prevents build worker crashes
-  serverSourceMaps: false,     // Prevents minification crashes
+  serverSourceMaps: false,  // Prevents minification crashes
 },
-webpack: (config, { isServer }) => {
-  // Fix for Prisma createRequire minification bug
-  if (isServer) {
-    config.optimization.minimize = false;
-  }
-  return config;
-}
 ```
+- **Explicit Webpack:** Use `webpack: (config) => config` so Next.js uses Webpack (no Turbopack) for builds.
+- **No turbo:** Do not add `turbo` or `experimental.turbo` properties.
 
-**2. Verify `lib/prisma.ts` uses singleton pattern:**
+**2. Verify `package.json` scripts:**
+- `build`: `next build` (no `--turbo` or `--webpack` flags)
+- `dev`: `next dev -p 3001` (no `--turbo`)
+
+**3. Verify `vercel.json` buildCommand:**
+```json
+"buildCommand": "next build"
+```
+- No extra flags (e.g. no `--turbo`).
+
+**4. Verify `lib/prisma.ts` uses singleton pattern:**
 ```typescript
 const globalForPrisma = global as unknown as { prisma: PrismaClient }
 
@@ -225,7 +230,7 @@ if (!globalForPrisma.prisma) {
 export const prisma = globalForPrisma.prisma  // Must export the global instance
 ```
 
-**3. Verify blog pages use wrapper pattern:**
+**5. Verify blog pages use wrapper pattern:**
 - Blog page components (`page.tsx`) are server components
 - Client wrappers in `components/blog/` handle dynamic imports
 - Route segment configs (`dynamic = 'force-dynamic'`) in page.tsx
@@ -820,10 +825,12 @@ psql [DATABASE_URL] < backup.sql
 
 **Build Settings:**
 - Framework: Next.js
-- Build Command: `next build`
+- Build Command: `next build` (no flags; do not use `--turbo`)
 - Output Directory: `.next`
 - Install Command: `npm install`
 - Node Version: 20.x
+
+**vercel.json:** Use `"buildCommand": "next build"` with no extra flags.
 
 **Cron Jobs (vercel.json):**
 ```json
@@ -1037,7 +1044,7 @@ npm run lint
 
 ### Next.js 15 Build Fixes (REQUIRED)
 
-These configurations are **essential** for successful builds in Next.js 15. Without them, you will experience minification errors and build failures.
+These configurations are **essential** for successful builds in Next.js 15. Use Webpack explicitly (no Turbopack) for production builds.
 
 #### 1. next.config.js Configuration
 
@@ -1045,28 +1052,30 @@ These configurations are **essential** for successful builds in Next.js 15. With
 
 **Required Settings:**
 ```javascript
+webpack: (config) => config,
 experimental: {
-  // Disable webpack build worker to prevent crashes
-  webpackBuildWorker: false,
-  // Disable server source maps to prevent minification crashes
-  serverSourceMaps: false,
+  serverSourceMaps: false,  // Prevents minification crashes
 },
-webpack: (config, { isServer }) => {
-  // CRITICAL: Fix for Prisma createRequire minification bug
-  // This prevents "o is not a function" errors during build
-  if (isServer) {
-    config.optimization.minimize = false;
-  }
-  return config;
-}
 ```
 
-**Why These Are Needed:**
-- `webpackBuildWorker: false` - Prevents build worker process crashes in Next.js 15
-- `serverSourceMaps: false` - Prevents source map generation issues during minification
-- `config.optimization.minimize = false` (server) - Prisma uses `createRequire` which breaks when minified
+**Rules:**
+- **Explicit Webpack:** `webpack: (config) => config` ensures Next.js uses Webpack for builds.
+- **No turbo:** Do not add `turbo` or `experimental.turbo` properties.
+- `serverSourceMaps: false` – Prevents source map generation issues during minification.
 
-#### 2. Prisma Singleton Pattern
+#### 2. package.json Scripts
+
+- **build:** `next build` (no `--turbo` or `--webpack` flags)
+- **dev:** `next dev -p 3001` (no `--turbo`)
+
+#### 3. vercel.json buildCommand
+
+```json
+"buildCommand": "next build"
+```
+No extra flags (e.g. no `--turbo`).
+
+#### 4. Prisma Singleton Pattern
 
 **File:** `lib/prisma.ts`
 
@@ -1090,7 +1099,7 @@ export const prisma = globalForPrisma.prisma
 - Ensures single instance across all module loads
 - Prevents "Collecting page data" phase crashes
 
-#### 3. Blog Page Wrapper Pattern
+#### 5. Blog Page Wrapper Pattern
 
 **Problem:** Blog pages use client-only libraries (`framer-motion`, `yet-another-react-lightbox`) that cannot be evaluated during server-side build/prerendering.
 
@@ -1148,7 +1157,7 @@ export default function BlogWrapper() {
 - Keeps SEO benefits (route configs in server component)
 - Prevents build-time evaluation of client-only code
 
-#### 4. Client-Only Library Handling
+#### 6. Client-Only Library Handling
 
 **yet-another-react-lightbox:**
 - Must be dynamically imported in client components
@@ -1168,7 +1177,7 @@ export default function BlogWrapper() {
 - `components/BlogImage.tsx` - Uses lightbox (dynamically imported)
 - Blog content components - Use `framer-motion` (direct import OK in client components)
 
-#### 5. Route Segment Configuration
+#### 7. Route Segment Configuration
 
 For pages that cannot be statically generated (blog pages with client-only code):
 
@@ -1298,17 +1307,12 @@ npm install
 **1. Verify Next.js Configuration (CRITICAL):**
 ```javascript
 // next.config.js MUST have:
+webpack: (config) => config,
 experimental: {
-  webpackBuildWorker: false,  // Prevents build worker crashes
-  serverSourceMaps: false,     // Prevents minification crashes
+  serverSourceMaps: false,
 },
-webpack: (config, { isServer }) => {
-  // CRITICAL: Disable server-side minification to fix Prisma bug
-  if (isServer) {
-    config.optimization.minimize = false;
-  }
-  return config;
-}
+// No turbo or experimental.turbo. package.json build: "next build" (no flags).
+// vercel.json: "buildCommand": "next build"
 ```
 
 **2. Verify Prisma Singleton Pattern:**
@@ -1489,8 +1493,9 @@ npm run seed:venues            # Seed venues
 npm run reset:admin-password   # Reset admin passwords
 
 # Utilities
-npm run fix:babington-spelling # Fix venue spelling
-npm run cleanup:test-bookings # Clean test data
+npm run fix:babington-spelling  # Fix "Babington Houe" etc. typos
+npm run fix:babington-variants # Consolidate Babington House variants (contact form autocomplete)
+npm run cleanup:test-bookings  # Clean test data
 
 # Deployment
 git push origin main           # Deploy to Vercel (auto)
@@ -1623,6 +1628,11 @@ git push origin main           # Deploy to Vercel (auto)
 
 ### Version History
 
+- **v1.4** (January 28, 2026) - Build config alignment (Webpack, no Turbopack):
+  - `next.config.js`: Explicit `webpack: (config) => config`; no `turbo` or `experimental.turbo`
+  - `experimental.serverSourceMaps: false` only (removed webpackBuildWorker, server minification overrides)
+  - `package.json` scripts: `next build` / `next dev -p 3001` with no `--turbo` or `--webpack` flags
+  - `vercel.json`: `buildCommand`: `"next build"` (no flags)
 - **v1.1** (January 27, 2026) - Added critical build configuration fixes:
   - Next.js 15 build fixes (webpackBuildWorker, serverSourceMaps, server minification)
   - Prisma singleton pattern requirements

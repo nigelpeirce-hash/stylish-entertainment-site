@@ -23,14 +23,6 @@ if (typeof window === 'undefined') {
     }
   }
   
-  // Debug: Log what we're actually reading
-  if (process.env.NODE_ENV === 'development' && process.env.DATABASE_URL) {
-    const dbUrl = process.env.DATABASE_URL;
-    console.log('🔍 Environment check:');
-    console.log('   DATABASE_URL length:', dbUrl.length);
-    console.log('   First 80 chars:', dbUrl.substring(0, 80));
-    console.log('   Source: .env.local (forced override)');
-  }
 }
 
 // 1. Setup the connection - ensure DATABASE_URL is loaded
@@ -43,105 +35,51 @@ if (!connectionString) {
   throw new Error('DATABASE_URL environment variable is required. Make sure your .env file is loaded.')
 }
 
-// Debug: Log the connection string structure (masked) in development
-if (process.env.NODE_ENV === 'development') {
+// Always validate placeholders and format
+const hasPlaceholders = connectionString.includes('[id]') || connectionString.includes('[pass]') || connectionString.includes('[YOUR-PASSWORD]');
+if (hasPlaceholders) {
+  console.error('❌ CRITICAL: Connection string contains placeholders!');
+  throw new Error('DATABASE_URL contains placeholders - please update .env file with actual password');
+}
+const urlMatch = connectionString.match(/^(postgresql?):\/\/([^:]+):([^@]+)@(.+)$/);
+if (!urlMatch) {
+  console.error('❌ Could not parse connection string format');
+  throw new Error('Invalid DATABASE_URL format');
+}
+if (connectionString.includes('pooler') && !urlMatch[2].includes('.')) {
+  console.error('❌ Username format wrong for pooler!');
+  throw new Error('Pooler connection must use postgres.[PROJECT_REF] format');
+}
+
+// Log DB config once per process in dev (reduces noise when prisma is re-imported)
+const _g = typeof globalThis !== 'undefined' ? globalThis : (typeof global !== 'undefined' ? global : {});
+const _gl = _g as { __dbStartupLogged?: boolean };
+if (process.env.NODE_ENV === 'development' && !_gl.__dbStartupLogged) {
   const masked = connectionString.replace(/:([^@]+)@/, ':***@');
+  const un = urlMatch[2];
   console.log('📋 DATABASE_URL loaded');
   console.log('   Structure:', masked.substring(0, 100));
   console.log('   Length:', connectionString.length);
-  
-  // Check if connection string has placeholders (this would be a problem)
-  const hasPlaceholders = connectionString.includes('[id]') || connectionString.includes('[pass]') || connectionString.includes('[YOUR-PASSWORD]');
-  if (hasPlaceholders) {
-    console.error('❌ CRITICAL: Connection string contains placeholders!');
-    console.error('   This means the .env file has not been updated with actual values.');
-    console.error('   Please replace [YOUR-PASSWORD] with your actual Supabase password.');
-    console.error('   Connection string length:', connectionString.length);
-    console.error('   First 150 chars:', connectionString.substring(0, 150));
-    console.error('   Contains [id]:', connectionString.includes('[id]'));
-    console.error('   Contains [pass]:', connectionString.includes('[pass]'));
-    console.error('   Contains [YOUR-PASSWORD]:', connectionString.includes('[YOUR-PASSWORD]'));
-    throw new Error('DATABASE_URL contains placeholders - please update .env file with actual password');
-  }
-  
-  // Extract and verify username immediately
-  const urlMatch = connectionString.match(/^(postgresql?):\/\/([^:]+):([^@]+)@(.+)$/);
-  if (urlMatch) {
-    const username = urlMatch[2];
-    console.log('   ✅ Username extracted:', username);
-    console.log('   ✅ Password length:', urlMatch[3].length);
-    if (connectionString.includes('pooler') && !username.includes('.')) {
-      console.error('❌ Username format wrong for pooler!');
-      throw new Error('Pooler connection must use postgres.[PROJECT_REF] format');
-    }
-  } else {
-    console.error('❌ Could not parse connection string format');
-    console.error('   First 100 chars:', connectionString.substring(0, 100));
-  }
-}
-
-// Validate connection string format for Supabase pooler
-if (connectionString.includes('pooler.supabase.com')) {
-  // Extract username using robust parsing
-  let username = '';
-  
-  // Parse the connection string using URL parsing
-  try {
-    // Method 1: Use URL parsing (most reliable)
-    const url = new URL(connectionString.replace(/^postgresql?/, 'http'));
-    username = url.username;
-  } catch (e) {
-    // Method 2: Regex fallback
-    try {
-      const urlMatch = connectionString.match(/^(postgresql?):\/\/([^:]+):([^@]+)@(.+)$/);
-      if (urlMatch) {
-        username = urlMatch[2];
-      }
-    } catch (e2) {
-      // Method 3: Simple regex
-      const match = connectionString.match(/postgresql?:\/\/([^:]+):/);
-      if (match) username = match[1];
-    }
-  }
-  
-  if (username && !username.includes('.')) {
-    console.error('❌ ERROR: DATABASE_URL for pooler must use postgres.[PROJECT_REF] format, not just "postgres"');
-    console.error('Current username:', username);
-    throw new Error('Invalid DATABASE_URL format for Supabase pooler. Username must include project reference.');
-  }
-  
-  // Log connection details in development for debugging
-  if (process.env.NODE_ENV === 'development') {
+  console.log('   ✅ Username:', un);
+  console.log('   ✅ Password length:', urlMatch[3].length);
+  if (connectionString.includes('pooler.supabase.com')) {
     const host = connectionString.match(/@([^:]+):/)?.[1] || 'unknown';
     const port = connectionString.match(/:(\d+)\//)?.[1] || 'unknown';
-    const maskedUrl = connectionString.replace(/:([^@]+)@/, ':***@');
-    
     console.log('🔗 Supabase pooler connection');
     console.log('   Host:', host);
     console.log('   Port:', port);
-    console.log('   Username:', username || '⚠️  Could not extract - check connection string');
-    
-    if (!username) {
-      console.error('❌ Could not parse username from connection string');
-      console.error('   First 100 chars:', connectionString.substring(0, 100));
-    } else if (host.includes('pooler') && !username.includes('.')) {
-      console.error('❌ Username format wrong for pooler!');
-      console.error('   Expected: postgres.qraijuzzktertoujrwat');
-      console.error('   Got:', username);
-    }
+    console.log('   Username:', un);
   }
+  _gl.__dbStartupLogged = true;
 }
 
 // Create pool with connection string
-// Test connection on initialization in development
-if (process.env.NODE_ENV === 'development') {
-  const testPool = new pg.Pool({ 
-    connectionString,
-    connectionTimeoutMillis: 5000,
-    max: 1,
-  });
-  
-  // Test connection asynchronously (don't block initialization)
+// Test connection once per process in development (don't re-run on every prisma import)
+const _gt = typeof globalThis !== 'undefined' ? globalThis : (typeof global !== 'undefined' ? global : {});
+const _gtest = _gt as { __dbConnectionTestRun?: boolean };
+if (process.env.NODE_ENV === 'development' && !_gtest.__dbConnectionTestRun) {
+  _gtest.__dbConnectionTestRun = true;
+  const testPool = new pg.Pool({ connectionString, connectionTimeoutMillis: 5000, max: 1 });
   testPool.query('SELECT 1')
     .then(() => {
       console.log('✅ Database connection test successful');
@@ -150,12 +88,7 @@ if (process.env.NODE_ENV === 'development') {
     .catch((err: Error) => {
       console.error('❌ Database connection test failed:', err.message);
       if (err.message.includes('Tenant or user not found')) {
-        console.error('   This usually means:');
-        console.error('   1. Username format is wrong (should be postgres.[PROJECT_REF])');
-        console.error('   2. Password is incorrect');
-        console.error('   3. Project reference in username is wrong');
-        const username = connectionString.match(/postgresql:\/\/([^:]+):/)?.[1];
-        console.error('   Current username:', username);
+        console.error('   Username format, password, or project ref may be wrong.');
       }
       testPool.end();
     });

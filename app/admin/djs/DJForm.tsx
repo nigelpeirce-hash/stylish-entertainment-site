@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ResponsiveImage } from "@/components/cloudinary";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -212,18 +213,28 @@ export function DJForm({
             />
             {formData.imageUrl && (
               <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-gray-700 mt-2">
-                <Image
-                  src={formData.imageUrl}
-                  alt="Preview"
-                  width={128}
-                  height={128}
-                  className="w-full h-full object-cover"
-                  unoptimized={formData.imageUrl?.includes('cloudinary.com')}
-                  onError={(e) => {
-                    console.error('Preview image failed to load:', formData.imageUrl);
-                    (e.target as HTMLImageElement).style.display = "none";
-                  }}
-                />
+                {formData.imageUrl.includes("cloudinary.com") ? (
+                  <ResponsiveImage
+                    publicId={formData.imageUrl}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                    width={128}
+                    height={128}
+                  />
+                ) : (
+                  <Image
+                    src={formData.imageUrl}
+                    alt="Preview"
+                    width={128}
+                    height={128}
+                    className="w-full h-full object-cover"
+                    unoptimized
+                    onError={(e) => {
+                      console.warn("Preview image failed to load:", formData.imageUrl);
+                      (e.target as HTMLImageElement).style.display = "none";
+                    }}
+                  />
+                )}
               </div>
             )}
           </div>

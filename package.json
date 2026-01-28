@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "check": "npm run lint && npm run build",
     "postinstall": "prisma generate",
     "seed:demo": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/seed-demo-data.ts",
     "seed:djs": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/seed-existing-djs.ts",
@@ -15,11 +16,14 @@
     "reset:admin-password": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/reset-admin-password.ts",
     "cleanup:test-bookings": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/cleanup-test-bookings.ts",
     "fix:babington-spelling": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/fix-babington-spelling.ts",
+    "fix:babington-variants": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/fix-babington-house-variants.ts",
     "scaffold:blog": "./scripts/scaffold-blog.sh",
     "test:prisma": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/test-prisma-connection.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
+    "@cloudinary/react": "^1.14.3",
+    "@cloudinary/url-gen": "^1.22.0",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
