@@ -1,6 +1,7 @@
 // Force dynamic rendering - this page cannot be statically generated
 // This must be at the very top to prevent build-time prerendering
 export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
 
 import dynamic from "next/dynamic";
 
@@ -8,6 +9,11 @@ import dynamic from "next/dynamic";
 export const revalidate = 0;
 export const fetchCache = 'force-no-store';
 export const runtime = 'nodejs';
+
+// Skip static generation entirely - build on-demand when users visit
+export async function generateStaticParams() {
+  return [];
+}
 
 // Dynamically import the client component to prevent SSR/prerendering issues
 // Using a function to ensure truly lazy loading and prevent build-time evaluation
