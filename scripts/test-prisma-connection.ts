@@ -28,7 +28,7 @@ async function testConnection() {
     // Test 3: Check Booking table exists and has expected columns
     console.log('3. Checking Booking table structure...');
     const bookingColumns = await prisma.$queryRaw<Array<{ column_name: string; data_type: string }>>`
-      SELECT column_name, data_type 
+      SELECT column_name::text, data_type::text 
       FROM information_schema.columns 
       WHERE table_schema = 'public' 
       AND table_name = 'Booking'
@@ -71,7 +71,7 @@ async function testConnection() {
     // Test 6: Check for schema mismatches
     console.log('6. Checking for common schema issues...');
     const allTables = await prisma.$queryRaw<Array<{ table_name: string }>>`
-      SELECT table_name 
+      SELECT table_name::text 
       FROM information_schema.tables 
       WHERE table_schema = 'public' 
       AND table_type = 'BASE TABLE'
