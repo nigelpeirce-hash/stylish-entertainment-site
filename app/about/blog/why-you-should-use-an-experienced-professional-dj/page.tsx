@@ -1,6 +1,9 @@
 // Force dynamic rendering - this page cannot be statically generated
 // This must be at the very top to prevent build-time prerendering
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
+export const runtime = 'nodejs';
 
 import dynamic from "next/dynamic";
 
