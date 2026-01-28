@@ -33,9 +33,8 @@ const nextConfig = {
     return config;
   },
   experimental: {
-    // Explicitly disable Turbopack for production builds (Next.js 15.1.11 may auto-detect it)
+    // Do NOT include 'turbo' property - its presence enables Turbopack
     // Turbopack is only for dev (via --turbo flag), not for production builds
-    turbo: false,
     // Disable webpack build worker to fix minification errors in Next.js 15
     webpackBuildWorker: false,
     // Disable server source maps to prevent minification crashes
