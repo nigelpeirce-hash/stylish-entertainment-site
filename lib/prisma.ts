@@ -174,11 +174,15 @@ const pool = new pg.Pool({
 const adapter = new PrismaPg(pool)
 
 // 2. The Global Pattern (Essential for Next.js dev mode)
+// This ensures only one PrismaClient instance exists across all module loads
+// Critical for preventing build worker crashes during "Collecting page data"
 const globalForPrisma = global as unknown as { prisma: PrismaClient }
 
-export const prisma =
-  globalForPrisma.prisma ||
-  new PrismaClient({
+if (!globalForPrisma.prisma) {
+  globalForPrisma.prisma = new PrismaClient({
     adapter,
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   })
+}
+
+export const prisma = globalForPrisma.prisma
