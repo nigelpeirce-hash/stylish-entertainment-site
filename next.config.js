@@ -31,6 +31,8 @@ const nextConfig = {
     turbo: {},
     // Disable webpack build worker to fix minification errors in Next.js 15
     webpackBuildWorker: false,
+    // Disable server source maps to prevent minification crashes
+    serverSourceMaps: false,
   },
   eslint: {
     ignoreDuringBuilds: true,
