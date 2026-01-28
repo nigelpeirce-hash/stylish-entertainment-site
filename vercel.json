@@ -9,5 +9,7 @@
       "schedule": "0 8 * * 1"
     }
   ],
-  "buildCommand": "next build"
+  "buildCommand": "next build",
+  "framework": "nextjs",
+  "installCommand": "npm install"
 }
