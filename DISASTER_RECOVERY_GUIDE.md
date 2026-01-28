@@ -1,8 +1,8 @@
 # Disaster Recovery & Complete Rebuild Guide
 ## Stylish Entertainment Website
 
-**Last Updated:** January 27, 2026  
-**Version:** 1.1  
+**Last Updated:** January 28, 2026  
+**Version:** 1.2  
 **Purpose:** Complete technical documentation for rebuilding the system from scratch in case of catastrophic failure
 
 ---
@@ -282,53 +282,118 @@ openssl rand -base64 32
 **Supabase Project Details:**
 - **Project Reference:** `qraijuzzktertoujrwat`
 - **Dashboard:** https://supabase.com/dashboard/project/qraijuzzktertoujrwat
+- **Region:** `eu-west-1` (AWS)
+- **Pooler Hostname:** `aws-1-eu-west-1.pooler.supabase.com`
+- **Direct Hostname:** `db.qraijuzzktertoujrwat.supabase.co`
 
-**Connection String Format:**
+**Current Working Connection Strings (Verified January 28, 2026):**
+
+```env
+# For the App (Session Pooler - Port 5432) - PRIMARY CONNECTION
+# Note: Username MUST include project reference (postgres.qraijuzzktertoujrwat)
+# If DNS resolution fails, check Supabase Dashboard → Settings → Database → Connection Pooling
+DATABASE_URL="postgresql://postgres.qraijuzzktertoujrwat:8bYD7LNFFWwPaREy@aws-1-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=no-verify"
+
+# For the CLI/Migrations (Direct - Port 5432) - SECONDARY CONNECTION
+# Use this for Prisma migrations and CLI tools
+DIRECT_URL="postgresql://postgres:8bYD7LNFFWwPaREy@db.qraijuzzktertoujrwat.supabase.co:5432/postgres"
 ```
-# Session Pooler (Recommended for Production)
-postgresql://postgres.qraijuzzktertoujrwat:[PASSWORD]@aws-1-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=no-verify
 
-# Direct Connection (Development Only)
-postgresql://postgres:[PASSWORD]@db.qraijuzzktertoujrwat.supabase.co:5432/postgres?sslmode=no-verify
+**Important Configuration Notes:**
+- ✅ **Pooler Username Format:** Must be `postgres.qraijuzzktertoujrwat` (with project ref) - NOT just `postgres`
+- ✅ **Pooler Hostname:** `aws-1-eu-west-1.pooler.supabase.com` (Session Pooler on port 5432)
+- ✅ **SSL Mode:** `sslmode=no-verify` for pooler (required for Supabase)
+- ✅ **Direct Connection:** Use `postgres` (without project ref) for direct connection
+- ⚠️ **DNS Issues:** If pooler hostname doesn't resolve, check Supabase Dashboard to verify pooler is enabled
+
+**To Get/Reset Password:**
+1. Go to Supabase Dashboard → Settings → Database
+2. Click "Reset database password" (if needed)
+3. Copy the connection string or password
+4. **For Pooler:** Ensure username format is `postgres.[PROJECT_REF]`
+5. **For Direct:** Username is just `postgres`
+
+#### 3.2 Prisma Configuration
+
+**Important:** This project uses Prisma with Driver Adapters (PrismaPg) for connection pooling.
+
+**Prisma Config File:** `prisma.config.ts`
+```typescript
+import { defineConfig } from 'prisma/config';
+import "dotenv/config";
+
+export default defineConfig({
+  schema: 'prisma/schema.prisma',
+  // Removed datasource - not compatible with Driver Adapters (PrismaPg)
+  // Connection is handled by PrismaPg adapter in lib/prisma.ts via the pool
+  seed: {
+    script: 'tsx prisma/seed.ts',
+  },
+});
 ```
 
-**To Get Password:**
-1. Go to Supabase Dashboard
-2. Settings → Database
-3. Click "Reset database password" (if needed)
-4. Copy the connection string or password
+**Connection Setup:** The connection pool is configured in `lib/prisma.ts`:
+- Uses `@prisma/adapter-pg` (PrismaPg)
+- Creates PostgreSQL pool with connection string from `DATABASE_URL`
+- Pool configuration optimized for serverless (max: 5 connections)
+- Connection timeouts: 30s connection, 25s query/statement
+- Automatically validates pooler username format
 
-#### 3.2 Push Database Schema
+#### 3.3 Push Database Schema
 
 ```bash
-# Push Prisma schema to database (creates all tables)
-npx prisma db push
+# Validate Prisma schema syntax
+npx prisma validate
 
-# Generate Prisma client (if not already done)
+# Generate Prisma Client (ensures client is up to date)
 npx prisma generate
+
+# Test database connection
+npm run test:prisma
+# OR
+NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/test-prisma-connection.ts
 ```
 
+**Note:** This project does NOT use Prisma migrations. Schema is managed via:
+- `prisma/schema.prisma` - Schema definition
+- Direct SQL migrations in `supabase-*.sql` files (run via Supabase SQL Editor)
+
 **Expected Output:**
-- All tables created successfully
-- No migration errors
+- Schema validation: ✅ Valid
+- Prisma Client generated successfully
+- Connection test: ✅ Connected
+- All tables accessible
 
 **If Errors:**
 - Check `DATABASE_URL` is correct in `.env.local`
 - Verify Supabase project is active (not paused)
 - Check network connection
-- Try direct connection instead of pooler
+- Verify pooler username format: `postgres.qraijuzzktertoujrwat`
+- Try direct connection instead of pooler (use `DIRECT_URL`)
 
-#### 3.3 Verify Database Connection
+#### 3.4 Verify Database Connection
 
 ```bash
-# Open Prisma Studio to view database
-npx prisma studio
+# Method 1: Use test script (recommended)
+npm run test:prisma
 
+# Method 2: Open Prisma Studio to view database
+npx prisma studio
 # Should open browser at http://localhost:5555
 # You should see all tables listed
+
+# Method 3: Quick connection test
+node -e "require('dotenv').config({path:'.env.local'}); const {Pool}=require('pg'); const p=new Pool({connectionString:process.env.DATABASE_URL}); p.query('SELECT version()').then(r=>{console.log('✅ Connected!',r.rows[0].version);p.end()}).catch(e=>{console.error('❌ Failed:',e.message);p.end()})"
 ```
 
-#### 3.4 Run Database Migrations (If Needed)
+**Connection Verification Checklist:**
+- ✅ `DATABASE_URL` loads from `.env.local`
+- ✅ Username format correct for pooler: `postgres.qraijuzzktertoujrwat`
+- ✅ Hostname resolves: `aws-1-eu-west-1.pooler.supabase.com`
+- ✅ Connection test successful
+- ✅ Prisma Client can query database
+
+#### 3.5 Run Database Migrations (If Needed)
 
 If you have SQL migration files, run them in order:
 
@@ -491,8 +556,19 @@ RESEND_DEFAULT_FROM=STYLISH Entertainment <info@stylishentertainment.co.uk>
 
 #### Database (Required)
 ```env
-DATABASE_URL="postgresql://postgres.qraijuzzktertoujrwat:[PASSWORD]@aws-1-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=no-verify"
+# Primary connection - Session Pooler (for application)
+DATABASE_URL="postgresql://postgres.qraijuzzktertoujrwat:8bYD7LNFFWwPaREy@aws-1-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=no-verify"
+
+# Secondary connection - Direct (for CLI/migrations)
+DIRECT_URL="postgresql://postgres:8bYD7LNFFWwPaREy@db.qraijuzzktertoujrwat.supabase.co:5432/postgres"
 ```
+
+**Critical Configuration:**
+- Username for pooler MUST include project reference: `postgres.qraijuzzktertoujrwat`
+- Username for direct connection is just: `postgres`
+- Pooler hostname: `aws-1-eu-west-1.pooler.supabase.com:5432`
+- Direct hostname: `db.qraijuzzktertoujrwat.supabase.co:5432`
+- SSL mode for pooler: `sslmode=no-verify` (required)
 
 #### Authentication (Required)
 ```env
@@ -539,11 +615,79 @@ NEXT_PUBLIC_SUPABASE_URL="https://qraijuzzktertoujrwat.supabase.co"
 SUPABASE_SERVICE_ROLE_KEY="[From Supabase Dashboard]"
 ```
 
+### Complete .env.local Template (Current Working Configuration)
+
+**Last Verified:** January 28, 2026
+
+```env
+# ============================================
+# DATABASE CONFIGURATION
+# ============================================
+
+# For the App (Session Pooler - Port 5432)
+# Note: If DNS resolution fails, check Supabase Dashboard → Settings → Database → Connection Pooling
+# Ensure "Session Pooler" is enabled and the hostname matches
+DATABASE_URL="postgresql://postgres.qraijuzzktertoujrwat:8bYD7LNFFWwPaREy@aws-1-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=no-verify"
+
+# For the CLI/Migrations (Direct - Port 5432)
+DIRECT_URL="postgresql://postgres:8bYD7LNFFWwPaREy@db.qraijuzzktertoujrwat.supabase.co:5432/postgres"
+
+# ============================================
+# AUTHENTICATION
+# ============================================
+
+NEXTAUTH_SECRET="kViy49P1rzlNOz45VNzWIW89lTM+wR9hapwNElvoiJc="
+NEXTAUTH_URL="http://localhost:3001"
+NEXT_PUBLIC_SITE_URL="http://localhost:3001"
+
+# ============================================
+# CLOUDINARY (Image Hosting)
+# ============================================
+
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="drtwveoqo"
+NEXT_PUBLIC_CLOUDINARY_API_KEY="384481647798187"
+CLOUDINARY_API_SECRET="kaBkK8W140kIHJCaL859erzGYcs"
+
+# ============================================
+# ANALYTICS
+# ============================================
+
+NEXT_PUBLIC_GOOGLE_ANALYTICS_ID="G-8WGHN47VLM"
+
+# ============================================
+# ENVIRONMENT
+# ============================================
+
+NODE_ENV="development"
+NEXT_PUBLIC_DEBUG=true
+
+# ============================================
+# YOUTUBE API
+# ============================================
+
+NEXT_PUBLIC_YOUTUBE_API_KEY=AIzaSyAvy1Ws_I-_xMw-6_Bk4jrwk5_eRlkIj18
+# Optional: Use Channel ID (starts with UC...) instead of handle
+# NEXT_PUBLIC_YOUTUBE_CHANNEL_ID=UCXXXXXXXXXXXXXXXXXXXXXXXXX
+
+# ============================================
+# EMAIL (Resend)
+# ============================================
+
+RESEND_API_KEY=re_3zKmJ2nA_DVCha2ZoeW7m3Kb34L9f7wns
+```
+
+**Important Notes:**
+- Replace passwords/keys with actual values from service dashboards
+- For production, update `NEXTAUTH_URL` and `NEXT_PUBLIC_SITE_URL` to production domain
+- Keep `.env.local` in `.gitignore` (never commit secrets)
+- Use `DATABASE_URL` for application, `DIRECT_URL` for CLI tools
+
 ### Where to Find Credentials
 
 **Supabase:**
 - Dashboard: https://supabase.com/dashboard/project/qraijuzzktertoujrwat
 - Settings → Database → Connection string
+- Settings → Database → Connection Pooling (for pooler hostname)
 - Settings → API → Service role key
 
 **Resend:**
