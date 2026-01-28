@@ -153,6 +153,16 @@ export default function ContactForm() {
         throw new Error(errorMessage);
       }
 
+      // Log email status for debugging
+      if (result.emailDetails) {
+        console.log("📧 Email Status:", {
+          businessEmailSent: result.emailDetails.businessEmailSent,
+          businessEmailError: result.emailDetails.businessEmailError,
+          businessEmailTo: result.emailDetails.businessEmailTo,
+          confirmationEmailSent: result.emailDetails.confirmationEmailSent,
+        });
+      }
+
       // Redirect to thank-you page on success (status 200)
       if (response.status === 200) {
         // Track conversion in Google Analytics

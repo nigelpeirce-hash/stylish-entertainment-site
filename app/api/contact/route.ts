@@ -408,16 +408,35 @@ export async function POST(request: NextRequest) {
             subject: emailSubject,
             html: emailHtml,
           });
-          const messageId = businessEmailResult.data?.id || businessEmailResult.id;
-          console.log("✅ Business email sent via Resend:", {
-            messageId: messageId,
-            to: recipientEmail,
-            from: emailConfig.from,
-          });
-          emailResult = { 
-            success: true, 
-            messageId: messageId 
-          };
+          
+          // Resend returns { data: { id: '...' }, error: null } on success
+          // Or { data: null, error: {...} } on failure
+          const messageId = businessEmailResult.data?.id;
+          const hasError = businessEmailResult.error || !messageId;
+          
+          if (hasError) {
+            console.error("❌ Resend returned error or no messageId:", {
+              error: businessEmailResult.error,
+              messageId: messageId,
+              data: businessEmailResult.data,
+              fullResponse: JSON.stringify(businessEmailResult, null, 2),
+            });
+            emailResult = { 
+              success: false, 
+              error: businessEmailResult.error?.message || businessEmailResult.error || "Resend returned no messageId",
+              errorDetails: businessEmailResult.error,
+            };
+          } else {
+            console.log("✅ Business email sent via Resend:", {
+              messageId: messageId,
+              to: recipientEmail,
+              from: emailConfig.from,
+            });
+            emailResult = { 
+              success: true, 
+              messageId: messageId 
+            };
+          }
         } catch (resendError: any) {
           console.error("❌ Error sending business email via Resend:", resendError);
           console.error("❌ Resend error type:", resendError?.constructor?.name || typeof resendError);
@@ -517,9 +536,27 @@ export async function POST(request: NextRequest) {
             subject: enquiryEmail.subject,
             html: enquiryEmail.html,
           });
-          console.log("✅ Autoresponder sent via Resend:", {
-            messageId: confirmationResult.data?.id || confirmationResult.id,
-          });
+          
+          // Check for Resend errors in response
+          const confirmationMessageId = confirmationResult.data?.id;
+          const confirmationHasError = confirmationResult.error || !confirmationMessageId;
+          
+          if (confirmationHasError) {
+            console.error("❌ Autoresponder Resend error:", {
+              error: confirmationResult.error,
+              messageId: confirmationMessageId,
+              fullResponse: JSON.stringify(confirmationResult, null, 2),
+            });
+            confirmationResult = { 
+              success: false,
+              error: confirmationResult.error?.message || confirmationResult.error || "No messageId returned",
+            };
+          } else {
+            console.log("✅ Autoresponder sent via Resend:", {
+              messageId: confirmationMessageId,
+              to: email,
+            });
+          }
         } catch (resendError) {
           console.error("❌ Error sending enquiry autoresponder via Resend:", resendError);
           console.error("❌ Resend error details:", JSON.stringify(resendError, null, 2));
@@ -564,9 +601,10 @@ export async function POST(request: NextRequest) {
         emailDetails: {
           businessEmailSent: emailResult?.success || false,
           businessEmailMessageId: emailResult?.success ? (emailResult as any).messageId : undefined,
-          businessEmailError: emailResult?.success ? undefined : (emailResult as any)?.error,
+          businessEmailError: emailResult?.success ? undefined : ((emailResult as any)?.error || (emailResult as any)?.errorDetails),
           confirmationEmailSent: confirmationSuccess,
           confirmationEmailMessageId: confirmationMessageId || undefined,
+          confirmationEmailError: confirmationSuccess ? undefined : (confirmationResult as any)?.error,
           businessEmailTo: recipientEmail,
           confirmationEmailTo: email,
         }
