@@ -2,7 +2,7 @@
 ## Stylish Entertainment Website
 
 **Last Updated:** January 28, 2026  
-**Version:** 1.2  
+**Version:** 1.3  
 **Purpose:** Complete technical documentation for rebuilding the system from scratch in case of catastrophic failure
 
 ---
@@ -499,7 +499,7 @@ npm run dev
 #### 6.1 Connect Vercel to Repository
 
 1. Go to https://vercel.com/dashboard
-2. Click "Add New Project"
+2. Click "Add New Project" (or select existing project)
 3. Import from GitHub
 4. Select repository: `stylish-entertainment-site`
 5. Configure project settings:
@@ -511,35 +511,70 @@ npm run dev
 
 #### 6.2 Configure Environment Variables in Vercel
 
-Go to: **Project Settings → Environment Variables**
+**⚠️ CRITICAL: DATABASE_URL Must Use Pooler Connection**
 
-Add all variables from [Environment Variables Reference](#environment-variables-reference)
+Go to: **Vercel Dashboard → Project → Settings → Environment Variables**
 
-**Critical Variables:**
+**Step-by-Step DATABASE_URL Setup:**
+
+1. Click **Add New** (or **Edit** if `DATABASE_URL` already exists)
+2. **Key:** `DATABASE_URL`
+3. **Value:** Copy this EXACT connection string:
+   ```
+   postgresql://postgres.qraijuzzktertoujrwat:8bYD7LNFFWwPaREy@aws-1-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=no-verify
+   ```
+4. **Environment:** Select **ALL** (Production, Preview, Development)
+5. Click **Save**
+
+**Critical Requirements for DATABASE_URL:**
+- ✅ Username MUST be `postgres.qraijuzzktertoujrwat` (with project ref) - NOT just `postgres`
+- ✅ Hostname MUST be `aws-1-eu-west-1.pooler.supabase.com` (pooler endpoint, not direct)
+- ✅ Port: `5432` (Session Pooler)
+- ✅ SSL mode: `sslmode=no-verify` (required for Supabase pooler)
+- ⚠️ **DO NOT use direct connection** - causes `ETIMEDOUT` errors in production
+
+**Why Pooler is Required:**
+- Direct connection (`db.qraijuzzktertoujrwat.supabase.co`) causes timeout errors on Vercel
+- Pooler connection is optimized for serverless environments
+- Better connection handling and timeout management
+
+**Other Critical Variables:**
 ```env
-DATABASE_URL=[Supabase connection string]
-NEXTAUTH_SECRET=[Generated secret]
+NEXTAUTH_SECRET=[Generated secret - see Environment Variables Reference]
 NEXTAUTH_URL=https://stylishentertainment.co.uk
 NEXT_PUBLIC_SITE_URL=https://stylishentertainment.co.uk
 RESEND_API_KEY=[Resend API key]
 RESEND_DEFAULT_FROM=STYLISH Entertainment <info@stylishentertainment.co.uk>
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME=drtwveoqo
+CLOUDINARY_API_SECRET=[From Cloudinary Dashboard]
 ```
 
 **Important:**
 - Set for **all environments** (Production, Preview, Development)
 - Use production URLs for `NEXTAUTH_URL` and `NEXT_PUBLIC_SITE_URL`
-- Use Session Pooler connection string for `DATABASE_URL`
+- After updating `DATABASE_URL`, **MUST redeploy** (see 6.3)
 
-#### 6.3 Deploy
+#### 6.3 Deploy / Redeploy
+
+**⚠️ IMPORTANT: After Updating DATABASE_URL, You MUST Redeploy**
+
+**Manual Redeploy (Required After Environment Variable Changes):**
+1. Go to Vercel Dashboard → **Deployments** tab
+2. Find the latest deployment
+3. Click **⋯** (three dots) menu
+4. Click **Redeploy**
+5. Wait 2-3 minutes for deployment to complete
+6. Verify deployment logs show successful connection
 
 **Automatic Deployment:**
 - Push to `main` branch triggers automatic deployment
 - Vercel builds and deploys automatically
+- Environment variables are included in build
 
-**Manual Deployment:**
-1. Go to Vercel Dashboard → Deployments
-2. Click "Redeploy" on latest deployment
-3. Or push a commit: `git push origin main`
+**Verify Deployment Success:**
+- Check deployment logs for "✅ Database connection test successful"
+- No `ETIMEDOUT` errors in logs
+- Production site loads without database errors
 
 #### 6.4 Verify Deployment
 
@@ -1155,6 +1190,61 @@ export async function generateStaticParams() {
 
 ### Common Issues & Solutions
 
+#### Issue: Vercel Production - ETIMEDOUT Database Errors
+
+**Symptoms:**
+- Production site shows `ETIMEDOUT` errors in Vercel logs
+- Error: `Connection timeout - check network/DATABASE_URL`
+- Error: `Prisma error code: ETIMEDOUT`
+- API routes timing out on database queries
+- Works locally but fails in production
+
+**Root Cause:**
+Vercel is using the **direct connection** instead of the **pooler connection**. Direct connections are not optimized for serverless environments and cause timeout issues.
+
+**Solution (CRITICAL):**
+
+1. **Update Vercel DATABASE_URL Environment Variable:**
+   - Go to: Vercel Dashboard → Project → Settings → Environment Variables
+   - Find `DATABASE_URL`
+   - Click **Edit**
+   - Replace with pooler connection string:
+     ```
+     postgresql://postgres.qraijuzzktertoujrwat:8bYD7LNFFWwPaREy@aws-1-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=no-verify
+     ```
+   - **Critical:** Username MUST be `postgres.qraijuzzktertoujrwat` (with project ref)
+   - **Critical:** Hostname MUST be `aws-1-eu-west-1.pooler.supabase.com` (pooler)
+   - Select **ALL** environments (Production, Preview, Development)
+   - Click **Save**
+
+2. **Redeploy Immediately:**
+   - Go to Deployments tab
+   - Click **⋯** on latest deployment
+   - Click **Redeploy**
+   - Wait 2-3 minutes
+
+3. **Verify Fix:**
+   - Check deployment logs for "✅ Database connection test successful"
+   - No more `ETIMEDOUT` errors
+   - Production site works correctly
+
+**Why This Happens:**
+- Direct connection: `postgresql://postgres:password@db.qraijuzzktertoujrwat.supabase.co:5432/postgres`
+  - ❌ Not optimized for serverless
+  - ❌ Connection limits
+  - ❌ Timeout issues on Vercel
+
+- Pooler connection: `postgresql://postgres.qraijuzzktertoujrwat:password@aws-1-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=no-verify`
+  - ✅ Optimized for serverless
+  - ✅ Connection pooling
+  - ✅ Better timeout handling
+  - ✅ Required for Vercel production
+
+**Prevention:**
+- Always use pooler connection string in Vercel
+- Never use direct connection for production
+- Document connection string in disaster recovery guide (this file)
+
 #### Issue: Database Connection Failed
 
 **Symptoms:**
@@ -1170,11 +1260,11 @@ export async function generateStaticParams() {
 
 **Connection String Format:**
 ```
-# Session Pooler (Recommended)
-postgresql://postgres.qraijuzzktertoujrwat:[PASSWORD]@aws-1-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=no-verify
+# Session Pooler (Recommended - REQUIRED for Vercel)
+postgresql://postgres.qraijuzzktertoujrwat:8bYD7LNFFWwPaREy@aws-1-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=no-verify
 
-# Direct (Development)
-postgresql://postgres:[PASSWORD]@db.qraijuzzktertoujrwat.supabase.co:5432/postgres?sslmode=no-verify
+# Direct (Development Only - DO NOT use in Vercel)
+postgresql://postgres:8bYD7LNFFWwPaREy@db.qraijuzzktertoujrwat.supabase.co:5432/postgres
 ```
 
 #### Issue: Prisma Client Not Generated

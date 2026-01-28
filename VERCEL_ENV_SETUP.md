@@ -12,14 +12,16 @@ After resetting your Supabase database password, you need to update Vercel with 
    - Click on **Settings** tab
    - Click on **Environment Variables** in the left menu
 
-3. **Update DATABASE_URL**
+3. **Update DATABASE_URL** (CRITICAL - Use Pooler for Production)
    - Find `DATABASE_URL` in the list
    - Click **Edit** (or delete and recreate if needed)
-   - **Value:** Use your new connection string:
+   - **Value:** Use the Session Pooler connection string (REQUIRED for Vercel):
      ```
-     postgresql://postgres:YOUR_NEW_PASSWORD@db.qraijuzzktertoujrwat.supabase.co:5432/postgres?sslmode=require
+     postgresql://postgres.qraijuzzktertoujrwat:8bYD7LNFFWwPaREy@aws-1-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=no-verify
      ```
-   - Replace `YOUR_NEW_PASSWORD` with the password you just set
+   - ⚠️ **IMPORTANT:** Username MUST be `postgres.qraijuzzktertoujrwat` (with project ref) - NOT just `postgres`
+   - ⚠️ **IMPORTANT:** Use pooler hostname `aws-1-eu-west-1.pooler.supabase.com` (not direct connection)
+   - ⚠️ **IMPORTANT:** SSL mode must be `sslmode=no-verify` for pooler
    - **Environment:** Make sure all are selected (Production, Preview, Development)
    - Click **Save**
 
