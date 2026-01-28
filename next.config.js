@@ -33,8 +33,8 @@ const nextConfig = {
     return config;
   },
   experimental: {
-    // Explicitly disable Turbopack for production builds
-    turbo: false, // 🚨 MUST be false
+    // Do NOT include 'turbo' property - Next.js expects an object, not boolean
+    // Removing it entirely disables Turbopack for production builds
     // Disable server source maps to prevent minification crashes
     serverSourceMaps: false,
   },
