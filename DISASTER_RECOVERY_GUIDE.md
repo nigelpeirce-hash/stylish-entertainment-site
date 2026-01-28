@@ -1,0 +1,1413 @@
+# Disaster Recovery & Complete Rebuild Guide
+## Stylish Entertainment Website
+
+**Last Updated:** January 27, 2026  
+**Version:** 1.1  
+**Purpose:** Complete technical documentation for rebuilding the system from scratch in case of catastrophic failure
+
+---
+
+## Table of Contents
+
+1. [Quick Recovery Checklist](#quick-recovery-checklist)
+2. [System Architecture Overview](#system-architecture-overview)
+3. [Prerequisites & Requirements](#prerequisites--requirements)
+4. [Step-by-Step Rebuild Process](#step-by-step-rebuild-process)
+5. [Environment Variables Reference](#environment-variables-reference)
+6. [Database Setup & Migrations](#database-setup--migrations)
+7. [Service Configurations](#service-configurations)
+8. [Data Backup & Restore](#data-backup--restore)
+9. [Testing & Verification](#testing--verification)
+10. [Troubleshooting](#troubleshooting)
+11. [Emergency Contacts & Resources](#emergency-contacts--resources)
+
+---
+
+## Quick Recovery Checklist
+
+### Immediate Actions (First 30 Minutes)
+- [ ] Verify all service accounts are accessible (Supabase, Vercel, Resend, Cloudinary)
+- [ ] Check if code repository is accessible (GitHub)
+- [ ] Assess data loss (database, images, files)
+- [ ] Document current error messages and symptoms
+- [ ] Check service status pages for outages
+
+### Critical Services to Verify
+- [ ] **Supabase Database** - https://supabase.com/dashboard
+- [ ] **Vercel Hosting** - https://vercel.com/dashboard
+- [ ] **Resend Email** - https://resend.com/dashboard
+- [ ] **Cloudinary Images** - https://cloudinary.com/console
+- [ ] **GitHub Repository** - Verify code access
+
+### Recovery Priority Order
+1. **Database** - Restore from backup or recreate schema
+2. **Code Repository** - Clone and verify all files
+3. **Environment Variables** - Restore all secrets
+4. **Hosting** - Reconnect Vercel to repository
+5. **Third-Party Services** - Verify API keys and configurations
+6. **Testing** - Verify all functionality
+
+---
+
+## System Architecture Overview
+
+### Technology Stack
+
+**Frontend:**
+- Next.js 15.1.11 (App Router)
+- TypeScript
+- Tailwind CSS
+- Radix UI + Shadcn/UI components
+- Framer Motion (animations)
+- SWR (data fetching)
+
+**Backend:**
+- Next.js API Routes
+- Prisma 6.19.2 (ORM)
+- NextAuth.js v5 beta (authentication)
+- Node.js runtime
+
+**Database:**
+- Supabase PostgreSQL
+- Connection: Session Pooler (recommended) or Direct
+
+**External Services:**
+- **Hosting:** Vercel
+- **Email:** Resend
+- **Images:** Cloudinary (account: drtwveoqo)
+- **Analytics:** Google Analytics
+- **Spam Protection:** Google reCAPTCHA v3
+
+### Project Structure
+
+```
+/
+├── app/                    # Next.js App Router pages and API routes
+│   └── about/blog/        # Blog pages (use wrapper pattern)
+├── components/             # React components
+│   └── blog/              # Blog page client wrappers
+├── lib/                    # Utility functions and configurations
+│   ├── auth.ts            # NextAuth configuration
+│   ├── prisma.ts          # Prisma client setup (CRITICAL: singleton pattern)
+│   └── email/             # Email sending functions
+├── prisma/
+│   └── schema.prisma      # Database schema
+├── scripts/               # Utility scripts (seeding, fixes)
+├── public/                # Static assets
+├── types/                 # TypeScript type definitions
+├── hooks/                 # React hooks
+├── data/                  # Static data files
+├── utils/                 # Utility functions
+├── next.config.js         # Next.js configuration (CRITICAL: build fixes)
+├── package.json           # Dependencies and scripts
+└── vercel.json            # Vercel deployment configuration
+```
+
+---
+
+## Prerequisites & Requirements
+
+### Required Software
+
+1. **Node.js** - Version 20.x or higher
+   ```bash
+   node --version  # Should show v20.x.x or higher
+   ```
+
+2. **npm** - Comes with Node.js
+   ```bash
+   npm --version  # Should show 9.x.x or higher
+   ```
+
+3. **Git** - For version control
+   ```bash
+   git --version
+   ```
+
+4. **PostgreSQL Client** (optional) - For direct database access
+   - pgAdmin, DBeaver, or psql command line
+
+### Required Accounts & Access
+
+1. **GitHub** - Code repository access
+2. **Vercel** - Hosting platform
+3. **Supabase** - Database hosting
+4. **Resend** - Email service
+5. **Cloudinary** - Image hosting
+6. **Google Services** - Analytics and reCAPTCHA
+
+### Required Credentials (Store Securely)
+
+- Supabase database password
+- Resend API key
+- Cloudinary API keys
+- Google Analytics ID
+- Google reCAPTCHA keys
+- Vercel deployment tokens
+- GitHub repository access
+
+---
+
+## Step-by-Step Rebuild Process
+
+### Phase 1: Repository Setup
+
+#### 1.1 Clone Repository
+
+```bash
+# Navigate to your workspace
+cd ~/Desktop/Local\ Sites/
+
+# Clone the repository (replace with actual URL)
+git clone [REPOSITORY_URL] "Stylish New Webiste"
+
+# Navigate into project
+cd "Stylish New Webiste"
+```
+
+#### 1.2 Verify Files
+
+```bash
+# Check critical files exist
+ls -la package.json
+ls -la prisma/schema.prisma
+ls -la next.config.js
+ls -la .env.local.example
+```
+
+#### 1.3 Install Dependencies
+
+```bash
+# Install all npm packages
+npm install
+
+# This will automatically run:
+# - npm install (installs packages)
+# - postinstall script runs: prisma generate
+```
+
+**Expected Output:**
+- All packages installed
+- Prisma client generated in `node_modules/.prisma/client`
+
+**If Errors:**
+- Check Node.js version: `node --version` (must be 20.x+)
+- Clear cache: `rm -rf node_modules package-lock.json && npm install`
+- Check internet connection
+
+#### 1.4 Verify Critical Build Configuration
+
+**CRITICAL:** The following configurations are essential for successful builds:
+
+**1. Verify `next.config.js` has these settings:**
+```javascript
+experimental: {
+  webpackBuildWorker: false,  // Prevents build worker crashes
+  serverSourceMaps: false,     // Prevents minification crashes
+},
+webpack: (config, { isServer }) => {
+  // Fix for Prisma createRequire minification bug
+  if (isServer) {
+    config.optimization.minimize = false;
+  }
+  return config;
+}
+```
+
+**2. Verify `lib/prisma.ts` uses singleton pattern:**
+```typescript
+const globalForPrisma = global as unknown as { prisma: PrismaClient }
+
+if (!globalForPrisma.prisma) {
+  globalForPrisma.prisma = new PrismaClient({ ... })
+}
+
+export const prisma = globalForPrisma.prisma  // Must export the global instance
+```
+
+**3. Verify blog pages use wrapper pattern:**
+- Blog page components (`page.tsx`) are server components
+- Client wrappers in `components/blog/` handle dynamic imports
+- Route segment configs (`dynamic = 'force-dynamic'`) in page.tsx
+
+---
+
+### Phase 2: Environment Configuration
+
+#### 2.1 Create Environment File
+
+```bash
+# Copy example file
+cp .env.local.example .env.local
+
+# Edit with your values
+nano .env.local  # or use your preferred editor
+```
+
+#### 2.2 Set Required Environment Variables
+
+See [Environment Variables Reference](#environment-variables-reference) for complete list.
+
+**Minimum Required for Local Development:**
+
+```env
+# Database (Supabase)
+DATABASE_URL="postgresql://postgres:[PASSWORD]@aws-1-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=no-verify"
+
+# Authentication
+NEXTAUTH_SECRET="[GENERATE: openssl rand -base64 32]"
+NEXTAUTH_URL="http://localhost:3001"
+NEXT_PUBLIC_SITE_URL="http://localhost:3001"
+
+# Email (Resend)
+RESEND_API_KEY="re_xxxxxxxxxxxxx"
+RESEND_DEFAULT_FROM="STYLISH Entertainment <info@stylishentertainment.co.uk>"
+```
+
+#### 2.3 Generate NEXTAUTH_SECRET
+
+```bash
+# Generate a secure secret
+openssl rand -base64 32
+
+# Copy the output and paste into .env.local as NEXTAUTH_SECRET
+```
+
+---
+
+### Phase 3: Database Setup
+
+#### 3.1 Verify Supabase Connection
+
+**Supabase Project Details:**
+- **Project Reference:** `qraijuzzktertoujrwat`
+- **Dashboard:** https://supabase.com/dashboard/project/qraijuzzktertoujrwat
+
+**Connection String Format:**
+```
+# Session Pooler (Recommended for Production)
+postgresql://postgres.qraijuzzktertoujrwat:[PASSWORD]@aws-1-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=no-verify
+
+# Direct Connection (Development Only)
+postgresql://postgres:[PASSWORD]@db.qraijuzzktertoujrwat.supabase.co:5432/postgres?sslmode=no-verify
+```
+
+**To Get Password:**
+1. Go to Supabase Dashboard
+2. Settings → Database
+3. Click "Reset database password" (if needed)
+4. Copy the connection string or password
+
+#### 3.2 Push Database Schema
+
+```bash
+# Push Prisma schema to database (creates all tables)
+npx prisma db push
+
+# Generate Prisma client (if not already done)
+npx prisma generate
+```
+
+**Expected Output:**
+- All tables created successfully
+- No migration errors
+
+**If Errors:**
+- Check `DATABASE_URL` is correct in `.env.local`
+- Verify Supabase project is active (not paused)
+- Check network connection
+- Try direct connection instead of pooler
+
+#### 3.3 Verify Database Connection
+
+```bash
+# Open Prisma Studio to view database
+npx prisma studio
+
+# Should open browser at http://localhost:5555
+# You should see all tables listed
+```
+
+#### 3.4 Run Database Migrations (If Needed)
+
+If you have SQL migration files, run them in order:
+
+```bash
+# Example: Run a specific migration
+# Connect to Supabase SQL Editor and run:
+# - supabase-migration.sql
+# - supabase-user-management-migration.sql
+# - supabase-staff-management-migration.sql
+# etc.
+
+# Or use psql:
+psql [DATABASE_URL] -f supabase-migration.sql
+```
+
+**Important Migration Files (if they exist):**
+- `supabase-migration.sql` - Core schema
+- `supabase-user-management-migration.sql` - User tables
+- `supabase-staff-management-migration.sql` - Staff tables
+- `supabase-booking-integrity-migration.sql` - Booking constraints
+- `supabase-inbox-flagging-migration.sql` - Email features
+
+---
+
+### Phase 4: Seed Initial Data (Optional)
+
+#### 4.1 Seed Demo Data
+
+```bash
+# Seed demo bookings and users
+npm run seed:demo
+```
+
+#### 4.2 Seed DJ Profiles
+
+```bash
+# Seed DJ profiles for public site
+npm run seed:djs
+```
+
+#### 4.3 Seed Hire Items
+
+```bash
+# Seed equipment hire items
+npm run seed:hire
+```
+
+#### 4.4 Seed Venues
+
+```bash
+# Seed venue information
+npm run seed:venues
+```
+
+#### 4.5 Create Admin Users
+
+```bash
+# Reset/create admin passwords
+npm run reset:admin-password
+
+# Default admin emails:
+# - nigel@stylishentertainment.co.uk
+# - ali@stylishentertainment.co.uk
+# Default password: demo123 (CHANGE IN PRODUCTION!)
+```
+
+---
+
+### Phase 5: Local Development Testing
+
+#### 5.1 Start Development Server
+
+```bash
+# Start dev server (runs on port 3001)
+npm run dev
+```
+
+**Expected Output:**
+```
+▲ Next.js 15.1.11
+- Local:        http://localhost:3001
+- Ready in X seconds
+```
+
+#### 5.2 Verify Application Loads
+
+1. Open browser: http://localhost:3001
+2. Check for errors in browser console (F12)
+3. Check terminal for server errors
+
+#### 5.3 Test Critical Features
+
+- [ ] Homepage loads
+- [ ] Contact form works
+- [ ] Admin login works (`/login`)
+- [ ] Client portal accessible
+- [ ] API routes respond correctly
+
+---
+
+### Phase 6: Production Deployment (Vercel)
+
+#### 6.1 Connect Vercel to Repository
+
+1. Go to https://vercel.com/dashboard
+2. Click "Add New Project"
+3. Import from GitHub
+4. Select repository: `stylish-entertainment-site`
+5. Configure project settings:
+   - **Framework Preset:** Next.js
+   - **Root Directory:** `./` (root)
+   - **Build Command:** `next build` (default)
+   - **Output Directory:** `.next` (default)
+   - **Install Command:** `npm install` (default)
+
+#### 6.2 Configure Environment Variables in Vercel
+
+Go to: **Project Settings → Environment Variables**
+
+Add all variables from [Environment Variables Reference](#environment-variables-reference)
+
+**Critical Variables:**
+```env
+DATABASE_URL=[Supabase connection string]
+NEXTAUTH_SECRET=[Generated secret]
+NEXTAUTH_URL=https://stylishentertainment.co.uk
+NEXT_PUBLIC_SITE_URL=https://stylishentertainment.co.uk
+RESEND_API_KEY=[Resend API key]
+RESEND_DEFAULT_FROM=STYLISH Entertainment <info@stylishentertainment.co.uk>
+```
+
+**Important:**
+- Set for **all environments** (Production, Preview, Development)
+- Use production URLs for `NEXTAUTH_URL` and `NEXT_PUBLIC_SITE_URL`
+- Use Session Pooler connection string for `DATABASE_URL`
+
+#### 6.3 Deploy
+
+**Automatic Deployment:**
+- Push to `main` branch triggers automatic deployment
+- Vercel builds and deploys automatically
+
+**Manual Deployment:**
+1. Go to Vercel Dashboard → Deployments
+2. Click "Redeploy" on latest deployment
+3. Or push a commit: `git push origin main`
+
+#### 6.4 Verify Deployment
+
+1. Check deployment logs in Vercel dashboard
+2. Verify build completes successfully
+3. Test production URL
+4. Check for runtime errors in Vercel logs
+
+---
+
+## Environment Variables Reference
+
+### Complete Environment Variables List
+
+#### Database (Required)
+```env
+DATABASE_URL="postgresql://postgres.qraijuzzktertoujrwat:[PASSWORD]@aws-1-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=no-verify"
+```
+
+#### Authentication (Required)
+```env
+NEXTAUTH_SECRET="[Generate with: openssl rand -base64 32]"
+AUTH_SECRET="[Same as NEXTAUTH_SECRET]"
+NEXTAUTH_URL="https://stylishentertainment.co.uk"
+NEXT_PUBLIC_SITE_URL="https://stylishentertainment.co.uk"
+```
+
+#### Email - Resend (Required)
+```env
+RESEND_API_KEY="re_xxxxxxxxxxxxx"
+RESEND_DEFAULT_FROM="STYLISH Entertainment <info@stylishentertainment.co.uk>"
+```
+
+#### Cloudinary (Required for Images)
+```env
+NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME="drtwveoqo"
+CLOUDINARY_API_KEY="[From Cloudinary Dashboard]"
+CLOUDINARY_API_SECRET="[From Cloudinary Dashboard]"
+```
+
+#### Google Services (Optional but Recommended)
+```env
+NEXT_PUBLIC_GA_MEASUREMENT_ID="G-XXXXXXXXXX"
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY="6LdXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+RECAPTCHA_SECRET_KEY="[From Google reCAPTCHA Admin]"
+```
+
+#### Google Places API (Optional)
+```env
+GOOGLE_PLACES_API_KEY="[From Google Cloud Console]"
+GOOGLE_PLACE_ID="[From Google Places]"
+```
+
+#### Cron Jobs (Optional)
+```env
+CRON_SECRET="[For scheduled tasks]"
+```
+
+#### Supabase (If using Supabase Auth)
+```env
+NEXT_PUBLIC_SUPABASE_URL="https://qraijuzzktertoujrwat.supabase.co"
+SUPABASE_SERVICE_ROLE_KEY="[From Supabase Dashboard]"
+```
+
+### Where to Find Credentials
+
+**Supabase:**
+- Dashboard: https://supabase.com/dashboard/project/qraijuzzktertoujrwat
+- Settings → Database → Connection string
+- Settings → API → Service role key
+
+**Resend:**
+- Dashboard: https://resend.com/dashboard
+- API Keys section
+
+**Cloudinary:**
+- Dashboard: https://cloudinary.com/console
+- Settings → Account Details
+
+**Vercel:**
+- Dashboard: https://vercel.com/dashboard
+- Project → Settings → Environment Variables
+
+**Google Services:**
+- Analytics: https://analytics.google.com/
+- reCAPTCHA: https://www.google.com/recaptcha/admin
+- Cloud Console: https://console.cloud.google.com/
+
+---
+
+## Database Setup & Migrations
+
+### Database Schema
+
+The complete schema is defined in `prisma/schema.prisma`. Key models:
+
+- **User** - Admin and client users
+- **Booking** - Event bookings
+- **FreelanceCrew** - Staff/DJ profiles
+- **BookingStaffAssignment** - Staff assignments
+- **EmailThread** - Email communications
+- **EmailInbox** - Email inbox configuration
+- **DJ** - DJ profiles for public site
+- **Musician** - Musician profiles
+- **HireItem** - Equipment hire items
+- **Venue** - Venue information
+- **Task** - Task management
+- **Note** - Booking notes
+- **GuestRequest** - Guest song requests
+
+### Database Commands
+
+```bash
+# Push schema to database (development)
+npx prisma db push
+
+# Generate Prisma client
+npx prisma generate
+
+# Open database GUI
+npx prisma studio
+
+# Create migration (production)
+npx prisma migrate dev --name migration_name
+
+# Apply migrations (production)
+npx prisma migrate deploy
+
+# Reset database (DANGER - deletes all data)
+npx prisma migrate reset
+```
+
+### Database Backups
+
+**Supabase Automatic Backups:**
+- Daily automatic backups
+- Access via Supabase Dashboard → Database → Backups
+- Can restore to point-in-time
+
+**Manual Backup:**
+```bash
+# Export database
+pg_dump [DATABASE_URL] > backup.sql
+
+# Restore database
+psql [DATABASE_URL] < backup.sql
+```
+
+### Important Database Constraints
+
+- **Row Level Security (RLS):** Enabled on Supabase
+- **Connection Pooling:** Use Session Pooler (15 connections max)
+- **SSL Required:** All connections must use SSL
+- **Indexes:** Many tables have indexes for performance
+
+---
+
+## Service Configurations
+
+### Vercel Configuration
+
+**Project:** `stylish-entertainment-site`  
+**Dashboard:** https://vercel.com/dashboard
+
+**Build Settings:**
+- Framework: Next.js
+- Build Command: `next build`
+- Output Directory: `.next`
+- Install Command: `npm install`
+- Node Version: 20.x
+
+**Cron Jobs (vercel.json):**
+```json
+{
+  "crons": [
+    {
+      "path": "/api/cron/email-journey",
+      "schedule": "0 9 * * *"  // Daily at 9 AM
+    },
+    {
+      "path": "/api/cron/monday-brief",
+      "schedule": "0 8 * * 1"  // Mondays at 8 AM
+    }
+  ]
+}
+```
+
+### Resend Email Configuration
+
+**Dashboard:** https://resend.com/dashboard
+
+**Required Settings:**
+- API Key: From Resend dashboard
+- From Address: `info@stylishentertainment.co.uk`
+- Domain: Must be verified in Resend
+
+**Email Templates:**
+- Located in `lib/email-journey-templates.tsx`
+- Customer journey emails
+- Staff confirmation emails
+- Monday brief emails
+
+### Cloudinary Configuration
+
+**Account:** `drtwveoqo`  
+**Dashboard:** https://cloudinary.com/console
+
+**Settings:**
+- Cloud Name: `drtwveoqo`
+- API Key: From dashboard
+- API Secret: From dashboard
+
+**Image Configuration (next.config.js):**
+- Remote patterns configured for `res.cloudinary.com`
+- Formats: AVIF, WebP
+- Device sizes configured
+
+### Supabase Configuration
+
+**Project:** `qraijuzzktertoujrwat`  
+**Dashboard:** https://supabase.com/dashboard/project/qraijuzzktertoujrwat
+
+**Connection:**
+- Use Session Pooler for production
+- Direct connection for development only
+- SSL required: `sslmode=no-verify` or `sslmode=require`
+
+**Features:**
+- Row Level Security (RLS) enabled
+- Automatic daily backups
+- Connection pooling (15 max connections)
+
+---
+
+## Data Backup & Restore
+
+### What to Backup
+
+1. **Database** - All PostgreSQL data
+2. **Code Repository** - Git repository
+3. **Environment Variables** - All secrets (store securely)
+4. **Images** - Cloudinary (automatic versioning)
+5. **Configuration Files** - Service configurations
+
+### Database Backup Procedures
+
+**Automatic (Supabase):**
+- Daily backups managed by Supabase
+- Access via Dashboard → Database → Backups
+- Can restore to any point in time
+
+**Manual Backup:**
+```bash
+# Export entire database
+pg_dump [DATABASE_URL] > backup_$(date +%Y%m%d).sql
+
+# Export specific table
+pg_dump [DATABASE_URL] -t "Booking" > bookings_backup.sql
+
+# Compress backup
+pg_dump [DATABASE_URL] | gzip > backup_$(date +%Y%m%d).sql.gz
+```
+
+**Restore Database:**
+```bash
+# Restore from backup
+psql [DATABASE_URL] < backup_20260127.sql
+
+# Or from compressed
+gunzip < backup_20260127.sql.gz | psql [DATABASE_URL]
+```
+
+### Code Backup
+
+**Git Repository:**
+```bash
+# Clone repository (backup)
+git clone [REPOSITORY_URL] backup-repo
+
+# Create archive
+tar -czf code-backup-$(date +%Y%m%d).tar.gz "Stylish New Webiste"
+```
+
+### Environment Variables Backup
+
+**Important:** Store securely (password manager, encrypted file)
+
+```bash
+# Export Vercel environment variables
+vercel env pull .env.production
+
+# Or manually document all variables
+# Store in secure location (1Password, LastPass, etc.)
+```
+
+### Image Backup (Cloudinary)
+
+- Cloudinary maintains version history
+- Can restore deleted images via dashboard
+- Export via API if needed
+
+---
+
+## Testing & Verification
+
+### Pre-Deployment Testing Checklist
+
+#### Local Testing
+- [ ] Application starts without errors
+- [ ] Database connection works
+- [ ] Admin login works
+- [ ] Client portal accessible
+- [ ] Contact form submits
+- [ ] Email sending works
+- [ ] Image uploads work (if applicable)
+- [ ] API routes respond correctly
+- [ ] No console errors in browser
+
+#### Production Testing
+- [ ] Site loads on production URL
+- [ ] HTTPS redirects work
+- [ ] Authentication works
+- [ ] Email sending works
+- [ ] Database queries work
+- [ ] Cron jobs execute (check logs)
+- [ ] No 500 errors in logs
+- [ ] Performance is acceptable
+
+### Verification Commands
+
+```bash
+# Check Node.js version
+node --version  # Should be 20.x+
+
+# Check npm version
+npm --version
+
+# Verify Prisma client generated
+ls node_modules/.prisma/client
+
+# Test database connection
+npx prisma db execute --stdin <<< "SELECT 1"
+
+# Build for production
+npm run build
+
+# Check for TypeScript errors
+npx tsc --noEmit
+
+# Check for linting errors
+npm run lint
+```
+
+### Critical Functionality Tests
+
+**1. Authentication:**
+- Admin login: `/login`
+- Client portal access
+- Session persistence
+- Logout functionality
+
+**2. Booking System:**
+- Create booking
+- View booking details
+- Update booking status
+- Staff assignment
+
+**3. Email System:**
+- Send test email
+- Verify Resend API key works
+- Check email templates render
+
+**4. Database:**
+- Read operations work
+- Write operations work
+- Relationships load correctly
+
+---
+
+## Critical Build Configuration
+
+### Next.js 15 Build Fixes (REQUIRED)
+
+These configurations are **essential** for successful builds in Next.js 15. Without them, you will experience minification errors and build failures.
+
+#### 1. next.config.js Configuration
+
+**File:** `next.config.js`
+
+**Required Settings:**
+```javascript
+experimental: {
+  // Disable webpack build worker to prevent crashes
+  webpackBuildWorker: false,
+  // Disable server source maps to prevent minification crashes
+  serverSourceMaps: false,
+},
+webpack: (config, { isServer }) => {
+  // CRITICAL: Fix for Prisma createRequire minification bug
+  // This prevents "o is not a function" errors during build
+  if (isServer) {
+    config.optimization.minimize = false;
+  }
+  return config;
+}
+```
+
+**Why These Are Needed:**
+- `webpackBuildWorker: false` - Prevents build worker process crashes in Next.js 15
+- `serverSourceMaps: false` - Prevents source map generation issues during minification
+- `config.optimization.minimize = false` (server) - Prisma uses `createRequire` which breaks when minified
+
+#### 2. Prisma Singleton Pattern
+
+**File:** `lib/prisma.ts`
+
+**Required Pattern:**
+```typescript
+const globalForPrisma = global as unknown as { prisma: PrismaClient }
+
+if (!globalForPrisma.prisma) {
+  globalForPrisma.prisma = new PrismaClient({
+    adapter,
+    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+  })
+}
+
+// CRITICAL: Must export the global instance, not a new one
+export const prisma = globalForPrisma.prisma
+```
+
+**Why This Is Needed:**
+- Prevents multiple PrismaClient instances during build
+- Ensures single instance across all module loads
+- Prevents "Collecting page data" phase crashes
+
+#### 3. Blog Page Wrapper Pattern
+
+**Problem:** Blog pages use client-only libraries (`framer-motion`, `yet-another-react-lightbox`) that cannot be evaluated during server-side build/prerendering.
+
+**Solution:** Use client component wrappers.
+
+**Structure:**
+```
+app/about/blog/[blog-name]/page.tsx          # Server component
+components/blog/[BlogName]Wrapper.tsx        # Client component wrapper
+app/about/blog/[blog-name]/[BlogName]Content.tsx  # Client content component
+```
+
+**Example - page.tsx (Server Component):**
+```typescript
+// Route segment configs at the very top
+export const dynamic = 'force-dynamic';
+export const dynamicParams = true;
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
+export const runtime = 'nodejs';
+export async function generateStaticParams() {
+  return [];  // Skip static generation
+}
+
+import BlogWrapper from "@/components/blog/BlogWrapper";
+
+export default async function BlogPage() {
+  return <BlogWrapper />;
+}
+```
+
+**Example - BlogWrapper.tsx (Client Component):**
+```typescript
+"use client";
+
+import dynamic from "next/dynamic";
+
+// Dynamic import with ssr: false in client component
+const BlogContent = dynamic(
+  () => import("@/app/about/blog/blog-name/BlogContent"),
+  {
+    ssr: false,
+    loading: () => <div>Loading...</div>,
+  }
+);
+
+export default function BlogWrapper() {
+  return <BlogContent />;
+}
+```
+
+**Why This Pattern:**
+- Separates server route config from client dynamic imports
+- Prevents naming conflicts (`dynamic` route config vs `dynamic()` function)
+- Keeps SEO benefits (route configs in server component)
+- Prevents build-time evaluation of client-only code
+
+#### 4. Client-Only Library Handling
+
+**yet-another-react-lightbox:**
+- Must be dynamically imported in client components
+- CSS import must be in `useEffect` hook:
+  ```typescript
+  useEffect(() => {
+    import("yet-another-react-lightbox/styles.css");
+  }, []);
+  ```
+
+**framer-motion:**
+- Can be directly imported in client components
+- Components using `motion` must have `"use client"` directive
+
+**Components Affected:**
+- `components/ImageCarousel.tsx` - Uses lightbox (dynamically imported)
+- `components/BlogImage.tsx` - Uses lightbox (dynamically imported)
+- Blog content components - Use `framer-motion` (direct import OK in client components)
+
+#### 5. Route Segment Configuration
+
+For pages that cannot be statically generated (blog pages with client-only code):
+
+```typescript
+// At the very top of page.tsx (before imports)
+export const dynamic = 'force-dynamic';        // Force dynamic rendering
+export const dynamicParams = true;             // Allow dynamic params
+export const revalidate = 0;                   // No revalidation
+export const fetchCache = 'force-no-store';    // No fetch caching
+export const runtime = 'nodejs';              // Use Node.js runtime
+export async function generateStaticParams() {
+  return [];  // Skip static generation entirely
+}
+```
+
+---
+
+## Troubleshooting
+
+### Common Issues & Solutions
+
+#### Issue: Database Connection Failed
+
+**Symptoms:**
+- Error: `Can't reach database server`
+- Error: `P1001: Can't reach database server`
+
+**Solutions:**
+1. Check Supabase project is active (not paused)
+2. Verify `DATABASE_URL` is correct
+3. Try Session Pooler instead of direct connection
+4. Check network/firewall settings
+5. Verify SSL mode: `?sslmode=no-verify`
+
+**Connection String Format:**
+```
+# Session Pooler (Recommended)
+postgresql://postgres.qraijuzzktertoujrwat:[PASSWORD]@aws-1-eu-west-1.pooler.supabase.com:5432/postgres?sslmode=no-verify
+
+# Direct (Development)
+postgresql://postgres:[PASSWORD]@db.qraijuzzktertoujrwat.supabase.co:5432/postgres?sslmode=no-verify
+```
+
+#### Issue: Prisma Client Not Generated
+
+**Symptoms:**
+- Error: `@prisma/client did not initialize yet`
+- Error: `Cannot find module '.prisma/client'`
+
+**Solutions:**
+```bash
+# Regenerate Prisma client
+npx prisma generate
+
+# Or reinstall dependencies
+rm -rf node_modules .next
+npm install
+```
+
+#### Issue: Build Fails
+
+**Symptoms:**
+- Build errors in Vercel
+- TypeScript errors
+- Module resolution errors
+- `TypeError: d is not a function` (minification errors)
+- `TypeError: o is not a function` (Prisma minification bug)
+- `TypeError: dynamic is not a function` (naming conflicts)
+
+**Solutions:**
+
+**1. Verify Next.js Configuration (CRITICAL):**
+```javascript
+// next.config.js MUST have:
+experimental: {
+  webpackBuildWorker: false,  // Prevents build worker crashes
+  serverSourceMaps: false,     // Prevents minification crashes
+},
+webpack: (config, { isServer }) => {
+  // CRITICAL: Disable server-side minification to fix Prisma bug
+  if (isServer) {
+    config.optimization.minimize = false;
+  }
+  return config;
+}
+```
+
+**2. Verify Prisma Singleton Pattern:**
+```typescript
+// lib/prisma.ts MUST export the global instance:
+const globalForPrisma = global as unknown as { prisma: PrismaClient }
+if (!globalForPrisma.prisma) {
+  globalForPrisma.prisma = new PrismaClient({ ... })
+}
+export const prisma = globalForPrisma.prisma  // Must be the global instance
+```
+
+**3. Verify Blog Page Wrapper Pattern:**
+- Blog `page.tsx` files are server components
+- Client wrappers in `components/blog/` handle dynamic imports with `ssr: false`
+- Route segment configs at top of page.tsx:
+  ```typescript
+  export const dynamic = 'force-dynamic';
+  export const revalidate = 0;
+  export const fetchCache = 'force-no-store';
+  export const runtime = 'nodejs';
+  export const dynamicParams = true;
+  export async function generateStaticParams() { return []; }
+  ```
+
+**4. Verify Client-Only Libraries:**
+- `yet-another-react-lightbox` must be dynamically imported in client components
+- CSS imports for lightbox must be in `useEffect` hooks
+- `framer-motion` can be directly imported in client components (they have `"use client"`)
+
+**5. General Build Fixes:**
+1. Check Node.js version (must be 20.x+)
+2. Clear cache: `rm -rf .next node_modules`
+3. Reinstall: `npm install`
+4. Check for missing dependencies
+5. Verify no naming conflicts (e.g., `dynamic` import vs `dynamic` route config)
+
+#### Issue: Authentication Not Working
+
+**Symptoms:**
+- Login fails
+- Session not persisting
+- Configuration errors
+
+**Solutions:**
+1. Verify `NEXTAUTH_SECRET` is set
+2. Check `NEXTAUTH_URL` matches current domain
+3. Verify `AUTH_SECRET` is set (NextAuth v5)
+4. Check database connection (auth queries database)
+5. Verify user exists in database
+
+#### Issue: Email Not Sending
+
+**Symptoms:**
+- Emails not received
+- Resend API errors
+
+**Solutions:**
+1. Verify `RESEND_API_KEY` is correct
+2. Check `RESEND_DEFAULT_FROM` format
+3. Verify domain is verified in Resend
+4. Check Resend dashboard for errors
+5. Test with simple email first
+
+#### Issue: Environment Variables Not Loading
+
+**Symptoms:**
+- `undefined` values
+- Variables not accessible
+
+**Solutions:**
+1. Restart dev server after adding variables
+2. In Vercel: Redeploy after adding variables
+3. Check variable names (case-sensitive)
+4. Verify `NEXT_PUBLIC_` prefix for client-side vars
+5. Check `.env.local` file exists and is in root
+
+#### Issue: Images Not Loading
+
+**Symptoms:**
+- Images broken
+- Cloudinary errors
+
+**Solutions:**
+1. Verify `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` is set
+2. Check image URLs are correct
+3. Verify Cloudinary account is active
+4. Check `next.config.js` remote patterns
+5. Verify image paths in code
+
+### Debugging Commands
+
+```bash
+# Check environment variables (local)
+cat .env.local
+
+# Check Prisma connection
+npx prisma db execute --stdin <<< "SELECT version()"
+
+# Test email sending (create test script)
+node -e "require('./lib/email/send-email.ts').sendEmail({...})"
+
+# Check build output
+npm run build 2>&1 | tee build.log
+
+# View Prisma Studio
+npx prisma studio
+
+# Check Vercel logs
+vercel logs [deployment-url]
+```
+
+### Getting Help
+
+1. **Check Logs:**
+   - Browser console (F12)
+   - Terminal output
+   - Vercel deployment logs
+   - Supabase logs
+
+2. **Verify Configuration:**
+   - Environment variables
+   - Service accounts
+   - API keys
+
+3. **Test Incrementally:**
+   - Start with basic functionality
+   - Add features one at a time
+   - Test after each change
+
+---
+
+## Emergency Contacts & Resources
+
+### Service Dashboards
+
+- **Vercel:** https://vercel.com/dashboard
+- **Supabase:** https://supabase.com/dashboard/project/qraijuzzktertoujrwat
+- **Resend:** https://resend.com/dashboard
+- **Cloudinary:** https://cloudinary.com/console
+- **GitHub:** [Repository URL]
+
+### Documentation Links
+
+- **Next.js:** https://nextjs.org/docs
+- **Prisma:** https://www.prisma.io/docs
+- **Supabase:** https://supabase.com/docs
+- **Resend:** https://resend.com/docs
+- **NextAuth:** https://authjs.dev/
+- **Vercel:** https://vercel.com/docs
+
+### Support Channels
+
+- **Vercel Support:** https://vercel.com/support
+- **Supabase Support:** https://supabase.com/support
+- **Resend Support:** support@resend.com
+- **GitHub Issues:** [Repository Issues]
+
+### Quick Reference Commands
+
+```bash
+# Development
+npm run dev                    # Start dev server (port 3001)
+npm run build                  # Build for production
+npm run start                  # Start production server
+
+# Database
+npx prisma db push             # Push schema changes
+npx prisma generate            # Generate Prisma client
+npx prisma studio              # Open database GUI
+npx prisma migrate deploy      # Apply migrations
+
+# Seeding
+npm run seed:demo              # Seed demo data
+npm run seed:djs               # Seed DJ profiles
+npm run seed:hire              # Seed hire items
+npm run seed:venues            # Seed venues
+npm run reset:admin-password   # Reset admin passwords
+
+# Utilities
+npm run fix:babington-spelling # Fix venue spelling
+npm run cleanup:test-bookings # Clean test data
+
+# Deployment
+git push origin main           # Deploy to Vercel (auto)
+```
+
+### Important File Locations
+
+- **Schema:** `prisma/schema.prisma`
+- **Auth Config:** `lib/auth.ts`
+- **Prisma Client:** `lib/prisma.ts` (CRITICAL: singleton pattern)
+- **Email Config:** `lib/email/send-email.ts`
+- **Next Config:** `next.config.js` (CRITICAL: build fixes)
+- **Vercel Config:** `vercel.json`
+- **Package Config:** `package.json`
+- **Blog Wrappers:** `components/blog/*Wrapper.tsx` (client components)
+- **Blog Pages:** `app/about/blog/*/page.tsx` (server components)
+
+### Critical Secrets Storage
+
+**Store these securely (password manager):**
+- Supabase database password
+- Resend API key
+- Cloudinary API keys
+- NEXTAUTH_SECRET
+- Google API keys
+- Vercel deployment tokens
+
+**Never commit to git:**
+- `.env.local`
+- `.env.production`
+- Any file with secrets
+
+---
+
+## Recovery Scenarios
+
+### Scenario 1: Complete Server Loss
+
+**Steps:**
+1. Verify code repository is accessible
+2. Clone repository to new machine
+3. Set up environment variables
+4. Connect to Supabase (database intact)
+5. Deploy to Vercel
+6. Verify all services
+
+**Time Estimate:** 2-4 hours
+
+### Scenario 2: Database Corruption/Loss
+
+**Steps:**
+1. Restore from Supabase backup (point-in-time)
+2. Or recreate schema: `npx prisma db push`
+3. Restore data from backup file (if available)
+4. Re-seed essential data
+5. Verify data integrity
+
+**Time Estimate:** 1-3 hours (with backup) or 4-8 hours (recreate)
+
+### Scenario 3: Code Repository Loss
+
+**Steps:**
+1. Check for local backups
+2. Recreate from Vercel deployment (if available)
+3. Or rebuild from documentation
+4. Restore environment variables
+5. Verify functionality
+
+**Time Estimate:** 4-8 hours
+
+### Scenario 4: Service Account Compromise
+
+**Steps:**
+1. Rotate all API keys immediately
+2. Update environment variables
+3. Revoke old keys
+4. Redeploy application
+5. Monitor for unauthorized access
+
+**Time Estimate:** 1-2 hours
+
+### Scenario 5: Partial Functionality Loss
+
+**Steps:**
+1. Identify affected features
+2. Check service status pages
+3. Review error logs
+4. Test individual services
+5. Fix or work around issues
+
+**Time Estimate:** 30 minutes - 2 hours
+
+---
+
+## Maintenance Schedule
+
+### Daily
+- [ ] Check Vercel deployment status
+- [ ] Monitor error logs
+- [ ] Verify email sending works
+
+### Weekly
+- [ ] Review Supabase usage
+- [ ] Check for dependency updates
+- [ ] Review security logs
+
+### Monthly
+- [ ] Update dependencies (with caution)
+- [ ] Review and optimize database
+- [ ] Backup environment variables
+- [ ] Review service costs
+
+### Quarterly
+- [ ] Security audit
+- [ ] Performance review
+- [ ] Update documentation
+- [ ] Test disaster recovery procedures
+
+---
+
+## Final Notes
+
+### Important Reminders
+
+1. **Always test locally before deploying**
+2. **Keep environment variables secure**
+3. **Document any custom configurations**
+4. **Test backups regularly**
+5. **Keep this document updated**
+
+### Version History
+
+- **v1.1** (January 27, 2026) - Added critical build configuration fixes:
+  - Next.js 15 build fixes (webpackBuildWorker, serverSourceMaps, server minification)
+  - Prisma singleton pattern requirements
+  - Blog page wrapper pattern
+  - Client-only library handling
+  - Route segment configuration guide
+- **v1.0** (January 27, 2026) - Initial disaster recovery guide
+
+### Document Maintenance
+
+This document should be updated whenever:
+- New services are added
+- Configuration changes
+- Dependencies are updated
+- Architecture changes
+- New credentials are required
+
+---
+
+**End of Disaster Recovery Guide**
+
+For questions or updates, refer to the main project documentation or contact the development team.
