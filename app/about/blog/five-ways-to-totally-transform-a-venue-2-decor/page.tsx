@@ -22,6 +22,6 @@ const DecorBlogContent = dynamic(() => import("./DecorBlogContent"), {
   ),
 });
 
-export default function BlogPostDecor() {
+export default async function BlogPostDecor() {
   return <DecorBlogContent />;
 }

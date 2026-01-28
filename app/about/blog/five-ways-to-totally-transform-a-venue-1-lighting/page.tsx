@@ -17,6 +17,6 @@ const LightingBlogContent = dynamic(() => import("./LightingBlogContent"), {
   ),
 });
 
-export default function BlogPostLighting() {
+export default async function BlogPostLighting() {
   return <LightingBlogContent />;
 }

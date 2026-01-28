@@ -23,6 +23,6 @@ const BristolBlogContent = dynamic(
   }
 );
 
-export default function BlogPostBristolSpringBall() {
+export default async function BlogPostBristolSpringBall() {
   return <BristolBlogContent />;
 }

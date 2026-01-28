@@ -17,6 +17,6 @@ const ProfessionalDJBlogContent = dynamic(() => import("./ProfessionalDJBlogCont
   ),
 });
 
-export default function BlogPostProfessionalDJ() {
+export default async function BlogPostProfessionalDJ() {
   return <ProfessionalDJBlogContent />;
 }
