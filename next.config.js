@@ -29,6 +29,8 @@ const nextConfig = {
   experimental: {
     // Explicitly ensure turbo is disabled (Next.js 15 expects an object)
     turbo: {},
+    // Disable webpack build worker to fix minification errors in Next.js 15
+    webpackBuildWorker: false,
   },
   eslint: {
     ignoreDuringBuilds: true,
