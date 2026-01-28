@@ -1,9 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import Lightbox from "yet-another-react-lightbox";
-import "yet-another-react-lightbox/styles.css";
+import dynamic from "next/dynamic";
+
+// Dynamically import Lightbox to prevent SSR/build issues
+const Lightbox = dynamic(
+  () => import("yet-another-react-lightbox"),
+  {
+    ssr: false,
+    loading: () => null,
+  }
+);
 
 export interface ImagePhoto {
   src: string;
@@ -19,6 +27,11 @@ interface ImageCarouselProps {
 export default function ImageCarousel({ images }: ImageCarouselProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  // Load CSS only on client side
+  useEffect(() => {
+    import("yet-another-react-lightbox/styles.css");
+  }, []);
 
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
@@ -49,7 +62,7 @@ export default function ImageCarousel({ images }: ImageCarouselProps) {
         ))}
       </div>
 
-      {/* Lightbox */}
+      {/* Lightbox - dynamically loaded, only renders on client */}
       <Lightbox
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}

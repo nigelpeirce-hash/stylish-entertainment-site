@@ -1,12 +1,14 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import type { ImagePhoto } from "@/components/ImageCarousel";
+
+// Import framer-motion normally - it's a client component so this is safe
+import { motion } from "framer-motion";
 
 // Dynamically import ImageCarousel to prevent SSR issues
 const ImageCarousel = dynamic(() => import("@/components/ImageCarousel"), {
