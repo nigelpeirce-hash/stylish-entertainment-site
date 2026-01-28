@@ -14,7 +14,8 @@
     "seed:venues": "tsx scripts/seed-venues.ts",
     "reset:admin-password": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/reset-admin-password.ts",
     "cleanup:test-bookings": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/cleanup-test-bookings.ts",
-    "fix:babington-spelling": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/fix-babington-spelling.ts"
+    "fix:babington-spelling": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/fix-babington-spelling.ts",
+    "scaffold:blog": "./scripts/scaffold-blog.sh"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",
