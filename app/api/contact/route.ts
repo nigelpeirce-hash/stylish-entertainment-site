@@ -23,7 +23,22 @@ const getResend = () => {
     console.error("❌ RESEND_API_KEY not found in environment variables");
     return null;
   }
-  console.log("✅ RESEND_API_KEY found, initializing Resend client");
+  
+  // Validate API key format (Resend keys start with 're_' and are 35+ chars)
+  const isPlaceholder = apiKey === "re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+  const isValidFormat = apiKey.startsWith("re_") && apiKey.length >= 35;
+  
+  if (isPlaceholder || !isValidFormat) {
+    console.error("❌ RESEND_API_KEY appears invalid:", {
+      isPlaceholder,
+      isValidFormat,
+      length: apiKey.length,
+      startsWithRe: apiKey.startsWith("re_"),
+    });
+    return null;
+  }
+  
+  console.log("✅ RESEND_API_KEY found and validated, initializing Resend client");
   return new Resend(apiKey);
 };
 
@@ -409,6 +424,9 @@ export async function POST(request: NextRequest) {
             html: emailHtml,
           });
           
+          // Log the FULL response for debugging
+          console.log("🔍 Full Resend response:", JSON.stringify(businessEmailResult, null, 2));
+          
           // Resend returns { data: { id: '...' }, error: null } on success
           // Or { data: null, error: {...} } on failure
           const messageId = businessEmailResult.data?.id;
@@ -417,13 +435,18 @@ export async function POST(request: NextRequest) {
           if (hasError) {
             console.error("❌ Resend returned error or no messageId:", {
               error: businessEmailResult.error,
+              errorType: typeof businessEmailResult.error,
+              errorKeys: businessEmailResult.error ? Object.keys(businessEmailResult.error) : [],
               messageId: messageId,
               data: businessEmailResult.data,
+              hasData: !!businessEmailResult.data,
               fullResponse: JSON.stringify(businessEmailResult, null, 2),
             });
             emailResult = { 
               success: false, 
-              error: businessEmailResult.error?.message || businessEmailResult.error || "Resend returned no messageId",
+              error: businessEmailResult.error?.message || 
+                     (typeof businessEmailResult.error === 'string' ? businessEmailResult.error : JSON.stringify(businessEmailResult.error)) ||
+                     "Resend returned no messageId",
               errorDetails: businessEmailResult.error,
             };
           } else {
@@ -431,6 +454,7 @@ export async function POST(request: NextRequest) {
               messageId: messageId,
               to: recipientEmail,
               from: emailConfig.from,
+              responseData: businessEmailResult.data,
             });
             emailResult = { 
               success: true, 
