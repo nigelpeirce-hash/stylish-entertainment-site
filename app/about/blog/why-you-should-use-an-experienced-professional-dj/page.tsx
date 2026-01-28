@@ -3,7 +3,7 @@
 export const dynamic = 'force-dynamic';
 export const dynamicParams = true;
 
-import dynamic from "next/dynamic";
+import dynamicImport from "next/dynamic";
 
 // Additional route segment config to ensure no static generation
 export const revalidate = 0;
@@ -16,7 +16,7 @@ export async function generateStaticParams() {
 }
 
 // Dynamically import the client component to prevent SSR/prerendering issues
-const ProfessionalDJBlogContent = dynamic(() => import("./ProfessionalDJBlogContent"), {
+const ProfessionalDJBlogContent = dynamicImport(() => import("./ProfessionalDJBlogContent"), {
   ssr: false,
   loading: () => (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center">
