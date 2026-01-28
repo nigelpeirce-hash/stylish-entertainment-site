@@ -194,12 +194,34 @@ const adapter = new PrismaPg(pool)
 const globalForPrisma = global as unknown as { prisma: PrismaClient }
 
 if (!globalForPrisma.prisma) {
-  globalForPrisma.prisma = new PrismaClient({
-    adapter,
-    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
-    // Connection is handled by PrismaPg adapter via the pool
-    // Do NOT include datasources when using Driver Adapters
-  })
+  // Verify adapter is initialized before creating PrismaClient
+  if (!adapter) {
+    throw new Error('PrismaPg adapter not initialized - cannot create PrismaClient');
+  }
+  
+  // Verify pool is initialized
+  if (!pool) {
+    throw new Error('PostgreSQL pool not initialized - cannot create PrismaClient');
+  }
+  
+  try {
+    globalForPrisma.prisma = new PrismaClient({
+      adapter,
+      log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+      // Connection is handled by PrismaPg adapter via the pool
+      // Do NOT include datasources when using Driver Adapters
+    });
+    
+    // Log successful initialization in production for debugging
+    if (process.env.NODE_ENV === 'production') {
+      console.log('✅ PrismaClient initialized successfully with PrismaPg adapter');
+    }
+  } catch (initError: any) {
+    console.error('❌ Failed to initialize PrismaClient:', initError);
+    console.error('   Error message:', initError?.message);
+    console.error('   Error code:', initError?.code);
+    throw initError;
+  }
   
   // Add connection error handling for production
   if (process.env.NODE_ENV === 'production') {
