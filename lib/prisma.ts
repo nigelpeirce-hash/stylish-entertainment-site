@@ -161,14 +161,29 @@ if (process.env.NODE_ENV === 'development') {
     });
 }
 
+// Add timeout parameters to connection string if not already present
+let enhancedConnectionString = connectionString;
+if (!enhancedConnectionString.includes('connect_timeout')) {
+  const separator = enhancedConnectionString.includes('?') ? '&' : '?';
+  enhancedConnectionString = `${connectionString}${separator}connect_timeout=30&statement_timeout=25000`;
+}
+
 const pool = new pg.Pool({ 
-  connectionString,
-  // Connection timeout - increased for Supabase
-  connectionTimeoutMillis: 20000,
-  // Limit pool size to prevent too many connections
-  max: 10,
-  // Idle timeout
-  idleTimeoutMillis: 30000,
+  connectionString: enhancedConnectionString,
+  // Connection timeout - increased for Supabase and Vercel serverless
+  // Vercel serverless functions need longer timeouts due to cold starts
+  connectionTimeoutMillis: 30000, // 30 seconds (increased from 20s)
+  // Query timeout - prevent queries from hanging indefinitely
+  query_timeout: 25000, // 25 seconds
+  // Statement timeout - PostgreSQL-level timeout
+  statement_timeout: 25000, // 25 seconds
+  // Limit pool size - smaller for serverless (each function instance has its own pool)
+  max: 5, // Reduced from 10 for serverless (Vercel functions are stateless)
+  // Idle timeout - shorter for serverless
+  idleTimeoutMillis: 20000, // 20 seconds
+  // Keep connections alive for better connection reuse
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10000,
 })
 
 const adapter = new PrismaPg(pool)
@@ -182,7 +197,23 @@ if (!globalForPrisma.prisma) {
   globalForPrisma.prisma = new PrismaClient({
     adapter,
     log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+    // Add connection timeout for Prisma queries
+    datasources: {
+      db: {
+        url: connectionString,
+      },
+    },
   })
+  
+  // Add connection error handling for production
+  if (process.env.NODE_ENV === 'production') {
+    // Log connection issues but don't crash
+    process.on('unhandledRejection', (reason: any) => {
+      if (reason?.code === 'ETIMEDOUT' || reason?.code === 'ECONNREFUSED') {
+        console.error('❌ Database connection error:', reason.code, reason.message);
+      }
+    });
+  }
 }
 
 export const prisma = globalForPrisma.prisma
