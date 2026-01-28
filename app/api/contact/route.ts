@@ -564,7 +564,20 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error("❌ Contact form error:", error);
+    console.error("❌ Error type:", error instanceof Error ? error.constructor.name : typeof error);
+    console.error("❌ Error message:", error instanceof Error ? error.message : String(error));
     console.error("❌ Error stack:", error instanceof Error ? error.stack : "No stack");
+    
+    // Check if it's a database connection error
+    if (error instanceof Error) {
+      if (error.message.includes("Can't reach database") || 
+          error.message.includes("P1001") ||
+          error.message.includes("connection") ||
+          error.message.includes("DATABASE_URL")) {
+        console.error("❌ Database connection error detected");
+      }
+    }
+    
     return NextResponse.json(
       { 
         error: "An error occurred. Please try again later.",

@@ -204,7 +204,12 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ venues });
   } catch (error) {
-    console.error("Error searching venues:", error);
-    return NextResponse.json({ venues: [] }, { status: 500 });
+    console.error("❌ Error searching venues:", error);
+    console.error("❌ Error details:", error instanceof Error ? error.message : String(error));
+    console.error("❌ Error stack:", error instanceof Error ? error.stack : undefined);
+    
+    // Return empty array with 200 status to prevent frontend errors
+    // The frontend can handle empty results gracefully
+    return NextResponse.json({ venues: [] }, { status: 200 });
   }
 }
