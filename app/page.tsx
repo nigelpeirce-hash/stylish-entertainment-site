@@ -186,36 +186,49 @@ const gallerySliderImages = [
   },
 ];
 
+function shuffleArray<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
 export default function Home() {
+  const [sliderImages, setSliderImages] = useState<typeof gallerySliderImages>(gallerySliderImages);
+
   useEffect(() => {
     document.title = "Stylish Entertainment & Production | Professional DJs, Lighting Design & Venue Styling";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute("content", "Stylish Entertainment & Production - Exceptional entertainment for weddings, parties and events. Professional DJs, musicians, lighting design and venue styling across the UK and Wales. Strictly no YMCA.");
     }
+    setSliderImages(shuffleArray(gallerySliderImages));
   }, []);
 
   return (
     <div>
-      {/* Full Width Image Gallery Slider */}
+      {/* Full Width Image Gallery Slider - random order on each load */}
       <section className="relative w-full h-[60vh] sm:h-[75vh] md:h-[85vh] lg:h-[92vh] overflow-hidden bg-gray-900">
         <Slider className="h-full">
-          {gallerySliderImages.map((image, index) => (
-            <div key={index} className="relative w-full h-full flex-shrink-0 flex items-center justify-center bg-gray-900">
+          {sliderImages.map((image, index) => (
+            <div key={image.src} className="relative w-full h-full flex-shrink-0 flex items-center justify-center bg-gray-900">
               <Image
                 src={image.src}
                 alt={image.alt}
                 fill
                 className="object-cover"
-                style={{ 
-                  objectPosition: 'center center',
+                style={{
+                  objectPosition: "center center",
                 }}
                 priority={index <= 1}
-                sizes="100vw"
+                fetchPriority={index === 0 ? "high" : "auto"}
+                sizes="(max-width: 1920px) 100vw, 1920px"
                 loading={index <= 1 ? "eager" : "lazy"}
-                quality={90}
+                quality={78}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
             </div>
           ))}
         </Slider>
@@ -319,7 +332,8 @@ export default function Home() {
                         width={400}
                         height={192}
                         className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 400px"
+                        quality={75}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>

@@ -62,16 +62,14 @@ interface SystemHealth {
 const fetcher = async (url: string): Promise<{ bookings: Booking[] }> => {
   const startTime = performance.now();
   
-  // Create an AbortController for timeout
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
   
   try {
     const response = await fetch(url, {
       signal: controller.signal,
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
     });
     
     clearTimeout(timeoutId);
@@ -80,12 +78,13 @@ const fetcher = async (url: string): Promise<{ bookings: Booking[] }> => {
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || errorData.message || `Failed to fetch bookings: ${response.status} ${response.statusText}`);
+      const err = new Error(errorData.error || errorData.message || `Failed to fetch: ${response.status}`) as Error & { status?: number };
+      err.status = response.status;
+      throw err;
     }
     
     const data = await response.json();
     
-    // Store performance metrics
     if (typeof window !== "undefined") {
       const health: SystemHealth = {
         loadTime,
@@ -98,8 +97,10 @@ const fetcher = async (url: string): Promise<{ bookings: Booking[] }> => {
     return data;
   } catch (error: any) {
     clearTimeout(timeoutId);
-    if (error.name === 'AbortError') {
-      throw new Error("Request timed out after 15 seconds. Please check your connection and try again.");
+    if (error.name === "AbortError") {
+      const err = new Error("Request timed out after 15 seconds. Please check your connection and try again.") as Error & { status?: number };
+      err.status = 408;
+      throw err;
     }
     throw error;
   }
@@ -380,8 +381,6 @@ const BookingCard = memo(function BookingCard({
 });
 
 export default function NinetyDayCommandCentre() {
-  console.log("LOG_CHECK: 90-day page is attempting to render");
-  
   const { data: session, status } = useSession();
   const router = useRouter();
   const [updating, setUpdating] = useState<string | null>(null);
@@ -424,22 +423,16 @@ export default function NinetyDayCommandCentre() {
     shouldFetch && mounted ? "/api/admin/bookings/90-day-command" : null, // null key prevents fetch until mounted
     async (url: string) => {
       try {
-        console.log("LOG_CHECK: Starting data fetch for 90-day command");
         setFetchError(null);
         setCriticalError(null);
         const result = await fetcher(url);
-        console.log("LOG_CHECK: Data fetch successful", { bookingCount: result?.bookings?.length || 0 });
         return result;
       } catch (err: any) {
-        console.error("CRITICAL_DATA_ERROR:", err);
-        console.error("CRITICAL_DATA_ERROR Details:", {
-          message: err?.message,
-          stack: err?.stack,
-          name: err?.name,
-          status: err?.status,
-        });
         setFetchError(err);
         setCriticalError(err);
+        if (err?.status !== 401 && err?.status !== 403) {
+          console.error("CRITICAL_DATA_ERROR:", err?.message || err);
+        }
         throw err;
       }
     },
@@ -474,15 +467,6 @@ export default function NinetyDayCommandCentre() {
 
   const bookings = data?.bookings || [];
   
-  // Move LOG_CHECK to useEffect to prevent logging on every render
-  useEffect(() => {
-    console.log("LOG_CHECK: Bookings data", { 
-      hasData: !!data, 
-      bookingCount: bookings.length,
-      isLoading,
-      hasError: !!error || !!fetchError || !!criticalError
-    });
-  }, [data, bookings.length, isLoading, error, fetchError, criticalError]);
 
   // Load and update system health from sessionStorage (fetched by SWR fetcher)
   useEffect(() => {
@@ -860,42 +844,55 @@ export default function NinetyDayCommandCentre() {
 
   // Display error state if API call failed (use fetchError or error from SWR)
   const displayError = fetchError || error || criticalError;
+  const isUnauthorized = (displayError as any)?.status === 401 || (displayError as any)?.status === 403;
   if (displayError) {
-    console.error("LOG_CHECK: Rendering error state", displayError);
+    if (!isUnauthorized) {
+      console.error("90-Day Command: API error", displayError?.message || displayError);
+    }
     return (
       <div className="min-h-screen bg-gray-950 text-white py-12 px-4">
         <div className="container mx-auto max-w-7xl">
           <div className="bg-red-900/20 border border-red-500/50 rounded-lg p-6">
             <h2 className="text-2xl font-bold text-red-400 mb-4 flex items-center gap-2">
               <AlertTriangle className="w-6 h-6" />
-              Error Loading 90-Day Command Centre
+              {isUnauthorized ? "Session expired or not authorized" : "Error Loading 90-Day Command Centre"}
             </h2>
             <p className="text-red-300 mb-4">
-              {displayError.message || "Failed to load bookings data. Please check your connection and try again."}
+              {isUnauthorized
+                ? "Your session may have expired or you are not signed in. Please log in again."
+                : (displayError.message || "Failed to load bookings data. Please check your connection and try again.")}
             </p>
             <p className="text-gray-400 text-sm mb-6">
-              This could be due to a database timeout or connection issue. Click "Retry Sync" to try again.
+              {isUnauthorized ? "Use the link below to sign in, then return to the 90-Day Command Centre." : "This could be due to a database timeout or connection issue. Click \"Retry Sync\" to try again."}
             </p>
-            {/* Basic UI Fallback - Show error details for debugging */}
+            {!isUnauthorized && (
             <div className="bg-gray-900/50 border border-gray-700 rounded-lg p-4 mb-6">
               <h3 className="text-sm font-semibold text-red-400 mb-2">Error Details (for debugging):</h3>
               <pre className="text-xs text-gray-300 overflow-auto max-h-64">
                 {JSON.stringify(displayError, Object.getOwnPropertyNames(displayError), 2)}
               </pre>
             </div>
+            )}
             <div className="flex gap-3">
-              <Button
-                onClick={() => {
-                  console.log("LOG_CHECK: Retry button clicked");
-                  setFetchError(null);
-                  setCriticalError(null);
-                  mutate();
-                }}
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Retry Sync
-              </Button>
+              {isUnauthorized ? (
+                <Link href="/login" prefetch={false}>
+                  <Button className="bg-amber-600 hover:bg-amber-700 text-white">
+                    Log in again
+                  </Button>
+                </Link>
+              ) : (
+                <Button
+                  onClick={() => {
+                    setFetchError(null);
+                    setCriticalError(null);
+                    mutate();
+                  }}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  <RefreshCw className="w-4 h-4 mr-2" />
+                  Retry Sync
+                </Button>
+              )}
               <Link href="/admin" prefetch={false}>
                 <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800">
                   <ArrowLeft className="w-4 h-4 mr-2" />

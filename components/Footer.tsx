@@ -21,7 +21,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-champagne-gold !text-black py-6 sm:py-8 mt-0 relative overflow-hidden">
+    <footer className="relative z-10 bg-champagne-gold !text-black py-6 sm:py-8 mt-0 overflow-hidden">
       <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent backdrop-blur-md pointer-events-none"></div>
       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent backdrop-blur-sm pointer-events-none"></div>
       <div className="container mx-auto px-4 sm:px-6 relative z-10">

@@ -133,7 +133,7 @@ export default function DJs() {
     document.title = "DJs | Professional Wedding DJs | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Meet our talented DJs. Professional wedding entertainment across the UK and Wales with mixing styles and genre specialties.");
+      metaDescription.setAttribute("content", "Meet our talented DJs. Professional entertainment for weddings, parties and corporate events across the UK. Mixing styles and genre specialties.");
     }
 
     // Fetch DJs from API

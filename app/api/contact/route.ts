@@ -297,6 +297,15 @@ export async function POST(request: NextRequest) {
     }
     const logoUrl = "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png";
 
+    // Format event date for admin email: day month year (e.g. 20 June 2026)
+    const adminEventDateFormatted = eventDate
+      ? new Date(eventDate).toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        })
+      : null;
+
     // Create email content
     const emailSubject = `New Contact Form Submission from ${name}`;
     const emailHtml = `
@@ -336,10 +345,10 @@ export async function POST(request: NextRequest) {
               <div class="field-value">${phone}</div>
             </div>
             ` : ''}
-            ${eventDate ? `
+            ${adminEventDateFormatted ? `
             <div class="field">
               <div class="field-label">Event Date:</div>
-              <div class="field-value">${eventDate}</div>
+              <div class="field-value">${adminEventDateFormatted}</div>
             </div>
             ` : ''}
             ${clientVenueName ? `

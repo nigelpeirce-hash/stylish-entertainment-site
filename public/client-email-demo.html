@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Email Demo – Stylish Entertainment</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: #f0f0f0;
+      color: #1A1A1A;
+    }
+    .page-header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding: 16px;
+    }
+    .page-header h1 { font-size: 20px; margin: 0 0 8px; }
+    .page-header p { font-size: 14px; color: #555; margin: 0; }
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 32px;
+      padding: 12px;
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #e5e5e5;
+    }
+    .nav a {
+      padding: 8px 14px;
+      background: #1A1A1A;
+      color: #fff;
+      text-decoration: none;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-radius: 4px;
+    }
+    .nav a:hover { background: #333; }
+    .email-block {
+      max-width: 640px;
+      margin: 0 auto 48px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .email-block h2.email-label {
+      margin: 0;
+      padding: 12px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: #1A1A1A;
+      color: #fff;
+    }
+    .email-inner { padding: 0; }
+    /* === LUXE STYLES (match lib/email-journey-templates) === */
+    .email-inner body, .email-inner {
+      margin: 0;
+      padding: 0;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: #1A1A1A;
+      background-color: #ffffff;
+    }
+    .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-top: 2px solid #000000; }
+    .header { padding: 40px 30px 20px; text-align: center; }
+    .divider { height: 1px; background-color: #D4AF37; margin: 20px 30px; }
+    .content { padding: 30px; }
+    .email-inner h1 { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 28px; font-weight: 600; color: #1A1A1A; margin: 0 0 20px; line-height: 1.3; }
+    .email-inner h2 { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 600; color: #1A1A1A; margin: 25px 0 15px; }
+    .email-inner p { margin: 0 0 16px; color: #1A1A1A; }
+    .button { display: inline-block; padding: 12px 24px; background-color: #000000; color: #FFFFFF !important; text-decoration: none; border-radius: 2px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0; }
+    .button-luxe { display: inline-block; padding: 12px 24px; background-color: #D4AF37; color: #1A1A1A !important; text-decoration: none; border-radius: 2px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35); }
+    .link { color: #D4AF37; text-decoration: underline; }
+    .footer { padding: 30px; text-align: center; font-size: 14px; color: #1A1A1A; border-top: 1px solid #e5e5e5; margin-top: 30px; }
+    .footer a { color: #D4AF37; text-decoration: underline; }
+    .signature { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e5e5; font-size: 14px; color: #555555; }
+    .signature strong { color: #555555; }
+    .highlight { color: #D4AF37; font-weight: 500; }
+    ul { margin: 20px 0; padding-left: 25px; }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <h1>Client-facing email demo</h1>
+    <p>Stylish Entertainment – design preview for localhost. Sample data used throughout.</p>
+  </div>
+
+  <nav class="nav" aria-label="Jump to email">
+    <a href="#enquiry">Enquiry</a>
+    <a href="#reminder">Gentle reminder</a>
+    <a href="#booking">Booking confirmation</a>
+    <a href="#fourweek">4-week check-in</a>
+    <a href="#weekof">Week-of</a>
+    <a href="#finalchase">Final chase</a>
+    <a href="#postwedding">Post-wedding</a>
+  </nav>
+
+  <!-- 1. Enquiry autoresponder -->
+  <section class="email-block" id="enquiry">
+    <h2 class="email-label">1. Enquiry auto-responder</h2>
+    <div class="email-inner">
+      <div class="email-container">
+        <div class="header">
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 200px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;">
+          <p style="font-size: 11px; font-weight: 600; letter-spacing: 3px; color: #D4AF37; text-align: center; margin: 0; text-transform: uppercase;">Stylish Entertainment</p>
+          <div class="divider"></div>
+        </div>
+        <div class="content">
+          <h1>Thank You for Your Enquiry</h1>
+          <p>Dear Sarah &amp; James,</p>
+          <p>Thank you for reaching out to Stylish Entertainment Ltd. We're delighted that you're considering us for your Wedding on Saturday, 15 June 2025.</p>
+          <p>We're excited to learn more about your vision and help bring it to life. We specialise in creating unforgettable celebrations with our expert DJ services, elegant lighting design, and sophisticated venue styling.</p>
+          <p>We've prepared a bespoke guide for your chosen venue to help you visualise the setup. This insider guide includes venue-specific styling ideas, lighting recommendations, and practical tips to make the most of your space at The Barn at Oakley.</p>
+          <p style="text-align: center; margin: 30px 0;">
+            <a href="#" class="button-luxe">Download Guide</a>
+          </p>
+          <p>We'll be in touch within 24 hours to discuss your requirements in detail. In the meantime, if you have any questions, please don't hesitate to get in touch.</p>
+          <div class="signature">
+            <p>Kind Regards,<br><strong>Ali &amp; Nige</strong></p>
+          </div>
+        </div>
+        <div class="footer">
+          <p style="margin-bottom: 8px;">Stylish Entertainment Ltd</p>
+          <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
+          <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Gentle reminder -->
+  <section class="email-block" id="reminder">
+    <h2 class="email-label">2. Gentle reminder (3-day follow-up)</h2>
+    <div class="email-inner">
+      <div class="email-container">
+        <div class="header">
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 200px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;">
+          <p style="font-size: 11px; font-weight: 600; letter-spacing: 3px; color: #D4AF37; text-align: center; margin: 0; text-transform: uppercase;">Stylish Entertainment</p>
+          <div class="divider"></div>
+        </div>
+        <div class="content">
+          <h1>Just Following Up</h1>
+          <p>Dear Sarah &amp; James,</p>
+          <p>We hope you're well and enjoying planning your Wedding for Saturday, 15 June 2025 at The Barn at Oakley.</p>
+          <p>We wanted to check in and see if you have any questions about our services or if there's anything we can help with. Planning an event can be overwhelming, and we're here to make it easier for you.</p>
+          <h2>We're Here to Help</h2>
+          <p>Whether you're still exploring your options, have questions about our packages, or want to discuss your vision, we'd love to chat. Every event is unique, and we're passionate about creating something truly special for you.</p>
+          <p style="text-align: center;">
+            <a href="https://stylishentertainment.co.uk/contact-us" class="button">Get in Touch</a>
+          </p>
+          <p>If you've already found another solution, no problem at all – we're just pleased you're getting everything sorted for your special day.</p>
+          <p>Best of luck with your planning, and please don't hesitate to reach out if you'd like to chat.</p>
+          <div class="signature">
+            <p>Kind Regards,<br><strong>Ali &amp; Nige</strong></p>
+          </div>
+        </div>
+        <div class="footer">
+          <p style="margin-bottom: 8px;">Stylish Entertainment Ltd</p>
+          <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
+          <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Booking confirmation -->
+  <section class="email-block" id="booking">
+    <h2 class="email-label">3. Booking confirmation</h2>
+    <div class="email-inner">
+      <div class="email-container">
+        <div class="header">
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 200px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;">
+          <p style="font-size: 11px; font-weight: 600; letter-spacing: 3px; color: #D4AF37; text-align: center; margin: 0; text-transform: uppercase;">Stylish Entertainment</p>
+          <div class="divider"></div>
+        </div>
+        <div class="content">
+          <h1>Booking Confirmed</h1>
+          <p>Dear Sarah &amp; James,</p>
+          <p>Wonderful news! Your booking for your Wedding on Saturday, 15 June 2025 at The Barn at Oakley has been confirmed.</p>
+          <p>We're absolutely thrilled to be part of your special day and look forward to creating a magical atmosphere that reflects your unique vision.</p>
+          <h2>What's Next?</h2>
+          <p>We've created your personal Client Admin area where you can manage all aspects of your booking:</p>
+          <ul>
+            <li>View and update your event details</li>
+            <li>Share your music preferences and playlist</li>
+            <li>Track your payment schedule</li>
+            <li>Communicate with our team</li>
+          </ul>
+          <p style="text-align: center;">
+            <a href="#" class="button">Access Your Client Admin</a>
+          </p>
+          <p>If you have any questions or need to discuss any changes, please don't hesitate to reach out. We're here to ensure everything runs smoothly.</p>
+          <div class="signature">
+            <p>Kind Regards,<br><strong>Ali &amp; Nige</strong></p>
+          </div>
+        </div>
+        <div class="footer">
+          <p style="margin-bottom: 8px;">Stylish Entertainment Ltd</p>
+          <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
+          <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. 4-week check-in -->
+  <section class="email-block" id="fourweek">
+    <h2 class="email-label">4. 4-week check-in</h2>
+    <div class="email-inner">
+      <div class="email-container">
+        <div class="header">
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 200px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;">
+          <p style="font-size: 11px; font-weight: 600; letter-spacing: 3px; color: #D4AF37; text-align: center; margin: 0; text-transform: uppercase;">Stylish Entertainment</p>
+          <div class="divider"></div>
+        </div>
+        <div class="content">
+          <h1>Let's Finalise Your Details</h1>
+          <p>Dear Sarah &amp; James,</p>
+          <p>With your Wedding at The Barn at Oakley just four weeks away (Saturday, 15 June 2025), we'd like to make sure everything is perfectly organised.</p>
+          <h2>Music Preferences</h2>
+          <p>Now's the perfect time to share your music preferences, including:</p>
+          <ul>
+            <li>Your must-play songs</li>
+            <li>Any songs you'd prefer to avoid</li>
+            <li>Special requests (first dance, ceremony music, etc.)</li>
+          </ul>
+          <p style="text-align: center;">
+            <a href="#" class="button">Update Your Music Preferences</a>
+          </p>
+          <h2>Final Logistics</h2>
+          <p>We also want to confirm a few final details to ensure everything runs smoothly on the day. Please review your booking in the Client Admin area and let us know if anything has changed.</p>
+          <p>If you have any questions or want to discuss anything, just reply to this email or give us a call. We're here to help!</p>
+          <div class="signature">
+            <p>Kind Regards,<br><strong>Ali &amp; Nige</strong></p>
+          </div>
+        </div>
+        <div class="footer">
+          <p style="margin-bottom: 8px;">Stylish Entertainment Ltd</p>
+          <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
+          <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Week-of excitement -->
+  <section class="email-block" id="weekof">
+    <h2 class="email-label">5. Week-of excitement</h2>
+    <div class="email-inner">
+      <div class="email-container">
+        <div class="header">
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 200px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;">
+          <p style="font-size: 11px; font-weight: 600; letter-spacing: 3px; color: #D4AF37; text-align: center; margin: 0; text-transform: uppercase;">Stylish Entertainment</p>
+          <div class="divider"></div>
+        </div>
+        <div class="content">
+          <h1>We're Ready for You</h1>
+          <p>Dear Sarah &amp; James,</p>
+          <p>Your Wedding at The Barn at Oakley is almost here! We can't wait to celebrate with you this coming weekend.</p>
+          <p>Everything is in place, and our team is ready to create a truly special atmosphere for you and your guests. We've reviewed all your preferences and are excited to bring your vision to life.</p>
+          <h2>See You Soon</h2>
+          <p>If you need to reach us in the days leading up to your event, we're always just an email or phone call away. Otherwise, we'll see you on Saturday, 15 June 2025!</p>
+          <p>Relax, enjoy, and let us take care of the entertainment. We've got everything under control.</p>
+          <div class="signature">
+            <p>Kind Regards,<br><strong>Ali &amp; Nige</strong></p>
+          </div>
+        </div>
+        <div class="footer">
+          <p style="margin-bottom: 8px;">Stylish Entertainment Ltd</p>
+          <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
+          <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Final chase -->
+  <section class="email-block" id="finalchase">
+    <h2 class="email-label">6. Final chase (3 days before)</h2>
+    <div class="email-inner">
+      <div class="email-container">
+        <div class="header">
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 200px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;">
+          <p style="font-size: 11px; font-weight: 600; letter-spacing: 3px; color: #D4AF37; text-align: center; margin: 0; text-transform: uppercase;">Stylish Entertainment</p>
+          <div class="divider"></div>
+        </div>
+        <div class="content">
+          <h1>Final Details Needed – Your Event Is in 3 Days</h1>
+          <p>Dear Sarah &amp; James,</p>
+          <p>Your Wedding at The Barn at Oakley is almost here (Saturday, 15 June 2025). We need to lock in your final details so everything runs smoothly on the day.</p>
+          <h2>Update Your Final Details Now</h2>
+          <p>Please confirm any last-minute changes, dietary requirements, timings, or special requests. Use the link below to access your portal instantly – no login required.</p>
+          <p style="text-align: center; margin: 30px 0;">
+            <a href="#" class="button-luxe">CLICK TO ACCESS PORTAL NOW (No Login Required)</a>
+          </p>
+          <p>If you have any questions, just reply to this email or give us a call. We're here to help.</p>
+          <div class="signature">
+            <p>Kind Regards,<br><strong>Ali &amp; Nige</strong></p>
+          </div>
+        </div>
+        <div class="footer">
+          <p style="margin-bottom: 8px;">Stylish Entertainment Ltd</p>
+          <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
+          <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Post-wedding magic -->
+  <section class="email-block" id="postwedding">
+    <h2 class="email-label">7. Post-wedding thank you</h2>
+    <div class="email-inner">
+      <div class="email-container">
+        <div class="header">
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 200px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;">
+          <p style="font-size: 11px; font-weight: 600; letter-spacing: 3px; color: #D4AF37; text-align: center; margin: 0; text-transform: uppercase;">Stylish Entertainment</p>
+          <div class="divider"></div>
+        </div>
+        <div class="content">
+          <h1>Thank You for Choosing Us</h1>
+          <p>Dear Sarah &amp; James,</p>
+          <p>We hope your Wedding at The Barn at Oakley was everything you dreamed of. It was an absolute pleasure to be part of your special day.</p>
+          <p>We'd love to hear about your experience. Your feedback helps us continue to create magical moments for couples like you, and it means the world to our team.</p>
+          <h2>Share Your Experience</h2>
+          <p>If you have a moment, we'd be incredibly grateful if you could share your thoughts:</p>
+          <p style="text-align: center; margin: 30px 0;">
+            <a href="https://g.page/r/YOUR_GOOGLE_REVIEW_LINK" class="button" style="margin-right: 10px; margin-bottom: 10px;">Leave a Google Review</a>
+            <a href="https://www.instagram.com/stylishentertainment/" class="button" style="background-color: #E1306C;">Share on Instagram</a>
+          </p>
+          <p>We'd also love to see any photos from your day if you'd like to share them with us. Tag us <a href="https://www.instagram.com/stylishentertainment/" class="link">@stylishentertainment</a> on Instagram or send them directly to us.</p>
+          <p>Thank you again for choosing Stylish Entertainment Ltd. It was an honour to be part of your celebration.</p>
+          <div class="signature">
+            <p>Kind Regards,<br><strong>Ali &amp; Nige</strong></p>
+          </div>
+        </div>
+        <div class="footer">
+          <p style="margin-bottom: 8px;">Stylish Entertainment Ltd</p>
+          <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
+          <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

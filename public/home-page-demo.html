@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home Page Demo – Stylish Entertainment (Design Preview)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    /* ---- Very black, serif throughout, clear panel contrast ---- */
+    :root {
+      --champagne: #E6C84A;
+      --champagne-light: #F4E4A6;
+      --champagne-dark: #B8941F;
+      --gold-glow: rgba(230, 200, 74, 0.4);
+      /* Panel contrast: extreme spread + slight warm/cool tint so bands are obvious */
+      --panel-black: #000000;
+      --panel-1: #050505;
+      --panel-2: #1e1c1a;   /* dark grey, very slight warm */
+      --panel-3: #080808;
+      --panel-4: #2c2c30;    /* lighter grey, very slight cool */
+      /* Hero: clearly lighter band */
+      --hero-bg: #252525;
+      --hero-bg-edge: #323232;
+      --card-bg: rgba(15, 15, 15, 0.9);
+      --card-border: rgba(230, 200, 74, 0.35);
+      --text: #f2f2f0;
+      --text-muted: #9a9a94;
+      --font-body: 'Lora', Georgia, serif;
+      --font-heading: 'Cinzel', Georgia, serif;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --radius: 0.25rem;
+      --transition: 0.3s ease;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      font-weight: 400;
+      color: var(--text);
+      background: var(--panel-black);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    /* Subtle gold orbs – keep overall very black */
+    .light-leak {
+      position: fixed;
+      width: 24rem;
+      height: 24rem;
+      border-radius: 50%;
+      background: var(--champagne);
+      opacity: 0.06;
+      filter: blur(100px);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .light-leak--tr { top: 0; right: 0; transform: translate(30%, -30%); }
+    .light-leak--bl { bottom: 0; left: 0; transform: translate(-30%, 30%); }
+
+    .wrap { position: relative; z-index: 1; }
+
+    /* ---- Hero gallery ---- */
+    .hero-gallery {
+      position: relative;
+      width: 100%;
+      height: 60vh;
+    }
+    @media (min-width: 640px) { .hero-gallery { height: 75vh; } }
+    @media (min-width: 768px) { .hero-gallery { height: 85vh; } }
+    @media (min-width: 1024px) { .hero-gallery { height: 92vh; } }
+    .hero-gallery img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      display: block;
+    }
+    .hero-gallery .overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.1) 40%, transparent 100%);
+      pointer-events: none;
+    }
+
+    /* ---- Hero text: serif, one lighter panel for contrast ---- */
+    .hero-text {
+      position: relative;
+      padding: 3rem 1rem 4rem;
+      text-align: center;
+      background: linear-gradient(180deg, var(--hero-bg-edge) 0%, var(--hero-bg) 100%);
+      overflow: hidden;
+      border-bottom: 1px solid rgba(230, 200, 74, 0.25);
+    }
+    @media (min-width: 768px) { .hero-text { padding: 4rem 1rem 5rem; } }
+    .hero-text .badge {
+      display: inline-block;
+      margin-bottom: 1.5rem;
+      padding: 0.5rem 1.5rem;
+      background: rgba(230, 200, 74, 0.06);
+      border: 1px solid rgba(230, 200, 74, 0.4);
+      font-family: var(--font-heading);
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--champagne);
+      letter-spacing: 0.35em;
+      text-transform: uppercase;
+    }
+    .hero-text h1 {
+      margin: 0 0 0.5rem;
+      font-family: var(--font-heading);
+      font-size: clamp(2.25rem, 6vw, 4rem);
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: 0.06em;
+      line-height: 1.2;
+    }
+    .hero-text h1 .gradient {
+      background: linear-gradient(135deg, var(--champagne) 0%, var(--champagne-light) 45%, var(--champagne) 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 0 16px var(--gold-glow));
+    }
+    .hero-text .tagline {
+      font-family: var(--font-body);
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      font-weight: 500;
+      color: rgba(255,255,255,0.95);
+      max-width: 42rem;
+      margin: 0 auto 2rem;
+      padding: 0 1rem;
+      line-height: 1.6;
+      letter-spacing: 0.02em;
+    }
+    .btn {
+      display: inline-block;
+      padding: 0.75rem 1.75rem;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      border-radius: var(--radius);
+      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+      cursor: pointer;
+    }
+    .btn--outline {
+      border: 2px solid var(--champagne);
+      color: var(--champagne);
+      background: transparent;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .btn--outline:hover {
+      background: rgba(230, 200, 74, 0.12);
+      transform: scale(1.02);
+      box-shadow: 0 0 24px var(--gold-glow);
+    }
+    .btn--primary {
+      border: none;
+      background: var(--champagne);
+      color: #0a0a0a;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .btn--primary:hover {
+      background: var(--champagne-light);
+      transform: scale(1.02);
+      box-shadow: 0 0 28px var(--gold-glow);
+    }
+
+    /* ---- Art Deco section divider (Gatsby-style) ---- */
+    .section-divider {
+      height: 2px;
+      margin: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(230, 200, 74, 0.2) 15%, rgba(230, 200, 74, 0.5) 50%, rgba(230, 200, 74, 0.2) 85%, transparent 100%);
+      position: relative;
+    }
+    .section-divider::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%) rotate(45deg);
+      width: 8px;
+      height: 8px;
+      background: var(--champagne);
+      opacity: 0.9;
+      box-shadow: 0 0 12px var(--gold-glow);
+    }
+
+    /* ---- Section block ---- */
+    .section {
+      padding: 4rem 1rem;
+      max-width: 80rem;
+      margin: 0 auto;
+    }
+    @media (min-width: 768px) { .section { padding: 5rem 1.5rem; } }
+    .section--dark { background: var(--panel-1); }
+    .section--mid { background: var(--panel-2); }
+    .section--warm { background: var(--panel-3); }
+    .section--lighter { background: var(--panel-4); }
+
+    .section .eyebrow {
+      display: inline-block;
+      margin-bottom: 1rem;
+      padding: 0.25rem 1rem;
+      background: rgba(230, 200, 74, 0.06);
+      border: 1px solid rgba(230, 200, 74, 0.3);
+      font-family: var(--font-heading);
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: var(--champagne);
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+    }
+    .section h2 {
+      margin: 0 0 1rem;
+      font-family: var(--font-heading);
+      font-size: clamp(1.65rem, 3.8vw, 3.25rem);
+      font-weight: 500;
+      color: #fff;
+      letter-spacing: 0.08em;
+      line-height: 1.3;
+    }
+    .section h2 .gradient {
+      background: linear-gradient(90deg, var(--champagne) 0%, var(--champagne-light) 50%, var(--champagne) 100%);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .section .sub {
+      font-size: clamp(0.95rem, 1.5vw, 1.25rem);
+      color: var(--text-muted);
+      max-width: 48rem;
+      margin: 0 auto 2rem;
+      line-height: 1.6;
+    }
+
+    /* ---- What sets our DJs apart ---- */
+    .copy-block {
+      max-width: 42rem;
+      margin: 0 auto;
+      text-align: left;
+    }
+    .copy-block p {
+      font-size: clamp(1rem, 1.5vw, 1.25rem);
+      color: var(--text-muted);
+      margin: 0 0 1.25rem;
+      line-height: 1.7;
+    }
+    .section--dark .copy-block { position: relative; }
+    .section--dark::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 200px;
+      background: linear-gradient(to bottom, rgba(230, 200, 74, 0.04) 0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    /* ---- Services grid ---- */
+    .services-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      max-width: 72rem;
+      margin: 0 auto;
+    }
+    @media (min-width: 768px) { .services-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (min-width: 1024px) { .services-grid { grid-template-columns: repeat(3, 1fr); } }
+    .service-card {
+      display: block;
+      text-decoration: none;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color var(--transition), box-shadow var(--transition), transform var(--transition);
+    }
+    .service-card:hover {
+      border-color: rgba(230, 200, 74, 0.6);
+      box-shadow: 0 0 32px var(--gold-glow);
+      transform: translateY(-2px);
+    }
+    .service-card .img-wrap {
+      position: relative;
+      height: 12rem;
+      overflow: hidden;
+    }
+    .service-card .img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      transition: transform 0.5s ease;
+    }
+    .service-card:hover .img-wrap img { transform: scale(1.08); }
+    .service-card .img-wrap::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.5) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity var(--transition);
+    }
+    .service-card:hover .img-wrap::after { opacity: 1; }
+    .service-card .content {
+      padding: 1.5rem;
+    }
+    .service-card h3 {
+      margin: 0;
+      font-family: var(--font-heading);
+      font-size: 1.2rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      color: #fff;
+      transition: color var(--transition);
+    }
+    .service-card:hover h3 { color: var(--champagne); }
+
+    /* ---- Testimonials ---- */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      max-width: 72rem;
+      margin: 0 auto;
+    }
+    @media (min-width: 768px) { .testimonials-grid { grid-template-columns: repeat(3, 1fr); } }
+    .testimonial-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 1.5rem 2rem;
+      backdrop-filter: blur(8px);
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .testimonial-card:hover {
+      border-color: rgba(230, 200, 74, 0.5);
+      box-shadow: 0 0 24px rgba(230, 200, 74, 0.1);
+    }
+    .testimonial-card .quote-icon {
+      display: block;
+      width: 2rem;
+      height: 2rem;
+      margin: 0 auto 1rem;
+      color: var(--champagne);
+      opacity: 0.6;
+    }
+    .testimonial-card blockquote {
+      margin: 0 0 1rem;
+      font-size: 1rem;
+      font-style: italic;
+      color: #fff;
+      line-height: 1.6;
+    }
+    .testimonial-card .author {
+      padding-top: 1rem;
+      border-top: 1px solid rgba(230, 200, 74, 0.25);
+      text-align: center;
+    }
+    .testimonial-card .author-name { font-weight: 700; color: var(--champagne); }
+    .testimonial-card .author-venue { font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+    /* ---- Team ---- */
+    .team-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      max-width: 56rem;
+      margin: 0 auto;
+    }
+    @media (min-width: 768px) { .team-grid { grid-template-columns: repeat(2, 1fr); } }
+    .team-card {
+      display: block;
+      text-decoration: none;
+      background: rgba(15, 20, 25, 0.95);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 1.5rem 2rem;
+      transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .team-card:hover {
+      border-color: rgba(230, 200, 74, 0.6);
+      box-shadow: 0 0 32px var(--gold-glow);
+    }
+    .team-card .photo {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+      background: var(--panel-4);
+    }
+    .team-card .photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .team-card:hover .photo img { transform: scale(1.05); }
+    .team-card h3 {
+      margin: 0 0 0.25rem;
+      font-family: var(--font-heading);
+      font-size: clamp(1.45rem, 2vw, 1.75rem);
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      color: var(--champagne);
+    }
+    .team-card .role {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .team-card p {
+      margin: 0 0 1rem;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .team-card .link {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--champagne);
+    }
+    .team-card:hover .link { text-decoration: underline; }
+
+    /* ---- CTA row ---- */
+    .cta-row { text-align: center; margin-top: 2.5rem; }
+
+    /* Demo banner */
+    .demo-banner {
+      font-family: var(--font-body);
+      background: linear-gradient(90deg, var(--champagne-dark) 0%, var(--champagne) 50%, var(--champagne-dark) 100%);
+      color: #0a0a0a;
+      text-align: center;
+      padding: 0.75rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="light-leak light-leak--tr"></div>
+  <div class="light-leak light-leak--bl"></div>
+
+  <div class="wrap">
+    <div class="demo-banner">Design demo – styling & colour preview only. Not the live site.</div>
+
+    <!-- Hero gallery (single image for demo) -->
+    <section class="hero-gallery">
+      <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg" alt="Professional wedding lighting and entertainment" />
+      <div class="overlay"></div>
+    </section>
+
+    <!-- Hero text -->
+    <section class="hero-text">
+      <span class="badge">Stylish Entertainment & Production</span>
+      <h1>Exceptional <span class="gradient">Entertainment</span></h1>
+      <p class="tagline">Professional DJs, musicians, lighting design and venue styling for weddings, parties and events across the UK and Wales. Strictly no YMCA.</p>
+      <a href="#services" class="btn btn--outline">Meet Our DJs</a>
+    </section>
+
+    <hr class="section-divider" />
+
+    <!-- What sets our DJs apart -->
+    <section class="section section--dark" id="difference">
+      <div class="section" style="padding-top: 0;">
+        <div class="eyebrow">The Stylish Difference</div>
+        <h2>What sets our DJs apart</h2>
+        <div class="copy-block">
+          <p>Let's be honest: the right vibe is everything. Whether you're dreaming of a sleek, high-energy solo DJ to anchor the night or the show-stopping magic of our festival trio—featuring live saxophone and percussion—we curate a high-end atmosphere that feels effortlessly vibrant.</p>
+          <p>We pride ourselves on our ability to read the crowd and cater to everyone's musical tastes, from the music lovers to your Great Aunt Betty. Best of all, we've officially retired the "wedding cheese." You can consider us a cliché-free zone: you won't hear The Macarena or YMCA on our watch; instead, we focus on a fresh, signature soundscape tailored specifically to your taste. It's your night—let's make it legendary.</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="section-divider" />
+
+    <!-- Services -->
+    <section class="section section--mid" id="services">
+      <div class="eyebrow">Our Services</div>
+      <h2>What We <span class="gradient">Do</span></h2>
+      <p class="sub">Comprehensive entertainment services for weddings, parties and events to make every celebration unforgettable</p>
+      <div class="services-grid">
+        <a href="#" class="service-card">
+          <div class="img-wrap">
+            <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163781/Emma-Conrad-2-9-23-682_utvftj.jpg" alt="Weddings" />
+          </div>
+          <div class="content"><h3>Weddings</h3></div>
+        </a>
+        <a href="#" class="service-card">
+          <div class="img-wrap">
+            <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163810/image2_l1hxxx.jpg" alt="Parties" />
+          </div>
+          <div class="content"><h3>Parties</h3></div>
+        </a>
+        <a href="#" class="service-card">
+          <div class="img-wrap">
+            <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163683/NP-Decks-2_y32tje.jpg" alt="DJs" />
+          </div>
+          <div class="content"><h3>DJs</h3></div>
+        </a>
+        <a href="#" class="service-card">
+          <div class="img-wrap">
+            <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163656/IMG_3148_owtb29.jpg" alt="Musicians" />
+          </div>
+          <div class="content"><h3>Musicians</h3></div>
+        </a>
+        <a href="#" class="service-card">
+          <div class="img-wrap">
+            <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw" alt="Lighting Gallery" />
+          </div>
+          <div class="content"><h3>Lighting Gallery</h3></div>
+        </a>
+        <a href="#" class="service-card">
+          <div class="img-wrap">
+            <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768214470/DJ-Decks_mlezxe.jpg" alt="Kit Hire" />
+          </div>
+          <div class="content"><h3>Kit Hire</h3></div>
+        </a>
+      </div>
+    </section>
+
+    <hr class="section-divider" />
+
+    <!-- Testimonials -->
+    <section class="section section--warm">
+      <div class="eyebrow">Client Testimonials</div>
+      <h2>What Our <span class="gradient">Clients Say</span></h2>
+      <p class="sub" style="color: rgba(230, 200, 74, 0.95); font-weight: 600;">From packed dance floors to standing ovations – real stories from real celebrations</p>
+      <div class="testimonials-grid">
+        <div class="testimonial-card">
+          <svg class="quote-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 8h4v8h-4V8zM6 8h4v8H6V8z"/><path d="M4 12h2M18 12h2"/></svg>
+          <blockquote>"Incredible energy and professionalism. Our dance floor was packed all night."</blockquote>
+          <div class="author">
+            <div class="author-name">Sarah & James</div>
+            <div class="author-venue">Babington House</div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <svg class="quote-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 8h4v8h-4V8zM6 8h4v8H6V8z"/><path d="M4 12h2M18 12h2"/></svg>
+          <blockquote>"The lighting transformed our venue. Exactly the atmosphere we wanted."</blockquote>
+          <div class="author">
+            <div class="author-name">Emma & Tom</div>
+            <div class="author-venue">The Newt Somerset</div>
+          </div>
+        </div>
+        <div class="testimonial-card">
+          <svg class="quote-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 8h4v8h-4V8zM6 8h4v8H6V8z"/><path d="M4 12h2M18 12h2"/></svg>
+          <blockquote>"From first contact to last song – flawless. Couldn't recommend more."</blockquote>
+          <div class="author">
+            <div class="author-name">Rachel & Mike</div>
+            <div class="author-venue">Rosedew Farm</div>
+          </div>
+        </div>
+      </div>
+      <div class="cta-row">
+        <a href="#" class="btn btn--primary">Read All Testimonials</a>
+      </div>
+    </section>
+
+    <hr class="section-divider" />
+
+    <!-- Meet the Team -->
+    <section class="section section--lighter">
+      <div class="eyebrow">Our Team</div>
+      <h2>Meet the <span class="gradient">Team</span></h2>
+      <p class="sub">The passionate professionals behind Stylish Entertainment</p>
+      <div class="team-grid">
+        <a href="#" class="team-card">
+          <div class="photo">
+            <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162313/Ali-Peirce_aec3tn.jpg" alt="Ali" />
+          </div>
+          <h3>Ali</h3>
+          <p class="role">Creative Strategist</p>
+          <p>Ali combines creative vision with meticulous attention to detail. Specializing in venue styling and artist liaison, Ali transforms spaces into stunning celebration environments where every detail matters.</p>
+          <span class="link">Read Full Bio →</span>
+        </a>
+        <a href="#" class="team-card">
+          <div class="photo">
+            <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162279/Nigel-DJ-Babs-House-0009-1_f59b99.jpg" alt="Nige" />
+          </div>
+          <h3>Nige</h3>
+          <p class="role">Creative & Technical</p>
+          <p>With over 20 years of experience, Nige brings technical excellence and creative expertise to every event. From DJ sets at Babington House to Glastonbury Festival, combining innovation with flawless execution.</p>
+          <span class="link">Read Full Bio →</span>
+        </a>
+      </div>
+      <div class="cta-row">
+        <a href="#" class="btn btn--primary">Learn More About Us</a>
+      </div>
+    </section>
+  </div>
+</body>
+</html>

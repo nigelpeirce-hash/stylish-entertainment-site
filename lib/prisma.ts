@@ -100,21 +100,28 @@ if (!enhancedConnectionString.includes('connect_timeout')) {
   const separator = enhancedConnectionString.includes('?') ? '&' : '?';
   enhancedConnectionString = `${connectionString}${separator}connect_timeout=30&statement_timeout=25000`;
 }
+// Supabase Transaction mode (port 6543): Prisma needs pgbouncer=true for compatibility
+if (enhancedConnectionString.includes('pooler.supabase.com') && enhancedConnectionString.includes(':6543/') && !enhancedConnectionString.includes('pgbouncer=true')) {
+  enhancedConnectionString += enhancedConnectionString.includes('?') ? '&pgbouncer=true' : '?pgbouncer=true';
+}
+
+// Pool size: use 1 in dev to avoid "MaxClientsInSessionMode" (Supabase session pool is small).
+// In production, keep low (2) so we don't exhaust Supabase pool when using Session mode (port 5432).
+const poolSize = process.env.NODE_ENV === 'development' ? 1 : 2;
+const isSessionModePooler = enhancedConnectionString.includes('pooler.supabase.com') && /:5432\//.test(enhancedConnectionString);
+const _gw = _g as { __sessionModeWarned?: boolean };
+if (process.env.NODE_ENV === 'development' && isSessionModePooler && !_gw.__sessionModeWarned) {
+  _gw.__sessionModeWarned = true;
+  console.warn('⚠️  Using Supabase Session mode (port 5432) – limited connections. To fix "max clients reached", use Transaction mode: change port to 6543 and add ?pgbouncer=true');
+}
 
 const pool = new pg.Pool({ 
   connectionString: enhancedConnectionString,
-  // Connection timeout - increased for Supabase and Vercel serverless
-  // Vercel serverless functions need longer timeouts due to cold starts
-  connectionTimeoutMillis: 30000, // 30 seconds (increased from 20s)
-  // Query timeout - prevent queries from hanging indefinitely
-  query_timeout: 25000, // 25 seconds
-  // Statement timeout - PostgreSQL-level timeout
-  statement_timeout: 25000, // 25 seconds
-  // Limit pool size - smaller for serverless (each function instance has its own pool)
-  max: 5, // Reduced from 10 for serverless (Vercel functions are stateless)
-  // Idle timeout - shorter for serverless
-  idleTimeoutMillis: 20000, // 20 seconds
-  // Keep connections alive for better connection reuse
+  connectionTimeoutMillis: 30000,
+  query_timeout: 25000,
+  statement_timeout: 25000,
+  max: poolSize,
+  idleTimeoutMillis: 20000,
   keepAlive: true,
   keepAliveInitialDelayMillis: 10000,
 })

@@ -16,7 +16,6 @@ import { Providers } from "@/components/Providers";
 import WelcomeBackBanner from "@/components/WelcomeBackBanner";
 import PrefetchErrorHandler from "@/components/PrefetchErrorHandler";
 import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
-import SiteWideCTA from "@/components/SiteWideCTA";
 
 const raleway = Raleway({
   subsets: ["latin"],
@@ -120,6 +119,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${raleway.variable} ${bebasNeue.variable} ${dancingScript.variable} ${playfairDisplay.variable}`}>
+      <head>
+        {/* Image CDN: preconnect for Cloudinary (og:images, direct refs); /_next/image is same-origin */}
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+      </head>
       <body className="relative min-h-screen" style={{
         background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
       }}>
@@ -131,7 +135,7 @@ export default function RootLayout({
           {/* Early error handler for prefetch failures - runs before React */}
           <Script
             id="prefetch-error-handler"
-            strategy="beforeInteractive"
+            strategy="afterInteractive"
             dangerouslySetInnerHTML={{
               __html: `
                 (function() {
@@ -193,10 +197,12 @@ export default function RootLayout({
           </Suspense>
           <Breadcrumbs />
           <ErrorBoundaryWrapper>
-            <main className="min-h-screen relative z-10">{children}</main>
+            <div className="relative z-10 block">
+              <main className="min-h-screen">{children}</main>
+              {/* Site-wide CTA disabled for now. To restore: import SiteWideCTA + add <SiteWideCTA /> here. */}
+              <Footer />
+            </div>
           </ErrorBoundaryWrapper>
-          <SiteWideCTA />
-          <Footer />
         </Providers>
       </body>
     </html>
