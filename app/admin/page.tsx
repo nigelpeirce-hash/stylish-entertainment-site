@@ -283,7 +283,7 @@ export default function AdminDashboard() {
   // Show loading state - ensure consistent rendering between server and client
   if (!mounted || (status === "loading" || loading) && !devBypass) {
     return (
-      <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
+      <div className="min-h-screen bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-7xl">
           <div className="text-white">Loading...</div>
         </div>
@@ -305,7 +305,7 @@ export default function AdminDashboard() {
           fetchStats();
         }}
       />
-      <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
+      <div className="min-h-screen bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
         {/* Booking Integrity Warning */}
         <BookingIntegrityWarning />
       

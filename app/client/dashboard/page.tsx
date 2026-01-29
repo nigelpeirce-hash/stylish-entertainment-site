@@ -91,7 +91,7 @@ export default function ClientDashboard() {
   if (status === "loading" || loading) {
     return (
       <div
-        className="min-h-screen py-12 px-4"
+        className="min-h-screen py-12 px-4 sm:px-6 lg:px-8"
         style={{
           background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
         }}
@@ -117,7 +117,7 @@ export default function ClientDashboard() {
 
   return (
     <div
-      className="min-h-screen text-white py-12 px-4"
+      className="min-h-screen text-white py-12 px-4 sm:px-6 lg:px-8"
       style={{
         background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
       }}

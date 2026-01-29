@@ -467,7 +467,7 @@ export default function BookingDetail() {
       {/* Safe Mode Warning Banner */}
       {isFallbackMode && (
         <div className="sticky top-0 z-[60] bg-amber-600/90 backdrop-blur-sm border-b-2 border-amber-500 shadow-lg">
-          <div className="container mx-auto max-w-[1920px] px-6 py-3">
+          <div className="container mx-auto max-w-[1920px] px-4 sm:px-6 lg:px-8 py-3">
             <div className="flex items-center justify-center gap-3">
               <span className="text-2xl">⚠️</span>
               <div className="flex-1 text-center">
@@ -484,7 +484,7 @@ export default function BookingDetail() {
       )}
       {/* Sticky Header */}
       <div className={`sticky ${isFallbackMode ? 'top-[72px]' : 'top-0'} z-50 bg-gray-900/95 backdrop-blur-sm border-b-2 border-champagne-gold/30 shadow-lg`}>
-        <div className="container mx-auto max-w-[1920px] px-6 py-4">
+        <div className="container mx-auto max-w-[1920px] px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between gap-4">
             {/* Left: Back Button */}
             <Link href="/admin/bookings">
@@ -597,7 +597,7 @@ export default function BookingDetail() {
 
 
       {/* 3-Column Layout */}
-      <div className="container mx-auto max-w-[1920px] px-6 py-6">
+      <div className="container mx-auto max-w-[1920px] px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left Column: WhatsApp Conversation (The Inbox) - TEMPORARILY HIDDEN */}
           {/* <div className="lg:col-span-4">
@@ -1393,7 +1393,7 @@ export default function BookingDetail() {
                 <select
                   id="edit-venueSelect"
                   className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const v = e.target.value;
                     if (!v) return;
                     const [name, postcode] = v.includes("\t") ? v.split("\t") : [v, ""];
@@ -1401,19 +1401,30 @@ export default function BookingDetail() {
                     const vp = document.getElementById("edit-venuePostcode") as HTMLInputElement;
                     if (vn) vn.value = name;
                     if (vp) vp.value = postcode;
-                    const venue = venues.find((x) => x.venueName === name);
-                    if (!venue) return;
-                    if ("defaultCeremonyTime" in venue && venue.defaultCeremonyTime) {
-                      const ceremonyEl = document.getElementById("edit-ceremonyTime") as HTMLInputElement;
-                      if (ceremonyEl) ceremonyEl.value = venue.defaultCeremonyTime;
-                    }
-                    if ("defaultFinishTime" in venue && venue.defaultFinishTime) {
-                      const finishEl = document.getElementById("edit-djFinishTime") as HTMLInputElement;
-                      if (finishEl) finishEl.value = venue.defaultFinishTime;
-                    }
-                    if ("venueNotes" in venue && venue.venueNotes) {
-                      const msgEl = document.getElementById("edit-message") as HTMLTextAreaElement;
-                      if (msgEl) msgEl.value = venue.venueNotes;
+                    try {
+                      const res = await fetch(`/api/admin/venues/?name=${encodeURIComponent(name)}`);
+                      const data = await res.json();
+                      const list: { venueName?: string; defaultCeremonyTime?: string; defaultFinishTime?: string; venueNotes?: string }[] = data.venues || [];
+                      const match = list.find((x) => (x.venueName || "").toLowerCase() === name.toLowerCase()) || list[0];
+                      if (!match) return;
+                      if (match.venueName) {
+                        const nameEl = document.getElementById("edit-venueName") as HTMLInputElement;
+                        if (nameEl) nameEl.value = match.venueName;
+                      }
+                      if (match.defaultCeremonyTime) {
+                        const ceremonyEl = document.getElementById("edit-ceremonyTime") as HTMLInputElement;
+                        if (ceremonyEl) ceremonyEl.value = match.defaultCeremonyTime;
+                      }
+                      if (match.defaultFinishTime) {
+                        const finishEl = document.getElementById("edit-djFinishTime") as HTMLInputElement;
+                        if (finishEl) finishEl.value = match.defaultFinishTime;
+                      }
+                      if (match.venueNotes) {
+                        const msgEl = document.getElementById("edit-message") as HTMLTextAreaElement;
+                        if (msgEl) msgEl.value = match.venueNotes;
+                      }
+                    } catch {
+                      /* ignore */
                     }
                   }}
                 >
@@ -1467,6 +1478,10 @@ export default function BookingDetail() {
                     const list = data.venues || [];
                     const venueMatch = list.find((x: { venueName?: string }) => (x.venueName || "").toLowerCase() === vn.toLowerCase()) || list[0];
                     if (venueMatch?.defaultCeremonyTime || venueMatch?.defaultFinishTime || venueMatch?.venueNotes) {
+                      if (venueMatch.venueName) {
+                        const nameEl = document.getElementById("edit-venueName") as HTMLInputElement;
+                        if (nameEl) nameEl.value = venueMatch.venueName;
+                      }
                       if (venueMatch.defaultCeremonyTime) {
                         const ceremonyEl = document.getElementById("edit-ceremonyTime") as HTMLInputElement;
                         if (ceremonyEl) ceremonyEl.value = venueMatch.defaultCeremonyTime;
@@ -1485,10 +1500,16 @@ export default function BookingDetail() {
                     if (!applied) {
                       const detailsRes = await fetch(`/api/admin/venues/details/?venueName=${encodeURIComponent(vn)}${vp ? `&venuePostcode=${encodeURIComponent(vp)}` : ""}`);
                       const detailsData = await detailsRes.json();
-                      const det = detailsData?.venue;
-                      if (det?.venuePostcode) {
-                        const postcodeEl = document.getElementById("edit-venuePostcode") as HTMLInputElement;
-                        if (postcodeEl) postcodeEl.value = det.venuePostcode;
+                      const det = detailsData?.venue as { venuePostcode?: string; venueLoadInNotes?: string } | undefined;
+                      if (det?.venuePostcode || det?.venueLoadInNotes) {
+                        if (det.venuePostcode) {
+                          const postcodeEl = document.getElementById("edit-venuePostcode") as HTMLInputElement;
+                          if (postcodeEl) postcodeEl.value = det.venuePostcode;
+                        }
+                        if (det.venueLoadInNotes) {
+                          const msgEl = document.getElementById("edit-message") as HTMLTextAreaElement;
+                          if (msgEl) msgEl.value = det.venueLoadInNotes;
+                        }
                         applied = true;
                         source = "booking";
                       }

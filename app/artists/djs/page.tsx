@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -483,7 +482,7 @@ export default function DJs() {
         </div>
       </section>
 
-      {/* DJ Slider */}
+      {/* DJ Grid - 2-column tiles that expand */}
       <section className="pt-8 pb-20 px-4 bg-gray-900">
         <div className="container mx-auto">
           <motion.div
@@ -511,47 +510,49 @@ export default function DJs() {
                 <p>No DJs available at the moment.</p>
               </div>
             ) : (
-              <Slider>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {djs.map((dj, index) => (
-                <div key={dj.name} className="px-4">
-                  <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:border-champagne-gold/60 group">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-0 md:items-stretch">
-                      <div className="relative h-64 md:h-auto overflow-hidden bg-gray-900 flex items-center justify-center">
-                        {dj.image ? (
-                          <>
-                            <Image
-                              src={dj.image}
-                              alt={dj.alt}
-                              fill
-                              className="object-cover object-center group-hover:scale-110 transition-transform duration-500"
-                              style={{ objectPosition: 'center center' }}
-                              sizes="(max-width: 768px) 100vw, 50vw"
-                            />
-                            <div className="w-full h-full hidden items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 text-gray-400 flex-col gap-2">
-                              <svg className="w-16 h-16 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                              <span className="text-sm text-center px-4">Image loading...</span>
-                            </div>
-                          </>
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gray-800 text-gray-400">
-                            <span>Image not available</span>
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <motion.div
+                  key={dj.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: Math.min(index * 0.1, 0.3) }}
+                >
+                  <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:border-champagne-gold/60 group h-full flex flex-col">
+                    <div className="relative aspect-[4/3] overflow-hidden bg-gray-900">
+                      {dj.image ? (
+                        <Image
+                          src={dj.image}
+                          alt={dj.alt}
+                          fill
+                          className="object-cover object-center group-hover:scale-110 transition-transform duration-500"
+                          style={{ objectPosition: "center center" }}
+                          sizes="(max-width: 640px) 100vw, 50vw"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-gray-400">
+                          <span>Image not available</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
+                      <div className="absolute bottom-0 left-0 right-0 p-4">
+                        <h3 className="text-xl font-bold text-white drop-shadow-lg">{dj.name}</h3>
+                        <span className="inline-block mt-1 px-2.5 py-1 bg-champagne-gold/20 text-champagne-gold rounded-full text-xs font-semibold border border-champagne-gold/40">
+                          {dj.mixingStyle}
+                        </span>
                       </div>
-                      <CardHeader className="p-4 sm:p-6 md:p-6 lg:p-8 bg-gray-900 flex flex-col justify-start pb-20 sm:pb-6 md:pb-6 lg:pb-8">
-                        <CardTitle className="text-xl sm:text-2xl md:text-3xl mb-2 sm:mb-3 text-white font-bold">{dj.name}</CardTitle>
-                        <p className="text-sm sm:text-base text-gray-200 mb-3 sm:mb-4 leading-relaxed">{dj.bio}</p>
-                        
-                        <Dialog>
+                    </div>
+                    <CardContent className="p-4 sm:p-5 flex flex-col flex-1">
+                      <p className="text-sm text-gray-300 leading-relaxed line-clamp-3 mb-4 flex-1">{dj.bio}</p>
+                      <div className="mt-auto">
+                      <Dialog>
                           <DialogTrigger asChild>
                             <Button
                               variant="outline"
-                              className="w-full sm:w-auto mb-4 border-champagne-gold text-champagne-gold hover:bg-champagne-gold hover:text-black transition-all duration-300 font-semibold"
+                              className="w-full mt-auto border-champagne-gold text-champagne-gold hover:bg-champagne-gold hover:text-black transition-all duration-300 font-semibold"
                             >
-                              Read More
+                              Read more & expand
                             </Button>
                           </DialogTrigger>
                           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -679,66 +680,58 @@ export default function DJs() {
                                 })()}
                               </div>
                             </DialogHeader>
-                          </DialogContent>
-                        </Dialog>
-                        
-                        <div className="mb-4">
-                          <h4 className="font-bold mb-2 text-white text-xs sm:text-sm uppercase tracking-wider">Mixing Style:</h4>
-                          <span className="inline-block px-3 py-1.5 bg-gradient-to-r from-champagne-gold/20 to-yellow-400/20 text-champagne-gold rounded-full text-xs sm:text-sm font-semibold border border-champagne-gold/40 shadow-sm">
-                            {dj.mixingStyle}
-                          </span>
-                        </div>
-
-                        <div className="space-y-3 sm:space-y-4">
-                          {dj.youtubeEmbed && dj.youtubeEmbed.trim() !== "" && dj.youtubeEmbed.startsWith('http') && (
-                            <div>
-                              <h4 className="font-semibold mb-2 text-white text-xs sm:text-sm uppercase tracking-wider">Watch</h4>
-                              <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black/10 shadow-lg">
-                                <LazyIframe
-                                  src={dj.youtubeEmbed}
-                                  title={`${dj.name} - Video`}
-                                  className="absolute inset-0 w-full h-full"
-                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                  allowFullScreen
-                                  referrerPolicy="strict-origin-when-cross-origin"
-                                />
-                              </div>
-                            </div>
-                          )}
-                          <div>
-                            <h4 className="font-semibold mb-2 text-white text-xs sm:text-sm uppercase tracking-wider">Listen</h4>
-                            <div className="space-y-3">
-                              {dj.mixcloudEmbeds && dj.mixcloudEmbeds.length > 0 ? (
-                                dj.mixcloudEmbeds.map((embed, index) => (
-                                  <div
-                                    key={index}
-                                    className="relative w-full rounded-lg overflow-hidden bg-black/10 shadow-lg hover:shadow-xl transition-shadow"
-                                    style={{ height: '60px' }}
-                                  >
+                            <div className="space-y-4 mt-6 pt-6 border-t border-champagne-gold/20">
+                              {dj.youtubeEmbed && dj.youtubeEmbed.trim() !== "" && dj.youtubeEmbed.startsWith("http") && (
+                                <div>
+                                  <h4 className="font-semibold mb-2 text-white text-sm uppercase tracking-wider">Watch</h4>
+                                  <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black/10 shadow-lg">
                                     <LazyIframe
-                                      src={embed}
-                                      title={`${dj.name} - Mix ${index + 1}`}
+                                      src={dj.youtubeEmbed}
+                                      title={`${dj.name} - Video`}
                                       className="absolute inset-0 w-full h-full"
-                                      allow="encrypted-media; fullscreen; autoplay; idle-detection; speaker-selection; web-share"
-                                      frameBorder="0"
-                                      height="60px"
+                                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                      allowFullScreen
+                                      referrerPolicy="strict-origin-when-cross-origin"
                                     />
                                   </div>
-                                ))
-                              ) : (
-                                <div className="text-center py-8 text-gray-400 text-sm border-2 border-dashed border-gray-600 rounded-lg">
-                                  Mixcloud mixes coming soon
                                 </div>
                               )}
+                              <div>
+                                <h4 className="font-semibold mb-2 text-white text-sm uppercase tracking-wider">Listen</h4>
+                                <div className="space-y-3">
+                                  {dj.mixcloudEmbeds && dj.mixcloudEmbeds.length > 0 ? (
+                                    dj.mixcloudEmbeds.map((embed, idx) => (
+                                      <div
+                                        key={idx}
+                                        className="relative w-full rounded-lg overflow-hidden bg-black/10 shadow-lg hover:shadow-xl transition-shadow"
+                                        style={{ height: "60px" }}
+                                      >
+                                        <LazyIframe
+                                          src={embed}
+                                          title={`${dj.name} - Mix ${idx + 1}`}
+                                          className="absolute inset-0 w-full h-full"
+                                          allow="encrypted-media; fullscreen; autoplay; idle-detection; speaker-selection; web-share"
+                                          frameBorder="0"
+                                          height="60px"
+                                        />
+                                      </div>
+                                    ))
+                                  ) : (
+                                    <div className="text-center py-8 text-gray-400 text-sm border-2 border-dashed border-gray-600 rounded-lg">
+                                      Mixcloud mixes coming soon
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                        </div>
-                      </CardHeader>
-                    </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                      </CardContent>
                   </Card>
-                </div>
+                </motion.div>
               ))}
-            </Slider>
+            </div>
             )}
           </div>
         </div>
@@ -848,7 +841,13 @@ export default function DJs() {
               <CardContent className="p-8 sm:p-10 md:p-12">
                 <div className="space-y-6 text-gray-100 leading-relaxed">
                   <p className="text-lg sm:text-xl">
-                    When you contact us with your date, location and timings we will email you a quote based on current availability. If you wish to book, we will email a booking form and we will arrange for you to speak with your chosen DJ (to make sure they are the right person for you) before you book or near your party date.
+                    Once you share your date, location, and timings, we&apos;ll tailor a bespoke quote based on our current availability. If you&apos;re ready to move forward, we&apos;ll send over your booking details. We want to ensure they&apos;re the perfect match for your vision, so you&apos;ll have the chance to connect either before you book or as your celebration draws near.
+                  </p>
+                  <p className="text-lg sm:text-xl">
+                    As soon as you share your date, location, and timings, we&apos;ll tailor a bespoke quote based on our current availability. To secure your date on our calendar, we&apos;ll begin by sending over a booking invoice for the initial commitment, with the remaining balance settled just two weeks before the big day.
+                  </p>
+                  <p className="text-lg sm:text-xl">
+                    Once your booking is confirmed, you&apos;ll gain exclusive access to our digital planning worksheet. This is truly where the magic happens: you can update it over the coming months with every essential detail and your curated playlist to ensure the evening flows flawlessly. You&apos;ll also have the chance to connect personally with your DJ as your celebration draws near to chat through those final, finer details.
                   </p>
                 </div>
               </CardContent>

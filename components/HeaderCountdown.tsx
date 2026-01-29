@@ -63,7 +63,7 @@ export default function HeaderCountdown() {
   }
 
   return (
-    <div className="bg-gray-900/95 border-b border-champagne-gold/20 py-3 px-4">
+    <div className="bg-gray-900/95 border-b border-champagne-gold/20 py-3 px-4 sm:px-6 lg:px-8">
       <div className="container mx-auto max-w-7xl flex items-center justify-between gap-4">
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">

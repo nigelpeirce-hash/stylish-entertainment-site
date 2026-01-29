@@ -251,6 +251,35 @@ export default function Home() {
         </motion.div>
       </section>
 
+      {/* What set our DJ's apart */}
+      <section className="py-16 md:py-24 px-4 bg-gray-900 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-b from-champagne-gold/5 via-transparent to-transparent pointer-events-none" />
+        <div className="container mx-auto max-w-3xl relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center"
+          >
+            <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/20">
+              <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">The Stylish Difference</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans font-bold text-white mb-6 md:mb-8 px-4">
+              What sets our DJs apart
+            </h2>
+            <div className="text-left space-y-5 text-base sm:text-lg md:text-xl text-gray-300 leading-relaxed">
+              <p>
+                Let&apos;s be honest: the right vibe is everything. Whether you&apos;re dreaming of a sleek, high-energy solo DJ to anchor the night or the show-stopping magic of our festival trio—featuring live saxophone and percussion—we curate a high-end atmosphere that feels effortlessly vibrant.
+              </p>
+              <p>
+                We pride ourselves on our ability to read the crowd and cater to everyone&apos;s musical tastes, from the music lovers to your Great Aunt Betty. Best of all, we&apos;ve officially retired the &quot;wedding cheese.&quot; You can consider us a cliché-free zone: you won&apos;t hear The Macarena or YMCA on our watch; instead, we focus on a fresh, signature soundscape tailored specifically to your taste. It&apos;s your night—let&apos;s make it legendary.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Services Section */}
       <section className="py-20 px-4 bg-gray-700">
         <div className="container mx-auto">

@@ -910,6 +910,19 @@ body.admin-page [class*="card-title"] { font-size: 1.40625rem !important; }
 body.admin-page [class*="CardContent"],
 body.admin-page [class*="card-content"] { font-size: 1.25rem !important; }
 
+/* ---- Time picker: white text (Chrome/Safari webkit) ---- */
+input[type="time"] {
+  color: #fff !important;
+}
+input[type="time"]::-webkit-datetime-edit-fields-wrapper,
+input[type="time"]::-webkit-datetime-edit-text,
+input[type="time"]::-webkit-datetime-edit-hour-field,
+input[type="time"]::-webkit-datetime-edit-minute-field,
+input[type="time"]::-webkit-datetime-edit-second-field,
+input[type="time"]::-webkit-datetime-edit-ampm-field {
+  color: #fff !important;
+}
+
 /* ---- Contact form (.contact-ui) ---- */
 .contact-ui .text-xs { font-size: 0.9375rem !important; }
 .contact-ui .text-sm { font-size: 1.09375rem !important; }

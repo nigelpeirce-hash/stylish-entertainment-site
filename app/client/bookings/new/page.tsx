@@ -147,7 +147,7 @@ export default function NewBookingPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900 py-12 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
         <Card className="bg-gray-800 border-champagne-gold/30 max-w-md">
           <CardContent className="pt-6 text-center">
             <p className="text-green-400 text-lg mb-4">
@@ -160,8 +160,8 @@ export default function NewBookingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
-      <div className="container mx-auto max-w-3xl">
+    <div className="min-h-screen bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto max-w-5xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

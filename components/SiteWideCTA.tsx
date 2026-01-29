@@ -12,7 +12,10 @@ export default function SiteWideCTA() {
   if (hide) return null;
 
   return (
-    <section className="py-10 md:py-14 bg-gray-900 border-t border-gray-800/50">
+    <section
+      className="sticky bottom-0 z-40 py-10 md:py-14 bg-gray-900 border-t border-champagne-gold/20 shadow-[0_-8px_30px_rgba(0,0,0,0.4)] isolate"
+      style={{ background: "rgb(17 24 39)" }}
+    >
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-4xl text-center">
         <div className="bg-gradient-to-br from-champagne-gold/10 to-yellow-400/10 border-2 border-champagne-gold/40 rounded-lg p-6 md:p-10">
           <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-champagne-gold mb-3">

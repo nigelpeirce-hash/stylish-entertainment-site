@@ -563,8 +563,8 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
   const ceremonyTimeDisplay = formatCeremonyTime();
 
   return (
-    <div className="portal-ui min-h-screen py-12 px-4">
-      <div className="container mx-auto max-w-4xl">
+    <div className="portal-ui min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto max-w-6xl">
         {/* Header Section */}
         <div className="mb-8 text-center">
           {/* Event Type Badge + subtle sparkles */}

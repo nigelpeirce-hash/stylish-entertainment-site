@@ -83,8 +83,8 @@ export default function ClientThreadDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
-      <div className="container mx-auto max-w-4xl">
+    <div className="min-h-screen bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto max-w-6xl">
         <div className="mb-6">
           <Link href="/client/messages">
             <Button variant="outline" className="border-champagne-gold text-champagne-gold mb-4">
