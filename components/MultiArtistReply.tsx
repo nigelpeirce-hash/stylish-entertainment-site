@@ -27,6 +27,7 @@ interface SelectedArtist {
   tagline: string;
   fee: string;
   recommended: boolean;
+  artistType: "dj" | "musician";
 }
 
 interface MultiArtistReplyProps {
@@ -49,8 +50,8 @@ export function MultiArtistReply({
   onSend,
 }: MultiArtistReplyProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [artistType, setArtistType] = useState<"dj" | "musician">("dj");
-  const [availableArtists, setAvailableArtists] = useState<Artist[]>([]);
+  const [djs, setDjs] = useState<Artist[]>([]);
+  const [musicians, setMusicians] = useState<Artist[]>([]);
   const [loadingArtists, setLoadingArtists] = useState(false);
   const [selectedArtists, setSelectedArtists] = useState<SelectedArtist[]>([]);
   const [customIntro, setCustomIntro] = useState("");
@@ -59,38 +60,35 @@ export function MultiArtistReply({
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
 
-  // Fetch artists when dialog opens or type changes
+  // Fetch both DJs and musicians when dialog opens
   useEffect(() => {
-    if (isOpen) {
-      fetchArtists();
-      // Reset email to booking email when dialog opens
+    if (isOpen && (djs.length === 0 || musicians.length === 0)) {
       setEmailOverride(clientEmail);
+      (async () => {
+        setLoadingArtists(true);
+        try {
+          const [djRes, musRes] = await Promise.all([
+            fetch("/api/admin/djs"),
+            fetch("/api/admin/musicians"),
+          ]);
+          const djData = djRes.ok ? await djRes.json() : {};
+          const musData = musRes.ok ? await musRes.json() : {};
+          const djList = (djData.djs || []).filter((a: Artist) => a.bio && a.imageUrl);
+          const musList = (musData.musicians || []).filter((a: Artist) => a.bio && a.imageUrl);
+          setDjs(djList);
+          setMusicians(musList);
+        } catch (err) {
+          console.error("Error fetching artists:", err);
+        } finally {
+          setLoadingArtists(false);
+        }
+      })();
     }
-  }, [isOpen, artistType, clientEmail]);
+  }, [isOpen, clientEmail, djs.length, musicians.length]);
 
-  const fetchArtists = async () => {
-    setLoadingArtists(true);
-    try {
-      const endpoint = artistType === "dj" ? "/api/admin/djs" : "/api/admin/musicians";
-      const response = await fetch(endpoint);
-      if (response.ok) {
-        const data = await response.json();
-        const artists = artistType === "dj" ? data.djs : data.musicians;
-        setAvailableArtists(artists?.filter((a: Artist) => a.bio && a.imageUrl) || []);
-      }
-    } catch (err) {
-      console.error("Error fetching artists:", err);
-    } finally {
-      setLoadingArtists(false);
-    }
-  };
-
-  const addArtist = (artist: Artist) => {
-    if (selectedArtists.find(a => a.id === artist.id)) return;
-    
-    // Extract first sentence as tagline
-    const tagline = artist.bio?.split(/[.!?]/)[0]?.trim() || "";
-    
+  const addArtist = (artist: Artist, type: "dj" | "musician") => {
+    if (selectedArtists.some(a => a.id === artist.id)) return;
+    const tagline = (artist.bio?.split(/[.!?]/)[0]?.trim() || "").slice(0, 63);
     setSelectedArtists([
       ...selectedArtists,
       {
@@ -98,9 +96,10 @@ export function MultiArtistReply({
         name: artist.name,
         bio: artist.bio || "",
         imageUrl: artist.imageUrl || "",
-        tagline: tagline.length > 60 ? tagline.substring(0, 60) + "..." : tagline,
+        tagline: tagline.length > 60 ? tagline + "..." : tagline,
         fee: "",
-        recommended: selectedArtists.length === 0, // First one is recommended by default
+        recommended: selectedArtists.length === 0,
+        artistType: type,
       },
     ]);
   };
@@ -168,14 +167,14 @@ export function MultiArtistReply({
           venueAddress,
           eventDate,
           customIntro: customIntro.trim() || null,
-          artistType,
           options: selectedArtists.map(a => ({
             name: a.name,
             tagline: a.tagline,
             bio: a.bio,
             photoUrl: a.imageUrl,
-            fee: parseFloat(a.fee),
+            fee: parseFloat(String(a.fee)) || 0,
             recommended: a.recommended,
+            artistType: a.artistType,
           })),
         }),
       });
@@ -212,7 +211,13 @@ export function MultiArtistReply({
     : "";
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) setSelectedArtists([]);
+        setIsOpen(open);
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="outline" className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10">
           <Send className="w-4 h-4 mr-2" />
@@ -230,28 +235,6 @@ export function MultiArtistReply({
         </DialogHeader>
 
         <form onSubmit={handleSend} className="space-y-6 mt-4">
-          {/* Artist Type Toggle */}
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant={artistType === "dj" ? "default" : "outline"}
-              onClick={() => { setArtistType("dj"); setSelectedArtists([]); }}
-              className={artistType === "dj" ? "bg-champagne-gold text-black" : "border-gray-700"}
-            >
-              <Music className="w-4 h-4 mr-2" />
-              DJs
-            </Button>
-            <Button
-              type="button"
-              variant={artistType === "musician" ? "default" : "outline"}
-              onClick={() => { setArtistType("musician"); setSelectedArtists([]); }}
-              className={artistType === "musician" ? "bg-champagne-gold text-black" : "border-gray-700"}
-            >
-              <Mic2 className="w-4 h-4 mr-2" />
-              Musicians
-            </Button>
-          </div>
-
           {/* Client Email - Editable */}
           <div>
             <Label htmlFor="client-email">Client Email Address *</Label>
@@ -283,65 +266,84 @@ export function MultiArtistReply({
             />
           </div>
 
-          {/* Artist Selection */}
-          <div>
-            <Label className="text-base font-semibold mb-3 block">
-              Select {artistType === "dj" ? "DJs" : "Musicians"} to Include
-            </Label>
-            
+          {/* Artist Selection: DJs + Musicians */}
+          <div className="space-y-6">
             {loadingArtists ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin text-champagne-gold" />
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-48 overflow-y-auto p-1">
-                {availableArtists.map((artist) => {
-                  const isSelected = selectedArtists.some(a => a.id === artist.id);
-                  return (
-                    <button
-                      key={artist.id}
-                      type="button"
-                      onClick={() => !isSelected && addArtist(artist)}
-                      disabled={isSelected}
-                      className={`flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
-                        isSelected
-                          ? "border-champagne-gold/50 bg-champagne-gold/10 opacity-50"
-                          : "border-gray-700 hover:border-champagne-gold/50 hover:bg-gray-800"
-                      }`}
-                    >
-                      {artist.imageUrl && (
-                        artist.imageUrl.includes("cloudinary.com") ? (
-                          <ResponsiveImage
-                            publicId={artist.imageUrl}
-                            alt={artist.name}
-                            className="w-10 h-10 rounded-full object-cover flex-shrink-0"
-                            width={40}
-                            height={40}
-                          />
-                        ) : (
-                          <Image
-                            src={artist.imageUrl}
-                            alt={artist.name}
-                            width={40}
-                            height={40}
-                            className="rounded-full object-cover"
-                            onError={() => {
-                              console.warn("Image failed to load:", artist.imageUrl);
-                            }}
-                          />
-                        )
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm truncate">{artist.name}</p>
-                        {artist.instrument && (
-                          <p className="text-xs text-gray-400">{artist.instrument}</p>
-                        )}
-                      </div>
-                      {!isSelected && <Plus className="w-4 h-4 text-gray-400" />}
-                    </button>
-                  );
-                })}
-              </div>
+              <>
+                <div>
+                  <Label className="text-base font-semibold mb-3 flex items-center gap-2">
+                    <Music className="w-4 h-4" />
+                    Add DJs
+                  </Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-40 overflow-y-auto p-1">
+                    {djs.map((artist) => {
+                      const isSelected = selectedArtists.some(a => a.id === artist.id);
+                      return (
+                        <button
+                          key={artist.id}
+                          type="button"
+                          onClick={() => !isSelected && addArtist(artist, "dj")}
+                          disabled={isSelected}
+                          className={`flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
+                            isSelected ? "border-champagne-gold/50 bg-champagne-gold/10 opacity-50" : "border-gray-700 hover:border-champagne-gold/50 hover:bg-gray-800"
+                          }`}
+                        >
+                          {artist.imageUrl && (
+                            artist.imageUrl.includes("cloudinary.com") ? (
+                              <ResponsiveImage publicId={artist.imageUrl} alt={artist.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" width={40} height={40} />
+                            ) : (
+                              <Image src={artist.imageUrl} alt={artist.name} width={40} height={40} className="rounded-full object-cover" onError={() => {}} />
+                            )
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{artist.name}</p>
+                          </div>
+                          {!isSelected && <Plus className="w-4 h-4 text-gray-400" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-base font-semibold mb-3 flex items-center gap-2">
+                    <Mic2 className="w-4 h-4" />
+                    Add Musicians / Roaming Bands
+                  </Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-40 overflow-y-auto p-1">
+                    {musicians.map((artist) => {
+                      const isSelected = selectedArtists.some(a => a.id === artist.id);
+                      return (
+                        <button
+                          key={artist.id}
+                          type="button"
+                          onClick={() => !isSelected && addArtist(artist, "musician")}
+                          disabled={isSelected}
+                          className={`flex items-center gap-3 p-3 rounded-lg border transition-all text-left ${
+                            isSelected ? "border-champagne-gold/50 bg-champagne-gold/10 opacity-50" : "border-gray-700 hover:border-champagne-gold/50 hover:bg-gray-800"
+                          }`}
+                        >
+                          {artist.imageUrl && (
+                            artist.imageUrl.includes("cloudinary.com") ? (
+                              <ResponsiveImage publicId={artist.imageUrl} alt={artist.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" width={40} height={40} />
+                            ) : (
+                              <Image src={artist.imageUrl} alt={artist.name} width={40} height={40} className="rounded-full object-cover" onError={() => {}} />
+                            )
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-sm truncate">{artist.name}</p>
+                            {artist.instrument && <p className="text-xs text-gray-400">{artist.instrument}</p>}
+                          </div>
+                          {!isSelected && <Plus className="w-4 h-4 text-gray-400" />}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </>
             )}
           </div>
 
@@ -377,8 +379,11 @@ export function MultiArtistReply({
                     )}
                     <div className="flex-1 space-y-3">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <h4 className="font-semibold text-lg">{artist.name}</h4>
+                          <span className="text-xs bg-gray-600 text-gray-300 px-2 py-0.5 rounded">
+                            {artist.artistType === "dj" ? "DJ" : "Musician"}
+                          </span>
                           {artist.recommended && (
                             <span className="text-xs bg-champagne-gold text-black px-2 py-0.5 rounded font-semibold">
                               RECOMMENDED
@@ -425,7 +430,7 @@ export function MultiArtistReply({
                             type="number"
                             step="0.01"
                             min="0"
-                            value={artist.fee}
+                            value={typeof artist.fee === "string" ? artist.fee : String(artist.fee ?? "")}
                             onChange={(e) => updateArtist(artist.id, "fee", e.target.value)}
                             placeholder="0.00"
                             className="mt-1 bg-gray-700 border-gray-600 text-white text-sm"

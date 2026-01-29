@@ -94,7 +94,7 @@ For more on Nige's technical expertise and industry recognition, including his A
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163359/Rich-S-DJ_qxsnht.jpg",
     alt: "Professional wedding DJ Rich S performing at a luxury London venue, showcasing professional DJ services with high-quality sound and lighting",
     mixingStyle: "Oxford & London Resident | JACKfm Presenter | O2 Academy",
-    bio: "Award-winning radio presenter and versatile DJ, experienced in playing for thousands at student nights, corporate events, and celebrations.",
+    bio: "Award-winning radio presenter and versatile DJ, experienced in playing for thousands at student nights, corporate events and celebrations.",
     fullBio: `After discovering a passion and love for music whilst studying, Rich worked his way up through the student night scene in Oxford (Fuzzy Ducks, Bridge Mondays etc…) and London (Crazy Larrys, Embargos etc…). Accustomed to playing regularly in front of 1000's of people, his musical style is broad and Rich is experienced in playing weddings, 18th, 21st, 30th Birthdays and a multitude of corporate events.
 
 Through a vast knowledge of music past and present, his range and ability to play whatever style is necessary for your party is invaluable. His exuberance and hard work has also seen him become a co-presenter on Oxfordshire's largest local breakfast show The Morning Glory on the multi-award winning JACKfm in Oxfordshire. When not presenting early mornings, Rich is honing his DJing as resident for the O2 Academy in Oxford. Rich is an extremely accomplished and adaptable DJ who is ideal for a party whatever the occasion.`,
@@ -121,131 +121,9 @@ Through a vast knowledge of music past and present, his range and ability to pla
   },
 };
 
-// Import venues data from venues page
-const venuesUnsorted = [
-  "Monaco Yacht Club",
-  "Maritime Museum Amsterdam",
-  { name: "Babington House Hotel, Soho House", url: "https://www.sohohouse.com/houses/babington-house" },
-  { name: "Dorfold Hall", url: "https://www.dorfoldestate.com/" },
-  { name: "The Met Bar", url: "https://www.metropolitanlondon.com/" },
-  { name: "Goodwood House, Sussex", url: "https://www.goodwood.com/" },
-  { name: "Hotel Tresanton Cornwall", url: "https://www.tresanton.com/" },
-  { name: "Cowley Manor", url: "https://www.cowleymanor.com/" },
-  { name: "Berkeley Castle", url: "https://www.berkeley-castle.com/" },
-  { name: "Coombe Lodge", url: "https://www.coombelodge.co.uk/" },
-  { name: "Priston Mill", url: "https://www.pristonmill.co.uk/" },
-  { name: "The Chapel, Bruton", url: "https://atthechapel.co.uk/" },
-  { name: "Roth Bar & Grill", url: "https://rothbar.co.uk/" },
-  { name: "Orchardleigh Estate", url: "https://www.orchardleigh.com/" },
-  { name: "Elmhay Park", url: "https://www.orchardleigh.com/" },
-  { name: "North Cadbury Court", url: "https://www.northcadburycourt.com/" },
-  { name: "Barnsley House", url: "https://www.barnsleyhouse.com/" },
-  { name: "Pembroke Lodge, Richmond Park", url: "https://www.pembroke-lodge.co.uk/" },
-  { name: "Yarlington House", url: "https://www.yarlingtonhouse.co.uk/" },
-  { name: "Lulworth Castle", url: "https://www.lulworth.com/" },
-  "The Imperial",
-  "Charlton House, Shepton Mallet",
-  { name: "Eastnor Castle", url: "https://www.eastnorcastle.com/" },
-  "The Great Tythe Barn, Tetbury",
-  "Euridge Manor",
-  { name: "Sessions Art Club London", url: "https://sessionsartsclub.com/" },
-  { name: "Soho Farmhouse", url: "https://www.sohohouse.com/houses/soho-farmhouse" },
-  { name: "Hotel du Vin, Poole", url: "https://www.hotelduvin.com/locations/poole/" },
-  "Many private addresses",
-  { name: "Calcot Manor", url: "https://www.calcot.co/" },
-  { name: "Cardiff City Hall", url: "https://www.cardiffcityhall.com/" },
-  { name: "Cardiff Castle", url: "https://www.cardiffcastle.com/" },
-  { name: "Athelhampton House", url: "https://www.athelhampton.co.uk/" },
-  { name: "Homewood Park", url: "https://www.homewoodpark.co.uk/" },
-  "Shilstone Manor",
-  { name: "Pentille Castle", url: "https://www.pentillie.co.uk/" },
-  { name: "Stoke Place", url: "https://www.stokeplace.com/" },
-  "St Stephen's Hampstead",
-  { name: "St George's Bristol", url: "https://www.stgeorgesbristol.co.uk/" },
-  { name: "Gant's Mill", url: "https://www.gantsmill.co.uk/" },
-  "The Manor Castle Coombe",
-  { name: "Elmore Court", url: "https://www.elmorecourt.com/" },
-  "Revolution",
-  { name: "The Mayfair Hotel", url: "https://www.themayfairhotel.co.uk/" },
-  "Dewsall Court",
-  "Polhawn Fort",
-  { name: "Syrencot", url: "https://www.syrencot.co.uk/" },
-  { name: "Bailbrook House", url: "https://www.bailbrookhouse.co.uk/" },
-  { name: "The Gathering Barn", url: "https://www.thegatheringbarn.co.uk/" },
-  { name: "Thames Rowing Club", url: "https://www.thamesrc.co.uk/" },
-  { name: "Hampton Court House", url: "https://www.hamptoncourthouse.co.uk/" },
-  { name: "Hestercombe Gardens", url: "https://www.hestercombe.com/" },
-  { name: "Pencarrow Estate", url: "https://www.pencarrow.co.uk/" },
-  "Northover Manor",
-  { name: "Boconnoc Estate", url: "https://www.boconnoc.com/" },
-  { name: "Rockingham Castle", url: "https://www.rockinghamcastle.com/" },
-  "Queen Mary University, London",
-  { name: "Town Hall Hotel, London", url: "https://www.townhallhotel.com/" },
-  { name: "The Wellington Arms, Basingstoke", url: "https://www.thewellingtonarms.com/" },
-  { name: "Wick Farm, Bath", url: "https://www.wickfarm.co.uk/" },
-  { name: "Parklands Quendon Hall, Essex", url: "https://quendonhall.co.uk/" },
-  { name: "Dene Farm, Hampshire", url: "https://www.denefarm.co.uk/" },
-  "Cutteridge Barns, Trowbridge",
-  { name: "Brympton House", url: "https://www.brymptonhouse.co.uk/" },
-  { name: "Cripps Barn", url: "https://www.crippsbarn.co.uk/" },
-  { name: "Tall Johns, South Wales", url: "https://www.talljohnshouse.com/" },
-  { name: "The Royal Yacht Club", url: "https://www.rlyc.org.uk/" },
-  { name: "The Newt in Somerset", url: "https://www.thenewtinsomerset.com/" },
-  { name: "Glastonbury Festival", url: "https://www.glastonburyfestivals.co.uk/" },
-  "Almonry Barn, Somerset",
-  "Penarth Pier Pavilion, Wales",
-  { name: "Kingscote Barn, Gloucestershire", url: "https://www.kingscotebarn.co.uk/" },
-  "Hatton Hall, Warwickshire",
-  { name: "The Assembly Rooms, Bath", url: "https://www.assemblyroomsbath.co.uk/" },
-  "The Penny Farthing Cafe Bar, Cowbridge, Wales",
-  "Ruscombe, Berkshire",
-  "Braintree, Essex",
-];
+import { getVenuesWeveWorkedAt } from "@/lib/venues-weve-worked-at";
 
-// Convert venues to a consistent format with name and location extracted
-const formatVenues = () => {
-  const formatted = venuesUnsorted.map((venue) => {
-    if (typeof venue === 'string') {
-      // Extract location from string if it contains a comma
-      const parts = venue.split(',').map(p => p.trim());
-      if (parts.length > 1) {
-        return {
-          name: parts[0],
-          location: parts.slice(1).join(', '),
-          url: undefined,
-        };
-      }
-      return {
-        name: venue,
-        location: '',
-        url: undefined,
-      };
-    }
-    // Extract location from name if it contains a comma
-    const nameParts = venue.name.split(',').map(p => p.trim());
-    if (nameParts.length > 1) {
-      return {
-        name: nameParts[0],
-        location: nameParts.slice(1).join(', '),
-        url: venue.url,
-      };
-    }
-    return {
-      name: venue.name,
-      location: '',
-      url: venue.url,
-    };
-  });
-  
-  // Sort alphabetically by name (ignoring "The" prefix for sorting)
-  return formatted.sort((a, b) => {
-    const nameA = a.name.replace(/^The /i, '').toLowerCase();
-    const nameB = b.name.replace(/^The /i, '').toLowerCase();
-    return nameA.localeCompare(nameB, undefined, { sensitivity: 'base' });
-  });
-};
-
-const allVenues = formatVenues();
+const allVenues = getVenuesWeveWorkedAt();
 
 export default function DJs() {
   const [venueSearch, setVenueSearch] = useState("");
@@ -256,7 +134,7 @@ export default function DJs() {
     document.title = "DJs | Professional Wedding DJs | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Meet our talented DJs. Professional wedding entertainment across the West Country including London, Somerset, Bath, Bristol, Dorset, and Devon with mixing styles and genre specialties.");
+      metaDescription.setAttribute("content", "Meet our talented DJs. Professional wedding entertainment across the UK and Wales with mixing styles and genre specialties.");
     }
 
     // Fetch DJs from API
@@ -440,7 +318,7 @@ export default function DJs() {
             <Card className="bg-gray-800 border-2 border-champagne-gold/30 shadow-lg">
               <CardContent className="p-6 sm:p-8">
                 <p className="text-base sm:text-lg text-gray-200 leading-relaxed mb-4">
-                  Looking for a DJ to make your event unforgettable? Our experienced and reliable DJs know exactly how to get the crowd dancing with their perfect mix of music, sound, and lighting. Choose from our brilliant solo mobile DJs or our festival trio of DJ, sax, and percussion to truly wow and entertain your guests.
+                  Looking for a DJ to make your event unforgettable? Our experienced and reliable DJs know exactly how to get the crowd dancing with their perfect mix of music, sound and lighting. Choose from our brilliant solo mobile DJs or our festival trio of DJ, sax and percussion to truly wow and entertain your guests.
                 </p>
                 <p className="text-base sm:text-lg text-gray-200 leading-relaxed">
                   We pride ourselves on our ability to read the crowd and cater to everyone's musical tastes, from the music lovers to your Aunt Betty. And to ensure a unique experience, we have banned overplayed and cliché songs such as YMCA, "Come on Eileen," and "The Macarena."
@@ -533,7 +411,7 @@ export default function DJs() {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3">Dedicated Service</h3>
                   <p className="text-gray-300 leading-relaxed">
-                    Our DJs are flexible, motivated, and committed to making your party a great success.
+                    Our DJs are flexible, motivated and committed to making your party a great success.
                   </p>
                 </CardContent>
               </Card>

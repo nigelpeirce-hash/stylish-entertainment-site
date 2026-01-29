@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  webpack: (config) => config,
+  webpack: (config) => {
+    // es6-promise (imap-simple dep) optionally requires 'vertx'; we don't use it in Node.
+    config.resolve.fallback = { ...config.resolve.fallback, vertx: false };
+    return config;
+  },
   experimental: {
     // Disable server source maps to prevent minification crashes
     serverSourceMaps: false,

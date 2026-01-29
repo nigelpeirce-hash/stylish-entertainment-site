@@ -59,7 +59,7 @@ export async function GET(
       );
     }
 
-    // Find assignment by token
+    // Find assignment by token, or DispatchConfirmation (artist/DJ worksheet)
     const assignment = await prisma.bookingStaffAssignment.findUnique({
       where: { briefToken: token },
       include: {
@@ -81,7 +81,23 @@ export async function GET(
       },
     });
 
-    if (!assignment) {
+    const dc = !assignment
+      ? await prisma.dispatchConfirmation.findUnique({
+          where: { token },
+          include: {
+            booking: {
+              select: {
+                id: true,
+                name: true,
+                venueName: true,
+                eventDate: true,
+              },
+            },
+          },
+        })
+      : null;
+
+    if (!assignment && !dc) {
       return new NextResponse(
         `<!DOCTYPE html>
 <html lang="en">
@@ -123,8 +139,8 @@ export async function GET(
       );
     }
 
-    // Check if already acknowledged
-    if (assignment.briefStatus === "acknowledged") {
+    // Staff: check if already acknowledged
+    if (assignment && assignment.briefStatus === "acknowledged") {
       return new NextResponse(
         `<!DOCTYPE html>
 <html lang="en">
@@ -171,15 +187,68 @@ export async function GET(
       );
     }
 
-    // Show confirmation page
-    const eventDate = assignment.booking.eventDate
-      ? new Date(assignment.booking.eventDate).toLocaleDateString("en-GB", {
+    // Artist/DJ (DispatchConfirmation): check if already acknowledged
+    if (dc && dc.acknowledgedAt) {
+      return new NextResponse(
+        `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Already Confirmed - STYLISH Entertainment</title>
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      color: #fff;
+    }
+    .container {
+      text-align: center;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      border: 1px solid rgba(76, 175, 80, 0.3);
+      max-width: 500px;
+    }
+    h1 { color: #4CAF50; margin-bottom: 20px; }
+    .checkmark { font-size: 48px; margin-bottom: 20px; }
+    p { color: #ccc; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="checkmark">✅</div>
+    <h1>Already Confirmed</h1>
+    <p>You have already accepted this booking. Thank you!</p>
+    <p style="margin-top: 20px; color: #888; font-size: 14px;">
+      Event: ${dc.booking.name} @ ${dc.booking.venueName}
+    </p>
+  </div>
+</body>
+</html>`,
+        { status: 200, headers: { "Content-Type": "text/html" } }
+      );
+    }
+
+    // Show confirmation page (staff or artist)
+    const booking = assignment?.booking ?? dc!.booking;
+    const eventDate = booking.eventDate
+      ? new Date(booking.eventDate).toLocaleDateString("en-GB", {
           weekday: "long",
           year: "numeric",
           month: "long",
           day: "numeric",
         })
       : "Date TBC";
+
+    const roleLine = assignment
+      ? `<p><strong>Your Role:</strong> ${assignment.role}</p>`
+      : "";
 
     return new NextResponse(
       `<!DOCTYPE html>
@@ -252,19 +321,19 @@ export async function GET(
 </head>
 <body>
   <div class="container">
-    <h1>Confirm Brief Receipt</h1>
-    <p style="color: #ccc; margin-bottom: 20px;">Please confirm that you have received and understood the final details for this event:</p>
+    <h1>Confirm Booking</h1>
+    <p style="color: #ccc; margin-bottom: 20px;">Please confirm you accept this booking:</p>
     
     <div class="event-info">
-      <p><strong>Event:</strong> ${assignment.booking.name}</p>
-      <p><strong>Venue:</strong> ${assignment.booking.venueName}</p>
+      <p><strong>Event:</strong> ${booking.name}</p>
+      <p><strong>Venue:</strong> ${booking.venueName}</p>
       <p><strong>Date:</strong> ${eventDate}</p>
-      <p><strong>Your Role:</strong> ${assignment.role}</p>
+      ${roleLine}
     </div>
 
     <form id="confirmForm" method="POST">
       <button type="submit" class="confirm-btn" id="confirmBtn">
-        I have received and understood the final details
+        Yes, I accept the booking
       </button>
       <div class="loading" id="loading">Confirming...</div>
     </form>
@@ -356,7 +425,7 @@ export async function POST(
       return NextResponse.json({ error: "Invalid token" }, { status: 400 });
     }
 
-    // Find and update assignment
+    // Find assignment or DispatchConfirmation
     const assignment = await prisma.bookingStaffAssignment.findUnique({
       where: { briefToken: token },
       include: {
@@ -375,25 +444,54 @@ export async function POST(
       },
     });
 
-    if (!assignment) {
-      return NextResponse.json({ error: "Assignment not found" }, { status: 404 });
+    const dc = !assignment
+      ? await prisma.dispatchConfirmation.findUnique({
+          where: { token },
+          include: {
+            booking: {
+              select: {
+                id: true,
+                name: true,
+                venueName: true,
+              },
+            },
+          },
+        })
+      : null;
+
+    if (!assignment && !dc) {
+      return NextResponse.json({ error: "Assignment or confirmation not found" }, { status: 404 });
     }
 
-    if (assignment.briefStatus === "acknowledged") {
-      return NextResponse.json(
-        { message: "Already acknowledged", acknowledged: true },
-        { status: 200 }
-      );
+    if (assignment) {
+      if (assignment.briefStatus === "acknowledged") {
+        return NextResponse.json(
+          { message: "Already acknowledged", acknowledged: true },
+          { status: 200 }
+        );
+      }
+      await prisma.bookingStaffAssignment.update({
+        where: { id: assignment.id },
+        data: {
+          briefStatus: "acknowledged",
+          acknowledgedAt: new Date(),
+        },
+      });
+    } else if (dc) {
+      if (dc.acknowledgedAt) {
+        return NextResponse.json(
+          { message: "Already acknowledged", acknowledged: true },
+          { status: 200 }
+        );
+      }
+      await prisma.dispatchConfirmation.update({
+        where: { id: dc.id },
+        data: { acknowledgedAt: new Date() },
+      });
     }
 
-    // Update assignment
-    await prisma.bookingStaffAssignment.update({
-      where: { id: assignment.id },
-      data: {
-        briefStatus: "acknowledged",
-        acknowledgedAt: new Date(),
-      },
-    });
+    const displayName = assignment?.staff?.name ?? dc?.recipientName ?? "there";
+    const booking = assignment?.booking ?? dc!.booking;
 
     // Return success page
     return new NextResponse(
@@ -458,14 +556,14 @@ export async function POST(
 <body>
   <div class="container">
     <div class="checkmark">✅</div>
-    <h1>Brief Confirmed</h1>
-    <p>Thank you, <strong>${assignment.staff.name}</strong>!</p>
-    <p>You have successfully confirmed receipt of the final brief.</p>
+    <h1>Booking Accepted</h1>
+    <p>Thank you, <strong>${displayName}</strong>!</p>
+    <p>You have successfully accepted this booking.</p>
     
     <div class="event-info">
-      <p><strong>Event:</strong> ${assignment.booking.name}</p>
-      <p><strong>Venue:</strong> ${assignment.booking.venueName}</p>
-      <p><strong>Your Role:</strong> ${assignment.role}</p>
+      <p><strong>Event:</strong> ${booking.name}</p>
+      <p><strong>Venue:</strong> ${booking.venueName}</p>
+      ${assignment ? `<p><strong>Your Role:</strong> ${assignment.role}</p>` : ""}
     </div>
     
     <p style="margin-top: 20px; color: #888; font-size: 14px;">

@@ -71,7 +71,7 @@ export default function VenueStylingService() {
     document.title = "Venue Styling | Professional Wedding Styling | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Complete venue transformation with elegant styling. Table centerpieces, drapery, custom backdrops, and cohesive design themes across the West Country.");
+      metaDescription.setAttribute("content", "Complete venue transformation with elegant styling. Table centerpieces, drapery, custom backdrops and cohesive design themes across the UK and Wales.");
     }
   }, []);
 
@@ -82,7 +82,7 @@ export default function VenueStylingService() {
         <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <Image
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,w_1920/v1768162260/Saltburn_231005__0020_0638_fpdevj.jpg"
-            alt="Saltburn venue with elegant venue styling, professional wedding decoration, and sophisticated interior design creating a luxurious wedding atmosphere"
+            alt="Saltburn venue with elegant venue styling, professional wedding decoration and sophisticated interior design creating a luxurious wedding atmosphere"
             fill
             className="object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}

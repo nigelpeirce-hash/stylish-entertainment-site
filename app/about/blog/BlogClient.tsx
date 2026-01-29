@@ -43,7 +43,7 @@ export default function BlogClient() {
     document.title = "Blog | Wedding & Party Tips | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Read our blog for wedding planning tips, party ideas, lighting inspiration, and entertainment advice from the experts at Stylish Entertainment.");
+      metaDescription.setAttribute("content", "Read our blog for wedding planning tips, party ideas, lighting inspiration and entertainment advice from the experts at Stylish Entertainment.");
     }
   }, []);
 
@@ -71,7 +71,7 @@ export default function BlogClient() {
             Blog
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md">
-            Wedding tips, party ideas, and entertainment inspiration
+            Wedding tips, party ideas and entertainment inspiration
           </p>
         </motion.div>
       </section>

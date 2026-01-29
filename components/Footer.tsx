@@ -29,13 +29,13 @@ export default function Footer() {
           <div>
             <h3 className="font-sans text-xl mb-4 font-bold" style={{ color: '#000000' }}>Stylish Entertainment Ltd</h3>
             <p className="mb-3 drop-shadow-sm" style={{ textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }}>
-              Professional DJs, live musicians, lighting design, and venue styling for weddings, parties, and corporate events. We are a trusted supplier to prestigious venues across the UK. Strictly no YMCA.
+              Professional DJs, live musicians, lighting design and venue styling for weddings, parties and corporate events. We are a trusted supplier to prestigious venues across the UK and Wales. Strictly no YMCA.
             </p>
             <p className="mb-3 drop-shadow-sm" style={{ textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }}>
               From <Link href="/artists/djs/" className="hover:text-black font-semibold underline transition-colors drop-shadow-sm" style={{ textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }}>expert DJs</Link> and <Link href="/artists/musicians/" className="hover:text-black font-semibold underline transition-colors drop-shadow-sm" style={{ textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }}>talented musicians</Link> to <Link href="/services/lighting-design/" className="hover:text-black font-semibold underline transition-colors drop-shadow-sm" style={{ textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }}>bespoke lighting design</Link> and <Link href="/services/venue-styling/" className="hover:text-black font-semibold underline transition-colors drop-shadow-sm" style={{ textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }}>venue transformations</Link>, we create unforgettable celebrations.
             </p>
             <p className="drop-shadow-sm" style={{ textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }}>
-              Complete your event with our <Link href="/hire/" className="hover:text-black font-semibold underline transition-colors drop-shadow-sm" style={{ textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }}>hire shop</Link> featuring decorative items, lighting, and styling accessories.
+              Complete your event with our <Link href="/hire/" className="hover:text-black font-semibold underline transition-colors drop-shadow-sm" style={{ textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)' }}>hire shop</Link> featuring decorative items, lighting and styling accessories.
             </p>
           </div>
           <div>

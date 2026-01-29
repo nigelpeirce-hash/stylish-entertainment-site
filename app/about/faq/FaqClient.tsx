@@ -10,7 +10,7 @@ export default function FaqClient() {
     document.title = "FAQ | Frequently Asked Questions | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Frequently asked questions about Stylish Entertainment. Learn about our DJs, lighting design, venue styling, pricing, booking process, and service areas across the West Country.");
+      metaDescription.setAttribute("content", "Frequently asked questions about Stylish Entertainment. Learn about our DJs, lighting design, venue styling, pricing, booking process and service areas across the UK and Wales.");
     }
   }, []);
 
@@ -72,7 +72,7 @@ export default function FaqClient() {
                     What types of lighting do you offer?
                   </h3>
                   <p className="text-gray-300 leading-relaxed">
-                    We offer a comprehensive range of lighting solutions including LED uplighting, fairy light canopies, festoon lighting, intelligent moving lights, dance floor packages, exterior lighting, and custom installations. We can create everything from subtle ambient lighting to dramatic theatrical effects tailored to your venue and style.
+                    We offer a comprehensive range of lighting solutions including LED uplighting, fairy light canopies, festoon lighting, intelligent moving lights, dance floor packages, exterior lighting and custom installations. We can create everything from subtle ambient lighting to dramatic theatrical effects tailored to your venue and style.
                   </p>
                 </div>
 
@@ -90,7 +90,7 @@ export default function FaqClient() {
                     Do you provide venue styling consultations?
                   </h3>
                   <p className="text-gray-300 leading-relaxed">
-                    Yes, we offer styling consultations to help you create a cohesive design theme for your event. We can discuss drapery, backdrops, props, furniture hire, and decorative elements that will transform your venue and reflect your personal style.
+                    Yes, we offer styling consultations to help you create a cohesive design theme for your event. We can discuss drapery, backdrops, props, furniture hire and decorative elements that will transform your venue and reflect your personal style.
                   </p>
                 </div>
 
@@ -108,7 +108,7 @@ export default function FaqClient() {
                     Do you handle outdoor lighting?
                   </h3>
                   <p className="text-gray-300 leading-relaxed">
-                    Yes, we provide outdoor lighting for terraces, gardens, walkways, and alfresco dining areas. We use weather-appropriate equipment and can create beautiful exterior lighting that extends the magic of your celebration beyond the main venue space.
+                    Yes, we provide outdoor lighting for terraces, gardens, walkways and alfresco dining areas. We use weather-appropriate equipment and can create beautiful exterior lighting that extends the magic of your celebration beyond the main venue space.
                   </p>
                 </div>
 

@@ -171,12 +171,12 @@ To manually send enquiry emails:
   },
   {
     id: "artist-dispatch",
-    title: "DJ Worksheet Dispatch",
+    title: "Artist Worksheet",
     category: "Event Management",
     icon: FileText,
     keywords: ["dj", "worksheet", "dispatch", "artist", "brief", "send"],
     content: `
-# DJ Worksheet Dispatch
+# Artist Worksheet
 
 ## Overview
 Send event details to assigned DJ/Artist after reviewing final client submission.
@@ -205,7 +205,7 @@ Send event details to assigned DJ/Artist after reviewing final client submission
 - Booking must have final details submitted
 
 ## Usage
-1. Open booking → "Artist Dispatch" section
+1. Open booking → "Artist Worksheet" section
 2. Review and edit details
 3. Check "Review Complete"
 4. Click "Send to Artist"

@@ -21,6 +21,7 @@ import {
   Music,
   AlertCircle,
   Database,
+  FlaskConical,
 } from "lucide-react";
 import Link from "next/link";
 import AdminHelp from "@/components/AdminHelp";
@@ -735,6 +736,34 @@ export default function AdminDashboard() {
                   <div>
                     <h3 className="text-lg font-semibold text-white">Email Templates</h3>
                     <p className="text-sm text-gray-400">Preview all email templates</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/admin/sandbox/book-from-quote">
+              <Card className="bg-gray-800 border-amber-500/30 hover:border-amber-500/60 transition-all cursor-pointer h-full">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 bg-amber-500/20 rounded-lg">
+                    <FlaskConical className="w-6 h-6 text-amber-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Book-from-Quote sandbox</h3>
+                    <p className="text-sm text-gray-400">Generate test links for quote confirmation flow</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+
+            <Link href="/admin/sandbox/client-portal">
+              <Card className="bg-gray-800 border-amber-500/30 hover:border-amber-500/60 transition-all cursor-pointer h-full">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="p-3 bg-amber-500/20 rounded-lg">
+                    <FlaskConical className="w-6 h-6 text-amber-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white">Client portal sandbox</h3>
+                    <p className="text-sm text-gray-400">Generate magic-link to test client portal (music, final details)</p>
                   </div>
                 </CardContent>
               </Card>

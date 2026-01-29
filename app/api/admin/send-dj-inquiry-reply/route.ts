@@ -277,9 +277,7 @@ export async function POST(request: NextRequest) {
               <p>If you have any questions or would like to discuss any of these details further, please don't hesitate to get in touch.</p>
               
               <div class="signature">
-                <p>Best regards,</p>
-                <p style="margin-bottom: 20px;"><strong>Ali & Nige</strong><br>
-                Stylish Entertainment Ltd</p>
+                <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
                 <div style="background: #f8f9fa; padding: 15px 20px; border-radius: 6px; font-size: 14px;">
                   <p style="margin: 0 0 8px; color: #333;"><strong>📞 Call us:</strong> <a href="tel:+447970793177" style="color: #D4AF37; text-decoration: none;">+44 7970 793177</a></p>
                   <p style="margin: 0 0 8px; color: #333;"><strong>✉️ Email:</strong> <a href="mailto:info@stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">info@stylishentertainment.co.uk</a></p>

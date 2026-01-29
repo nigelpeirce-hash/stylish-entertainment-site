@@ -15,7 +15,7 @@ import {
   MapPin,
   Users,
   Music,
-  DollarSign,
+  PoundSterling,
   FileText,
   CheckCircle,
   XCircle,

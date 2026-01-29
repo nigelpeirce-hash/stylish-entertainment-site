@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Lock, Loader2, Music } from "lucide-react";
 import { RefinedCheckmark } from "@/components/RefinedCheckmark";
-import { formSchema, type FormData, referralOptions, eventTypeOptions, djOptions, upsellOptions } from "@/lib/contact-schema";
+import { formSchema, type FormData, eventTypeOptions, djOptions, upsellOptions } from "@/lib/contact-schema";
 import DJSelectionModal from "@/components/DJSelectionModal";
 import { AnimatePresence } from "framer-motion";
 import { VenueAutocomplete } from "@/components/VenueAutocomplete";
@@ -55,7 +55,6 @@ export default function ContactForm() {
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      referralSource: "",
       eventType: "",
       preferredDJ: "",
       upsells: [],
@@ -318,24 +317,6 @@ export default function ContactForm() {
                       placeholder="Start typing venue name..."
                       error={errors.venueName?.message}
                     />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="referralSource" className="text-gray-200">How did you hear about us? *</Label>
-                    <Select
-                      id="referralSource"
-                      {...register("referralSource")}
-                      className="mt-2"
-                    >
-                      {referralOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </Select>
-                    {errors.referralSource && (
-                      <p className="text-sm text-red-400 mt-1">{errors.referralSource.message}</p>
-                    )}
                   </div>
 
                   <div>

@@ -16,7 +16,7 @@ const services = [
     title: "Weddings",
     href: "/weddings/wedding-entertainment",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163781/Emma-Conrad-2-9-23-682_utvftj.jpg",
-    alt: "Exceptional entertainment and lighting design for weddings, parties, and events across the West Country",
+    alt: "Exceptional entertainment and lighting design for weddings, parties and events across the UK and Wales",
   },
   {
     title: "Parties",
@@ -28,25 +28,25 @@ const services = [
     title: "DJs",
     href: "/artists/djs",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163683/NP-Decks-2_y32tje.jpg",
-    alt: "Professional DJ for weddings, parties, and events across the West Country",
+    alt: "Professional DJ for weddings, parties and events across the UK and Wales",
   },
   {
     title: "Musicians",
     href: "/artists/musicians",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163656/IMG_3148_owtb29.jpg",
-    alt: "Live Musicians for weddings, parties, and events across the West Country",
+    alt: "Live Musicians for weddings, parties and events across the UK and Wales",
   },
   {
     title: "Lighting Gallery",
     href: "/galleries",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw",
-    alt: "Professional Lighting Design for weddings, parties, and events across the West Country",
+    alt: "Professional Lighting Design for weddings, parties and events across the UK and Wales",
   },
   {
     title: "Kit Hire",
     href: "/what-we-do/equipment-dj-band-sound-kit",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768214470/DJ-Decks_mlezxe.jpg",
-    alt: "Equipment Hire for weddings, parties, and events across the West Country",
+    alt: "Equipment hire for weddings, parties and events across the UK and Wales",
   },
   {
     title: "Hire Shop",
@@ -191,7 +191,7 @@ export default function Home() {
     document.title = "Stylish Entertainment & Production | Professional DJs, Lighting Design & Venue Styling";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Stylish Entertainment & Production - Exceptional entertainment services for weddings, parties, and events. Professional DJs, musicians, lighting design, and venue styling across London, Somerset, Bath, Bristol, Dorset, Devon, and Cornwall. Strictly no YMCA.");
+      metaDescription.setAttribute("content", "Stylish Entertainment & Production - Exceptional entertainment for weddings, parties and events. Professional DJs, musicians, lighting design and venue styling across the UK and Wales. Strictly no YMCA.");
     }
   }, []);
 
@@ -241,7 +241,7 @@ export default function Home() {
             Exceptional <span className="text-gradient">Entertainment</span>
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold leading-relaxed px-4 drop-shadow-md mb-8">
-            Professional DJs, musicians, lighting design, and venue styling for weddings, parties, and events across London, Somerset, Bath, Bristol, Dorset, Devon, and Cornwall. Strictly no YMCA.
+            Professional DJs, musicians, lighting design and venue styling for weddings, parties and events across the UK and Wales. Strictly no YMCA.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button asChild variant="outline" size="lg" className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 hover:scale-105 transition-all duration-300">
@@ -268,7 +268,7 @@ export default function Home() {
               What We <span className="text-gradient">Do</span>
             </h2>
             <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">
-              Comprehensive entertainment services for weddings, parties, and events to make every celebration unforgettable
+              Comprehensive entertainment services for weddings, parties and events to make every celebration unforgettable
             </p>
           </motion.div>
 

@@ -25,13 +25,13 @@ export async function GET(
       return NextResponse.json({ error: "Booking ID is required" }, { status: 400 });
     }
 
-    // Fetch email threads for this booking
+    // Fetch email threads for this booking (relation is Email, not emails)
     const emailThreads = await prisma.emailThread.findMany({
       where: {
         bookingId,
       },
       include: {
-        emails: {
+        Email: {
           orderBy: {
             createdAt: "desc",
           },
@@ -44,7 +44,7 @@ export async function GET(
 
     // Flatten emails from threads
     const emails = emailThreads.flatMap((thread) =>
-      thread.emails.map((email) => ({
+      (thread.Email || []).map((email) => ({
         id: email.id,
         threadId: thread.id,
         subject: email.subject,

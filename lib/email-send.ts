@@ -28,10 +28,14 @@ export async function sendEmailFromCRM(options: SendEmailOptions) {
     }
 
     // Create transporter
+    // Port 465 = implicit TLS (secure: true). Port 587/25 = STARTTLS (secure: false).
+    // Using secure: true on 587 causes "wrong version number" – server sends plain first.
+    const port = inbox.smtpPort ?? 587;
+    const secure = port === 465;
     const transporter = nodemailer.createTransport({
       host: inbox.smtpHost,
-      port: inbox.smtpPort || 587,
-      secure: inbox.smtpSecure || false,
+      port,
+      secure,
       auth: {
         user: inbox.smtpUsername,
         pass: inbox.smtpPassword,

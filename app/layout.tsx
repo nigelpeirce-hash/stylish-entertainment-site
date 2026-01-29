@@ -16,6 +16,7 @@ import { Providers } from "@/components/Providers";
 import WelcomeBackBanner from "@/components/WelcomeBackBanner";
 import PrefetchErrorHandler from "@/components/PrefetchErrorHandler";
 import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
+import SiteWideCTA from "@/components/SiteWideCTA";
 
 const raleway = Raleway({
   subsets: ["latin"],
@@ -55,7 +56,7 @@ export const metadata: Metadata = {
     default: "STYLISH Entertainment | DJs, Lighting & Events for Weddings, Parties & Celebrations",
     template: "%s | STYLISH Entertainment"
   },
-  description: "Premium entertainment for weddings, parties, and events across Somerset, Wiltshire, and the West Country. Professional DJs, lighting design, and venue styling.",
+  description: "Premium entertainment for weddings, parties and events across the UK and Wales. Professional DJs, lighting design and venue styling.",
   keywords: ["West Country DJs", "London Event DJs", "Somerset Wedding DJs", "Party DJs Bath", "Bristol Event Entertainment", "Dorset Wedding DJs", "Devon Party DJs", "DJs Cornwall", "Stylish Entertainment", "Luxury Event Lighting Hire", "Wedding Entertainment", "Party Entertainment", "Corporate Event DJs", "Private Party DJs", "Event Lighting Design", "Venue Styling", "Event Musicians", "Babington House DJ", "Professional DJs", "Event Sound Systems", "LED Event Lighting", "Celebration Entertainment"],
   authors: [{ name: "Stylish Entertainment" }],
   creator: "Stylish Entertainment",
@@ -71,7 +72,7 @@ export const metadata: Metadata = {
     url: "https://www.stylishentertainment.co.uk",
     siteName: "STYLISH Entertainment",
     title: "STYLISH Entertainment | DJs, Lighting & Events for Weddings, Parties & Celebrations",
-    description: "Premium entertainment for weddings, parties, and events across Somerset, Wiltshire, and the West Country. Professional DJs, lighting design, and venue styling.",
+    description: "Premium entertainment for weddings, parties and events across the UK and Wales. Professional DJs, lighting design and venue styling.",
     images: [
       {
         url: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw",
@@ -84,7 +85,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "STYLISH Entertainment | DJs, Lighting & Events for Weddings, Parties & Celebrations",
-    description: "Premium entertainment for weddings, parties, and events across Somerset, Wiltshire, and the West Country. Professional DJs, lighting design, and venue styling.",
+    description: "Premium entertainment for weddings, parties and events across the UK and Wales. Professional DJs, lighting design and venue styling.",
     images: ["https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw"],
     creator: "@stylishentertainment",
   },
@@ -194,6 +195,7 @@ export default function RootLayout({
           <ErrorBoundaryWrapper>
             <main className="min-h-screen relative z-10">{children}</main>
           </ErrorBoundaryWrapper>
+          <SiteWideCTA />
           <Footer />
         </Providers>
       </body>

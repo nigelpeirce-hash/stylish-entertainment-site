@@ -63,9 +63,9 @@ export function EmailCompositionCenter({
     intro: `Dear {{client_name}},\n\nThank you for your enquiry for your event at {{venue}} on ${new Date(eventDate).toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}.`,
     djSection: `**DJ Services**\n\nWe're delighted to offer our DJ services for your event. {{dj_name}} will be providing the music and entertainment, ensuring your guests have an unforgettable experience.\n\nDJ Fee: £{{fee}}`,
     lightingSection: `**Lighting Design**\n\nOur lighting design service will transform your venue with elegant, sophisticated lighting that complements your event's atmosphere. We'll work with you to create the perfect ambiance.\n\nLighting Fee: £{{fee}}`,
-    stylingSection: `**Venue Styling**\n\nOur venue styling service includes elegant table settings, decorative elements, and overall venue transformation to match your vision.\n\nStyling Fee: £{{fee}}`,
+    stylingSection: `**Venue Styling**\n\nOur venue styling service includes elegant table settings, decorative elements and overall venue transformation to match your vision.\n\nStyling Fee: £{{fee}}`,
     personalNote: "",
-    closing: `If you have any questions or would like to discuss any of these details further, please don't hesitate to get in touch.\n\nBest regards,\n\nAli & Nige\nStylish Entertainment Ltd`,
+    closing: `If you have any questions or would like to discuss any of these details further, please don't hesitate to get in touch.\n\nKind Regards, Ali & Nige`,
   });
 
   // Fetch DJs when dialog opens
@@ -85,14 +85,25 @@ export function EmailCompositionCenter({
     }
   }, [isOpen, djs.length]);
 
+  // Ensure we never render objects as React children (avoids "Objects are not valid as React child")
+  const safeStr = (v: unknown): string => {
+    if (v == null) return "";
+    if (typeof v === "string") return v;
+    if (typeof v === "number") return String(v);
+    if (typeof v === "object" && "fee" in (v as object)) return String((v as { fee?: unknown }).fee ?? "");
+    if (typeof v === "object" && "amount" in (v as object)) return String((v as { amount?: unknown }).amount ?? "");
+    return String(v);
+  };
+  const feeStr = typeof fee === "string" ? fee : safeStr(fee);
+
   // Replace variables in text
   const replaceVariables = (text: string): string => {
     return text
-      .replace(/\{\{client_name\}\}/g, clientName)
-      .replace(/\{\{venue\}\}/g, venueName)
+      .replace(/\{\{client_name\}\}/g, safeStr(clientName))
+      .replace(/\{\{venue\}\}/g, safeStr(venueName))
       .replace(/\{\{dj_name\}\}/g, selectedDJ ? djs.find((d) => d.id === selectedDJ)?.name || "TBC" : "TBC")
-      .replace(/\{\{fee\}\}/g, fee || "0.00")
-      .replace(/\{\{event_date\}\}/g, new Date(eventDate).toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" }));
+      .replace(/\{\{fee\}\}/g, feeStr || "0.00")
+      .replace(/\{\{event_date\}\}/g, new Date(String(eventDate)).toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" }));
   };
 
   // Build the final email content
@@ -195,7 +206,8 @@ export function EmailCompositionCenter({
 
   // Send email
   const handleSend = async () => {
-    if (!fee || parseFloat(fee) <= 0) {
+    const f = feeStr.trim();
+    if (!f || parseFloat(f) <= 0) {
       setError("Please enter a valid fee");
       return;
     }
@@ -216,7 +228,7 @@ export function EmailCompositionCenter({
           venueName,
           eventDate,
           selectedDJ,
-          fee: parseFloat(fee),
+          fee: parseFloat(f),
           emailContent: buildEmailContent(),
           emailHTML: getPreviewHTML(),
           services: {
@@ -271,9 +283,9 @@ export function EmailCompositionCenter({
               <Card className="bg-gray-800 border-gray-700 p-4">
                 <h3 className="text-lg font-semibold mb-4">Booking Details</h3>
                 <div className="space-y-2 text-sm">
-                  <p><strong>Client:</strong> {clientName}</p>
-                  <p><strong>Venue:</strong> {venueName}</p>
-                  <p><strong>Date:</strong> {new Date(eventDate).toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
+                  <p><strong>Client:</strong> {safeStr(clientName)}</p>
+                  <p><strong>Venue:</strong> {safeStr(venueName)}</p>
+                  <p><strong>Date:</strong> {new Date(String(eventDate)).toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
                 </div>
               </Card>
             </Card>
@@ -337,7 +349,7 @@ export function EmailCompositionCenter({
                 id="fee"
                 type="number"
                 step="0.01"
-                value={fee}
+                value={feeStr}
                 onChange={(e) => setFee(e.target.value)}
                 placeholder="0.00"
                 className="bg-gray-900 text-white border-gray-700"
@@ -377,7 +389,7 @@ export function EmailCompositionCenter({
 
             <Button
               onClick={handleSend}
-              disabled={sending || !fee || parseFloat(fee) <= 0}
+              disabled={sending || !feeStr.trim() || parseFloat(feeStr) <= 0}
               className="w-full bg-champagne-gold hover:bg-champagne-gold/80 text-gray-900"
             >
               {sending ? (

@@ -14,8 +14,17 @@ import {
   Mail,
   User,
   MapPin,
+  Trash2,
 } from "lucide-react";
 import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
 
 interface Booking {
@@ -92,6 +101,10 @@ function AdminBookingsContent() {
   // Handoff names
   const [wifeName, setWifeName] = useState("Ali");
   const [yourName, setYourName] = useState("Nigel");
+  // Clean slate: select and bulk delete
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // Use refs to track previous values and prevent unnecessary fetches
   const prevFilterRef = useRef<string>("all");
@@ -262,6 +275,9 @@ function AdminBookingsContent() {
     
     if (!filterChanged && !searchChanged && !archivedChanged) return;
 
+    // Clear selection when view changes
+    setSelectedIds(new Set());
+
     // Prevent if already fetching
     if (isFetchingRef.current) return;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -351,6 +367,67 @@ function AdminBookingsContent() {
       }
     } catch (error) {
       console.error("Error restoring booking:", error);
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  const selectAll = () => {
+    if (selectedIds.size === bookings.length) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(bookings.map((b) => b.id)));
+    }
+  };
+
+  const handleDeleteSelected = async () => {
+    if (selectedIds.size === 0) return;
+    const msg = `Permanently delete ${selectedIds.size} selected booking${selectedIds.size > 1 ? "s" : ""}? This removes email threads and all related data.`;
+    if (typeof window !== "undefined" && !window.confirm(msg)) return;
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/admin/bookings/bulk-delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: Array.from(selectedIds) }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Delete failed");
+      setSelectedIds(new Set());
+      await fetchBookingsRef.current?.();
+    } catch (e) {
+      console.error("Bulk delete error:", e);
+      alert((e as Error).message || "Delete failed");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const handleDeleteAll = async () => {
+    setShowDeleteAllModal(false);
+    setDeleting(true);
+    try {
+      const res = await fetch("/api/admin/bookings/bulk-delete", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deleteAll: true }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Delete failed");
+      setSelectedIds(new Set());
+      await fetchBookingsRef.current?.();
+    } catch (e) {
+      console.error("Delete all error:", e);
+      alert((e as Error).message || "Delete failed");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -497,8 +574,67 @@ function AdminBookingsContent() {
               </Button>
             </div>
           </div>
+
+          {/* Clean slate: select all, delete selected, delete all */}
+          {bookings.length > 0 && (
+            <div className="flex flex-wrap items-center gap-3 mt-3 pt-3 border-t border-gray-700">
+              <label className="flex items-center gap-2 cursor-pointer text-sm text-gray-300">
+                <input
+                  type="checkbox"
+                  checked={bookings.length > 0 && selectedIds.size === bookings.length}
+                  onChange={selectAll}
+                  className="rounded border-gray-600 bg-gray-800 text-champagne-gold focus:ring-champagne-gold"
+                />
+                Select all
+              </label>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDeleteSelected}
+                disabled={selectedIds.size === 0 || deleting}
+                className="border-red-500/50 text-red-400 hover:bg-red-950/30 hover:border-red-500"
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                Delete selected ({selectedIds.size})
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowDeleteAllModal(true)}
+                disabled={deleting}
+                className="border-red-600 text-red-400 hover:bg-red-950/40 hover:border-red-600"
+              >
+                <Trash2 className="w-4 h-4 mr-1" />
+                Delete all
+              </Button>
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Delete all confirmation modal */}
+      <Dialog open={showDeleteAllModal} onOpenChange={setShowDeleteAllModal}>
+        <DialogContent className="bg-gray-900 border-red-500/30 text-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-red-400">Delete all bookings?</DialogTitle>
+            <DialogDescription className="text-gray-300">
+              This will permanently delete every booking, their email threads, and all related data. Your admin login (nigel@stylishentertainment.co.uk) is not affected. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="outline" onClick={() => setShowDeleteAllModal(false)} className="border-gray-600">
+              Cancel
+            </Button>
+            <Button
+              onClick={handleDeleteAll}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deleting ? "Deleting…" : "Delete all"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Inbox List */}
       <div className="container mx-auto max-w-6xl px-4 py-6">
@@ -536,8 +672,17 @@ function AdminBookingsContent() {
                         : "border-transparent bg-gray-800 hover:bg-gray-750"
                     }`}
                   >
-                    <Link href={`/admin/bookings/${booking.id}`}>
-                      <div className="flex items-center gap-4 cursor-pointer">
+                    <div className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.has(booking.id)}
+                        onChange={() => toggleSelect(booking.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex-shrink-0 rounded border-gray-600 bg-gray-800 text-champagne-gold focus:ring-champagne-gold"
+                        aria-label={`Select ${booking.name}`}
+                      />
+                      <Link href={`/admin/bookings/${booking.id}`} className="flex-1 min-w-0">
+                        <div className="flex items-center gap-4 cursor-pointer">
                       {/* Left: Initials Circle */}
                       <div className="flex-shrink-0">
                         <div className={`w-12 h-12 rounded-full ${initialsColor} flex items-center justify-center text-white font-bold text-lg`}>
@@ -598,6 +743,7 @@ function AdminBookingsContent() {
                         </div>
                       </div>
                     </Link>
+                    </div>
 
                     {/* Assignment Buttons - Hide for archived, show Restore instead */}
                     {showArchived ? (

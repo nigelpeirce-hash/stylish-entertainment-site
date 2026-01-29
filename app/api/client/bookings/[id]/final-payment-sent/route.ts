@@ -61,8 +61,13 @@ export async function POST(
         bookingId,
         status: { not: "cancelled" },
         OR: [
-          { role: { in: ["DJ", "dj"] } },
+          { role: { in: ["DJ", "dj", "Musician", "musician", "Band", "band", "Performer", "performer", "Host", "host"] } },
           { role: { contains: "dj", mode: "insensitive" } },
+          { role: { contains: "saxophonist", mode: "insensitive" } },
+          { role: { contains: "pianist", mode: "insensitive" } },
+          { role: { contains: "guitarist", mode: "insensitive" } },
+          { role: { contains: "harpist", mode: "insensitive" } },
+          { role: { contains: "violinist", mode: "insensitive" } },
         ],
       },
       select: {
@@ -86,9 +91,9 @@ export async function POST(
       <p><strong>Event:</strong> ${booking.eventType || "Event"} at ${venue}</p>
       <p><strong>Date:</strong> ${dateStr}</p>
       <p>If you have any questions, please check in with the office.</p>
-      <p>Best,<br>Stylish Entertainment Ltd</p>
+      <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
     `;
-    const text = `Final payment received – ${booking.name} @ ${venue}\n\nEvent: ${booking.eventType || "Event"} at ${venue}\nDate: ${dateStr}\n\nThe client has confirmed they have sent the final payment.\n\nBest, Stylish Entertainment Ltd`;
+    const text = `Final payment received – ${booking.name} @ ${venue}\n\nEvent: ${booking.eventType || "Event"} at ${venue}\nDate: ${dateStr}\n\nThe client has confirmed they have sent the final payment.\n\nKind Regards, Ali & Nige`;
 
     for (const a of assignments) {
       const email = a.staff.email;
@@ -96,7 +101,7 @@ export async function POST(
         try {
           await sendEmail({ to: email, subject, html, text });
         } catch (err) {
-          console.error(`[final-payment-sent] Failed to notify DJ ${email}:`, err);
+          console.error(`[final-payment-sent] Failed to notify artist ${email}:`, err);
         }
       }
     }

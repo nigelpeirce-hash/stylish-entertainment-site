@@ -445,7 +445,7 @@ export default function NinetyDayCommandCentre() {
     },
     {
       refreshInterval: shouldFetch && mounted ? 300000 : 0, // Refresh every 5 minutes (Chill Mode), or 0 if not authorized/mounted
-      revalidateOnFocus: false, // Prevents fetch every time you click the window
+      revalidateOnFocus: true, // Refetch when tab focused so "Final details confirmed" etc. update after client submits
       revalidateOnReconnect: false, // Prevents fetch when your Wi-Fi flickers
       dedupingInterval: 60000, // Ignores duplicate requests within 1 minute
       keepPreviousData: true, // Keep previous data while fetching new data

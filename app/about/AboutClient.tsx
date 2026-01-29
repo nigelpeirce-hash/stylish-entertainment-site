@@ -214,7 +214,7 @@ export default function AboutClient() {
                   Based in Frome, Somerset, we serve clients across the West Country and beyond. Over the last 12 months, we have supplied entertainment from Norfolk in the east to Cornwall in the west, from the south coast to the midlands.
                 </p>
                 <p className="text-gray-200 md:text-gray-300 leading-relaxed text-base sm:text-lg">
-                  We regularly work in Somerset, Wiltshire, Dorset, Devon, Gloucestershire, Bath, Bristol, Swindon, Oxford, London, and many areas in between. We have a network of artists and suppliers across the south that helps us work in different locations.
+                  We regularly work in Somerset, Wiltshire, Dorset, Devon, Gloucestershire, Bath, Bristol, Swindon, Oxford, London and many areas in between. We have a network of artists and suppliers across the south that helps us work in different locations.
                 </p>
                 <p className="text-gray-200 md:text-gray-300 leading-relaxed text-base sm:text-lg">
                   Wherever your celebration takes place, we'll work to provide reliable service and attention to detail, just as we've done for venues like Babington House since 2003.

@@ -107,13 +107,13 @@ const stylingPhotos: Photo[] = [
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163815/Highcliffe-Castle-Wedding-2-web_pgsbaa.jpg",
     width: 1200,
     height: 900,
-    alt: "Highcliffe Castle wedding with elegant venue styling, professional decoration, and sophisticated wedding design",
+    alt: "Highcliffe Castle wedding with elegant venue styling, professional decoration and sophisticated wedding design",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163745/Pool-Party01_qe5ro0.jpg",
     width: 1200,
     height: 900,
-    alt: "Pool party with professional venue styling, creative decorations, and beautiful lighting design",
+    alt: "Pool party with professional venue styling, creative decorations and beautiful lighting design",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163744/430_lzn5ns.jpg",
@@ -125,13 +125,13 @@ const stylingPhotos: Photo[] = [
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163738/Circus-Temed-Party-Tent_uizqbq.jpg",
     width: 1200,
     height: 900,
-    alt: "Circus themed party tent with creative venue styling, professional decorations, and themed party design",
+    alt: "Circus themed party tent with creative venue styling, professional decorations and themed party design",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163733/Lost-Orangery_xdaewo.jpg",
     width: 1200,
     height: 900,
-    alt: "Lost Orangery venue with elegant styling, professional decoration, and sophisticated wedding design",
+    alt: "Lost Orangery venue with elegant styling, professional decoration and sophisticated wedding design",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163723/IMG_6321_xu8q8j.jpg",
@@ -143,7 +143,7 @@ const stylingPhotos: Photo[] = [
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163716/IMG_1098_hqiw3d.jpg",
     width: 1200,
     height: 900,
-    alt: "Outdoor terrace with professional venue styling, festoon lighting, and elegant party decorations",
+    alt: "Outdoor terrace with professional venue styling, festoon lighting and elegant party decorations",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163714/IMG_2321-1_mh4e6d.jpg",
@@ -174,7 +174,7 @@ const beforeAfterTransforms = [
     },
     after: {
       src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163716/IMG_1098_hqiw3d.jpg",
-      alt: "Venue after transformation - elegant outdoor terrace with professional venue styling, festoon lighting, and beautiful decorations",
+      alt: "Venue after transformation - elegant outdoor terrace with professional venue styling, festoon lighting and beautiful decorations",
     },
   },
   {
@@ -221,7 +221,7 @@ export default function Galleries() {
     document.title = "Wedding Galleries | Professional Wedding Lighting & Venue Styling Photos";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Browse our portfolio of professional wedding lighting design and venue styling across the West Country. See our work at prestigious venues in London, Somerset, Bath, Bristol, Dorset, and Devon.");
+      metaDescription.setAttribute("content", "Browse our portfolio of professional wedding lighting design and venue styling across the UK and Wales. See our work at prestigious venues.");
     }
 
     // Calculate columns based on screen size

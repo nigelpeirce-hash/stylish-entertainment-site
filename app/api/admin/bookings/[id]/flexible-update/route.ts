@@ -67,6 +67,7 @@ export async function PATCH(
       venueName,
       venuePostcode,
       ceremonyTime,
+      djStartTime,
       djFinishTime,
       depositReceivedManual,
       message,
@@ -108,6 +109,9 @@ export async function PATCH(
     }
     if (ceremonyTime !== undefined) {
       updateData.ceremonyTime = ceremonyTime ? new Date(ceremonyTime) : null;
+    }
+    if (djStartTime !== undefined) {
+      updateData.djStartTime = djStartTime === null || djStartTime === "" ? null : String(djStartTime);
     }
     if (djFinishTime !== undefined) {
       updateData.djFinishTime = djFinishTime === null || djFinishTime === "" ? null : String(djFinishTime);

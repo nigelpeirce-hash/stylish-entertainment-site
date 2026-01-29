@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       const bookings = await prisma.booking.findMany({
         where: {
           venueName: {
-            startsWith: venueNamePart,
+            contains: venueNamePart,
             mode: "insensitive",
           },
         },
@@ -122,54 +122,73 @@ export async function GET(request: NextRequest) {
         }));
     }
 
+    // Also search Venue table (venue intelligence: default timings, etc.)
+    let venueTableVenues: Array<{ venueName: string; venuePostcode: string | null }> = [];
+    try {
+      if (venueNamePart.length >= 2) {
+        const fromVenueTable = await prisma.venue.findMany({
+          where: {
+            venueName: {
+              contains: venueNamePart,
+              mode: "insensitive",
+            },
+          },
+          select: { venueName: true },
+          orderBy: { venueName: "asc" },
+          take: 10,
+        });
+        venueTableVenues = fromVenueTable.map((v) => ({
+          venueName: v.venueName,
+          venuePostcode: null,
+        }));
+      }
+    } catch (e) {
+      // Venue table might not exist, ignore
+    }
+
     // Also search venue assets for additional venues
     let venueAssetVenues: Array<{ venueName: string; venuePostcode: string | null }> = [];
     try {
-      const venueAssets = await prisma.venueAsset.findMany({
-        where: {
-          OR: [
-            {
-              venueName: {
-                startsWith: venueNamePart || query,
-                mode: "insensitive" as const,
-              },
+      if (venueNamePart.length >= 2) {
+        const venueAssets = await prisma.venueAsset.findMany({
+          where: {
+            venueName: {
+              contains: venueNamePart,
+              mode: "insensitive" as const,
             },
-            ...(extractedPostcode ? [{
-              venueName: {
-                startsWith: venueNamePart,
-                mode: "insensitive" as const,
-              },
-            }] : []),
-          ],
-        },
-        select: {
-          venueName: true,
-        },
-        distinct: ["venueName"],
-        take: 5,
-      });
-      venueAssetVenues = venueAssets.map((v) => ({
-        venueName: v.venueName,
-        venuePostcode: null, // Venue assets don't have postcodes in schema
-      }));
+          },
+          select: { venueName: true },
+          distinct: ["venueName"],
+          take: 5,
+        });
+        venueAssetVenues = venueAssets.map((v) => ({
+          venueName: v.venueName,
+          venuePostcode: null,
+        }));
+      }
     } catch (error) {
       // VenueAsset table might not exist yet, ignore
-      console.log("VenueAsset table not available for search");
     }
 
-    // Combine all matches
-    // Priority: Name matches first, then postcode matches, then venue assets
+    const alreadySeen = (name: string, postcode: string | null) => (v: { venueName: string; venuePostcode: string | null }) =>
+      v.venueName.toLowerCase() === name.toLowerCase() &&
+      (v.venuePostcode ?? "").toUpperCase().replace(/\s+/g, "") === (postcode ?? "").toUpperCase().replace(/\s+/g, "");
+
+    // Combine all matches: bookings (name + postcode), then Venue table, then venue assets
     const allVenues = [
       ...nameMatches,
       ...postcodeMatches.filter(
-        (pm) => !nameMatches.some(
-          (nm) => nm.venueName.toLowerCase() === pm.venueName.toLowerCase() &&
-                  nm.venuePostcode?.toUpperCase().replace(/\s+/g, "") === pm.venuePostcode?.toUpperCase().replace(/\s+/g, "")
-        )
+        (pm) => !nameMatches.some((nm) => alreadySeen(pm.venueName, pm.venuePostcode)(nm))
+      ),
+      ...venueTableVenues.filter(
+        (va) => !nameMatches.some((nm) => alreadySeen(va.venueName, va.venuePostcode)(nm)) &&
+                !postcodeMatches.some((pm) => alreadySeen(va.venueName, va.venuePostcode)(pm))
       ),
       ...venueAssetVenues.filter(
-        (va) => !nameMatches.some((nm) => nm.venueName.toLowerCase() === va.venueName.toLowerCase()) &&
-                 !postcodeMatches.some((pm) => pm.venueName.toLowerCase() === va.venueName.toLowerCase())
+        (va) =>
+          !nameMatches.some((nm) => nm.venueName.toLowerCase() === va.venueName.toLowerCase()) &&
+          !postcodeMatches.some((pm) => pm.venueName.toLowerCase() === va.venueName.toLowerCase()) &&
+          !venueTableVenues.some((vt) => vt.venueName.toLowerCase() === va.venueName.toLowerCase())
       ),
     ];
 

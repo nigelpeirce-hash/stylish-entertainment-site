@@ -80,7 +80,7 @@ export default function KitHireClient() {
             Professional Equipment & Technical Hire
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md">
-            Industry-standard sound, lighting, and styling props for West Country events
+            Industry-standard sound, lighting and styling props for UK and Wales events
           </p>
         </motion.div>
         <div className="relative z-20 w-full">
@@ -107,7 +107,7 @@ export default function KitHireClient() {
                 <CardHeader>
                   <CardTitle className="text-3xl md:text-4xl text-white">Equipment Hire</CardTitle>
                   <CardDescription className="text-lg text-gray-200 leading-relaxed">
-                    Whether you need sound systems, lighting equipment, or technical accessories, we provide high-quality equipment hire to complement your wedding entertainment. All equipment is professionally maintained, PAT tested, and fully insured.
+                    Whether you need sound systems, lighting equipment or technical accessories, we provide high-quality equipment hire to complement your wedding entertainment. All equipment is professionally maintained, PAT tested and fully insured.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-8">
@@ -143,7 +143,7 @@ export default function KitHireClient() {
                   <div className="pt-6 border-t border-champagne-gold/20">
                     <h3 className="text-xl font-bold text-white mb-4">Hire Items</h3>
                     <p className="text-gray-200 mb-6 leading-relaxed">
-                      Browse our selection of decorative and lighting hire items including lanterns, candlesticks, mirror balls, and vases.
+                      Browse our selection of decorative and lighting hire items including lanterns, candlesticks, mirror balls and vases.
                     </p>
                     <Button
                       asChild

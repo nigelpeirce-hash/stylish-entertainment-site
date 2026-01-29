@@ -163,7 +163,7 @@ export default function PrivatePartiesClient() {
         <div className="absolute inset-0 z-0">
           <Image
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163810/image2_l1hxxx.jpg"
-            alt="Private party celebration with professional entertainment, lighting, and party planning"
+            alt="Private party celebration with professional entertainment, lighting and party planning"
             fill
             className="object-cover object-center"
             priority
@@ -209,7 +209,7 @@ export default function PrivatePartiesClient() {
                 Welcome to STYLISH
               </h2>
               <p className="text-gray-200 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto">
-                Planning a party? We&apos;re here to help. We provide creative DJs, bands, and entertainment, beautiful lighting, and full party planning and production. With years of experience, we offer honest advice to help you create the best event possible.
+                Planning a party? We&apos;re here to help. We provide creative DJs, bands and entertainment, beautiful lighting and full party planning and production. With years of experience, we offer honest advice to help you create the best event possible.
               </p>
             </motion.div>
 
@@ -222,7 +222,7 @@ export default function PrivatePartiesClient() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-300 leading-relaxed">
-                    Expert logistics, theme development, and honest advice. From initial concept to final floor plan, we guide you through every decision to ensure your party vision becomes reality.
+                    Expert logistics, theme development and honest advice. From initial concept to final floor plan, we guide you through every decision to ensure your party vision becomes reality.
                   </p>
                 </CardContent>
               </Card>
@@ -234,7 +234,7 @@ export default function PrivatePartiesClient() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-300 leading-relaxed">
-                    Transform any space—from pool parties to marquees. Dynamic lighting designs, technical production, and atmospheric staging that elevates your celebration to extraordinary heights.
+                    Transform any space—from pool parties to marquees. Dynamic lighting designs, technical production and atmospheric staging that elevates your celebration to extraordinary heights.
                   </p>
                 </CardContent>
               </Card>
@@ -246,7 +246,7 @@ export default function PrivatePartiesClient() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-300 leading-relaxed">
-                    Curated DJs, bands, and performers who understand the &apos;Babington Standard&apos;. Whether it&apos;s sophisticated background music or an energetic dance floor, we deliver entertainment excellence.
+                    Curated DJs, bands and performers who understand the &apos;Babington Standard&apos;. Whether it&apos;s sophisticated background music or an energetic dance floor, we deliver entertainment excellence.
                   </p>
                 </CardContent>
               </Card>
@@ -519,9 +519,9 @@ export default function PrivatePartiesClient() {
                   </div>
                 ))}
                 <p className="text-gray-300 text-sm mt-4">
-                  Whether you&apos;re planning a private party, corporate event, or celebration in Frome, Malmesbury, 
-                  Marlborough, Devizes, Castle Cary, Cheltenham, Gloucester, Sherborne, Exeter, Bath, Bristol, 
-                  or any of the 200+ towns we serve across Somerset, Wiltshire, Gloucestershire, Dorset, and Devon, 
+                  Whether you&apos;re planning a private party, corporate event or celebration in Frome, Malmesbury, 
+                  Marlborough, Devizes, Castle Cary, Cheltenham, Gloucester, Sherborne, Exeter, Bath, Bristol 
+                  or any of the 200+ towns we serve across the UK and Wales, 
                   we provide expert party planning and technical production services.
                 </p>
               </div>

@@ -42,6 +42,7 @@ export async function POST(
 
     const body = await request.json();
     const { assignedDJName, assignedDJEmail, finalDetails, staffAssignmentId } = body;
+    const fd = finalDetails || {};
 
     // Support both DJ dispatch and staff assignment dispatch
     let staffAssignment = null;
@@ -131,6 +132,19 @@ export async function POST(
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
+    // DJ dispatch (no staff assignment): generate token and create DispatchConfirmation for "I accept" flow
+    if (!staffAssignmentId && !briefToken) {
+      briefToken = generateBriefToken();
+      await prisma.dispatchConfirmation.create({
+        data: {
+          token: briefToken,
+          bookingId,
+          recipientEmail,
+          recipientName: recipientName || undefined,
+        },
+      });
+    }
+
     // Format event date
     const eventDate = booking.eventDate
       ? new Date(booking.eventDate).toLocaleDateString("en-GB", {
@@ -146,6 +160,14 @@ export async function POST(
       staffRole?.toLowerCase().includes('musician') || 
       staffRole?.toLowerCase().includes('band')
     );
+
+    const clientPhoneDisplay = fd.clientPhone || (booking.phoneAreaCode != null || booking.phoneNumber != null ? [booking.phoneAreaCode, booking.phoneNumber].filter(Boolean).join(" ").trim() : "") || "To be confirmed";
+    const venuePhoneDisplay = fd.venuePhone || (booking.venuePhoneAreaCode && booking.venuePhoneNumber ? [booking.venuePhoneAreaCode, booking.venuePhoneNumber].filter(Boolean).join(" ").trim() : "") || "To be confirmed";
+
+    const venueIsPrivateHouse = !!fd.venueIsPrivateHouse || !!(booking as any).venueIsPrivateHouse;
+    const venueWhat3Words = (fd.venueWhat3Words || (booking as any).venueWhat3Words || "").trim();
+    const venueLoadInNotes = (fd.venueLoadInNotes || (booking as any).venueLoadInNotes || "").trim();
+    const w3wSlug = venueWhat3Words ? venueWhat3Words.replace(/\s+/g, ".").replace(/\.+/g, ".") : "";
 
     // Generate professional event summary email
     const eventSummary = `
@@ -226,23 +248,23 @@ export async function POST(
         <div class="section-title">Client Information</div>
         <div class="detail-row">
           <span class="detail-label">Client Name:</span>
-          <span class="detail-value">${finalDetails.clientName || booking.name}</span>
+          <span class="detail-value">${fd.clientName || booking.name}</span>
         </div>
-        ${finalDetails.clientEmail || booking.email ? `<div class="detail-row">
+        ${fd.clientEmail || booking.email ? `<div class="detail-row">
           <span class="detail-label">Email:</span>
-          <span class="detail-value">${finalDetails.clientEmail || booking.email}</span>
+          <span class="detail-value">${fd.clientEmail || booking.email}</span>
         </div>` : ''}
-        ${finalDetails.clientPhone ? `<div class="detail-row">
-          <span class="detail-label">Phone:</span>
-          <span class="detail-value">${finalDetails.clientPhone}</span>
-        </div>` : ''}
-        ${finalDetails.eventType || booking.eventType ? `<div class="detail-row">
+        <div class="detail-row">
+          <span class="detail-label">Client phone (in case of emergency on the day):</span>
+          <span class="detail-value">${clientPhoneDisplay}</span>
+        </div>
+        ${fd.eventType || booking.eventType ? `<div class="detail-row">
           <span class="detail-label">Event Type:</span>
-          <span class="detail-value">${finalDetails.eventType || booking.eventType}</span>
+          <span class="detail-value">${fd.eventType || booking.eventType}</span>
         </div>` : ''}
-        ${finalDetails.numberOfGuests || booking.numberOfGuests ? `<div class="detail-row">
+        ${fd.numberOfGuests || booking.numberOfGuests ? `<div class="detail-row">
           <span class="detail-label">Number of Guests:</span>
-          <span class="detail-value">${finalDetails.numberOfGuests || booking.numberOfGuests}</span>
+          <span class="detail-value">${fd.numberOfGuests || booking.numberOfGuests}</span>
         </div>` : ''}
       </div>
 
@@ -250,36 +272,52 @@ export async function POST(
         <div class="section-title">Venue Information</div>
         <div class="detail-row">
           <span class="detail-label">Venue Name:</span>
-          <span class="detail-value">${finalDetails.venueName || booking.venueName}</span>
+          <span class="detail-value">${fd.venueName || booking.venueName || "To be confirmed"}</span>
         </div>
-        ${finalDetails.venueAddress || booking.venueAddress ? `<div class="detail-row">
+        ${(fd.venueAddress || booking.venueAddress) ? `<div class="detail-row">
           <span class="detail-label">Address Line 1:</span>
-          <span class="detail-value">${finalDetails.venueAddress || booking.venueAddress}</span>
-        </div>` : ''}
-        ${finalDetails.venueAddress2 ? `<div class="detail-row">
+          <span class="detail-value">${fd.venueAddress || booking.venueAddress}</span>
+        </div>` : ""}
+        ${fd.venueAddress2 ? `<div class="detail-row">
           <span class="detail-label">Address Line 2:</span>
-          <span class="detail-value">${finalDetails.venueAddress2}</span>
-        </div>` : ''}
-        ${finalDetails.venueTown || booking.venueTown ? `<div class="detail-row">
+          <span class="detail-value">${fd.venueAddress2}</span>
+        </div>` : ""}
+        ${(fd.venueTown || booking.venueTown) ? `<div class="detail-row">
           <span class="detail-label">Town:</span>
-          <span class="detail-value">${finalDetails.venueTown || booking.venueTown}</span>
-        </div>` : ''}
-        ${finalDetails.venueCounty || booking.venueCounty ? `<div class="detail-row">
+          <span class="detail-value">${fd.venueTown || booking.venueTown}</span>
+        </div>` : ""}
+        ${(fd.venueCounty || booking.venueCounty) ? `<div class="detail-row">
           <span class="detail-label">County:</span>
-          <span class="detail-value">${finalDetails.venueCounty || booking.venueCounty}</span>
-        </div>` : ''}
-        ${finalDetails.venuePostcode || booking.venuePostcode ? `<div class="detail-row">
+          <span class="detail-value">${fd.venueCounty || booking.venueCounty}</span>
+        </div>` : ""}
+        ${(fd.venuePostcode || booking.venuePostcode) ? `<div class="detail-row">
           <span class="detail-label">Postcode:</span>
-          <span class="detail-value">${finalDetails.venuePostcode || booking.venuePostcode}</span>
-        </div>` : ''}
-        ${finalDetails.venueContact || booking.venueContact ? `<div class="detail-row">
+          <span class="detail-value">${fd.venuePostcode || booking.venuePostcode}</span>
+        </div>` : ""}
+        <div class="detail-row">
           <span class="detail-label">Venue Contact:</span>
-          <span class="detail-value">${finalDetails.venueContact || booking.venueContact}</span>
-        </div>` : ''}
-        ${finalDetails.venuePhone || (booking.venuePhoneAreaCode && booking.venuePhoneNumber) ? `<div class="detail-row">
+          <span class="detail-value">${fd.venueContact || booking.venueContact || "To be confirmed"}</span>
+        </div>
+        <div class="detail-row">
           <span class="detail-label">Venue Phone:</span>
-          <span class="detail-value">${finalDetails.venuePhone || `${booking.venuePhoneAreaCode} ${booking.venuePhoneNumber}`}</span>
-        </div>` : ''}
+          <span class="detail-value">${venuePhoneDisplay}</span>
+        </div>
+      </div>
+
+      <div class="section" style="border-left: 4px solid #D4AF37;">
+        <div class="section-title">Finding the venue / Load-in</div>
+        ${venueIsPrivateHouse ? `<div class="detail-row">
+          <span class="detail-label">Private house:</span>
+          <span class="detail-value">Yes – use full address above, What3words, and/or load-in notes below to find the exact location.</span>
+        </div>` : ""}
+        ${venueWhat3Words ? `<div class="detail-row">
+          <span class="detail-label">What3words:</span>
+          <span class="detail-value"><a href="https://what3words.com/${w3wSlug}" target="_blank" rel="noopener" style="color: #D4AF37;">${venueWhat3Words}</a></span>
+        </div>` : ""}
+        <div class="detail-row">
+          <span class="detail-label">Load-in / access:</span>
+          <span class="detail-value" style="white-space: pre-wrap;">${venueLoadInNotes || "To be confirmed"}</span>
+        </div>
       </div>
 
       <div class="section">
@@ -288,35 +326,35 @@ export async function POST(
           <span class="detail-label">Event Date:</span>
           <span class="detail-value">${eventDate}</span>
         </div>
-        ${finalDetails.djArrivalTime ? `<div class="detail-row">
+        <div class="detail-row">
           <span class="detail-label">Arrival Time:</span>
-          <span class="detail-value">${finalDetails.djArrivalTime}</span>
-        </div>` : ''}
-        ${finalDetails.djStartTime ? `<div class="detail-row">
+          <span class="detail-value">${fd.djArrivalTime || booking.djArrivalTime || "To be confirmed"}</span>
+        </div>
+        <div class="detail-row">
           <span class="detail-label">Start Time:</span>
-          <span class="detail-value">${finalDetails.djStartTime}</span>
-        </div>` : ''}
-        ${finalDetails.djFinishTime ? `<div class="detail-row">
+          <span class="detail-value">${fd.djStartTime || booking.djStartTime || "To be confirmed"}</span>
+        </div>
+        <div class="detail-row">
           <span class="detail-label">Finish Time:</span>
-          <span class="detail-value">${finalDetails.djFinishTime}</span>
-        </div>` : ''}
+          <span class="detail-value">${fd.djFinishTime || booking.djFinishTime || "To be confirmed"}</span>
+        </div>
       </div>
 
-      ${(finalDetails.djSetupLocation || booking.djSetupLocation) || (finalDetails.djParking || booking.djParking) || finalDetails.soundLimiter !== undefined || booking.soundLimiter !== null ? `<div class="section">
+      <div class="section">
         <div class="section-title">Technical Setup</div>
-        ${finalDetails.djSetupLocation || booking.djSetupLocation ? `<div class="detail-row">
+        <div class="detail-row">
           <span class="detail-label">Setup Location:</span>
-          <span class="detail-value" style="white-space: pre-wrap;">${finalDetails.djSetupLocation || booking.djSetupLocation}</span>
-        </div>` : ''}
-        ${finalDetails.djParking || booking.djParking ? `<div class="detail-row">
+          <span class="detail-value" style="white-space: pre-wrap;">${fd.djSetupLocation || booking.djSetupLocation || "To be confirmed"}</span>
+        </div>
+        <div class="detail-row">
           <span class="detail-label">Parking Information:</span>
-          <span class="detail-value" style="white-space: pre-wrap;">${finalDetails.djParking || booking.djParking}</span>
-        </div>` : ''}
-        ${finalDetails.soundLimiter !== undefined || booking.soundLimiter !== null ? `<div class="detail-row">
+          <span class="detail-value" style="white-space: pre-wrap;">${fd.djParking || booking.djParking || "To be confirmed"}</span>
+        </div>
+        <div class="detail-row">
           <span class="detail-label">Sound Limiter:</span>
-          <span class="detail-value">${finalDetails.soundLimiter !== undefined ? finalDetails.soundLimiter : (booking.soundLimiter ? 'Yes' : 'No')}</span>
-        </div>` : ''}
-      </div>` : ''}
+          <span class="detail-value">${fd.soundLimiter !== undefined ? fd.soundLimiter : (booking.soundLimiter !== null && booking.soundLimiter !== undefined ? (booking.soundLimiter ? "Yes" : "No") : "To be confirmed")}</span>
+        </div>
+      </div>
 
       ${staffAssignment && (staffRole?.toLowerCase().includes('musician') || staffRole?.toLowerCase().includes('band')) ? `<div class="section">
         <div class="section-title" style="color: #D4AF37; font-weight: 600;">🎷 Live Performance Technical Requirements</div>
@@ -326,7 +364,7 @@ export async function POST(
         </div>
         <div class="detail-row">
           <span class="detail-label">Staging Area:</span>
-          <span class="detail-value">${finalDetails.djSetupLocation || booking.djSetupLocation || 'To be confirmed with venue'}</span>
+          <span class="detail-value">${fd.djSetupLocation || booking.djSetupLocation || 'To be confirmed with venue'}</span>
         </div>
         <div class="detail-row">
           <span class="detail-label">Power Requirements:</span>
@@ -336,33 +374,37 @@ export async function POST(
           <span class="detail-label">Audio Connection:</span>
           <span class="detail-value">${booking.services?.includes('DJ') ? 'Can connect to DJ mixer if needed' : 'Standalone performance'}</span>
         </div>
-        ${finalDetails.musicNotesToDJ || booking.musicNotesToDJ ? `<div class="detail-row">
+        ${booking.musicNotesToDJ ? `<div class="detail-row">
           <span class="detail-label">Performance Notes:</span>
-          <span class="detail-value" style="white-space: pre-wrap;">${finalDetails.musicNotesToDJ || booking.musicNotesToDJ}</span>
+          <span class="detail-value" style="white-space: pre-wrap;">${booking.musicNotesToDJ}</span>
         </div>` : ''}
       </div>` : ''}
 
-      ${finalDetails.firstDance || booking.firstDance || finalDetails.lastSong || booking.lastSong || finalDetails.musicRequests || booking.musicRequests || finalDetails.musicDislikes || booking.musicDislikes || finalDetails.musicNotesToDJ || booking.musicNotesToDJ ? `<div class="section">
-        <div class="section-title">${staffAssignment && (staffRole?.toLowerCase().includes('musician') || staffRole?.toLowerCase().includes('band')) ? '🎵 Ceremony Music Choices (For Live Performance)' : 'Music Preferences'}</div>
-        ${finalDetails.firstDance || booking.firstDance ? `<div class="detail-row">
+      ${booking.firstDance || booking.lastSong || booking.musicRequests || booking.musicDislikes || booking.musicNotesToDJ || (booking as any).musicFileUrl ? `<div class="section">
+        <div class="section-title">${staffAssignment && (staffRole?.toLowerCase().includes('musician') || staffRole?.toLowerCase().includes('band')) ? '🎵 Ceremony Music Choices (For Live Performance)' : '🎵 Music Preferences (from client portal)'}</div>
+        ${booking.firstDance ? `<div class="detail-row">
           <span class="detail-label">${staffAssignment && (staffRole?.toLowerCase().includes('musician') || staffRole?.toLowerCase().includes('band')) ? 'First Dance (Live Performance):' : 'First Dance:'}</span>
-          <span class="detail-value">${finalDetails.firstDance || booking.firstDance}</span>
+          <span class="detail-value">${booking.firstDance}</span>
         </div>` : ''}
-        ${finalDetails.lastSong || booking.lastSong ? `<div class="detail-row">
+        ${booking.lastSong ? `<div class="detail-row">
           <span class="detail-label">${staffAssignment && (staffRole?.toLowerCase().includes('musician') || staffRole?.toLowerCase().includes('band')) ? 'Processional/Recessional (Live Performance):' : 'Last Song:'}</span>
-          <span class="detail-value">${finalDetails.lastSong || booking.lastSong}</span>
+          <span class="detail-value">${booking.lastSong}</span>
         </div>` : ''}
-        ${finalDetails.musicRequests || booking.musicRequests ? `<div class="detail-row">
+        ${booking.musicRequests ? `<div class="detail-row">
           <span class="detail-label">Must-Plays / Requests:</span>
-          <span class="detail-value" style="white-space: pre-wrap;">${finalDetails.musicRequests || booking.musicRequests}</span>
+          <span class="detail-value" style="white-space: pre-wrap;">${booking.musicRequests}</span>
         </div>` : ''}
-        ${finalDetails.musicDislikes || booking.musicDislikes ? `<div class="detail-row">
+        ${booking.musicDislikes ? `<div class="detail-row">
           <span class="detail-label">Do-Not-Plays:</span>
-          <span class="detail-value" style="white-space: pre-wrap;">${finalDetails.musicDislikes || booking.musicDislikes}</span>
+          <span class="detail-value" style="white-space: pre-wrap;">${booking.musicDislikes}</span>
         </div>` : ''}
-        ${finalDetails.musicNotesToDJ || booking.musicNotesToDJ ? `<div class="detail-row">
-          <span class="detail-label">Additional Notes ${staffAssignment && (staffRole?.toLowerCase().includes('musician') || staffRole?.toLowerCase().includes('band')) ? 'for Live Performance:' : 'to DJ/Musician:'}</span>
-          <span class="detail-value" style="white-space: pre-wrap;">${finalDetails.musicNotesToDJ || booking.musicNotesToDJ}</span>
+        ${booking.musicNotesToDJ && !(staffAssignment && (staffRole?.toLowerCase().includes('musician') || staffRole?.toLowerCase().includes('band'))) ? `<div class="detail-row">
+          <span class="detail-label">Additional Notes to DJ/Musician:</span>
+          <span class="detail-value" style="white-space: pre-wrap;">${booking.musicNotesToDJ}</span>
+        </div>` : ''}
+        ${(booking as any).musicFileUrl ? `<div class="detail-row">
+          <span class="detail-label">Spotify / PDF music list:</span>
+          <span class="detail-value"><a href="${(booking as any).musicFileUrl}" target="_blank" rel="noopener noreferrer" style="color: #D4AF37; text-decoration: underline;">${(booking as any).musicFileUrl}</a></span>
         </div>` : ''}
         ${staffAssignment && (staffRole?.toLowerCase().includes('musician') || staffRole?.toLowerCase().includes('band')) && booking.services?.includes('DJ') ? `<div class="detail-row" style="background-color: #f9f9f9; padding: 10px; border-left: 3px solid #D4AF37; margin-top: 10px;">
           <span class="detail-label" style="font-weight: 600;">Note:</span>
@@ -374,14 +416,19 @@ export async function POST(
         <div class="section-title" style="color: #D4AF37; font-weight: 600;">🎵 Guest Song Requests</div>
         <p style="margin-bottom: 15px; color: #666; font-size: 14px;">Songs requested by your guests. These are crowd favorites to consider.</p>
         <ul style="list-style: none; padding: 0; margin: 0;">
-          ${booking.guestRequests.map((req: any) => `
+          ${booking.guestRequests.map((req: any) => {
+            const title = req.trackName || req.songTitle || 'Unknown';
+            const artist = req.artistName || req.artist;
+            return `
             <li style="padding: 8px 0; border-bottom: 1px solid #e5e5e5;">
-              <span style="font-weight: 500; color: #1a1a1a;">${req.songTitle}</span>
-              ${req.artist ? `<span style="color: #666; margin-left: 8px;">by ${req.artist}</span>` : ''}
+              <span style="font-weight: 500; color: #1a1a1a;">${title}</span>
+              ${artist ? `<span style="color: #666; margin-left: 8px;">by ${artist}</span>` : ''}
               ${req.guestName ? `<span style="color: #999; font-size: 12px; margin-left: 8px;">— ${req.guestName}</span>` : ''}
+              ${req.spotifyUrl ? ` <a href="${req.spotifyUrl}" target="_blank" rel="noopener noreferrer" style="color: #D4AF37; font-size: 12px; margin-left: 8px;">Spotify</a>` : ''}
               ${req.status === "moved_to_official" ? `<span style="background-color: #D4AF37; color: #1a1a1a; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600; margin-left: 8px; text-transform: uppercase;">Added to Official List</span>` : ''}
             </li>
-          `).join('')}
+          `;
+          }).join('')}
         </ul>
       </div>` : ''}
 
@@ -412,16 +459,17 @@ export async function POST(
     </div>
     ${briefToken ? `
     <div style="text-align: center; padding: 30px 20px; margin-top: 30px; border-top: 1px solid #D4AF37;">
-      <p style="margin-bottom: 20px; color: #1a1a1a; font-weight: 500;">Please confirm that you have received and understood these final details:</p>
+      <p style="margin-bottom: 8px; color: #666; font-size: 14px;">This Artist Worksheet includes details from the client portal (music preferences, final details) and the booking.</p>
+      <p style="margin-bottom: 20px; color: #1a1a1a; font-weight: 500;">Please confirm you accept this booking:</p>
       <a href="${process.env.NEXT_PUBLIC_BASE_URL || 'https://stylishentertainment.co.uk'}/api/confirm-brief/${briefToken}" 
          style="display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #D4AF37 0%, #B8941F 100%); color: #1a1a1a; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);">
-        I have received and understood the final details
+        Yes, I accept the booking
       </a>
     </div>
     ` : ''}
     <div class="footer">
       <p>Stylish Entertainment Ltd</p>
-      <p>This is an automated dispatch. Please confirm receipt.</p>
+      <p>This is your Artist Worksheet. Please confirm receipt.</p>
     </div>
   </div>
 </body>
@@ -448,7 +496,7 @@ export async function POST(
       replyTo: emailConfig.replyTo,
       to: [recipientEmail],
       bcc: [EMAIL_CONFIG.OFFICE_EMAIL],
-      subject: `Event Details - ${booking.eventType} at ${finalDetails.venueName || booking.venueName} - ${eventDate}`,
+      subject: `Artist Worksheet - ${booking.eventType} at ${fd.venueName || booking.venueName} - ${eventDate}`,
       html: finalHtml, // Include Thread-ID footer
       headers: threadingHeaders, // Add In-Reply-To and References headers
     });

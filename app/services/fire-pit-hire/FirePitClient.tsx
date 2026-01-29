@@ -64,7 +64,7 @@ export default function FirePitClient() {
                     <CardTitle className="text-3xl md:text-4xl text-white">Fire Pit Hire</CardTitle>
                   </div>
                   <p className="text-lg text-gray-200 leading-relaxed">
-                    Add warmth and ambiance to your outdoor wedding celebration with our professional fire pit hire service. Perfect for evening receptions, creating cozy gathering spaces, and extending your celebration into the night.
+                    Add warmth and ambiance to your outdoor wedding celebration with our professional fire pit hire service. Perfect for evening receptions, creating cozy gathering spaces and extending your celebration into the night.
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-8">
@@ -115,7 +115,7 @@ export default function FirePitClient() {
                         </CardHeader>
                         <CardContent>
                           <p className="text-gray-200 leading-relaxed">
-                            We supply the pits, the fuel, and the safety management. Professional setup, monitoring, and breakdown—you can relax and enjoy the warmth.
+                            We supply the pits, the fuel and the safety management. Professional setup, monitoring and breakdown—you can relax and enjoy the warmth.
                           </p>
                         </CardContent>
                       </Card>

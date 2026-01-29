@@ -164,10 +164,13 @@ export async function GET(
 
 /** Whitelist of Booking scalar fields allowed in PATCH. Excludes relations (User, staffAssignments, etc.) to avoid P2022. */
 const PATCH_ALLOWED_KEYS = new Set([
-  "userId", "name", "displayName", "email", "phoneAreaCode", "phoneNumber", "eventType", "eventDate",
+  "userId", "name", "displayName", "email", "phoneAreaCode", "phoneNumber",
+  "clientAddress", "clientAddress2", "clientTown", "clientCounty", "clientPostcode",
+  "eventType", "eventDate",
   "venueName", "venueContact", "venueAddress", "venueAddress2", "venueTown", "venueCounty", "venuePostcode",
   "venuePhoneAreaCode", "venuePhoneNumber", "ceremonyTime", "djArrivalTime", "djStartTime", "djFinishTime",
-  "djSetupLocation", "djParking", "soundLimiter", "numberOfGuests", "services", "message", "budget", "status",
+  "djSetupLocation", "djParking", "soundLimiter", "venueIsPrivateHouse", "venueWhat3Words", "venueLoadInNotes",
+  "numberOfGuests", "services", "message", "budget", "status",
   "contactPreference", "finalBalance", "paymentMethod", "paymentPayerName", "termsAccepted", "termsAcceptedAt",
   "completedTasks", "emailsSent", "lastEmailSentAt", "musicNotesToDJ", "musicNotesToStylish", "firstDance",
   "lastSong", "musicDislikes", "musicRequests", "musicFileUrl", "preferredDJ", "upsellItems", "priority",

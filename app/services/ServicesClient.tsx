@@ -186,7 +186,7 @@ export default function ServicesClient() {
             </h2>
             <p className="text-base sm:text-lg text-gray-300 mb-6 sm:mb-8 px-4">
               Every wedding is unique, and so should be your entertainment. We work closely with you
-              to create a custom package that perfectly matches your vision, venue, and budget.
+              to create a custom package that perfectly matches your vision, venue and budget.
               From intimate gatherings to grand celebrations, we have the expertise and equipment
               to make your day truly exceptional.
             </p>

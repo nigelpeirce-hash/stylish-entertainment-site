@@ -1,16 +1,38 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, MapPin, Mail, Phone, Users, AlertCircle, Headphones, Sparkles, CheckCircle2, ShieldCheck, Mic, ChevronDown, Banknote, FileText, Music } from "lucide-react";
+import { Calendar, Clock, MapPin, Mail, Phone, Users, AlertCircle, Headphones, Sparkles, CheckCircle2, ShieldCheck, Mic, ChevronDown, Banknote, FileText, Music, Link2, Upload } from "lucide-react";
 import { getGreetingName, deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
 import Image from "next/image";
 import confetti from "canvas-confetti";
 import HireShop from "@/components/client/HireShop";
 import GuestRequestsView from "@/components/client/GuestRequestsView";
+
+function stripReferralFromMessage(msg: string | null | undefined): string {
+  if (!msg || typeof msg !== "string") return "";
+  return msg.replace(/\n\nHow did you hear about us: [^\n]+/i, "").trim();
+}
+
+function formatClientPhone(area: string | null | undefined, num: string | null | undefined): string {
+  if (!area && !num) return "";
+  return [area, num].filter(Boolean).join(" ").trim();
+}
+
+function parsePhone(value: string): { phoneAreaCode: string | null; phoneNumber: string | null } {
+  const cleaned = value.replace(/\s+/g, "").trim();
+  if (!cleaned) return { phoneAreaCode: null, phoneNumber: null };
+  if (cleaned.startsWith("0")) {
+    if (cleaned.startsWith("07")) {
+      return { phoneAreaCode: cleaned.slice(0, 4), phoneNumber: cleaned.slice(4) || null };
+    }
+    return { phoneAreaCode: cleaned.slice(0, 3), phoneNumber: cleaned.slice(3) || null };
+  }
+  return { phoneAreaCode: null, phoneNumber: cleaned };
+}
 
 interface StaffAssignment {
   id: string;
@@ -39,6 +61,8 @@ interface Booking {
   id: string;
   name: string;
   email: string;
+  phoneAreaCode?: string | null;
+  phoneNumber?: string | null;
   eventDate: Date;
   ceremonyTime?: Date | null;
   venueName: string | null;
@@ -57,6 +81,18 @@ interface Booking {
   djStartTime: string | null;
   djFinishTime: string | null;
   musicRequests?: string | null;
+  musicDislikes?: string | null;
+  firstDance?: string | null;
+  lastSong?: string | null;
+  musicNotesToDJ?: string | null;
+  musicFileUrl?: string | null;
+  venueWhat3Words?: string | null;
+  venueLoadInNotes?: string | null;
+  clientAddress?: string | null;
+  clientAddress2?: string | null;
+  clientTown?: string | null;
+  clientCounty?: string | null;
+  clientPostcode?: string | null;
   staffAssignments?: StaffAssignment[];
   guestRequestToken?: string | null;
   guestRequestsEnabled?: boolean;
@@ -91,6 +127,8 @@ interface PaymentDetailsStaff {
 interface PortalViewProps {
   booking: Booking;
   isPreview?: boolean;
+  baseUrl?: string;
+  eventPassed?: boolean;
 }
 
 // Bio truncation component with Read More toggle
@@ -134,9 +172,10 @@ function BioSection({ bio }: { bio: string }) {
 
 const POLL_INTERVAL_MS = 25_000;
 
-export default function PortalView({ booking: initialBooking, isPreview = false }: PortalViewProps) {
+export default function PortalView({ booking: initialBooking, isPreview = false, baseUrl = "", eventPassed = false }: PortalViewProps) {
   const [booking, setBooking] = useState<Booking>(initialBooking);
   const searchParams = useSearchParams();
+  const router = useRouter();
   const token = searchParams.get("token");
   const [countdown, setCountdown] = useState<{
     days: number;
@@ -153,18 +192,66 @@ export default function PortalView({ booking: initialBooking, isPreview = false 
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [submittingFinalDetails, setSubmittingFinalDetails] = useState(false);
   const [submittingPaymentSent, setSubmittingPaymentSent] = useState(false);
-  const [finalDetailsNotes, setFinalDetailsNotes] = useState(initialBooking.message ?? "");
+  const [finalDetailsNotes, setFinalDetailsNotes] = useState(stripReferralFromMessage(initialBooking.message) || "");
+  const [clientPhone, setClientPhone] = useState(formatClientPhone(initialBooking.phoneAreaCode, initialBooking.phoneNumber));
+  const [venueWhat3Words, setVenueWhat3Words] = useState(initialBooking.venueWhat3Words ?? "");
+  const [venueLoadInNotes, setVenueLoadInNotes] = useState(initialBooking.venueLoadInNotes ?? "");
+  const [clientAddress, setClientAddress] = useState(initialBooking.clientAddress ?? "");
+  const [clientAddress2, setClientAddress2] = useState(initialBooking.clientAddress2 ?? "");
+  const [clientTown, setClientTown] = useState(initialBooking.clientTown ?? "");
+  const [clientCounty, setClientCounty] = useState(initialBooking.clientCounty ?? "");
+  const [clientPostcode, setClientPostcode] = useState(initialBooking.clientPostcode ?? "");
+  const [firstDance, setFirstDance] = useState(initialBooking.firstDance ?? "");
+  const [lastSong, setLastSong] = useState(initialBooking.lastSong ?? "");
+  const [musicRequests, setMusicRequests] = useState(initialBooking.musicRequests ?? "");
+  const [musicDislikes, setMusicDislikes] = useState(initialBooking.musicDislikes ?? "");
+  const [musicNotesToDJ, setMusicNotesToDJ] = useState(initialBooking.musicNotesToDJ ?? "");
+  const [musicFileUrl, setMusicFileUrl] = useState(initialBooking.musicFileUrl ?? "");
+  const [uploadingMusicFile, setUploadingMusicFile] = useState(false);
+  const [musicFileUploadError, setMusicFileUploadError] = useState<string | null>(null);
+  const musicFileInputRef = useRef<HTMLInputElement>(null);
+  const [numberOfGuests, setNumberOfGuests] = useState<string>(initialBooking.numberOfGuests != null ? String(initialBooking.numberOfGuests) : "");
   const [paymentSent, setPaymentSent] = useState(!!initialBooking.finalDetailsConfirmed);
   const [finalDetailsFeedback, setFinalDetailsFeedback] = useState<{ type: "success" | "error"; msg: string } | null>(null);
   const [paymentFeedback, setPaymentFeedback] = useState<{ type: "success" | "error"; msg: string } | null>(null);
+  const [threads, setThreads] = useState<Array<{
+    id: string;
+    subject: string;
+    lastMessageAt: string;
+    emails: Array<{
+      id: string;
+      fromEmail: string;
+      fromName: string | null;
+      textContent: string | null;
+      htmlContent: string | null;
+      direction: string;
+      receivedAt: string;
+    }>;
+  }>>([]);
+  const [loadingThreads, setLoadingThreads] = useState(true);
 
-  // Sync from initial props when navigating to another booking
+  // Sync from initial props when navigating to another booking or after refresh (e.g. staff assigned)
   useEffect(() => {
     setBooking(initialBooking);
-    setFinalDetailsNotes(initialBooking.message ?? "");
+    setFinalDetailsNotes(stripReferralFromMessage(initialBooking.message) || "");
+    setClientPhone(formatClientPhone(initialBooking.phoneAreaCode, initialBooking.phoneNumber));
+    setVenueWhat3Words(initialBooking.venueWhat3Words ?? "");
+    setVenueLoadInNotes(initialBooking.venueLoadInNotes ?? "");
+    setClientAddress(initialBooking.clientAddress ?? "");
+    setClientAddress2(initialBooking.clientAddress2 ?? "");
+    setClientTown(initialBooking.clientTown ?? "");
+    setClientCounty(initialBooking.clientCounty ?? "");
+    setClientPostcode(initialBooking.clientPostcode ?? "");
+    setFirstDance(initialBooking.firstDance ?? "");
+    setLastSong(initialBooking.lastSong ?? "");
+    setMusicRequests(initialBooking.musicRequests ?? "");
+    setMusicDislikes(initialBooking.musicDislikes ?? "");
+    setMusicNotesToDJ(initialBooking.musicNotesToDJ ?? "");
+    setMusicFileUrl(initialBooking.musicFileUrl ?? "");
+    setMusicFileUploadError(null);
+    setNumberOfGuests(initialBooking.numberOfGuests != null ? String(initialBooking.numberOfGuests) : "");
     setPaymentSent(!!initialBooking.finalDetailsConfirmed);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- only reset on booking id change
-  }, [initialBooking.id]);
+  }, [initialBooking.id, initialBooking.staffAssignments?.length]);
 
   // Fetch guest requests on mount and when booking changes
   useEffect(() => {
@@ -186,6 +273,20 @@ export default function PortalView({ booking: initialBooking, isPreview = false 
       }
     };
     fetchGuestRequests();
+  }, [booking.id, token]);
+
+  // Fetch communication history (threads) for this booking
+  useEffect(() => {
+    if (!booking.id) return;
+    const url = token
+      ? `/api/client/bookings/${booking.id}/threads?token=${encodeURIComponent(token)}`
+      : `/api/client/bookings/${booking.id}/threads`;
+    setLoadingThreads(true);
+    fetch(url)
+      .then((res) => (res.ok ? res.json() : { threads: [] }))
+      .then((data) => setThreads(data.threads || []))
+      .catch(() => setThreads([]))
+      .finally(() => setLoadingThreads(false));
   }, [booking.id, token]);
 
   // Live sync: poll booking so Golden Countdown updates when admin edits venue/ceremony/finish
@@ -353,6 +454,8 @@ export default function PortalView({ booking: initialBooking, isPreview = false 
     return () => { done = true; };
   }, [unlockThreeWeek, booking.id]);
 
+  const evType = (booking.eventType || "").toLowerCase();
+
   // Get greeting name with proper deduplication and formatting
   // Handles cases like "Tim & SarahTim & Sarah" → "Tim & Sarah"
   const greetingName = (() => {
@@ -460,104 +563,80 @@ export default function PortalView({ booking: initialBooking, isPreview = false 
   const ceremonyTimeDisplay = formatCeremonyTime();
 
   return (
-    <div className="min-h-screen bg-gray-950 py-12 px-4">
+    <div className="portal-ui min-h-screen py-12 px-4">
       <div className="container mx-auto max-w-4xl">
         {/* Header Section */}
         <div className="mb-8 text-center">
-          {/* Event Type Badge */}
+          {/* Event Type Badge + subtle sparkles */}
           {booking.eventType && (
-            <div className="mb-3">
-              <span className="text-amber-500 text-xs uppercase tracking-[0.2em] font-light">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-amber-500/10 border border-amber-500/20 px-4 py-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-[portal-float_3s_ease-in-out_infinite]" />
+              <span className="text-amber-500 text-xs uppercase tracking-[0.2em] font-medium">
                 {booking.eventType}
               </span>
+              <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-[portal-float_3s_ease-in-out_infinite]" style={{ animationDelay: "1.5s" }} />
             </div>
           )}
           
-          {/* Emergency Header - 3 Days Out */}
-        {isEmergencyWindow && (
+          {/* Emergency Header - 3 Days Out (hide once final details submitted) */}
+        {isEmergencyWindow && !(booking.finalDetailsConfirmed || paymentSent) && (
           <div className="mb-6 p-4 bg-gradient-to-r from-red-600/20 via-amber-600/20 to-red-600/20 border-2 border-red-500/50 rounded-lg animate-pulse">
             <div className="flex items-center gap-3">
               <AlertCircle className="w-6 h-6 text-red-400 animate-pulse" />
               <div className="flex-1">
                 <p className="text-red-300 font-bold text-lg mb-1">
-                  Final Details Needed – Your Event Is in {daysUntilEvent} {daysUntilEvent === 1 ? 'Day' : 'Days'}
+                  Final Details Needed – Your Event Is in {daysUntilEvent} {daysUntilEvent === 1 ? "Day" : "Days"}
                 </p>
                 <p className="text-amber-200 text-sm">
-                  Please confirm any last-minute changes, timings, or special requests. Check your email for your magic link to access the portal instantly.
+                  Please confirm any last-minute changes, timings, or special requests. Use the form below or check your email for your magic link to access the portal.
                 </p>
               </div>
             </div>
           </div>
         )}
 
-        {/* Greeting */}
-          <h1 className="text-3xl mb-6">
+        {/* Greeting + friendly tagline */}
+          <h1 className="text-3xl mb-1">
             <span className="text-white font-light">Hello </span>
             <span className="text-amber-500 font-extralight tracking-[0.1em]">
-              {greetingName || 'there'}
+              {greetingName || "there"}
             </span>
           </h1>
+          <p className="text-amber-500/70 text-base font-light mb-6">
+            {evType.includes("wedding")
+              ? "Your big day is getting closer!"
+              : evType.includes("party") || evType.includes("corporate")
+                ? "Something special's around the corner!"
+                : "We're so excited for you!"}
+          </p>
         </div>
 
         {/* Golden Grid Countdown Clock */}
         {!countdown.hasPassed && (
           <div className="mb-8">
             <div className="grid grid-cols-4 gap-3 md:gap-4 mb-4">
-              {/* Days */}
-              <div className="bg-gray-900/50 border border-amber-500/20 rounded-lg p-4 text-center">
-                <div 
-                  className={`text-amber-500 font-light text-5xl transition-all duration-300 ${
-                    isAnimating ? 'animate-pulse' : ''
-                  }`}
+              {[
+                { value: countdown.days, label: "Days" },
+                { value: countdown.hours, label: "Hours" },
+                { value: countdown.minutes, label: "Mins" },
+                { value: countdown.seconds, label: "Secs" },
+              ].map(({ value, label }) => (
+                <div
+                  key={label}
+                  className="countdown-tile bg-gray-900/50 border border-amber-500/20 rounded-xl p-4 text-center cursor-default transition-all duration-300 hover:border-amber-500/40"
                 >
-                  {countdown.days.toString().padStart(2, '0')}
+                  <div
+                    className={`text-amber-500 font-light text-5xl transition-all duration-300 ${
+                      isAnimating ? "animate-pulse" : ""
+                    }`}
+                  >
+                    {value.toString().padStart(2, "0")}
+                  </div>
+                  <div className="text-[10px] text-gray-500 mt-2 uppercase tracking-wider">
+                    {label}
+                  </div>
                 </div>
-                <div className="text-[10px] text-gray-500 mt-2 uppercase tracking-wider">
-                  Days
-                </div>
-              </div>
-              
-              {/* Hours */}
-              <div className="bg-gray-900/50 border border-amber-500/20 rounded-lg p-4 text-center">
-                <div 
-                  className={`text-amber-500 font-light text-5xl transition-all duration-300 ${
-                    isAnimating ? 'animate-pulse' : ''
-                  }`}
-                >
-                  {countdown.hours.toString().padStart(2, '0')}
-                </div>
-                <div className="text-[10px] text-gray-500 mt-2 uppercase tracking-wider">
-                  Hours
-                </div>
-              </div>
-              
-              {/* Minutes */}
-              <div className="bg-gray-900/50 border border-amber-500/20 rounded-lg p-4 text-center">
-                <div 
-                  className={`text-amber-500 font-light text-5xl transition-all duration-300 ${
-                    isAnimating ? 'animate-pulse' : ''
-                  }`}
-                >
-                  {countdown.minutes.toString().padStart(2, '0')}
-                </div>
-                <div className="text-[10px] text-gray-500 mt-2 uppercase tracking-wider">
-                  Mins
-                </div>
-              </div>
-              
-              {/* Seconds */}
-              <div className="bg-gray-900/50 border border-amber-500/20 rounded-lg p-4 text-center">
-                <div 
-                  className={`text-amber-500 font-light text-5xl transition-all duration-300 ${
-                    isAnimating ? 'animate-pulse' : ''
-                  }`}
-                >
-                  {countdown.seconds.toString().padStart(2, '0')}
-                </div>
-                <div className="text-[10px] text-gray-500 mt-2 uppercase tracking-wider">
-                  Secs
-                </div>
-              </div>
+              ))}
             </div>
             
             {/* Ceremony Detail */}
@@ -571,7 +650,7 @@ export default function PortalView({ booking: initialBooking, isPreview = false 
 
         <div className="space-y-6">
           {/* Booking Overview Card */}
-          <Card className="bg-white/[0.02] backdrop-blur-md border-white/10">
+          <Card className="portal-card bg-white/[0.02] backdrop-blur-md border border-white/10">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="text-2xl text-amber-500 tracking-tight font-light">
@@ -604,13 +683,13 @@ export default function PortalView({ booking: initialBooking, isPreview = false 
                 <div className="flex items-start gap-3">
                   <Clock className="w-5 h-5 text-amber-500 mt-0.5" />
                   <div>
-                    <p className="text-sm text-gray-400">Time</p>
+                    <p className="text-sm text-gray-400">Artist start & end</p>
                     <p className="text-amber-500 font-semibold text-lg">
                       {booking.djStartTime && booking.djFinishTime
                         ? `${formatTime24h(booking.djStartTime)} – ${formatTime24h(booking.djFinishTime)}`
                         : booking.djStartTime
                         ? `${formatTime24h(booking.djStartTime)} – TBC`
-                        : formatTime(booking.eventDate)}
+                        : "TBC"}
                     </p>
                   </div>
                 </div>
@@ -696,7 +775,7 @@ export default function PortalView({ booking: initialBooking, isPreview = false 
 
           {/* Expert Talent Gallery - Unified Team Section */}
           {teamMembers.length > 0 && (
-            <Card className="bg-white/[0.02] backdrop-blur-md border-white/10">
+            <Card className="portal-card bg-white/[0.02] backdrop-blur-md border border-white/10">
               <CardHeader>
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-xl text-white flex items-center gap-2">
@@ -828,12 +907,30 @@ export default function PortalView({ booking: initialBooking, isPreview = false 
 
           {/* No Staff Assigned Yet */}
           {(!booking.staffAssignments || booking.staffAssignments.length === 0) && (
-            <Card className="bg-white/[0.02] backdrop-blur-md border-white/10">
+            <Card className="portal-card bg-white/[0.02] backdrop-blur-md border border-white/10">
               <CardHeader>
-                <CardTitle className="text-xl text-white">Your Team</CardTitle>
+                <CardTitle className="text-xl text-white flex items-center gap-2">
+                  <Users className="w-5 h-5 text-amber-500" />
+                  Your Team
+                </CardTitle>
               </CardHeader>
-              <CardContent>
-                <p className="text-gray-400 italic">Details coming soon</p>
+              <CardContent className="space-y-3">
+                <p className="text-gray-400">Details coming soon.</p>
+                <p className="text-sm text-gray-500">
+                  We&apos;ll assign your DJ or musician shortly. When they&apos;re confirmed, they&apos;ll appear here. Your music preferences and final details from this portal are shared with them as part of their confirmation.
+                </p>
+                <p className="text-sm text-amber-400/90">
+                  If we&apos;ve just assigned your DJ or musician, refresh the page to see them.
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.refresh()}
+                  className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10"
+                >
+                  Refresh page
+                </Button>
               </CardContent>
             </Card>
           )}
@@ -841,48 +938,351 @@ export default function PortalView({ booking: initialBooking, isPreview = false 
           {/* 3-week window: Final Details form + Artist Payment card + Confirm payment button */}
           {unlockThreeWeek && (
             <>
-              <Card className="bg-white/[0.02] backdrop-blur-md border-white/10">
+              <Card className="portal-card bg-white/[0.02] backdrop-blur-md border border-white/10">
                 <CardHeader>
                   <CardTitle className="text-xl text-white flex items-center gap-2">
                     <FileText className="w-5 h-5 text-amber-500" />
                     Final Details
                   </CardTitle>
-                  <p className="text-sm text-gray-400">You can update your notes within 21 days of your event.</p>
+                  <p className="text-sm text-gray-400">Complete your music details first, then notes and logistics. This form is your final document—we’ll add it all to your booking and notify the team. Ready to dispatch once you confirm.</p>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <textarea
-                    value={finalDetailsNotes}
-                    onChange={(e) => setFinalDetailsNotes(e.target.value)}
-                    placeholder="Dietary requirements, special requests, timings, etc."
-                    rows={4}
-                    className="w-full px-4 py-3 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                  />
+                <CardContent className="space-y-6">
+                  <div className="border-b border-white/10 pb-6">
+                    <h4 className="text-sm font-semibold text-amber-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+                      <Music className="w-4 h-4" />
+                      Music details (required)
+                    </h4>
+                    <p className="text-xs text-gray-500 mb-4">We need your music details before we can confirm. Add at least one of the below.</p>
+                    <div className="space-y-4">
+                      {(booking.eventType || "").toLowerCase() === "wedding" && (
+                        <div>
+                          <label className="block text-sm text-gray-400 mb-1">First dance</label>
+                          <input
+                            type="text"
+                            value={firstDance}
+                            onChange={(e) => setFirstDance(e.target.value)}
+                            placeholder="Artist – Song"
+                            className="w-full px-4 py-2 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                          />
+                        </div>
+                      )}
+                      <div>
+                        <label className="block text-sm text-gray-400 mb-1">Music requests / must-plays</label>
+                        <textarea
+                          value={musicRequests}
+                          onChange={(e) => setMusicRequests(e.target.value)}
+                          placeholder="Songs or styles you’d like"
+                          rows={2}
+                          className="w-full px-4 py-2 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-400 mb-1">Last song</label>
+                        <input
+                          type="text"
+                          value={lastSong}
+                          onChange={(e) => setLastSong(e.target.value)}
+                          placeholder="Optional"
+                          className="w-full px-4 py-2 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-400 mb-1">Music dislikes / do-not-plays</label>
+                        <textarea
+                          value={musicDislikes}
+                          onChange={(e) => setMusicDislikes(e.target.value)}
+                          placeholder="Songs or genres to avoid"
+                          rows={2}
+                          className="w-full px-4 py-2 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm text-gray-400 mb-1">Notes for your DJ / musician</label>
+                        <textarea
+                          value={musicNotesToDJ}
+                          onChange={(e) => setMusicNotesToDJ(e.target.value)}
+                          placeholder="Volume, vibe, announcements, etc."
+                          rows={2}
+                          className="w-full px-4 py-2 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                        />
+                      </div>
+                      <div className="pt-2 border-t border-white/10">
+                        <label className="block text-sm text-gray-400 mb-1 flex items-center gap-2">
+                          <Link2 className="w-4 h-4" />
+                          Spotify playlist, or link to PDF / Word music list
+                        </label>
+                        <input
+                          type="url"
+                          value={musicFileUrl}
+                          onChange={(e) => {
+                            setMusicFileUrl(e.target.value);
+                            setMusicFileUploadError(null);
+                          }}
+                          placeholder="https://open.spotify.com/playlist/... or link to your PDF/Word document"
+                          className="w-full px-4 py-2 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Paste a Spotify playlist link, or a link to your music list (PDF/Word). Your artist will use this with your other preferences.
+                        </p>
+                        <div className="mt-3 flex flex-wrap items-center gap-2">
+                          <input
+                            ref={musicFileInputRef}
+                            type="file"
+                            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            className="hidden"
+                            onChange={async (e) => {
+                              const f = e.target.files?.[0];
+                              if (!f) return;
+                              setMusicFileUploadError(null);
+                              setUploadingMusicFile(true);
+                              try {
+                                const fd = new FormData();
+                                fd.append("file", f);
+                                const res = await fetch(`/api/client/bookings/${booking.id}/upload-music-file/`, {
+                                  method: "POST",
+                                  body: fd,
+                                });
+                                const data = await res.json();
+                                if (res.ok && typeof data?.url === "string") {
+                                  setMusicFileUrl(data.url);
+                                  setMusicFileUploadError(null);
+                                } else {
+                                  setMusicFileUploadError(data?.error ?? "Upload failed");
+                                }
+                              } catch {
+                                setMusicFileUploadError("Upload failed");
+                              } finally {
+                                setUploadingMusicFile(false);
+                                e.target.value = "";
+                              }
+                            }}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => musicFileInputRef.current?.click()}
+                            disabled={uploadingMusicFile}
+                            className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10"
+                          >
+                            <Upload className="w-4 h-4 mr-1.5" />
+                            {uploadingMusicFile ? "Uploading…" : "Choose file to upload (PDF, Word)"}
+                          </Button>
+                          {musicFileUploadError && (
+                            <div className="flex flex-col gap-0.5">
+                              <span className="text-sm text-red-400">{musicFileUploadError}</span>
+                              {musicFileUploadError.toLowerCase().includes("not configured") && (
+                                <span className="text-xs text-gray-400">You can paste a link to your file above instead.</span>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <h4 className="text-sm font-semibold text-amber-500 uppercase tracking-wider pt-2">Notes & logistics</h4>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">General notes</label>
+                    <textarea
+                      value={finalDetailsNotes}
+                      onChange={(e) => setFinalDetailsNotes(e.target.value)}
+                      placeholder="Dietary requirements, special requests, timings, load-in instructions, etc."
+                      rows={3}
+                      className="w-full px-4 py-3 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2 flex items-center gap-2">
+                      <Phone className="w-4 h-4" />
+                      Your phone (in case of emergency on the day)
+                    </label>
+                    <input
+                      type="tel"
+                      value={clientPhone}
+                      onChange={(e) => setClientPhone(e.target.value)}
+                      placeholder="e.g. 07700 900123"
+                      className="w-full px-4 py-3 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2 flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      Number of guests
+                    </label>
+                    <input
+                      type="number"
+                      min={0}
+                      value={numberOfGuests}
+                      onChange={(e) => setNumberOfGuests(e.target.value)}
+                      placeholder="e.g. 80"
+                      className="w-full px-4 py-3 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </div>
+                  {(booking.eventType || "").toLowerCase() !== "wedding" && (
+                    <div>
+                      <label className="block text-sm font-medium text-gray-400 mb-2">Your home address</label>
+                      <p className="text-xs text-gray-500 mb-2">Optional. Update if anything has changed.</p>
+                      <div className="space-y-3">
+                        <input
+                          type="text"
+                          value={clientAddress}
+                          onChange={(e) => setClientAddress(e.target.value)}
+                          placeholder="Address line 1"
+                          className="w-full px-4 py-2 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        />
+                        <input
+                          type="text"
+                          value={clientAddress2}
+                          onChange={(e) => setClientAddress2(e.target.value)}
+                          placeholder="Address line 2"
+                          className="w-full px-4 py-2 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        />
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <input
+                            type="text"
+                            value={clientTown}
+                            onChange={(e) => setClientTown(e.target.value)}
+                            placeholder="Town"
+                            className="w-full px-4 py-2 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                          />
+                          <input
+                            type="text"
+                            value={clientPostcode}
+                            onChange={(e) => setClientPostcode(e.target.value)}
+                            placeholder="Postcode"
+                            className="w-full px-4 py-2 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                          />
+                        </div>
+                        <input
+                          type="text"
+                          value={clientCounty}
+                          onChange={(e) => setClientCounty(e.target.value)}
+                          placeholder="County"
+                          className="w-full px-4 py-2 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2 flex items-center gap-2">
+                      <MapPin className="w-4 h-4" />
+                      What3words (optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={venueWhat3Words}
+                      onChange={(e) => setVenueWhat3Words(e.target.value)}
+                      placeholder="e.g. filled.count.soap – helps artists find the exact spot"
+                      className="w-full px-4 py-3 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">
+                      Load-in / access notes (optional)
+                    </label>
+                    <textarea
+                      value={venueLoadInNotes}
+                      onChange={(e) => setVenueLoadInNotes(e.target.value)}
+                      placeholder="e.g. 163 steps to the beach, no vehicle access, load-in difficult"
+                      rows={2}
+                      className="w-full px-4 py-3 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </div>
+
                   <Button
                     onClick={async () => {
-                      setSubmittingFinalDetails(true);
                       setFinalDetailsFeedback(null);
+                      const hasMusic = [
+                        firstDance.trim(),
+                        musicRequests.trim(),
+                        lastSong.trim(),
+                        musicDislikes.trim(),
+                        musicNotesToDJ.trim(),
+                        musicFileUrl.trim(),
+                      ].some((s) => s.length > 0);
+                      if (!hasMusic) {
+                        setFinalDetailsFeedback({
+                          type: "error",
+                          msg: "We need your music details before we can confirm. Please add at least one of: first dance, must-plays, do-not-plays, notes for your DJ, or a playlist/link.",
+                        });
+                        return;
+                      }
+                      setSubmittingFinalDetails(true);
                       try {
-                        const res = await fetch(`/api/client/bookings/${booking.id}/final-details`, {
+                        const phoneTrim = clientPhone.trim() || null;
+                        const parsed = phoneTrim ? parsePhone(clientPhone) : { phoneAreaCode: null, phoneNumber: null };
+                        const isWedding = (booking.eventType || "").toLowerCase() === "wedding";
+                        const guestsNum = numberOfGuests.trim() ? parseInt(numberOfGuests.trim(), 10) : null;
+                        const guestsVal = guestsNum != null && !Number.isNaN(guestsNum) && guestsNum >= 0 ? guestsNum : null;
+                        const payload: Record<string, unknown> = {
+                          notes: finalDetailsNotes.trim() || null,
+                          phone: phoneTrim,
+                          numberOfGuests: guestsVal,
+                          venueWhat3Words: venueWhat3Words.trim() || null,
+                          venueLoadInNotes: venueLoadInNotes.trim() || null,
+                          firstDance: firstDance.trim() || null,
+                          lastSong: lastSong.trim() || null,
+                          musicRequests: musicRequests.trim() || null,
+                          musicDislikes: musicDislikes.trim() || null,
+                          musicNotesToDJ: musicNotesToDJ.trim() || null,
+                          musicFileUrl: musicFileUrl.trim() || null,
+                        };
+                        if (!isWedding) {
+                          payload.clientAddress = clientAddress.trim() || null;
+                          payload.clientAddress2 = clientAddress2.trim() || null;
+                          payload.clientTown = clientTown.trim() || null;
+                          payload.clientCounty = clientCounty.trim() || null;
+                          payload.clientPostcode = clientPostcode.trim() || null;
+                        }
+                        const finalDetailsUrl = token
+                          ? `/api/client/bookings/${booking.id}/final-details?token=${encodeURIComponent(token)}`
+                          : `/api/client/bookings/${booking.id}/final-details/`;
+                        const res = await fetch(finalDetailsUrl, {
                           method: "PATCH",
                           headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ notes: finalDetailsNotes }),
+                          body: JSON.stringify(payload),
                         });
                         const data = await res.json();
                         if (res.ok) {
-                          setFinalDetailsFeedback({ type: "success", msg: "Final details saved." });
+                          setFinalDetailsFeedback({ type: "success", msg: "Final details confirmed. We've added everything to your booking and notified the team—ready to dispatch." });
+                          setPaymentSent(true);
+                          router.refresh();
+                          setBooking((prev) => ({
+                            ...prev,
+                            finalDetailsConfirmed: true,
+                            message: finalDetailsNotes || null,
+                            phoneAreaCode: parsed.phoneAreaCode,
+                            phoneNumber: parsed.phoneNumber,
+                            numberOfGuests: guestsVal,
+                            ...(isWedding ? {} : {
+                              clientAddress: clientAddress.trim() || null,
+                              clientAddress2: clientAddress2.trim() || null,
+                              clientTown: clientTown.trim() || null,
+                              clientCounty: clientCounty.trim() || null,
+                              clientPostcode: clientPostcode.trim() || null,
+                            }),
+                            venueWhat3Words: venueWhat3Words.trim() || null,
+                            venueLoadInNotes: venueLoadInNotes.trim() || null,
+                            firstDance: firstDance || null,
+                            lastSong: lastSong || null,
+                            musicRequests: musicRequests || null,
+                            musicDislikes: musicDislikes || null,
+                            musicNotesToDJ: musicNotesToDJ || null,
+                            musicFileUrl: musicFileUrl.trim() || null,
+                          }));
                         } else {
-                          setFinalDetailsFeedback({ type: "error", msg: data?.error || "Failed to save." });
+                          setFinalDetailsFeedback({ type: "error", msg: data?.error || "Failed to send." });
                         }
                       } catch {
-                        setFinalDetailsFeedback({ type: "error", msg: "Failed to save." });
+                        setFinalDetailsFeedback({ type: "error", msg: "Failed to send." });
                       } finally {
                         setSubmittingFinalDetails(false);
                       }
                     }}
                     disabled={submittingFinalDetails}
-                    className="bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+                    className="bg-amber-500 hover:bg-amber-600 text-black font-semibold transition-transform duration-200 hover:scale-[1.02] active:scale-[0.99]"
                   >
-                    {submittingFinalDetails ? "Saving…" : "Save final details"}
+                    {submittingFinalDetails ? "Sending…" : "Confirm & send final details"}
                   </Button>
                   {finalDetailsFeedback && (
                     <p className={finalDetailsFeedback.type === "success" ? "text-emerald-400 text-sm" : "text-red-400 text-sm"}>
@@ -898,7 +1298,9 @@ export default function PortalView({ booking: initialBooking, isPreview = false 
                     <Banknote className="w-5 h-5 text-amber-500" />
                     Artist Payment
                   </CardTitle>
-                  <p className="text-sm text-gray-400">Bank details for your assigned artists (shown only within 21 days of your event).</p>
+                  <p className="text-sm text-gray-400">
+                    Final balance is due before your event. Pay your artist(s) using the details below. This section is only shown within 21 days of your event.
+                  </p>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {loadingPayment ? (
@@ -916,15 +1318,24 @@ export default function PortalView({ booking: initialBooking, isPreview = false 
                             </div>
                           )}
                           {!s.sortCode && !s.accountNumber && (
-                            <p className="text-gray-500 text-sm mt-2">Bank details not yet added.</p>
+                            <p className="text-gray-500 text-sm mt-2">Bank details not yet added. We&apos;ll show them here when your artist has added them.</p>
                           )}
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-gray-500">No payment details available for your assigned artists.</p>
+                    <div className="p-4 rounded-lg bg-gray-900/30 border border-amber-500/10 space-y-1">
+                      <p className="text-gray-400">
+                        {teamMembers.length > 0
+                          ? "Your artist(s) haven't added their bank details yet. We'll display them here when they're ready."
+                          : "No assigned artist yet. Payment details will appear here once your DJ or musician is confirmed (within 21 days of your event)."}
+                      </p>
+                    </div>
                   )}
 
+                  <p className="text-xs text-gray-500">
+                    Only confirm below after you&apos;ve actually sent the final payment to your artist(s).
+                  </p>
                   <Button
                     onClick={async () => {
                       setSubmittingPaymentSent(true);
@@ -936,7 +1347,7 @@ export default function PortalView({ booking: initialBooking, isPreview = false 
                         const data = await res.json();
                         if (res.ok) {
                           setPaymentSent(true);
-                          setPaymentFeedback({ type: "success", msg: "Thanks! We’ve notified your artist(s)." });
+                          setPaymentFeedback({ type: "success", msg: "Thanks! We’ve notified your artist(s). They may confirm receipt separately." });
                         } else {
                           setPaymentFeedback({ type: "error", msg: data?.error || "Something went wrong." });
                         }
@@ -947,7 +1358,7 @@ export default function PortalView({ booking: initialBooking, isPreview = false 
                       }
                     }}
                     disabled={paymentSent || submittingPaymentSent}
-                    className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold disabled:opacity-50 disabled:pointer-events-none"
+                    className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold disabled:opacity-50 disabled:pointer-events-none transition-transform duration-200 hover:scale-[1.01] active:scale-[0.99] disabled:hover:scale-100"
                   >
                     {submittingPaymentSent ? "Sending…" : paymentSent ? "Final payment confirmed" : "I have sent the final payment"}
                   </Button>
@@ -962,7 +1373,7 @@ export default function PortalView({ booking: initialBooking, isPreview = false 
           )}
 
           {/* Enhance Your Event Section - Using Original Component Style */}
-          <Card className="bg-white/[0.02] backdrop-blur-md border-white/10">
+          <Card className="portal-card bg-white/[0.02] backdrop-blur-md border border-white/10">
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-champagne-gold" />
@@ -1029,18 +1440,95 @@ export default function PortalView({ booking: initialBooking, isPreview = false 
             guestRequestToken={booking.guestRequestToken || null}
             guestRequestsEnabled={booking.guestRequestsEnabled ?? true}
             eventDate={new Date(booking.eventDate)}
+            baseUrl={baseUrl}
+            eventPassed={eventPassed}
             onToggleEnabled={async (enabled) => {
-              const res = await fetch(`/api/client/bookings/${booking.id}/guest-requests`, {
+              const url = token
+                ? `/api/client/bookings/${booking.id}/guest-requests/?token=${encodeURIComponent(token)}`
+                : `/api/client/bookings/${booking.id}/guest-requests/`;
+              const res = await fetch(url, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ enabled }),
               });
-              if (!res.ok) throw new Error("Failed to update");
+              if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data?.error ?? "Failed to update");
+              }
+              setBooking((prev) => ({ ...prev, guestRequestsEnabled: enabled }));
             }}
           />
 
+          {/* Communication history — record of all comms for this booking */}
+          <Card className="portal-card bg-white/[0.02] backdrop-blur-md border border-white/10">
+            <CardHeader>
+              <CardTitle className="text-xl text-white flex items-center gap-2">
+                <Mail className="w-5 h-5 text-amber-500" />
+                Communication history
+              </CardTitle>
+              <p className="text-sm text-gray-400">
+                Quotes, confirmations, reminders and replies we&apos;ve exchanged about this booking. Your record of all comms.
+              </p>
+            </CardHeader>
+            <CardContent>
+              {loadingThreads ? (
+                <p className="text-sm text-gray-500">Loading…</p>
+              ) : threads.length === 0 ? (
+                <div className="py-8 text-center">
+                  <Mail className="w-12 h-12 text-gray-600 mx-auto mb-3 opacity-60" />
+                  <p className="text-gray-400 font-medium">No messages yet</p>
+                  <p className="text-sm text-gray-500 mt-2 max-w-sm mx-auto">
+                    Emails we send about this booking (quotes, confirmations, reminders) will appear here. You can always reply to those emails as usual.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {threads.map((thread) => (
+                    <div key={thread.id} className="space-y-3">
+                      <p className="text-sm font-medium text-amber-500/90">{thread.subject}</p>
+                      <div className="space-y-3">
+                        {thread.emails.map((email) => (
+                          <div
+                            key={email.id}
+                            className={`rounded-lg p-4 ${
+                              email.direction === "outbound"
+                                ? "bg-amber-500/10 border border-amber-500/30"
+                                : "bg-gray-800/50 border border-gray-700"
+                            }`}
+                          >
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                              <p className="font-medium text-white text-sm">
+                                {email.direction === "outbound" ? "You" : email.fromName || email.fromEmail}
+                              </p>
+                              <p className="text-xs text-gray-500 shrink-0">
+                                {new Date(email.receivedAt).toLocaleString("en-GB", {
+                                  dateStyle: "short",
+                                  timeStyle: "short",
+                                })}
+                              </p>
+                            </div>
+                            {email.htmlContent ? (
+                              <div
+                                className="prose prose-invert prose-sm max-w-none text-gray-300"
+                                dangerouslySetInnerHTML={{ __html: email.htmlContent }}
+                              />
+                            ) : (
+                              <p className="text-sm text-gray-300 whitespace-pre-wrap">
+                                {email.textContent || "—"}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Contact Information */}
-          <Card className="bg-white/[0.02] backdrop-blur-md border-white/10">
+          <Card className="portal-card bg-white/[0.02] backdrop-blur-md border border-white/10">
             <CardHeader>
               <CardTitle className="text-xl text-white">Contact Information</CardTitle>
             </CardHeader>

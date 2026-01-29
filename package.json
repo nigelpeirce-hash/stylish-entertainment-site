@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3001",
+    "dev": "next dev -p 3001 --turbo",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -18,7 +18,8 @@
     "fix:babington-spelling": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/fix-babington-spelling.ts",
     "fix:babington-variants": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/fix-babington-house-variants.ts",
     "scaffold:blog": "./scripts/scaffold-blog.sh",
-    "test:prisma": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/test-prisma-connection.ts"
+    "test:prisma": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/test-prisma-connection.ts",
+    "test:dispatch-setup": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/test-dispatch-setup.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",

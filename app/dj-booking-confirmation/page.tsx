@@ -14,7 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { Music, User, Mail, Phone, MapPin, Calendar, DollarSign } from "lucide-react";
+import { Music, User, Mail, Phone, MapPin, Calendar, PoundSterling } from "lucide-react";
 
 const bookingSchema = z.object({
   // Client Information
@@ -504,7 +504,7 @@ export default function DJBookingConfirmationPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="agreedFee" className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4" />
+                      <PoundSterling className="w-4 h-4" />
                       Agreed Fee *
                     </Label>
                     <Input

@@ -19,7 +19,7 @@ export default function Musicians() {
     if (metaDescription) {
       metaDescription.setAttribute(
         "content",
-        "Professional live musicians for weddings and events. Harpists, bands, duos, trios, and performers across the West Country including Somerset, Bath, Bristol, Dorset, and Devon."
+        "Professional live musicians for weddings and events. Harpists, bands, duos, trios and performers across the UK and Wales."
       );
     }
 
@@ -167,7 +167,7 @@ export default function Musicians() {
                   From elegant harpists to energetic bands, our roster of talented musicians brings sophistication and energy to your wedding celebration. Whether you want background music for your ceremony or a high-energy performance for your reception, we have the perfect act for your event.
                 </p>
                 <p className="text-base sm:text-lg text-gray-200 leading-relaxed">
-                  Each performer is carefully selected for their professionalism, talent, and ability to create the perfect atmosphere for your event. We work closely with you to understand your vision and recommend the perfect musical acts to complement your celebration.
+                  Each performer is carefully selected for their professionalism, talent and ability to create the perfect atmosphere for your event. We work closely with you to understand your vision and recommend the perfect musical acts to complement your celebration.
                 </p>
               </CardContent>
             </Card>
@@ -282,7 +282,7 @@ export default function Musicians() {
                   Our Musicians
                 </h3>
                 <p className="text-white text-base sm:text-lg leading-relaxed mb-4">
-                  We offer a diverse range of live entertainment including harpists, bands, duos, trios, singing waiters, and cabaret acts. Our popular festival trio of DJ, sax and bongos brings a unique energy to any celebration.
+                  We offer a diverse range of live entertainment including harpists, bands, duos, trios, singing waiters and cabaret acts. Our popular festival trio of DJ, sax and bongos brings a unique energy to any celebration.
                 </p>
                 <p className="text-white text-base sm:text-lg leading-relaxed">
                   Each performer is carefully selected for their professionalism, talent, and ability to create the perfect atmosphere for your event.

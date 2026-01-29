@@ -128,8 +128,14 @@ export function TeamAssignment({
     member.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Get already assigned staff IDs to disable them
-  const assignedStaffIds = staffAssignments.map((a) => a.staff.id);
+  // Grey only staff already assigned *for this role* (not other roles)
+  const assignedInThisRole = staffAssignments
+    .filter((a) => (a.role || "").toLowerCase() === selectedRole.toLowerCase())
+    .map((a) => a.staff?.id)
+    .filter((id): id is string => !!id);
+  const assignedStaffIdsSet = new Set(assignedInThisRole);
+
+  const allGreyed = filteredCrew.length > 0 && filteredCrew.every((m) => assignedStaffIdsSet.has(m.id));
 
   return (
     <Card className="bg-gray-800 border-champagne-gold/30">
@@ -195,9 +201,14 @@ export function TeamAssignment({
                 />
                 <CommandList>
                   <CommandEmpty>No staff found for {selectedRole}.</CommandEmpty>
+                  {allGreyed && (
+                    <div className="px-2 py-3 text-sm text-amber-400/90 border-b border-gray-700">
+                      All {selectedRole} crew are already assigned. Choose another role or add more in Staff Management.
+                    </div>
+                  )}
                   <CommandGroup>
                     {filteredCrew.map((member) => {
-                      const isAssigned = assignedStaffIds.includes(member.id);
+                      const isAssigned = assignedStaffIdsSet.has(member.id);
                       return (
                         <CommandItem
                           key={member.id}

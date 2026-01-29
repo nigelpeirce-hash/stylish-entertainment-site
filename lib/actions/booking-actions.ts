@@ -3,8 +3,10 @@
 import { prisma } from "@/lib/prisma";
 import { randomUUID } from "crypto";
 import { sendEmailFromCRM } from "@/lib/email-send";
+import sendEmail from "@/lib/email/send-email";
 import { auth } from "@/auth";
 import { cleanName, getDisplayName, getGreetingName } from "@/lib/utils/name-helpers";
+import { yourEventLabel } from "@/lib/email-templates";
 
 interface AssignedTeamMember {
   id: string;
@@ -13,9 +15,31 @@ interface AssignedTeamMember {
   fee?: number;
 }
 
+function parseClientPhone(phone: string | undefined): { phoneAreaCode: string | null; phoneNumber: string | null } {
+  const cleaned = phone?.replace(/\D/g, "").trim();
+  if (!cleaned) return { phoneAreaCode: null, phoneNumber: null };
+  if (/^0?7\d{9}$/.test(cleaned)) {
+    const digits = cleaned.replace(/^0/, "");
+    return { phoneAreaCode: digits.slice(0, 4), phoneNumber: digits.slice(4) || null };
+  }
+  if (/^0?1\d{8,9}$/.test(cleaned) || /^0?2\d{9}$/.test(cleaned)) {
+    const digits = cleaned.replace(/^0/, "");
+    return { phoneAreaCode: digits.slice(0, 3), phoneNumber: digits.slice(3) || null };
+  }
+  return { phoneAreaCode: null, phoneNumber: cleaned };
+}
+
 interface CreateBookingInput {
   title: string;
   clientEmail: string;
+  clientPhone?: string;
+  clientAddress?: string;
+  clientAddress2?: string;
+  clientTown?: string;
+  clientCounty?: string;
+  clientPostcode?: string;
+  venueName?: string;
+  venuePostcode?: string;
   startTime: Date;
   endTime: Date;
   eventType: "wedding" | "party" | "corporate";
@@ -47,20 +71,28 @@ export async function createBooking(input: CreateBookingInput) {
     // Clean and normalize the name
     const cleanedName = cleanName(input.title);
     const displayName = getDisplayName(input.title);
-    
-    // Create the booking
+    const { phoneAreaCode, phoneNumber } = parseClientPhone(input.clientPhone);
+
     const booking = await prisma.booking.create({
       data: {
         id: randomUUID(),
         name: cleanedName,
         displayName: displayName,
         email: input.clientEmail.toLowerCase(),
+        phoneAreaCode: phoneAreaCode ?? undefined,
+        phoneNumber: phoneNumber ?? undefined,
+        clientAddress: input.clientAddress || undefined,
+        clientAddress2: input.clientAddress2 || undefined,
+        clientTown: input.clientTown || undefined,
+        clientCounty: input.clientCounty || undefined,
+        clientPostcode: input.clientPostcode || undefined,
         eventDate: input.startTime,
-        djFinishTime: endTimeString, // Store end time as formatted string
-        eventType: input.eventType, // wedding, party, or corporate
-        venueName: "TBD", // Placeholder, can be updated
+        djFinishTime: endTimeString,
+        eventType: input.eventType,
+        venueName: (input.venueName?.trim()) || "TBD",
+        venuePostcode: input.venuePostcode?.trim() || null,
         status: "pending",
-        services: input.serviceTypes, // Store service types array
+        services: input.serviceTypes,
         adminNotes: input.notes ? `${input.earlySetup ? '[EARLY SETUP REQUIRED] ' : ''}${input.notes}` : (input.earlySetup ? '[EARLY SETUP REQUIRED]' : null),
         bookingReference,
         createdAt: new Date(),
@@ -225,38 +257,31 @@ export async function createBooking(input: CreateBookingInput) {
       });
     }
 
-    // Send portal invite if requested
+    // Send portal invite if requested (via Resend — same as send-portal-link / finalize-and-invite)
     if (input.sendPortalInvite) {
       try {
-        // Get the first active inbox for sending
-        const inbox = await prisma.emailInbox.findFirst({
-          where: { isActive: true, syncEnabled: true },
-        });
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001";
+        const portalUrl = `${baseUrl}/client/bookings/${booking.id}`;
 
-        if (inbox) {
-          // Generate portal link - use NEXT_PUBLIC_APP_URL or NEXT_PUBLIC_SITE_URL, defaulting to localhost for dev
-          const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001';
-          const portalUrl = `${baseUrl}/client/bookings/${booking.id}`;
-          
-          const isWedding = input.eventType === "wedding";
-          const eventDate = input.startTime.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
-          const eventTime = `${input.startTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} - ${input.endTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
-          
-          // Wedding-specific or general content
-          const headline = isWedding ? "Congratulations on Your Upcoming Wedding!" : "Your Booking is Confirmed!";
-          const greeting = isWedding ? `Dear ${input.title},` : "Hello,";
-          const intro = isWedding 
-            ? "We're absolutely thrilled to be part of your special day! Your wedding entertainment booking has been created, and we can't wait to help make your celebration unforgettable."
-            : "Thank you for choosing Stylish Entertainment Ltd! Your booking has been created and we're excited to be part of your event.";
-          const portalIntro = isWedding
-            ? "Your personal wedding portal is now ready. Here you can manage all your entertainment details, share your music preferences, and keep in touch with us throughout your wedding planning journey."
-            : "Your personal booking portal is now ready. Here you can manage your booking details, view updates, and communicate with us directly.";
-          const subject = isWedding 
-            ? `Your Wedding Entertainment Portal - ${input.title}`
-            : `Your Booking Portal - ${input.title}`;
-          const ctaText = isWedding ? "Access Your Wedding Portal" : "Access Your Booking Portal";
-          
-          const portalInviteHtml = `
+        const isWedding = input.eventType === "wedding";
+        const eventDate = input.startTime.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+        const eventTime = `${input.startTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })} - ${input.endTime.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
+
+        const eventLabel = yourEventLabel(input.eventType);
+        const headline = isWedding ? "Congratulations on Your Upcoming Wedding!" : "Your Booking is Confirmed!";
+        const greeting = isWedding ? `Dear ${input.title},` : "Hello,";
+        const intro = isWedding
+          ? "We're absolutely thrilled to be part of your special day! Your wedding entertainment booking has been created, and we can't wait to help make your celebration unforgettable."
+          : `Thank you for choosing Stylish Entertainment Ltd! Your booking for ${eventLabel} has been created and we're excited to be part of it.`;
+        const portalIntro = isWedding
+          ? "Your personal wedding portal is now ready. Here you can manage all your entertainment details, share your music preferences, and keep in touch with us throughout your wedding planning journey."
+          : "Your personal booking portal is now ready. Here you can manage your booking details, view updates, and communicate with us directly.";
+        const subject = isWedding
+          ? `Your Wedding Entertainment Portal - ${input.title}`
+          : `Your Booking Portal - ${input.title}`;
+        const ctaText = "View Your Countdown";
+
+        const portalInviteHtml = `
             <!DOCTYPE html>
             <html>
             <head>
@@ -382,7 +407,7 @@ export async function createBooking(input: CreateBookingInput) {
                           <table width="100%" cellpadding="0" cellspacing="0">
                             <tr>
                               <td style="text-align: center;">
-                                <p style="font-size: 14px; color: #ffffff !important; margin: 0 0 4px 0; font-weight: 600;" class="email-footer-text">Ali & Nige</p>
+                                <p style="font-size: 14px; color: #ffffff !important; margin: 0 0 4px 0; font-weight: 600;" class="email-footer-text">Kind Regards, Ali & Nige</p>
                                 <p style="font-size: 14px; color: #D4AF37 !important; margin: 0 0 16px 0;" class="email-footer-text">Stylish Entertainment Ltd</p>
                                 <p style="font-size: 13px; color: #cccccc !important; margin: 0 0 4px 0;" class="email-footer-text">
                                   <a href="tel:+447970793177" style="color: #cccccc !important; text-decoration: none;">07970 793 177</a>
@@ -422,26 +447,23 @@ Time: ${eventTime}
 
 ${portalIntro}
 
-Access your portal: ${portalUrl}
+View Your Countdown: ${portalUrl}
 
 If you have any questions, we're always here to help. Simply reply to this email or use the messaging feature in your portal.
 
-Ali & Nige
+Kind Regards, Ali & Nige
 Stylish Entertainment Ltd
 07970 793 177
 info@stylishentertainment.co.uk
 https://stylishentertainment.co.uk
           `;
 
-          await sendEmailFromCRM({
-            inboxId: inbox.id,
-            to: input.clientEmail,
-            subject,
-            html: portalInviteHtml,
-            text: portalInviteText,
-            sentByUserId: userId,
-          });
-        }
+        await sendEmail({
+          to: input.clientEmail,
+          subject,
+          html: portalInviteHtml,
+          text: portalInviteText,
+        });
       } catch (emailError) {
         console.error("Error sending portal invite:", emailError);
         // Don't fail the booking creation if email fails

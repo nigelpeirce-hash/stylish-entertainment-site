@@ -50,20 +50,21 @@ export function VenueAutocomplete({
     setIsLoading(true);
     debounceTimerRef.current = setTimeout(async () => {
       try {
-        const response = await fetch(`/api/venues/search?q=${encodeURIComponent(value)}`);
+        const response = await fetch(`/api/venues/search/?q=${encodeURIComponent(value)}`);
         const data = await response.json();
         
-        // Filter out the current value and limit to 8 suggestions
-        const filtered = (data.venues || [])
-          .filter((venue: string) => venue.toLowerCase() !== value.toLowerCase())
+        const raw = (data.venues || []) as string[];
+        const filtered = raw
+          .filter((venue) => venue.toLowerCase() !== value.trim().toLowerCase())
           .slice(0, 8);
         
         setSuggestions(filtered);
-        setShowSuggestions(filtered.length > 0 && document.activeElement === inputRef.current);
+        setShowSuggestions(filtered.length > 0);
         setIsLoading(false);
       } catch (error) {
         console.error("Error searching venues:", error);
         setSuggestions([]);
+        setShowSuggestions(false);
         setIsLoading(false);
       }
     }, 300); // 300ms debounce

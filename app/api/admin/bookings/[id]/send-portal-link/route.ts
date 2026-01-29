@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
-import { sendEmailFromCRM } from "@/lib/email-send";
+import sendEmail from "@/lib/email/send-email";
 import { getDisplayName, getGreetingName } from "@/lib/utils/name-helpers";
+import { yourEventLabel } from "@/lib/email-templates";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -71,22 +72,21 @@ export async function POST(
       year: "numeric",
     });
 
-    // Check if wedding
     const isWedding = (booking.eventType || "").toLowerCase() === "wedding";
-    
-    // Content based on event type
+    const eventLabel = yourEventLabel(booking.eventType);
+
     const headline = isWedding ? "Your Wedding Portal is Ready!" : "Your Booking Portal is Ready!";
     const greeting = isWedding ? `Dear ${displayName},` : `Hello ${greetingName || "there"},`;
-    const intro = isWedding 
+    const intro = isWedding
       ? "We're so excited to be part of your special day! Your personal wedding portal is ready for you to explore."
-      : "Thank you for booking with Stylish Entertainment Ltd! Your personal portal is ready for you to explore.";
+      : `Thank you for booking with Stylish Entertainment Ltd! Your personal portal for ${eventLabel} is ready for you to explore.`;
     const portalIntro = isWedding
       ? "In your portal you can manage your entertainment details, share your music preferences, view your booking information, and communicate with us directly."
       : "In your portal you can view your booking details, manage your preferences, and communicate with us directly.";
-    const subject = isWedding 
+    const subject = isWedding
       ? `Your Wedding Portal - ${displayName}`
       : `Your Booking Portal - ${displayName}`;
-    const ctaText = isWedding ? "Access Your Wedding Portal" : "Access Your Booking Portal";
+    const ctaText = "View Your Countdown";
 
     // Create email HTML
     const portalInviteHtml = `
@@ -154,7 +154,7 @@ export async function POST(
                     <table width="100%" cellpadding="0" cellspacing="0" style="background: ${isWedding ? 'linear-gradient(135deg, #fdfbf7 0%, #f9f5ed 100%)' : '#f9f9f9'}; border-radius: 8px; margin: 24px 0; ${isWedding ? 'border: 1px solid #D4AF37;' : 'border: 1px solid #e5e5e5;'}">
                       <tr>
                         <td style="padding: 24px;">
-                          ${isWedding ? '<p style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #D4AF37; margin: 0 0 16px 0; font-weight: 600;">Your Wedding Details</p>' : '<p style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #888888; margin: 0 0 16px 0; font-weight: 600;">Event Details</p>'}
+                          ${isWedding ? '<p style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #D4AF37; margin: 0 0 16px 0; font-weight: 600;">Your Wedding Details</p>' : `<p style="font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #888888; margin: 0 0 16px 0; font-weight: 600;">Your ${eventLabel === "your corporate party" ? "Corporate Party" : "Party"} Details</p>`}
                           <table width="100%" cellpadding="0" cellspacing="0">
                             <tr>
                               <td width="80" style="font-size: 14px; color: #666666 !important; padding: 8px 0; vertical-align: top;">Event</td>
@@ -205,7 +205,7 @@ export async function POST(
                     <table width="100%" cellpadding="0" cellspacing="0">
                       <tr>
                         <td style="text-align: center;">
-                          <p style="font-size: 14px; color: #ffffff !important; margin: 0 0 4px 0; font-weight: 600;" class="email-footer-text">Ali & Nige</p>
+                          <p style="font-size: 14px; color: #ffffff !important; margin: 0 0 4px 0; font-weight: 600;" class="email-footer-text">Kind Regards, Ali & Nige</p>
                           <p style="font-size: 14px; color: #D4AF37 !important; margin: 0 0 16px 0;" class="email-footer-text">Stylish Entertainment Ltd</p>
                           <p style="font-size: 13px; color: #cccccc !important; margin: 0 0 4px 0;" class="email-footer-text">
                             <a href="tel:+447970793177" style="color: #cccccc !important; text-decoration: none;">07970 793 177</a>
@@ -245,24 +245,32 @@ ${booking.venueName ? `Venue: ${booking.venueName}` : ''}
 
 ${portalIntro}
 
-Access your portal: ${portalUrl}
+View Your Countdown: ${portalUrl}
 
 If you have any questions, we're always here to help.
 
-Ali & Nige
+Kind Regards, Ali & Nige
 Stylish Entertainment Ltd
 07970 793 177
 info@stylishentertainment.co.uk
 https://stylishentertainment.co.uk
     `;
 
-    // Send email
-    await sendEmailFromCRM({
+    // Send via Resend (same as deposit invoice, contact, etc.)
+    const result = await sendEmail({
       to: booking.email,
       subject,
       html: portalInviteHtml,
       text: portalInviteText,
     });
+
+    if (result.error) {
+      console.error("[Send Portal Link] Resend error:", result.error);
+      return NextResponse.json(
+        { success: false, error: "Failed to send portal link", message: String(result.error.message || result.error) },
+        { status: 500 }
+      );
+    }
 
     return NextResponse.json({
       success: true,

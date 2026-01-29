@@ -17,6 +17,7 @@ import {
 import { Calendar, Clock, Mail, FileText, Send, Lightbulb, Users, X, Plus, Loader2 } from "lucide-react";
 import { createBooking } from "@/lib/actions/booking-actions";
 import { Select } from "@/components/ui/select";
+import { VenueAutocomplete } from "@/components/VenueAutocomplete";
 import { getNameFormatSuggestions, isValidNameFormat, getDisplayName } from "@/lib/utils/name-helpers";
 import Image from "next/image";
 
@@ -47,9 +48,17 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
   const [availableTeam, setAvailableTeam] = useState<TeamMember[]>([]);
   const [loadingTeam, setLoadingTeam] = useState(false);
   const [assignedMembers, setAssignedMembers] = useState<AssignedMember[]>([]);
+  const [prefillVenueLoading, setPrefillVenueLoading] = useState(false);
   const [formData, setFormData] = useState({
     title: "",
     clientEmail: "",
+    clientPhone: "",
+    clientAddress: "",
+    clientAddress2: "",
+    clientTown: "",
+    clientCounty: "",
+    clientPostcode: "",
+    venue: "",
     startDate: "",
     startTime: "",
     endTime: "",
@@ -110,6 +119,40 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
 
   const timeOptions = generateTimeOptions();
 
+  const parseVenue = (v: string) => {
+    const t = (v || "").trim();
+    const m = t.match(/,?\s*([A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]{2})$/i);
+    const name = m ? t.slice(0, t.indexOf(m[1])).replace(/,\s*$/, "").trim() : t;
+    const postcode = m ? m[1].replace(/\s+/g, " ").trim() : null;
+    return { venueName: name, venuePostcode: postcode };
+  };
+
+  const handlePrefillFromVenue = async () => {
+    const { venueName } = parseVenue(formData.venue);
+    if (!venueName || venueName.length < 2) return;
+    setPrefillVenueLoading(true);
+    try {
+      const params = new URLSearchParams({ venueName });
+      const { venuePostcode } = parseVenue(formData.venue);
+      if (venuePostcode) params.set("venuePostcode", venuePostcode);
+      const res = await fetch(`/api/admin/venues/details/?${params.toString()}`);
+      const data = await res.json().catch(() => ({}));
+      const venue = data?.venue;
+      if (venue && (venue.venuePostcode || venue.venueContact || venue.venueAddress)) {
+        const name = venueName;
+        const pc = (venue.venuePostcode || "").trim();
+        setFormData((prev) => ({
+          ...prev,
+          venue: pc ? `${name}, ${pc}` : name,
+        }));
+      }
+    } catch {
+      /* no-op */
+    } finally {
+      setPrefillVenueLoading(false);
+    }
+  };
+
   const toggleServiceType = (value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -125,6 +168,13 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
       setFormData({
         title: "",
         clientEmail: "",
+        clientPhone: "",
+        clientAddress: "",
+        clientAddress2: "",
+        clientTown: "",
+        clientCounty: "",
+        clientPostcode: "",
+        venue: "",
         startDate: "",
         startTime: "",
         endTime: "",
@@ -219,7 +269,7 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
         id: member.id,
         name: member.name,
         imageUrl: member.imageUrl,
-        role: member.role || formData.serviceType,
+        role: member.role || (formData.serviceTypes[0] ?? "Crew"),
         fee: "",
       },
     ]);
@@ -263,6 +313,8 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
         return;
       }
 
+      const { venueName, venuePostcode } = parseVenue(formData.venue);
+
       // Combine date and time for startTime
       const startDateTime = new Date(`${formData.startDate}T${formData.startTime}`);
       
@@ -294,6 +346,14 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
       const result = await createBooking({
         title: formData.title,
         clientEmail: formData.clientEmail,
+        clientPhone: formData.clientPhone?.trim() || undefined,
+        clientAddress: formData.clientAddress?.trim() || undefined,
+        clientAddress2: formData.clientAddress2?.trim() || undefined,
+        clientTown: formData.clientTown?.trim() || undefined,
+        clientCounty: formData.clientCounty?.trim() || undefined,
+        clientPostcode: formData.clientPostcode?.trim() || undefined,
+        venueName: venueName || undefined,
+        venuePostcode: venuePostcode ?? undefined,
         startTime: startDateTime,
         endTime: endDateTime,
         eventType: formData.eventType,
@@ -314,6 +374,13 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
         setFormData({
           title: "",
           clientEmail: "",
+          clientPhone: "",
+          clientAddress: "",
+          clientAddress2: "",
+          clientTown: "",
+          clientCounty: "",
+          clientPostcode: "",
+          venue: "",
           startDate: "",
           startTime: "",
           endTime: "",
@@ -344,6 +411,13 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
       setFormData({
         title: "",
         clientEmail: "",
+        clientPhone: "",
+        clientAddress: "",
+        clientAddress2: "",
+        clientTown: "",
+        clientCounty: "",
+        clientPostcode: "",
+        venue: "",
         startDate: "",
         startTime: "",
         endTime: "",
@@ -421,6 +495,83 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
                     disabled={loading}
                   />
                 </div>
+                <div className="space-y-2">
+                  <Label htmlFor="clientPhone" className="text-sm font-medium text-gray-300">
+                    Client Phone
+                  </Label>
+                  <Input
+                    id="clientPhone"
+                    type="tel"
+                    value={formData.clientPhone}
+                    onChange={(e) => setFormData({ ...formData, clientPhone: e.target.value })}
+                    placeholder="e.g. 07700 900000 or 020 7946 0958"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder:text-gray-500 focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all outline-none"
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+
+              {/* Client home address */}
+              <div className="space-y-3 pt-2">
+                <h4 className="text-xs font-semibold text-amber-500/90 uppercase tracking-wider">Client home address</h4>
+                <p className="text-xs text-gray-400">Optional. Required for book-from-quote; client can add it there or you can enter here.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="md:col-span-2 space-y-2">
+                    <Label htmlFor="clientAddress" className="text-sm font-medium text-gray-300">Address</Label>
+                    <Input
+                      id="clientAddress"
+                      value={formData.clientAddress}
+                      onChange={(e) => setFormData({ ...formData, clientAddress: e.target.value })}
+                      placeholder="Line 1"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder:text-gray-500"
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="md:col-span-2 space-y-2">
+                    <Label htmlFor="clientAddress2" className="text-sm font-medium text-gray-300">Address 2</Label>
+                    <Input
+                      id="clientAddress2"
+                      value={formData.clientAddress2}
+                      onChange={(e) => setFormData({ ...formData, clientAddress2: e.target.value })}
+                      placeholder="Line 2"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder:text-gray-500"
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="clientTown" className="text-sm font-medium text-gray-300">Town</Label>
+                    <Input
+                      id="clientTown"
+                      value={formData.clientTown}
+                      onChange={(e) => setFormData({ ...formData, clientTown: e.target.value })}
+                      placeholder="Town"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder:text-gray-500"
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="clientCounty" className="text-sm font-medium text-gray-300">County</Label>
+                    <Input
+                      id="clientCounty"
+                      value={formData.clientCounty}
+                      onChange={(e) => setFormData({ ...formData, clientCounty: e.target.value })}
+                      placeholder="County"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder:text-gray-500"
+                      disabled={loading}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="clientPostcode" className="text-sm font-medium text-gray-300">Postcode</Label>
+                    <Input
+                      id="clientPostcode"
+                      value={formData.clientPostcode}
+                      onChange={(e) => setFormData({ ...formData, clientPostcode: e.target.value })}
+                      placeholder="Postcode"
+                      className="w-full bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder:text-gray-500"
+                      disabled={loading}
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* Event Type */}
@@ -459,6 +610,31 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
             {/* Section 2: Logistics */}
             <div className="p-4 rounded-lg bg-white/5 border border-white/5 space-y-4">
               <h3 className="text-xs font-semibold text-amber-500 uppercase tracking-widest">Event Logistics</h3>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <Label htmlFor="venue" className="text-sm font-medium text-gray-300">
+                    Venue
+                  </Label>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    disabled={!formData.venue.trim() || formData.venue.trim().length < 2 || prefillVenueLoading || loading}
+                    onClick={handlePrefillFromVenue}
+                    className="text-xs text-amber-400 hover:text-amber-300 hover:bg-amber-500/10"
+                  >
+                    {prefillVenueLoading ? "Checking…" : "Pre-fill from past booking"}
+                  </Button>
+                </div>
+                <VenueAutocomplete
+                  id="venue"
+                  value={formData.venue}
+                  onChange={(value) => setFormData({ ...formData, venue: value })}
+                  placeholder="Type venue name or select from suggestions (e.g. Babington House, BA11 3RW)"
+                  className="w-full mt-0 bg-white/10 border-white/10 text-white placeholder:text-gray-500 focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                />
+                <p className="text-xs text-gray-400">Optional. Stored on the booking; use Pre-fill to add postcode from a past booking, or add full address later on the booking detail page.</p>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="startDate" className="text-sm font-medium text-gray-300">

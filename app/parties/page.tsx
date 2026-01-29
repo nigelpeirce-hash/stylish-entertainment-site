@@ -27,7 +27,7 @@ const partyServices = [
   {
     title: "Corporate Events",
     icon: Building2,
-    description: "Professional entertainment and production for corporate events, galas, conferences, and product launches.",
+    description: "Professional entertainment and production for corporate events, galas, conferences and product launches.",
     href: "/parties/corporate-events",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/e_enhance/ABS-Preview-50-percent0006_c51xsl.jpg",
     alt: "Corporate event entertainment and production services",
@@ -47,7 +47,7 @@ export default function Parties() {
     document.title = "Party Entertainment & Production | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Professional party entertainment, lighting design, and production services across the West Country. Private parties, corporate events, and Christmas celebrations in Somerset, Wiltshire, Dorset, Bath, and Bristol.");
+      metaDescription.setAttribute("content", "Professional party entertainment, lighting design and production services across the UK and Wales. Private parties, corporate events and Christmas celebrations.");
     }
   }, []);
 
@@ -179,9 +179,8 @@ export default function Parties() {
               Ready to Plan Your Perfect Party?
             </h2>
             <p className="text-lg md:text-xl text-gray-300 mb-8">
-              Based in Frome, Somerset, we serve parties across Somerset, Wiltshire, Dorset, Devon, 
-              Gloucestershire, Bath, Bristol, Swindon, and Exeter. Get in touch to discuss your event 
-              and let's create something extraordinary together.
+              Based in Frome, Somerset, we serve parties across the UK and Wales. Get in touch to discuss your event 
+              and let&apos;s create something extraordinary together.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link href="/contact-us">

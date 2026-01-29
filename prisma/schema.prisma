@@ -48,6 +48,11 @@ model Booking {
   email                       String
   phoneAreaCode               String?
   phoneNumber                 String?
+  clientAddress               String?                  // Client home address (mailing, etc.)
+  clientAddress2              String?
+  clientTown                  String?
+  clientCounty                String?
+  clientPostcode              String?
   eventType                   String                   @default("wedding")
   eventDate                   DateTime
   venueName                   String
@@ -66,6 +71,9 @@ model Booking {
   djSetupLocation             String?
   djParking                   String?
   soundLimiter                Boolean?
+  venueIsPrivateHouse         Boolean?                  // If true: often just postcode; offer address block, What3words, load-in notes
+  venueWhat3Words             String?                   // e.g. "filled.count.soap" – pinpoints exact location for crew
+  venueLoadInNotes            String?                   // Access/load-in specifics: "163 steps to beach", "load-in horrible", etc.
   numberOfGuests              Int?
   services                    String[]
   message                     String?
@@ -101,6 +109,8 @@ model Booking {
   conflictStatus              String?
   depositReceived             Boolean?                 @default(false)
   depositReceivedManual       Boolean?                 @default(false)
+  confirmedViaBookFromQuote   Boolean                  @default(false)
+  depositInvoiceSentAt        DateTime?
   djWorksheetApproved         Boolean?                 @default(false)
   djWorksheetApprovedManual   Boolean?                 @default(false)
   feeBreakdown                Json?
@@ -125,6 +135,7 @@ model Booking {
   AuditLog                    AuditLog[]
   User                        User?                    @relation(fields: [userId], references: [id])
   staffAssignments            BookingStaffAssignment[]
+  dispatchConfirmations       DispatchConfirmation[]
   bookingItems                BookingItem[]
   warehouseItems              BookingWarehouseItem[]
   guestRequests               GuestRequest[]
@@ -167,6 +178,19 @@ model BookingStaffAssignment {
   @@index([bookingId])
   @@index([staffId])
   @@index([status])
+}
+
+model DispatchConfirmation {
+  id              String    @id @default(cuid())
+  token           String    @unique
+  bookingId       String
+  recipientEmail  String
+  recipientName   String?
+  acknowledgedAt  DateTime? @db.Timestamp(6)
+  booking         Booking   @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([bookingId])
 }
 
 model BookingItem {

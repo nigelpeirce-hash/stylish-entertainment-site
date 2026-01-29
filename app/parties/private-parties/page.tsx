@@ -30,7 +30,7 @@ const serviceAreaKeywords = [
 
 export const metadata: Metadata = {
   title: "Private Parties | Bespoke Party Planning & Technical Production | Stylish Entertainment",
-  description: "Full party planning and production services. Creative DJs, bands, entertainment, and beautiful lighting for private parties across Somerset, Wiltshire, Dorset, Gloucestershire, Bath, Bristol, and Devon. Serving Frome, Bruton, Castle Cary, Malmesbury, Marlborough, Devizes, Salisbury, Cheltenham, Gloucester, Sherborne, Exeter, and 100+ towns across the West Country. Trusted by Babington House for 20+ years.",
+  description: "Full party planning and production services. Creative DJs, bands, entertainment and beautiful lighting for private parties across the UK and Wales. Serving 100+ towns. Trusted by Babington House for 20+ years.",
   keywords: [
     "Private party planning",
     "Bespoke party planning",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Private Parties | Bespoke Party Planning & Technical Production | Stylish Entertainment",
-    description: "Full party planning and production services across the West Country. Serving 100+ towns in Somerset, Wiltshire, Dorset, Gloucestershire, Bath, Bristol, and Devon.",
+    description: "Full party planning and production services across the UK and Wales. Serving 100+ towns.",
   },
 };
 
@@ -236,9 +236,9 @@ export default function PrivateParties() {
           </div>
         ))}
         <p>
-          Our comprehensive service area covers Somerset, Wiltshire, Gloucestershire, Dorset, Devon, Bath, and Bristol. 
-          Whether you're planning a private party in Frome, Malmesbury, Marlborough, Devizes, Castle Cary, Cheltenham, 
-          Gloucester, Sherborne, Exeter, or any of the 200+ towns we serve, we provide expert party planning and production services.
+          Our comprehensive service area covers the UK and Wales. 
+          Whether you&apos;re planning a private party in Frome, Malmesbury, Marlborough, Devizes, Castle Cary, Cheltenham, 
+          Gloucester, Sherborne, Exeter or any of the 200+ towns we serve, we provide expert party planning and production services.
         </p>
       </div>
       <PrivatePartiesClient />

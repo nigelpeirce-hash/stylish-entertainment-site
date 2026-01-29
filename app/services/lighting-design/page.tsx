@@ -13,7 +13,7 @@ const lightingPhotos: ImagePhoto[] = [
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg",
     width: 1200,
     height: 900,
-    alt: "Wedding reception for Camilla and Richard with professional lighting design, elegant table settings, and ambient lighting at a West Country venue",
+    alt: "Wedding reception for Camilla and Richard with professional lighting design, elegant table settings and ambient lighting at a West Country venue",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163679/IMG_3094-1_aiyu5i.jpg",
@@ -31,7 +31,7 @@ const lightingPhotos: ImagePhoto[] = [
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg",
     width: 1200,
     height: 900,
-    alt: "Professional DJ setup by DJ Nige at Babington House with custom lighting, professional sound equipment, and atmospheric wedding entertainment",
+    alt: "Professional DJ setup by DJ Nige at Babington House with custom lighting, professional sound equipment and atmospheric wedding entertainment",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,c_auto,g_auto,h_667,w_1000/EmilyTomWedding-JonnyBarrattPhotography605-scaled-e1640779326843_ozksuz.jpg",
@@ -58,7 +58,7 @@ export default function LightingDesignService() {
     document.title = "Lighting Design | Professional Wedding Lighting | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Transform your wedding venue with bespoke lighting design. LED uplighting, intelligent moving lights, atmospheric mood lighting, and dance floor packages across the West Country.");
+      metaDescription.setAttribute("content", "Transform your wedding venue with bespoke lighting design. LED uplighting, intelligent moving lights, atmospheric mood lighting and dance floor packages across the UK and Wales.");
     }
   }, []);
 
@@ -135,7 +135,7 @@ export default function LightingDesignService() {
                 </p>
                 
                 <p className="text-base sm:text-lg">
-                  Eager to turn your vision into reality? Based in <span className="text-champagne-gold font-medium">Frome, Somerset</span>, we extend our services across <span className="text-white font-medium">Somerset, Wiltshire, Dorset, Gloucestershire, Bath, Bristol, Swindon, and Exeter</span>.
+                  Eager to turn your vision into reality? Based in <span className="text-champagne-gold font-medium">Frome, Somerset</span>, we extend our services across <span className="text-white font-medium">the UK and Wales</span>.
                 </p>
                 
                 <p className="text-base sm:text-lg">

@@ -202,7 +202,7 @@ export default function ChristmasClient() {
               <CardContent className="p-6 text-center">
                 <Users className="w-12 h-12 mx-auto mb-4 text-champagne-gold" />
                 <h3 className="text-xl font-bold text-white mb-2">Live Entertainment</h3>
-                <p className="text-gray-300 text-sm">Bands, singers, and performers for all occasions</p>
+                <p className="text-gray-300 text-sm">Bands, singers and performers for all occasions</p>
               </CardContent>
             </Card>
 
@@ -264,7 +264,7 @@ export default function ChristmasClient() {
                     Entertainment Packages
                   </h3>
                   <p className="text-gray-200 text-lg leading-relaxed mb-4">
-                    Choose from our range of entertainment options including professional DJs, live bands, duos, trios, harpists, singing waiters, and cabaret acts. Our popular <span className="font-semibold text-champagne-gold">festival trio of DJ, sax and bongos</span> brings a unique energy to any Christmas celebration.
+                    Choose from our range of entertainment options including professional DJs, live bands, duos, trios, harpists, singing waiters and cabaret acts. Our popular <span className="font-semibold text-champagne-gold">festival trio of DJ, sax and bongos</span> brings a unique energy to any Christmas celebration.
                   </p>
                   <p className="text-gray-200 text-lg leading-relaxed">
                     Whether you want background music for a sophisticated dinner or a high-energy dance floor, we tailor the entertainment to perfectly match your event&apos;s atmosphere.
@@ -294,7 +294,7 @@ export default function ChristmasClient() {
                     Transform your venue with our bespoke Christmas lighting designs. From warm amber uplighting and fairy light canopies to mirror balls and disco lighting, we create the perfect festive atmosphere.
                   </p>
                   <p className="text-gray-200 text-lg leading-relaxed">
-                    Our lighting works beautifully in barns, marquees, hotels, and private homes, creating Instagram-worthy moments throughout your celebration.
+                    Our lighting works beautifully in barns, marquees, hotels and private homes, creating Instagram-worthy moments throughout your celebration.
                   </p>
                 </CardContent>
               </Card>
@@ -348,7 +348,7 @@ export default function ChristmasClient() {
                     We&apos;ve been creating memorable Christmas celebrations for over two decades, working with prestigious venues including Babington House where we&apos;ve been the sole supplier of entertainment for 20 years.
                   </p>
                   <p className="text-gray-200 text-lg leading-relaxed">
-                    Our reputation for reliability, professionalism, and exceptional service means you can relax and enjoy your own party, knowing every detail is in expert hands.
+                    Our reputation for reliability, professionalism and exceptional service means you can relax and enjoy your own party, knowing every detail is in expert hands.
                   </p>
                 </CardContent>
               </Card>
@@ -410,7 +410,7 @@ export default function ChristmasClient() {
                   </Button>
                 </div>
                 <p className="text-gray-400 text-sm mt-8">
-                  Serving Somerset, Wiltshire, Dorset, Devon, Gloucestershire, Bath, Bristol, and beyond
+                  Serving weddings and events across the UK and Wales
                 </p>
               </CardContent>
             </Card>

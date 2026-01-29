@@ -857,35 +857,19 @@
   page-break-inside: avoid;
 }
 
-/* Admin Area Font Size Increase - +4px (0.25rem) for better readability */
-/* Applied when body has .admin-page class (added by admin layout) */
+/* -----------------------------------------------------------------------------
+   Font & field size scale: ~25% increase for Contact, Admin, Client Portal
+   See CSS_PLAN.md. Scoped via .contact-ui, .admin-page, .portal-ui.
+   ----------------------------------------------------------------------------- */
 
-/* Increase headers in admin area */
-body.admin-page h1 {
-  font-size: calc(1.5rem + 4px) !important; /* text-2xl (24px) + 4px = 28px */
-}
+/* ---- Admin (.admin-page on body) ---- */
+body.admin-page h1 { font-size: 1.875rem !important; }
+body.admin-page h2 { font-size: 1.5625rem !important; }
+body.admin-page h3 { font-size: 1.40625rem !important; }
+body.admin-page h4 { font-size: 1.25rem !important; }
+body.admin-page h5 { font-size: 1.09375rem !important; }
+body.admin-page h6 { font-size: 0.9375rem !important; }
 
-body.admin-page h2 {
-  font-size: calc(1.25rem + 4px) !important; /* text-xl (20px) + 4px = 24px */
-}
-
-body.admin-page h3 {
-  font-size: calc(1.125rem + 4px) !important; /* text-lg (18px) + 4px = 22px */
-}
-
-body.admin-page h4 {
-  font-size: calc(1rem + 4px) !important; /* text-base (16px) + 4px = 20px */
-}
-
-body.admin-page h5 {
-  font-size: calc(0.875rem + 4px) !important; /* text-sm (14px) + 4px = 18px */
-}
-
-body.admin-page h6 {
-  font-size: calc(0.75rem + 4px) !important; /* text-xs (12px) + 4px = 16px */
-}
-
-/* Increase font sizes for admin form inputs and textareas */
 body.admin-page input[type="text"],
 body.admin-page input[type="email"],
 body.admin-page input[type="password"],
@@ -897,54 +881,91 @@ body.admin-page input[type="date"],
 body.admin-page input[type="time"],
 body.admin-page textarea,
 body.admin-page select {
-  font-size: calc(1rem + 4px) !important; /* 16px + 4px = 20px */
+  font-size: 1.25rem !important;
+  min-height: 2.75rem !important;
+  padding: 0.65rem 1rem !important;
 }
 
-/* Increase font sizes for admin labels */
-body.admin-page label {
-  font-size: calc(0.875rem + 4px) !important; /* text-sm (14px) + 4px = 18px */
+body.admin-page label { font-size: 1.09375rem !important; }
+body.admin-page p { font-size: 1.25rem !important; }
+body.admin-page .text-xs { font-size: 0.9375rem !important; }
+body.admin-page .text-sm { font-size: 1.09375rem !important; }
+body.admin-page .text-base { font-size: 1.25rem !important; }
+body.admin-page .text-lg { font-size: 1.40625rem !important; }
+body.admin-page .text-xl { font-size: 1.5625rem !important; }
+body.admin-page .text-2xl { font-size: 1.875rem !important; }
+body.admin-page .text-3xl { font-size: 2.34rem !important; }
+
+body.admin-page button:not([class*="icon"]):not([class*="lucide"]):not([aria-label*="icon"]) {
+  font-size: 1.09375rem !important;
+  min-height: 2.75rem !important;
+  padding: 0.5rem 1rem !important;
 }
 
-/* Increase font sizes for admin text content (but preserve icon sizes) */
-body.admin-page p {
-  font-size: calc(1rem + 4px) !important; /* 16px + 4px = 20px */
-}
-
-body.admin-page span:not([class*="icon"]):not([class*="svg"]):not([class*="lucide"]):not([class*="w-"]):not([class*="h-"]) {
-  font-size: calc(1rem + 4px) !important; /* 16px + 4px = 20px */
-}
-
-body.admin-page div:not([class*="icon"]):not([class*="svg"]):not([class*="lucide"]):not([class*="w-"]):not([class*="h-"]) {
-  font-size: calc(1rem + 4px) !important; /* 16px + 4px = 20px */
-}
-
-/* Increase font sizes for admin small text classes */
-body.admin-page .text-xs {
-  font-size: calc(0.75rem + 4px) !important; /* 12px + 4px = 16px */
-}
-
-body.admin-page .text-sm {
-  font-size: calc(0.875rem + 4px) !important; /* 14px + 4px = 18px */
-}
-
-/* Increase font sizes for admin buttons (but preserve icon-only buttons) */
-body.admin-page button:not([class*="icon"]):not([class*="svg"]):not([class*="lucide"]):not([aria-label*="icon"]) {
-  font-size: calc(0.875rem + 4px) !important; /* 14px + 4px = 18px */
-}
-
-/* Increase font sizes for admin table cells */
 body.admin-page td,
-body.admin-page th {
-  font-size: calc(0.875rem + 4px) !important; /* 14px + 4px = 18px */
-}
+body.admin-page th { font-size: 1.09375rem !important; }
 
-/* Increase font sizes for admin card titles and content */
 body.admin-page [class*="CardTitle"],
-body.admin-page [class*="card-title"] {
-  font-size: calc(1.125rem + 4px) !important; /* 18px + 4px = 22px */
-}
-
+body.admin-page [class*="card-title"] { font-size: 1.40625rem !important; }
 body.admin-page [class*="CardContent"],
-body.admin-page [class*="card-content"] {
-  font-size: calc(1rem + 4px) !important; /* 16px + 4px = 20px */
+body.admin-page [class*="card-content"] { font-size: 1.25rem !important; }
+
+/* ---- Contact form (.contact-ui) ---- */
+.contact-ui .text-xs { font-size: 0.9375rem !important; }
+.contact-ui .text-sm { font-size: 1.09375rem !important; }
+.contact-ui .text-base { font-size: 1.25rem !important; }
+.contact-ui .text-lg { font-size: 1.40625rem !important; }
+.contact-ui .text-xl { font-size: 1.5625rem !important; }
+.contact-ui label { font-size: 1.09375rem !important; }
+.contact-ui p { font-size: 1.25rem !important; }
+.contact-ui input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+.contact-ui textarea,
+.contact-ui select {
+  font-size: 1.09375rem !important;
+  min-height: 2.75rem !important;
+  padding: 0.65rem 1rem !important;
 }
+.contact-ui button { font-size: 1.09375rem !important; min-height: 2.75rem !important; padding: 0.5rem 1rem !important; }
+
+/* ---- Client portal (.portal-ui) ---- */
+.portal-ui {
+  background:
+    radial-gradient(ellipse 85% 55% at 50% -12%, rgba(212, 175, 55, 0.08), transparent 60%),
+    linear-gradient(to bottom, #030712 0%, #030712 80%, rgba(120, 53, 15, 0.12) 100%);
+}
+@keyframes portal-float {
+  0%, 100% { transform: translateY(0); opacity: 0.6; }
+  50% { transform: translateY(-4px); opacity: 1; }
+}
+@keyframes portal-shine {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.15); }
+}
+.portal-ui .countdown-tile:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 24px rgba(212, 175, 55, 0.2);
+}
+.portal-ui .portal-card {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+.portal-ui .portal-card:hover {
+  border-color: rgba(212, 175, 55, 0.25);
+  box-shadow: 0 0 32px rgba(212, 175, 55, 0.06);
+}
+.portal-ui .text-xs { font-size: 0.9375rem !important; }
+.portal-ui .text-sm { font-size: 1.09375rem !important; }
+.portal-ui .text-base { font-size: 1.25rem !important; }
+.portal-ui .text-lg { font-size: 1.40625rem !important; }
+.portal-ui .text-xl { font-size: 1.5625rem !important; }
+.portal-ui .text-2xl { font-size: 1.875rem !important; }
+.portal-ui .text-3xl { font-size: 2.34rem !important; }
+.portal-ui label { font-size: 1.09375rem !important; }
+.portal-ui p { font-size: 1.25rem !important; }
+.portal-ui input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+.portal-ui textarea,
+.portal-ui select {
+  font-size: 1.09375rem !important;
+  min-height: 2.75rem !important;
+  padding: 0.65rem 1rem !important;
+}
+.portal-ui button { font-size: 1.09375rem !important; min-height: 2.75rem !important; padding: 0.5rem 1rem !important; }

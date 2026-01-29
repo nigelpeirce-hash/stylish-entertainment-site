@@ -3,7 +3,7 @@ import KitHireClient from "./KitHireClient";
 
 export const metadata: Metadata = {
   title: "Professional Equipment & Technical Hire | Kit Hire | Wedding Equipment Hire West Country | Stylish Entertainment",
-  description: "Industry-standard sound, lighting, and styling props for West Country events. Professional equipment hire for weddings including PA systems, lighting rigs, DJ equipment, and technical accessories. PAT tested and fully insured.",
+  description: "Industry-standard sound, lighting and styling props for UK and Wales events. Professional equipment hire for weddings including PA systems, lighting rigs, DJ equipment and technical accessories. PAT tested and fully insured.",
   keywords: [
     "Professional Equipment Hire",
     "Technical Hire",

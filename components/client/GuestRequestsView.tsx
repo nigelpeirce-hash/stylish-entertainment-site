@@ -35,6 +35,8 @@ interface GuestRequestsViewProps {
   guestRequestToken: string | null;
   guestRequestsEnabled: boolean;
   eventDate: Date;
+  baseUrl: string;
+  eventPassed: boolean;
   onToggleEnabled?: (enabled: boolean) => Promise<void>;
 }
 
@@ -43,6 +45,8 @@ export default function GuestRequestsView({
   guestRequestToken,
   guestRequestsEnabled,
   eventDate,
+  baseUrl,
+  eventPassed,
   onToggleEnabled,
 }: GuestRequestsViewProps) {
   const [requests, setRequests] = useState<GuestRequest[]>([]);
@@ -50,14 +54,16 @@ export default function GuestRequestsView({
   const [copied, setCopied] = useState(false);
   const [enabled, setEnabled] = useState(guestRequestsEnabled);
   const [toggling, setToggling] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // Build shareable link
-  const shareableLink = guestRequestToken
-    ? `${typeof window !== "undefined" ? window.location.origin : ""}/requests/${guestRequestToken}`
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Build shareable link (server-safe: use baseUrl prop, no window)
+  const shareableLink = baseUrl && guestRequestToken
+    ? `${baseUrl.replace(/\/$/, "")}/requests/${guestRequestToken}`
     : null;
-
-  // Check if event has passed
-  const eventPassed = new Date(eventDate) < new Date(new Date().setHours(0, 0, 0, 0));
 
   // Fetch guest requests
   useEffect(() => {
@@ -161,8 +167,8 @@ export default function GuestRequestsView({
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Share Link Section */}
-        {shareableLink && enabled && !eventPassed && (
+        {/* Share Link Section - only after mount to avoid hydration mismatch (shareableLink, navigator.share) */}
+        {mounted && shareableLink && enabled && !eventPassed && (
           <div className="p-4 bg-gray-900/50 rounded-lg border border-gray-700">
             <p className="text-sm text-gray-400 mb-3">
               Share this link with your guests so they can request songs:

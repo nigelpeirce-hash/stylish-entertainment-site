@@ -32,6 +32,13 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
       id: true,
       name: true,
       email: true,
+      phoneAreaCode: true,
+      phoneNumber: true,
+      clientAddress: true,
+      clientAddress2: true,
+      clientTown: true,
+      clientCounty: true,
+      clientPostcode: true,
       eventDate: true,
       ceremonyTime: true,
       venueName: true,
@@ -42,6 +49,14 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
       finalDetailsConfirmed: true,
       message: true,
       eventType: true,
+      firstDance: true,
+      lastSong: true,
+      musicRequests: true,
+      musicDislikes: true,
+      musicNotesToDJ: true,
+      musicFileUrl: true,
+      venueWhat3Words: true,
+      venueLoadInNotes: true,
       numberOfGuests: true,
       services: true,
       upsellItems: true,
@@ -50,31 +65,29 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
       portalToken: true,
       staffAssignments: {
         where: {
-          // Talent Firewall: Only include client-facing roles (DJ, Musician, Band, Performer)
-          // Musicians are treated exactly like DJs - both get Gold-Ringed photos and "Expert Artist" badges
-          role: {
-            in: ['DJ', 'Musician', 'Band', 'Performer', 'dj', 'musician', 'band', 'performer', 'Host', 'host'],
-          },
-          // Explicitly exclude internal/technical roles (Riggers, Technicians, Crew stay hidden)
+          cancelledAt: null,
+          // Talent Firewall: client-facing roles only; exclude Riggers, Technicians, Crew
+          OR: [
+            { role: { in: ['DJ', 'Musician', 'Band', 'Performer', 'dj', 'musician', 'band', 'performer', 'Host', 'host'] } },
+            { role: { contains: 'saxophonist', mode: 'insensitive' } },
+            { role: { contains: 'pianist', mode: 'insensitive' } },
+            { role: { contains: 'guitarist', mode: 'insensitive' } },
+            { role: { contains: 'harpist', mode: 'insensitive' } },
+            { role: { contains: 'violinist', mode: 'insensitive' } },
+          ],
           NOT: {
-            role: {
-              in: ['Rigger', 'Technician', 'Crew', 'Sound Tech', 'rigger', 'technician', 'crew', 'sound tech'],
-            },
+            role: { in: ['Rigger', 'Technician', 'Crew', 'Sound Tech', 'rigger', 'technician', 'crew', 'sound tech'] },
           },
         },
         select: {
           id: true,
           role: true,
           status: true,
-          // Exclude sensitive fields: agreedFee, confirmationEmailSent, cancellationReason, cancelledAt
           staff: {
             select: {
               id: true,
               name: true,
               email: true,
-              imageUrl: true, // Include profile photo URL if available
-              // Note: FreelanceCrew model has: name, email, phone, roles[], imageUrl
-              // Exclude phone number and other sensitive data for privacy
             },
           },
         },
@@ -113,6 +126,9 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
     return notFound();
   }
 
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk";
+  const eventPassed = new Date(booking.eventDate) < new Date();
+
   // Fetch venue notes and generate Google Maps URL
   let venueNotes: string | null = null;
   let googleMapsUrl: string | null = null;
@@ -138,14 +154,14 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
   if (isAdmin) {
     console.log("👤 Admin Preview: Allowing admin to view client portal for preview");
     const { portalToken: _pt, ...bookingSafe } = booking;
-    return <PortalView booking={{ ...bookingSafe, venueNotes, googleMapsUrl }} isPreview={true} />;
+    return <PortalView booking={{ ...bookingSafe, venueNotes, googleMapsUrl }} isPreview={true} baseUrl={baseUrl} eventPassed={eventPassed} />;
   }
 
   // 3. Dev Bypass Logic
   if (isDev) {
     console.log("🛠️ Dev Mode: Bypassing strict portal authentication for testing");
     const { portalToken: _pt, ...bookingSafe } = booking;
-    return <PortalView booking={{ ...bookingSafe, venueNotes, googleMapsUrl }} isPreview={true} />;
+    return <PortalView booking={{ ...bookingSafe, venueNotes, googleMapsUrl }} isPreview={true} baseUrl={baseUrl} eventPassed={eventPassed} />;
   }
 
   // 4. Tokenized magic link: ?token=... grants immediate read/write access (no login)
@@ -163,10 +179,10 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
       );
     }
     const { portalToken: _pt, ...bookingSafe } = booking;
-    return <PortalView booking={{ ...bookingSafe, venueNotes, googleMapsUrl }} isPreview={false} />;
+    return <PortalView booking={{ ...bookingSafe, venueNotes, googleMapsUrl }} isPreview={false} baseUrl={baseUrl} eventPassed={eventPassed} />;
   }
 
   // 5. Session-based access (middleware allows through only if logged in)
   const { portalToken: _pt, ...bookingSafe } = booking;
-  return <PortalView booking={{ ...bookingSafe, venueNotes, googleMapsUrl }} isPreview={false} />;
+  return <PortalView booking={{ ...bookingSafe, venueNotes, googleMapsUrl }} isPreview={false} baseUrl={baseUrl} eventPassed={eventPassed} />;
 }

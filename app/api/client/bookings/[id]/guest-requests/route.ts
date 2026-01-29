@@ -66,20 +66,23 @@ export async function GET(
 
 /**
  * PATCH /api/client/bookings/[id]/guest-requests
- * 
- * Toggle guest requests enabled/disabled
+ *
+ * Toggle guest requests enabled/disabled.
+ * Auth: session (user owns booking or admin) OR ?token= matching portalToken (magic link).
  */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const session = await getServerSession(request);
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const resolved = params instanceof Promise ? await params : params;
+    const bookingId = resolved.id;
+    if (!bookingId) {
+      return NextResponse.json({ error: "Booking ID required" }, { status: 400 });
     }
 
-    const { id: bookingId } = await params;
+    const token = request.nextUrl.searchParams.get("token");
+    const session = await getServerSession(request);
     const body = await request.json();
     const { enabled } = body;
 
@@ -90,14 +93,13 @@ export async function PATCH(
       );
     }
 
-    // Verify the user has access to this booking
-    const booking = await prisma.booking.findFirst({
-      where: {
-        id: bookingId,
-        OR: [
-          { userId: session.user.id },
-          { email: session.user.email || "" },
-        ],
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: {
+        id: true,
+        userId: true,
+        email: true,
+        portalToken: true,
       },
     });
 
@@ -105,7 +107,20 @@ export async function PATCH(
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
-    // Update the setting
+    let allowed = false;
+    if (token && booking.portalToken && booking.portalToken === token) {
+      allowed = true;
+    } else if (session?.user) {
+      const u = session.user as { id?: string; role?: string };
+      if (u.role === "admin") allowed = true;
+      else if (u.id && booking.userId === u.id) allowed = true;
+      else if (session.user.email && booking.email === session.user.email) allowed = true;
+    }
+
+    if (!allowed) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const updated = await prisma.booking.update({
       where: { id: bookingId },
       data: { guestRequestsEnabled: enabled },

@@ -39,8 +39,10 @@ export async function POST(
         name: true,
         email: true,
         venueName: true,
+        eventType: true,
         portalToken: true,
         status: true,
+        emailsSent: true,
       },
     });
 
@@ -74,6 +76,7 @@ export async function POST(
       name: booking.name,
       venueName: booking.venueName || "your venue",
       portalUrl,
+      eventType: booking.eventType ?? undefined,
     });
 
     await sendEmail({
@@ -84,11 +87,18 @@ export async function POST(
     });
 
     const now = new Date();
+    const existingEmailsSent = (booking.emailsSent as Record<string, unknown>) || {};
+    const emailsSent = {
+      ...existingEmailsSent,
+      portalInvite: { sentAt: now.toISOString() },
+    };
+
     await prisma.booking.update({
       where: { id: bookingId },
       data: {
         status: "confirmed",
         lastEmailSentAt: now,
+        emailsSent,
         updatedAt: now,
       },
     });

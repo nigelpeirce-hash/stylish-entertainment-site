@@ -211,9 +211,7 @@ export async function POST(request: NextRequest) {
               ${brochureSection}
               <p>If you have any questions about this ${resource && sendBrochure ? 'information' : resource ? 'resource' : 'brochure'} or would like to discuss your event in more detail, please don't hesitate to get in touch.</p>
               <div class="signature">
-                <p>Best regards,</p>
-                <p><strong>Ali & Nige</strong><br>
-                Stylish Entertainment Ltd</p>
+                <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
               </div>
             </div>
             <div class="footer">

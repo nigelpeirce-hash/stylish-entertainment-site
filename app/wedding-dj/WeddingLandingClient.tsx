@@ -42,7 +42,7 @@ const features = [
   {
     icon: Smartphone,
     title: "Personal Client Portal",
-    description: "Your own private dashboard to manage every detail of your wedding entertainment - music preferences, timings, and more.",
+    description: "Your own private dashboard to manage every detail of your wedding entertainment - music preferences, timings and more.",
   },
   {
     icon: Share2,
@@ -52,7 +52,7 @@ const features = [
   {
     icon: Sparkles,
     title: "Stunning Lighting Design",
-    description: "Transform your venue with uplighting, festoon lights, and dance floor lighting that creates the perfect atmosphere.",
+    description: "Transform your venue with uplighting, festoon lights and dance floor lighting that creates the perfect atmosphere.",
   },
   {
     icon: ListMusic,
@@ -68,7 +68,7 @@ const testimonials = [
     venue: "Babington House",
   },
   {
-    quote: "Professional, organised, and the lighting transformed our barn venue. Couldn't recommend more highly.",
+    quote: "Professional, organised and the lighting transformed our barn venue. Couldn't recommend more highly.",
     author: "Emma & Tom",
     venue: "Priston Mill",
   },
@@ -168,7 +168,7 @@ export default function WeddingLandingClient() {
 
             <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-8">
               Professional wedding DJs with a personal touch. 
-              Stunning lighting, guest song requests, and your own client portal 
+              Stunning lighting, guest song requests and your own client portal 
               to plan every detail.
             </p>
 
@@ -608,7 +608,7 @@ export default function WeddingLandingClient() {
                       Lighting Design
                     </h3>
                     <p className="text-gray-400 text-sm mb-3">
-                      Transform your venue with uplighting, festoons, and atmospheric mood lighting.
+                      Transform your venue with uplighting, festoons and atmospheric mood lighting.
                     </p>
                     <span className="text-champagne-gold text-sm font-medium flex items-center gap-1">
                       Learn more <ArrowRight className="w-4 h-4" />
@@ -674,7 +674,7 @@ export default function WeddingLandingClient() {
                       Venue Styling
                     </h3>
                     <p className="text-gray-400 text-sm mb-3">
-                      Candles, floristry, draping, and decor to create your perfect aesthetic.
+                      Candles, floristry, draping and decor to create your perfect aesthetic.
                     </p>
                     <span className="text-champagne-gold text-sm font-medium flex items-center gap-1">
                       Learn more <ArrowRight className="w-4 h-4" />
@@ -776,10 +776,7 @@ export default function WeddingLandingClient() {
       {/* Coverage Area */}
       <section className="py-12 px-4 border-t border-gray-800">
         <div className="max-w-6xl mx-auto text-center">
-          <p className="text-gray-400 mb-4">Proudly serving weddings across</p>
-          <p className="text-white font-medium">
-            Somerset • Bristol • Bath • Wiltshire • Dorset • Devon • Cornwall • Gloucestershire • London • Nationwide
-          </p>
+          <p className="text-gray-400 mb-4">Proudly serving weddings across the UK and Wales</p>
         </div>
       </section>
 

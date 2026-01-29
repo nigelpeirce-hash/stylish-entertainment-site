@@ -249,9 +249,7 @@ export function enquiryAutoresponder(data: JourneyEmailData) {
     ${brochureSection}
     <p>We'll be in touch within 24 hours to discuss your requirements in detail. In the meantime, if you have any questions, please don't hesitate to get in touch.</p>
     <div class="signature">
-      <p>Warm regards,</p>
-      <p><strong>Ali & Nige</strong><br>
-      Stylish Entertainment Ltd</p>
+      <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
     </div>
   `;
 
@@ -280,9 +278,7 @@ export function gentleReminder(data: JourneyEmailData) {
     <p>If you've already found another solution, no problem at all – we're just pleased you're getting everything sorted for your special day.</p>
     <p>Best of luck with your planning, and please don't hesitate to reach out if you'd like to chat.</p>
     <div class="signature">
-      <p>Warm regards,</p>
-      <p><strong>Ali & Nige</strong><br>
-      Stylish Entertainment Ltd</p>
+      <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
     </div>
   `;
 
@@ -316,9 +312,7 @@ export function bookingConfirmation(data: JourneyEmailData) {
     </p>
     <p>If you have any questions or need to discuss any changes, please don't hesitate to reach out. We're here to ensure everything runs smoothly.</p>
     <div class="signature">
-      <p>Best regards,</p>
-      <p><strong>Ali & Nige</strong><br>
-      Stylish Entertainment Ltd</p>
+      <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
     </div>
   `;
 
@@ -352,9 +346,7 @@ export function fourWeekCheckin(data: JourneyEmailData) {
     <p>We also want to confirm a few final details to ensure everything runs smoothly on the day. Please review your booking in the Client Admin area and let us know if anything has changed.</p>
     <p>If you have any questions or want to discuss anything, just reply to this email or give us a call. We're here to help!</p>
     <div class="signature">
-      <p>Warm regards,</p>
-      <p><strong>Ali & Nige</strong><br>
-      Stylish Entertainment Ltd</p>
+      <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
     </div>
   `;
 
@@ -379,9 +371,7 @@ export function weekOfExcitement(data: JourneyEmailData) {
     <p>If you need to reach us in the days leading up to your event, we're always just an email or phone call away. Otherwise, we'll see you on {{eventDate}}!</p>
     <p>Relax, enjoy, and let us take care of the entertainment. We've got everything under control.</p>
     <div class="signature">
-      <p>Looking forward to celebrating with you,</p>
-      <p><strong>Ali & Nige</strong><br>
-      Stylish Entertainment Ltd</p>
+      <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
     </div>
   `;
 
@@ -408,9 +398,7 @@ export function finalChase(data: JourneyEmailData) {
     </p>
     <p>If you have any questions, just reply to this email or give us a call. We're here to help.</p>
     <div class="signature">
-      <p>Best regards,</p>
-      <p><strong>Ali & Nige</strong><br>
-      Stylish Entertainment Ltd</p>
+      <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
     </div>
   `;
 
@@ -440,9 +428,7 @@ export function postWeddingMagic(data: JourneyEmailData) {
     <p>We'd also love to see any photos from your day if you'd like to share them with us. Tag us <a href="https://www.instagram.com/stylishentertainment/" class="link">@stylishentertainment</a> on Instagram or send them directly to us.</p>
     <p>Thank you again for choosing Stylish Entertainment Ltd. It was an honour to be part of your celebration.</p>
     <div class="signature">
-      <p>With warmest regards,</p>
-      <p><strong>Ali & Nige</strong><br>
-      Stylish Entertainment Ltd</p>
+      <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
     </div>
   `;
 

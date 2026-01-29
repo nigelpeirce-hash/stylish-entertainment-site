@@ -1,9 +1,9 @@
 import { v2 as cloudinary } from "cloudinary";
 
-// Configure Cloudinary
-if (process.env.CLOUDINARY_CLOUD_NAME) {
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+if (cloudName) {
   cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    cloud_name: cloudName,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
   });
@@ -21,7 +21,8 @@ export async function uploadToCloudinary(
   publicId: string,
   resourceType: string = "raw"
 ): Promise<{ secure_url: string; public_id: string }> {
-  if (!process.env.CLOUDINARY_CLOUD_NAME) {
+  const name = process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  if (!name || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
     throw new Error("Cloudinary not configured");
   }
 

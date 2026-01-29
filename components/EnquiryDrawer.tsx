@@ -37,6 +37,7 @@ export function EnquiryDrawer({ enquiry, isOpen, onClose, onUpdate }: EnquiryDra
   const [talentStatus, setTalentStatus] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [mapUrl, setMapUrl] = useState("");
+  const [mapsSearchUrl, setMapsSearchUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen && enquiry) {
@@ -79,15 +80,26 @@ export function EnquiryDrawer({ enquiry, isOpen, onClose, onUpdate }: EnquiryDra
   };
 
   const generateMapUrl = () => {
-    if (!enquiry.venueName) return;
-    
+    if (!enquiry.venueName) {
+      setMapUrl("");
+      setMapsSearchUrl(null);
+      return;
+    }
+
     const parts = [enquiry.venueName];
     if (enquiry.venueAddress) parts.push(enquiry.venueAddress);
     if (enquiry.venueTown) parts.push(enquiry.venueTown);
     if (enquiry.venuePostcode) parts.push(enquiry.venuePostcode);
-    
-    const query = encodeURIComponent(parts.join(", "));
-    setMapUrl(`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""}&q=${query}`);
+    const query = parts.join(", ");
+    const searchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+    setMapsSearchUrl(searchUrl);
+
+    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY?.trim();
+    if (apiKey) {
+      setMapUrl(`https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${encodeURIComponent(query)}`);
+    } else {
+      setMapUrl("");
+    }
   };
 
   const handleTalentStatusChange = async (talentId: string, checked: boolean) => {
@@ -253,8 +265,18 @@ export function EnquiryDrawer({ enquiry, isOpen, onClose, onUpdate }: EnquiryDra
                       />
                     </div>
                   ) : (
-                    <div className="w-full h-[400px] rounded-lg bg-gray-700 flex items-center justify-center text-gray-400">
-                      Map not available
+                    <div className="w-full h-[400px] rounded-lg bg-gray-700 flex flex-col items-center justify-center gap-3 text-gray-400">
+                      <span>Map embed not available</span>
+                      {mapsSearchUrl && (
+                        <a
+                          href={mapsSearchUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-champagne-gold hover:underline text-sm"
+                        >
+                          Open in Google Maps
+                        </a>
+                      )}
                     </div>
                   )}
                 </CardContent>

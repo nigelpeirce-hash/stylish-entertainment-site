@@ -22,6 +22,7 @@ interface ArtistOption {
   photoUrl: string;
   fee: number;
   recommended: boolean;
+  artistType?: "dj" | "musician";
 }
 
 const EMAIL_STYLES = `
@@ -331,7 +332,6 @@ export async function POST(request: NextRequest) {
       venueAddress,
       eventDate,
       customIntro,
-      artistType,
       options,
     } = body;
 
@@ -351,18 +351,53 @@ export async function POST(request: NextRequest) {
         })
       : "";
 
-    const artistTypeLabel = artistType === "musician" ? "Musician" : "DJ";
-    const artistTypeLabelPlural = artistType === "musician" ? "Musicians" : "DJs";
+    const djOptions = (options as ArtistOption[]).filter((o) => (o.artistType || "dj") === "dj");
+    const musicianOptions = (options as ArtistOption[]).filter((o) => (o.artistType || "dj") === "musician");
+    const hasDJ = djOptions.length > 0;
+    const hasMusician = musicianOptions.length > 0;
+    if (!hasDJ && !hasMusician) {
+      return NextResponse.json(
+        { error: "No valid options: include at least one DJ or musician" },
+        { status: 400 }
+      );
+    }
 
-    // Sort options: recommended first
-    const sortedOptions = [...options].sort((a: ArtistOption, b: ArtistOption) => 
-      (b.recommended ? 1 : 0) - (a.recommended ? 1 : 0)
-    );
+    const sortRec = (arr: ArtistOption[]) =>
+      [...arr].sort((a, b) => (b.recommended ? 1 : 0) - (a.recommended ? 1 : 0));
+    const djCards = sortRec(djOptions).map((o) => buildArtistCard(o, "dj")).join("");
+    const musicianCards = sortRec(musicianOptions).map((o) => buildArtistCard(o, "musician")).join("");
 
-    // Build artist cards HTML
-    const artistCardsHtml = sortedOptions.map((opt: ArtistOption) => 
-      buildArtistCard(opt, artistType)
-    ).join("");
+    let subjectLabel: string;
+    if (hasDJ && hasMusician) subjectLabel = "DJ & Musician";
+    else if (hasDJ) subjectLabel = "DJ";
+    else subjectLabel = "Musician";
+
+    const introBlurb = customIntro
+      ? `<p>${customIntro}</p>`
+      : `<p>Thank you for getting in touch about your event at <strong>${venueName}</strong>!</p>`;
+    const optionsIntro =
+      hasDJ && hasMusician
+        ? `<p>Based on your requirements, we've put together <strong>${djOptions.length} DJ option${djOptions.length !== 1 ? "s" : ""}</strong> and <strong>${musicianOptions.length} musician option${musicianOptions.length !== 1 ? "s" : ""}</strong> for you to consider:</p>`
+        : hasDJ
+          ? `<p>Based on your requirements, we've put together ${djOptions.length > 1 ? `${djOptions.length} fantastic DJ options` : "a fantastic DJ option"} for you to consider:</p>`
+          : `<p>Based on your requirements, we've put together ${musicianOptions.length > 1 ? `${musicianOptions.length} fantastic musician options` : "a fantastic musician option"} for you to consider:</p>`;
+
+    const djSection =
+      hasDJ &&
+      `<h2>Your DJ Option${djOptions.length > 1 ? "s" : ""}</h2>${djCards}`;
+    const musicianSection =
+      hasMusician &&
+      `<h2>Your Musician Option${musicianOptions.length > 1 ? "s" : ""}</h2>${musicianCards}`;
+    const allSections = [djSection, musicianSection].filter(Boolean).join("");
+
+    const ctaLabel = hasDJ && hasMusician ? "your entertainment" : hasDJ ? "your DJ" : "your musician";
+    const ctaButton = hasDJ && hasMusician ? "Book Your DJ & Musician" : hasDJ ? "Book Your DJ" : "Book Your Musician";
+    const followUp =
+      hasDJ && hasMusician
+        ? "<p>All our DJs and musicians are available on your date. If you'd like to discuss further or arrange a quick call, just let us know!</p>"
+        : hasDJ
+          ? "<p>All our DJs are available on your date. If you'd like to discuss further or arrange a quick call, just let us know!</p>"
+          : "<p>All our musicians are available on your date. If you'd like to discuss further or arrange a quick call, just let us know!</p>";
 
     const emailHtml = `
       <!DOCTYPE html>
@@ -380,13 +415,13 @@ export async function POST(request: NextRequest) {
               <div class="divider"></div>
             </div>
             <div class="content">
-              <h1>Your ${artistTypeLabel} Enquiry - Options & Quote</h1>
+              <h1>Your ${subjectLabel} Enquiry - Options & Quote</h1>
               
               <p>Dear ${clientName},</p>
               
-              ${customIntro ? `<p>${customIntro}</p>` : `<p>Thank you for getting in touch about your event at <strong>${venueName}</strong>!</p>`}
+              ${introBlurb}
               
-              <p>Based on your requirements, we've put together ${options.length > 1 ? `${options.length} fantastic ${artistTypeLabelPlural.toLowerCase()} options` : `a fantastic ${artistTypeLabel.toLowerCase()} option`} for you to consider:</p>
+              ${optionsIntro}
               
               <div class="event-box">
                 <div class="event-row">
@@ -399,22 +434,18 @@ export async function POST(request: NextRequest) {
                 </div>
               </div>
               
-              <h2>Your ${artistTypeLabel} Option${options.length > 1 ? "s" : ""}</h2>
-              
-              ${artistCardsHtml}
+              ${allSections}
 
               <div class="cta-section">
-                <p class="cta-text">Ready to secure your ${artistTypeLabel.toLowerCase()}?</p>
-                <a href="mailto:info@stylishentertainment.co.uk?subject=Booking%20Confirmation%20-%20${encodeURIComponent(venueName)}%20${encodeURIComponent(formattedDate)}" class="cta-button">Book Your ${artistTypeLabel}</a>
+                <p class="cta-text">Ready to secure ${ctaLabel}?</p>
+                <a href="mailto:info@stylishentertainment.co.uk?subject=Booking%20Confirmation%20-%20${encodeURIComponent(venueName)}%20${encodeURIComponent(formattedDate)}" class="cta-button">${ctaButton}</a>
                 <p class="cta-subtext" style="color: #cccccc !important;">Reply to this email or click above to confirm your booking</p>
               </div>
 
-              <p>All our ${artistTypeLabelPlural.toLowerCase()} are available on your date. If you'd like to discuss further or arrange a quick call, just let us know!</p>
+              ${followUp}
               
               <div class="signature">
-                <p>Best regards,</p>
-                <p style="margin-bottom: 20px;"><strong>Ali & Nige</strong><br>
-                Stylish Entertainment Ltd</p>
+                <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
                 <div style="background: #f8f9fa; padding: 15px 20px; border-radius: 6px; font-size: 14px;">
                   <p style="margin: 0 0 8px; color: #333;"><strong>📞 Call us:</strong> <a href="tel:+447970793177" style="color: #D4AF37; text-decoration: none;">+44 7970 793177</a></p>
                   <p style="margin: 0 0 8px; color: #333;"><strong>✉️ Email:</strong> <a href="mailto:info@stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">info@stylishentertainment.co.uk</a></p>
@@ -440,19 +471,20 @@ export async function POST(request: NextRequest) {
     
     let messageId = `dev-mock-${Date.now()}`;
     
+    const emailSubject = `Your ${subjectLabel} Enquiry - ${venueName} on ${formattedDate}`;
     if (resend) {
       const sendResult = await resend.emails.send({
         from: emailConfig.from,
         replyTo: emailConfig.replyTo,
         to: [clientEmail],
-        subject: `Your ${artistTypeLabel} Enquiry - ${venueName} on ${formattedDate}`,
+        subject: emailSubject,
         html: emailHtml,
       });
       messageId = sendResult.data?.id || messageId;
     } else {
       console.log("[DEV MODE] Would send artist quote email to:", clientEmail);
-      console.log("[DEV MODE] Subject:", `Your ${artistTypeLabel} Enquiry - ${venueName} on ${formattedDate}`);
-      console.log("[DEV MODE] Options:", options.map((o: ArtistOption) => `${o.name}: £${o.fee}`).join(", "));
+      console.log("[DEV MODE] Subject:", emailSubject);
+      console.log("[DEV MODE] Options:", options.map((o: ArtistOption) => `${o.name} (${o.artistType || "dj"}): £${o.fee}`).join(", "));
     }
 
     // Log to booking metadata
@@ -469,11 +501,12 @@ export async function POST(request: NextRequest) {
         artistQuotes.push({
           sentAt: new Date().toISOString(),
           sentBy: admin?.name || admin?.email || "System",
-          artistType,
-          options: options.map((o: ArtistOption) => ({
+          subjectLabel,
+          options: (options as ArtistOption[]).map((o) => ({
             name: o.name,
             fee: o.fee,
             recommended: o.recommended,
+            artistType: o.artistType || "dj",
           })),
         });
 
@@ -496,9 +529,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       messageId,
-      message: isDevelopment 
-        ? `[DEV MODE] ${artistTypeLabel} quote would be sent to ${clientEmail}` 
-        : `${artistTypeLabel} quote sent successfully`,
+      message: isDevelopment
+        ? `[DEV MODE] ${subjectLabel} quote would be sent to ${clientEmail}`
+        : `${subjectLabel} quote sent successfully`,
       devMode: isDevelopment,
     });
   } catch (error: any) {

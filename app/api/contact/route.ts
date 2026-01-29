@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const { name, email, phone, eventDate, venueName, venueNamePostcode, referralSource, eventType, preferredDJ, upsells, message, recaptchaToken } = body;
+    const { name, email, phone, eventDate, venueName, venueNamePostcode, eventType, preferredDJ, upsells, message, recaptchaToken } = body;
     
     // Log incoming request for debugging
     console.log("📧 Contact form submission received:", {
@@ -224,7 +224,7 @@ export async function POST(request: NextRequest) {
           preferredDJ: preferredDJ || null,
           services,
           upsellItems: upsells || [],
-          message: `${message}${referralSource ? `\n\nHow did you hear about us: ${referralSource}` : ""}`,
+          message,
           status: "pending",
           // @ts-ignore - Priority field exists in schema but TypeScript types may be out of sync
           priority,
@@ -346,12 +346,6 @@ export async function POST(request: NextRequest) {
             <div class="field">
               <div class="field-label">Venue Name:</div>
               <div class="field-value">${clientVenueName}</div>
-            </div>
-            ` : ''}
-            ${referralSource ? `
-            <div class="field">
-              <div class="field-label">How did you hear about us:</div>
-              <div class="field-value">${referralSource}</div>
             </div>
             ` : ''}
             ${eventType ? `

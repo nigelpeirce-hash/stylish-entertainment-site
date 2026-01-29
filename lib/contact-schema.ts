@@ -6,7 +6,6 @@ export const formSchema = z.object({
   phone: z.string().min(10, "Please enter a valid phone number"),
   eventDate: z.string().min(1, "Please provide your event date"),
   venueName: z.string().min(2, "Venue name must be at least 2 characters"),
-  referralSource: z.string().min(1, "Please select how you heard about us"),
   eventType: z.string().min(1, "Please select an event type"),
   preferredDJ: z.string().optional(),
   upsells: z.array(z.string()).optional(),
@@ -14,16 +13,6 @@ export const formSchema = z.object({
 });
 
 export type FormData = z.infer<typeof formSchema>;
-
-export const referralOptions = [
-  { value: "", label: "Select an option..." },
-  { value: "Google Search", label: "Google Search" },
-  { value: "Instagram", label: "Instagram" },
-  { value: "Recommended by Venue", label: "Recommended by Venue" },
-  { value: "Recommended by Friend", label: "Recommended by Friend" },
-  { value: "stylishweddingdisco.co.uk", label: "stylishweddingdisco.co.uk" },
-  { value: "Other", label: "Other" },
-];
 
 export const eventTypeOptions = [
   { value: "", label: "Select an option..." },

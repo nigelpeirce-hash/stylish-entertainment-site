@@ -44,7 +44,7 @@ export default function DJsServiceClient() {
                 <CardTitle className="text-3xl md:text-4xl text-white">Professional DJ Services</CardTitle>
               </div>
               <CardDescription className="text-lg text-gray-300">
-                Transform your wedding reception with our professional DJ services. We bring state-of-the-art equipment, seamless mixing, and an unparalleled ability to read the crowd and keep your guests dancing all night long.
+                Transform your wedding reception with our professional DJ services. We bring state-of-the-art equipment, seamless mixing and an unparalleled ability to read the crowd and keep your guests dancing all night long.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">

@@ -7,7 +7,19 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, User, Mail, CheckCircle2, AlertCircle, Clock, Calendar, MapPin, Music, Phone, Users, FileText, Car, Home } from "lucide-react";
+import { Send, User, Mail, CheckCircle2, AlertCircle, Clock, Calendar, MapPin, Music, Phone, Users, FileText, Car, Home, Save } from "lucide-react";
+
+function parsePhone(value: string): { phoneAreaCode: string | null; phoneNumber: string | null } {
+  const cleaned = value.replace(/\s+/g, "").trim();
+  if (!cleaned) return { phoneAreaCode: null, phoneNumber: null };
+  if (cleaned.startsWith("07")) {
+    return { phoneAreaCode: cleaned.slice(0, 4), phoneNumber: cleaned.slice(4) || null };
+  }
+  if (cleaned.startsWith("0")) {
+    return { phoneAreaCode: cleaned.slice(0, 3), phoneNumber: cleaned.slice(3) || null };
+  }
+  return { phoneAreaCode: null, phoneNumber: cleaned };
+}
 
 interface Booking {
   id: string;
@@ -33,6 +45,9 @@ interface Booking {
   djSetupLocation?: string | null;
   djParking?: string | null;
   soundLimiter?: boolean | null;
+  venueIsPrivateHouse?: boolean | null;
+  venueWhat3Words?: string | null;
+  venueLoadInNotes?: string | null;
   preferredDJ: string | null;
   firstDance?: string | null;
   lastSong?: string | null;
@@ -64,6 +79,8 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
 
   const [reviewComplete, setReviewComplete] = useState(booking.reviewComplete || false);
   const [isDispatching, setIsDispatching] = useState(false);
+  const [isSavingWorksheet, setIsSavingWorksheet] = useState(false);
+  const [isPrefillingVenue, setIsPrefillingVenue] = useState(false);
   const [assignedDJEmail, setAssignedDJEmail] = useState(
     booking.assignedDJEmail || assignedEmailFromDispatch || ""
   );
@@ -106,6 +123,9 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
     djSetupLocation: booking.djSetupLocation || "",
     djParking: booking.djParking || "",
     soundLimiter: booking.soundLimiter ? "Yes" : "No",
+    venueIsPrivateHouse: !!booking.venueIsPrivateHouse,
+    venueWhat3Words: booking.venueWhat3Words || "",
+    venueLoadInNotes: booking.venueLoadInNotes || "",
     
     // Music Preferences
     firstDance: booking.firstDance || "",
@@ -113,6 +133,7 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
     musicRequests: booking.musicRequests || "",
     musicDislikes: booking.musicDislikes || "",
     musicNotesToDJ: booking.musicNotesToDJ || "",
+    musicFileUrl: booking.musicFileUrl || "",
   });
 
   // Update editableDetails when booking prop changes (e.g., after fetchBooking)
@@ -151,6 +172,9 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
       djSetupLocation: booking.djSetupLocation || "",
       djParking: booking.djParking || "",
       soundLimiter: booking.soundLimiter ? "Yes" : "No",
+      venueIsPrivateHouse: !!booking.venueIsPrivateHouse,
+      venueWhat3Words: booking.venueWhat3Words || "",
+      venueLoadInNotes: booking.venueLoadInNotes || "",
       
       // Music Preferences
       firstDance: booking.firstDance || "",
@@ -158,6 +182,7 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
       musicRequests: booking.musicRequests || "",
       musicDislikes: booking.musicDislikes || "",
       musicNotesToDJ: booking.musicNotesToDJ || "",
+      musicFileUrl: booking.musicFileUrl || "",
     });
     
     // Update assigned DJ info when booking changes
@@ -167,6 +192,110 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
   }, [booking, assignedEmailFromDispatch, assignedDJFromDispatch]);
 
   const dispatchStatus = dispatchedAt ? "Dispatched" : reviewComplete ? "Reviewed" : "Draft";
+
+  const handlePrefillFromVenue = async () => {
+    const name = editableDetails.venueName?.trim();
+    if (!name) {
+      alert("Enter a venue name first, then click Pre-fill from venue.");
+      return;
+    }
+    setIsPrefillingVenue(true);
+    try {
+      const params = new URLSearchParams({ venueName: name });
+      if (editableDetails.venuePostcode?.trim()) params.set("venuePostcode", editableDetails.venuePostcode.trim());
+      const res = await fetch(`/api/admin/venues/details/?${params.toString()}`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || "Failed to fetch");
+      const v = data?.venue;
+      if (!v) {
+        alert("No prior booking found for this venue. Add details manually.");
+        return;
+      }
+      setEditableDetails((prev) => ({
+        ...prev,
+        venueContact: v.venueContact ?? prev.venueContact,
+        venueAddress: v.venueAddress ?? prev.venueAddress,
+        venueAddress2: v.venueAddress2 ?? prev.venueAddress2,
+        venueTown: v.venueTown ?? prev.venueTown,
+        venueCounty: v.venueCounty ?? prev.venueCounty,
+        venuePostcode: v.venuePostcode ?? prev.venuePostcode,
+        venuePhone: v.venuePhone ?? prev.venuePhone,
+        venueIsPrivateHouse: v.venueIsPrivateHouse ?? prev.venueIsPrivateHouse,
+        venueWhat3Words: v.venueWhat3Words ?? prev.venueWhat3Words,
+        venueLoadInNotes: v.venueLoadInNotes ?? prev.venueLoadInNotes,
+      }));
+    } catch (e) {
+      console.error("Pre-fill venue error:", e);
+      alert("Failed to pre-fill venue details.");
+    } finally {
+      setIsPrefillingVenue(false);
+    }
+  };
+
+  const handleSaveWorksheet = async () => {
+    setIsSavingWorksheet(true);
+    try {
+      const client = parsePhone(editableDetails.clientPhone);
+      const venue = parsePhone(editableDetails.venuePhone);
+      const payload: Record<string, unknown> = {
+        name: editableDetails.clientName || undefined,
+        email: editableDetails.clientEmail || undefined,
+        phoneAreaCode: client.phoneAreaCode,
+        phoneNumber: client.phoneNumber,
+        eventType: editableDetails.eventType || undefined,
+        eventDate: editableDetails.eventDate || undefined,
+        numberOfGuests: (() => {
+          const n = editableDetails.numberOfGuests ? parseInt(editableDetails.numberOfGuests, 10) : NaN;
+          return Number.isNaN(n) ? undefined : n;
+        })(),
+        venueName: editableDetails.venueName || undefined,
+        venueContact: editableDetails.venueContact || undefined,
+        venueAddress: editableDetails.venueAddress || undefined,
+        venueAddress2: editableDetails.venueAddress2 || undefined,
+        venueTown: editableDetails.venueTown || undefined,
+        venueCounty: editableDetails.venueCounty || undefined,
+        venuePostcode: editableDetails.venuePostcode || undefined,
+        venuePhoneAreaCode: venue.phoneAreaCode,
+        venuePhoneNumber: venue.phoneNumber,
+        djArrivalTime: editableDetails.djArrivalTime || undefined,
+        djStartTime: editableDetails.djStartTime || undefined,
+        djFinishTime: editableDetails.djFinishTime || undefined,
+        djSetupLocation: editableDetails.djSetupLocation || undefined,
+        djParking: editableDetails.djParking || undefined,
+        soundLimiter: editableDetails.soundLimiter === "Yes",
+        venueIsPrivateHouse: !!editableDetails.venueIsPrivateHouse,
+        venueWhat3Words: editableDetails.venueWhat3Words?.trim() || undefined,
+        venueLoadInNotes: editableDetails.venueLoadInNotes?.trim() || undefined,
+        firstDance: editableDetails.firstDance || undefined,
+        lastSong: editableDetails.lastSong || undefined,
+        musicRequests: editableDetails.musicRequests || undefined,
+        musicDislikes: editableDetails.musicDislikes || undefined,
+        musicNotesToDJ: editableDetails.musicNotesToDJ || undefined,
+        musicFileUrl: editableDetails.musicFileUrl || undefined,
+      };
+      Object.keys(payload).forEach((k) => {
+        const v = payload[k];
+        if (v === undefined || v === "" || (typeof v === "number" && Number.isNaN(v))) delete payload[k];
+      });
+      const res = await fetch(`/api/admin/bookings/${bookingId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (res.ok) {
+        if (onUpdate) onUpdate();
+        alert("Worksheet saved.");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(`Failed to save: ${data?.error || "Unknown error"}`);
+      }
+    } catch (e) {
+      console.error("Save worksheet error:", e);
+      alert("Failed to save worksheet.");
+    } finally {
+      setIsSavingWorksheet(false);
+    }
+  };
 
   const handleDispatch = async () => {
     if (!reviewComplete) {
@@ -234,7 +363,7 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl text-white flex items-center gap-2">
             <Music className="w-5 h-5 text-champagne-gold" />
-            Artist Dispatch Module
+            Artist Worksheet
           </CardTitle>
           {getStatusBadge(dispatchStatus)}
         </div>
@@ -298,19 +427,19 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                   </div>
                   {booking.djArrivalTime && (
                     <div>
-                      <span className="text-gray-400">Arrival:</span>
+                      <span className="text-gray-400">Artist arrival:</span>
                       <p className="text-white font-medium">{booking.djArrivalTime}</p>
                     </div>
                   )}
                   {booking.djStartTime && (
                     <div>
-                      <span className="text-gray-400">Start:</span>
+                      <span className="text-gray-400">Artist start:</span>
                       <p className="text-white font-medium">{booking.djStartTime}</p>
                     </div>
                   )}
                   {booking.djFinishTime && (
                     <div>
-                      <span className="text-gray-400">Finish:</span>
+                      <span className="text-gray-400">Artist end:</span>
                       <p className="text-white font-medium">{booking.djFinishTime}</p>
                     </div>
                   )}
@@ -332,6 +461,16 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                       <p className="text-white font-medium whitespace-pre-wrap">{booking.musicNotesToDJ}</p>
                     </div>
                   )}
+                  {booking.musicFileUrl && (
+                    <div>
+                      <span className="text-gray-400">Spotify / PDF music list:</span>
+                      <p className="text-white font-medium">
+                        <a href={booking.musicFileUrl} target="_blank" rel="noopener noreferrer" className="text-champagne-gold hover:underline break-all">
+                          {booking.musicFileUrl}
+                        </a>
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -347,34 +486,32 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                   {/* Client Information */}
                   <div className="border-b border-green-700/30 pb-3">
                     <Label className="text-white text-xs uppercase mb-2 block font-semibold">Client Details</Label>
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       <div>
                         <Label className="text-white text-xs font-medium">Client Name</Label>
                         <Input
                           value={editableDetails.clientName}
                           onChange={(e) => setEditableDetails({ ...editableDetails, clientName: e.target.value })}
-                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500 w-full"
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <Label className="text-white text-xs font-medium">Email</Label>
-                          <Input
-                            type="email"
-                            value={editableDetails.clientEmail}
-                            onChange={(e) => setEditableDetails({ ...editableDetails, clientEmail: e.target.value })}
-                            className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
-                          />
-                        </div>
-                        <div>
-                          <Label className="text-white text-xs font-medium">Phone</Label>
-                          <Input
-                            value={editableDetails.clientPhone}
-                            onChange={(e) => setEditableDetails({ ...editableDetails, clientPhone: e.target.value })}
-                            placeholder="01234 567890"
-                            className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
-                          />
-                        </div>
+                      <div>
+                        <Label className="text-white text-xs font-medium">Email</Label>
+                        <Input
+                          type="email"
+                          value={editableDetails.clientEmail}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, clientEmail: e.target.value })}
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500 w-full"
+                        />
+                      </div>
+                      <div>
+                        <Label className="text-white text-xs font-medium">Client phone (in case of emergency on the day)</Label>
+                        <Input
+                          value={editableDetails.clientPhone}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, clientPhone: e.target.value })}
+                          placeholder="01234 567890"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500 w-full"
+                        />
                       </div>
                     </div>
                   </div>
@@ -405,33 +542,57 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                     </div>
                   </div>
                   
-                  {/* Venue Information */}
+                  {/* Venue Information – order: Venue Contact, Address*, Address 2, Town, County, Postcode, Venue Phone */}
                   <div className="border-b border-green-700/30 pb-3">
                     <Label className="text-white text-xs uppercase font-semibold mb-2 block flex items-center gap-1">
                       <MapPin className="w-3 h-3" /> Venue Details
                     </Label>
                     <div className="space-y-2">
+                      <div className="flex gap-2 items-end">
+                        <div className="flex-1">
+                          <Label className="text-white text-xs font-medium">Venue Name</Label>
+                          <Input
+                            value={editableDetails.venueName}
+                            onChange={(e) => setEditableDetails({ ...editableDetails, venueName: e.target.value })}
+                            placeholder="Start typing, then Pre-fill from venue"
+                            className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
+                          />
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={handlePrefillFromVenue}
+                          disabled={isPrefillingVenue || !editableDetails.venueName?.trim()}
+                          className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10 shrink-0"
+                        >
+                          {isPrefillingVenue ? "Loading…" : "Pre-fill from venue"}
+                        </Button>
+                      </div>
                       <div>
-                        <Label className="text-white text-xs font-medium">Venue Name</Label>
+                        <Label className="text-white text-xs font-medium">Venue Contact</Label>
                         <Input
-                          value={editableDetails.venueName}
-                          onChange={(e) => setEditableDetails({ ...editableDetails, venueName: e.target.value })}
+                          value={editableDetails.venueContact}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, venueContact: e.target.value })}
+                          placeholder="Contact name at venue"
                           className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                       <div>
-                        <Label className="text-white text-xs font-medium">Address Line 1</Label>
+                        <Label className="text-white text-xs font-medium">Address *</Label>
                         <Input
                           value={editableDetails.venueAddress}
                           onChange={(e) => setEditableDetails({ ...editableDetails, venueAddress: e.target.value })}
+                          placeholder="Address line 1"
                           className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
                       <div>
-                        <Label className="text-white text-xs font-medium">Address Line 2</Label>
+                        <Label className="text-white text-xs font-medium">Address 2</Label>
                         <Input
                           value={editableDetails.venueAddress2}
                           onChange={(e) => setEditableDetails({ ...editableDetails, venueAddress2: e.target.value })}
+                          placeholder="Address line 2 (optional)"
                           className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
@@ -454,31 +615,62 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                         </div>
                       </div>
                       <div>
-                        <Label className="text-white text-xs font-medium">Postcode</Label>
+                        <Label className="text-white text-xs font-medium">Post Code</Label>
                         <Input
                           value={editableDetails.venuePostcode}
                           onChange={(e) => setEditableDetails({ ...editableDetails, venuePostcode: e.target.value })}
+                          placeholder="e.g. BA1 1AA"
                           className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <Label className="text-white text-xs font-medium">Venue Contact Name</Label>
-                          <Input
-                            value={editableDetails.venueContact}
-                            onChange={(e) => setEditableDetails({ ...editableDetails, venueContact: e.target.value })}
-                            className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
-                          />
+                      <div>
+                        <Label className="text-white text-xs font-medium">Venue Phone (Area Code / Number)</Label>
+                        <Input
+                          value={editableDetails.venuePhone}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, venuePhone: e.target.value })}
+                          placeholder="01234 567890"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
+                        />
+                      </div>
+                      <div className="flex items-start gap-3 pt-2 border-t border-green-700/30">
+                        <Checkbox
+                          id="venueIsPrivateHouse"
+                          checked={editableDetails.venueIsPrivateHouse}
+                          onCheckedChange={(c) => setEditableDetails({ ...editableDetails, venueIsPrivateHouse: c === true })}
+                          className="mt-1 border-gray-600 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500"
+                        />
+                        <div className="flex-1">
+                          <Label htmlFor="venueIsPrivateHouse" className="text-white text-xs font-medium cursor-pointer">Private house?</Label>
+                          <p className="text-xs text-gray-400 mt-0.5">Often just a postcode – add full address, What3words and/or load-in notes so crew can find the venue.</p>
                         </div>
-                        <div>
-                          <Label className="text-white text-xs font-medium">Venue Phone</Label>
-                          <Input
-                            value={editableDetails.venuePhone}
-                            onChange={(e) => setEditableDetails({ ...editableDetails, venuePhone: e.target.value })}
-                            placeholder="01234 567890"
-                            className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
-                          />
+                      </div>
+                      {editableDetails.venueIsPrivateHouse && (
+                        <div className="p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+                          <p className="text-xs text-amber-200">
+                            Add at least one: <strong>full address</strong>, <strong>What3words</strong>, or <strong>Load-in / access notes</strong> (e.g. &quot;163 steps to beach&quot;, &quot;no vehicle access&quot;) so artists know how to find you and what to expect.
+                          </p>
                         </div>
+                      )}
+                      <div>
+                        <Label className="text-white text-xs font-medium">What3words (optional)</Label>
+                        <Input
+                          value={editableDetails.venueWhat3Words}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, venueWhat3Words: e.target.value })}
+                          placeholder="e.g. filled.count.soap"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">Pinpoints exact location – <a href="https://what3words.com" target="_blank" rel="noopener noreferrer" className="text-champagne-gold hover:underline">what3words.com</a></p>
+                      </div>
+                      <div>
+                        <Label className="text-white text-xs font-medium">Load-in / access notes</Label>
+                        <Textarea
+                          value={editableDetails.venueLoadInNotes}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, venueLoadInNotes: e.target.value })}
+                          placeholder="e.g. 163 steps to beach, no vehicle access, load-in difficult, narrow path, stairs only"
+                          rows={3}
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">We need to know if load-in is horrible – stairs, distance, access restrictions, etc.</p>
                       </div>
                     </div>
                   </div>
@@ -486,11 +678,11 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                   {/* Timing */}
                   <div className="border-b border-green-700/30 pb-3">
                     <Label className="text-white text-xs uppercase font-semibold mb-2 block flex items-center gap-1">
-                      <Clock className="w-3 h-3" /> Timings
+                      <Clock className="w-3 h-3" /> Artist arrival, start & end *
                     </Label>
                     <div className="grid grid-cols-3 gap-2">
                       <div>
-                        <Label className="text-white text-xs font-medium">Arrival Time</Label>
+                        <Label className="text-white text-xs font-medium">Artist arrival *</Label>
                         <Input
                           value={editableDetails.djArrivalTime}
                           onChange={(e) => setEditableDetails({ ...editableDetails, djArrivalTime: e.target.value })}
@@ -499,7 +691,7 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                         />
                       </div>
                       <div>
-                        <Label className="text-white text-xs font-medium">Start Time</Label>
+                        <Label className="text-white text-xs font-medium">Artist start</Label>
                         <Input
                           value={editableDetails.djStartTime}
                           onChange={(e) => setEditableDetails({ ...editableDetails, djStartTime: e.target.value })}
@@ -508,7 +700,7 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                         />
                       </div>
                       <div>
-                        <Label className="text-white text-xs font-medium">Finish Time</Label>
+                        <Label className="text-white text-xs font-medium">Artist end</Label>
                         <Input
                           value={editableDetails.djFinishTime}
                           onChange={(e) => setEditableDetails({ ...editableDetails, djFinishTime: e.target.value })}
@@ -522,11 +714,11 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                   {/* Technical Setup */}
                   <div className="border-b border-green-700/30 pb-3">
                     <Label className="text-white text-xs uppercase font-semibold mb-2 block flex items-center gap-1">
-                      <Home className="w-3 h-3" /> Technical Setup
+                      <Home className="w-3 h-3" /> DJ Setup Location / Parking / Sound limiter
                     </Label>
                     <div className="space-y-2">
                       <div>
-                        <Label className="text-white text-xs font-medium">Setup Location</Label>
+                        <Label className="text-white text-xs font-medium">DJ Setup Location</Label>
                         <Textarea
                           value={editableDetails.djSetupLocation}
                           onChange={(e) => setEditableDetails({ ...editableDetails, djSetupLocation: e.target.value })}
@@ -536,7 +728,7 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                         />
                       </div>
                       <div>
-                        <Label className="text-white text-xs font-medium">Parking Information</Label>
+                        <Label className="text-white text-xs font-medium">DJ Parking</Label>
                         <Textarea
                           value={editableDetails.djParking}
                           onChange={(e) => setEditableDetails({ ...editableDetails, djParking: e.target.value })}
@@ -546,7 +738,7 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                         />
                       </div>
                       <div>
-                        <Label className="text-white text-xs font-medium">Sound Limiter</Label>
+                        <Label className="text-white text-xs font-medium">Is there a sound limiter?</Label>
                         <select
                           value={editableDetails.soundLimiter}
                           onChange={(e) => setEditableDetails({ ...editableDetails, soundLimiter: e.target.value })}
@@ -613,6 +805,15 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
                           className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
                         />
                       </div>
+                      <div>
+                        <Label className="text-white text-xs font-medium">Spotify / PDF music list (from client portal)</Label>
+                        <Input
+                          value={editableDetails.musicFileUrl}
+                          onChange={(e) => setEditableDetails({ ...editableDetails, musicFileUrl: e.target.value })}
+                          placeholder="https://open.spotify.com/playlist/... or link to PDF/Word"
+                          className="bg-gray-800 text-white border-gray-600 mt-1 placeholder:text-gray-500"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -621,8 +822,24 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
           </div>
         </div>
 
-        {/* Review Complete Checkbox & Dispatch Action */}
+        {/* Save worksheet & Review Complete & Dispatch */}
         <div className="border-t border-gray-700 pt-6 space-y-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleSaveWorksheet}
+            disabled={isSavingWorksheet}
+            className="w-full border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10"
+          >
+            {isSavingWorksheet ? (
+              <>Saving…</>
+            ) : (
+              <>
+                <Save className="w-4 h-4 mr-2" />
+                Save worksheet
+              </>
+            )}
+          </Button>
           <div className="flex items-start gap-3 bg-gray-900/30 rounded-lg p-4">
             <Checkbox
               id="reviewComplete"

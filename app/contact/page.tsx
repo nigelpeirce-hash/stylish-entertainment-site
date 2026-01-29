@@ -58,7 +58,7 @@ export default function Contact() {
     document.title = "Contact Us | West Country Event Entertainment Booking";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Get in touch to discuss your wedding, party, or event entertainment requirements. Professional DJs, lighting design, and venue styling across the West Country including London, Somerset, Bath, Bristol, Dorset, and Devon.");
+      metaDescription.setAttribute("content", "Get in touch to discuss your wedding, party or event entertainment requirements. Professional DJs, lighting design and venue styling across the UK and Wales.");
     }
 
     // Check if reCAPTCHA is loaded

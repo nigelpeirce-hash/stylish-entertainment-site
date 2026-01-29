@@ -37,11 +37,13 @@ export function NewSubmissionNotifier() {
     enquiries: [],
     urgentCount: 0,
   });
-  const [lastCheckedIds, setLastCheckedIds] = useState<Set<string>>(new Set());
+  const lastCheckedIdsRef = useRef<Set<string>>(new Set());
   const [isMuted, setIsMuted] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const pingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const isMutedRef = useRef(isMuted);
+  isMutedRef.current = isMuted;
 
   // Initialize audio element for ping sound
   useEffect(() => {
@@ -106,22 +108,20 @@ export function NewSubmissionNotifier() {
           }));
 
           // Find new enquiries by comparing IDs
+          const lastChecked = lastCheckedIdsRef.current;
           const currentIds = new Set(bookings.map((b) => b.id));
-          const newEnquiries = bookings.filter((b) => !lastCheckedIds.has(b.id));
+          const newEnquiries = bookings.filter((b) => !lastChecked.has(b.id));
 
           // If new enquiries arrived
-          if (newEnquiries.length > 0 && lastCheckedIds.size > 0) {
+          if (newEnquiries.length > 0 && lastChecked.size > 0) {
             const urgentEnquiries = newEnquiries.filter((e) => e.priority === "urgent");
             
             // Play ping sound if not muted (repeat for urgent enquiries)
-            if (!isMuted && (window as any).__createPingSound) {
+            if (!isMutedRef.current && (window as any).__createPingSound) {
               (window as any).__createPingSound();
-              // Double ping for urgent enquiries
               if (urgentEnquiries.length > 0) {
                 setTimeout(() => {
-                  if ((window as any).__createPingSound) {
-                    (window as any).__createPingSound();
-                  }
+                  (window as any).__createPingSound?.();
                 }, 400);
               }
             }
@@ -164,17 +164,17 @@ export function NewSubmissionNotifier() {
             }
           }
 
-          setLastCheckedIds(currentIds);
+          lastCheckedIdsRef.current = currentIds;
         }
       } catch (error) {
         console.error("Error checking for new submissions:", error);
       }
     };
 
-    // Initial check after 2 seconds (to avoid checking on mount)
+    // Initial check after 2 seconds, then every 5 minutes (chill mode).
+    // Effect runs once on mount; deps exclude lastCheckedIds to avoid re-running on each fetch.
     const initialTimeout = setTimeout(() => {
       checkForNewSubmissions();
-      // Then check every 5 minutes (Chill Mode)
       pingIntervalRef.current = setInterval(checkForNewSubmissions, 300000);
     }, 2000);
 
@@ -184,7 +184,7 @@ export function NewSubmissionNotifier() {
         clearInterval(pingIntervalRef.current);
       }
     };
-  }, [lastCheckedIds, isMuted]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps -- intentional: run once, use refs for mutable state
 
   const handleDismiss = () => {
     setNotification({ ...notification, show: false });

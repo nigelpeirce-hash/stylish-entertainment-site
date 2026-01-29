@@ -16,6 +16,11 @@ export interface SanitizedBooking {
   email: string;
   phoneAreaCode: string | null;
   phoneNumber: string | null;
+  clientAddress?: string | null;
+  clientAddress2?: string | null;
+  clientTown?: string | null;
+  clientCounty?: string | null;
+  clientPostcode?: string | null;
   eventType: string;
   eventDate: string;
   ceremonyTime?: string | null;
@@ -37,6 +42,9 @@ export interface SanitizedBooking {
   djSetupLocation?: string | null;
   djParking?: string | null;
   soundLimiter?: boolean | null;
+  venueIsPrivateHouse?: boolean | null;
+  venueWhat3Words?: string | null;
+  venueLoadInNotes?: string | null;
   firstDance?: string | null;
   lastSong?: string | null;
   musicDislikes?: string | null;
@@ -68,6 +76,8 @@ export interface SanitizedBooking {
   selectedTemplate?: string | null;
   depositReceived?: boolean | null;
   depositReceivedManual?: boolean | null;
+  confirmedViaBookFromQuote?: boolean;
+  depositInvoiceSentAt?: string | null;
   updatedAt?: string;
   lastEmailSentAt?: string | null;
   finalDetailsConfirmed?: boolean | null;
@@ -273,6 +283,11 @@ export function transformBooking(
     email: String(booking?.email ?? ''),
     phoneAreaCode: booking?.phoneAreaCode ? String(booking.phoneAreaCode) : null,
     phoneNumber: booking?.phoneNumber ? String(booking.phoneNumber) : null,
+    clientAddress: booking?.clientAddress ? String(booking.clientAddress) : null,
+    clientAddress2: booking?.clientAddress2 ? String(booking.clientAddress2) : null,
+    clientTown: booking?.clientTown ? String(booking.clientTown) : null,
+    clientCounty: booking?.clientCounty ? String(booking.clientCounty) : null,
+    clientPostcode: booking?.clientPostcode ? String(booking.clientPostcode) : null,
     eventType: String(booking?.eventType ?? ''),
     eventDate: convertDate(booking?.eventDate) ?? '',
     ceremonyTime: convertDate(booking?.ceremonyTime),
@@ -294,6 +309,9 @@ export function transformBooking(
     djSetupLocation: booking?.djSetupLocation ? String(booking.djSetupLocation) : null,
     djParking: booking?.djParking ? String(booking.djParking) : null,
     soundLimiter: booking?.soundLimiter ?? null,
+    venueIsPrivateHouse: booking?.venueIsPrivateHouse ?? null,
+    venueWhat3Words: booking?.venueWhat3Words ? String(booking.venueWhat3Words) : null,
+    venueLoadInNotes: booking?.venueLoadInNotes ? String(booking.venueLoadInNotes) : null,
     firstDance: booking?.firstDance ? String(booking.firstDance) : null,
     lastSong: booking?.lastSong ? String(booking.lastSong) : null,
     musicDislikes: booking?.musicDislikes ? String(booking.musicDislikes) : null,
@@ -321,6 +339,8 @@ export function transformBooking(
     selectedTemplate: booking?.selectedTemplate ? String(booking.selectedTemplate) : null,
     depositReceived: booking?.depositReceived ?? null,
     depositReceivedManual: booking?.depositReceivedManual ?? null,
+    confirmedViaBookFromQuote: Boolean(booking?.confirmedViaBookFromQuote),
+    depositInvoiceSentAt: convertDate(booking?.depositInvoiceSentAt),
     updatedAt: convertDate(booking?.updatedAt) || undefined,
     lastEmailSentAt: convertDate(booking?.lastEmailSentAt),
     finalDetailsConfirmed: booking?.finalDetailsConfirmed ?? null,

@@ -37,7 +37,7 @@ export default function ContactUsClient() {
 
       {/* Contact Form Section */}
       <section
-        className="pt-20 pb-8 px-4 relative"
+        className="pt-20 pb-8 px-4 relative contact-ui"
         style={{
           background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
         }}

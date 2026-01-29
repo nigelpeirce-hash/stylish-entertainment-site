@@ -28,7 +28,7 @@ export default function InstagramFeed() {
     document.title = "Instagram Feed | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Follow our latest work on Instagram. See behind-the-scenes photos, event highlights, and stunning venue transformations from Stylish Entertainment.");
+      metaDescription.setAttribute("content", "Follow our latest work on Instagram. See behind-the-scenes photos, event highlights and stunning venue transformations from Stylish Entertainment.");
     }
   }, []);
 
@@ -73,7 +73,7 @@ export default function InstagramFeed() {
             className="text-center"
           >
             <p className="text-lg md:text-xl text-gray-300 leading-relaxed mb-6">
-              Get a glimpse into our latest events, venue transformations, and behind-the-scenes moments. 
+              Get a glimpse into our latest events, venue transformations and behind-the-scenes moments. 
               Follow us on Instagram to see our work in real-time.
             </p>
           </motion.div>

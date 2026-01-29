@@ -30,11 +30,12 @@ import {
   FileText,
   MoreVertical,
   Trash2,
-  DollarSign,
+  PoundSterling,
   Package,
 } from "lucide-react";
 import Link from "next/link";
 import { ArtistDispatch } from "@/components/ArtistDispatch";
+import ClientEmailsCard from "@/components/ClientEmailsCard";
 import { SendResources } from "@/components/SendResources";
 import { QuickStaffConfirm } from "@/components/QuickStaffConfirm";
 import { AddBasicStaff } from "@/components/AddBasicStaff";
@@ -58,6 +59,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
 import { useToast } from "@/hooks/use-toast";
@@ -73,16 +75,17 @@ import { useBookingUpdates } from "@/lib/hooks/useBookingUpdates";
 type Booking = SanitizedBooking;
 
 // SWR fetcher function with timeout and error handling
-const bookingFetcher = async (url: string): Promise<{ booking: SanitizedBooking; fallback?: boolean }> => {
+type BookingFetcherResult = { booking: SanitizedBooking; fallback?: boolean } | { booking: null; notFound: true };
+
+const bookingFetcher = async (url: string): Promise<BookingFetcherResult> => {
   const endTimer = debug.time('fetchBooking');
   let timeoutId: NodeJS.Timeout | null = null;
   try {
     debug.log('Fetching booking', { url });
-    
-    // Create an AbortController for timeout
+
     const controller = new AbortController();
-    timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
-    
+    timeoutId = setTimeout(() => controller.abort(), 15000);
+
     const response = await fetch(url, {
       signal: controller.signal,
       cache: 'no-store',
@@ -92,24 +95,43 @@ const bookingFetcher = async (url: string): Promise<{ booking: SanitizedBooking;
         'Pragma': 'no-cache',
       },
     });
-    
+
     if (timeoutId) clearTimeout(timeoutId);
-    
+
     debug.api('GET', url, { status: response.status });
-    
+
+    if (response.status === 404) {
+      endTimer();
+      debug.log('Booking not found (404)', { url });
+      return { booking: null, notFound: true };
+    }
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error || errorData.message || `Failed to fetch booking: ${response.status} ${response.statusText}`);
+      const msg = (errorData?.error || errorData?.message || `Failed to fetch booking: ${response.status} ${response.statusText}`) as string;
+      const lower = String(msg).toLowerCase();
+      if (lower.includes('booking not found') || lower.includes('not found')) {
+        endTimer();
+        debug.log('Booking not found (server message)', { url, status: response.status });
+        return { booking: null, notFound: true };
+      }
+      throw new Error(msg);
     }
-    
+
     const data = await response.json();
-    
+
+    if (data?.booking == null && data?.notFound === true) {
+      endTimer();
+      debug.log('Booking not found (response body)', { url });
+      return { booking: null, notFound: true };
+    }
+
     debug.log("Fetched booking data", {
       id: data.booking?.id,
       staffAssignmentsCount: data.booking?.staffAssignments?.length || 0,
       fallback: data.fallback,
     });
-    
+
     endTimer();
     return data;
   } catch (error: any) {
@@ -137,11 +159,9 @@ export default function BookingDetail() {
   const [wifeName, setWifeName] = useState("Ali");
   const [yourName, setYourName] = useState("Nigel");
   const [deleting, setDeleting] = useState(false);
-  const [sendingPortalLink, setSendingPortalLink] = useState(false);
-  const [sendingTestEmail, setSendingTestEmail] = useState(false);
-  const [sendingDepositEmail, setSendingDepositEmail] = useState(false);
+  const [sendingDepositInvoice, setSendingDepositInvoice] = useState(false);
   const [sendingFinalizeInvite, setSendingFinalizeInvite] = useState(false);
-  const [venues, setVenues] = useState<{ id: string; venueName: string; defaultCeremonyTime?: string | null; defaultFinishTime?: string | null; venueNotes?: string | null }[]>([]);
+  const [venues, setVenues] = useState<{ id: string; venueName: string; venuePostcode?: string | null; defaultCeremonyTime?: string | null; defaultFinishTime?: string | null; venueNotes?: string | null }[]>([]);
   const { toast, toastState } = useToast();
 
   // Determine if we should fetch (authorization check)
@@ -165,8 +185,8 @@ export default function BookingDetail() {
   }, [bookingId, isAuthorizedForSWR, devBypassForSWR]);
 
   // Use SWR for data fetching with caching and background refresh
-  const { data, error, isLoading, mutate } = useSWR<{ booking: SanitizedBooking; fallback?: boolean }>(
-    shouldFetch ? `/api/admin/bookings/${bookingId}` : null,
+  const { data, error, isLoading, mutate } = useSWR<BookingFetcherResult>(
+    shouldFetch ? `/api/admin/bookings/${bookingId}/` : null,
     bookingFetcher,
     {
       refreshInterval: 0, // Don't auto-refresh (user can manually refresh)
@@ -192,20 +212,16 @@ export default function BookingDetail() {
         // Retry after 3 seconds
         setTimeout(() => revalidate({ retryCount }), 3000);
       },
-      onError: (error) => {
-        toast({
-          title: "Error",
-          description: error.message || "Failed to load booking",
-          variant: "destructive",
-        });
+      onError: () => {
+        // Error state is shown inline (error UI with Retry + Back to bookings); skip toast to avoid duplicate.
       },
     }
   );
 
   // Extract booking data and fallback mode from SWR response
-  // SWR is now the single source of truth for booking data
-  const booking = data?.booking || null;
-  const isFallbackMode = data?.fallback === true;
+  const booking = data?.booking ?? null;
+  const isNotFound = data?.notFound === true;
+  const isFallbackMode = !isNotFound && data?.fallback === true;
   const loading = isLoading;
   
   // Centralized update system with optimistic updates
@@ -253,7 +269,7 @@ export default function BookingDetail() {
 
   useEffect(() => {
     if (!showEditModal) return;
-    fetch("/api/admin/venues")
+    fetch("/api/admin/venues/")
       .then((r) => r.json())
       .then((d) => setVenues(d.venues || []))
       .catch(() => setVenues([]));
@@ -395,10 +411,48 @@ export default function BookingDetail() {
     return null;
   }
 
-  if (!booking) {
+  if (error && !booking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <div className="text-white">Booking not found</div>
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-gray-900 px-4">
+        <div className="text-center space-y-2">
+          <p className="text-xl font-medium text-white">Error loading booking</p>
+          <p className="text-gray-400 text-sm max-w-md">{error.message}</p>
+        </div>
+        <div className="flex gap-3">
+          <Button variant="outline" size="lg" onClick={() => mutate()} className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10">
+            Try again
+          </Button>
+          <Link href="/admin/bookings/">
+            <Button variant="outline" size="lg" className="border-gray-500 text-gray-400 hover:bg-gray-800">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to bookings
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!booking || isNotFound) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6 bg-gray-900 px-4">
+        <div className="text-center space-y-2">
+          <p className="text-xl font-medium text-white">Booking not found</p>
+          <p className="text-gray-400 text-sm max-w-md">
+            This booking may have been deleted or the link is invalid. Go back to the list or try again.
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <Button variant="outline" size="lg" onClick={() => mutate()} className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10">
+            Try again
+          </Button>
+          <Link href="/admin/bookings/">
+            <Button variant="outline" size="lg" className="border-gray-500 text-gray-400 hover:bg-gray-800">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to bookings
+            </Button>
+          </Link>
+        </div>
       </div>
     );
   }
@@ -442,13 +496,18 @@ export default function BookingDetail() {
 
             {/* Center: Name, Date, Venue */}
             <div className="flex-1 text-center">
-              <div className="flex items-center justify-center gap-3 mb-2">
+              <div className="flex items-center justify-center gap-3 mb-2 flex-wrap">
                 <h1 className="text-2xl font-bold text-white">
                   {deduplicateName(getDisplayName(booking.name) || booking.name)}
                 </h1>
                 {booking.eventType && (
                   <span className="border border-amber-500/30 text-amber-500 text-xs uppercase tracking-widest px-2 py-1 rounded">
                     {booking.eventType}
+                  </span>
+                )}
+                {booking.confirmedViaBookFromQuote && (
+                  <span className="border border-emerald-500/50 bg-emerald-500/20 text-emerald-400 text-xs uppercase tracking-widest px-2 py-1 rounded font-semibold">
+                    Confirmed via Book-from-Quote
                   </span>
                 )}
               </div>
@@ -469,8 +528,17 @@ export default function BookingDetail() {
               </div>
             </div>
 
-            {/* Right: Send Portal Link, Internal Brief & Hand-off Buttons */}
+            {/* Right: Edit, Internal Brief, Hand-off & Settings */}
             <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setShowEditModal(true)}
+                variant="outline"
+                size="sm"
+                className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 font-semibold"
+              >
+                <Edit className="w-4 h-4 mr-2" />
+                Edit booking
+              </Button>
               {/* Master Internal Brief Button */}
               <Button
                 onClick={() => {
@@ -482,101 +550,6 @@ export default function BookingDetail() {
               >
                 <FileText className="w-4 h-4 mr-2" />
                 Generate Master Brief
-              </Button>
-              <Button
-                onClick={async () => {
-                  if (!booking) return;
-                  setSendingPortalLink(true);
-                  try {
-                    const response = await fetch(`/api/admin/bookings/${booking.id}/send-portal-link`, {
-                      method: "POST",
-                    });
-                    const data = await response.json();
-                    if (response.ok) {
-                      toast({
-                        title: "Portal link sent",
-                        description: "The portal access link has been sent to the client.",
-                      });
-                    } else {
-                      toast({
-                        title: "Error",
-                        description: data.error || "Failed to send portal link",
-                        variant: "destructive",
-                      });
-                    }
-                  } catch (error) {
-                    toast({
-                      title: "Error",
-                      description: "Failed to send portal link",
-                      variant: "destructive",
-                    });
-                  } finally {
-                    setSendingPortalLink(false);
-                  }
-                }}
-                disabled={sendingPortalLink || !booking?.email}
-                size="sm"
-                className="bg-amber-500 hover:bg-amber-600 text-black font-semibold"
-              >
-                {sendingPortalLink ? (
-                  <>
-                    <span className="animate-spin mr-2">⏳</span>
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    <Send className="w-4 h-4 mr-2" />
-                    Send Portal Access
-                  </>
-                )}
-              </Button>
-              <Button
-                onClick={async () => {
-                  if (!booking) return;
-                  setSendingTestEmail(true);
-                  try {
-                    const response = await fetch(`/api/admin/bookings/${booking.id}/send-test-email`, {
-                      method: "POST",
-                    });
-                    const data = await response.json();
-                    if (response.ok) {
-                      toast({
-                        title: "Test email sent",
-                        description: data.message || "Deposit confirmation preview sent to Nigel for visual check.",
-                      });
-                    } else {
-                      toast({
-                        title: "Error",
-                        description: data.error || "Failed to send test email",
-                        variant: "destructive",
-                      });
-                    }
-                  } catch (error) {
-                    toast({
-                      title: "Error",
-                      description: "Failed to send test email",
-                      variant: "destructive",
-                    });
-                  } finally {
-                    setSendingTestEmail(false);
-                  }
-                }}
-                disabled={sendingTestEmail}
-                size="sm"
-                variant="outline"
-                className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10"
-              >
-                {sendingTestEmail ? (
-                  <>
-                    <span className="animate-spin mr-2">⏳</span>
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    <Mail className="w-4 h-4 mr-2" />
-                    Send Test Email
-                  </>
-                )}
               </Button>
               <Button
                 onClick={() => handleHandoff("ali")}
@@ -660,8 +633,10 @@ export default function BookingDetail() {
                     size="sm"
                     onClick={() => setShowEditModal(true)}
                     className="text-gray-400 hover:text-champagne-gold"
+                    title="Edit client, venue, timings & details"
                   >
-                    <Edit className="w-4 h-4" />
+                    <Edit className="w-4 h-4 mr-1" />
+                    Edit
                   </Button>
                 </div>
               </CardHeader>
@@ -704,104 +679,74 @@ export default function BookingDetail() {
             {/* Timings (booking guaranteed; data from API) */}
             <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-champagne-gold" />
-                  Timings
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-champagne-gold" />
+                    Timings
+                  </CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowEditModal(true)}
+                    className="text-gray-400 hover:text-champagne-gold"
+                    title="Edit venue, timings & details"
+                  >
+                    <Edit className="w-4 h-4 mr-1" />
+                    Edit
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-3">
-                {/* Ceremony Start */}
-                <div className="flex items-center justify-between gap-2">
-                  <label htmlFor="ceremonyTime" className="text-gray-400 text-sm shrink-0">Ceremony Start:</label>
-                  <input
-                    id="ceremonyTime"
-                    type="datetime-local"
-                    defaultValue={booking.ceremonyTime ? new Date(booking.ceremonyTime).toISOString().slice(0, 16) : ""}
-                    onChange={async (e) => {
-                      const value = e.target.value;
-                      const result = await updateBooking({
-                        ceremonyTime: value ? new Date(value).toISOString() : null,
-                      }, { showToast: false });
-                      if (result) {
-                        toast({
-                          title: "Updated",
-                          description: "Ceremony start updated",
-                        });
-                      }
-                    }}
-                    className="flex-1 min-w-0 px-3 py-1.5 bg-gray-900 border border-amber-500/50 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                  />
+                <div className="flex justify-between">
+                  <span className="text-gray-400 text-sm">Ceremony start:</span>
+                  <span className="text-white font-medium">
+                    {booking.ceremonyTime
+                      ? new Date(booking.ceremonyTime).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false })
+                      : "—"}
+                  </span>
                 </div>
-                {/* Ceremony / DJ Finish */}
-                <div className="flex items-center justify-between gap-2">
-                  <label htmlFor="djFinishTime" className="text-gray-400 text-sm shrink-0">Ceremony / DJ Finish:</label>
-                  <input
-                    id="djFinishTime"
-                    type="time"
-                    defaultValue={booking.djFinishTime || ""}
-                    onChange={async (e) => {
-                      const value = e.target.value || null;
-                      const result = await updateBooking({ djFinishTime: value }, { showToast: false });
-                      if (result) {
-                        toast({
-                          title: "Updated",
-                          description: "Finish time updated",
-                        });
-                      }
-                    }}
-                    className="flex-1 min-w-0 px-3 py-1.5 bg-gray-900 border border-amber-500/50 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                  />
+                <div className="flex justify-between">
+                  <span className="text-gray-400 text-sm">Artist start:</span>
+                  <span className="text-white font-medium">{booking.djStartTime || "—"}</span>
                 </div>
-                
+                <div className="flex justify-between">
+                  <span className="text-gray-400 text-sm">Artist end:</span>
+                  <span className="text-white font-medium">{booking.djFinishTime || "—"}</span>
+                </div>
                 {booking.djArrivalTime && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Arrival:</span>
-                    <span className="text-white font-medium">{booking.djArrivalTime}</span>
+                  <div className="flex justify-between pt-1 border-t border-gray-700/50">
+                    <span className="text-gray-400 text-sm">Arrival:</span>
+                    <span className="text-white font-medium text-sm">{booking.djArrivalTime}</span>
                   </div>
                 )}
-                {booking.djStartTime && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Start:</span>
-                    <span className="text-white font-medium">{booking.djStartTime}</span>
-                  </div>
-                )}
-                {booking.djFinishTime && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-400">Finish:</span>
-                    <span className="text-white font-medium">{booking.djFinishTime}</span>
-                  </div>
-                )}
+                <p className="text-xs text-gray-500 pt-1">Click Edit to change timings, then Save Changes</p>
               </CardContent>
             </Card>
 
             {/* Venue Info (booking guaranteed; data from API) */}
             <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-champagne-gold" />
-                  Venue Info
-                </CardTitle>
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-champagne-gold" />
+                    Venue Info
+                  </CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowEditModal(true)}
+                    className="text-gray-400 hover:text-champagne-gold"
+                    title="Edit venue, timings & details"
+                  >
+                    <Edit className="w-4 h-4 mr-1" />
+                    Edit
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-2">
                 <div>
                   <p className="text-xs text-gray-400 mb-1">Venue Name</p>
-                  <input
-                    key={`venue-${String(booking.venueName)}-${String(booking.updatedAt ?? "")}`}
-                    type="text"
-                    defaultValue={booking.venueName}
-                    onBlur={async (e) => {
-                      const value = e.target.value.trim();
-                      if (value === booking.venueName) return;
-                      const result = await updateBooking({ venueName: value }, { showToast: false });
-                      if (result) {
-                        toast({
-                          title: "Updated",
-                          description: "Venue name updated",
-                        });
-                      }
-                    }}
-                    className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white font-medium focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                  />
+                  <p className="text-white font-medium">{booking.venueName || "—"}</p>
                 </div>
                 {booking.venueAddress && (
                   <div>
@@ -861,6 +806,57 @@ export default function BookingDetail() {
                     </div>
                   </div>
                 )}
+                {(booking.venueIsPrivateHouse || booking.venueWhat3Words || booking.venueLoadInNotes) && (
+                  <div className="pt-3 border-t border-gray-700 border-l-4 border-l-amber-500/80">
+                    <p className="text-xs text-amber-400 mb-2 font-semibold">Finding the venue / Load-in</p>
+                    <div className="space-y-1.5 text-sm">
+                      {booking.venueIsPrivateHouse && (
+                        <div>
+                          <span className="text-gray-400">Private house: </span>
+                          <span className="text-white">Yes</span>
+                        </div>
+                      )}
+                      {booking.venueWhat3Words && (
+                        <div>
+                          <span className="text-gray-400">What3words: </span>
+                          <a
+                            href={`https://what3words.com/${booking.venueWhat3Words.trim().replace(/\s+/g, ".")}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-champagne-gold hover:underline"
+                          >
+                            {booking.venueWhat3Words}
+                          </a>
+                        </div>
+                      )}
+                      {booking.venueLoadInNotes && (
+                        <div>
+                          <span className="text-gray-400">Load-in / access: </span>
+                          <span className="text-white whitespace-pre-wrap">{booking.venueLoadInNotes}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Quote Builder - Multi-Service (below Venue Info) */}
+            <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold text-white">Quote Builder</CardTitle>
+                <p className="text-xs text-gray-400">Build and send quotes for DJs, musicians, lighting, styling & more</p>
+              </CardHeader>
+              <CardContent>
+                <MultiArtistReply
+                  bookingId={booking.id}
+                  clientEmail={booking.email}
+                  clientName={booking.name}
+                  venueName={booking.venueName}
+                  venueAddress={booking.venueAddress || undefined}
+                  eventDate={booking.eventDate}
+                  onSend={handleBookingUpdate}
+                />
               </CardContent>
             </Card>
 
@@ -871,8 +867,61 @@ export default function BookingDetail() {
                   <Mail className="w-5 h-5 text-amber-500" />
                   Manual Communication
                 </CardTitle>
+                <p className="text-sm text-amber-200/90 mt-1">
+                  Workflow: Send deposit invoice → Mark deposit received (sends confirmation) → Invite to portal (sends magic link). Reminder sent if they don&apos;t open within 3 days.
+                </p>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Send Deposit Invoice (before payment) */}
+                <div className="p-4 bg-gray-900/70 rounded-lg border border-amber-500/30">
+                  <p className="text-sm text-gray-300 mb-2">
+                    Send &quot;please pay&quot; deposit invoice. Use before client pays.
+                  </p>
+                  <Button
+                    onClick={async () => {
+                      if (!booking?.email) return;
+                      setSendingDepositInvoice(true);
+                      try {
+                        const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice`, { method: "POST" });
+                        const data = await res.json();
+                        if (res.ok) {
+                          await handleBookingUpdate();
+                          toast({
+                            title: "Deposit invoice sent",
+                            description: `Email sent to ${deduplicateName(getDisplayName(booking.name) || booking.name)}`,
+                          });
+                        } else {
+                          throw new Error(data?.error ?? "Failed to send");
+                        }
+                      } catch (e: unknown) {
+                        toast({
+                          title: "Error",
+                          description: (e as Error)?.message ?? "Failed to send deposit invoice",
+                          variant: "destructive",
+                        });
+                      } finally {
+                        setSendingDepositInvoice(false);
+                      }
+                    }}
+                    disabled={sendingDepositInvoice || !booking?.email}
+                    className="w-full bg-amber-600 hover:bg-amber-700 text-black font-semibold disabled:opacity-50"
+                  >
+                    {sendingDepositInvoice ? (
+                      <><span className="animate-spin mr-2">⏳</span> Sending…</>
+                    ) : (
+                      <><PoundSterling className="w-4 h-4 mr-2" /> Send Deposit Invoice</>
+                    )}
+                  </Button>
+                  {booking.depositInvoiceSentAt && (
+                    <p className="text-xs text-gray-400 italic mt-2">
+                      Last sent: {new Date(booking.depositInvoiceSentAt).toLocaleString("en-GB", {
+                        weekday: "short", day: "numeric", month: "short", year: "numeric",
+                        hour: "2-digit", minute: "2-digit",
+                      })}
+                    </p>
+                  )}
+                </div>
+
                 {/* Deposit Received Toggle */}
                 <div className="flex items-center justify-between p-4 bg-gray-900/70 rounded-lg border-2 border-gray-600 hover:border-amber-500/30 transition-all">
                   <div className="flex items-center gap-4">
@@ -934,121 +983,61 @@ export default function BookingDetail() {
                   </div>
                 )}
 
-                {/* Send Deposit Confirmation Email */}
-                <Button
-                  onClick={async () => {
-                    if (!booking?.email) return;
-                    setSendingDepositEmail(true);
-                    try {
-                      const response = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-email`, {
-                        method: "POST",
-                      });
-                      const data = await response.json();
-                      if (response.ok) {
-                        await handleBookingUpdate();
-                        const clientName = deduplicateName(getDisplayName(booking.name) || booking.name);
-                        toast({
-                          title: "Email sent",
-                          description: `Email sent to ${clientName}`,
-                        });
-                      } else {
-                        throw new Error(data?.error || "Failed to send email");
-                      }
-                    } catch (error: any) {
-                      toast({
-                        title: "Error",
-                        description: error?.message || "Failed to send deposit confirmation email",
-                        variant: "destructive",
-                      });
-                    } finally {
-                      setSendingDepositEmail(false);
-                    }
-                  }}
-                  disabled={!(booking.depositReceivedManual || false) || sendingDepositEmail || !booking?.email}
-                  className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold disabled:opacity-50 disabled:pointer-events-none"
-                >
-                  {sendingDepositEmail ? (
-                    <>
-                      <span className="animate-spin mr-2">⏳</span>
-                      Sending...
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4 mr-2" />
-                      Send Deposit Confirmation Email
-                    </>
-                  )}
-                </Button>
-
-                {booking.lastEmailSentAt && (
-                  <p className="text-xs text-gray-400 italic">
-                    Last Sent: {new Date(booking.lastEmailSentAt).toLocaleString("en-GB", {
-                      weekday: "short",
-                      day: "numeric",
-                      month: "short",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Finalize & Invite — set ACTIVE, magic link, send PORTAL_INVITATION */}
-            <Card className={`bg-gray-800 border-amber-500/20 ${getSectionBgColor()} transition-colors`}>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-                  <ExternalLink className="w-5 h-5 text-amber-500" />
-                  Finalize & Invite
-                </CardTitle>
                 <p className="text-sm text-gray-400">
-                  Set booking to active, generate magic link, and send &quot;Welcome to Your [Venue] Wedding Portal&quot; invite.
+                  Checking &quot;Deposit received&quot; sends the payment-confirmation email. Then use the action below to invite them to the portal.
                 </p>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  onClick={async () => {
-                    if (!booking?.email) return;
-                    setSendingFinalizeInvite(true);
-                    try {
-                      const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite`, { method: "POST" });
-                      const data = await res.json();
-                      if (res.ok) {
-                        await handleBookingUpdate();
-                        const clientName = deduplicateName(getDisplayName(booking.name) || booking.name);
+
+                {/* Invite to portal — workflow step after deposit received */}
+                <div className="p-4 bg-gray-900/70 rounded-lg border-2 border-amber-500/30">
+                  <p className="text-sm text-gray-300 mb-2">
+                    Send confirmation of payment received and invite to portal (magic link). Do this after marking deposit received.
+                  </p>
+                  <Button
+                    onClick={async () => {
+                      if (!booking?.email) return;
+                      setSendingFinalizeInvite(true);
+                      try {
+                        const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite`, { method: "POST" });
+                        const data = await res.json();
+                        if (res.ok) {
+                          await handleBookingUpdate();
+                          const clientName = deduplicateName(getDisplayName(booking.name) || booking.name);
+                          toast({
+                            title: "Confirm payment & invite sent",
+                            description: `Portal invite sent to ${clientName}. Reminder goes automatically if they don&apos;t open within 3 days.`,
+                          });
+                        } else {
+                          throw new Error(data?.error || "Failed to confirm and send invite");
+                        }
+                      } catch (e: any) {
                         toast({
-                          title: "Finalized & invite sent",
-                          description: `Status set to active, portal invite sent to ${clientName}`,
+                          title: "Error",
+                          description: e?.message || "Failed to confirm and send invite",
+                          variant: "destructive",
                         });
-                      } else {
-                        throw new Error(data?.error || "Failed to finalize and send invite");
+                      } finally {
+                        setSendingFinalizeInvite(false);
                       }
-                    } catch (e: any) {
-                      toast({
-                        title: "Error",
-                        description: e?.message || "Failed to finalize and send invite",
-                        variant: "destructive",
-                      });
-                    } finally {
-                      setSendingFinalizeInvite(false);
-                    }
-                  }}
-                  disabled={sendingFinalizeInvite || !booking?.email}
-                  className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold disabled:opacity-50 disabled:pointer-events-none"
-                >
-                  {sendingFinalizeInvite ? (
-                    <>
-                      <span className="animate-spin mr-2">⏳</span>
-                      Finalizing &amp; sending…
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4 mr-2" />
-                      Finalize &amp; Send Invite
-                    </>
+                    }}
+                    disabled={!(booking.depositReceivedManual || false) || sendingFinalizeInvite || !booking?.email}
+                    className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold disabled:opacity-50 disabled:pointer-events-none"
+                  >
+                    {sendingFinalizeInvite ? (
+                      <>
+                        <span className="animate-spin mr-2">⏳</span>
+                        Sending…
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Confirm payment &amp; invite to portal
+                      </>
+                    )}
+                  </Button>
+                  {!(booking.depositReceivedManual || false) && (
+                    <p className="text-xs text-amber-400/90 mt-2">Mark deposit received first.</p>
                   )}
-                </Button>
+                </div>
               </CardContent>
             </Card>
 
@@ -1099,11 +1088,11 @@ export default function BookingDetail() {
           {/* Right Column: The Artist Wing */}
           <div className="lg:col-span-6">
             <div className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto space-y-4">
-              {/* Artist Dispatch - Only show if DJ service */}
+              {/* Artist Worksheet - Only show if DJ service */}
               {hasDJService && (
                 <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
                   <CardHeader className="pb-3">
-                    <CardTitle className="text-lg font-semibold text-white">Artist Dispatch</CardTitle>
+                    <CardTitle className="text-lg font-semibold text-white">Artist Worksheet</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <ArtistDispatch
@@ -1114,6 +1103,14 @@ export default function BookingDetail() {
                   </CardContent>
                 </Card>
               )}
+
+              {/* Client emails (bookings + 1st touch) */}
+              <ClientEmailsCard
+                bookingId={booking.id}
+                clientName={booking.name}
+                clientEmail={booking.email}
+                getSectionBgColor={getSectionBgColor}
+              />
 
               {/* Email Composition Center */}
               <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
@@ -1131,27 +1128,8 @@ export default function BookingDetail() {
                     eventDate={booking.eventDate}
                     onSend={handleBookingUpdate}
                   />
-                </CardContent>
-              </Card>
-
-              {/* Quote Builder - Multi-Service */}
-              <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-semibold text-white">Quote Builder</CardTitle>
-                  <p className="text-xs text-gray-400">Build and send quotes for DJs, musicians, lighting, styling & more</p>
-                </CardHeader>
-                <CardContent>
-                  <MultiArtistReply
-                    bookingId={booking.id}
-                    clientEmail={booking.email}
-                    clientName={booking.name}
-                    venueName={booking.venueName}
-                    venueAddress={booking.venueAddress || undefined}
-                    eventDate={booking.eventDate}
-                    onSend={handleBookingUpdate}
-                  />
-                </CardContent>
-              </Card>
+              </CardContent>
+            </Card>
 
               {/* Technical Equipment - Warehouse Pick List */}
               <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
@@ -1161,7 +1139,7 @@ export default function BookingDetail() {
                     Technical Equipment
                   </CardTitle>
                   <p className="text-sm text-gray-400 mt-1">
-                    Add warehouse items to the pick list. These will appear in the Artist Dispatch and Master Internal Brief.
+                    Add warehouse items to the pick list. These will appear in the Artist Worksheet and Master Internal Brief.
                   </p>
                 </CardHeader>
                 <CardContent>
@@ -1304,15 +1282,19 @@ export default function BookingDetail() {
 
       {/* Edit Modal */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-800 border-champagne-gold/30">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-800 border-champagne-gold/30" aria-describedby="edit-booking-desc">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-white">Edit Booking Details</DialogTitle>
+            <DialogDescription id="edit-booking-desc" className="text-sm text-gray-400 font-normal mt-1">
+              Update client, venue, timings, and message. Venue name and postcode are free text—type anything or use Quick select. Click <strong className="text-champagne-gold">Save Changes</strong> when done.
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Client Name</label>
                 <input
+                  id="edit-name"
                   type="text"
                   defaultValue={booking.name}
                   className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
@@ -1321,6 +1303,7 @@ export default function BookingDetail() {
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Email</label>
                 <input
+                  id="edit-email"
                   type="email"
                   defaultValue={booking.email}
                   className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
@@ -1329,6 +1312,7 @@ export default function BookingDetail() {
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Phone Area Code</label>
                 <input
+                  id="edit-phoneAreaCode"
                   type="text"
                   defaultValue={booking.phoneAreaCode || ""}
                   className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
@@ -1337,10 +1321,63 @@ export default function BookingDetail() {
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Phone Number</label>
                 <input
+                  id="edit-phoneNumber"
                   type="text"
                   defaultValue={booking.phoneNumber || ""}
                   className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
                 />
+              </div>
+              <div className="col-span-2">
+                <h4 className="text-sm font-semibold text-amber-500/90 mb-2">Client home address</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2">
+                    <label className="block text-xs text-gray-400 mb-1">Address</label>
+                    <input
+                      id="edit-clientAddress"
+                      type="text"
+                      defaultValue={(booking as any).clientAddress || ""}
+                      placeholder="Line 1"
+                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-xs text-gray-400 mb-1">Address 2</label>
+                    <input
+                      id="edit-clientAddress2"
+                      type="text"
+                      defaultValue={(booking as any).clientAddress2 || ""}
+                      placeholder="Line 2"
+                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Town</label>
+                    <input
+                      id="edit-clientTown"
+                      type="text"
+                      defaultValue={(booking as any).clientTown || ""}
+                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">County</label>
+                    <input
+                      id="edit-clientCounty"
+                      type="text"
+                      defaultValue={(booking as any).clientCounty || ""}
+                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-400 mb-1">Postcode</label>
+                    <input
+                      id="edit-clientPostcode"
+                      type="text"
+                      defaultValue={(booking as any).clientPostcode || ""}
+                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                    />
+                  </div>
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-300 mb-1">Event Date</label>
@@ -1359,30 +1396,32 @@ export default function BookingDetail() {
                   onChange={(e) => {
                     const v = e.target.value;
                     if (!v) return;
+                    const [name, postcode] = v.includes("\t") ? v.split("\t") : [v, ""];
                     const vn = document.getElementById("edit-venueName") as HTMLInputElement;
-                    if (vn) vn.value = v;
-                    const venue = venues.find((x) => x.venueName === v);
+                    const vp = document.getElementById("edit-venuePostcode") as HTMLInputElement;
+                    if (vn) vn.value = name;
+                    if (vp) vp.value = postcode;
+                    const venue = venues.find((x) => x.venueName === name);
                     if (!venue) return;
-                    const ev = document.getElementById("edit-eventDate") as HTMLInputElement;
-                    const eventVal = ev?.value;
-                    if (venue.defaultCeremonyTime && eventVal) {
-                      const [d] = eventVal.split("T");
+                    if ("defaultCeremonyTime" in venue && venue.defaultCeremonyTime) {
                       const ceremonyEl = document.getElementById("edit-ceremonyTime") as HTMLInputElement;
-                      if (ceremonyEl) ceremonyEl.value = `${d}T${venue.defaultCeremonyTime}`;
+                      if (ceremonyEl) ceremonyEl.value = venue.defaultCeremonyTime;
                     }
-                    if (venue.defaultFinishTime) {
+                    if ("defaultFinishTime" in venue && venue.defaultFinishTime) {
                       const finishEl = document.getElementById("edit-djFinishTime") as HTMLInputElement;
                       if (finishEl) finishEl.value = venue.defaultFinishTime;
                     }
-                    if (venue.venueNotes) {
+                    if ("venueNotes" in venue && venue.venueNotes) {
                       const msgEl = document.getElementById("edit-message") as HTMLTextAreaElement;
                       if (msgEl) msgEl.value = venue.venueNotes;
                     }
                   }}
                 >
-                  <option value="">— Select venue to pre-fill —</option>
+                  <option value="">— Select venue to pre-fill name &amp; postcode —</option>
                   {venues.map((v) => (
-                    <option key={v.id} value={v.venueName}>{v.venueName}</option>
+                    <option key={v.id} value={v.venuePostcode ? `${v.venueName}\t${v.venuePostcode}` : v.venueName}>
+                      {v.venuePostcode ? `${v.venueName}, ${v.venuePostcode}` : v.venueName}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -1391,8 +1430,21 @@ export default function BookingDetail() {
                 <input
                   id="edit-venueName"
                   type="text"
-                  defaultValue={booking.venueName}
-                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  defaultValue={booking.venueName ?? ""}
+                  placeholder="e.g. Babington House — type freely or use Quick select"
+                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  autoComplete="off"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Venue Postcode</label>
+                <input
+                  id="edit-venuePostcode"
+                  type="text"
+                  defaultValue={booking.venuePostcode ?? ""}
+                  placeholder="e.g. BA11 3RW"
+                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  autoComplete="off"
                 />
               </div>
               <div className="col-span-2">
@@ -1407,55 +1459,75 @@ export default function BookingDetail() {
                       toast({ title: "Enter venue name", description: "Type or select a venue first.", variant: "destructive" });
                       return;
                     }
-                    const res = await fetch(`/api/admin/venues?name=${encodeURIComponent(vn)}`);
+                    const vp = (document.getElementById("edit-venuePostcode") as HTMLInputElement)?.value?.trim() || null;
+                    let applied = false;
+                    let source: "venue" | "booking" | null = null;
+                    const res = await fetch(`/api/admin/venues/?name=${encodeURIComponent(vn)}`);
                     const data = await res.json();
                     const list = data.venues || [];
-                    const venue = list.find((x: { venueName: string }) => x.venueName.toLowerCase() === vn.toLowerCase()) || list[0];
-                    if (!venue) {
-                      toast({ title: "Venue not found", description: `No defaults for "${vn}".`, variant: "destructive" });
-                      return;
+                    const venueMatch = list.find((x: { venueName?: string }) => (x.venueName || "").toLowerCase() === vn.toLowerCase()) || list[0];
+                    if (venueMatch?.defaultCeremonyTime || venueMatch?.defaultFinishTime || venueMatch?.venueNotes) {
+                      if (venueMatch.defaultCeremonyTime) {
+                        const ceremonyEl = document.getElementById("edit-ceremonyTime") as HTMLInputElement;
+                        if (ceremonyEl) ceremonyEl.value = venueMatch.defaultCeremonyTime;
+                      }
+                      if (venueMatch.defaultFinishTime) {
+                        const finishEl = document.getElementById("edit-djFinishTime") as HTMLInputElement;
+                        if (finishEl) finishEl.value = venueMatch.defaultFinishTime;
+                      }
+                      if (venueMatch.venueNotes) {
+                        const msgEl = document.getElementById("edit-message") as HTMLTextAreaElement;
+                        if (msgEl) msgEl.value = venueMatch.venueNotes;
+                      }
+                      applied = true;
+                      source = "venue";
                     }
-                    const ev = document.getElementById("edit-eventDate") as HTMLInputElement;
-                    const eventVal = ev?.value;
-                    if (venue.defaultCeremonyTime && eventVal) {
-                      const [d] = eventVal.split("T");
-                      const ceremonyEl = document.getElementById("edit-ceremonyTime") as HTMLInputElement;
-                      if (ceremonyEl) ceremonyEl.value = `${d}T${venue.defaultCeremonyTime}`;
+                    if (!applied) {
+                      const detailsRes = await fetch(`/api/admin/venues/details/?venueName=${encodeURIComponent(vn)}${vp ? `&venuePostcode=${encodeURIComponent(vp)}` : ""}`);
+                      const detailsData = await detailsRes.json();
+                      const det = detailsData?.venue;
+                      if (det?.venuePostcode) {
+                        const postcodeEl = document.getElementById("edit-venuePostcode") as HTMLInputElement;
+                        if (postcodeEl) postcodeEl.value = det.venuePostcode;
+                        applied = true;
+                        source = "booking";
+                      }
                     }
-                    if (venue.defaultFinishTime) {
-                      const finishEl = document.getElementById("edit-djFinishTime") as HTMLInputElement;
-                      if (finishEl) finishEl.value = venue.defaultFinishTime;
+                    if (applied) {
+                      toast({
+                        title: "Defaults applied",
+                        description: source === "venue"
+                          ? `Pre-filled from venue "${venueMatch?.venueName ?? vn}".`
+                          : "Pre-filled from recent booking.",
+                      });
+                    } else {
+                      toast({ title: "No defaults found", description: `No stored defaults for "${vn}". You can still type freely and save.`, variant: "destructive" });
                     }
-                    if (venue.venueNotes) {
-                      const msgEl = document.getElementById("edit-message") as HTMLTextAreaElement;
-                      if (msgEl) msgEl.value = venue.venueNotes;
-                    }
-                    toast({ title: "Defaults applied", description: `Pre-filled from ${venue.venueName}.` });
                   }}
                 >
                   Apply venue defaults
                 </Button>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Venue Postcode</label>
-                <input
-                  id="edit-venuePostcode"
-                  type="text"
-                  defaultValue={booking.venuePostcode || ""}
-                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 font-bold"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Ceremony Start</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Ceremony start</label>
                 <input
                   id="edit-ceremonyTime"
-                  type="datetime-local"
-                  defaultValue={booking.ceremonyTime ? new Date(booking.ceremonyTime).toISOString().slice(0, 16) : ""}
+                  type="time"
+                  defaultValue={booking.ceremonyTime ? new Date(booking.ceremonyTime).toISOString().slice(11, 16) : ""}
                   className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Ceremony / DJ Finish</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Artist start</label>
+                <input
+                  id="edit-djStartTime"
+                  type="time"
+                  defaultValue={booking.djStartTime || ""}
+                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Artist end</label>
                 <input
                   id="edit-djFinishTime"
                   type="time"
@@ -1487,50 +1559,85 @@ export default function BookingDetail() {
               </Button>
               <Button 
                   onClick={async () => {
-                    const venueName = (document.getElementById("edit-venueName") as HTMLInputElement)?.value?.trim();
-                    const venuePostcode = (document.getElementById("edit-venuePostcode") as HTMLInputElement)?.value?.trim() || null;
-                    const eventDateRaw = (document.getElementById("edit-eventDate") as HTMLInputElement)?.value;
-                    const ceremonyTimeRaw = (document.getElementById("edit-ceremonyTime") as HTMLInputElement)?.value;
-                    const djFinishTimeRaw = (document.getElementById("edit-djFinishTime") as HTMLInputElement)?.value || null;
-                    const messageRaw = (document.getElementById("edit-message") as HTMLTextAreaElement)?.value?.trim() || null;
+                    const get = (id: string) => ((document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null)?.value ?? "").trim();
+                    const venueName = get("edit-venueName");
+                    const venuePostcode = get("edit-venuePostcode") || null;
+                    const eventDateRaw = get("edit-eventDate");
+                    const ceremonyTimeRaw = get("edit-ceremonyTime");
+                    const djStartTimeRaw = get("edit-djStartTime") || null;
+                    const djFinishTimeRaw = get("edit-djFinishTime") || null;
+                    const messageRaw = get("edit-message") || null;
+                    const name = get("edit-name");
+                    const email = get("edit-email");
+                    const phoneAreaCode = get("edit-phoneAreaCode") || null;
+                    const phoneNumber = get("edit-phoneNumber") || null;
+                    const clientAddress = get("edit-clientAddress") || null;
+                    const clientAddress2 = get("edit-clientAddress2") || null;
+                    const clientTown = get("edit-clientTown") || null;
+                    const clientCounty = get("edit-clientCounty") || null;
+                    const clientPostcode = get("edit-clientPostcode") || null;
                     try {
-                      const payload: Record<string, unknown> = {
+                      const ceremonyDateTime = ceremonyTimeRaw && eventDateRaw
+                        ? `${eventDateRaw.slice(0, 10)}T${ceremonyTimeRaw}`
+                        : null;
+                      const flexPayload: Record<string, unknown> = {
                         venueName: venueName ?? booking.venueName,
-                        venuePostcode: (venuePostcode ?? booking.venuePostcode) || null,
-                        ceremonyTime: ceremonyTimeRaw ? new Date(ceremonyTimeRaw).toISOString() : null,
+                        venuePostcode: venuePostcode ?? booking.venuePostcode ?? null,
+                        ceremonyTime: ceremonyDateTime ? new Date(ceremonyDateTime).toISOString() : null,
+                        djStartTime: djStartTimeRaw || null,
                         djFinishTime: djFinishTimeRaw || null,
                         message: messageRaw,
                       };
                       if (eventDateRaw) {
-                        payload.overrideMode = true;
-                        payload.overrideReason = "Updated via Edit booking details";
-                        payload.eventDate = new Date(eventDateRaw).toISOString();
+                        flexPayload.overrideMode = true;
+                        flexPayload.overrideReason = "Updated via Edit booking details";
+                        flexPayload.eventDate = new Date(eventDateRaw).toISOString();
                       }
-                      const response = await fetch(`/api/admin/bookings/${booking.id}/flexible-update`, {
-                      method: "PATCH",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify(payload),
-                    });
-                    if (response.ok) {
+                      const flexRes = await fetch(`/api/admin/bookings/${booking.id}/flexible-update/`, {
+                        method: "PATCH",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(flexPayload),
+                      });
+                      if (!flexRes.ok) {
+                        const err = await flexRes.json().catch(() => ({}));
+                        throw new Error(err?.error || "Update failed");
+                      }
+                      const clientPayload: Record<string, unknown> = {};
+                      if (name) clientPayload.name = name;
+                      if (email) clientPayload.email = email;
+                      if (phoneAreaCode !== null) clientPayload.phoneAreaCode = phoneAreaCode || null;
+                      if (phoneNumber !== null) clientPayload.phoneNumber = phoneNumber || null;
+                      if (clientAddress !== null) clientPayload.clientAddress = clientAddress || null;
+                      if (clientAddress2 !== null) clientPayload.clientAddress2 = clientAddress2 || null;
+                      if (clientTown !== null) clientPayload.clientTown = clientTown || null;
+                      if (clientCounty !== null) clientPayload.clientCounty = clientCounty || null;
+                      if (clientPostcode !== null) clientPayload.clientPostcode = clientPostcode || null;
+                      if (Object.keys(clientPayload).length > 0) {
+                        const clientRes = await fetch(`/api/admin/bookings/${booking.id}/`, {
+                          method: "PATCH",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify(clientPayload),
+                        });
+                        if (!clientRes.ok) {
+                          const err = await clientRes.json().catch(() => ({}));
+                          throw new Error(err?.error || "Failed to save client details");
+                        }
+                      }
                       await handleBookingUpdate();
                       setShowEditModal(false);
                       toast({
                         title: "Saved",
-                        description: "Venue, timing and ceremony details updated",
+                        description: "Booking details updated",
                       });
-                    } else {
-                      const err = await response.json().catch(() => ({}));
-                      throw new Error(err?.error || "Update failed");
+                    } catch (e: any) {
+                      toast({
+                        title: "Error",
+                        description: e?.message || "Failed to save changes",
+                        variant: "destructive",
+                      });
                     }
-                  } catch (e: any) {
-                    toast({
-                      title: "Error",
-                      description: e?.message || "Failed to save changes",
-                      variant: "destructive",
-                    });
-                  }
-                }}
-                className="bg-champagne-gold hover:bg-champagne-gold/90 text-black"
+                  }}
+                className="bg-champagne-gold hover:bg-champagne-gold/90 text-black font-semibold px-6"
               >
                 Save Changes
               </Button>
