@@ -228,7 +228,7 @@ export default function Home() {
                 fetchPriority={index === 0 ? "high" : "auto"}
                 sizes="(max-width: 1920px) 100vw, 1920px"
                 loading={index <= 1 ? "eager" : "lazy"}
-                quality={72}
+                quality={65}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
             </div>
@@ -334,8 +334,8 @@ export default function Home() {
                         width={400}
                         height={192}
                         className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 400px"
-                        quality={75}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 384px"
+                        quality={65}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>

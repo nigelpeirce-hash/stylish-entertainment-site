@@ -1,3 +1,4 @@
+import { createHmac } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getJourneyEmail, type JourneyStage, type JourneyEmailData } from "@/lib/email-journey-templates";
@@ -5,6 +6,14 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "@/lib/get-session";
 import { getResendConfig } from "@/lib/email-config";
 import { getBrochureLink, getVenueAsset, getTrackingUrl } from "@/lib/venue-assets";
+
+/** Build signed "I've paid" URL for booking confirmation email. Uses latest base URL from env. */
+function buildMarkedPaidUrl(bookingId: string): string {
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk";
+  const secret = process.env.DEPOSIT_PAID_LINK_SECRET || process.env.NEXTAUTH_SECRET || "deposit-paid-fallback";
+  const sig = createHmac("sha256", secret).update(bookingId).digest("hex");
+  return `${baseUrl}/api/client/bookings/${bookingId}/marked-deposit-paid?sig=${encodeURIComponent(sig)}`;
+}
 
 // Force dynamic rendering to prevent build-time errors
 export const dynamic = 'force-dynamic';
@@ -18,6 +27,14 @@ const getResend = () => {
   }
   return new Resend(apiKey);
 };
+
+/** Format booking.finalBalance for booking confirmation email (e.g. "475" → "£475"). */
+function formatBalanceForEmail(finalBalance: string | number | null | undefined): string | undefined {
+  if (finalBalance == null || finalBalance === "") return undefined;
+  const num = typeof finalBalance === "string" ? parseFloat(finalBalance.replace(/[^0-9.-]/g, "")) : Number(finalBalance);
+  if (Number.isNaN(num)) return typeof finalBalance === "string" ? finalBalance : undefined;
+  return `£${Math.round(num).toLocaleString("en-GB")}`;
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -71,9 +88,12 @@ export async function POST(request: NextRequest) {
       });
 
       if (booking) {
+        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk";
+        const clientAdminUrl = `${baseUrl}/client/bookings/${booking.id}`;
+        const invoiceReference = (booking as any).bookingReference?.trim() || `SE-${booking.id.slice(-8)}`;
         emailData = {
           clientName: booking.name,
-          eventType: booking.eventType,
+          eventType: booking.eventType ?? undefined,
           eventDate: booking.eventDate
             ? new Date(booking.eventDate).toLocaleDateString("en-GB", {
                 weekday: "long",
@@ -82,9 +102,14 @@ export async function POST(request: NextRequest) {
                 day: "numeric",
               })
             : undefined,
-          venueName: booking.venueName,
-          clientAdminUrl: `https://stylishentertainment.co.uk/client/dashboard`,
+          venueName: booking.venueName ?? undefined,
+          clientAdminUrl,
           brochureUrl: undefined, // Will be set below
+          artistName: (booking as any).preferredDJ ?? undefined,
+          bookingFee: (booking as any).bookingFee ?? undefined,
+          balance: formatBalanceForEmail((booking as any).finalBalance),
+          invoiceReference,
+          ...(stage === "booking-confirmation" ? { markedPaidUrl: buildMarkedPaidUrl(booking.id) } : {}),
         };
       }
     }

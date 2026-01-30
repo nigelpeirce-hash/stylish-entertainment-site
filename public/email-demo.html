@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client &amp; Business Email Demo – Stylish Entertainment</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 20px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; background: #e8e8e8; color: #1A1A1A; }
+    .page-header { text-align: center; margin-bottom: 24px; padding: 16px; }
+    .page-header h1 { font-size: 22px; margin: 0 0 8px; }
+    .page-header p { font-size: 14px; color: #555; margin: 0; }
+    .nav { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 32px; padding: 12px; background: #fff; border-radius: 8px; border: 1px solid #e5e5e5; }
+    .nav a { padding: 8px 14px; text-decoration: none; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 4px; }
+    .nav a.client { background: #1A1A1A; color: #fff; }
+    .nav a.business { background: #475569; color: #fff; }
+    .nav a:hover { opacity: 0.9; }
+    .section-title { font-size: 18px; font-weight: 600; margin: 32px 0 16px; padding-bottom: 8px; border-bottom: 2px solid #D4AF37; color: #1A1A1A; }
+    .email-block { max-width: 640px; margin: 0 auto 48px; background: #fff; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.1); overflow: hidden; }
+    .email-block h2.email-label { margin: 0; padding: 10px 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background: #1A1A1A; color: #fff; }
+    .email-block .email-note { font-size: 12px; color: #666; margin: 0; padding: 8px 20px 12px; background: #f8f8f8; border-bottom: 1px solid #eee; }
+    .email-block.business h2.email-label { background: #475569; }
+    .email-inner { padding: 0; }
+    .email-block:not(.business) .email-inner { padding: 20px; background: linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%); }
+    .email-block:not(.business) .email-inner .email-container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.25); }
+    .email-block.business .email-inner { padding: 0; background: transparent; }
+    .email-block.business .email-inner .email-container { max-width: 600px; margin: 0 auto; background: #fff; border-top: 2px solid #000; padding: 40px; border-radius: 0; box-shadow: none; border: none; border-top: 2px solid #000; }
+    .email-inner .header { padding: 0 0 20px; text-align: center; }
+    .email-inner .divider { height: 1px; background: #D4AF37; margin: 20px 0; }
+    .email-inner .content { padding: 0; font-size: 16px; line-height: 1.6; color: #1A1A1A; }
+    .email-inner h1 { font-size: 28px; font-weight: 600; color: #1A1A1A; margin: 0 0 20px; }
+    .email-inner h2 { font-size: 22px; font-weight: 600; color: #1A1A1A; margin: 25px 0 15px; }
+    .email-inner p { margin: 0 0 16px; color: #1A1A1A; }
+    .email-inner .button, .email-inner .button-luxe { display: inline-block; padding: 14px 28px; background: #D4AF37; color: #1A1A1A !important; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.02em; margin: 20px 0; box-shadow: 0 4px 14px rgba(212,175,55,0.4); }
+    .email-inner .link { color: #D4AF37; text-decoration: underline; }
+    .email-inner .footer { padding: 0; text-align: center; font-size: 14px; color: #1A1A1A; border-top: 1px solid #eee; padding-top: 28px; margin-top: 32px; }
+    .email-inner .footer a { color: #D4AF37; text-decoration: underline; }
+    .email-inner .signature { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e5e5; font-size: 14px; color: #555; }
+    .email-inner ul { margin: 20px 0; padding-left: 25px; }
+    .logo-img { max-width: 200px; height: auto; display: block; margin: 0 auto 8px; }
+    .tagline { font-size: 11px; font-weight: 600; letter-spacing: 3px; color: #D4AF37; text-align: center; margin: 0; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <h1>Client &amp; Business Email Demo</h1>
+    <p>Content and design preview for Stylish Entertainment emails. Sample data throughout.</p>
+  </div>
+
+  <nav class="nav" aria-label="Jump to section">
+    <a href="#client-enquiry" class="client">Client: Enquiry</a>
+    <a href="#client-options-quote" class="client">Client: Options &amp; Quote</a>
+    <a href="#client-booking" class="client">Client: Booking</a>
+    <a href="#client-deposit" class="client">Client: Deposit</a>
+    <a href="#client-portal" class="client">Client: Portal</a>
+    <a href="#business-staff-confirm" class="business">Business: Staff confirm</a>
+    <a href="#business-staff-cancel" class="business">Business: Staff cancel</a>
+    <a href="#business-brief" class="business">Business: Monday brief</a>
+  </nav>
+
+  <!-- ========== CLIENT EMAILS ========== -->
+  <h2 class="section-title" id="client">Client-facing emails</h2>
+
+  <!-- 1. Enquiry autoresponder -->
+  <section class="email-block" id="client-enquiry">
+    <h2 class="email-label">1. Enquiry auto-responder</h2>
+    <div class="email-inner">
+      <div class="email-container">
+        <div class="header">
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" class="logo-img">
+          <p class="tagline">Stylish Entertainment</p>
+          <div class="divider"></div>
+        </div>
+        <div class="content">
+          <h1>Thank You for Your Enquiry</h1>
+          <p>Dear Sarah &amp; James,</p>
+          <p>Thank you for reaching out to Stylish Entertainment Ltd. We're delighted that you're considering us for your Wedding on Saturday, 15 June 2025.</p>
+          <p>We're excited to learn more about your vision and help bring it to life. We specialise in creating unforgettable celebrations with our expert DJ services, elegant lighting design, and sophisticated venue styling.</p>
+          <p>We'll be in touch within 24 hours to discuss your requirements in detail. In the meantime, if you have any questions, please don't hesitate to get in touch.</p>
+          <div class="signature">
+            <p>Kind Regards,<br><strong>Ali &amp; Nige</strong></p>
+          </div>
+        </div>
+        <div class="footer">
+          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
+          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
+          <p style="margin: 24px 0 8px 0;">Stylish Entertainment Ltd</p>
+          <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
+          <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Options & Quote (DJ & Musician enquiry reply) -->
+  <section class="email-block" id="client-options-quote">
+    <h2 class="email-label">2. Options &amp; Quote (DJ &amp; Musician enquiry)</h2>
+    <div class="email-inner">
+      <div class="email-container">
+        <div class="header">
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" class="logo-img">
+          <p class="tagline">Stylish Entertainment</p>
+          <div class="divider"></div>
+        </div>
+        <div class="content">
+          <h1>Your DJ &amp; Musician Enquiry - Options &amp; Quote</h1>
+          <p>Dear Sarah &amp; John,</p>
+          <p>Thank you for getting in touch about your event at <strong>Priston Mill</strong>!</p>
+          <p>Based on your requirements, we've put together <strong>1 DJ option</strong> and <strong>1 musician option</strong> for you to consider:</p>
+          <p>All of our DJs are professional, reliable and highly experienced, specialising in stylish weddings and private events.</p>
+          <ul style="margin: 20px 0; padding-left: 25px;">
+            <li>Seamless mixing and beat-matching</li>
+            <li>Bespoke playlists based on your likes and dislikes</li>
+            <li>No microphones, no crowd hype, no cheesy group dances</li>
+            <li>Fully insured with PAT-tested equipment</li>
+            <li>Experienced in stately homes, private houses and marquee weddings</li>
+          </ul>
+          <p>Fees are based on a maximum five-hour set and include DJ, sound system, dance floor lighting, travel and booking fee.</p>
+          <div style="background: #f8f9fa; border-left: 4px solid #D4AF37; padding: 20px; margin: 20px 0;">
+            <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e5e5e5;">
+              <span style="font-weight: 600; color: #1A1A1A;">Event Date:</span>
+              <span style="color: #333;">Friday, 6 February 2026</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+              <span style="font-weight: 600; color: #1A1A1A;">Venue:</span>
+              <span style="color: #333;">Priston Mill</span>
+            </div>
+          </div>
+          <h2 style="font-size: 20px; font-weight: 600; color: #1A1A1A; margin: 25px 0 15px;">Your DJ Option</h2>
+          <div style="border: 2px solid #D4AF37; border-radius: 8px; padding: 20px; margin-bottom: 20px; background: linear-gradient(to bottom, #fffef5, #fff);">
+            <span style="display: inline-block; background: #D4AF37; color: #000; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 15px;">RECOMMENDED</span>
+            <p style="font-size: 22px; font-weight: 600; color: #1a1a1a; margin: 0 0 5px;">DJ Nige</p>
+            <p style="font-size: 14px; color: #666; margin: 0 0 15px; font-style: italic;">With over 20 years of experience, DJ Nige is a master at reading the room...</p>
+            <div style="font-size: 14px; color: #444; line-height: 1.6; margin: 15px 0; padding: 15px; background: #f9f9f9; border-radius: 6px;">With over 20 years of experience, DJ Nige is a master at reading the room and creating the perfect atmosphere for any event. Specialising in weddings and corporate events across the South West, his seamless mixing style and extensive music knowledge ensure every dance floor stays packed all night long.</div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid #e5e5e5; margin-top: 15px;">
+              <div>
+                <div style="font-weight: 600; color: #1a1a1a;">All-inclusive fee</div>
+                <div style="font-size: 12px; color: #888;">Includes travel, setup &amp; all equipment</div>
+              </div>
+              <div style="font-size: 24px; font-weight: 700; color: #D4AF37;">£649</div>
+            </div>
+          </div>
+          <h2 style="font-size: 20px; font-weight: 600; color: #1A1A1A; margin: 25px 0 15px;">Your Musician Option</h2>
+          <div style="border: 2px solid #e5e5e5; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <p style="font-size: 22px; font-weight: 600; color: #1a1a1a; margin: 0 0 5px;">The Roaming Band</p>
+            <p style="font-size: 14px; color: #666; margin: 0 0 15px; font-style: italic;">GREAT at creating an atmosphere</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 15px; border-top: 1px solid #e5e5e5; margin-top: 15px;">
+              <div>
+                <div style="font-weight: 600; color: #1a1a1a;">All-inclusive fee</div>
+                <div style="font-size: 12px; color: #888;">Includes travel, setup &amp; all equipment</div>
+              </div>
+              <div style="font-size: 24px; font-weight: 700; color: #D4AF37;">£750</div>
+            </div>
+          </div>
+          <h2 style="font-size: 18px; font-weight: 600; color: #1A1A1A; margin: 28px 0 12px;">Optional Early Setup – £120</h2>
+          <p>If your evening entertainment is in the same space as your wedding breakfast, we can set up earlier in the day to avoid disruption.</p>
+          <p>This includes a microphone for speeches and music playback during the reception. The DJ returns in the evening to perform.</p>
+          <h2 style="font-size: 18px; font-weight: 600; color: #1A1A1A; margin: 28px 0 12px;">Booking</h2>
+          <p>To secure your chosen DJ, we take an initial booking fee, with the balance payable two weeks before your wedding.</p>
+          <p>Bookings are allocated on a first-come, first-served basis.</p>
+          <div style="text-align: center; margin: 30px 0;">
+            <p style="color: #1A1A1A; font-size: 18px; margin: 0 0 20px; font-weight: 600;">Ready to secure your entertainment?</p>
+            <a href="https://stylishentertainment.co.uk/book-dj" style="display: inline-block; background: #D4AF37; color: #000; padding: 16px 40px; border-radius: 6px; font-weight: 700; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; text-decoration: none;">BOOK YOUR DJ &amp; MUSICIAN</a>
+            <p style="color: #1A1A1A; font-size: 13px; margin: 15px 0 0;">Click above to complete your booking online — no password needed.</p>
+          </div>
+          <p>All our DJs and musicians are available on your date. If you'd like to discuss further or arrange a quick call, just let us know!</p>
+          <div class="signature">
+            <p>Kind Regards,<br><strong>Ali &amp; Nige</strong></p>
+            <div style="background: #f8f9fa; padding: 15px 20px; border-radius: 6px; font-size: 14px; margin-top: 16px;">
+              <p style="margin: 0 0 8px; color: #333;"><strong>📞 Call us:</strong> <a href="tel:+447970793177" style="color: #D4AF37; text-decoration: none;">+44 7970 793177</a></p>
+              <p style="margin: 0 0 8px; color: #333;"><strong>✉️ Email:</strong> <a href="mailto:info@stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">info@stylishentertainment.co.uk</a></p>
+              <p style="margin: 0; color: #333;"><strong>🌐 Website:</strong> <a href="https://stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">stylishentertainment.co.uk</a></p>
+            </div>
+          </div>
+        </div>
+        <div class="footer">
+          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
+          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
+          <p style="margin: 24px 0 8px 0;">Stylish Entertainment Ltd</p>
+          <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
+          <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Booking confirmation -->
+  <section class="email-block" id="client-booking">
+    <h2 class="email-label">3. Booking confirmation</h2>
+    <p style="margin: 0; padding: 10px 20px; background: #f8f9fa; font-size: 11px; color: #666; border-bottom: 1px solid #e5e5e5;">
+      <strong>Demo data (DB when sent):</strong> Client, artist, booking fee, balance, event/date/venue; Reference ← <code>booking.bookingReference</code> or SE-{id}; &quot;I've paid&quot; link ← signed URL (triggers notification + flash Paid in booking until admin confirms).
+    </p>
+    <div class="email-inner">
+      <div class="email-container">
+        <div class="header">
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" class="logo-img">
+          <p class="tagline">Stylish Entertainment</p>
+          <div class="divider"></div>
+        </div>
+        <div class="content">
+          <h1>Booking Confirmed</h1>
+          <p>Dear Sarah &amp; James,</p>
+          <p>Lovely to hear from you again and many thanks for sending over your booking request.</p>
+          <p>I've spoken with James and he'd love to come and play for you.</p>
+          <p>Initially please pay the deposit of £150 to secure James; the balance of £475 is payable to James either in cash on the night or by BACS transfer two weeks before the wedding.</p>
+          <p>Once the payment has been made I will forward you a receipt along with a link to our portal. There you can add music requests and send a link to your guests so they can request songs too.</p>
+          <p>We request you return the worksheet 3 weeks before the wedding to give James the opportunity to prepare and allow you to focus on other things.</p>
+          <h2>Payment details</h2>
+          <p>Please pay the deposit of <strong>£150</strong> by bank transfer. Use the reference below so we can match your payment.</p>
+          <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; margin: 20px 0; border: 1px solid #eee; text-align: left;">
+            <p style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #666; margin: 0 0 12px 0;">Bank details</p>
+            <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>STYLISH Ent</strong></p>
+            <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>Account Number</strong> 83312038</p>
+            <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>Sort Code</strong> 20-05-06</p>
+            <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>IBAN</strong> GB39 BARC2005 0683312038</p>
+            <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>SWIFT BIC</strong> BARC GB22</p>
+            <p style="font-size: 15px; color: #1a1a1a; margin: 12px 0 0 0;"><strong>Reference</strong> SE-12345678</p>
+            <p style="font-size: 13px; color: #666; margin: 16px 0 0 0;">STYLISH Entertainment Ltd: Registered in England 07848653</p>
+          </div>
+          <p style="text-align: center;">
+            <a href="#" class="button-luxe">I've paid</a>
+          </p>
+          <p>If you have any questions, please don't hesitate to reach out.</p>
+          <div class="signature">
+            <p>Kind Regards,<br><strong>Ali &amp; Nige</strong></p>
+          </div>
+        </div>
+        <div class="footer">
+          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
+          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
+          <p style="margin: 24px 0 8px 0;">Stylish Entertainment Ltd</p>
+          <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
+          <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. Deposit / Wedding celebration (client) – amount paid & balance from admin (bookingFee, finalBalance) -->
+  <section class="email-block" id="client-deposit">
+    <h2 class="email-label">4. Deposit confirmed – Wedding celebration (client)</h2>
+    <p class="email-note">Data source: booking fee, final balance, and preferred DJ/artist from admin. Shown when you mark Deposit received.</p>
+    <div class="email-inner">
+      <div style="max-width: 600px; margin: 0 auto; background: linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%); padding: 20px;">
+        <div style="background: #fff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(212,175,55,0.15); border: 1px solid rgba(212,175,55,0.25);">
+          <div style="text-align: center; margin-bottom: 32px;">
+            <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 220px; height: auto; margin: 0 auto 8px; display: block;">
+            <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 12px;">Stylish Entertainment</p>
+            <p style="font-size: 14px; color: #D4AF37; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; margin: 0;">Wedding Celebration</p>
+          </div>
+          <div style="text-align: center; margin-bottom: 28px;">
+            <p style="font-size: 22px; line-height: 1.5; color: #1A1A1A; font-weight: 500; margin: 0 0 16px;">We've received your deposit — your date is secured.</p>
+            <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 0 0 16px;">Your wedding date, <strong style="color: #D4AF37; font-weight: 600;">Saturday, 15 June 2025</strong>, is confirmed. We'll be with you at <strong style="color: #1A1A1A;">The Barn at Oakley</strong>.</p>
+            <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 0 0 16px 0;"><strong style="color: #D4AF37;">DJ Nige</strong> is booked for your wedding.</p>
+            <div style="background: #faf8f5; border: 1px solid rgba(212,175,55,0.3); border-radius: 8px; padding: 16px 20px; margin: 24px 0; text-align: left;">
+              <p style="font-size: 14px; color: #666; margin: 0 0 8px 0;">Amount paid: <strong style="color: #1A1A1A;">£150</strong></p>
+              <p style="font-size: 14px; color: #666; margin: 0;">Balance due: <strong style="color: #1A1A1A;">£300</strong></p>
+            </div>
+            <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 0;">We can't wait for your big day.</p>
+            <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 24px 0 0 0;">Your personal wedding portal is ready — and it's a great place to get things rolling. Add your music must-plays and no-plays, your first dance song, and invite your guests so they can request songs too. No password needed; just click below to jump in.</p>
+          </div>
+          <div style="text-align: center; margin: 36px 0;">
+            <a href="#" style="display: inline-block; background: #D4AF37; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(212,175,55,0.4);">Access your portal</a>
+          </div>
+          <div style="border-top: 1px solid #eee; padding-top: 28px; margin-top: 32px; text-align: center;">
+            <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
+            <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
+            <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center;">
+              <p style="font-size: 15px; color: #1a1a1a; margin: 0; font-weight: 500;">Kind Regards,</p>
+              <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0 0 0; font-weight: 700;">Ali &amp; Nige</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Portal invitation (client) -->
+  <section class="email-block" id="client-portal">
+    <h2 class="email-label">5. Portal invitation (client)</h2>
+    <div class="email-inner">
+      <div class="email-container">
+        <div class="header">
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" class="logo-img">
+          <p class="tagline">Stylish Entertainment</p>
+        </div>
+        <h1 style="font-size: 24px; font-weight: 600; color: #1A1A1A; margin: 20px 0;">Welcome to Your The Barn at Oakley Wedding Portal</h1>
+        <p style="font-size: 16px; line-height: 1.6; color: #333; margin: 20px 0;">Hi Sarah &amp; James,</p>
+        <p style="font-size: 16px; line-height: 1.6; color: #333; margin: 20px 0;">We've set up your personal planning portal for your wedding at <strong>The Barn at Oakley</strong>. We've already added the key timings and venue details for you. This is where you can add music requests, dislikes, and your first dance song.</p>
+        <div style="text-align: center; margin: 36px 0;">
+          <a href="#" class="button-luxe">View Your Countdown</a>
+        </div>
+        <p style="font-size: 14px; line-height: 1.6; color: #666; margin: 20px 0;">You can access your portal anytime using the link above — no password required.</p>
+        <div class="footer">
+          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
+          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
+          <div class="signature" style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb;">
+            <p style="font-size: 15px; color: #1a1a1a; margin: 0; font-weight: 500;">Kind Regards,</p>
+            <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0 0 0; font-weight: 700;">Ali &amp; Nige</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== BUSINESS EMAILS ========== -->
+  <h2 class="section-title" id="business">Business / internal emails</h2>
+
+  <!-- 5. Staff confirmation -->
+  <section class="email-block business" id="business-staff-confirm">
+    <h2 class="email-label">5. Staff confirmation (to DJ/staff)</h2>
+    <div class="email-inner">
+      <div class="email-container">
+        <div class="header">
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" class="logo-img">
+          <p class="tagline">Stylish Entertainment</p>
+        </div>
+        <div class="divider"></div>
+        <div class="content">
+          <p>Hi Mike,</p>
+          <p>Nige here from STYLISH Entertainment.</p>
+          <p>This is a formal confirmation to hold <span style="font-weight: 500; color: #1A1A1A;">Saturday, 15 June 2025</span> for <span style="font-weight: 500; color: #1A1A1A;">The Barn at Oakley</span>.</p>
+          <p>We have you down for <span style="font-weight: 500; color: #1A1A1A;">DJ</span> at the agreed fee of <span style="font-weight: 500; color: #1A1A1A;">£450</span>.</p>
+          <p>Full production details and timings will follow closer to the date.</p>
+          <p>Please reply to this email to acknowledge.</p>
+          <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e5e5; font-size: 14px; color: #555;">Best regards,<br><strong>Nige</strong><br>STYLISH Entertainment</p>
+        </div>
+        <div class="divider"></div>
+        <div class="footer">
+          <p style="margin-bottom: 8px;">STYLISH Entertainment &amp; Production</p>
+          <p style="margin-bottom: 8px;">info@stylishentertainment.co.uk</p>
+          <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Staff cancellation -->
+  <section class="email-block business" id="business-staff-cancel">
+    <h2 class="email-label">6. Staff cancellation (to DJ/staff)</h2>
+    <div class="email-inner">
+      <div class="email-container">
+        <div class="header">
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" class="logo-img">
+          <p class="tagline">Stylish Entertainment</p>
+        </div>
+        <div class="divider"></div>
+        <div class="content">
+          <p>Hi Mike,</p>
+          <p>Nige here from STYLISH Entertainment.</p>
+          <p>Unfortunately, I need to cancel your assignment for <span style="font-weight: 500; color: #1A1A1A;">Saturday, 15 June 2025</span> at <span style="font-weight: 500; color: #1A1A1A;">The Barn at Oakley</span>.</p>
+          <p>You were confirmed for <span style="font-weight: 500; color: #1A1A1A;">DJ</span>.</p>
+          <div style="background: #f5f5f0; border-left: 3px solid #D4AF37; padding: 15px; margin: 20px 0;">
+            <p style="margin: 0;"><strong>Reason:</strong> Client has postponed the wedding to autumn 2026.</p>
+          </div>
+          <p>I apologise for any inconvenience this may cause. We'll keep you in mind for future events.</p>
+          <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e5e5; font-size: 14px; color: #555;">Best regards,<br><strong>Nige</strong><br>STYLISH Entertainment</p>
+        </div>
+        <div class="divider"></div>
+        <div class="footer">
+          <p style="margin-bottom: 8px;">STYLISH Entertainment &amp; Production</p>
+          <p style="margin-bottom: 8px;">info@stylishentertainment.co.uk</p>
+          <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. Monday morning brief -->
+  <section class="email-block business" id="business-brief">
+    <h2 class="email-label">7. Monday morning brief (internal)</h2>
+    <div class="email-inner">
+      <div style="max-width: 600px; margin: 0 auto; background: #fff; border-top: 2px solid #000;">
+        <div style="padding: 40px 30px; text-align: center; border-bottom: 1px solid #e5e5e5;">
+          <h1 style="font-size: 32px; font-weight: 600; color: #1A1A1A; margin: 0; letter-spacing: 0.5px;">STYLISH Entertainment</h1>
+        </div>
+        <div style="padding: 30px; border-bottom: 1px solid #e5e5e5;">
+          <p style="font-size: 18px; color: #1A1A1A; margin: 0; line-height: 1.8;">Good morning Ali &amp; Nige,<br>here is your STYLISH briefing for the week of 27 January 2025.</p>
+        </div>
+        <div style="padding: 30px; border-bottom: 1px solid #e5e5e5;">
+          <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background: #fee2e2; color: #dc2626;">Urgent</span>
+            <h2 style="font-size: 24px; font-weight: 600; margin: 0 0 0 12px; color: #dc2626;">Actions Required</h2>
+          </div>
+          <div style="background: #fef2f2; border-left: 4px solid #dc2626; padding: 20px; margin-bottom: 16px; border-radius: 4px;">
+            <p style="font-weight: 600; font-size: 16px; color: #1A1A1A; margin: 0 0 8px;">Sarah &amp; James @ The Barn at Oakley</p>
+            <p style="font-size: 14px; color: #1A1A1A; font-weight: 500; margin: 0 0 8px;">14 days • Saturday, 15 June 2025</p>
+            <p style="font-size: 13px; color: #1A1A1A; font-style: italic; margin: 8px 0;">Final details not yet confirmed by client.</p>
+            <a href="#" style="display: inline-block; margin-top: 12px; padding: 12px 24px; background: #000; color: #fff; text-decoration: none; border-radius: 2px; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">View Booking →</a>
+          </div>
+        </div>
+        <div style="padding: 30px; border-bottom: 1px solid #e5e5e5;">
+          <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background: #fef3c7; color: #b45309;">Client</span>
+            <h2 style="font-size: 24px; font-weight: 600; margin: 0 0 0 12px; color: #d4af37;">Portal Messages</h2>
+          </div>
+          <div style="background: #fffbeb; border-left: 4px solid #d4af37; padding: 20px; margin-bottom: 16px; border-radius: 4px;">
+            <p style="font-weight: 600; font-size: 16px; color: #1A1A1A; margin: 0 0 8px;">Emma &amp; Tom @ Babington House</p>
+            <p style="font-size: 14px; color: #1A1A1A; font-weight: 500; margin: 0 0 8px;">7 days • Saturday, 8 February 2025</p>
+            <p style="font-size: 13px; color: #1A1A1A; font-style: italic; margin: 8px 0;">New message in client portal.</p>
+            <a href="#" style="display: inline-block; margin-top: 12px; padding: 12px 24px; background: #000; color: #fff; text-decoration: none; border-radius: 2px; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">View Messages →</a>
+          </div>
+        </div>
+        <div style="padding: 30px; border-bottom: 1px solid #e5e5e5;">
+          <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <span style="display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; background: #dbeafe; color: #2563eb;">Staff</span>
+            <h2 style="font-size: 24px; font-weight: 600; margin: 0 0 0 12px; color: #2563eb;">Staff Confirmations</h2>
+          </div>
+          <div style="background: #eff6ff; border-left: 4px solid #2563eb; padding: 20px; margin-bottom: 16px; border-radius: 4px;">
+            <p style="font-weight: 600; font-size: 16px; color: #1A1A1A; margin: 0 0 8px;">Sarah &amp; James @ The Barn at Oakley</p>
+            <p style="font-size: 14px; color: #1A1A1A; font-weight: 500; margin: 0 0 8px;">14 days • Saturday, 15 June 2025</p>
+            <p style="font-size: 13px; color: #1A1A1A; font-style: italic; margin: 8px 0;">DJ not yet confirmed.</p>
+            <a href="#" style="display: inline-block; margin-top: 12px; padding: 12px 24px; background: #000; color: #fff; text-decoration: none; border-radius: 2px; font-size: 14px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">View Booking →</a>
+          </div>
+        </div>
+        <div style="background: #f9fafb; padding: 20px 30px; border-top: 1px solid #e5e5e5; text-align: center;">
+          <p style="font-size: 14px; color: #6b7280; margin: 0;">3 actions this week</p>
+        </div>
+        <div style="background: #1a1a1a; padding: 30px; text-align: center; color: #ccc; font-size: 12px;">
+          <p style="margin: 4px 0; color: #ccc;">STYLISH Entertainment – Monday Brief</p>
+          <p style="margin: 4px 0;"><a href="#" style="color: #ccc;">Open admin</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

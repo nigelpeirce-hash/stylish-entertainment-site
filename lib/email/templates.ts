@@ -46,25 +46,30 @@ export function PORTAL_INVITATION(input: PortalInvitationInput): {
     : `We've set up your personal booking portal for ${eventLabel} at ${venue}. We've added the key timings and venue details. You can manage your preferences, add music details, and keep in touch with us.`;
 
   const html = `
-    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto;">
-      <div style="border-top: 2px solid #000000; padding-top: 20px; margin-top: 20px;"></div>
-      <h1 style="font-size: 24px; font-weight: 600; color: #1A1A1A; margin: 20px 0;">Welcome to Your ${venue} ${portalLabel}</h1>
-      <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 20px 0;">
-        Hi ${greetingName},
-      </p>
-      <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 20px 0;">
-        ${intro}
-      </p>
-      <div style="text-align: center; margin: 40px 0;">
-        <a href="${input.portalUrl}" style="display: inline-block; background-color: ${GOLD}; color: #1A1A1A; padding: 16px 32px; text-decoration: none; font-weight: 700; border-radius: 6px; font-size: 16px; letter-spacing: 0.02em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);">
-          View Your Countdown
-        </a>
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+    <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%);">
+      <div style="background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.25);">
+        <div style="text-align: center; margin-bottom: 32px;">
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 220px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
+          <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0;">Stylish Entertainment</p>
+        </div>
+        <h1 style="font-size: 24px; font-weight: 600; color: #1A1A1A; margin: 20px 0;">Welcome to Your ${venue} ${portalLabel}</h1>
+        <p style="font-size: 16px; line-height: 1.6; color: #333; margin: 20px 0;">Hi ${greetingName},</p>
+        <p style="font-size: 16px; line-height: 1.6; color: #333; margin: 20px 0;">${intro}</p>
+        <div style="text-align: center; margin: 36px 0;">
+          <a href="${input.portalUrl}" style="display: inline-block; background-color: ${GOLD}; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);">View Your Countdown</a>
+        </div>
+        <p style="font-size: 14px; line-height: 1.6; color: #666; margin: 20px 0;">You can access your portal anytime using the link above — no password required.</p>
+        <div style="border-top: 1px solid #eee; padding-top: 28px; margin-top: 32px; text-align: center;">
+          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
+          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
+          ${CLIENT_SIGNATURE_BLOCK_HTML}
+        </div>
       </div>
-      <p style="font-size: 14px; line-height: 1.6; color: #666666; margin: 20px 0;">
-        You can access your portal anytime using the link above — no password required.
-      </p>
-      ${CLIENT_SIGNATURE_BLOCK_HTML}
-    </div>
+    </body>
+    </html>
   `;
 
   const text = `Hi ${greetingName},\n\n${introText}\n\nView Your Countdown: ${input.portalUrl}\n\nYou can access your portal anytime using the link above — no password required.\n\n${CLIENT_SIGNOFF_TEXT}`;
@@ -92,24 +97,30 @@ export function PORTAL_REMINDER(input: PortalInvitationInput): {
   const subject = `Reminder: Your ${venue} ${portalLabel} link | Stylish Entertainment Ltd`;
 
   const html = `
-    <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto;">
-      <h1 style="font-size: 22px; font-weight: 600; color: #1A1A1A; margin: 20px 0;">Reminder: Your portal link</h1>
-      <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 20px 0;">
-        Hi ${greetingName},
-      </p>
-      <p style="font-size: 16px; line-height: 1.6; color: #333333; margin: 20px 0;">
-        We recently sent you a link to your ${portalLabel} for ${venue}. If you haven&apos;t had a chance to use it yet, here it is again — no password required.
-      </p>
-      <div style="text-align: center; margin: 40px 0;">
-        <a href="${input.portalUrl}" style="display: inline-block; background-color: ${GOLD}; color: #1A1A1A; padding: 16px 32px; text-decoration: none; font-weight: 700; border-radius: 6px; font-size: 16px; letter-spacing: 0.02em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);">
-          View Your Countdown
-        </a>
+    <!DOCTYPE html>
+    <html>
+    <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+    <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%);">
+      <div style="background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.25);">
+        <div style="text-align: center; margin-bottom: 32px;">
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 220px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
+          <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0;">Stylish Entertainment</p>
+        </div>
+        <h1 style="font-size: 22px; font-weight: 600; color: #1A1A1A; margin: 20px 0;">Reminder: Your portal link</h1>
+        <p style="font-size: 16px; line-height: 1.6; color: #333; margin: 20px 0;">Hi ${greetingName},</p>
+        <p style="font-size: 16px; line-height: 1.6; color: #333; margin: 20px 0;">We recently sent you a link to your ${portalLabel} for ${venue}. If you haven&apos;t had a chance to use it yet, here it is again — no password required.</p>
+        <div style="text-align: center; margin: 36px 0;">
+          <a href="${input.portalUrl}" style="display: inline-block; background-color: ${GOLD}; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);">View Your Countdown</a>
+        </div>
+        <p style="font-size: 14px; line-height: 1.6; color: #666; margin: 20px 0;">You can access your portal anytime using the link above.</p>
+        <div style="border-top: 1px solid #eee; padding-top: 28px; margin-top: 32px; text-align: center;">
+          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
+          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
+          ${CLIENT_SIGNATURE_BLOCK_HTML}
+        </div>
       </div>
-      <p style="font-size: 14px; line-height: 1.6; color: #666666; margin: 20px 0;">
-        You can access your portal anytime using the link above.
-      </p>
-      ${CLIENT_SIGNATURE_BLOCK_HTML}
-    </div>
+    </body>
+    </html>
   `;
 
   const text = `Hi ${greetingName},\n\nWe recently sent you a link to your ${portalLabel} for ${venue}. If you haven't had a chance to use it yet, here it is again — no password required.\n\nView Your Countdown: ${input.portalUrl}\n\nYou can access your portal anytime using the link above.\n\n${CLIENT_SIGNOFF_TEXT}`;

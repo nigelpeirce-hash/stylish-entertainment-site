@@ -270,8 +270,8 @@ export async function POST(request: NextRequest) {
 
               <div style="text-align: center; margin: 30px 0; padding: 30px; background: linear-gradient(135deg, #1a1a1a, #2a2a2a) !important; border-radius: 8px;">
                 <p style="color: #ffffff !important; font-size: 18px; margin: 0 0 20px; font-family: 'Playfair Display', serif;">Ready to secure your DJ?</p>
-                <a href="mailto:info@stylishentertainment.co.uk?subject=Booking%20Confirmation%20-%20${encodeURIComponent(venueName || '')}%20${encodeURIComponent(formattedDate)}" style="display: inline-block; background: #D4AF37 !important; color: #000000 !important; padding: 16px 40px; border-radius: 6px; font-weight: 700; text-decoration: none; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">Book Your DJ</a>
-                <p style="color: #cccccc !important; font-size: 13px; margin: 15px 0 0;">Reply to this email or click above to confirm your booking</p>
+                <a href="${(process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk")}/book-dj" style="display: inline-block; background: #D4AF37 !important; color: #000000 !important; padding: 16px 40px; border-radius: 6px; font-weight: 700; text-decoration: none; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">Book Your DJ</a>
+                <p style="color: #cccccc !important; font-size: 13px; margin: 15px 0 0;">Click above to complete your booking online — no password needed.</p>
               </div>
 
               <p>If you have any questions or would like to discuss any of these details further, please don't hesitate to get in touch.</p>

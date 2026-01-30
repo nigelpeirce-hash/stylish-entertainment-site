@@ -586,6 +586,22 @@
     animation: light-sweep 8s ease-in-out infinite;
   }
   
+  /* Disable non-composited nav animations on mobile for better TBT/LCP */
+  @media (max-width: 768px) {
+    .animate-gradient-shift,
+    .animate-light-sweep {
+      animation: none;
+    }
+  }
+  
+  /* Respect prefers-reduced-motion (accessibility) */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-gradient-shift,
+    .animate-light-sweep {
+      animation: none;
+    }
+  }
+  
   /* Wave divider animations - GPU accelerated translateX */
   .animate-wave-slide-1 {
     animation: wave-slide-1 20s linear infinite;

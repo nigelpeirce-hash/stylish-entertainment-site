@@ -41,6 +41,9 @@ export async function POST(
         eventDate: true,
         eventType: true,
         venueName: true,
+        bookingFee: true,
+        finalBalance: true,
+        preferredDJ: true,
       },
     });
 
@@ -61,6 +64,9 @@ export async function POST(
         eventType: booking.eventType || undefined,
         venueName: booking.venueName || undefined,
         bookingId: booking.id,
+        bookingFee: booking.bookingFee,
+        finalBalance: booking.finalBalance,
+        preferredDJ: booking.preferredDJ,
       },
       portalUrl,
     });

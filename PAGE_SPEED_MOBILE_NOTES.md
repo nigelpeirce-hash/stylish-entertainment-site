@@ -36,7 +36,23 @@
    - CookieYes loads 2.5s after page load to reduce initial JS on mobile.
 
 7. **Slider image quality**  
-   - Reduced from 78 to 72 to save bytes.
+   - Reduced from 78 to 72, then to 65 to save bytes (PageSpeed Jan 30: 78 KiB est. savings).
+
+8. **GTM + GA deferred** (Jan 30, 2026)  
+   - Changed `strategy="afterInteractive"` → `strategy="lazyOnload"` for GoogleTagManager and GoogleAnalytics.  
+   - Defers ~395 KiB and ~385 ms main-thread work until after page idle; improves LCP and TBT.
+
+9. **Nav animations on mobile**  
+   - Disabled `animate-gradient-shift` and `animate-light-sweep` below 768px (non-composited `background-position` animations).
+
+10. **Logo dimensions**  
+    - Added `width={200} height={80}` to Navigation logo to prevent layout shift.
+
+11. **Services images**  
+    - Quality 75 → 65; tightened `sizes` to `(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px`.
+
+12. **Cloudinary preconnect**  
+    - Added `crossOrigin="anonymous"` for image preconnect.
 
 ---
 

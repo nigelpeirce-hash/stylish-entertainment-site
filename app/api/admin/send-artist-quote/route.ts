@@ -32,9 +32,6 @@ const EMAIL_STYLES = `
     /* Prevent dark mode from inverting colors */
     @media (prefers-color-scheme: dark) {
       .email-container { background-color: #ffffff !important; }
-      .cta-section { background: linear-gradient(135deg, #1a1a1a, #2a2a2a) !important; }
-      .cta-text { color: #ffffff !important; }
-      .cta-subtext { color: #cccccc !important; }
     }
     
     body {
@@ -232,26 +229,17 @@ const EMAIL_STYLES = `
     .cta-section {
       text-align: center;
       margin: 30px 0;
-      padding: 30px;
-      background: linear-gradient(135deg, #1a1a1a, #2a2a2a) !important;
-      border-radius: 8px;
     }
     
     .cta-text {
-      color: #ffffff !important;
+      color: #1a1a1a !important;
       font-size: 18px;
       margin: 0 0 20px;
       font-family: 'Playfair Display', serif;
     }
     
     .cta-subtext {
-      color: #cccccc !important;
-    }
-    
-    @media (prefers-color-scheme: dark) {
-      .cta-section { background: linear-gradient(135deg, #1a1a1a, #2a2a2a) !important; }
-      .cta-text { color: #ffffff !important; }
-      .cta-subtext { color: #cccccc !important; }
+      color: #1a1a1a !important;
     }
     
     .cta-button {
@@ -268,7 +256,7 @@ const EMAIL_STYLES = `
     }
     
     .cta-subtext {
-      color: #888888;
+      color: #1a1a1a !important;
       font-size: 13px;
       margin: 15px 0 0;
     }
@@ -392,6 +380,8 @@ export async function POST(request: NextRequest) {
 
     const ctaLabel = hasDJ && hasMusician ? "your entertainment" : hasDJ ? "your DJ" : "your musician";
     const ctaButton = hasDJ && hasMusician ? "Book Your DJ & Musician" : hasDJ ? "Book Your DJ" : "Book Your Musician";
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk";
+    const bookingFormUrl = `${baseUrl}/book-dj`;
     const followUp =
       hasDJ && hasMusician
         ? "<p>All our DJs and musicians are available on your date. If you'd like to discuss further or arrange a quick call, just let us know!</p>"
@@ -438,8 +428,8 @@ export async function POST(request: NextRequest) {
 
               <div class="cta-section">
                 <p class="cta-text">Ready to secure ${ctaLabel}?</p>
-                <a href="mailto:info@stylishentertainment.co.uk?subject=Booking%20Confirmation%20-%20${encodeURIComponent(venueName)}%20${encodeURIComponent(formattedDate)}" class="cta-button">${ctaButton}</a>
-                <p class="cta-subtext" style="color: #cccccc !important;">Reply to this email or click above to confirm your booking</p>
+                <a href="${bookingFormUrl}" class="cta-button">${ctaButton}</a>
+                <p class="cta-subtext" style="color: #1a1a1a !important;">Click above to complete your booking online — no password needed.</p>
               </div>
 
               ${followUp}

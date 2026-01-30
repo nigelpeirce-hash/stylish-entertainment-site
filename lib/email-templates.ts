@@ -217,6 +217,35 @@ function depositEmailData(booking: BookingDetails & { clientName?: string }) {
   return { eventDate, venue, showVenue, clientName };
 }
 
+/** Deposit email payload: booking details + optional fee/balance and artist (from admin). */
+export type DepositEmailPayload = BookingDetails & { clientName?: string; bookingFee?: string | null; finalBalance?: string | null; preferredDJ?: string | null };
+
+function depositPaymentSummary(booking: DepositEmailPayload): { html: string; text: string } {
+  const amountPaid = formatAmountForEmail(booking.bookingFee);
+  const balanceDue = formatAmountForEmail(booking.finalBalance);
+  const show = amountPaid !== "—" || balanceDue !== "—";
+  const html = show
+    ? `<div style="background: #faf8f5; border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 8px; padding: 16px 20px; margin: 24px 0; text-align: left;">
+  <p style="font-size: 14px; color: #666; margin: 0 0 8px 0;">Amount paid: <strong style="color: #1A1A1A;">${amountPaid}</strong></p>
+  <p style="font-size: 14px; color: #666; margin: 0;">Balance due: <strong style="color: #1A1A1A;">${balanceDue}</strong></p>
+</div>`
+    : "";
+  const text = show ? `Amount paid: ${amountPaid}\nBalance due: ${balanceDue}\n\n` : "";
+  return { html, text };
+}
+
+const DEPOSIT_HEADLINE = "We've received your deposit — your date is secured.";
+
+/** Who's been booked (preferredDJ) – line for deposit email; empty if not set. */
+function depositBookedArtistLine(preferredDJ: string | null | undefined, eventLabel: "wedding" | "event"): { html: string; text: string } {
+  const name = (preferredDJ || "").trim();
+  if (!name) return { html: "", text: "" };
+  const line = eventLabel === "wedding"
+    ? `<strong style="color: #D4AF37;">${name}</strong> is booked for your wedding.`
+    : `<strong style="color: #D4AF37;">${name}</strong> is booked for your event.`;
+  return { html: `<p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 0 0 16px 0;">${line}</p>`, text: `${name} is booked for your ${eventLabel}.\n\n` };
+}
+
 /**
  * Wedding Celebration – gold confetti theme. Use when eventType === 'wedding'.
  */
@@ -224,10 +253,12 @@ export function depositEmailWeddingCelebration({
   booking,
   portalUrl,
 }: {
-  booking: BookingDetails & { clientName?: string };
+  booking: DepositEmailPayload;
   portalUrl: string;
 }): { subject: string; html: string; text: string } {
   const { eventDate, venue, showVenue, clientName } = depositEmailData(booking);
+  const { html: paymentSummaryHtml, text: paymentSummaryText } = depositPaymentSummary(booking);
+  const { html: bookedArtistHtml, text: bookedArtistText } = depositBookedArtistLine(booking.preferredDJ, "wedding");
   const GOLD = "#D4AF37";
 
   const html = `
@@ -245,9 +276,71 @@ export function depositEmailWeddingCelebration({
           <p style="font-size: 14px; color: ${GOLD}; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; margin: 0;">Wedding Celebration</p>
         </div>
         <div style="text-align: center; margin-bottom: 28px;">
-          <p style="font-size: 22px; line-height: 1.5; color: #1A1A1A; font-weight: 500; margin: 0 0 16px 0;">You're in — we're thrilled to confirm it.</p>
-          <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 0 0 16px 0;">Your wedding date, <strong style="color: ${GOLD}; font-weight: 600;">${eventDate}</strong>, is officially secured.${showVenue ? ` We'll be with you at <strong style="color: #1A1A1A;">${venue}</strong>.` : ""}</p>
+          <p style="font-size: 22px; line-height: 1.5; color: #1A1A1A; font-weight: 500; margin: 0 0 16px 0;">${DEPOSIT_HEADLINE}</p>
+          <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 0 0 16px 0;">Your wedding date, <strong style="color: ${GOLD}; font-weight: 600;">${eventDate}</strong>, is confirmed.${showVenue ? ` We'll be with you at <strong style="color: #1A1A1A;">${venue}</strong>.` : ""}</p>
+          ${bookedArtistHtml}
+          ${paymentSummaryHtml}
           <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 0;">We can't wait for your big day.</p>
+          <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 24px 0 0 0;">Your personal wedding portal is ready — and it's a great place to get things rolling. Add your music must-plays and no-plays, your first dance song, and invite your guests so they can request songs too. No password needed; just click below to jump in.</p>
+        </div>
+        <div style="text-align: center; margin: 36px 0;">
+          <a href="${portalUrl}" style="display: inline-block; background-color: ${GOLD}; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);">Access your portal</a>
+        </div>
+        <div style="border-top: 1px solid #eee; padding-top: 28px; margin-top: 32px; text-align: center;">
+          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">${TAGLINE}</p>
+          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
+          ${CLIENT_SIGNATURE_BLOCK_HTML}
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  const text = `Wedding Celebration\n\n${DEPOSIT_HEADLINE}\n\nYour wedding date, ${eventDate}, is confirmed.${showVenue ? ` We'll be with you at ${venue}.` : ""}\n\n${bookedArtistText}${paymentSummaryText}We can't wait for your big day.\n\nYour personal wedding portal is ready — and it's a great place to get things rolling. Add your music must-plays and no-plays, your first dance song, and invite your guests so they can request songs too. No password needed; just click the link below to jump in.\n\nAccess your portal: ${portalUrl}\n\n${TAGLINE}\n\nQuestions or changes? We're here to help.\n\n${CLIENT_SIGNOFF_TEXT}`;
+
+  return {
+    subject: `Your Date is Secured: ${clientName} x Stylish Entertainment Ltd`,
+    html,
+    text,
+  };
+}
+
+/**
+ * Event Confirmed – same amber frame and CTA as deposit Wedding Celebration. Use for corporate / private.
+ */
+export function depositEmailEventConfirmed({
+  booking,
+  portalUrl,
+}: {
+  booking: DepositEmailPayload;
+  portalUrl: string;
+}): { subject: string; html: string; text: string } {
+  const { eventDate, venue, showVenue, clientName } = depositEmailData(booking);
+  const { dateLabel, closing } = depositWording(booking.eventType);
+  const { html: paymentSummaryHtml, text: paymentSummaryText } = depositPaymentSummary(booking);
+  const { html: bookedArtistHtml, text: bookedArtistText } = depositBookedArtistLine(booking.preferredDJ, "event");
+  const GOLD = "#D4AF37";
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%);">
+      <div style="background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.25);">
+        <div style="text-align: center; margin-bottom: 32px;">
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 220px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
+          <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 12px 0;">Stylish Entertainment</p>
+          <p style="font-size: 14px; color: ${GOLD}; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; margin: 0;">Event Confirmed</p>
+        </div>
+        <div style="text-align: center; margin-bottom: 28px;">
+          <p style="font-size: 22px; line-height: 1.5; color: #1A1A1A; font-weight: 500; margin: 0 0 16px 0;">${DEPOSIT_HEADLINE}</p>
+          <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 0 0 16px 0;">Your ${dateLabel} date, <strong style="color: ${GOLD}; font-weight: 600;">${eventDate}</strong>, is confirmed.${showVenue ? ` We'll be with you at <strong style="color: #1A1A1A;">${venue}</strong>.` : ""}</p>
+          ${bookedArtistHtml}
+          ${paymentSummaryHtml}
+          <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 0;">${closing}</p>
         </div>
         <div style="text-align: center; margin: 36px 0;">
           <a href="${portalUrl}" style="display: inline-block; background-color: ${GOLD}; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);">View Your Countdown</a>
@@ -262,7 +355,7 @@ export function depositEmailWeddingCelebration({
     </html>
   `;
 
-  const text = `Wedding Celebration\n\nYou're in — we're thrilled to confirm it.\n\nYour wedding date, ${eventDate}, is officially secured.${showVenue ? ` We'll be with you at ${venue}.` : ""}\n\nWe can't wait for your big day.\n\nView Your Countdown: ${portalUrl}\n\n${TAGLINE}\n\nQuestions or changes? We're here to help.\n\n${CLIENT_SIGNOFF_TEXT}`;
+  const text = `Event Confirmed\n\n${DEPOSIT_HEADLINE}\n\nYour ${dateLabel} date, ${eventDate}, is confirmed.${showVenue ? ` We'll be with you at ${venue}.` : ""}\n\n${bookedArtistText}${paymentSummaryText}${closing}\n\nView Your Countdown: ${portalUrl}\n\n${TAGLINE}\n\nQuestions or changes? We're here to help.\n\n${CLIENT_SIGNOFF_TEXT}`;
 
   return {
     subject: `Your Date is Secured: ${clientName} x Stylish Entertainment Ltd`,
@@ -271,62 +364,22 @@ export function depositEmailWeddingCelebration({
   };
 }
 
-/**
- * Event Confirmed – professional template. Use for corporate / private.
- */
-export function depositEmailEventConfirmed({
-  booking,
-  portalUrl,
-}: {
-  booking: BookingDetails & { clientName?: string };
-  portalUrl: string;
-}): { subject: string; html: string; text: string } {
-  const { eventDate, venue, showVenue, clientName } = depositEmailData(booking);
-  const { dateLabel, closing } = depositWording(booking.eventType);
-  const ACCENT = "#475569";
-
-  const html = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    </head>
-    <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
-      <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border: 1px solid #e5e7eb;">
-        <div style="text-align: center; margin-bottom: 28px;">
-          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 200px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto; opacity: 0.95;" />
-          <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 8px 0;">Stylish Entertainment</p>
-          <p style="font-size: 13px; color: ${ACCENT}; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin: 0;">Event Confirmed</p>
-        </div>
-        <div style="text-align: center; margin-bottom: 24px;">
-          <p style="font-size: 20px; line-height: 1.5; color: #1A1A1A; font-weight: 500; margin: 0 0 14px 0;">You're in — we're thrilled to confirm it.</p>
-          <p style="font-size: 16px; line-height: 1.6; color: #374151; font-weight: 400; margin: 0 0 14px 0;">Your ${dateLabel} date, <strong style="color: ${ACCENT};">${eventDate}</strong>, is officially secured.${showVenue ? ` We'll be with you at <strong>${venue}</strong>.` : ""}</p>
-          <p style="font-size: 16px; line-height: 1.6; color: #374151; font-weight: 400; margin: 0;">${closing}</p>
-        </div>
-        <div style="text-align: center; margin: 32px 0;">
-          <a href="${portalUrl}" style="display: inline-block; background-color: ${ACCENT}; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-weight: 600; font-size: 15px;">View Your Countdown</a>
-        </div>
-        <div style="border-top: 1px solid #e5e7eb; padding-top: 24px; margin-top: 28px; text-align: center;">
-          <p style="font-size: 13px; color: #6b7280; font-style: italic; margin: 0;">${TAGLINE}</p>
-          <p style="font-size: 13px; color: #6b7280; margin: 12px 0 0 0;">Questions or changes? We're here to help.</p>
-          ${CLIENT_SIGNATURE_BLOCK_HTML}
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
-
-  const text = `Event Confirmed\n\nYou're in — we're thrilled to confirm it.\n\nYour ${dateLabel} date, ${eventDate}, is officially secured.${showVenue ? ` We'll be with you at ${venue}.` : ""}\n\n${closing}\n\nView Your Countdown: ${portalUrl}\n\n${TAGLINE}\n\nQuestions or changes? We're here to help.\n\n${CLIENT_SIGNOFF_TEXT}`;
-
-  return {
-    subject: `Your Date is Secured: ${clientName} x Stylish Entertainment Ltd`,
-    html,
-    text,
-  };
+/** Format amount for email (accepts "£150" or 150); returns e.g. "£150" or "—" if missing. */
+function formatAmountForEmail(value: string | number | null | undefined): string {
+  if (value == null || value === "") return "—";
+  const s = String(value).trim();
+  if (!s) return "—";
+  if (/^\d+(\.\d+)?$/.test(s)) return `£${s}`;
+  return s;
 }
 
-export function DEPOSIT_CONFIRMED({ booking, portalUrl }: { booking: BookingDetails; portalUrl: string }): { subject: string; html: string; text: string } {
+export interface DepositConfirmedBooking extends BookingDetails {
+  bookingFee?: string | null;
+  finalBalance?: string | null;
+  preferredDJ?: string | null;
+}
+
+export function DEPOSIT_CONFIRMED({ booking, portalUrl }: { booking: DepositConfirmedBooking; portalUrl: string }): { subject: string; html: string; text: string } {
   const eventDate = booking.eventDate 
     ? new Date(booking.eventDate).toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
     : "TBC";
@@ -335,6 +388,22 @@ export function DEPOSIT_CONFIRMED({ booking, portalUrl }: { booking: BookingDeta
   
   const clientNames = safeClientName(booking.name);
   const { dateLabel, closing } = depositWording(booking.eventType);
+  const amountPaid = formatAmountForEmail(booking.bookingFee);
+  const balanceDue = formatAmountForEmail(booking.finalBalance);
+  const showPaymentSummary = amountPaid !== "—" || balanceDue !== "—";
+  const headline = "We've received your deposit — your date is secured.";
+  const isWedding = (booking.eventType || "").toLowerCase().trim() === "wedding";
+  const { html: bookedArtistHtml, text: bookedArtistText } = depositBookedArtistLine(booking.preferredDJ, isWedding ? "wedding" : "event");
+  
+  const paymentSummaryHtml = showPaymentSummary
+    ? `<div style="background: #faf8f5; border: 1px solid rgba(212, 175, 55, 0.3); border-radius: 8px; padding: 16px 20px; margin: 24px 0; text-align: left;">
+  <p style="font-size: 14px; color: #666; margin: 0 0 8px 0;">Amount paid: <strong style="color: #1A1A1A;">${amountPaid}</strong></p>
+  <p style="font-size: 14px; color: #666; margin: 0;">Balance due: <strong style="color: #1A1A1A;">${balanceDue}</strong></p>
+</div>`
+    : "";
+  const paymentSummaryText = showPaymentSummary
+    ? `Amount paid: ${amountPaid}\nBalance due: ${balanceDue}\n\n`
+    : "";
   
   const html = `
     <!DOCTYPE html>
@@ -343,40 +412,25 @@ export function DEPOSIT_CONFIRMED({ booking, portalUrl }: { booking: BookingDeta
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
-    <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f0;">
-      <div style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <!-- Header with Logo -->
-        <div style="text-align: center; margin-bottom: 40px;">
-          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 250px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
+    <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%);">
+      <div style="background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.25);">
+        <div style="text-align: center; margin-bottom: 32px;">
+          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 220px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
           <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 12px 0;">Stylish Entertainment</p>
         </div>
-        
-        <!-- Main Content - premium invitation tone -->
-        <div style="text-align: center; margin-bottom: 30px;">
-          <p style="font-size: 22px; line-height: 1.5; color: #1A1A1A; font-weight: 400; margin: 0 0 16px 0;">
-            You're in — we're thrilled to confirm it.
-          </p>
-          <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 0 0 20px 0;">
-            Your ${dateLabel} date, <strong style="color: #D4AF37; font-weight: 600;">${eventDate}</strong>, is officially secured.${showVenue ? ` We'll be with you at <strong style="color: #1A1A1A;">${venue}</strong>.` : ""}
-          </p>
-          <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 0;">
-            ${closing}
-          </p>
+        <div style="text-align: center; margin-bottom: 28px;">
+          <p style="font-size: 22px; line-height: 1.5; color: #1A1A1A; font-weight: 500; margin: 0 0 16px 0;">${headline}</p>
+          <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 0 0 16px 0;">Your ${dateLabel} date, <strong style="color: #D4AF37; font-weight: 600;">${eventDate}</strong>, is confirmed.${showVenue ? ` We'll be with you at <strong style="color: #1A1A1A;">${venue}</strong>.` : ""}</p>
+          ${bookedArtistHtml}
+          ${paymentSummaryHtml}
+          <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 0;">${closing}</p>
         </div>
-        
-        <!-- CTA - unique portal link per booking -->
-        <div style="text-align: center; margin: 40px 0;">
-          <a href="${portalUrl}" style="display: inline-block; background-color: #D4AF37; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 4px; font-weight: bold; font-size: 16px; letter-spacing: 0.5px; box-shadow: 0 4px 6px rgba(212, 175, 55, 0.3);">View Your Countdown</a>
+        <div style="text-align: center; margin: 36px 0;">
+          <a href="${portalUrl}" style="display: inline-block; background-color: #D4AF37; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);">View Your Countdown</a>
         </div>
-        
-        <!-- Footer -->
-        <div style="border-top: 1px solid #e5e5e5; padding-top: 30px; margin-top: 40px; text-align: center;">
-          <p style="font-size: 14px; line-height: 1.6; color: #888; font-style: italic; margin: 0;">
-            ${TAGLINE}
-          </p>
-          <p style="font-size: 14px; line-height: 1.6; color: #666; margin: 16px 0 0 0;">
-            Questions or changes? We're here to help.
-          </p>
+        <div style="border-top: 1px solid #eee; padding-top: 28px; margin-top: 32px; text-align: center;">
+          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">${TAGLINE}</p>
+          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
           ${CLIENT_SIGNATURE_BLOCK_HTML}
         </div>
       </div>
@@ -385,11 +439,11 @@ export function DEPOSIT_CONFIRMED({ booking, portalUrl }: { booking: BookingDeta
   `;
 
   const text = `
-You're in — we're thrilled to confirm it.
+${headline}
 
-Your ${dateLabel} date, ${eventDate}, is officially secured.${showVenue ? ` We'll be with you at ${venue}.` : ""}
-
-
+Your ${dateLabel} date, ${eventDate}, is confirmed.${showVenue ? ` We'll be with you at ${venue}.` : ""}
+${bookedArtistText}
+${paymentSummaryText}
 ${closing}
 
 View Your Countdown: ${portalUrl}

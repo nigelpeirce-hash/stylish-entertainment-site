@@ -33,7 +33,7 @@ export async function PATCH(
     const bookingId = resolvedParams.id;
     const body = await request.json();
 
-    // Fetch current booking state to detect changes
+    // Fetch current booking state to detect changes (include fee/balance for deposit confirmation email)
     const currentBooking = await prisma.booking.findUnique({
       where: { id: bookingId },
       select: {
@@ -44,6 +44,9 @@ export async function PATCH(
         eventType: true,
         venueName: true,
         depositReceivedManual: true,
+        bookingFee: true,
+        finalBalance: true,
+        preferredDJ: true,
       },
     });
 
@@ -56,6 +59,7 @@ export async function PATCH(
 
     const {
       finalBalance,
+      bookingFee,
       adminNotes,
       taxInclusive,
       taxRate,
@@ -88,6 +92,9 @@ export async function PATCH(
     // Update flexible operator fields
     if (finalBalance !== undefined) {
       updateData.finalBalance = finalBalance;
+    }
+    if (bookingFee !== undefined) {
+      updateData.bookingFee = bookingFee === "" ? null : bookingFee;
     }
     if (adminNotes !== undefined) {
       updateData.adminNotes = adminNotes;
@@ -180,7 +187,7 @@ export async function PATCH(
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001';
         const portalUrl = `${baseUrl}/client/bookings/${bookingId}`;
 
-        // Use updated booking data for email (eventDate/venueName may have changed this request)
+        // Use updated booking data for email (eventDate/venueName may have changed this request; fee/balance from DB)
         const emailContent = DEPOSIT_CONFIRMED({
           booking: {
             name: currentBooking.name,
@@ -188,6 +195,9 @@ export async function PATCH(
             eventType: currentBooking.eventType || undefined,
             venueName: updatedBooking.venueName || undefined,
             bookingId: bookingId,
+            bookingFee: currentBooking.bookingFee,
+            finalBalance: currentBooking.finalBalance,
+            preferredDJ: currentBooking.preferredDJ,
           },
           portalUrl,
         });

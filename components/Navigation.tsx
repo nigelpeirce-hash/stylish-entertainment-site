@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,8 +9,10 @@ import { AuthButton } from "@/components/AuthButton";
 import { useClientStatus } from "@/hooks/useClientStatus";
 
 export default function Navigation() {
+  const pathname = usePathname();
   const { isReturning } = useClientStatus();
   const [isOpen, setIsOpen] = useState(false);
+  const isAdmin = pathname?.startsWith("/admin") ?? false;
   const [servicesOpen, setServicesOpen] = useState(false);
   const [weddingsOpen, setWeddingsOpen] = useState(false);
   const [partiesOpen, setPartiesOpen] = useState(false);
@@ -141,6 +144,8 @@ export default function Navigation() {
               <img
                 src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png"
                 alt="Stylish Entertainment Logo"
+                width={200}
+                height={80}
                 className="h-16 sm:h-20 md:h-24 lg:h-28 xl:h-32 w-auto object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] brightness-[1.2]"
                 loading="eager"
                 fetchPriority="high"
@@ -148,29 +153,31 @@ export default function Navigation() {
             </Link>
           </div>
 
-          {/* Centered Tagline - Hidden on Mobile, Responsive to Container */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.8 }}
-            className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none px-2"
-            style={{ 
-              width: 'fit-content',
-              maxWidth: 'calc(100vw - 400px)',
-              minWidth: '200px'
-            }}
-          >
-            <h2 
-              className="font-semibold text-center whitespace-nowrap italic"
-              style={{
-                fontSize: 'clamp(0.5rem, 0.96vw + 0.2rem, 0.8rem)',
-                color: '#000000',
-                textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)'
+          {/* Centered Tagline - Hidden on Mobile and in Admin */}
+          {!isAdmin && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8 }}
+              className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none px-2"
+              style={{ 
+                width: 'fit-content',
+                maxWidth: 'calc(100vw - 400px)',
+                minWidth: '200px'
               }}
             >
-              Make every gathering extraordinary
-            </h2>
-          </motion.div>
+              <h2 
+                className="font-semibold text-center whitespace-nowrap italic"
+                style={{
+                  fontSize: 'clamp(0.5rem, 0.96vw + 0.2rem, 0.8rem)',
+                  color: '#000000',
+                  textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)'
+                }}
+              >
+                Make every gathering extraordinary
+              </h2>
+            </motion.div>
+          )}
 
             {/* Auth Button & Menu Button */}
             <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">

@@ -60,28 +60,19 @@
       background: #1A1A1A;
       color: #fff;
     }
-    .email-inner { padding: 0; }
-    /* === LUXE STYLES (match lib/email-journey-templates) === */
-    .email-inner body, .email-inner {
-      margin: 0;
-      padding: 0;
-      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-      font-size: 16px;
-      line-height: 1.6;
-      color: #1A1A1A;
-      background-color: #ffffff;
-    }
-    .email-container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-top: 2px solid #000000; }
-    .header { padding: 40px 30px 20px; text-align: center; }
-    .divider { height: 1px; background-color: #D4AF37; margin: 20px 30px; }
-    .content { padding: 30px; }
-    .email-inner h1 { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 28px; font-weight: 600; color: #1A1A1A; margin: 0 0 20px; line-height: 1.3; }
-    .email-inner h2 { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 600; color: #1A1A1A; margin: 25px 0 15px; }
+    .email-inner { padding: 20px; background: linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%); }
+    /* === Deposit-confirmed style: amber frame + amber CTA === */
+    .email-inner body, .email-inner { margin: 0; padding: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #1A1A1A; }
+    .email-container { max-width: 600px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.25); }
+    .header { padding: 0 0 20px; text-align: center; }
+    .divider { height: 1px; background-color: #D4AF37; margin: 20px 0; }
+    .content { padding: 0; }
+    .email-inner h1 { font-size: 28px; font-weight: 600; color: #1A1A1A; margin: 0 0 20px; line-height: 1.3; }
+    .email-inner h2 { font-size: 22px; font-weight: 600; color: #1A1A1A; margin: 25px 0 15px; }
     .email-inner p { margin: 0 0 16px; color: #1A1A1A; }
-    .button { display: inline-block; padding: 12px 24px; background-color: #000000; color: #FFFFFF !important; text-decoration: none; border-radius: 2px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0; }
-    .button-luxe { display: inline-block; padding: 12px 24px; background-color: #D4AF37; color: #1A1A1A !important; text-decoration: none; border-radius: 2px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin: 20px 0; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35); }
+    .button, .button-luxe { display: inline-block; padding: 14px 28px; background: #D4AF37; color: #1A1A1A !important; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.02em; margin: 20px 0; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4); }
     .link { color: #D4AF37; text-decoration: underline; }
-    .footer { padding: 30px; text-align: center; font-size: 14px; color: #1A1A1A; border-top: 1px solid #e5e5e5; margin-top: 30px; }
+    .footer { padding: 0; text-align: center; font-size: 14px; color: #1A1A1A; border-top: 1px solid #eee; padding-top: 28px; margin-top: 32px; }
     .footer a { color: #D4AF37; text-decoration: underline; }
     .signature { margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e5e5; font-size: 14px; color: #555555; }
     .signature strong { color: #555555; }
@@ -120,17 +111,15 @@
           <p>Dear Sarah &amp; James,</p>
           <p>Thank you for reaching out to Stylish Entertainment Ltd. We're delighted that you're considering us for your Wedding on Saturday, 15 June 2025.</p>
           <p>We're excited to learn more about your vision and help bring it to life. We specialise in creating unforgettable celebrations with our expert DJ services, elegant lighting design, and sophisticated venue styling.</p>
-          <p>We've prepared a bespoke guide for your chosen venue to help you visualise the setup. This insider guide includes venue-specific styling ideas, lighting recommendations, and practical tips to make the most of your space at The Barn at Oakley.</p>
-          <p style="text-align: center; margin: 30px 0;">
-            <a href="#" class="button-luxe">Download Guide</a>
-          </p>
           <p>We'll be in touch within 24 hours to discuss your requirements in detail. In the meantime, if you have any questions, please don't hesitate to get in touch.</p>
           <div class="signature">
             <p>Kind Regards,<br><strong>Ali &amp; Nige</strong></p>
           </div>
         </div>
         <div class="footer">
-          <p style="margin-bottom: 8px;">Stylish Entertainment Ltd</p>
+          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
+          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
+          <p style="margin: 24px 0 8px 0;">Stylish Entertainment Ltd</p>
           <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
           <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
         </div>
@@ -155,9 +144,9 @@
           <p>We wanted to check in and see if you have any questions about our services or if there's anything we can help with. Planning an event can be overwhelming, and we're here to make it easier for you.</p>
           <h2>We're Here to Help</h2>
           <p>Whether you're still exploring your options, have questions about our packages, or want to discuss your vision, we'd love to chat. Every event is unique, and we're passionate about creating something truly special for you.</p>
-          <p style="text-align: center;">
-            <a href="https://stylishentertainment.co.uk/contact-us" class="button">Get in Touch</a>
-          </p>
+    <p style="text-align: center;">
+      <a href="https://stylishentertainment.co.uk/contact-us" class="button-luxe">Get in Touch</a>
+    </p>
           <p>If you've already found another solution, no problem at all – we're just pleased you're getting everything sorted for your special day.</p>
           <p>Best of luck with your planning, and please don't hesitate to reach out if you'd like to chat.</p>
           <div class="signature">
@@ -165,7 +154,9 @@
           </div>
         </div>
         <div class="footer">
-          <p style="margin-bottom: 8px;">Stylish Entertainment Ltd</p>
+          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
+          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
+          <p style="margin: 24px 0 8px 0;">Stylish Entertainment Ltd</p>
           <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
           <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
         </div>
@@ -186,26 +177,35 @@
         <div class="content">
           <h1>Booking Confirmed</h1>
           <p>Dear Sarah &amp; James,</p>
-          <p>Wonderful news! Your booking for your Wedding on Saturday, 15 June 2025 at The Barn at Oakley has been confirmed.</p>
-          <p>We're absolutely thrilled to be part of your special day and look forward to creating a magical atmosphere that reflects your unique vision.</p>
-          <h2>What's Next?</h2>
-          <p>We've created your personal Client Admin area where you can manage all aspects of your booking:</p>
-          <ul>
-            <li>View and update your event details</li>
-            <li>Share your music preferences and playlist</li>
-            <li>Track your payment schedule</li>
-            <li>Communicate with our team</li>
-          </ul>
+          <p>Lovely to hear from you again and many thanks for sending over your booking request.</p>
+          <p>I've spoken with James and he'd love to come and play for you.</p>
+          <p>Initially please pay the deposit of £150 to secure James; the balance of £475 is payable to James either in cash on the night or by BACS transfer two weeks before the wedding.</p>
+          <p>Once the payment has been made I will forward you a receipt along with a link to our portal. There you can add music requests and send a link to your guests so they can request songs too.</p>
+          <p>We request you return the worksheet 3 weeks before the wedding to give James the opportunity to prepare and allow you to focus on other things.</p>
+          <h2>Payment details</h2>
+          <p>Please pay the deposit of <strong>£150</strong> by bank transfer. Use the reference below so we can match your payment.</p>
+          <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; margin: 20px 0; border: 1px solid #eee; text-align: left;">
+            <p style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #666; margin: 0 0 12px 0;">Bank details</p>
+            <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>STYLISH Ent</strong></p>
+            <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>Account Number</strong> 83312038</p>
+            <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>Sort Code</strong> 20-05-06</p>
+            <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>IBAN</strong> GB39 BARC2005 0683312038</p>
+            <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>SWIFT BIC</strong> BARC GB22</p>
+            <p style="font-size: 15px; color: #1a1a1a; margin: 12px 0 0 0;"><strong>Reference</strong> SE-12345678</p>
+            <p style="font-size: 13px; color: #666; margin: 16px 0 0 0;">STYLISH Entertainment Ltd: Registered in England 07848653</p>
+          </div>
           <p style="text-align: center;">
-            <a href="#" class="button">Access Your Client Admin</a>
+            <a href="#" class="button-luxe">I've paid</a>
           </p>
-          <p>If you have any questions or need to discuss any changes, please don't hesitate to reach out. We're here to ensure everything runs smoothly.</p>
+          <p>If you have any questions, please don't hesitate to reach out.</p>
           <div class="signature">
             <p>Kind Regards,<br><strong>Ali &amp; Nige</strong></p>
           </div>
         </div>
         <div class="footer">
-          <p style="margin-bottom: 8px;">Stylish Entertainment Ltd</p>
+          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
+          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
+          <p style="margin: 24px 0 8px 0;">Stylish Entertainment Ltd</p>
           <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
           <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
         </div>
@@ -234,9 +234,9 @@
             <li>Any songs you'd prefer to avoid</li>
             <li>Special requests (first dance, ceremony music, etc.)</li>
           </ul>
-          <p style="text-align: center;">
-            <a href="#" class="button">Update Your Music Preferences</a>
-          </p>
+    <p style="text-align: center;">
+      <a href="#" class="button-luxe">Update Your Music Preferences</a>
+    </p>
           <h2>Final Logistics</h2>
           <p>We also want to confirm a few final details to ensure everything runs smoothly on the day. Please review your booking in the Client Admin area and let us know if anything has changed.</p>
           <p>If you have any questions or want to discuss anything, just reply to this email or give us a call. We're here to help!</p>
@@ -245,7 +245,9 @@
           </div>
         </div>
         <div class="footer">
-          <p style="margin-bottom: 8px;">Stylish Entertainment Ltd</p>
+          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
+          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
+          <p style="margin: 24px 0 8px 0;">Stylish Entertainment Ltd</p>
           <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
           <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
         </div>
@@ -276,7 +278,9 @@
           </div>
         </div>
         <div class="footer">
-          <p style="margin-bottom: 8px;">Stylish Entertainment Ltd</p>
+          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
+          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
+          <p style="margin: 24px 0 8px 0;">Stylish Entertainment Ltd</p>
           <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
           <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
         </div>
@@ -309,7 +313,9 @@
           </div>
         </div>
         <div class="footer">
-          <p style="margin-bottom: 8px;">Stylish Entertainment Ltd</p>
+          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
+          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
+          <p style="margin: 24px 0 8px 0;">Stylish Entertainment Ltd</p>
           <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
           <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
         </div>
@@ -335,8 +341,8 @@
           <h2>Share Your Experience</h2>
           <p>If you have a moment, we'd be incredibly grateful if you could share your thoughts:</p>
           <p style="text-align: center; margin: 30px 0;">
-            <a href="https://g.page/r/YOUR_GOOGLE_REVIEW_LINK" class="button" style="margin-right: 10px; margin-bottom: 10px;">Leave a Google Review</a>
-            <a href="https://www.instagram.com/stylishentertainment/" class="button" style="background-color: #E1306C;">Share on Instagram</a>
+      <a href="https://g.page/r/YOUR_GOOGLE_REVIEW_LINK" class="button-luxe" style="margin-right: 10px; margin-bottom: 10px;">Leave a Google Review</a>
+      <a href="https://www.instagram.com/stylishentertainment/" class="button-luxe">Share on Instagram</a>
           </p>
           <p>We'd also love to see any photos from your day if you'd like to share them with us. Tag us <a href="https://www.instagram.com/stylishentertainment/" class="link">@stylishentertainment</a> on Instagram or send them directly to us.</p>
           <p>Thank you again for choosing Stylish Entertainment Ltd. It was an honour to be part of your celebration.</p>
@@ -345,7 +351,9 @@
           </div>
         </div>
         <div class="footer">
-          <p style="margin-bottom: 8px;">Stylish Entertainment Ltd</p>
+          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
+          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
+          <p style="margin: 24px 0 8px 0;">Stylish Entertainment Ltd</p>
           <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
           <p style="margin-top: 15px;"><a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a></p>
         </div>

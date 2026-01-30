@@ -23,41 +23,53 @@ export interface JourneyEmailData {
   /** Magic-link URL for FINAL_CHASE: /client/bookings/[id]?token=... (no login required) */
   portalMagicUrl?: string;
   brochureUrl?: string;
+  /** Artist/DJ name for booking confirmation (e.g. "James") */
+  artistName?: string;
+  /** Booking fee amount (e.g. "£150") */
+  bookingFee?: string;
+  /** Balance amount (e.g. "£475") */
+  balance?: string;
+  /** Booking reference for invoice (e.g. "SE-12345678") – client quotes when paying */
+  invoiceReference?: string;
+  /** Signed URL for "I've paid" button – triggers notification and flashes Paid in booking */
+  markedPaidUrl?: string;
 }
 
 const LUXE_STYLES = `
   <style>
     body {
       margin: 0;
-      padding: 0;
+      padding: 20px;
       font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
       font-size: 16px;
       line-height: 1.6;
       color: #1A1A1A;
-      background-color: #ffffff;
+      background: linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%);
     }
     
     .email-container {
       max-width: 600px;
       margin: 0 auto;
       background-color: #ffffff;
-      border-top: 2px solid #000000;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15);
+      border: 1px solid rgba(212, 175, 55, 0.25);
     }
     
     .header {
-      padding: 40px 30px 20px;
+      padding: 0 0 20px;
       text-align: center;
     }
-    
     
     .divider {
       height: 1px;
       background-color: #D4AF37;
-      margin: 20px 30px;
+      margin: 20px 0;
     }
     
     .content {
-      padding: 30px;
+      padding: 0;
     }
     
     h1 {
@@ -82,40 +94,21 @@ const LUXE_STYLES = `
       color: #1A1A1A;
     }
     
-    .button {
+    .button, .button-luxe {
       display: inline-block;
-      padding: 12px 24px;
-      background-color: #000000;
-      color: #FFFFFF !important;
-      text-decoration: none;
-      border-radius: 2px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin: 20px 0;
-      transition: background-color 0.3s;
-    }
-    
-    .button:hover {
-      background-color: #333333;
-    }
-    
-    .button-luxe {
-      display: inline-block;
-      padding: 12px 24px;
+      padding: 14px 28px;
       background-color: #D4AF37;
       color: #1A1A1A !important;
       text-decoration: none;
-      border-radius: 2px;
+      border-radius: 8px;
       font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      font-size: 16px;
+      letter-spacing: 0.02em;
       margin: 20px 0;
-      transition: background-color 0.3s;
-      box-shadow: 0 4px 14px rgba(212, 175, 55, 0.35);
+      box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);
     }
     
-    .button-luxe:hover {
+    .button:hover, .button-luxe:hover {
       background-color: #E6C84A;
     }
     
@@ -174,7 +167,12 @@ function buildEmailTemplate(
     .replace(/\{\{venueName\}\}/g, data.venueName || "your venue")
     .replace(/\{\{clientAdminUrl\}\}/g, data.clientAdminUrl || "#")
     .replace(/\{\{portalMagicUrl\}\}/g, data.portalMagicUrl || data.clientAdminUrl || "#")
-    .replace(/\{\{brochureUrl\}\}/g, data.brochureUrl || "#");
+    .replace(/\{\{brochureUrl\}\}/g, data.brochureUrl || "#")
+    .replace(/\{\{artistName\}\}/g, data.artistName || "your DJ")
+    .replace(/\{\{bookingFee\}\}/g, data.bookingFee || "[booking fee]")
+    .replace(/\{\{balance\}\}/g, data.balance || "[balance]")
+    .replace(/\{\{invoiceReference\}\}/g, data.invoiceReference || "—")
+    .replace(/\{\{markedPaidUrl\}\}/g, data.markedPaidUrl || "#");
 
   const html = `
     <!DOCTYPE html>
@@ -194,8 +192,10 @@ function buildEmailTemplate(
           <div class="content">
             ${processedHtml}
           </div>
-          <div class="footer">
-            <p style="margin-bottom: 8px;">Stylish Entertainment Ltd</p>
+          <div class="footer" style="border-top: 1px solid #eee; padding-top: 28px; margin-top: 32px; text-align: center;">
+            <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
+            <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
+            <p style="margin: 24px 0 8px 0;">Stylish Entertainment Ltd</p>
             <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
             <p style="margin-top: 15px;">
               <a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a>
@@ -211,42 +211,14 @@ function buildEmailTemplate(
 
 /**
  * 1. Enquiry Auto-Responder
- * Immediate 'Thank you' with PDF brochure link (venue-specific or general)
+ * Immediate 'Thank you' – no brochure / download guide
  */
 export function enquiryAutoresponder(data: JourneyEmailData) {
-  // Check if we have a venue-specific brochure URL (not general and not undefined)
-  const hasVenueBrochure = data.brochureUrl && !data.brochureUrl.includes("general") && !data.brochureUrl.includes("brochure.pdf");
-  const venueName = data.venueName || "";
-  
-  // Build brochure section - conditional on venue
-  let brochureSection = '';
-  // Check if we have a venue-specific brochure (not general)
-  const isVenueSpecific = hasVenueBrochure && venueName && venueName.toLowerCase() !== "other";
-  
-  if (isVenueSpecific) {
-    // Venue-specific brochure with luxe button styling
-    brochureSection = `
-      <p>We've prepared a bespoke guide for your chosen venue to help you visualise the setup. This insider guide includes venue-specific styling ideas, lighting recommendations, and practical tips to make the most of your space at {{venueName}}.</p>
-      <p style="text-align: center; margin: 30px 0;">
-        <a href="{{brochureUrl}}" class="button-luxe">Download Guide</a>
-      </p>
-    `;
-  } else {
-    // General brochure fallback with luxe button styling
-    brochureSection = `
-      <p>To give you a better sense of what we do, we'd love to share our brochure with you:</p>
-      <p style="text-align: center; margin: 30px 0;">
-        <a href="{{brochureUrl}}" class="button-luxe">Download Guide</a>
-      </p>
-    `;
-  }
-
   const contentHtml = `
     <h1>Thank You for Your Enquiry</h1>
     <p>Dear {{clientName}},</p>
     <p>Thank you for reaching out to Stylish Entertainment Ltd. We're delighted that you're considering us for {{eventType}} on {{eventDate}}.</p>
     <p>We're excited to learn more about your vision and help bring it to life. We specialise in creating unforgettable celebrations with our expert DJ services, elegant lighting design, and sophisticated venue styling.</p>
-    ${brochureSection}
     <p>We'll be in touch within 24 hours to discuss your requirements in detail. In the meantime, if you have any questions, please don't hesitate to get in touch.</p>
     <div class="signature">
       <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
@@ -291,26 +263,49 @@ export function gentleReminder(data: JourneyEmailData) {
 
 /**
  * 2. Booking Confirmation
- * Sent after deposit, includes link to Client Admin
+ * Sent after deposit; includes payment terms, worksheet and link to Client Admin.
+ *
+ * DB field mapping (used when sending via send-email with bookingId):
+ * - {{clientName}}     → booking.name
+ * - {{artistName}}    → booking.preferredDJ (DJ/artist name)
+ * - {{bookingFee}}    → booking.bookingFee (flexible, set in admin Flexible Operator)
+ * - {{balance}}       → booking.finalBalance (formatted as £X)
+ * - {{eventType}}     → booking.eventType
+ * - {{eventDate}}     → formatted booking.eventDate
+ * - {{venueName}}     → booking.venueName
+ * - {{clientAdminUrl}}→ /client/bookings/[id]
+ * - {{invoiceReference}} → booking.bookingReference or SE-{id slice}
+ * - {{markedPaidUrl}} → signed link for "I've paid" (notification + flash Paid)
  */
+const BOOKING_CONFIRMATION_BANK_BLOCK = `
+    <h2>Payment details</h2>
+    <p>Please pay the deposit of <strong>{{bookingFee}}</strong> by bank transfer. Use the reference below so we can match your payment.</p>
+    <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; margin: 20px 0; border: 1px solid #eee; text-align: left;">
+      <p style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #666; margin: 0 0 12px 0;">Bank details</p>
+      <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>STYLISH Ent</strong></p>
+      <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>Account Number</strong> 83312038</p>
+      <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>Sort Code</strong> 20-05-06</p>
+      <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>IBAN</strong> GB39 BARC2005 0683312038</p>
+      <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>SWIFT BIC</strong> BARC GB22</p>
+      <p style="font-size: 15px; color: #1a1a1a; margin: 12px 0 0 0;"><strong>Reference</strong> {{invoiceReference}}</p>
+      <p style="font-size: 13px; color: #666; margin: 16px 0 0 0;">STYLISH Entertainment Ltd: Registered in England 07848653</p>
+    </div>
+    <p style="text-align: center;">
+      <a href="{{markedPaidUrl}}" class="button">I've paid</a>
+    </p>
+`;
+
 export function bookingConfirmation(data: JourneyEmailData) {
   const contentHtml = `
     <h1>Booking Confirmed</h1>
     <p>Dear {{clientName}},</p>
-    <p>Wonderful news! Your booking for {{eventType}} on {{eventDate}} at {{venueName}} has been confirmed.</p>
-    <p>We're absolutely thrilled to be part of your special day and look forward to creating a magical atmosphere that reflects your unique vision.</p>
-    <h2>What's Next?</h2>
-    <p>We've created your personal Client Admin area where you can manage all aspects of your booking:</p>
-    <ul style="margin: 20px 0; padding-left: 25px;">
-      <li>View and update your event details</li>
-      <li>Share your music preferences and playlist</li>
-      <li>Track your payment schedule</li>
-      <li>Communicate with our team</li>
-    </ul>
-    <p style="text-align: center;">
-      <a href="{{clientAdminUrl}}" class="button">Access Your Client Admin</a>
-    </p>
-    <p>If you have any questions or need to discuss any changes, please don't hesitate to reach out. We're here to ensure everything runs smoothly.</p>
+    <p>Lovely to hear from you again and many thanks for sending over your booking request.</p>
+    <p>I've spoken with {{artistName}} and he'd love to come and play for you.</p>
+    <p>Initially please pay the deposit of {{bookingFee}} to secure {{artistName}}; the balance of {{balance}} is payable to {{artistName}} either in cash on the night or by BACS transfer two weeks before the wedding.</p>
+    <p>Once the payment has been made I will forward you a receipt along with a link to our portal. There you can add music requests and send a link to your guests so they can request songs too.</p>
+    <p>We request you return the worksheet 3 weeks before the wedding to give {{artistName}} the opportunity to prepare and allow you to focus on other things.</p>
+    ${BOOKING_CONFIRMATION_BANK_BLOCK}
+    <p>If you have any questions, please don't hesitate to reach out.</p>
     <div class="signature">
       <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
     </div>
@@ -422,8 +417,8 @@ export function postWeddingMagic(data: JourneyEmailData) {
     <h2>Share Your Experience</h2>
     <p>If you have a moment, we'd be incredibly grateful if you could share your thoughts:</p>
     <p style="text-align: center; margin: 30px 0;">
-      <a href="https://g.page/r/YOUR_GOOGLE_REVIEW_LINK" class="button" style="margin-right: 10px; margin-bottom: 10px;">Leave a Google Review</a>
-      <a href="https://www.instagram.com/stylishentertainment/" class="button" style="background-color: #E1306C;">Share on Instagram</a>
+      <a href="https://g.page/r/YOUR_GOOGLE_REVIEW_LINK" class="button-luxe" style="margin-right: 10px; margin-bottom: 10px;">Leave a Google Review</a>
+      <a href="https://www.instagram.com/stylishentertainment/" class="button-luxe">Share on Instagram</a>
     </p>
     <p>We'd also love to see any photos from your day if you'd like to share them with us. Tag us <a href="https://www.instagram.com/stylishentertainment/" class="link">@stylishentertainment</a> on Instagram or send them directly to us.</p>
     <p>Thank you again for choosing Stylish Entertainment Ltd. It was an honour to be part of your celebration.</p>

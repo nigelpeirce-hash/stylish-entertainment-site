@@ -221,11 +221,63 @@ export async function sendHandoffNotification(booking: {
 }
 
 /**
+ * Send "client paid deposit invoice" notification to both Ali and Nigel.
+ * Uses latest settings: getStaffPushKeys() (Staff_Settings) and env base URL.
+ */
+export async function sendDepositPaidNotification(booking: {
+  id: string;
+  name: string;
+  bookingReference?: string | null;
+}): Promise<void> {
+  const { ali, nigel } = await getStaffPushKeys();
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk";
+  const bookingUrl = `${siteUrl}/admin/bookings/${booking.id}`;
+  const ref = (booking.bookingReference || "").trim() || `SE-${booking.id.slice(-8)}`;
+
+  const title = "Client paid deposit invoice";
+  const message = `${booking.name} (${ref}). Click to view booking.`;
+
+  const notifications: Promise<NotificationResult>[] = [];
+  if (ali) {
+    notifications.push(
+      sendPushoverNotification({
+        title,
+        message,
+        userKey: ali,
+        priority: 1,
+        url: bookingUrl,
+        urlTitle: "View booking",
+      })
+    );
+  }
+  if (nigel) {
+    notifications.push(
+      sendPushoverNotification({
+        title,
+        message,
+        userKey: nigel,
+        priority: 1,
+        url: bookingUrl,
+        urlTitle: "View booking",
+      })
+    );
+  }
+
+  const results = await Promise.allSettled(notifications);
+  for (const result of results) {
+    if (result.status === "rejected" || (result.status === "fulfilled" && !result.value.success)) {
+      const err = result.status === "rejected" ? result.reason : result.value.error;
+      await logNotificationError(booking.id, "deposit_paid", String(err));
+    }
+  }
+}
+
+/**
  * Log notification errors to Audit Log
  */
 async function logNotificationError(
   bookingId: string,
-  notificationType: "new_lead" | "handoff",
+  notificationType: "new_lead" | "handoff" | "deposit_paid",
   error: string
 ): Promise<void> {
   try {

@@ -962,12 +962,25 @@ export default function BookingDetail() {
                     className={
                       booking.depositReceivedManual
                         ? "bg-emerald-500/30 text-emerald-400 border-2 border-emerald-500/50 font-bold"
-                        : "bg-amber-500/30 text-amber-400 border-2 border-amber-500/50 font-bold"
+                        : booking.depositPaidClickedAt
+                          ? "bg-amber-500/30 text-amber-400 border-2 border-amber-500/50 font-bold"
+                          : "bg-amber-500/30 text-amber-400 border-2 border-amber-500/50 font-bold"
                     }
                   >
-                    {booking.depositReceivedManual ? "Paid" : "Pending"}
+                    {booking.depositReceivedManual ? "Paid" : booking.depositPaidClickedAt ? "Client reported paid" : "Pending"}
                   </Badge>
                 </div>
+
+                {/* Client reported paid (from "I've paid" in email) – flash until admin confirms deposit received */}
+                {booking.depositPaidClickedAt && (
+                  <p className="text-xs text-amber-400/90 mt-1">
+                    Client reported paid: {new Date(booking.depositPaidClickedAt).toLocaleString("en-GB", {
+                      weekday: "short", day: "numeric", month: "short", year: "numeric",
+                      hour: "2-digit", minute: "2-digit",
+                    })}
+                    {!booking.depositReceivedManual && " — confirm when bank checked."}
+                  </p>
+                )}
 
                 {/* Date Tracking */}
                 {booking.depositReceivedManual && booking.updatedAt && (
@@ -1682,6 +1695,7 @@ export default function BookingDetail() {
             priority: booking.priority || "medium",
             conflictStatus: booking.conflictStatus || null,
             finalBalance: (booking as any).finalBalance || null,
+            bookingFee: (booking as any).bookingFee ?? null,
             services: Array.isArray(booking.services) 
               ? booking.services.map((s: any) => typeof s === 'string' ? s : String(s?.name || s?.type || 'Service'))
               : [],

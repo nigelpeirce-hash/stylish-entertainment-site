@@ -109,8 +109,10 @@ model Booking {
   conflictStatus              String?
   depositReceived             Boolean?                 @default(false)
   depositReceivedManual       Boolean?                 @default(false)
+  bookingFee                  String?                  // Initial booking fee for confirmation email (e.g. "£150") – flexible, set in admin
   confirmedViaBookFromQuote   Boolean                  @default(false)
   depositInvoiceSentAt        DateTime?
+  depositPaidClickedAt        DateTime?                // Client clicked "I've paid" in email; flashes Paid until admin confirms deposit received
   djWorksheetApproved         Boolean?                 @default(false)
   djWorksheetApprovedManual   Boolean?                 @default(false)
   feeBreakdown                Json?

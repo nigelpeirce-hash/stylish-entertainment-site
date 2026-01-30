@@ -60,6 +60,11 @@ const mockJourneyData: JourneyEmailData = {
   venueName: "Babington House",
   clientAdminUrl: "https://stylishentertainment.co.uk/client/dashboard",
   brochureUrl: "https://stylishentertainment.co.uk/brochures/babington-house-2024.pdf",
+  artistName: "James",
+  bookingFee: "£150",
+  balance: "£475",
+  invoiceReference: "SE-12345678",
+  markedPaidUrl: "#",
 };
 
 // Final Brief mock HTML (from dispatch route)

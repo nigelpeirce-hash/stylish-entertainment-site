@@ -68,6 +68,7 @@ interface Booking {
   priority: string;
   conflictStatus: string | null;
   finalBalance: string | null;
+  bookingFee?: string | null; // Initial booking fee for confirmation email (e.g. "£150") – flexible
   services: string[]; // For checking if DJ is selected
   adminNotes?: string | null;
   feeBreakdown?: FeeLineItem[] | null;
@@ -111,6 +112,7 @@ export function FlexibleOperatorSidebar({
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [eventDateOverride, setEventDateOverride] = useState(booking.eventDate);
   const [venueNameOverride, setVenueNameOverride] = useState(booking.venueName);
+  const [bookingFee, setBookingFee] = useState((booking as any).bookingFee ?? "");
   
   // Manual Override States
   const [depositReceived, setDepositReceived] = useState(booking.depositReceived || false);
@@ -156,6 +158,10 @@ export function FlexibleOperatorSidebar({
       setAdminNotes(booking.adminNotes);
     }
   }, [booking.adminNotes]);
+
+  useEffect(() => {
+    setBookingFee((booking as any).bookingFee ?? "");
+  }, [(booking as any).bookingFee]);
 
   // Load feeBreakdown from booking if it exists (with validation)
   useEffect(() => {
@@ -278,6 +284,7 @@ export function FlexibleOperatorSidebar({
       // Save all changes
       const updates: any = {
         finalBalance: totalFee.toFixed(2),
+        bookingFee: bookingFee.trim() || null,
         adminNotes: adminNotes,
         taxInclusive: taxInclusive,
         taxRate: taxRate,
@@ -564,6 +571,24 @@ export function FlexibleOperatorSidebar({
                 {taxInclusive && (
                   <p className="text-xs text-gray-400 mt-1">Price includes VAT</p>
                 )}
+              </div>
+
+              {/* Booking fee (for confirmation email) */}
+              <div className="mt-4 p-4 bg-gray-900/50 border border-gray-700 rounded-lg">
+                <Label htmlFor="bookingFee" className="text-sm font-medium text-gray-300">
+                  Booking fee (confirmation email)
+                </Label>
+                <p className="text-xs text-gray-500 mt-0.5 mb-2">
+                  Initial amount shown in the booking confirmation email (e.g. £150). Flexible – set per booking.
+                </p>
+                <Input
+                  id="bookingFee"
+                  type="text"
+                  placeholder="e.g. £150"
+                  value={bookingFee}
+                  onChange={(e) => setBookingFee(e.target.value)}
+                  className="bg-gray-800 border-gray-700 text-white"
+                />
               </div>
             </CardContent>
           </Card>

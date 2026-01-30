@@ -65,6 +65,7 @@ export interface SanitizedBooking {
   handoffStatus?: string | null;
   handoffNote?: string | null;
   finalBalance: string | null;
+  bookingFee?: string | null;
   adminNotes?: string | null;
   feeBreakdown: Array<{
     id: string;
@@ -78,6 +79,7 @@ export interface SanitizedBooking {
   depositReceivedManual?: boolean | null;
   confirmedViaBookFromQuote?: boolean;
   depositInvoiceSentAt?: string | null;
+  depositPaidClickedAt?: string | null;
   updatedAt?: string;
   lastEmailSentAt?: string | null;
   finalDetailsConfirmed?: boolean | null;
@@ -332,6 +334,7 @@ export function transformBooking(
     handoffStatus: booking?.handoffStatus ? String(booking.handoffStatus) : null,
     handoffNote: booking?.handoffNote ? String(booking.handoffNote) : null,
     finalBalance: booking?.finalBalance ? String(booking.finalBalance) : null,
+    bookingFee: booking?.bookingFee ? String(booking.bookingFee) : null,
     adminNotes: booking?.adminNotes ? String(booking.adminNotes) : null,
     feeBreakdown,
     taxInclusive: booking?.taxInclusive ?? null,
@@ -341,6 +344,7 @@ export function transformBooking(
     depositReceivedManual: booking?.depositReceivedManual ?? null,
     confirmedViaBookFromQuote: Boolean(booking?.confirmedViaBookFromQuote),
     depositInvoiceSentAt: convertDate(booking?.depositInvoiceSentAt),
+    depositPaidClickedAt: convertDate(booking?.depositPaidClickedAt),
     updatedAt: convertDate(booking?.updatedAt) || undefined,
     lastEmailSentAt: convertDate(booking?.lastEmailSentAt),
     finalDetailsConfirmed: booking?.finalDetailsConfirmed ?? null,

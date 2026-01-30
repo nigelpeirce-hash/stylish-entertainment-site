@@ -175,7 +175,7 @@ const PATCH_ALLOWED_KEYS = new Set([
   "completedTasks", "emailsSent", "lastEmailSentAt", "musicNotesToDJ", "musicNotesToStylish", "firstDance",
   "lastSong", "musicDislikes", "musicRequests", "musicFileUrl", "preferredDJ", "upsellItems", "priority",
   "adminNotes", "authorizedSenders", "bookingReference", "conflictResolvedAt", "conflictStatus",
-  "depositReceived", "depositReceivedManual", "djWorksheetApproved", "djWorksheetApprovedManual",
+  "depositReceived", "depositReceivedManual", "bookingFee", "djWorksheetApproved", "djWorksheetApprovedManual",
   "feeBreakdown", "finalDetailsConfirmed", "finalDetailsConfirmedManual", "flaggedFor", "handoffNote",
   "handoffStatus", "isTechReady", "overrideReason", "purgeAt", "rescuedAt", "selectedTemplate",
   "talentStatus", "taxInclusive", "taxRate", "venueFingerprint", "assignedTo",

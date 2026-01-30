@@ -27,6 +27,11 @@ const demoClientData = {
   venueName: "Babington House",
   clientAdminUrl: "https://stylishentertainment.co.uk/client/dashboard",
   brochureUrl: "https://stylishentertainment.co.uk/brochure.pdf",
+  artistName: "James",
+  bookingFee: "£150",
+  balance: "£475",
+  invoiceReference: "SE-12345678",
+  markedPaidUrl: "#",
 };
 
 const demoStaffData = {
