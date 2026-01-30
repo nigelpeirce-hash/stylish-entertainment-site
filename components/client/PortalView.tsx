@@ -171,6 +171,7 @@ function BioSection({ bio }: { bio: string }) {
 }
 
 const POLL_INTERVAL_MS = 25_000;
+const STORAGE_KEY_EVENT_DATE = "stylishentertainment_event_date";
 
 export default function PortalView({ booking: initialBooking, isPreview = false, baseUrl = "", eventPassed = false }: PortalViewProps) {
   const [booking, setBooking] = useState<Booking>(initialBooking);
@@ -341,6 +342,18 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
     const interval = setInterval(calculateCountdown, 1000);
     return () => clearInterval(interval);
   }, [booking.eventDate, booking.ceremonyTime]);
+
+  // Sync header countdown from this booking so "Countdown to Your Event" shows in client layout
+  useEffect(() => {
+    if (isPreview || !booking?.eventDate) return;
+    const date = new Date(booking.eventDate);
+    if (isNaN(date.getTime()) || date <= new Date()) return;
+    const iso = typeof booking.eventDate === "string" ? booking.eventDate : date.toISOString();
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(STORAGE_KEY_EVENT_DATE, iso);
+      window.dispatchEvent(new Event("storage"));
+    }
+  }, [booking?.eventDate, isPreview]);
 
   // Fetch hire items for upsell section
   useEffect(() => {

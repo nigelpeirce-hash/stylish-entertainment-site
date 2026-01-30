@@ -4,7 +4,7 @@
  * Table-based layout, inline CSS only. SMTP-friendly for Outlook, Gmail, Apple Mail.
  * - Global: dark bg #0a0a0a, white text. Accents by event type: Champagne Gold | Slate & Silver | Amber Glow.
  * - Conditional header, CTA, and branding per event type.
- * - Footer: "Make every gathering extraordinary" tagline + event-type CTA magic link.
+ * - Footer: "Every gathering deserves to be extraordinary" tagline + event-type CTA magic link.
  *
  * bodyHtml should use inline styles (e.g. <a href="..." style="color: #d4af37;">). No external CSS.
  */
@@ -32,7 +32,7 @@ const ACCENT_HEX: Record<string, { cta: string; border: string }> = {
 const LOGO_URL =
   "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png";
 
-const TAGLINE = "Make every gathering extraordinary";
+const TAGLINE = "Every gathering deserves to be extraordinary";
 
 export type EventTypeVariant = "wedding" | "corporate" | "private";
 
@@ -151,7 +151,7 @@ export function renderEmail(options: EmailRenderOptions): string {
           <!-- Footer -->
           <tr>
             <td style="padding-top: 24px; border-top: 1px solid ${accentHex.border};">
-              <p style="margin: 0 0 16px 0; font-size: 14px; color: ${MUTED}; font-style: italic;">
+              <p style="margin: 0 0 16px 0; font-size: 10px; color: ${MUTED}; font-style: italic; text-transform: uppercase; letter-spacing: 2px;">
                 ${TAGLINE}
               </p>
               <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: 0;">

@@ -7,9 +7,12 @@ import { getServerSession } from "@/lib/get-session";
 import { getResendConfig } from "@/lib/email-config";
 import { getBrochureLink, getVenueAsset, getTrackingUrl } from "@/lib/venue-assets";
 
-/** Build signed "I've paid" URL for booking confirmation email. Uses latest base URL from env. */
+import { getEmailBaseUrl } from "@/lib/get-base-url";
+import { getClientPortalLoginUrl } from "@/lib/client-portal-url";
+
+/** Build signed "I've paid" URL for booking confirmation email. */
 function buildMarkedPaidUrl(bookingId: string): string {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk";
+  const baseUrl = getEmailBaseUrl();
   const secret = process.env.DEPOSIT_PAID_LINK_SECRET || process.env.NEXTAUTH_SECRET || "deposit-paid-fallback";
   const sig = createHmac("sha256", secret).update(bookingId).digest("hex");
   return `${baseUrl}/api/client/bookings/${bookingId}/marked-deposit-paid?sig=${encodeURIComponent(sig)}`;
@@ -77,7 +80,7 @@ export async function POST(request: NextRequest) {
       eventType: clientData?.eventType,
       eventDate: clientData?.eventDate,
       venueName: clientData?.venueName,
-      clientAdminUrl: clientData?.clientAdminUrl || `https://stylishentertainment.co.uk/client/dashboard`,
+      clientAdminUrl: clientData?.clientAdminUrl || `${getEmailBaseUrl()}/login?callbackUrl=${encodeURIComponent("/client/dashboard")}`,
       brochureUrl: clientData?.brochureUrl, // Will be set below if not provided
     };
 
@@ -88,8 +91,8 @@ export async function POST(request: NextRequest) {
       });
 
       if (booking) {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk";
-        const clientAdminUrl = `${baseUrl}/client/bookings/${booking.id}`;
+        const baseUrl = getEmailBaseUrl();
+        const clientAdminUrl = getClientPortalLoginUrl(baseUrl, booking.id);
         const invoiceReference = (booking as any).bookingReference?.trim() || `SE-${booking.id.slice(-8)}`;
         emailData = {
           clientName: booking.name,

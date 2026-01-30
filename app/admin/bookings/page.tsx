@@ -124,7 +124,6 @@ function AdminBookingsContent() {
   fetchBookingsRef.current = async () => {
     // Don't fetch if page is not visible
     if (!isPageVisibleRef.current) {
-      console.log("Page not visible, skipping fetch");
       return;
     }
     
@@ -133,12 +132,10 @@ function AdminBookingsContent() {
     const timeSinceLastFetch = now - lastFetchTimeRef.current;
     
     if (isFetchingRef.current) {
-      console.log("Fetch already in progress, skipping");
       return;
     }
     
     if (timeSinceLastFetch < 2000) {
-      console.log(`Throttled: only ${timeSinceLastFetch}ms since last fetch`);
       return;
     }
     
@@ -155,7 +152,6 @@ function AdminBookingsContent() {
       if (currentSearch) params.append("search", currentSearch);
       if (currentShowArchived) params.append("archivedOnly", "true");
 
-      console.log("Fetching bookings:", params.toString());
       const response = await fetch(`/api/admin/bookings/?${params.toString()}`, { credentials: "include" });
       if (response.ok) {
         const data = await response.json();
@@ -179,7 +175,6 @@ function AdminBookingsContent() {
       
       if (isVisible && hasInitializedRef.current) {
         // Page became visible - fetch fresh data after a short delay
-        console.log("Page became visible, fetching fresh data");
         setTimeout(() => {
           fetchBookingsRef.current?.();
         }, 500);

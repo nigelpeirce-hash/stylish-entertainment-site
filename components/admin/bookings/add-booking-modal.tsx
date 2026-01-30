@@ -19,6 +19,8 @@ import { createBooking } from "@/lib/actions/booking-actions";
 import { Select } from "@/components/ui/select";
 import { VenueAutocomplete } from "@/components/VenueAutocomplete";
 import { getNameFormatSuggestions, isValidNameFormat, getDisplayName } from "@/lib/utils/name-helpers";
+import { useToast } from "@/hooks/use-toast";
+import { Toast } from "@/components/ui/toast";
 import Image from "next/image";
 
 interface TeamMember {
@@ -43,6 +45,7 @@ interface AddBookingModalProps {
 }
 
 export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingModalProps) {
+  const { toast, toastState } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [availableTeam, setAvailableTeam] = useState<TeamMember[]>([]);
@@ -398,6 +401,28 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
         if (onSuccess) {
           onSuccess();
         }
+
+        // Show feedback for portal invite when checkbox was ticked
+        if (formData.sendPortalInvite) {
+          if ((result as { portalInviteSent?: boolean; portalInviteError?: string }).portalInviteSent) {
+            toast({
+              title: "Booking created",
+              description: `Portal invite sent to ${formData.clientEmail}`,
+            });
+          } else {
+            const err = (result as { portalInviteError?: string }).portalInviteError;
+            toast({
+              title: "Booking created",
+              description: err ? `Portal invite could not be sent: ${err}` : "Portal invite could not be sent.",
+              variant: "destructive",
+            });
+          }
+        } else {
+          toast({
+            title: "Booking created",
+            description: "You can invite the client to the portal from the booking page.",
+          });
+        }
       }
     } catch (err: any) {
       setError(err.message || "Failed to create booking");
@@ -435,8 +460,9 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
   };
 
   return (
-    <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[700px] bg-[#111827] border-white/10 shadow-2xl p-0">
+    <>
+      <Dialog open={open} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-[700px] bg-[#111827] border-white/10 shadow-2xl p-0">
         <div className="p-6 text-white">
           <DialogHeader className="mb-8">
             <DialogTitle className="text-2xl font-bold tracking-tight text-white">
@@ -916,5 +942,7 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
         </div>
       </DialogContent>
     </Dialog>
+      <Toast toast={toastState} onClose={() => {}} />
+    </>
   );
 }

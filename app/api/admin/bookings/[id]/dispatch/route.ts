@@ -9,6 +9,7 @@ import {
   generateThreadIdFooter
 } from "@/lib/booking-integrity";
 import { generateBriefToken } from "@/lib/brief-token";
+import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
 
 // Force dynamic rendering to prevent build-time errors
 export const dynamic = 'force-dynamic';
@@ -467,10 +468,7 @@ export async function POST(
       </a>
     </div>
     ` : ''}
-    <div class="footer">
-      <p>Stylish Entertainment Ltd</p>
-      <p>This is your Artist Worksheet. Please confirm receipt.</p>
-    </div>
+    ${SIGNATURE_BLOCK_HTML}
   </div>
 </body>
 </html>

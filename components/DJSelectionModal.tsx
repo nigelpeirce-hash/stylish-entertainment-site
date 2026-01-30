@@ -11,6 +11,8 @@ interface DJSelectionModalProps {
   onClose: () => void;
   onSelect: (djName: string | null) => void;
   selectedDJ: string | null;
+  /** When set (e.g. from quote email), only these artists are shown as options. */
+  quoteArtistNames?: string[];
 }
 
 // List of DJs
@@ -26,8 +28,11 @@ export default function DJSelectionModal({
   onClose,
   onSelect,
   selectedDJ,
+  quoteArtistNames,
 }: DJSelectionModalProps) {
   const [hoveredDJ, setHoveredDJ] = useState<string | null>(null);
+  const artistsToShow =
+    quoteArtistNames && quoteArtistNames.length > 0 ? quoteArtistNames : djList;
 
   const handleSelect = (djName: string | null) => {
     onSelect(djName);
@@ -48,7 +53,9 @@ export default function DJSelectionModal({
             Select Your Preferred DJ
           </DialogTitle>
           <DialogDescription className="text-gray-400">
-            Choose a DJ or &quot;Not sure yet&quot; and we&apos;ll help you find the perfect match
+            {quoteArtistNames?.length
+              ? "Select the artist from your quote you'd like to book"
+              : "Choose a DJ or \"Not sure yet\" and we'll help you find the perfect match"}
           </DialogDescription>
         </DialogHeader>
 
@@ -80,12 +87,12 @@ export default function DJSelectionModal({
             </div>
           </motion.div>
 
-          {/* 2x2 DJ grid: 2 on top, 2 below */}
+          {/* 2x2 grid: quote artists or full DJ list */}
           <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">
-            Our DJs
+            {quoteArtistNames?.length ? "From your quote" : "Our DJs"}
           </h4>
           <div className="grid grid-cols-2 gap-3">
-            {djList.map((dj) => (
+            {artistsToShow.map((dj) => (
               <motion.div
                 key={dj}
                 initial={{ opacity: 0, scale: 0.96 }}

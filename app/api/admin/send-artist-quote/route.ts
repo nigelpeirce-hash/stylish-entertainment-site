@@ -3,6 +3,9 @@ import { Resend } from "resend";
 import { getResendConfig } from "@/lib/email-config";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin-auth";
+import { createBookDJQuoteToken } from "@/lib/book-dj-quote-token";
+import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
+import { getEmailBaseUrl } from "@/lib/get-base-url";
 
 const getResend = () => {
   const apiKey = process.env.RESEND_API_KEY;
@@ -339,8 +342,9 @@ export async function POST(request: NextRequest) {
         })
       : "";
 
-    const djOptions = (options as ArtistOption[]).filter((o) => (o.artistType || "dj") === "dj");
-    const musicianOptions = (options as ArtistOption[]).filter((o) => (o.artistType || "dj") === "musician");
+    // Split options by type so subject, sections and CTA match: DJ only, Musician only, or both
+    const djOptions = (options as ArtistOption[]).filter((o) => (o.artistType || "dj").toLowerCase() === "dj");
+    const musicianOptions = (options as ArtistOption[]).filter((o) => (o.artistType || "dj").toLowerCase() === "musician");
     const hasDJ = djOptions.length > 0;
     const hasMusician = musicianOptions.length > 0;
     if (!hasDJ && !hasMusician) {
@@ -355,6 +359,7 @@ export async function POST(request: NextRequest) {
     const djCards = sortRec(djOptions).map((o) => buildArtistCard(o, "dj")).join("");
     const musicianCards = sortRec(musicianOptions).map((o) => buildArtistCard(o, "musician")).join("");
 
+    // Subject and heading: only DJ → "Your DJ Enquiry"; only Musician → "Your Musician Enquiry"; both → "Your DJ & Musician Enquiry"
     let subjectLabel: string;
     if (hasDJ && hasMusician) subjectLabel = "DJ & Musician";
     else if (hasDJ) subjectLabel = "DJ";
@@ -380,8 +385,12 @@ export async function POST(request: NextRequest) {
 
     const ctaLabel = hasDJ && hasMusician ? "your entertainment" : hasDJ ? "your DJ" : "your musician";
     const ctaButton = hasDJ && hasMusician ? "Book Your DJ & Musician" : hasDJ ? "Book Your DJ" : "Book Your Musician";
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk";
-    const bookingFormUrl = `${baseUrl}/book-dj`;
+    const baseUrl = getEmailBaseUrl();
+    const quoteToken = createBookDJQuoteToken({
+      bookingId,
+      artistNames: (options as ArtistOption[]).map((o) => o.name),
+    });
+    const bookingFormUrl = `${baseUrl}/book-dj?quote=${encodeURIComponent(quoteToken)}`;
     const followUp =
       hasDJ && hasMusician
         ? "<p>All our DJs and musicians are available on your date. If you'd like to discuss further or arrange a quick call, just let us know!</p>"
@@ -434,21 +443,7 @@ export async function POST(request: NextRequest) {
 
               ${followUp}
               
-              <div class="signature">
-                <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
-                <div style="background: #f8f9fa; padding: 15px 20px; border-radius: 6px; font-size: 14px;">
-                  <p style="margin: 0 0 8px; color: #333;"><strong>📞 Call us:</strong> <a href="tel:+447970793177" style="color: #D4AF37; text-decoration: none;">+44 7970 793177</a></p>
-                  <p style="margin: 0 0 8px; color: #333;"><strong>✉️ Email:</strong> <a href="mailto:info@stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">info@stylishentertainment.co.uk</a></p>
-                  <p style="margin: 0; color: #333;"><strong>🌐 Website:</strong> <a href="https://stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">stylishentertainment.co.uk</a></p>
-                </div>
-              </div>
-            </div>
-            <div class="footer">
-              <p>Stylish Entertainment Ltd</p>
-              <p>West Country | London | Nationwide</p>
-              <p style="margin-top: 15px;">
-                <a href="https://stylishentertainment.co.uk">Visit our website</a>
-              </p>
+              ${SIGNATURE_BLOCK_HTML}
             </div>
           </div>
         </body>

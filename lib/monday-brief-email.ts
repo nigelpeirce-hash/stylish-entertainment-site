@@ -1,5 +1,6 @@
 import { MondayBrief } from "./monday-brief";
 import { getEmailUrl } from "./get-base-url";
+import { SIGNATURE_BLOCK_HTML_DARK } from "@/lib/email-signature";
 
 /**
  * Generate the HTML email template for Monday Morning Brief
@@ -375,10 +376,9 @@ export function generateMondayBriefEmail(brief: MondayBrief, baseUrl?: string): 
     </div>
     
     <!-- Footer -->
-    <div class="footer">
-      <p>STYLISH Entertainment</p>
-      <p>88 Weymouth Road, Frome, Somerset BA11 1HJ</p>
-      <p style="margin-top: 16px; font-size: 11px;">This is an automated briefing email sent every Monday at 08:00 GMT</p>
+    <div class="footer" style="background-color: #1a1a1a !important; padding: 30px 20px;">
+      ${SIGNATURE_BLOCK_HTML_DARK}
+      <p style="margin-top: 16px; font-size: 11px; color: #666666 !important;">This is an automated briefing email sent every Monday at 08:00 GMT</p>
     </div>
   </div>
 </body>
@@ -497,10 +497,9 @@ function generateAllClearEmail(weekOf: string): string {
       </p>
     </div>
     
-    <div class="footer">
-      <p>STYLISH Entertainment</p>
-      <p>88 Weymouth Road, Frome, Somerset BA11 1HJ</p>
-      <p style="margin-top: 16px; font-size: 11px;">This is an automated briefing email sent every Monday at 08:00 GMT</p>
+    <div class="footer" style="background-color: #1a1a1a !important; padding: 30px 20px;">
+      ${SIGNATURE_BLOCK_HTML_DARK}
+      <p style="margin-top: 16px; font-size: 11px; color: #666666 !important;">This is an automated briefing email sent every Monday at 08:00 GMT</p>
     </div>
   </div>
 </body>

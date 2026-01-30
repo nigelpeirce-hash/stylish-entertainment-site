@@ -1,5 +1,9 @@
 import { Booking } from "@prisma/client";
 import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
+import { SIGNATURE_BLOCK_HTML, CLIENT_SIGNOFF_TEXT } from "@/lib/email-signature";
+
+/** Re-export for code that imports from email-templates. */
+export { CLIENT_SIGNOFF_TEXT } from "@/lib/email-signature";
 
 /** Sanitize client name for subject/body (fixes e.g. "Tim & SarahTim & Sarah"). */
 function safeClientName(name: string | null | undefined): string {
@@ -178,18 +182,6 @@ function depositWording(eventType: string | null | undefined): { dateLabel: stri
   return { dateLabel: "party", closing: "We look forward to celebrating with you." };
 }
 
-const TAGLINE = "Make every gathering extraordinary";
-
-/** All client emails end with this sign-off. */
-export const CLIENT_SIGNOFF_HTML = "Kind Regards,<br /><strong>Ali & Nige</strong>";
-export const CLIENT_SIGNOFF_TEXT = "Kind Regards,\nAli & Nige";
-
-/**
- * Dedicated signature block for client emails – "Kind Regards, Ali & Nige".
- * Use in templates so the sign-off is clearly visible (not lost in gray footer text).
- */
-export const CLIENT_SIGNATURE_BLOCK_HTML = `<div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center;"><p style="font-size: 15px; color: #1a1a1a; margin: 0; font-weight: 500;">Kind Regards,</p><p style="font-size: 15px; color: #1a1a1a; margin: 4px 0 0 0; font-weight: 700;">Ali & Nige</p></div>`;
-
 /** Event-type label: "your wedding" | "your corporate party" | "your party". */
 export function yourEventLabel(eventType: string | null | undefined): string {
   const t = (eventType || "").toLowerCase().trim();
@@ -286,17 +278,13 @@ export function depositEmailWeddingCelebration({
         <div style="text-align: center; margin: 36px 0;">
           <a href="${portalUrl}" style="display: inline-block; background-color: ${GOLD}; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);">Access your portal</a>
         </div>
-        <div style="border-top: 1px solid #eee; padding-top: 28px; margin-top: 32px; text-align: center;">
-          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">${TAGLINE}</p>
-          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
-          ${CLIENT_SIGNATURE_BLOCK_HTML}
-        </div>
+        ${SIGNATURE_BLOCK_HTML}
       </div>
     </body>
     </html>
   `;
 
-  const text = `Wedding Celebration\n\n${DEPOSIT_HEADLINE}\n\nYour wedding date, ${eventDate}, is confirmed.${showVenue ? ` We'll be with you at ${venue}.` : ""}\n\n${bookedArtistText}${paymentSummaryText}We can't wait for your big day.\n\nYour personal wedding portal is ready — and it's a great place to get things rolling. Add your music must-plays and no-plays, your first dance song, and invite your guests so they can request songs too. No password needed; just click the link below to jump in.\n\nAccess your portal: ${portalUrl}\n\n${TAGLINE}\n\nQuestions or changes? We're here to help.\n\n${CLIENT_SIGNOFF_TEXT}`;
+  const text = `Wedding Celebration\n\n${DEPOSIT_HEADLINE}\n\nYour wedding date, ${eventDate}, is confirmed.${showVenue ? ` We'll be with you at ${venue}.` : ""}\n\n${bookedArtistText}${paymentSummaryText}We can't wait for your big day.\n\nYour personal wedding portal is ready — and it's a great place to get things rolling. Add your music must-plays and no-plays, your first dance song, and invite your guests so they can request songs too. No password needed; just click the link below to jump in.\n\nAccess your portal: ${portalUrl}\n\n${CLIENT_SIGNOFF_TEXT}`;
 
   return {
     subject: `Your Date is Secured: ${clientName} x Stylish Entertainment Ltd`,
@@ -345,17 +333,13 @@ export function depositEmailEventConfirmed({
         <div style="text-align: center; margin: 36px 0;">
           <a href="${portalUrl}" style="display: inline-block; background-color: ${GOLD}; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);">View Your Countdown</a>
         </div>
-        <div style="border-top: 1px solid #eee; padding-top: 28px; margin-top: 32px; text-align: center;">
-          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">${TAGLINE}</p>
-          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
-          ${CLIENT_SIGNATURE_BLOCK_HTML}
-        </div>
+        ${SIGNATURE_BLOCK_HTML}
       </div>
     </body>
     </html>
   `;
 
-  const text = `Event Confirmed\n\n${DEPOSIT_HEADLINE}\n\nYour ${dateLabel} date, ${eventDate}, is confirmed.${showVenue ? ` We'll be with you at ${venue}.` : ""}\n\n${bookedArtistText}${paymentSummaryText}${closing}\n\nView Your Countdown: ${portalUrl}\n\n${TAGLINE}\n\nQuestions or changes? We're here to help.\n\n${CLIENT_SIGNOFF_TEXT}`;
+  const text = `Event Confirmed\n\n${DEPOSIT_HEADLINE}\n\nYour ${dateLabel} date, ${eventDate}, is confirmed.${showVenue ? ` We'll be with you at ${venue}.` : ""}\n\n${bookedArtistText}${paymentSummaryText}${closing}\n\nView Your Countdown: ${portalUrl}\n\n${CLIENT_SIGNOFF_TEXT}`;
 
   return {
     subject: `Your Date is Secured: ${clientName} x Stylish Entertainment Ltd`,
@@ -428,11 +412,7 @@ export function DEPOSIT_CONFIRMED({ booking, portalUrl }: { booking: DepositConf
         <div style="text-align: center; margin: 36px 0;">
           <a href="${portalUrl}" style="display: inline-block; background-color: #D4AF37; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);">View Your Countdown</a>
         </div>
-        <div style="border-top: 1px solid #eee; padding-top: 28px; margin-top: 32px; text-align: center;">
-          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">${TAGLINE}</p>
-          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
-          ${CLIENT_SIGNATURE_BLOCK_HTML}
-        </div>
+        ${SIGNATURE_BLOCK_HTML}
       </div>
     </body>
     </html>
@@ -447,10 +427,6 @@ ${paymentSummaryText}
 ${closing}
 
 View Your Countdown: ${portalUrl}
-
-${TAGLINE}
-
-Questions or changes? We're here to help.
 
 ${CLIENT_SIGNOFF_TEXT}
   `;
@@ -548,18 +524,14 @@ export function depositInvoiceEmail({ booking, amount, reference, bankDetails }:
           ${bankBlock}
           <p style="font-size: 16px; line-height: 1.6; color: #333; margin: 24px 0 0 0;">${closing}</p>
         </div>
-        <div style="border-top: 1px solid #eee; padding-top: 28px; margin-top: 32px; text-align: center;">
-          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">${TAGLINE}</p>
-          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or payment queries? Reply to this email or contact us.</p>
-          ${CLIENT_SIGNATURE_BLOCK_HTML}
-        </div>
+        ${SIGNATURE_BLOCK_HTML}
       </div>
     </body>
     </html>
   `;
 
   const shortLabel = eventLabelShort(booking.eventType);
-  const text = `Deposit invoice\n\nHi ${clientName},\n\n${intro}\n\nYour ${shortLabel} date, ${eventDate},${showVenue ? ` at ${venue}.` : "."}\n\n${amountText}${bankText}\n\n${closing}\n\n${TAGLINE}\n\nQuestions or payment queries? Reply to this email or contact us.\n\n${CLIENT_SIGNOFF_TEXT}`;
+  const text = `Deposit invoice\n\nHi ${clientName},\n\n${intro}\n\nYour ${shortLabel} date, ${eventDate},${showVenue ? ` at ${venue}.` : "."}\n\n${amountText}${bankText}\n\n${closing}\n\n${CLIENT_SIGNOFF_TEXT}`;
 
   return {
     subject: `Deposit invoice: ${clientName} – Stylish Entertainment Ltd`,

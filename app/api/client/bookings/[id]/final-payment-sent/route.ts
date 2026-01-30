@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
+import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -91,9 +92,9 @@ export async function POST(
       <p><strong>Event:</strong> ${booking.eventType || "Event"} at ${venue}</p>
       <p><strong>Date:</strong> ${dateStr}</p>
       <p>If you have any questions, please check in with the office.</p>
-      <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
+      ${SIGNATURE_BLOCK_HTML}
     `;
-    const text = `Final payment received – ${booking.name} @ ${venue}\n\nEvent: ${booking.eventType || "Event"} at ${venue}\nDate: ${dateStr}\n\nThe client has confirmed they have sent the final payment.\n\nKind Regards, Ali & Nige`;
+    const text = `Final payment received – ${booking.name} @ ${venue}\n\nEvent: ${booking.eventType || "Event"} at ${venue}\nDate: ${dateStr}\n\nThe client has confirmed they have sent the final payment.\n\nKind Regards,\nAli & Nige\n\n07970 793177  |  info@stylishentertainment.co.uk  |  stylishentertainment.co.uk\nFacebook · Instagram · YouTube\nEvery gathering deserves to be extraordinary\nStylish Entertainment Ltd | West Country · London · Nationwide`;
 
     for (const a of assignments) {
       const email = a.staff.email;

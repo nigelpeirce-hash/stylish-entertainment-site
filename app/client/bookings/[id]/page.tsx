@@ -30,6 +30,7 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
     where: { id: bookingId },
     select: {
       id: true,
+      userId: true,
       name: true,
       email: true,
       phoneAreaCode: true,
@@ -182,7 +183,23 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
     return <PortalView booking={{ ...bookingSafe, venueNotes, googleMapsUrl }} isPreview={false} baseUrl={baseUrl} eventPassed={eventPassed} />;
   }
 
-  // 5. Session-based access (middleware allows through only if logged in)
+  // 5. Session-based access: require ownership (middleware allows through only if logged in)
+  const sessionUserId = (session?.user as any)?.id;
+  const sessionEmail = (session?.user?.email ?? "").toString().toLowerCase().trim();
+  const bookingEmail = (booking.email ?? "").toLowerCase().trim();
+  const ownsByUserId = !!sessionUserId && booking.userId === sessionUserId;
+  const ownsByEmail = !!sessionEmail && !!bookingEmail && sessionEmail === bookingEmail;
+  if (!ownsByUserId && !ownsByEmail) {
+    return (
+      <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center p-6">
+        <h1 className="text-xl font-semibold text-amber-500 mb-2">Access denied</h1>
+        <p className="text-gray-400 text-center max-w-md">
+          You don&apos;t have access to this booking. If you believe this is an error, please contact us.
+        </p>
+        <a href="/client/dashboard" className="mt-6 text-amber-500 hover:underline">Go to your dashboard</a>
+      </div>
+    );
+  }
   const { portalToken: _pt, ...bookingSafe } = booking;
   return <PortalView booking={{ ...bookingSafe, venueNotes, googleMapsUrl }} isPreview={false} baseUrl={baseUrl} eventPassed={eventPassed} />;
 }

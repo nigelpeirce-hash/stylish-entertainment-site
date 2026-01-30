@@ -32,6 +32,7 @@ import {
   Trash2,
   PoundSterling,
   Package,
+  HelpCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { ArtistDispatch } from "@/components/ArtistDispatch";
@@ -61,6 +62,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
 import { useToast } from "@/hooks/use-toast";
 import { Toast } from "@/components/ui/toast";
@@ -513,7 +515,7 @@ export default function BookingDetail() {
               </div>
               <div className="flex flex-col items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-amber-500" />
+                  <Calendar className="w-5 h-5 text-white" />
                   <span className="font-bold text-white/70 text-lg">
                     {formatEventDate(booking.eventDate)}
                   </span>
@@ -642,11 +644,11 @@ export default function BookingDetail() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <p className="text-xs text-gray-400 mb-1">Name</p>
-                  <p className="text-white font-medium">{deduplicateName(getDisplayName(booking.name) || booking.name)}</p>
+                  <p className="text-sm text-gray-400 mb-1">Name</p>
+                  <p className="text-white font-medium text-base">{deduplicateName(getDisplayName(booking.name) || booking.name)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400 mb-1">Email</p>
+                  <p className="text-sm text-gray-400 mb-1">Email</p>
                   <a
                     href={`mailto:${booking.email}`}
                     className="text-champagne-gold hover:text-champagne-gold/80 flex items-center gap-2"
@@ -657,7 +659,7 @@ export default function BookingDetail() {
                 </div>
                 {phoneNumber && (
                   <div>
-                    <p className="text-xs text-gray-400 mb-1">Phone</p>
+                    <p className="text-sm text-gray-400 mb-1">Phone</p>
                     <a
                       href={`tel:${phoneNumber}`}
                       className="text-champagne-gold hover:text-champagne-gold/80 flex items-center gap-2"
@@ -669,179 +671,14 @@ export default function BookingDetail() {
                 )}
                 {booking.contactPreference && (
                   <div>
-                    <p className="text-xs text-gray-400 mb-1">Preferred Contact</p>
+                    <p className="text-sm text-gray-400 mb-1">Preferred Contact</p>
                     <p className="text-white">{booking.contactPreference}</p>
                   </div>
                 )}
               </CardContent>
             </Card>
 
-            {/* Timings (booking guaranteed; data from API) */}
-            <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-                    <Clock className="w-5 h-5 text-champagne-gold" />
-                    Timings
-                  </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowEditModal(true)}
-                    className="text-gray-400 hover:text-champagne-gold"
-                    title="Edit venue, timings & details"
-                  >
-                    <Edit className="w-4 h-4 mr-1" />
-                    Edit
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-gray-400 text-sm">Ceremony start:</span>
-                  <span className="text-white font-medium">
-                    {booking.ceremonyTime
-                      ? new Date(booking.ceremonyTime).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", hour12: false })
-                      : "—"}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400 text-sm">Artist start:</span>
-                  <span className="text-white font-medium">{booking.djStartTime || "—"}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400 text-sm">Artist end:</span>
-                  <span className="text-white font-medium">{booking.djFinishTime || "—"}</span>
-                </div>
-                {booking.djArrivalTime && (
-                  <div className="flex justify-between pt-1 border-t border-gray-700/50">
-                    <span className="text-gray-400 text-sm">Arrival:</span>
-                    <span className="text-white font-medium text-sm">{booking.djArrivalTime}</span>
-                  </div>
-                )}
-                <p className="text-xs text-gray-500 pt-1">Click Edit to change timings, then Save Changes</p>
-              </CardContent>
-            </Card>
-
-            {/* Venue Info (booking guaranteed; data from API) */}
-            <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-champagne-gold" />
-                    Venue Info
-                  </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowEditModal(true)}
-                    className="text-gray-400 hover:text-champagne-gold"
-                    title="Edit venue, timings & details"
-                  >
-                    <Edit className="w-4 h-4 mr-1" />
-                    Edit
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div>
-                  <p className="text-xs text-gray-400 mb-1">Venue Name</p>
-                  <p className="text-white font-medium">{booking.venueName || "—"}</p>
-                </div>
-                {booking.venueAddress && (
-                  <div>
-                    <p className="text-xs text-gray-400 mb-1">Address</p>
-                    <p className="text-gray-300">{booking.venueAddress}</p>
-                  </div>
-                )}
-                {(booking.venueTown || booking.venuePostcode) && (
-                  <div>
-                    <p className="text-xs text-gray-400 mb-1">Location</p>
-                    <p className="text-gray-300">
-                      {booking.venueTown}
-                      {booking.venueTown && booking.venuePostcode && ", "}
-                      {booking.venuePostcode && (
-                        <span className="font-bold text-champagne-gold">{booking.venuePostcode}</span>
-                      )}
-                    </p>
-                  </div>
-                )}
-                {googleMapsUrl && (
-                  <div className="pt-2">
-                    <a
-                      href={googleMapsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-champagne-gold hover:text-champagne-gold/80 flex items-center gap-2 text-sm"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      Open in Google Maps
-                    </a>
-                  </div>
-                )}
-                {(booking.djSetupLocation || booking.djParking || booking.soundLimiter !== null) && (
-                  <div className="pt-3 border-t border-gray-700">
-                    <p className="text-xs text-gray-400 mb-2">Technical Setup</p>
-                    <div className="space-y-1.5 text-sm">
-                      {booking.djSetupLocation && (
-                        <div>
-                          <span className="text-gray-400">Setup: </span>
-                          <span className="text-white">{booking.djSetupLocation}</span>
-                        </div>
-                      )}
-                      {booking.djParking && (
-                        <div>
-                          <span className="text-gray-400">Parking: </span>
-                          <span className="text-white">{booking.djParking}</span>
-                        </div>
-                      )}
-                      {booking.soundLimiter !== null && (
-                        <div>
-                          <span className="text-gray-400">Sound Limiter: </span>
-                          <span className={booking.soundLimiter ? "text-red-400" : "text-green-400"}>
-                            {booking.soundLimiter ? "Yes" : "No"}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-                {(booking.venueIsPrivateHouse || booking.venueWhat3Words || booking.venueLoadInNotes) && (
-                  <div className="pt-3 border-t border-gray-700 border-l-4 border-l-amber-500/80">
-                    <p className="text-xs text-amber-400 mb-2 font-semibold">Finding the venue / Load-in</p>
-                    <div className="space-y-1.5 text-sm">
-                      {booking.venueIsPrivateHouse && (
-                        <div>
-                          <span className="text-gray-400">Private house: </span>
-                          <span className="text-white">Yes</span>
-                        </div>
-                      )}
-                      {booking.venueWhat3Words && (
-                        <div>
-                          <span className="text-gray-400">What3words: </span>
-                          <a
-                            href={`https://what3words.com/${booking.venueWhat3Words.trim().replace(/\s+/g, ".")}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-champagne-gold hover:underline"
-                          >
-                            {booking.venueWhat3Words}
-                          </a>
-                        </div>
-                      )}
-                      {booking.venueLoadInNotes && (
-                        <div>
-                          <span className="text-gray-400">Load-in / access: </span>
-                          <span className="text-white whitespace-pre-wrap">{booking.venueLoadInNotes}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Quote Builder - Multi-Service (below Venue Info) */}
+            {/* Quote Builder - Multi-Service */}
             <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg font-semibold text-white">Quote Builder</CardTitle>
@@ -863,13 +700,30 @@ export default function BookingDetail() {
             {/* Manual Communication — priority action */}
             <Card className={`bg-gray-800 border-amber-500/20 ${getSectionBgColor()} transition-colors`}>
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-                  <Mail className="w-5 h-5 text-amber-500" />
-                  Manual Communication
-                </CardTitle>
-                <p className="text-sm text-amber-200/90 mt-1">
-                  Workflow: Send deposit invoice → Mark deposit received (sends confirmation) → Invite to portal (sends magic link). Reminder sent if they don&apos;t open within 3 days.
-                </p>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+                    <Mail className="w-5 h-5 text-amber-500" />
+                    Manual Communication
+                  </CardTitle>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-gray-400 hover:text-amber-500 rounded-full"
+                        aria-label="Workflow help"
+                      >
+                        <HelpCircle className="h-4 w-4" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 p-4 text-sm text-gray-200 border-amber-500/30" align="start">
+                      <p className="font-medium text-amber-200/90 mb-2">Workflow</p>
+                      <p>
+                        Send deposit invoice → Mark deposit received (sends confirmation) → Invite to portal (sends sign-in link). Reminder sent if they don&apos;t open within 3 days.
+                      </p>
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Send Deposit Invoice (before payment) */}
@@ -1003,7 +857,7 @@ export default function BookingDetail() {
                 {/* Invite to portal — workflow step after deposit received */}
                 <div className="p-4 bg-gray-900/70 rounded-lg border-2 border-amber-500/30">
                   <p className="text-sm text-gray-300 mb-2">
-                    Send confirmation of payment received and invite to portal (magic link). Do this after marking deposit received.
+                    Send portal invite (sign-in link) before deposit is confirmed. Once deposit is confirmed, the client already gets the portal link in the Deposit confirmed email — no need to send this.
                   </p>
                   <Button
                     onClick={async () => {
@@ -1014,25 +868,32 @@ export default function BookingDetail() {
                         const data = await res.json();
                         if (res.ok) {
                           await handleBookingUpdate();
-                          const clientName = deduplicateName(getDisplayName(booking.name) || booking.name);
-                          toast({
-                            title: "Confirm payment & invite sent",
-                            description: `Portal invite sent to ${clientName}. Reminder goes automatically if they don&apos;t open within 3 days.`,
-                          });
+                          if (data.skipped) {
+                            toast({
+                              title: "Portal invite not sent",
+                              description: data.message || "Deposit already confirmed; client already has portal access from that email.",
+                            });
+                          } else {
+                            const clientName = deduplicateName(getDisplayName(booking.name) || booking.name);
+                            toast({
+                              title: "Portal invite sent",
+                              description: `Sign-in link sent to ${clientName}. They can sign in with their credentials to open their portal.`,
+                            });
+                          }
                         } else {
-                          throw new Error(data?.error || "Failed to confirm and send invite");
+                          throw new Error(data?.error || "Failed to send portal invite");
                         }
                       } catch (e: any) {
                         toast({
                           title: "Error",
-                          description: e?.message || "Failed to confirm and send invite",
+                          description: e?.message || "Failed to send portal invite",
                           variant: "destructive",
                         });
                       } finally {
                         setSendingFinalizeInvite(false);
                       }
                     }}
-                    disabled={!(booking.depositReceivedManual || false) || sendingFinalizeInvite || !booking?.email}
+                    disabled={sendingFinalizeInvite || !booking?.email}
                     className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold disabled:opacity-50 disabled:pointer-events-none"
                   >
                     {sendingFinalizeInvite ? (
@@ -1043,12 +904,12 @@ export default function BookingDetail() {
                     ) : (
                       <>
                         <Send className="w-4 h-4 mr-2" />
-                        Confirm payment &amp; invite to portal
+                        Send portal invite (sign-in link)
                       </>
                     )}
                   </Button>
-                  {!(booking.depositReceivedManual || false) && (
-                    <p className="text-xs text-amber-400/90 mt-2">Mark deposit received first.</p>
+                  {(booking.depositReceivedManual || false) && (
+                    <p className="text-xs text-amber-400/90 mt-2">Deposit already confirmed — client has portal link from that email. Use &quot;Send portal link&quot; below only to resend a sign-in link.</p>
                   )}
                 </div>
               </CardContent>
@@ -1298,114 +1159,112 @@ export default function BookingDetail() {
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-800 border-champagne-gold/30" aria-describedby="edit-booking-desc">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold text-white">Edit Booking Details</DialogTitle>
-            <DialogDescription id="edit-booking-desc" className="text-sm text-gray-400 font-normal mt-1">
+            <DialogDescription id="edit-booking-desc" className="text-base text-gray-400 font-normal mt-1">
               Update client, venue, timings, and message. Venue name and postcode are free text—type anything or use Quick select. Click <strong className="text-champagne-gold">Save Changes</strong> when done.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-6 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Client Name</label>
+                <label className="block text-base font-medium text-gray-300 mb-2">Client Name</label>
                 <input
                   id="edit-name"
                   type="text"
                   defaultValue={booking.name}
-                  className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                  className="w-full px-4 py-3 text-base bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                <label className="block text-base font-medium text-gray-300 mb-2">Email</label>
                 <input
                   id="edit-email"
                   type="email"
                   defaultValue={booking.email}
-                  className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                  className="w-full px-4 py-3 text-base bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Phone Area Code</label>
+                <label className="block text-base font-medium text-gray-300 mb-2">Phone Area Code</label>
                 <input
                   id="edit-phoneAreaCode"
                   type="text"
                   defaultValue={booking.phoneAreaCode || ""}
-                  className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                  className="w-full px-4 py-3 text-base bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Phone Number</label>
+                <label className="block text-base font-medium text-gray-300 mb-2">Phone Number</label>
                 <input
                   id="edit-phoneNumber"
                   type="text"
                   defaultValue={booking.phoneNumber || ""}
-                  className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                  className="w-full px-4 py-3 text-base bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
                 />
               </div>
               <div className="col-span-2">
-                <h4 className="text-sm font-semibold text-amber-500/90 mb-2">Client home address</h4>
+                <h4 className="text-base font-semibold text-amber-500/90 mb-2">Client home address</h4>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="col-span-2">
-                    <label className="block text-xs text-gray-400 mb-1">Address</label>
+                    <label className="block text-sm text-gray-400 mb-1">Address</label>
                     <input
                       id="edit-clientAddress"
                       type="text"
                       defaultValue={(booking as any).clientAddress || ""}
-                      placeholder="Line 1"
-                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                      className="w-full px-4 py-3 text-base bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
                     />
                   </div>
                   <div className="col-span-2">
-                    <label className="block text-xs text-gray-400 mb-1">Address 2</label>
+                    <label className="block text-sm text-gray-400 mb-1">Address 2</label>
                     <input
                       id="edit-clientAddress2"
                       type="text"
                       defaultValue={(booking as any).clientAddress2 || ""}
-                      placeholder="Line 2"
-                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                      className="w-full px-4 py-3 text-base bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1">Town</label>
+                    <label className="block text-sm text-gray-400 mb-1">Town</label>
                     <input
                       id="edit-clientTown"
                       type="text"
                       defaultValue={(booking as any).clientTown || ""}
-                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                      className="w-full px-4 py-3 text-base bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1">County</label>
+                    <label className="block text-sm text-gray-400 mb-1">County</label>
                     <input
                       id="edit-clientCounty"
                       type="text"
                       defaultValue={(booking as any).clientCounty || ""}
-                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                      className="w-full px-4 py-3 text-base bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-gray-400 mb-1">Postcode</label>
+                    <label className="block text-sm text-gray-400 mb-1">Postcode</label>
                     <input
                       id="edit-clientPostcode"
                       type="text"
                       defaultValue={(booking as any).clientPostcode || ""}
-                      className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                      className="w-full px-4 py-3 text-base bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
                     />
                   </div>
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Event Date</label>
+                <label className="block text-base font-medium text-gray-300 mb-2">Event Date</label>
                 <input
                   id="edit-eventDate"
                   type="datetime-local"
                   defaultValue={new Date(booking.eventDate).toISOString().slice(0, 16)}
-                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-4 py-3 text-base bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 [color-scheme:dark]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Quick select venue</label>
+                <label className="block text-base font-medium text-gray-300 mb-2">Quick select venue</label>
                 <select
                   id="edit-venueSelect"
-                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-4 py-3 text-base bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                   onChange={async (e) => {
                     const v = e.target.value;
                     if (!v) return;
@@ -1441,7 +1300,7 @@ export default function BookingDetail() {
                     }
                   }}
                 >
-                  <option value="">— Select venue to pre-fill name &amp; postcode —</option>
+                  <option value="">Select venue</option>
                   {venues.map((v) => (
                     <option key={v.id} value={v.venuePostcode ? `${v.venueName}\t${v.venuePostcode}` : v.venueName}>
                       {v.venuePostcode ? `${v.venueName}, ${v.venuePostcode}` : v.venueName}
@@ -1450,24 +1309,22 @@ export default function BookingDetail() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Venue Name</label>
+                <label className="block text-base font-medium text-gray-300 mb-2">Venue Name</label>
                 <input
                   id="edit-venueName"
                   type="text"
                   defaultValue={booking.venueName ?? ""}
-                  placeholder="e.g. Babington House — type freely or use Quick select"
-                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-4 py-3 text-base bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                   autoComplete="off"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Venue Postcode</label>
+                <label className="block text-base font-medium text-gray-300 mb-2">Venue Postcode</label>
                 <input
                   id="edit-venuePostcode"
                   type="text"
                   defaultValue={booking.venuePostcode ?? ""}
-                  placeholder="e.g. BA11 3RW"
-                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-4 py-3 text-base bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
                   autoComplete="off"
                 />
               </div>
@@ -1543,48 +1400,49 @@ export default function BookingDetail() {
                 </Button>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Ceremony start</label>
+                <label className="block text-base font-medium text-gray-300 mb-2">Ceremony start</label>
                 <input
                   id="edit-ceremonyTime"
                   type="time"
                   defaultValue={booking.ceremonyTime ? new Date(booking.ceremonyTime).toISOString().slice(11, 16) : ""}
-                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-4 py-3 text-base bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 [color-scheme:dark]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Artist start</label>
+                <label className="block text-base font-medium text-gray-300 mb-2">Artist start</label>
                 <input
                   id="edit-djStartTime"
                   type="time"
                   defaultValue={booking.djStartTime || ""}
-                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-4 py-3 text-base bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 [color-scheme:dark]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Artist end</label>
+                <label className="block text-base font-medium text-gray-300 mb-2">Artist end</label>
                 <input
                   id="edit-djFinishTime"
                   type="time"
                   defaultValue={booking.djFinishTime || ""}
-                  className="w-full px-3 py-2 bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                  className="w-full px-4 py-3 text-base bg-gray-900 border border-amber-500/50 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 [color-scheme:dark]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Number of Guests</label>
+                <label className="block text-base font-medium text-gray-300 mb-2">Number of Guests</label>
                 <input
+                  id="edit-numberOfGuests"
                   type="number"
                   defaultValue={booking.numberOfGuests || ""}
-                  className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                  className="w-full px-4 py-3 text-base bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">Additional Message</label>
+              <label className="block text-base font-medium text-gray-300 mb-2">Additional Message</label>
               <textarea
                 id="edit-message"
                 defaultValue={booking.message || ""}
                 rows={4}
-                className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                className="w-full px-4 py-3 text-base bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
               />
             </div>
             <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
@@ -1610,6 +1468,8 @@ export default function BookingDetail() {
                     const clientTown = get("edit-clientTown") || null;
                     const clientCounty = get("edit-clientCounty") || null;
                     const clientPostcode = get("edit-clientPostcode") || null;
+                    const numberOfGuestsRaw = get("edit-numberOfGuests");
+                    const numberOfGuests = numberOfGuestsRaw === "" ? null : parseInt(numberOfGuestsRaw, 10);
                     try {
                       const ceremonyDateTime = ceremonyTimeRaw && eventDateRaw
                         ? `${eventDateRaw.slice(0, 10)}T${ceremonyTimeRaw}`
@@ -1646,6 +1506,7 @@ export default function BookingDetail() {
                       if (clientTown !== null) clientPayload.clientTown = clientTown || null;
                       if (clientCounty !== null) clientPayload.clientCounty = clientCounty || null;
                       if (clientPostcode !== null) clientPayload.clientPostcode = clientPostcode || null;
+                      if (numberOfGuests !== null && !isNaN(numberOfGuests)) clientPayload.numberOfGuests = numberOfGuests;
                       if (Object.keys(clientPayload).length > 0) {
                         const clientRes = await fetch(`/api/admin/bookings/${booking.id}/`, {
                           method: "PATCH",

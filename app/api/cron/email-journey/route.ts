@@ -7,6 +7,8 @@ import { Resend } from "resend";
 import { getBrochureLink } from "@/lib/venue-assets";
 import { deduplicateName, getGreetingName } from "@/lib/utils/name-helpers";
 import { PORTAL_REMINDER } from "@/lib/email/templates";
+import { getEmailBaseUrl } from "@/lib/get-base-url";
+import { getClientPortalLoginUrl } from "@/lib/client-portal-url";
 
 // Lazy initialization to prevent build-time errors
 const getResend = () => {
@@ -223,7 +225,7 @@ export async function GET(request: NextRequest) {
               })
             : undefined,
           venueName: booking.venueName,
-          clientAdminUrl: `https://stylishentertainment.co.uk/client/dashboard`,
+          clientAdminUrl: getClientPortalLoginUrl(baseUrl, booking.id),
         };
 
         // Use the dedicated gentle reminder template
@@ -278,7 +280,7 @@ export async function GET(request: NextRequest) {
             day: "numeric",
           }),
           venueName: booking.venueName,
-          clientAdminUrl: `https://stylishentertainment.co.uk/client/dashboard`,
+          clientAdminUrl: getClientPortalLoginUrl(baseUrl, booking.id),
         };
 
         const emailContent = getJourneyEmail("4-week-checkin", emailData);
@@ -331,7 +333,7 @@ export async function GET(request: NextRequest) {
             day: "numeric",
           }),
           venueName: booking.venueName,
-          clientAdminUrl: `https://stylishentertainment.co.uk/client/dashboard`,
+          clientAdminUrl: getClientPortalLoginUrl(baseUrl, booking.id),
         };
 
         const emailContent = getJourneyEmail("week-of-excitement", emailData);
@@ -368,10 +370,7 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      "https://stylishentertainment.co.uk";
+    const baseUrl = getEmailBaseUrl();
 
     // Process FINAL_CHASE (3-day chase; tokenized magic link)
     for (const booking of bookingsNeedingFinalChase) {
@@ -400,7 +399,7 @@ export async function GET(request: NextRequest) {
             day: "numeric",
           }),
           venueName: booking.venueName,
-          clientAdminUrl: `${baseUrl}/client/dashboard`,
+          clientAdminUrl: getClientPortalLoginUrl(baseUrl, booking.id),
           portalMagicUrl,
         };
 
@@ -454,7 +453,7 @@ export async function GET(request: NextRequest) {
             day: "numeric",
           }),
           venueName: booking.venueName,
-          clientAdminUrl: `https://stylishentertainment.co.uk/client/dashboard`,
+          clientAdminUrl: getClientPortalLoginUrl(baseUrl, booking.id),
         };
 
         const emailContent = getJourneyEmail("post-wedding-magic", emailData);

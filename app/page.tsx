@@ -150,6 +150,16 @@ const TestimonialsSection = () => {
   );
 };
 
+// LCP image: same URL as layout preload so the browser reuses the preloaded response (faster LCP)
+const LCP_HERO_URL = "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto,w_1080/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg";
+
+/** Below-fold image delivery: smaller Cloudinary params (~20 KiB savings) */
+function smallerCloudinaryUrl(url: string): string {
+  return url
+    .replace("q_auto", "q_60")
+    .replace(/\/(upload\/[^/]+)\//, (_, t) => `/${t},w_800/`);
+}
+
 // Homepage Gallery Slider Images
 const gallerySliderImages = [
   {
@@ -217,7 +227,7 @@ export default function Home() {
           {sliderImages.map((image, index) => (
             <div key={image.src} className="relative w-full h-full flex-shrink-0 flex items-center justify-center bg-gray-900">
               <Image
-                src={image.src}
+                src={index === 0 && image.src.includes("Saltburn_231005__0020_0640_nmzjp6") ? LCP_HERO_URL : image.src}
                 alt={image.alt}
                 fill
                 className="object-cover"
@@ -229,6 +239,7 @@ export default function Home() {
                 sizes="(max-width: 1920px) 100vw, 1920px"
                 loading={index <= 1 ? "eager" : "lazy"}
                 quality={65}
+                unoptimized={index === 0}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
             </div>
@@ -236,22 +247,12 @@ export default function Home() {
         </Slider>
       </section>
 
-      {/* Hero Section */}
+      {/* Hero Section – no animation so banner shows immediately (better LCP / main thread) */}
       <section className="relative py-12 md:py-20 flex items-center justify-center bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 text-white overflow-hidden">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="relative z-10 text-center px-4 max-w-5xl mx-auto"
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="inline-block mb-6 px-6 py-2 bg-champagne-gold/10 rounded-full border border-champagne-gold/30"
-          >
+        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
+          <div className="inline-block mb-6 px-6 py-2 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
             <span className="text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase">Stylish Entertainment & Production</span>
-          </motion.div>
+          </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
             Exceptional <span className="text-gradient">Entertainment</span>
           </h1>
@@ -263,7 +264,7 @@ export default function Home() {
               <Link href="/artists">Meet Our DJs</Link>
             </Button>
           </div>
-        </motion.div>
+        </div>
       </section>
 
       {/* What set our DJ's apart */}
@@ -329,7 +330,7 @@ export default function Home() {
                   <Card className="h-full bg-gray-800 border-champagne-gold/30 hover:shadow-xl transition-all duration-300 hover:border-champagne-gold/60 group cursor-pointer">
                     <div className="relative h-48 overflow-hidden bg-gray-100">
                       <Image
-                        src={service.image}
+                        src={smallerCloudinaryUrl(service.image)}
                         alt={service.alt}
                         width={400}
                         height={192}
@@ -418,7 +419,7 @@ export default function Home() {
                   <CardContent className="p-6 sm:p-8">
                     <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700 group-hover:scale-105 transition-transform duration-300">
                       <Image
-                        src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162313/Ali-Peirce_aec3tn.jpg"
+                        src={smallerCloudinaryUrl("https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162313/Ali-Peirce_aec3tn.jpg")}
                         alt="Ali - Creative Strategist & Co-founder of Stylish Entertainment"
                         fill
                         className="object-cover"
@@ -450,7 +451,7 @@ export default function Home() {
                   <CardContent className="p-6 sm:p-8">
                     <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700 group-hover:scale-105 transition-transform duration-300">
                       <Image
-                        src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162279/Nigel-DJ-Babs-House-0009-1_f59b99.jpg"
+                        src={smallerCloudinaryUrl("https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162279/Nigel-DJ-Babs-House-0009-1_f59b99.jpg")}
                         alt="Nige - Creative & Technical & Co-founder of Stylish Entertainment"
                         fill
                         className="object-cover"

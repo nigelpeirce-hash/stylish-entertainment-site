@@ -54,25 +54,26 @@ function DepositPaidThankYouContent() {
   }
 
   return (
-    <Card className="bg-gray-800 border-champagne-gold/30 max-w-lg mx-auto">
+    <Card className="bg-gray-800 border-emerald-500/40 max-w-lg mx-auto">
       <CardHeader className="text-center">
         <div className="flex justify-center mb-4">
-          <div className="p-4 bg-amber-900/30 rounded-full">
-            <CheckCircle2 className="w-12 h-12 text-amber-400" />
+          <div className="p-4 bg-emerald-900/40 rounded-full">
+            <CheckCircle2 className="w-12 h-12 text-emerald-400" />
           </div>
         </div>
-        <CardTitle className="text-2xl text-white">Thanks, we've noted your payment</CardTitle>
+        <CardTitle className="text-2xl text-white">Payment reported</CardTitle>
+        <p className="text-emerald-400/90 text-sm font-medium mt-1">Pending until we confirm</p>
       </CardHeader>
       <CardContent className="space-y-4 text-center">
         <p className="text-gray-300">
-          We will be in touch once it has cleared. You will then receive a receipt and a link to your portal to add music requests and more.
+          We&apos;ve noted that you&apos;ve paid. We&apos;ll confirm once it has cleared, then send you a receipt and a link to your portal to add music requests and more.
         </p>
         <p className="text-gray-400 text-sm">
           If you have any questions, just reply to your booking email or contact us.
         </p>
         <div className="pt-4">
           <Link href="/">
-            <Button className="bg-champagne-gold text-black hover:bg-gold-light">
+            <Button className="bg-emerald-600 text-white hover:bg-emerald-500 border-0">
               <Home className="w-4 h-4 mr-2" />
               Return to homepage
             </Button>

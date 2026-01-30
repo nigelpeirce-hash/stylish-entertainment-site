@@ -7,6 +7,9 @@ import sendEmail from "@/lib/email/send-email";
 import { auth } from "@/auth";
 import { cleanName, getDisplayName, getGreetingName } from "@/lib/utils/name-helpers";
 import { yourEventLabel } from "@/lib/email-templates";
+import { SIGNATURE_BLOCK_HTML_DARK, CLIENT_SIGNOFF_TEXT } from "@/lib/email-signature";
+import { getEmailBaseUrl } from "@/lib/get-base-url";
+import { getClientPortalLoginUrl } from "@/lib/client-portal-url";
 
 interface AssignedTeamMember {
   id: string;
@@ -260,8 +263,8 @@ export async function createBooking(input: CreateBookingInput) {
     // Send portal invite if requested (via Resend — same as send-portal-link / finalize-and-invite)
     if (input.sendPortalInvite) {
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3001";
-        const portalUrl = `${baseUrl}/client/bookings/${booking.id}`;
+        const baseUrl = getEmailBaseUrl();
+        const portalUrl = getClientPortalLoginUrl(baseUrl, booking.id);
 
         const isWedding = input.eventType === "wedding";
         const eventDate = input.startTime.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
@@ -404,23 +407,7 @@ export async function createBooking(input: CreateBookingInput) {
                       <!-- Footer -->
                       <tr>
                         <td style="background-color: #1a1a1a !important; padding: 30px 40px;" class="email-footer">
-                          <table width="100%" cellpadding="0" cellspacing="0">
-                            <tr>
-                              <td style="text-align: center;">
-                                <p style="font-size: 14px; color: #ffffff !important; margin: 0 0 4px 0; font-weight: 600;" class="email-footer-text">Kind Regards, Ali & Nige</p>
-                                <p style="font-size: 14px; color: #D4AF37 !important; margin: 0 0 16px 0;" class="email-footer-text">Stylish Entertainment Ltd</p>
-                                <p style="font-size: 13px; color: #cccccc !important; margin: 0 0 4px 0;" class="email-footer-text">
-                                  <a href="tel:+447970793177" style="color: #cccccc !important; text-decoration: none;">07970 793 177</a>
-                                </p>
-                                <p style="font-size: 13px; color: #cccccc !important; margin: 0 0 4px 0;" class="email-footer-text">
-                                  <a href="mailto:info@stylishentertainment.co.uk" style="color: #cccccc !important; text-decoration: none;">info@stylishentertainment.co.uk</a>
-                                </p>
-                                <p style="font-size: 13px; margin: 12px 0 0 0;" class="email-footer-text">
-                                  <a href="https://stylishentertainment.co.uk" style="color: #D4AF37 !important; text-decoration: none;">stylishentertainment.co.uk</a>
-                                </p>
-                              </td>
-                            </tr>
-                          </table>
+                          ${SIGNATURE_BLOCK_HTML_DARK}
                         </td>
                       </tr>
                       
@@ -451,22 +438,42 @@ View Your Countdown: ${portalUrl}
 
 If you have any questions, we're always here to help. Simply reply to this email or use the messaging feature in your portal.
 
-Kind Regards, Ali & Nige
-Stylish Entertainment Ltd
-07970 793 177
-info@stylishentertainment.co.uk
-https://stylishentertainment.co.uk
+${CLIENT_SIGNOFF_TEXT}
           `;
 
-        await sendEmail({
+        const emailResult = await sendEmail({
           to: input.clientEmail,
           subject,
           html: portalInviteHtml,
           text: portalInviteText,
         });
+        const inviteError = (emailResult as { error?: { message?: string } })?.error?.message;
+        if (inviteError) {
+          console.error("Portal invite email failed:", inviteError);
+          return {
+            success: true,
+            booking,
+            linkedThreads: emailThreads.length,
+            portalInviteSent: false,
+            portalInviteError: inviteError,
+          };
+        }
+        return {
+          success: true,
+          booking,
+          linkedThreads: emailThreads.length,
+          portalInviteSent: true,
+        };
       } catch (emailError) {
         console.error("Error sending portal invite:", emailError);
-        // Don't fail the booking creation if email fails
+        const message = emailError instanceof Error ? emailError.message : "Unknown error";
+        return {
+          success: true,
+          booking,
+          linkedThreads: emailThreads.length,
+          portalInviteSent: false,
+          portalInviteError: message,
+        };
       }
     }
 
@@ -648,20 +655,7 @@ function generateArtistConfirmationEmail(params: {
               <!-- Footer -->
               <tr>
                 <td style="background-color: #1a1a1a !important; padding: 30px 40px;" class="email-footer">
-                  <table width="100%" cellpadding="0" cellspacing="0">
-                    <tr>
-                      <td style="text-align: center;">
-                        <p style="font-size: 14px; color: #ffffff !important; margin: 0 0 4px 0; font-weight: 600;" class="email-footer-text">Ali & Nige</p>
-                        <p style="font-size: 14px; color: #D4AF37 !important; margin: 0 0 16px 0;" class="email-footer-text">Stylish Entertainment Ltd</p>
-                        <p style="font-size: 13px; color: #cccccc !important; margin: 0 0 4px 0;" class="email-footer-text">
-                          <a href="tel:+447970793177" style="color: #cccccc !important; text-decoration: none;">07970 793 177</a>
-                        </p>
-                        <p style="font-size: 13px; color: #cccccc !important; margin: 0 0 4px 0;" class="email-footer-text">
-                          <a href="mailto:info@stylishentertainment.co.uk" style="color: #cccccc !important; text-decoration: none;">info@stylishentertainment.co.uk</a>
-                        </p>
-                      </td>
-                    </tr>
-                  </table>
+                  ${SIGNATURE_BLOCK_HTML_DARK}
                 </td>
               </tr>
               
@@ -703,10 +697,7 @@ WHAT HAPPENS NEXT
 
 If you have any questions, please reply to this email or give us a call.
 
-Ali & Nige
-Stylish Entertainment Ltd
-07970 793 177
-info@stylishentertainment.co.uk
+${CLIENT_SIGNOFF_TEXT}
   `;
 
   return { html, text };

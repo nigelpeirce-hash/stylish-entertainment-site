@@ -3,6 +3,8 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { DEPOSIT_CONFIRMED } from "@/lib/email-templates";
+import { getClientPortalLoginUrl } from "@/lib/client-portal-url";
+import { getEmailBaseUrl } from "@/lib/get-base-url";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -183,9 +185,9 @@ export async function PATCH(
 
     if (shouldSendEmail) {
       try {
-        // Generate portal URL — unique per booking so Sarah & Tim go to /client/bookings/{id}
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001';
-        const portalUrl = `${baseUrl}/client/bookings/${bookingId}`;
+        // Generate portal URL — login page with callback so client lands on their booking after sign-in
+        const baseUrl = getEmailBaseUrl();
+        const portalUrl = getClientPortalLoginUrl(baseUrl, bookingId);
 
         // Use updated booking data for email (eventDate/venueName may have changed this request; fee/balance from DB)
         const emailContent = DEPOSIT_CONFIRMED({

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
 import { getToken } from "next-auth/jwt";
@@ -90,6 +91,8 @@ export async function POST(request: NextRequest) {
 
     const booking = await prisma.booking.create({
       data: {
+        id: randomUUID(),
+        updatedAt: new Date(),
         userId: userId,
         
         // Client Information

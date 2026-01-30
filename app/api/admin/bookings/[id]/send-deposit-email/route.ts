@@ -8,6 +8,8 @@ import {
   depositEmailEventConfirmed,
 } from "@/lib/email-templates";
 import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
+import { getClientPortalLoginUrl } from "@/lib/client-portal-url";
+import { getEmailBaseUrl } from "@/lib/get-base-url";
 
 const getResend = () => {
   const apiKey = process.env.RESEND_API_KEY;
@@ -75,11 +77,8 @@ export async function POST(
       deduplicateName(getDisplayName(booking.name) || booking.name) || "there";
     const eventType = (booking.eventType || "").toLowerCase().trim();
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      "http://localhost:3001";
-    const portalUrl = `${baseUrl}/client/bookings/${booking.id}`;
+    const baseUrl = getEmailBaseUrl();
+    const portalUrl = getClientPortalLoginUrl(baseUrl, booking.id);
 
     const payload = {
       booking: {

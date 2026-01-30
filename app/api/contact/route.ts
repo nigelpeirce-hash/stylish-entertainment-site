@@ -11,6 +11,7 @@ import {
   ensureBookingReference 
 } from "@/lib/booking-integrity";
 import { sendNewLeadNotification } from "@/lib/pushover-notifications";
+import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
 
 // Force dynamic rendering to prevent build-time errors
 export const dynamic = 'force-dynamic';
@@ -390,6 +391,7 @@ export async function POST(request: NextRequest) {
               <div class="field-value">${message.replace(/\n/g, '<br>')}</div>
             </div>
           </div>
+          ${SIGNATURE_BLOCK_HTML}
         </div>
       </body>
       </html>

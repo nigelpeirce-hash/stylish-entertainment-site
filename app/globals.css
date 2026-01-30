@@ -16,6 +16,50 @@
 @tailwind components;
 @tailwind utilities;
 
+/* CookieYes consent bar: WCAG AA contrast (4.5:1+) – overrides inline styles on mobile & desktop */
+.cky-consent-bar,
+div.cky-consent-bar[data-cky-tag="notice"] {
+  background-color: #ffffff !important;
+  border-color: #e5e5e5 !important;
+  color: #1a1a1a !important;
+}
+.cky-title,
+.cky-title[data-cky-tag="title"],
+p.cky-title[data-cky-tag="title"],
+p[data-cky-tag="title"],
+.cky-body,
+.cky-notice-desc,
+[data-cky-tag="notice"] p,
+[data-cky-tag="notice"] span,
+.cky-consent-bar .cky-title {
+  color: #1a1a1a !important;
+}
+.cky-consent-bar a,
+.cky-consent-bar [data-cky-tag="link"] {
+  color: #0d47a1 !important;
+  text-decoration: underline;
+}
+.cky-consent-bar a:hover {
+  color: #1565c0 !important;
+}
+.cky-consent-bar button,
+.cky-consent-bar [data-cky-tag="button"] {
+  color: #ffffff !important;
+  background-color: #1a1a1a !important;
+  border-color: #1a1a1a !important;
+}
+.cky-consent-bar button.cky-btn-accept,
+.cky-consent-bar [data-cky-tag="accept-button"] {
+  background-color: #1a1a1a !important;
+  color: #ffffff !important;
+}
+.cky-consent-bar button.cky-btn-reject,
+.cky-consent-bar [data-cky-tag="reject-button"] {
+  background-color: #424242 !important;
+  color: #ffffff !important;
+  border-color: #424242 !important;
+}
+
 /* Site-wide CTA: always in document flow, never sticky or fixed. Must scroll with page. */
 .site-wide-cta {
   position: static !important;
@@ -419,6 +463,22 @@
     color: rgb(241 245 249) !important; /* slate-200 / gray-100 */
   }
   
+  /* Book DJ form: labels and selects visible on dark card */
+  [data-book-dj-form] label {
+    color: rgb(229 231 235) !important; /* gray-200 */
+  }
+  [data-book-dj-form] select {
+    color: rgb(255 255 255) !important;
+  }
+  [data-book-dj-form] select option {
+    background-color: #111827;
+    color: #e5e7eb;
+  }
+  [data-book-dj-form] input[type="date"] {
+    color: rgb(255 255 255) !important;
+    color-scheme: dark;
+  }
+
   /* Refined icon styling */
   svg, 
   [data-icon] {
@@ -998,3 +1058,25 @@ input[type="time"]::-webkit-datetime-edit-ampm-field {
   padding: 0.65rem 1rem !important;
 }
 .portal-ui button { font-size: 1.09375rem !important; min-height: 2.75rem !important; padding: 0.5rem 1rem !important; }
+
+/* Book DJ form: always readable on dark page (regardless of system color scheme) */
+[data-book-dj-form] label {
+  color: rgb(229 231 235) !important;
+}
+[data-book-dj-form] input,
+[data-book-dj-form] textarea,
+[data-book-dj-form] select {
+  color: rgb(255 255 255) !important;
+}
+[data-book-dj-form] input::placeholder,
+[data-book-dj-form] textarea::placeholder {
+  color: rgb(156 163 175) !important;
+  opacity: 1;
+}
+[data-book-dj-form] select option {
+  background-color: #111827;
+  color: #e5e7eb;
+}
+[data-book-dj-form] input[type="date"] {
+  color-scheme: dark;
+}

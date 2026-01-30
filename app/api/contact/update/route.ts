@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getResendConfig, EMAIL_CONFIG } from "@/lib/email-config";
 import { Resend } from "resend";
+import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -149,9 +150,7 @@ export async function POST(request: NextRequest) {
 
                   <p><a href="${process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk"}/admin/bookings/${bookingId}" style="color: #d4af37; text-decoration: none; font-weight: bold;">View Booking Details →</a></p>
                 </div>
-                <div class="footer">
-                  <p>This update was submitted via the STYLISH Entertainment enquiry form.</p>
-                </div>
+                ${SIGNATURE_BLOCK_HTML}
               </div>
             </body>
           </html>

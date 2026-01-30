@@ -36,7 +36,7 @@ const bookingSchema = z.object({
   
   // Booking Details
   message: z.string().optional(),
-  services: z.array(z.string()).min(1, "Please select at least one service"),
+  services: z.array(z.string()).min(1, "Please select your preferred DJ"),
   
   // Account Creation
   createAccount: z.boolean().optional(),
@@ -53,16 +53,6 @@ const bookingSchema = z.object({
 });
 
 type BookingFormData = z.infer<typeof bookingSchema>;
-
-const serviceOptions = [
-  "DJs",
-  "Musicians",
-  "Lighting Design",
-  "Kit Hire",
-  "Fire-Pits",
-  "Venue Styling",
-  "Party Planning",
-];
 
 const eventTypes = [
   "Wedding",
@@ -84,12 +74,18 @@ function BookDJPageContent() {
   const [showDJModal, setShowDJModal] = useState(false);
   const [selectedDJ, setSelectedDJ] = useState<string | null>(null);
   const [selectedUpsells, setSelectedUpsells] = useState<string[]>([]);
+  const [quoteArtistNames, setQuoteArtistNames] = useState<string[] | null>(null);
+  const [quoteLoading, setQuoteLoading] = useState(false);
+  const [quoteError, setQuoteError] = useState<string | null>(null);
+  const [prefillApplied, setPrefillApplied] = useState(false);
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
+    reset,
+    getValues,
     formState: { errors },
   } = useForm<BookingFormData>({
     resolver: zodResolver(bookingSchema),
@@ -101,7 +97,6 @@ function BookDJPageContent() {
     },
   });
 
-  const selectedServices = watch("services") || [];
   const createAccount = watch("createAccount");
   const password = watch("password");
 
@@ -111,30 +106,67 @@ function BookDJPageContent() {
     }
   }, [createAccount]);
 
-  const toggleService = (service: string) => {
-    const current = selectedServices;
-    if (current.includes(service)) {
-      const newServices = current.filter((s) => s !== service);
-      setValue("services", newServices);
-      // If unchecking DJs, clear DJ selection
-      if (service === "DJs") {
-        setSelectedDJ(null);
+  // Load quote context when arriving from quote/DJ reply email (?quote=token)
+  // Prefill form with booking details so client doesn't re-enter enquiry info
+  useEffect(() => {
+    const quoteParam = searchParams?.get("quote");
+    if (!quoteParam) return;
+    let cancelled = false;
+    setQuoteLoading(true);
+    setQuoteError(null);
+    setPrefillApplied(false);
+    (async () => {
+      try {
+        const res = await fetch(
+          `/api/book-dj/quote?token=${encodeURIComponent(quoteParam)}`
+        );
+        const data = await res.json().catch(() => ({}));
+        if (cancelled) return;
+        if (!res.ok) {
+          setQuoteError(data.error || "Invalid or expired quote link.");
+          setQuoteLoading(false);
+          return;
+        }
+        setQuoteArtistNames(data.artistNames ?? []);
+        const prefill = data.prefill;
+        if (prefill) {
+          const current = getValues();
+          const merged = {
+            ...current,
+            name: prefill.name ?? current.name ?? "",
+            email: prefill.email ?? current.email ?? "",
+            phone: prefill.phone ?? current.phone ?? "",
+            eventType: prefill.eventType ?? current.eventType ?? "Wedding",
+            eventDate: prefill.eventDate ?? current.eventDate ?? "",
+            venueName: prefill.venueName ?? current.venueName ?? "",
+            venueAddress: prefill.venueAddress ?? current.venueAddress ?? "",
+            venuePostcode: prefill.venuePostcode ?? current.venuePostcode ?? "",
+            numberOfGuests: prefill.numberOfGuests ?? current.numberOfGuests ?? "",
+          };
+          reset(merged);
+          if (data.artistNames?.length > 0) {
+            setValue("services", ["DJs"]);
+          }
+          setPrefillApplied(true);
+        }
+      } finally {
+        if (!cancelled) setQuoteLoading(false);
       }
-    } else {
-      const newServices = [...current, service];
-      setValue("services", newServices);
-      // If checking DJs, show modal after a brief delay to ensure state is updated
-      if (service === "DJs") {
-        setTimeout(() => {
-          setShowDJModal(true);
-        }, 100);
-      }
-    }
-  };
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParams, setValue, reset, getValues]);
 
   const onSubmit = async (data: BookingFormData) => {
     setIsSubmitting(true);
     setError("");
+
+    if (!selectedDJ) {
+      setError("Please select your preferred DJ");
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       // If creating account and not logged in, create account first
@@ -177,7 +209,7 @@ function BookDJPageContent() {
           venueAddress: data.venueAddress,
           venuePostcode: data.venuePostcode,
           numberOfGuests: data.numberOfGuests ? parseInt(data.numberOfGuests) : null,
-          services: data.services,
+          services: ["DJs"], // Artist chosen = DJ service
           message: data.message,
           preferredDJ: selectedDJ,
           upsellItems: selectedUpsells,
@@ -268,7 +300,81 @@ function BookDJPageContent() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 book-dj-form" data-book-dj-form>
+                {quoteLoading && (
+                  <div className="p-3 text-sm text-gray-400 bg-gray-900/50 border border-gray-700 rounded-md">
+                    Loading your quote…
+                  </div>
+                )}
+                {prefillApplied && !quoteLoading && (
+                  <div className="p-3 text-sm text-champagne-gold bg-champagne-gold/10 border border-champagne-gold/40 rounded-md">
+                    We&apos;ve filled in your details from your enquiry. You can edit any field and then choose your artist below.
+                  </div>
+                )}
+                {quoteError && (
+                  <div className="p-3 text-sm text-amber-400 bg-amber-900/20 border border-amber-800 rounded-md">
+                    {quoteError}
+                  </div>
+                )}
+                {!quoteLoading && quoteArtistNames && quoteArtistNames.length > 0 && (
+                  <div className="space-y-4 border-b border-gray-700 pb-6">
+                    <h3 className="text-xl font-semibold text-champagne-gold flex items-center gap-2">
+                      <Music className="w-5 h-5" />
+                      Which artist from your quote would you like to book?
+                    </h3>
+                    <p className="text-gray-400 text-sm">
+                      Select the artist you&apos;d like to secure for your event.
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {quoteArtistNames.map((name) => (
+                        <button
+                          key={name}
+                          type="button"
+                          onClick={() => {
+                            setSelectedDJ(name);
+                            setValue("services", ["DJs"]);
+                          }}
+                          className={`rounded-xl border-2 p-4 text-left transition-all flex items-center gap-3 ${
+                            selectedDJ === name
+                              ? "border-champagne-gold bg-champagne-gold/20"
+                              : "border-gray-700 bg-gray-900/30 hover:border-champagne-gold/50"
+                          }`}
+                        >
+                          <div className="w-10 h-10 rounded-full bg-champagne-gold/20 flex items-center justify-center shrink-0">
+                            <Music className="w-5 h-5 text-champagne-gold" />
+                          </div>
+                          <span className="font-medium text-white">{name}</span>
+                          {selectedDJ === name && (
+                            <div className="w-5 h-5 rounded-full bg-champagne-gold border-2 border-champagne-gold ml-auto shrink-0" />
+                          )}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedDJ("Not sure yet");
+                          setValue("services", ["DJs"]);
+                        }}
+                        className={`rounded-xl border-2 p-4 text-left transition-all flex items-center gap-3 ${
+                          selectedDJ === "Not sure yet"
+                            ? "border-champagne-gold bg-champagne-gold/20"
+                            : "border-gray-700 bg-gray-900/30 hover:border-champagne-gold/50"
+                        }`}
+                      >
+                        <div className="w-10 h-10 rounded-full bg-gray-600/40 flex items-center justify-center shrink-0">
+                          <Music className="w-5 h-5 text-gray-400" />
+                        </div>
+                        <div>
+                          <span className="font-medium text-white">Not sure yet</span>
+                          <p className="text-xs text-gray-400">We&apos;ll help you choose</p>
+                        </div>
+                        {selectedDJ === "Not sure yet" && (
+                          <div className="w-5 h-5 rounded-full bg-champagne-gold border-2 border-champagne-gold ml-auto shrink-0" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
                 {error && (
                   <div className="p-3 text-sm text-red-400 bg-red-900/20 border border-red-800 rounded-md">
                     {error}
@@ -284,11 +390,11 @@ function BookDJPageContent() {
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="name">Name *</Label>
+                      <Label htmlFor="name" className="text-gray-200">Name *</Label>
                       <Input
                         id="name"
                         {...register("name")}
-                        className="bg-gray-900 border-gray-700 text-white"
+                        className="bg-gray-900 border-gray-600 text-white placeholder:text-gray-400 focus-visible:ring-offset-gray-900"
                         placeholder="Your name"
                       />
                       {errors.name && (
@@ -297,12 +403,12 @@ function BookDJPageContent() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="email">Email *</Label>
+                      <Label htmlFor="email" className="text-gray-200">Email *</Label>
                       <Input
                         id="email"
                         type="email"
                         {...register("email")}
-                        className="bg-gray-900 border-gray-700 text-white"
+                        className="bg-gray-900 border-gray-600 text-white placeholder:text-gray-400 focus-visible:ring-offset-gray-900"
                         placeholder="your@email.com"
                       />
                       {errors.email && (
@@ -312,12 +418,12 @@ function BookDJPageContent() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
+                    <Label htmlFor="phone" className="text-gray-200">Phone Number</Label>
                     <Input
                       id="phone"
                       type="tel"
                       {...register("phone")}
-                      className="bg-gray-900 border-gray-700 text-white"
+                      className="bg-gray-900 border-gray-600 text-white placeholder:text-gray-400 focus-visible:ring-offset-gray-900"
                       placeholder="01234567890"
                     />
                   </div>
@@ -334,19 +440,19 @@ function BookDJPageContent() {
                             setShowAccountCreation(checked as boolean);
                           }}
                         />
-                        <Label htmlFor="createAccount" className="cursor-pointer">
+                        <Label htmlFor="createAccount" className="cursor-pointer text-gray-200">
                           Create an account to manage your booking online
                         </Label>
                       </div>
 
                       {showAccountCreation && (
                         <div className="space-y-2 pl-6 border-l-2 border-champagne-gold/30">
-                          <Label htmlFor="password">Password *</Label>
+                          <Label htmlFor="password" className="text-gray-200">Password *</Label>
                           <Input
                             id="password"
                             type="password"
                             {...register("password")}
-                            className="bg-gray-900 border-gray-700 text-white"
+                            className="bg-gray-900 border-gray-600 text-white placeholder:text-gray-400 focus-visible:ring-offset-gray-900"
                             placeholder="At least 8 characters"
                           />
                           {errors.password && (
@@ -376,11 +482,11 @@ function BookDJPageContent() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="eventType">Event Type *</Label>
+                      <Label htmlFor="eventType" className="text-gray-200">Event Type *</Label>
                       <select
                         id="eventType"
                         {...register("eventType")}
-                        className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white"
+                        className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-champagne-gold focus:ring-offset-2 focus:ring-offset-gray-900"
                       >
                         <option value="">Select event type</option>
                         {eventTypes.map((type) => (
@@ -395,12 +501,12 @@ function BookDJPageContent() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="eventDate">Event Date *</Label>
+                      <Label htmlFor="eventDate" className="text-gray-200">Event Date *</Label>
                       <Input
                         id="eventDate"
                         type="date"
                         {...register("eventDate")}
-                        className="bg-gray-900 border-gray-700 text-white"
+                        className="bg-gray-900 border-gray-600 text-white placeholder:text-gray-400 focus-visible:ring-offset-gray-900 [color-scheme:dark]"
                       />
                       {errors.eventDate && (
                         <p className="text-sm text-red-400">{errors.eventDate.message}</p>
@@ -409,12 +515,12 @@ function BookDJPageContent() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="numberOfGuests">Number of Guests</Label>
+                    <Label htmlFor="numberOfGuests" className="text-gray-200">Number of Guests</Label>
                     <Input
                       id="numberOfGuests"
                       type="number"
                       {...register("numberOfGuests")}
-                      className="bg-gray-900 border-gray-700 text-white"
+                      className="bg-gray-900 border-gray-600 text-white placeholder:text-gray-400 focus-visible:ring-offset-gray-900"
                       placeholder="Approximate number"
                     />
                   </div>
@@ -428,11 +534,12 @@ function BookDJPageContent() {
                   </h3>
 
                   <div className="space-y-2">
-                    <Label htmlFor="venueName">Venue Name *</Label>
+                    <Label htmlFor="venueName" className="text-gray-200">Venue Name *</Label>
                     <Input
                       id="venueName"
                       {...register("venueName")}
-                      className="bg-gray-900 border-gray-700 text-white"
+                      className="bg-gray-900 border-gray-600 text-white placeholder:text-gray-400 focus-visible:ring-offset-gray-900"
+                      placeholder="Venue name"
                     />
                     {errors.venueName && (
                       <p className="text-sm text-red-400">{errors.venueName.message}</p>
@@ -441,87 +548,75 @@ function BookDJPageContent() {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="venueAddress">Venue Address</Label>
+                      <Label htmlFor="venueAddress" className="text-gray-200">Venue Address</Label>
                       <Input
                         id="venueAddress"
                         {...register("venueAddress")}
-                        className="bg-gray-900 border-gray-700 text-white"
+                        className="bg-gray-900 border-gray-600 text-white placeholder:text-gray-400 focus-visible:ring-offset-gray-900"
+                        placeholder="Address"
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="venuePostcode">Postcode</Label>
+                      <Label htmlFor="venuePostcode" className="text-gray-200">Postcode</Label>
                       <Input
                         id="venuePostcode"
                         {...register("venuePostcode")}
-                        className="bg-gray-900 border-gray-700 text-white"
+                        className="bg-gray-900 border-gray-600 text-white placeholder:text-gray-400 focus-visible:ring-offset-gray-900"
+                        placeholder="Postcode"
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* Services */}
-                <div className="space-y-4 border-b border-gray-700 pb-6">
-                  <h3 className="text-xl font-semibold text-champagne-gold">Services Required *</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {serviceOptions.map((service) => (
-                      <div key={service} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={service}
-                          checked={selectedServices.includes(service)}
-                          onCheckedChange={() => toggleService(service)}
-                        />
-                        <Label htmlFor={service} className="cursor-pointer text-sm">
-                          {service}
-                          {service === "DJs" && selectedDJ && (
-                            <span className="ml-2 text-xs text-champagne-gold">
-                              ({selectedDJ})
-                            </span>
-                          )}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                  {errors.services && (
-                    <p className="text-sm text-red-400">{errors.services.message}</p>
-                  )}
-                  {selectedServices.includes("DJs") && (
-                    <p className="text-sm text-gray-400 mt-2">
-                      {selectedDJ ? (
-                        <>
-                          Selected: <span className="text-champagne-gold font-medium">
-                            {selectedDJ}
-                          </span>
-                          <Button
-                            type="button"
-                            variant="link"
-                            onClick={() => setShowDJModal(true)}
-                            className="text-champagne-gold hover:text-gold-light ml-2 p-0 h-auto"
-                          >
-                            Change
-                          </Button>
-                        </>
-                      ) : (
-                        <>
-                          <span className="text-yellow-400">Please select a DJ</span>
-                          <Button
-                            type="button"
-                            variant="link"
-                            onClick={() => setShowDJModal(true)}
-                            className="text-champagne-gold hover:text-gold-light ml-2 p-0 h-auto"
-                          >
-                            Select Now
-                          </Button>
-                        </>
-                      )}
+                {/* Your preferred DJ – artist choice = DJ service (only when not from quote) */}
+                {(!quoteArtistNames || quoteArtistNames.length === 0) && (
+                  <div className="space-y-4 border-b border-gray-700 pb-6">
+                    <h3 className="text-xl font-semibold text-champagne-gold flex items-center gap-2">
+                      <Music className="w-5 h-5" />
+                      Your preferred DJ
+                    </h3>
+                    <p className="text-gray-400 text-sm">
+                      Choosing your artist confirms you&apos;re booking DJ entertainment.
                     </p>
-                  )}
-                </div>
+                    {selectedDJ ? (
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-white font-medium">
+                          <span className="text-champagne-gold">{selectedDJ}</span>
+                        </span>
+                        <Button
+                          type="button"
+                          variant="link"
+                          onClick={() => setShowDJModal(true)}
+                          className="text-champagne-gold hover:text-gold-light p-0 h-auto"
+                        >
+                          Change
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setShowDJModal(true)}
+                        className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10"
+                      >
+                        Choose your DJ
+                      </Button>
+                    )}
+                    {errors.services && (
+                      <p className="text-sm text-red-400">{errors.services.message}</p>
+                    )}
+                  </div>
+                )}
+                {/* When from quote, artist choice is above; show service error here if needed */}
+                {quoteArtistNames && quoteArtistNames.length > 0 && errors.services && (
+                  <p className="text-sm text-red-400">{errors.services.message}</p>
+                )}
 
-                {/* Upsell Section - Shows when at least one service is selected */}
-                {selectedServices.length > 0 && (
+                {/* Upsell – shown when they&apos;ve chosen an artist (DJ service) */}
+                {selectedDJ && (
                   <UpsellSection
-                    selectedServices={selectedServices}
+                    selectedServices={["DJs"]}
                     selectedUpsells={selectedUpsells}
                     onUpsellChange={setSelectedUpsells}
                   />
@@ -529,12 +624,12 @@ function BookDJPageContent() {
 
                 {/* Additional Message */}
                 <div className="space-y-2">
-                  <Label htmlFor="message">Additional Information</Label>
+                  <Label htmlFor="message" className="text-gray-200">Additional Information</Label>
                   <Textarea
                     id="message"
                     {...register("message")}
                     rows={4}
-                    className="bg-gray-900 border-gray-700 text-white"
+                    className="bg-gray-900 border-gray-600 text-white placeholder:text-gray-400 focus-visible:ring-offset-gray-900"
                     placeholder="Any additional details about your event..."
                   />
                 </div>
@@ -576,8 +671,12 @@ function BookDJPageContent() {
         <DJSelectionModal
           open={showDJModal}
           onClose={() => setShowDJModal(false)}
-          onSelect={(dj) => setSelectedDJ(dj)}
+          onSelect={(dj) => {
+          setSelectedDJ(dj);
+          setValue("services", ["DJs"]);
+        }}
           selectedDJ={selectedDJ}
+          quoteArtistNames={quoteArtistNames ?? undefined}
         />
       </div>
     </div>

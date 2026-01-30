@@ -3,6 +3,8 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { DEPOSIT_CONFIRMED } from "@/lib/email-templates";
+import { getClientPortalLoginUrl } from "@/lib/client-portal-url";
+import { getEmailBaseUrl } from "@/lib/get-base-url";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -51,11 +53,8 @@ export async function POST(
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      "http://localhost:3001";
-    const portalUrl = `${baseUrl}/client/bookings/${booking.id}`;
+    const baseUrl = getEmailBaseUrl();
+    const portalUrl = getClientPortalLoginUrl(baseUrl, booking.id);
 
     const emailContent = DEPOSIT_CONFIRMED({
       booking: {

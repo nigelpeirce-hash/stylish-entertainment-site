@@ -5,6 +5,8 @@
  * Updated: Luxury brand styling - Charcoal typography, black buttons, gold links
  */
 
+import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
+
 export type JourneyStage =
   | "enquiry-autoresponder"
   | "gentle-reminder"
@@ -172,7 +174,8 @@ function buildEmailTemplate(
     .replace(/\{\{bookingFee\}\}/g, data.bookingFee || "[booking fee]")
     .replace(/\{\{balance\}\}/g, data.balance || "[balance]")
     .replace(/\{\{invoiceReference\}\}/g, data.invoiceReference || "—")
-    .replace(/\{\{markedPaidUrl\}\}/g, data.markedPaidUrl || "#");
+    .replace(/\{\{markedPaidUrl\}\}/g, data.markedPaidUrl || "#")
+    .replace(/\{\{signatureBlock\}\}/g, SIGNATURE_BLOCK_HTML);
 
   const html = `
     <!DOCTYPE html>
@@ -191,15 +194,6 @@ function buildEmailTemplate(
           </div>
           <div class="content">
             ${processedHtml}
-          </div>
-          <div class="footer" style="border-top: 1px solid #eee; padding-top: 28px; margin-top: 32px; text-align: center;">
-            <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
-            <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
-            <p style="margin: 24px 0 8px 0;">Stylish Entertainment Ltd</p>
-            <p style="margin-bottom: 8px;">West Country | London | Nationwide</p>
-            <p style="margin-top: 15px;">
-              <a href="https://stylishentertainment.co.uk" class="link">stylishentertainment.co.uk</a>
-            </p>
           </div>
         </div>
       </body>
@@ -220,9 +214,7 @@ export function enquiryAutoresponder(data: JourneyEmailData) {
     <p>Thank you for reaching out to Stylish Entertainment Ltd. We're delighted that you're considering us for {{eventType}} on {{eventDate}}.</p>
     <p>We're excited to learn more about your vision and help bring it to life. We specialise in creating unforgettable celebrations with our expert DJ services, elegant lighting design, and sophisticated venue styling.</p>
     <p>We'll be in touch within 24 hours to discuss your requirements in detail. In the meantime, if you have any questions, please don't hesitate to get in touch.</p>
-    <div class="signature">
-      <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
-    </div>
+    {{signatureBlock}}
   `;
 
   return buildEmailTemplate(
@@ -249,9 +241,7 @@ export function gentleReminder(data: JourneyEmailData) {
     </p>
     <p>If you've already found another solution, no problem at all – we're just pleased you're getting everything sorted for your special day.</p>
     <p>Best of luck with your planning, and please don't hesitate to reach out if you'd like to chat.</p>
-    <div class="signature">
-      <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
-    </div>
+    {{signatureBlock}}
   `;
 
   return buildEmailTemplate(
@@ -306,9 +296,7 @@ export function bookingConfirmation(data: JourneyEmailData) {
     <p>We request you return the worksheet 3 weeks before the wedding to give {{artistName}} the opportunity to prepare and allow you to focus on other things.</p>
     ${BOOKING_CONFIRMATION_BANK_BLOCK}
     <p>If you have any questions, please don't hesitate to reach out.</p>
-    <div class="signature">
-      <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
-    </div>
+    {{signatureBlock}}
   `;
 
   return buildEmailTemplate(
@@ -340,9 +328,7 @@ export function fourWeekCheckin(data: JourneyEmailData) {
     <h2>Final Logistics</h2>
     <p>We also want to confirm a few final details to ensure everything runs smoothly on the day. Please review your booking in the Client Admin area and let us know if anything has changed.</p>
     <p>If you have any questions or want to discuss anything, just reply to this email or give us a call. We're here to help!</p>
-    <div class="signature">
-      <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
-    </div>
+    {{signatureBlock}}
   `;
 
   return buildEmailTemplate(
@@ -365,9 +351,7 @@ export function weekOfExcitement(data: JourneyEmailData) {
     <h2>See You Soon</h2>
     <p>If you need to reach us in the days leading up to your event, we're always just an email or phone call away. Otherwise, we'll see you on {{eventDate}}!</p>
     <p>Relax, enjoy, and let us take care of the entertainment. We've got everything under control.</p>
-    <div class="signature">
-      <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
-    </div>
+    {{signatureBlock}}
   `;
 
   return buildEmailTemplate(
@@ -392,9 +376,7 @@ export function finalChase(data: JourneyEmailData) {
       <a href="{{portalMagicUrl}}" class="button-luxe">CLICK TO ACCESS PORTAL NOW (No Login Required)</a>
     </p>
     <p>If you have any questions, just reply to this email or give us a call. We're here to help.</p>
-    <div class="signature">
-      <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
-    </div>
+    {{signatureBlock}}
   `;
 
   return buildEmailTemplate(
@@ -422,9 +404,7 @@ export function postWeddingMagic(data: JourneyEmailData) {
     </p>
     <p>We'd also love to see any photos from your day if you'd like to share them with us. Tag us <a href="https://www.instagram.com/stylishentertainment/" class="link">@stylishentertainment</a> on Instagram or send them directly to us.</p>
     <p>Thank you again for choosing Stylish Entertainment Ltd. It was an honour to be part of your celebration.</p>
-    <div class="signature">
-      <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
-    </div>
+    {{signatureBlock}}
   `;
 
   return buildEmailTemplate(

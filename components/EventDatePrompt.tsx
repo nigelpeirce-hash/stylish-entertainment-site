@@ -20,14 +20,19 @@ export default function EventDatePrompt() {
   const [hasDate, setHasDate] = useState(false);
 
   useEffect(() => {
-    // Broad bypass: Never show on client dashboard or booking pages
-    const isClientPage = pathname?.startsWith("/client/dashboard") || pathname?.includes("/client/bookings/");
-    if (isClientPage) {
-      // Clean up any localStorage keys that might interfere
-      // These are only for the main site, not client portals
+    // On client dashboard or bookings/new: don't show prompt and clear main-site countdown
+    const isClientDashboard = pathname?.startsWith("/client/dashboard");
+    const isClientBookingsNew = pathname === "/client/bookings/new";
+    if (isClientDashboard || isClientBookingsNew) {
       localStorage.removeItem(STORAGE_KEY_EVENT_DATE);
       localStorage.removeItem(STORAGE_KEY_PROMPT_SHOWN);
-      return; // Exit early, don't show modal
+      return;
+    }
+    // On /client/bookings/[id]: don't show prompt but do NOT clear event date — portal sets countdown from booking
+    const isClientBookingDetail = pathname?.match(/^\/client\/bookings\/[^/]+$/);
+    if (isClientBookingDetail) {
+      localStorage.removeItem(STORAGE_KEY_PROMPT_SHOWN);
+      return;
     }
 
     // Admin Bypass: If user is admin, disable popup entirely
@@ -94,8 +99,8 @@ export default function EventDatePrompt() {
     window.dispatchEvent(new Event("storage"));
   };
 
-  // Don't render at all on client pages (dashboard or bookings)
-  const isClientPage = pathname?.startsWith("/client/dashboard") || pathname?.includes("/client/bookings/");
+  // Don't render at all on client pages (dashboard or any bookings path)
+  const isClientPage = pathname?.startsWith("/client/dashboard") || pathname?.startsWith("/client/bookings");
   if (isClientPage) {
     return null;
   }

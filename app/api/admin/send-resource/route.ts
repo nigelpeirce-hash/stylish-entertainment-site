@@ -10,6 +10,7 @@ import {
   getThreadingHeaders,
   generateThreadIdFooter
 } from "@/lib/booking-integrity";
+import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
 
 // Lazy initialization to prevent build-time errors
 const getResend = () => {
@@ -210,17 +211,8 @@ export async function POST(request: NextRequest) {
               ${resourceSection}
               ${brochureSection}
               <p>If you have any questions about this ${resource && sendBrochure ? 'information' : resource ? 'resource' : 'brochure'} or would like to discuss your event in more detail, please don't hesitate to get in touch.</p>
-              <div class="signature">
-                <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
-              </div>
             </div>
-            <div class="footer">
-              <p>Stylish Entertainment Ltd</p>
-              <p>West Country | London | Nationwide</p>
-              <p style="margin-top: 15px;">
-                <a href="https://stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">Visit our website</a>
-              </p>
-            </div>
+            ${SIGNATURE_BLOCK_HTML}
           </div>
         </body>
       </html>

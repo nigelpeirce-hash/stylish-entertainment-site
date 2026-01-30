@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -22,6 +22,8 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") ?? undefined;
   const [error, setError] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
 
@@ -74,11 +76,14 @@ export default function LoginPage() {
         const sessionData = await sessionRes.json();
         const userRole = sessionData?.user?.role || (sessionData?.user as any)?.role;
         
-        // Redirect based on role
+        // Redirect based on role and optional callback
+        setIsLoading(false);
         if (userRole === "admin") {
           router.push("/admin");
         } else {
-          router.push("/client/dashboard");
+          // Client: if callbackUrl is a safe client path, go there (e.g. portal from deposit email)
+          const safePath = callbackUrl?.startsWith("/client/") && !callbackUrl.includes("..") ? callbackUrl : null;
+          router.push(safePath ?? "/client/dashboard");
         }
         router.refresh();
       } else {
@@ -107,7 +112,7 @@ export default function LoginPage() {
               Client Login
             </CardTitle>
             <CardDescription className="text-center text-gray-300">
-              Sign in to access your account
+              {callbackUrl ? "Sign in to open your portal — we'll take you there after login." : "Sign in to access your account"}
             </CardDescription>
           </CardHeader>
           <CardContent>

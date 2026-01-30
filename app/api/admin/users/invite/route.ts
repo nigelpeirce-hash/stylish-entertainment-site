@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getResendConfig, EMAIL_CONFIG } from "@/lib/email-config";
 import { Resend } from "resend";
 import { sendEmail } from "@/lib/email";
+import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
 import { getEmailUrl, getRelativePath } from "@/lib/get-base-url";
 
 // Force dynamic rendering
@@ -174,10 +175,7 @@ export async function POST(request: NextRequest) {
             </div>
             <p style="font-size: 12px; color: #999;">If the button doesn't work, copy and paste this link into your browser:</p>
             <p style="font-size: 12px; color: #999; word-break: break-all;">${inviteUrl}</p>
-            <div class="footer">
-              <p>STYLISH Entertainment</p>
-              <p>West Country | London | Nationwide</p>
-            </div>
+            ${SIGNATURE_BLOCK_HTML}
           </div>
         </body>
       </html>
@@ -360,10 +358,7 @@ export async function POST(request: NextRequest) {
             <p style="font-size: 12px; color: #999;">If the button doesn't work, copy and paste this link into your browser:</p>
             <p style="font-size: 12px; color: #999; word-break: break-all;">${inviteUrl}</p>
             <p style="font-size: 12px; color: #999;">This invitation will expire in 7 days.</p>
-            <div class="footer">
-              <p>STYLISH Entertainment</p>
-              <p>West Country | London | Nationwide</p>
-            </div>
+            ${SIGNATURE_BLOCK_HTML}
           </div>
         </body>
       </html>

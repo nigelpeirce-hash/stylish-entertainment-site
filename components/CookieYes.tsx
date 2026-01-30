@@ -51,6 +51,15 @@ export default function CookieYes() {
     return null;
   }
 
+  // WCAG AA contrast overrides – injected after CookieYes so they win over inline styles (mobile & desktop)
+  const contrastOverrides = `
+    .cky-consent-bar, div.cky-consent-bar[data-cky-tag="notice"] { background-color: #ffffff !important; border-color: #e5e5e5 !important; color: #1a1a1a !important; }
+    .cky-title, p.cky-title[data-cky-tag="title"], [data-cky-tag="notice"] .cky-title, .cky-consent-bar .cky-title, .cky-consent-bar p, .cky-consent-bar span { color: #1a1a1a !important; }
+    .cky-consent-bar a { color: #0d47a1 !important; text-decoration: underline; }
+    .cky-consent-bar button.cky-btn-accept, .cky-consent-bar [data-cky-tag="accept-button"] { background-color: #1a1a1a !important; color: #ffffff !important; }
+    .cky-consent-bar button.cky-btn-reject, .cky-consent-bar [data-cky-tag="reject-button"] { background-color: #424242 !important; color: #ffffff !important; border-color: #424242 !important; }
+  `;
+
   return (
     <>
       <Script
@@ -58,6 +67,12 @@ export default function CookieYes() {
         type="text/javascript"
         strategy="afterInteractive"
         src={`https://cdn-cookieyes.com/client_data/${cookieYesId}/script.js`}
+        onLoad={() => {
+          const style = document.createElement("style");
+          style.id = "cookieyes-contrast-override";
+          style.textContent = contrastOverrides;
+          document.head.appendChild(style);
+        }}
         onError={(e) => {
           // CookieYes may show URL configuration warnings, but banner usually still works
           // Update registered URL in dashboard if banner doesn't appear:

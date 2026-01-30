@@ -41,7 +41,7 @@ model AuditLog {
 }
 
 model Booking {
-  id                          String                   @id
+  id                          String                   @id @default(cuid())
   userId                      String?
   name                        String
   displayName                 String?

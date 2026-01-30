@@ -1,4 +1,16 @@
 /**
+ * Base URL for outbound email links. Defaults to production site when in production
+ * so links never point to localhost. Use this for all client-facing email CTAs.
+ */
+export function getEmailBaseUrl(): string {
+  if (process.env.NEXT_PUBLIC_APP_URL) return process.env.NEXT_PUBLIC_APP_URL.replace(/\/$/, "");
+  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`.replace(/\/$/, "");
+  if (process.env.NODE_ENV === "production") return "https://stylishentertainment.co.uk";
+  return "http://localhost:3001";
+}
+
+/**
  * Get the base URL for the application
  * Uses environment variable or falls back to constructing from request
  * For email links, always use environment variable to ensure full URL

@@ -4,6 +4,9 @@ import { prisma } from "@/lib/prisma";
 import sendEmail from "@/lib/email/send-email";
 import { getDisplayName, getGreetingName } from "@/lib/utils/name-helpers";
 import { yourEventLabel } from "@/lib/email-templates";
+import { SIGNATURE_BLOCK_HTML_DARK, CLIENT_SIGNOFF_TEXT } from "@/lib/email-signature";
+import { getEmailBaseUrl } from "@/lib/get-base-url";
+import { getClientPortalLoginUrl } from "@/lib/client-portal-url";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -52,12 +55,9 @@ export async function POST(
       );
     }
 
-    // Generate portal link
-    const baseUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      "http://localhost:3001";
-    const portalUrl = `${baseUrl}/client/bookings/${booking.id}`;
+    // Generate portal link — login with callback so client lands on their booking after sign-in
+    const baseUrl = getEmailBaseUrl();
+    const portalUrl = getClientPortalLoginUrl(baseUrl, booking.id);
 
     // Get greeting name for email
     const greetingName = getGreetingName(booking.name);
@@ -202,23 +202,7 @@ export async function POST(
                 <!-- Footer -->
                 <tr>
                   <td style="background-color: #1a1a1a !important; padding: 30px 40px;" class="email-footer">
-                    <table width="100%" cellpadding="0" cellspacing="0">
-                      <tr>
-                        <td style="text-align: center;">
-                          <p style="font-size: 14px; color: #ffffff !important; margin: 0 0 4px 0; font-weight: 600;" class="email-footer-text">Kind Regards, Ali & Nige</p>
-                          <p style="font-size: 14px; color: #D4AF37 !important; margin: 0 0 16px 0;" class="email-footer-text">Stylish Entertainment Ltd</p>
-                          <p style="font-size: 13px; color: #cccccc !important; margin: 0 0 4px 0;" class="email-footer-text">
-                            <a href="tel:+447970793177" style="color: #cccccc !important; text-decoration: none;">07970 793 177</a>
-                          </p>
-                          <p style="font-size: 13px; color: #cccccc !important; margin: 0 0 4px 0;" class="email-footer-text">
-                            <a href="mailto:info@stylishentertainment.co.uk" style="color: #cccccc !important; text-decoration: none;">info@stylishentertainment.co.uk</a>
-                          </p>
-                          <p style="font-size: 13px; margin: 12px 0 0 0;" class="email-footer-text">
-                            <a href="https://stylishentertainment.co.uk" style="color: #D4AF37 !important; text-decoration: none;">stylishentertainment.co.uk</a>
-                          </p>
-                        </td>
-                      </tr>
-                    </table>
+                    ${SIGNATURE_BLOCK_HTML_DARK}
                   </td>
                 </tr>
                 
@@ -249,11 +233,7 @@ View Your Countdown: ${portalUrl}
 
 If you have any questions, we're always here to help.
 
-Kind Regards, Ali & Nige
-Stylish Entertainment Ltd
-07970 793 177
-info@stylishentertainment.co.uk
-https://stylishentertainment.co.uk
+${CLIENT_SIGNOFF_TEXT}
     `;
 
     // Send via Resend (same as deposit invoice, contact, etc.)

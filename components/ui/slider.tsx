@@ -82,13 +82,13 @@ export function Slider({ children, className }: SliderProps) {
             </span>
           </div>
           
-          {/* Navigation Dots */}
-          <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 sm:gap-3 z-10 bg-gray-900/95 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border-2 border-champagne-gold/50">
+          {/* Navigation Dots – 48×48px min touch target for accessibility (mobile) */}
+          <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1 sm:gap-2 z-10 bg-gray-900/95 backdrop-blur-sm px-2 py-2 rounded-full shadow-lg border-2 border-champagne-gold/50">
             {childrenArray.map((_, index) => (
               <button
                 key={index}
                 className={cn(
-                  "rounded-full transition-all duration-300 hover:scale-125",
+                  "min-w-[48px] min-h-[48px] flex items-center justify-center rounded-full transition-all duration-300 hover:scale-125",
                   index === currentIndex
                     ? "w-10 h-3 bg-champagne-gold shadow-md"
                     : "w-3 h-3 bg-gray-400 hover:bg-gray-300"

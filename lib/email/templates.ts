@@ -3,7 +3,8 @@
  */
 
 import { deduplicateName, getDisplayName, getGreetingName } from "@/lib/utils/name-helpers";
-import { CLIENT_SIGNOFF_TEXT, CLIENT_SIGNATURE_BLOCK_HTML, yourEventLabel } from "@/lib/email-templates";
+import { SIGNATURE_BLOCK_HTML, CLIENT_SIGNOFF_TEXT } from "@/lib/email-signature";
+import { yourEventLabel } from "@/lib/email-templates";
 
 const GOLD = "#D4AF37";
 
@@ -15,9 +16,9 @@ export interface PortalInvitationInput {
 }
 
 /**
- * PORTAL_INVITATION – Welcome to Your [Venue] Wedding/Booking Portal
+ * PORTAL_INVITATION – Autoresponder: Your [Venue] Wedding/Booking Portal
  * Event-type aware: wedding → "Wedding Portal"; corporate/private → "Booking Portal".
- * CTA: Gold-accented "Step Into Your Portal" (magic link).
+ * Encourages sign-in with credentials; CTA goes to login so they land on their portal after sign-in.
  */
 export function PORTAL_INVITATION(input: PortalInvitationInput): {
   subject: string;
@@ -25,7 +26,6 @@ export function PORTAL_INVITATION(input: PortalInvitationInput): {
   text: string;
 } {
   const greetingName = getGreetingName(input.name) || "there";
-  const displayName = deduplicateName(getDisplayName(input.name) || input.name) || input.name;
   let venue = (input.venueName || "your venue").trim();
   const isWedding = (input.eventType || "").toLowerCase().trim() === "wedding";
   const portalLabel = isWedding ? "Wedding Portal" : "Booking Portal";
@@ -34,16 +34,16 @@ export function PORTAL_INVITATION(input: PortalInvitationInput): {
   venue = venue.replace(/babington\s+houe/gi, "Babington House");
   venue = venue.replace(/^babington\s+house$/i, "Babington House");
 
-  const subject = `Welcome to Your ${venue} ${portalLabel} | Stylish Entertainment Ltd`;
+  const subject = `Your ${venue} ${portalLabel} – sign in anytime | Stylish Entertainment Ltd`;
 
   const eventLabel = yourEventLabel(input.eventType);
   const intro = isWedding
-    ? `We've set up your personal planning portal for your wedding at <strong>${venue}</strong>. We've already added the key timings and venue details for you. This is where you can add music requests, dislikes, and your first dance song.`
-    : `We've set up your personal booking portal for ${eventLabel} at <strong>${venue}</strong>. We've added the key timings and venue details. You can manage your preferences, add music details, and keep in touch with us.`;
+    ? `We've set up your personal planning portal for your wedding at <strong>${venue}</strong>. We've already added the key timings and venue details for you. This is where you can add music requests, dislikes, and your first dance song. When you're ready, sign in with the email we have on file and your password to access it.`
+    : `We've set up your personal booking portal for ${eventLabel} at <strong>${venue}</strong>. We've added the key timings and venue details. You can manage your preferences, add music details, and keep in touch with us. When you're ready, sign in with the email we have on file and your password to access it.`;
 
   const introText = isWedding
-    ? `We've set up your personal planning portal for your wedding at ${venue}. We've already added the key timings and venue details for you. This is where you can add music requests, dislikes, and your first dance song.`
-    : `We've set up your personal booking portal for ${eventLabel} at ${venue}. We've added the key timings and venue details. You can manage your preferences, add music details, and keep in touch with us.`;
+    ? `We've set up your personal planning portal for your wedding at ${venue}. We've already added the key timings and venue details for you. This is where you can add music requests, dislikes, and your first dance song. When you're ready, sign in with the email we have on file and your password to access it.`
+    : `We've set up your personal booking portal for ${eventLabel} at ${venue}. We've added the key timings and venue details. You can manage your preferences, add music details, and keep in touch with us. When you're ready, sign in with the email we have on file and your password to access it.`;
 
   const html = `
     <!DOCTYPE html>
@@ -55,24 +55,20 @@ export function PORTAL_INVITATION(input: PortalInvitationInput): {
           <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 220px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
           <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0;">Stylish Entertainment</p>
         </div>
-        <h1 style="font-size: 24px; font-weight: 600; color: #1A1A1A; margin: 20px 0;">Welcome to Your ${venue} ${portalLabel}</h1>
+        <h1 style="font-size: 24px; font-weight: 600; color: #1A1A1A; margin: 20px 0;">Your ${venue} ${portalLabel}</h1>
         <p style="font-size: 16px; line-height: 1.6; color: #333; margin: 20px 0;">Hi ${greetingName},</p>
         <p style="font-size: 16px; line-height: 1.6; color: #333; margin: 20px 0;">${intro}</p>
         <div style="text-align: center; margin: 36px 0;">
-          <a href="${input.portalUrl}" style="display: inline-block; background-color: ${GOLD}; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);">View Your Countdown</a>
+          <a href="${input.portalUrl}" style="display: inline-block; background-color: ${GOLD}; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);">Sign in to your portal</a>
         </div>
-        <p style="font-size: 14px; line-height: 1.6; color: #666; margin: 20px 0;">You can access your portal anytime using the link above — no password required.</p>
-        <div style="border-top: 1px solid #eee; padding-top: 28px; margin-top: 32px; text-align: center;">
-          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
-          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
-          ${CLIENT_SIGNATURE_BLOCK_HTML}
-        </div>
+        <p style="font-size: 14px; line-height: 1.6; color: #666; margin: 20px 0;">Use the email we have on file and your password to sign in. After signing in you'll be taken straight to your portal.</p>
+        ${SIGNATURE_BLOCK_HTML}
       </div>
     </body>
     </html>
   `;
 
-  const text = `Hi ${greetingName},\n\n${introText}\n\nView Your Countdown: ${input.portalUrl}\n\nYou can access your portal anytime using the link above — no password required.\n\n${CLIENT_SIGNOFF_TEXT}`;
+  const text = `Hi ${greetingName},\n\n${introText}\n\nSign in to your portal: ${input.portalUrl}\n\nUse the email we have on file and your password to sign in. After signing in you'll be taken straight to your portal.\n\n${CLIENT_SIGNOFF_TEXT}`;
 
   return { subject, html, text };
 }
@@ -113,11 +109,7 @@ export function PORTAL_REMINDER(input: PortalInvitationInput): {
           <a href="${input.portalUrl}" style="display: inline-block; background-color: ${GOLD}; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);">View Your Countdown</a>
         </div>
         <p style="font-size: 14px; line-height: 1.6; color: #666; margin: 20px 0;">You can access your portal anytime using the link above.</p>
-        <div style="border-top: 1px solid #eee; padding-top: 28px; margin-top: 32px; text-align: center;">
-          <p style="font-size: 14px; color: #888; font-style: italic; margin: 0;">Make every gathering extraordinary</p>
-          <p style="font-size: 14px; color: #666; margin: 14px 0 0 0;">Questions or changes? We're here to help.</p>
-          ${CLIENT_SIGNATURE_BLOCK_HTML}
-        </div>
+        ${SIGNATURE_BLOCK_HTML}
       </div>
     </body>
     </html>

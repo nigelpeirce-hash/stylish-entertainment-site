@@ -60,64 +60,41 @@ export default function AdminDashboard() {
   // Use ref to prevent concurrent fetches
   const isFetchingRef = useRef(false);
 
-  // Memoize fetchStats to prevent recreation and dependency loops
+  // Single dashboard-summary API: unread threads, recent threads, pending bookings, conflict count
   const fetchStats = useCallback(async () => {
-    // Prevent multiple simultaneous fetches
-    if (isFetchingRef.current) {
-      return;
-    }
-    
+    if (isFetchingRef.current) return;
     isFetchingRef.current = true;
     setLoading(true);
     try {
-      // Fetch unread threads (credentials: include ensures session cookie is sent)
-      const threadsRes = await fetch("/api/admin/threads/?isRead=false", { credentials: "include" });
-      const threadsData = await threadsRes.json();
-      
-      // Fetch pending bookings
-      const bookingsRes = await fetch("/api/admin/bookings/?status=pending", { credentials: "include" });
-      const bookingsData = await bookingsRes.json();
-
-      // Calculate priority breakdown and new enquiries (no action taken yet)
-      const bookings = bookingsData.bookings || [];
+      const res = await fetch("/api/admin/dashboard-summary", { credentials: "include" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        console.error("Dashboard summary error:", data.error || res.statusText);
+        return;
+      }
+      const unread = data.unreadThreads || [];
+      const recent = data.recentThreads || [];
+      const bookings = data.pendingBookings || [];
       const urgent = bookings.filter((b: any) => b.priority === "urgent").length;
       const medium = bookings.filter((b: any) => b.priority === "medium").length;
-      
-      // Count new enquiries (no admin action taken yet - autoresponder doesn't count)
-      const newEnquiries = bookings.filter((b: any) => {
-        // If lastEmailSentAt is null, no admin action has been taken
-        // Autoresponder emails don't count as "action taken"
-        return !b.lastEmailSentAt;
-      });
+      const newEnquiries = bookings.filter((b: any) => !b.lastEmailSentAt);
 
       setStats({
-        unreadEmails: threadsData.threads?.length || 0,
-        totalThreads: threadsData.threads?.length || 0,
-        pendingBookings: newEnquiries.length, // Show count of new enquiries (no action yet)
-        todayEvents: 0, // TODO: Calculate today's events
+        unreadEmails: unread.length,
+        totalThreads: unread.length,
+        pendingBookings: newEnquiries.length,
+        todayEvents: 0,
       });
-
-      setPriorityStats({
-        urgent,
-        medium,
-      });
-
-      // Fetch unread threads for display (limit to 5)
-      const unreadRes = await fetch("/api/admin/threads/?isRead=false", { credentials: "include" });
-      const unreadData = await unreadRes.json();
-      setUnreadThreads((unreadData.threads || []).slice(0, 5));
-
-      // Fetch recent threads (limit to 5)
-      const recentRes = await fetch("/api/admin/threads/", { credentials: "include" });
-      const recentData = await recentRes.json();
-      setRecentThreads((recentData.threads || []).slice(0, 5));
+      setPriorityStats({ urgent, medium });
+      setUnreadThreads(unread.slice(0, 5));
+      setRecentThreads(recent.slice(0, 5));
     } catch (error) {
-      console.error("Error fetching stats:", error);
+      console.error("Error fetching dashboard summary:", error);
     } finally {
       setLoading(false);
       isFetchingRef.current = false;
     }
-  }, []); // No dependencies - function is stable
+  }, []);
 
   useEffect(() => {
     // Wait for session to load - don't redirect while loading

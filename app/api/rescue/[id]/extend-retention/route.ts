@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getResendConfig, EMAIL_CONFIG } from "@/lib/email-config";
 import { Resend } from "resend";
+import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -156,10 +157,7 @@ export async function POST(
                 View Booking Details
               </a>
             </div>
-            <div class="footer">
-              <p>STYLISH Entertainment - Admin Notification</p>
-              <p>This is an automated alert from the Lead Rescue system.</p>
-            </div>
+            ${SIGNATURE_BLOCK_HTML}
           </div>
         </body>
         </html>

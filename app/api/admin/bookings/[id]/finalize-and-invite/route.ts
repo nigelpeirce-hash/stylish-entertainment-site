@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { randomBytes } from "crypto";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { PORTAL_INVITATION } from "@/lib/email/templates";
+import { getEmailBaseUrl } from "@/lib/get-base-url";
+import { getClientPortalLoginUrl } from "@/lib/client-portal-url";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -12,9 +13,9 @@ export const runtime = "nodejs";
  * POST /api/admin/bookings/[id]/finalize-and-invite
  *
  * Finalize & Send Invite:
- * - Set booking status to 'confirmed' (ACTIVE).
- * - Ensure unique, long-lived portalToken (generate if missing).
- * - Send PORTAL_INVITATION email with magic link (Step Into Your Portal).
+ * - Skip sending if deposit already confirmed (client already has portal link from Deposit confirmed email).
+ * - Otherwise set status to 'confirmed', send PORTAL_INVITATION as autoresponder (sign in with credentials).
+ * - Portal link in email is login URL so client is encouraged to sign in.
  */
 export async function POST(
   request: NextRequest,
@@ -40,9 +41,10 @@ export async function POST(
         email: true,
         venueName: true,
         eventType: true,
-        portalToken: true,
         status: true,
         emailsSent: true,
+        depositReceivedManual: true,
+        depositReceived: true,
       },
     });
 
@@ -57,20 +59,17 @@ export async function POST(
       );
     }
 
-    let portalToken = booking.portalToken;
-    if (!portalToken) {
-      portalToken = randomBytes(32).toString("hex");
-      await prisma.booking.update({
-        where: { id: bookingId },
-        data: { portalToken },
+    // If deposit already confirmed, client already has portal access from Deposit confirmed email — do not send Portal invitation
+    if (booking.depositReceivedManual === true || booking.depositReceived === true) {
+      return NextResponse.json({
+        success: true,
+        skipped: true,
+        message: "Deposit already confirmed; client already has portal access from that email. Portal invitation not sent.",
       });
     }
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_APP_URL ||
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      "https://stylishentertainment.co.uk";
-    const portalUrl = `${baseUrl}/client/bookings/${booking.id}?token=${encodeURIComponent(portalToken)}`;
+    const baseUrl = getEmailBaseUrl();
+    const portalUrl = getClientPortalLoginUrl(baseUrl, booking.id);
 
     const { subject, html, text } = PORTAL_INVITATION({
       name: booking.name,

@@ -3,6 +3,9 @@ import { Resend } from "resend";
 import { getResendConfig } from "@/lib/email-config";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin-auth";
+import { createBookDJQuoteToken } from "@/lib/book-dj-quote-token";
+import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
+import { getEmailBaseUrl } from "@/lib/get-base-url";
 
 // Lazy initialization
 const getResend = () => {
@@ -224,6 +227,7 @@ export async function POST(request: NextRequest) {
     });
 
     // Build email HTML
+    const baseUrl = getEmailBaseUrl();
     const emailHtml = `
       <!DOCTYPE html>
       <html>
@@ -270,27 +274,13 @@ export async function POST(request: NextRequest) {
 
               <div style="text-align: center; margin: 30px 0; padding: 30px; background: linear-gradient(135deg, #1a1a1a, #2a2a2a) !important; border-radius: 8px;">
                 <p style="color: #ffffff !important; font-size: 18px; margin: 0 0 20px; font-family: 'Playfair Display', serif;">Ready to secure your DJ?</p>
-                <a href="${(process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk")}/book-dj" style="display: inline-block; background: #D4AF37 !important; color: #000000 !important; padding: 16px 40px; border-radius: 6px; font-weight: 700; text-decoration: none; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">Book Your DJ</a>
+                <a href="${baseUrl}/book-dj?quote=${encodeURIComponent(createBookDJQuoteToken({ bookingId, artistNames: [djName || "TBC"] }))}" style="display: inline-block; background: #D4AF37 !important; color: #000000 !important; padding: 16px 40px; border-radius: 6px; font-weight: 700; text-decoration: none; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">Book Your DJ</a>
                 <p style="color: #cccccc !important; font-size: 13px; margin: 15px 0 0;">Click above to complete your booking online — no password needed.</p>
               </div>
 
               <p>If you have any questions or would like to discuss any of these details further, please don't hesitate to get in touch.</p>
               
-              <div class="signature">
-                <p>Kind Regards,<br><strong>Ali & Nige</strong></p>
-                <div style="background: #f8f9fa; padding: 15px 20px; border-radius: 6px; font-size: 14px;">
-                  <p style="margin: 0 0 8px; color: #333;"><strong>📞 Call us:</strong> <a href="tel:+447970793177" style="color: #D4AF37; text-decoration: none;">+44 7970 793177</a></p>
-                  <p style="margin: 0 0 8px; color: #333;"><strong>✉️ Email:</strong> <a href="mailto:info@stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">info@stylishentertainment.co.uk</a></p>
-                  <p style="margin: 0; color: #333;"><strong>🌐 Website:</strong> <a href="https://stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">stylishentertainment.co.uk</a></p>
-                </div>
-              </div>
-            </div>
-            <div class="footer">
-              <p>Stylish Entertainment Ltd</p>
-              <p>West Country | London | Nationwide</p>
-              <p style="margin-top: 15px;">
-                <a href="https://stylishentertainment.co.uk" style="color: #D4AF37; text-decoration: none;">Visit our website</a>
-              </p>
+              ${SIGNATURE_BLOCK_HTML}
             </div>
           </div>
         </body>

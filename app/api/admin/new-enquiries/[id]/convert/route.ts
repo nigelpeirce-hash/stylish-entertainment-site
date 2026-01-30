@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 
@@ -120,6 +121,8 @@ export async function POST(
       // Create booking
       const newBooking = await tx.booking.create({
         data: {
+          id: randomUUID(),
+          updatedAt: new Date(),
           userId: user.id,
           name: enquiry.name, // ✅ Automatic: Client Names
           email: enquiry.email,

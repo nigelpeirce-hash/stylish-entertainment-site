@@ -10,10 +10,13 @@ export function ConflictCountBadge() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchConflictCount();
-    // Poll every 5 minutes (Chill Mode)
+    // Defer first fetch so main page data (bookings, threads) loads first
+    const initialTimer = setTimeout(fetchConflictCount, 800);
     const interval = setInterval(fetchConflictCount, 300000);
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(initialTimer);
+      clearInterval(interval);
+    };
   }, []);
 
   const fetchConflictCount = async () => {
