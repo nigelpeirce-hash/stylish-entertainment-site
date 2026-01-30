@@ -3,14 +3,14 @@ import TestimonialsClient from "./TestimonialsClient";
 import { testimonials } from "@/data/testimonials";
 
 export const metadata: Metadata = {
-  title: "Client Reviews & Testimonials | STYLISH Entertainment",
+  title: "Client Reviews & Testimonials",
   description: "Read 5-star reviews from our clients at Babington House, Kin House, and across the West Country. Discover why we are the top-rated wedding DJs in Somerset.",
   keywords: ["Wedding DJ Testimonials", "Babington House Reviews", "Wedding Entertainment Reviews", "Party DJ Testimonials", "Somerset Wedding DJs"],
   alternates: {
     canonical: "./",
   },
   openGraph: {
-    title: "Client Reviews & Testimonials | STYLISH Entertainment",
+    title: "Client Reviews & Testimonials",
     description: "Read 5-star reviews from our clients at Babington House, Kin House, and across the West Country. Discover why we are the top-rated wedding DJs in Somerset.",
   },
 };

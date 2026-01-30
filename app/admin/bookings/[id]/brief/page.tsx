@@ -83,7 +83,7 @@ export default function MasterBriefPage() {
     const fetchBrief = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/admin/bookings/${bookingId}/internal-brief`);
+        const res = await fetch(`/api/admin/bookings/${bookingId}/internal-brief/`);
         const data = await res.json();
         if (res.ok) {
           setBriefData(data);

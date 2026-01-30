@@ -23,7 +23,7 @@ export default function AdminSetup() {
     setResult(null);
 
     try {
-      const response = await fetch("/api/admin/make-admin", {
+      const response = await fetch("/api/admin/make-admin/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email }),

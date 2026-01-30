@@ -38,7 +38,7 @@ export function QuickStaffConfirm({ bookingId, venueName, eventDate, onConfirm }
     if (staffName.length >= 2) {
       const searchStaff = async () => {
         try {
-          const response = await fetch(`/api/admin/freelance-crew/search?q=${encodeURIComponent(staffName)}`);
+          const response = await fetch(`/api/admin/freelance-crew/search/?q=${encodeURIComponent(staffName)}`);
           if (response.ok) {
             const data = await response.json();
             setStaffSuggestions(data.crew || []);
@@ -74,7 +74,7 @@ export function QuickStaffConfirm({ bookingId, venueName, eventDate, onConfirm }
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/admin/bookings/staff/confirm", {
+      const response = await fetch("/api/admin/bookings/staff/confirm/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

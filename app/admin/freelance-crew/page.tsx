@@ -55,7 +55,7 @@ export default function FreelanceCrewPage() {
   const fetchCrew = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/admin/freelance-crew?activeOnly=${showActiveOnly}`);
+      const response = await fetch(`/api/admin/freelance-crew/?activeOnly=${showActiveOnly}`);
       if (response.ok) {
         const data = await response.json();
         setCrew(data.crew || []);
@@ -78,7 +78,7 @@ export default function FreelanceCrewPage() {
     }
 
     try {
-      const response = await fetch(`/api/admin/freelance-crew/${id}`, {
+      const response = await fetch(`/api/admin/freelance-crew/${id}/`, {
         method: "DELETE",
       });
 
@@ -283,8 +283,8 @@ function AddEditCrewDialog({
 
     try {
       const url = editingCrew
-        ? `/api/admin/freelance-crew/${editingCrew.id}`
-        : "/api/admin/freelance-crew";
+        ? `/api/admin/freelance-crew/${editingCrew.id}/`
+        : "/api/admin/freelance-crew/";
       const method = editingCrew ? "PUT" : "POST";
 
       const response = await fetch(url, {

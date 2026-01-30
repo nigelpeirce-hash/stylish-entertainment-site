@@ -81,7 +81,7 @@ export default function DJsPage() {
 
   const fetchDJs = async () => {
     try {
-      const response = await fetch("/api/admin/djs");
+      const response = await fetch("/api/admin/djs/");
       if (response.ok) {
         const data = await response.json();
         setDjs(data.djs || []);
@@ -121,7 +121,7 @@ export default function DJsPage() {
 
       if (editingId) {
         // Update existing
-        const response = await fetch(`/api/admin/djs/${editingId}`, {
+        const response = await fetch(`/api/admin/djs/${editingId}/`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -137,7 +137,7 @@ export default function DJsPage() {
         }
       } else {
         // Create new
-        const response = await fetch("/api/admin/djs", {
+        const response = await fetch("/api/admin/djs/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -164,7 +164,7 @@ export default function DJsPage() {
     if (!confirm("Are you sure you want to delete this DJ?")) return;
 
     try {
-      const response = await fetch(`/api/admin/djs/${id}`, {
+      const response = await fetch(`/api/admin/djs/${id}/`, {
         method: "DELETE",
       });
 

@@ -41,7 +41,9 @@ export default function CookieYes() {
       return;
     }
 
-    setShouldLoad(true);
+    // Delay CookieYes until after LCP (~2.5s) to reduce initial JS and improve mobile Performance
+    const t = setTimeout(() => setShouldLoad(true), 2500);
+    return () => clearTimeout(t);
   }, []);
 
   // Don't render anything if we shouldn't load
@@ -56,9 +58,6 @@ export default function CookieYes() {
         type="text/javascript"
         strategy="afterInteractive"
         src={`https://cdn-cookieyes.com/client_data/${cookieYesId}/script.js`}
-        onLoad={() => {
-          console.log("CookieYes script loaded");
-        }}
         onError={(e) => {
           // CookieYes may show URL configuration warnings, but banner usually still works
           // Update registered URL in dashboard if banner doesn't appear:

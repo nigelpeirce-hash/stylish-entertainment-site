@@ -133,7 +133,7 @@ export default function DatabaseAuditPage() {
         headers["x-dev-bypass"] = "true";
       }
       
-      const response = await fetch("/api/admin/db-audit", { headers });
+      const response = await fetch("/api/admin/db-audit/", { headers });
       if (response.ok) {
         const data = await response.json();
         setAuditResults(data.audit || []);

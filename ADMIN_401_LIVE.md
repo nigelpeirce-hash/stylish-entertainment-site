@@ -1,20 +1,20 @@
 # Admin 401 Unauthorized on Live – Checklist
 
-If admin dashboard or 90-Day Command Centre shows **401 Unauthorized** on the live site (and works locally), work through this checklist.
+If admin dashboard shows **401 Unauthorized**, no data, and API calls fail (threads, bookings, etc.) on the live site, work through this checklist.
 
 ---
 
-## 1. Vercel environment variables
+## 1. Vercel environment variables (most common fix)
 
 In **Vercel → Project → Settings → Environment Variables** (Production):
 
 | Variable | Required | Notes |
 |----------|----------|-------|
-| `NEXTAUTH_URL` | ✅ | **Must** match live URL exactly, e.g. `https://www.stylishentertainment.co.uk` or `https://stylishentertainment.co.uk`. No trailing slash. |
-| `NEXTAUTH_SECRET` | ✅ | Same value as used when users log in. If you change it, everyone must log in again. |
-| `NEXT_PUBLIC_SITE_URL` | ✅ | Same as `NEXTAUTH_URL` (or your canonical site URL). |
+| `NEXTAUTH_URL` | ✅ | **Must** match live URL exactly: `https://www.stylishentertainment.co.uk` (or your apex domain). No trailing slash. |
+| `NEXTAUTH_SECRET` | ✅ | Same value as when users log in. If you change it, everyone must log in again. |
+| `NEXT_PUBLIC_SITE_URL` | ✅ | Same as `NEXTAUTH_URL`. |
 
-**Frequent cause of 401:** `NEXTAUTH_URL` is still `http://localhost:3001` or a Vercel preview URL. Update it to your **production** domain, redeploy, then log out and log in again.
+**Frequent cause of 401:** `NEXTAUTH_URL` is still `http://localhost:3001` or a Vercel preview URL. Update it to your **production** domain, **redeploy**, then **log out and log in again**.
 
 ---
 
@@ -44,6 +44,9 @@ After changing `NEXTAUTH_URL` or `NEXTAUTH_SECRET`:
 
 ## 5. Code-side changes (already in place)
 
+- **requireAdmin:** Uses `auth()` (same as `/api/auth/session`) instead of `getToken`; `getToken` can fail after 308 redirects.
+- **Trailing slashes:** Admin API fetch URLs use trailing slashes (e.g. `/api/admin/bookings/`) to avoid 308 redirects.
+- **Admin fetchers:** Dashboard, bookings, threads, conflicts use `credentials: "include"`.
 - **90-Day fetcher:** Uses `credentials: "include"` and attaches `status` to errors so we don’t retry on 401/403.
 - **90-Day UI:** On 401, shows “Session expired or not authorized” and a “Log in again” link instead of generic error + retry.
 - **CookieYes:** Not loaded on `/admin` to avoid the CookieYes 403 on admin pages.

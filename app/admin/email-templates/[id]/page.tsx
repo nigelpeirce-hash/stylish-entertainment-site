@@ -120,7 +120,7 @@ export default function EmailTemplateEditor() {
   const fetchTemplate = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/admin/email-templates/${templateId}`);
+      const response = await fetch(`/api/admin/email-templates/${templateId}/`);
       if (response.ok) {
         const data = await response.json();
         setTemplate(data.template);
@@ -139,7 +139,7 @@ export default function EmailTemplateEditor() {
 
   const fetchBookings = async () => {
     try {
-      const response = await fetch("/api/admin/bookings?status=all");
+      const response = await fetch("/api/admin/bookings/?status=all");
       if (response.ok) {
         const data = await response.json();
         // Filter for confirmed/locked bookings
@@ -155,7 +155,7 @@ export default function EmailTemplateEditor() {
 
   const fetchLockedData = async (bookingId: string) => {
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}/locked-event-data`);
+      const response = await fetch(`/api/admin/bookings/${bookingId}/locked-event-data/`);
       if (response.ok) {
         const data = await response.json();
         setLockedEventData(data);
@@ -173,7 +173,7 @@ export default function EmailTemplateEditor() {
 
   const generatePreview = async (eventData: LockedEventData) => {
     try {
-      const response = await fetch(`/api/admin/email-templates/${templateId}/preview`, {
+      const response = await fetch(`/api/admin/email-templates/${templateId}/preview/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -202,7 +202,7 @@ export default function EmailTemplateEditor() {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const response = await fetch(`/api/admin/email-templates/${templateId}`, {
+      const response = await fetch(`/api/admin/email-templates/${templateId}/`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -250,7 +250,7 @@ export default function EmailTemplateEditor() {
 
     try {
       setSending(true);
-      const response = await fetch(`/api/admin/email-templates/${templateId}/send`, {
+      const response = await fetch(`/api/admin/email-templates/${templateId}/send/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

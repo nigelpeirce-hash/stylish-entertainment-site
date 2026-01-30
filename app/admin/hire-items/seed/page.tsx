@@ -49,7 +49,7 @@ export default function SeedHireItems() {
     setMessage("");
 
     try {
-      const response = await fetch("/api/admin/hire-items/seed", {
+      const response = await fetch("/api/admin/hire-items/seed/", {
         method: "POST",
       });
 

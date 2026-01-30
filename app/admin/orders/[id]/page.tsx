@@ -104,7 +104,7 @@ export default function OrderDetailPage() {
 
   const fetchOrder = async () => {
     try {
-      const response = await fetch(`/api/admin/orders/${orderId}`);
+      const response = await fetch(`/api/admin/orders/${orderId}/`);
       if (response.ok) {
         const data = await response.json();
         setOrder(data.order);
@@ -122,7 +122,7 @@ export default function OrderDetailPage() {
 
     setUpdating(true);
     try {
-      const response = await fetch(`/api/admin/orders/${orderId}`, {
+      const response = await fetch(`/api/admin/orders/${orderId}/`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

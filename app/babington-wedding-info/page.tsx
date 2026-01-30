@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import BabingtonClient from "./BabingtonClient";
 
 export const metadata: Metadata = {
-  title: "Babington House Wedding Info | Stylish Entertainment",
+  title: "Babington House Wedding Info",
   description: "Comprehensive guide to planning your Babington House wedding. DJ Nige shares insights on the bar, terrace, orangery, and other areas of this stunning venue.",
 };
 

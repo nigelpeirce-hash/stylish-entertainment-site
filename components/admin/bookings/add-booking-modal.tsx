@@ -204,7 +204,7 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
         
         // Fetch DJs if selected
         if (formData.serviceTypes.includes("DJs")) {
-          const response = await fetch("/api/admin/djs");
+          const response = await fetch("/api/admin/djs/");
           if (response.ok) {
             const data = await response.json();
             const djs = (data.djs || []).map((m: any) => ({
@@ -219,7 +219,7 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
         
         // Fetch Musicians if selected
         if (formData.serviceTypes.includes("Musicians")) {
-          const response = await fetch("/api/admin/musicians");
+          const response = await fetch("/api/admin/musicians/");
           if (response.ok) {
             const data = await response.json();
             const musicians = (data.musicians || []).map((m: any) => ({
@@ -236,7 +236,7 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
         const crewRoles = ["Lighting Design", "Venue Styling", "Production", "Event Production"];
         const selectedCrewRoles = formData.serviceTypes.filter(t => crewRoles.includes(t));
         if (selectedCrewRoles.length > 0) {
-          const response = await fetch("/api/admin/freelance-crew");
+          const response = await fetch("/api/admin/freelance-crew/");
           if (response.ok) {
             const data = await response.json();
             const crew = (data.crew || []).map((m: any) => ({

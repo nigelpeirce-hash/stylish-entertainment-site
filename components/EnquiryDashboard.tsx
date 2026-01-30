@@ -55,7 +55,7 @@ export function EnquiryDashboard() {
     else setRefreshing(true);
 
     try {
-      const response = await fetch("/api/admin/enquiries?t=" + Date.now());
+      const response = await fetch("/api/admin/enquiries/?t=" + Date.now());
       if (response.ok) {
         const data = await response.json();
         setEnquiries(data.enquiries || []);
@@ -70,7 +70,7 @@ export function EnquiryDashboard() {
 
   const fetchStats = async (silent = false) => {
     try {
-      const response = await fetch("/api/admin/enquiries/stats?t=" + Date.now());
+      const response = await fetch("/api/admin/enquiries/stats/?t=" + Date.now());
       if (response.ok) {
         const data = await response.json();
         setStats(data.stats || stats);
@@ -84,8 +84,8 @@ export function EnquiryDashboard() {
     try {
       // Use different API endpoint based on source
       const apiEndpoint = source === "new_enquiry" 
-        ? `/api/admin/new-enquiries/${enquiryId}/status`
-        : `/api/admin/enquiries/${enquiryId}/status`;
+        ? `/api/admin/new-enquiries/${enquiryId}/status/`
+        : `/api/admin/enquiries/${enquiryId}/status/`;
 
       const response = await fetch(apiEndpoint, {
         method: "PATCH",

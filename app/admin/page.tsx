@@ -70,12 +70,12 @@ export default function AdminDashboard() {
     isFetchingRef.current = true;
     setLoading(true);
     try {
-      // Fetch unread threads
-      const threadsRes = await fetch("/api/admin/threads?isRead=false");
+      // Fetch unread threads (credentials: include ensures session cookie is sent)
+      const threadsRes = await fetch("/api/admin/threads/?isRead=false", { credentials: "include" });
       const threadsData = await threadsRes.json();
       
       // Fetch pending bookings
-      const bookingsRes = await fetch("/api/admin/bookings?status=pending");
+      const bookingsRes = await fetch("/api/admin/bookings/?status=pending", { credentials: "include" });
       const bookingsData = await bookingsRes.json();
 
       // Calculate priority breakdown and new enquiries (no action taken yet)
@@ -103,12 +103,12 @@ export default function AdminDashboard() {
       });
 
       // Fetch unread threads for display (limit to 5)
-      const unreadRes = await fetch("/api/admin/threads?isRead=false");
+      const unreadRes = await fetch("/api/admin/threads/?isRead=false", { credentials: "include" });
       const unreadData = await unreadRes.json();
       setUnreadThreads((unreadData.threads || []).slice(0, 5));
 
       // Fetch recent threads (limit to 5)
-      const recentRes = await fetch("/api/admin/threads");
+      const recentRes = await fetch("/api/admin/threads/", { credentials: "include" });
       const recentData = await recentRes.json();
       setRecentThreads((recentData.threads || []).slice(0, 5));
     } catch (error) {
@@ -193,9 +193,10 @@ export default function AdminDashboard() {
   const handleSyncEmails = async () => {
     setIsSyncing(true);
     try {
-      const response = await fetch("/api/admin/sync-emails", {
+      const response = await fetch("/api/admin/sync-emails/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
       });
       const result = await response.json();
       if (result.success) {

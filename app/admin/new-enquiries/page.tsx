@@ -84,7 +84,7 @@ function NewEnquiriesContent() {
     setRefreshing(true);
 
     try {
-      const response = await fetch("/api/admin/new-enquiries?t=" + Date.now());
+      const response = await fetch("/api/admin/new-enquiries/?t=" + Date.now());
       if (response.ok) {
         const data = await response.json();
         setEnquiries(data.enquiries || []);

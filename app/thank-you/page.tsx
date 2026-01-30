@@ -3,8 +3,8 @@ import { createMetadata } from "@/lib/metadata";
 import ThankYouClient from "./ThankYouClient";
 
 export const metadata: Metadata = createMetadata({
-  title: "Thank You | STYLISH Entertainment",
-  description: "Thank you for contacting STYLISH Entertainment. We'll be in touch soon!",
+  title: "Thank You",
+  description: "Thank you for getting in touch. We'll respond within 24-48 hours.",
   pathname: "thank-you",
 });
 

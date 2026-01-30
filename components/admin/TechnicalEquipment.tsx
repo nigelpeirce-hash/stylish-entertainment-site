@@ -49,7 +49,7 @@ export function TechnicalEquipment({ bookingId, onUpdate }: TechnicalEquipmentPr
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const res = await fetch("/api/admin/warehouse-items?isActive=true");
+        const res = await fetch("/api/admin/warehouse-items/?isActive=true");
         const data = await res.json();
         setAllItems(data.items || []);
       } catch (error) {
@@ -66,7 +66,7 @@ export function TechnicalEquipment({ bookingId, onUpdate }: TechnicalEquipmentPr
     if (!bookingId) return;
     const fetchSelected = async () => {
       try {
-        const res = await fetch(`/api/admin/bookings/${bookingId}/warehouse-items`);
+        const res = await fetch(`/api/admin/bookings/${bookingId}/warehouse-items/`);
         const data = await res.json();
         setSelectedItems(data.items || []);
       } catch (error) {
@@ -94,7 +94,7 @@ export function TechnicalEquipment({ bookingId, onUpdate }: TechnicalEquipmentPr
   const addItem = async (itemId: string) => {
     setAdding(itemId);
     try {
-      const res = await fetch(`/api/admin/bookings/${bookingId}/warehouse-items`, {
+      const res = await fetch(`/api/admin/bookings/${bookingId}/warehouse-items/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ warehouseItemId: itemId, quantity: 1 }),
@@ -126,7 +126,7 @@ export function TechnicalEquipment({ bookingId, onUpdate }: TechnicalEquipmentPr
   const removeItem = async (itemId: string, reduceOnly = false) => {
     try {
       const res = await fetch(
-        `/api/admin/bookings/${bookingId}/warehouse-items?warehouseItemId=${itemId}&reduceOnly=${reduceOnly}`,
+        `/api/admin/bookings/${bookingId}/warehouse-items/?warehouseItemId=${itemId}&reduceOnly=${reduceOnly}`,
         { method: "DELETE" }
       );
       if (res.ok) {

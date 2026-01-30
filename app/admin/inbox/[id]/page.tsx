@@ -143,7 +143,7 @@ export default function ThreadDetail() {
 
   const fetchTemplates = async () => {
     try {
-      const response = await fetch("/api/admin/email-templates?isActive=true");
+      const response = await fetch("/api/admin/email-templates/?isActive=true");
       if (response.ok) {
         const data = await response.json();
         setTemplates(data.templates || []);
@@ -155,7 +155,7 @@ export default function ThreadDetail() {
 
   const fetchThread = async () => {
     try {
-      const response = await fetch(`/api/admin/threads/${threadId}`);
+      const response = await fetch(`/api/admin/threads/${threadId}/`);
       if (response.ok) {
         const data = await response.json();
         setThread(data.thread);
@@ -174,7 +174,7 @@ export default function ThreadDetail() {
     }
 
     try {
-      const response = await fetch(`/api/admin/email-templates/${templateId}`);
+      const response = await fetch(`/api/admin/email-templates/${templateId}/`);
       if (response.ok) {
         const data = await response.json();
         const template = data.template;
@@ -263,7 +263,7 @@ export default function ThreadDetail() {
 
     setSending(true);
     try {
-      const response = await fetch("/api/admin/email/send", {
+      const response = await fetch("/api/admin/email/send/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

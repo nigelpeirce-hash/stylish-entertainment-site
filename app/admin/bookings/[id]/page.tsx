@@ -308,7 +308,7 @@ export default function BookingDetail() {
   const handleHandoff = async (assignTo: "ali" | "husband") => {
     if (!booking) return;
     try {
-      const response = await fetch(`/api/admin/bookings/${booking.id}/handoff`, {
+      const response = await fetch(`/api/admin/bookings/${booking.id}/handoff/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -330,7 +330,7 @@ export default function BookingDetail() {
     setSendingAction(resourceType);
     try {
       if (resourceType === "brochure") {
-        const response = await fetch("/api/admin/send-resource", {
+        const response = await fetch("/api/admin/send-resource/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -357,7 +357,7 @@ export default function BookingDetail() {
     if (!booking) return;
     setDeleting(true);
     try {
-      const response = await fetch(`/api/admin/bookings/${booking.id}`, {
+      const response = await fetch(`/api/admin/bookings/${booking.id}/`, {
         method: "DELETE",
       });
       if (!response.ok) {
@@ -882,7 +882,7 @@ export default function BookingDetail() {
                       if (!booking?.email) return;
                       setSendingDepositInvoice(true);
                       try {
-                        const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice`, { method: "POST" });
+                        const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice/`, { method: "POST" });
                         const data = await res.json();
                         if (res.ok) {
                           await handleBookingUpdate();
@@ -930,7 +930,7 @@ export default function BookingDetail() {
                       checked={booking.depositReceivedManual || false}
                       onCheckedChange={async (checked) => {
                         try {
-                          const response = await fetch(`/api/admin/bookings/${booking.id}/flexible-update`, {
+                          const response = await fetch(`/api/admin/bookings/${booking.id}/flexible-update/`, {
                             method: "PATCH",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ depositReceivedManual: checked }),
@@ -997,7 +997,7 @@ export default function BookingDetail() {
                       if (!booking?.email) return;
                       setSendingFinalizeInvite(true);
                       try {
-                        const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite`, { method: "POST" });
+                        const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite/`, { method: "POST" });
                         const data = await res.json();
                         if (res.ok) {
                           await handleBookingUpdate();

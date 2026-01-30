@@ -70,17 +70,7 @@ export default function Videos() {
     const apiKey = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
     const channelId = process.env.NEXT_PUBLIC_YOUTUBE_CHANNEL_ID || "@stylishentertainment937";
 
-    // Debug logging
-    console.log("YouTube API Configuration Check:", {
-      hasApiKey: !!apiKey,
-      apiKeyLength: apiKey?.length || 0,
-      apiKeyPreview: apiKey ? `${apiKey.substring(0, 10)}...` : 'none',
-      channelId: channelId,
-      environment: typeof window !== 'undefined' ? 'client' : 'server',
-    });
-
     if (apiKey && apiKey !== "YOUR_YOUTUBE_API_KEY" && apiKey.length > 10) {
-      console.log("YouTube API Key found, fetching videos...");
       fetchYouTubeData(apiKey, channelId);
     } else {
       // Show helpful message in development
@@ -132,7 +122,7 @@ export default function Videos() {
             
             // Check if API key is invalid
             if (channelResponse.status === 400 && errorMessage.includes('API key not valid')) {
-              throw new Error(`Invalid API key. Please check your API key in .env.local and ensure YouTube Data API v3 is enabled in Google Cloud Console.`);
+              throw new Error(`Invalid API key. Please check your API key and ensure YouTube Data API v3 is enabled in Google Cloud Console. See YOUTUBE_LIVE_TROUBLESHOOTING.md`);
             }
             
             lastError = `forHandle API returned ${channelResponse.status}: ${errorMessage}`;
@@ -164,7 +154,7 @@ export default function Videos() {
               
               // Check if API key is invalid
               if (testResponse.status === 400 && errorMessage.includes('API key not valid')) {
-                throw new Error(`Invalid API key. Please check your API key in .env.local and ensure YouTube Data API v3 is enabled in Google Cloud Console.`);
+                throw new Error(`Invalid API key. Please check your API key and ensure YouTube Data API v3 is enabled in Google Cloud Console. See YOUTUBE_LIVE_TROUBLESHOOTING.md`);
               }
               
               lastError = `Direct handle test returned ${testResponse.status}: ${errorMessage}`;
@@ -203,11 +193,11 @@ export default function Videos() {
         console.error(`YouTube API Error (${playlistsResponse.status}):`, errorMessage);
         
         if (playlistsResponse.status === 400 && errorMessage.includes('API key not valid')) {
-          throw new Error(`Invalid API key. Please check: 1) Your API key in .env.local is correct, 2) YouTube Data API v3 is enabled in Google Cloud Console, 3) API key restrictions allow localhost:3001`);
+          throw new Error(`Invalid API key. Please check: 1) Your API key is correct, 2) YouTube Data API v3 is enabled in Google Cloud Console, 3) API key restrictions allow your domain (e.g. stylishentertainment.co.uk). See YOUTUBE_LIVE_TROUBLESHOOTING.md`);
         }
         
         if (playlistsResponse.status === 403) {
-          throw new Error(`API key error (403). Please check: 1) YouTube Data API v3 is enabled, 2) API key restrictions allow localhost:3001, 3) API key has correct permissions.`);
+          throw new Error(`API key error (403). Add your live domain (https://www.stylishentertainment.co.uk/*) to HTTP referrer restrictions in Google Cloud Console. See YOUTUBE_LIVE_TROUBLESHOOTING.md`);
         }
         
         throw new Error(`Failed to fetch playlists (${playlistsResponse.status}): ${errorMessage}`);

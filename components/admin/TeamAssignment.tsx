@@ -89,7 +89,7 @@ export function TeamAssignment({
     setSuccess("");
 
     try {
-      const response = await fetch("/api/admin/bookings/staff/confirm", {
+      const response = await fetch("/api/admin/bookings/staff/confirm/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -299,7 +299,7 @@ export function TeamAssignment({
                       if (confirm(`Remove ${assignment.staff.name} from this booking?`)) {
                         try {
                           const response = await fetch(
-                            `/api/admin/bookings/staff/${assignment.id}`,
+                            `/api/admin/bookings/staff/${assignment.id}/`,
                             {
                               method: "DELETE",
                               headers: { "Content-Type": "application/json" },

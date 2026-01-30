@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import MellsBarnClient from "@/app/mells-barn-weddings/MellsBarnClient";
 
 export const metadata: Metadata = {
-  title: "The Ultimate Planning Guide for Mells Barn Weddings | Lighting & Production | Stylish Entertainment",
+  title: "The Ultimate Planning Guide for Mells Barn Weddings | Lighting & Production",
   description: "Planning a destination wedding at Mells Barn? Our Frome-based team acts as your on-the-ground experts. Zoom consultations, detailed site maps, and years of venue experience. No travel fees within 10 miles. Contact STYLISH Entertainment.",
 };
 

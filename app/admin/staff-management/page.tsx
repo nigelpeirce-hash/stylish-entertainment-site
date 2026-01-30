@@ -105,7 +105,7 @@ export default function StaffManagement() {
 
   const fetchStaff = async () => {
     try {
-      const response = await fetch("/api/admin/staff");
+      const response = await fetch("/api/admin/staff/", { credentials: "include" });
       if (response.ok) {
         const data = await response.json();
         setStaff(data.staff || []);
@@ -158,8 +158,8 @@ export default function StaffManagement() {
       const validated = staffSchema.parse(formData);
 
       const url = editingStaff
-        ? `/api/admin/staff/${editingStaff.id}`
-        : "/api/admin/staff";
+        ? `/api/admin/staff/${editingStaff.id}/`
+        : "/api/admin/staff/";
       const method = editingStaff ? "PUT" : "POST";
 
       const response = await fetch(url, {
@@ -237,8 +237,9 @@ export default function StaffManagement() {
 
     setDeletingId(memberId);
     try {
-      const response = await fetch(`/api/admin/staff/${memberId}${forceDelete ? "?force=true" : ""}`, {
+      const response = await fetch(`/api/admin/staff/${memberId}/${forceDelete ? "?force=true" : ""}`, {
         method: "DELETE",
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -461,27 +462,32 @@ export default function StaffManagement() {
                             </div>
                           </td>
                           <td className="px-6 py-4 text-right">
-                            <div className="flex items-center justify-end gap-2">
+                            <div className="flex items-center justify-end gap-2 flex-nowrap">
                               <Button
                                 onClick={() => handleEdit(member)}
-                                variant="ghost"
+                                variant="outline"
                                 size="sm"
-                                className="text-champagne-gold hover:text-champagne-gold/80 hover:bg-champagne-gold/10"
+                                className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10"
+                                title="Edit staff member"
                               >
-                                <Edit className="w-4 h-4" />
+                                <Edit className="w-4 h-4 mr-1.5" />
+                                Edit
                               </Button>
                               <Button
                                 onClick={() => handleDelete(member.id, member.name)}
-                                variant="ghost"
+                                variant="outline"
                                 size="sm"
                                 disabled={deletingId === member.id}
-                                className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+                                className="border-red-500/30 text-red-400 hover:bg-red-900/20 hover:border-red-500/50"
                                 title="Delete staff member"
                               >
                                 {deletingId === member.id ? (
                                   <Loader2 className="w-4 h-4 animate-spin" />
                                 ) : (
-                                  <Trash2 className="w-4 h-4" />
+                                  <>
+                                    <Trash2 className="w-4 h-4 mr-1.5" />
+                                    Delete
+                                  </>
                                 )}
                               </Button>
                             </div>

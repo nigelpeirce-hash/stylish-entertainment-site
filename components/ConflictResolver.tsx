@@ -71,7 +71,7 @@ export function ConflictResolver({
   const handleLinkEmail = async () => {
     setResolving(true);
     try {
-      const response = await fetch(`/api/admin/bookings/${existingBooking.id}/link-email`, {
+      const response = await fetch(`/api/admin/bookings/${existingBooking.id}/link-email/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -98,7 +98,7 @@ export function ConflictResolver({
   const handleKeepSeparate = async () => {
     setResolving(true);
     try {
-      const response = await fetch(`/api/admin/bookings/${newBookingId}/resolve-conflict`, {
+      const response = await fetch(`/api/admin/bookings/${newBookingId}/resolve-conflict/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

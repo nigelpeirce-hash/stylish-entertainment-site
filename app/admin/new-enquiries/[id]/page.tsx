@@ -78,7 +78,7 @@ export default function NewEnquiryDetail() {
 
   const fetchEnquiry = async () => {
     try {
-      const response = await fetch(`/api/admin/new-enquiries/${enquiryId}`);
+      const response = await fetch(`/api/admin/new-enquiries/${enquiryId}/`);
       if (response.ok) {
         const data = await response.json();
         setEnquiry(data.enquiry);
@@ -337,7 +337,7 @@ export default function NewEnquiryDetail() {
                 onClick={async () => {
                   // Convert to booking
                   try {
-                    const response = await fetch(`/api/admin/new-enquiries/${enquiry.id}/convert`, {
+                    const response = await fetch(`/api/admin/new-enquiries/${enquiry.id}/convert/`, {
                       method: "POST",
                     });
                     const data = await response.json();
@@ -381,7 +381,7 @@ export default function NewEnquiryDetail() {
                 onClick={async () => {
                   // Mark as reviewed
                   try {
-                    const response = await fetch(`/api/admin/new-enquiries/${enquiry.id}/review`, {
+                    const response = await fetch(`/api/admin/new-enquiries/${enquiry.id}/review/`, {
                       method: "PATCH",
                     });
                     if (response.ok) {

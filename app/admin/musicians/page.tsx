@@ -124,7 +124,7 @@ export default function MusiciansPage() {
 
   const fetchMusicians = async () => {
     try {
-      const response = await fetch("/api/admin/musicians");
+      const response = await fetch("/api/admin/musicians/");
       if (response.ok) {
         const data = await response.json();
         setMusicians(data.musicians || []);
@@ -164,7 +164,7 @@ export default function MusiciansPage() {
 
       if (editingId) {
         // Update existing
-        const response = await fetch(`/api/admin/musicians/${editingId}`, {
+        const response = await fetch(`/api/admin/musicians/${editingId}/`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -180,7 +180,7 @@ export default function MusiciansPage() {
         }
       } else {
         // Create new
-        const response = await fetch("/api/admin/musicians", {
+        const response = await fetch("/api/admin/musicians/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -207,7 +207,7 @@ export default function MusiciansPage() {
     if (!confirm("Are you sure you want to delete this musician?")) return;
 
     try {
-      const response = await fetch(`/api/admin/musicians/${id}`, {
+      const response = await fetch(`/api/admin/musicians/${id}/`, {
         method: "DELETE",
       });
 

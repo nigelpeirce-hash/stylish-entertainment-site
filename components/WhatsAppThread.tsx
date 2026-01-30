@@ -54,7 +54,7 @@ export function WhatsAppThread({ bookingId, phoneNumber, eventDate, clientName }
     if (!currentBookingId) return;
 
     try {
-      const response = await fetch(`/api/admin/bookings/${currentBookingId}/whatsapp-messages`);
+      const response = await fetch(`/api/admin/bookings/${currentBookingId}/whatsapp-messages/`);
       if (response.ok) {
         const data = await response.json();
         setMessages(data.messages || []);
@@ -168,7 +168,7 @@ export function WhatsAppThread({ bookingId, phoneNumber, eventDate, clientName }
     if (!newBookingId) return;
 
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}/split-whatsapp-thread`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/split-whatsapp-thread/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ newBookingId }),

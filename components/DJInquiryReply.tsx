@@ -61,7 +61,7 @@ export function DJInquiryReply({
     setError("");
 
     try {
-      const response = await fetch("/api/admin/calculate-mileage", {
+      const response = await fetch("/api/admin/calculate-mileage/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -98,7 +98,7 @@ export function DJInquiryReply({
     setSending(true);
 
     try {
-      const response = await fetch("/api/admin/send-dj-inquiry-reply", {
+      const response = await fetch("/api/admin/send-dj-inquiry-reply/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

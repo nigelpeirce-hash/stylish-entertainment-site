@@ -97,7 +97,7 @@ export function useBookingUpdates(
         // Make PATCH request to API
         // Note: We only send the 'updates' object (partial update), not the entire booking
         // The API endpoint only processes keys in PATCH_ALLOWED_KEYS, preventing data overwrites
-        const response = await fetch(`/api/admin/bookings/${bookingId}`, {
+        const response = await fetch(`/api/admin/bookings/${bookingId}/`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",

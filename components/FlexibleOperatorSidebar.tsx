@@ -138,7 +138,7 @@ export function FlexibleOperatorSidebar({
   useEffect(() => {
     const fetchTemplates = async () => {
       try {
-        const response = await fetch("/api/admin/email-templates?isActive=true");
+        const response = await fetch("/api/admin/email-templates/?isActive=true");
         if (response.ok) {
           const data = await response.json();
           setTemplates(data.templates || []);
@@ -293,7 +293,7 @@ export function FlexibleOperatorSidebar({
         updates.venueName = venueNameOverride;
       }
 
-      const response = await fetch(`/api/admin/bookings/${booking.id}/flexible-update`, {
+      const response = await fetch(`/api/admin/bookings/${booking.id}/flexible-update/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updates),
@@ -331,7 +331,7 @@ export function FlexibleOperatorSidebar({
       // Get admin name from session or default
       const adminName = "Husband"; // You can get this from session later
 
-      const response = await fetch(`/api/admin/bookings/${booking.id}/manual-override`, {
+      const response = await fetch(`/api/admin/bookings/${booking.id}/manual-override/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -360,7 +360,7 @@ export function FlexibleOperatorSidebar({
         setTimeout(() => setShowToast(false), 3000);
 
         // Refresh audit logs
-        const auditResponse = await fetch(`/api/admin/bookings/${booking.id}/audit-logs`);
+        const auditResponse = await fetch(`/api/admin/bookings/${booking.id}/audit-logs/`);
         if (auditResponse.ok) {
           const auditData = await auditResponse.json();
           setAuditLogs(auditData.auditLogs || []);

@@ -120,9 +120,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${raleway.variable} ${bebasNeue.variable} ${dancingScript.variable} ${playfairDisplay.variable}`}>
       <head>
-        {/* Image CDN: preconnect for Cloudinary (og:images, direct refs); /_next/image is same-origin */}
+        {/* Preconnect to critical origins for faster LCP */}
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
       </head>
       <body className="relative min-h-screen" style={{
         background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'

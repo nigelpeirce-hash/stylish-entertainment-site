@@ -94,7 +94,7 @@ export function NewSubmissionNotifier() {
   useEffect(() => {
     const checkForNewSubmissions = async () => {
       try {
-        const response = await fetch("/api/admin/bookings?status=pending");
+        const response = await fetch("/api/admin/bookings/?status=pending", { credentials: "include" });
         if (response.ok) {
           const data = await response.json();
           const bookings: PendingEnquiry[] = (data.bookings || []).map((b: any) => ({

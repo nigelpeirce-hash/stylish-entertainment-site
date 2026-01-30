@@ -216,7 +216,7 @@ export function EmailCompositionCenter({
     setError("");
 
     try {
-      const response = await fetch("/api/admin/send-composed-email", {
+      const response = await fetch("/api/admin/send-composed-email/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

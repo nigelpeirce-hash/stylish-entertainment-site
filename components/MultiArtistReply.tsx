@@ -68,8 +68,8 @@ export function MultiArtistReply({
         setLoadingArtists(true);
         try {
           const [djRes, musRes] = await Promise.all([
-            fetch("/api/admin/djs"),
-            fetch("/api/admin/musicians"),
+            fetch("/api/admin/djs/"),
+            fetch("/api/admin/musicians/"),
           ]);
           const djData = djRes.ok ? await djRes.json() : {};
           const musData = musRes.ok ? await musRes.json() : {};
@@ -156,7 +156,7 @@ export function MultiArtistReply({
     setSending(true);
 
     try {
-      const response = await fetch("/api/admin/send-artist-quote", {
+      const response = await fetch("/api/admin/send-artist-quote/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

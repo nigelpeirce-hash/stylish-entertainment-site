@@ -333,7 +333,7 @@ export default function AdminInbox() {
 
   const fetchInboxes = async () => {
     try {
-      const response = await fetch("/api/admin/inboxes");
+      const response = await fetch("/api/admin/inboxes/");
       if (response.ok) {
         const data = await response.json();
         setInboxes(data.inboxes || []);
@@ -387,7 +387,7 @@ export default function AdminInbox() {
     }
     try {
       // Explicitly filter out archived threads
-      const response = await fetch(`/api/admin/threads?skip=${skip}&take=50&isArchived=false`);
+      const response = await fetch(`/api/admin/threads/?skip=${skip}&take=50&isArchived=false`);
       if (response.ok) {
         const data = await response.json();
         const newThreads = (data.threads || []).map((thread: EmailThread) => ({
@@ -422,7 +422,7 @@ export default function AdminInbox() {
 
   const fetchThreadDetails = async (threadId: string) => {
     try {
-      const response = await fetch(`/api/admin/threads/${threadId}`);
+      const response = await fetch(`/api/admin/threads/${threadId}/`);
       if (response.ok) {
         const data = await response.json();
         setSelectedThread(data.thread);
@@ -434,7 +434,7 @@ export default function AdminInbox() {
 
   const fetchTemplates = async () => {
     try {
-      const response = await fetch("/api/admin/email-templates?isActive=true");
+      const response = await fetch("/api/admin/email-templates/?isActive=true");
       if (response.ok) {
         const data = await response.json();
         setTemplates(data.templates || []);
@@ -446,7 +446,7 @@ export default function AdminInbox() {
 
   const fetchFolders = useCallback(async (inboxId: string) => {
     try {
-      const response = await fetch(`/api/admin/inboxes/${inboxId}/folders`);
+      const response = await fetch(`/api/admin/inboxes/${inboxId}/folders/`);
       if (response.ok) {
         const data = await response.json();
         // API returns folders array directly (not wrapped in { folders })
@@ -498,7 +498,7 @@ export default function AdminInbox() {
 
   const handleMoveToFolder = async (threadId: string, folderId: string) => {
     try {
-      const response = await fetch(`/api/admin/threads/${threadId}/move`, {
+      const response = await fetch(`/api/admin/threads/${threadId}/move/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ folderId }),
@@ -561,7 +561,7 @@ export default function AdminInbox() {
         if (!inbox) return;
         setSyncingInboxId(inbox.id);
         
-        const response = await fetch("/api/admin/email/sync", {
+        const response = await fetch("/api/admin/email/sync/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ inboxId: inbox.id, deepSync }),
@@ -622,7 +622,7 @@ export default function AdminInbox() {
     }
 
     try {
-      const response = await fetch(`/api/admin/email-templates/${templateId}`);
+      const response = await fetch(`/api/admin/email-templates/${templateId}/`);
       if (response.ok) {
         const data = await response.json();
         const template = data.template;
@@ -663,7 +663,7 @@ export default function AdminInbox() {
 
     setLoading(true);
     try {
-      const response = await fetch("/api/admin/email/send", {
+      const response = await fetch("/api/admin/email/send/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -685,7 +685,7 @@ export default function AdminInbox() {
         setSelectedTemplateId("");
         await fetchThreads();
         // Refresh selected thread
-        const threadResponse = await fetch(`/api/admin/threads/${selectedThread.id}`);
+        const threadResponse = await fetch(`/api/admin/threads/${selectedThread.id}/`);
         if (threadResponse.ok) {
           const threadData = await threadResponse.json();
           setSelectedThread(threadData.thread);
@@ -716,7 +716,7 @@ export default function AdminInbox() {
     }
     
     try {
-      const response = await fetch(`/api/admin/threads/${threadId}`, {
+      const response = await fetch(`/api/admin/threads/${threadId}/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isArchived: true }),
@@ -1442,7 +1442,7 @@ export default function AdminInbox() {
                     // Use selected inbox or default to first inbox
                     const inboxId = composeData.inboxId || inboxes[0]?.id;
                     if (inboxId) {
-                      const response = await fetch("/api/admin/email/send", {
+                      const response = await fetch("/api/admin/email/send/", {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({

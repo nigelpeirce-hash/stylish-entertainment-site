@@ -36,13 +36,15 @@ export default function Gallery({ photos, columns = 1 }: GalleryProps) {
           {normalizedPhotos.map((photo, photoIndex) => (
             <div
               key={photoIndex}
-              className="relative w-full overflow-hidden rounded-lg bg-gray-900 shadow-lg hover:shadow-2xl transition-shadow duration-300 group cursor-pointer"
+              className="relative w-full overflow-hidden rounded-lg bg-gray-900 shadow-lg hover:shadow-2xl transition-shadow duration-300 group cursor-pointer aspect-[4/3]"
               onClick={() => setIndex(photoIndex)}
             >
               <img
                 src={photo.src}
                 alt={photo.alt}
-                className="w-full h-auto object-contain hover:opacity-90 transition-opacity duration-300"
+                width={1200}
+                height={900}
+                className="w-full h-full object-contain hover:opacity-90 transition-opacity duration-300"
                 loading="lazy"
                 decoding="async"
               />

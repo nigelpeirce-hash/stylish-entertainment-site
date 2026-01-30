@@ -1,5 +1,16 @@
 /* Fonts are now loaded via next/font in layout.tsx for zero layout shift */
 
+/* iOS rotation fix: dvh (dynamic viewport) reduces layout jump when rotating portrait↔landscape.
+   On iOS Safari, vh can include address bar and cause content to shift. dvh adjusts with browser chrome.
+   Use alongside vh: vh is fallback for older browsers, dvh overrides when supported. */
+@supports (height: 1dvh) {
+  .min-h-60dvh { min-height: 60dvh !important; }
+  .h-60dvh { height: 60dvh !important; }
+  @media (min-width: 640px) { .sm\:h-75dvh { height: 75dvh !important; } }
+  @media (min-width: 768px) { .md\:h-85dvh { height: 85dvh !important; } }
+  @media (min-width: 1024px) { .lg\:h-92dvh { height: 92dvh !important; } }
+}
+
 /* Tailwind CSS directives - CSS linter warnings for @tailwind and @apply are expected and can be ignored */
 @tailwind base;
 @tailwind components;

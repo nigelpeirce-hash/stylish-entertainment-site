@@ -48,7 +48,7 @@ export function InviteUserModal({
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/admin/users/invite", {
+      const response = await fetch("/api/admin/users/invite/", {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",

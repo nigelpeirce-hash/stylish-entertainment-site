@@ -58,7 +58,7 @@ export default function ClientEmailsCard({
     let cancelled = false;
     setLoading(true);
     setError(null);
-    fetch(`/api/admin/enquiries/${bookingId}/emails`)
+    fetch(`/api/admin/enquiries/${bookingId}/emails/`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to load emails");
         return res.json();

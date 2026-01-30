@@ -1,48 +1,125 @@
-# Cursor Context
+# Cursor Context – Stylish Entertainment
 
-This is a Next.js 15 App Router project.
+Agent familiarisation for the Stylish Entertainment website project.
+
+**Last updated:** January 2026
+
+---
 
 ## Development & Build
-- Uses Turbopack in development (`next dev --turbo -p 3001`)
-- Production builds use `next build` (no --webpack flag)
-- TypeScript with strict type checking (build errors ignored in config for flexibility)
+
+- **Dev:** `npm run dev` → Next.js on port 3001 with Turbopack
+- **Build:** `npm run build` → `next build` (no extra flags)
+- **Production builds** use Webpack (see `next.config.js` webpack config)
+- TypeScript strict; build errors ignored in config for flexibility
+- **Root layout** has `export const dynamic = "force-dynamic"` (framer-motion prerender workaround; affects performance)
+
+---
 
 ## Key Dependencies
-- **Next.js**: 15.1.11
-- **React**: 18.3.1
-- **NextAuth**: 5.0.0 (beta)
-- **Prisma**: 7.2.0
+
+- **Next.js:** 15.x
+- **React:** 18.x
+- **NextAuth:** 5.0.0 (beta)
+- **Prisma:** 6.x with Driver Adapters (PrismaPg)
+- **Framer Motion**, **Radix UI**, **Tailwind**, **SWR**
+
+---
 
 ## Routing
-- Routing is entirely in `/app` (no `/pages` directory)
-- File-based routing with nested layouts
-- Admin and client portals use nested layouts (`/app/admin/layout.tsx`, `/app/client/layout.tsx`)
-- API routes in `/app/api`
+
+- App Router only: `/app` (no `/pages`)
+- Admin: `/app/admin/*` with layout
+- Client portal: `/app/client/*` with layout
+- API: `/app/api/*`
+
+---
 
 ## Architecture
-- **Business logic** lives in `/lib`:
-  - Server actions in `/lib/actions`
-  - Authentication: `lib/auth.ts`, `lib/admin-auth.ts`
-  - Email system: `lib/email/` (renderer, templates)
-  - Database: `lib/prisma.ts`
-  - Utilities: Cloudinary, Supabase admin, Spotify, YouTube APIs
-- **Shared utilities** in `/utils`
-- **Reusable components** in `/components`
+
+### Business Logic (`/lib`)
+- **auth.ts**, **admin-auth.ts** – authentication
+- **prisma.ts** – database client (singleton, pool-based)
+- **email/** – Resend templates and sending
+- **actions/** – server actions (e.g. booking)
+- **cloudinary.ts** – uploads
+- **spotify.ts**, **youtube.ts** – external APIs
+
+### Components (`/components`)
+- Shared UI, forms, admin components
+- **CookieYes.tsx** – consent banner (delayed 2.5s for LCP)
+- **GoogleTagManager.tsx**, **GoogleAnalytics.tsx** – analytics
+
+### Data (`/data`)
+- `reviews.ts`, `testimonials.ts` – static content
+
+---
 
 ## Database & Services
-- **Prisma** connects to **Supabase Postgres**
-- **Email** handled via **Resend**
-- **Image hosting** via **Cloudinary**
-- **Authentication** via **NextAuth v5.0.0** (beta)
 
-## Hosting and Deployment
-- This project is deployed on **Vercel**
-- Vercel uses environment variables from the dashboard and `.vercel` folder
-- `AZURE_DEPLOYMENT.md` is legacy documentation only, not active
+| Service    | Purpose                                      |
+|-----------|-----------------------------------------------|
+| **Supabase** | PostgreSQL via Session Pooler (port 5432 or Transaction 6543) |
+| **Resend**   | Transactional email                           |
+| **Cloudinary** | Images (account: drtwveoqo)                 |
+| **NextAuth**  | Sessions, admin/client auth                  |
+| **Google**    | Analytics (GA4 G-8WGHN47VLM), GTM, reCAPTCHA, YouTube API, Maps |
+| **CookieYes** | Cookie consent banner                        |
+
+---
 
 ## Key Features
-- Event booking and management system
-- Admin dashboard for staff management
-- Client portal for booking access
-- Email automation and templates
-- Integration with external APIs (Spotify, YouTube, Monday.com)
+
+- Event booking and admin management
+- **Team Directory** – `/admin/staff-management` (FreelanceCrew, edit/delete)
+- **DJs** and **Musicians** – public artist pages + admin CRUD
+- Client portal for bookings
+- Email automation (Resend, journey templates)
+- Video gallery – YouTube Data API v3 (`/galleries/videos`)
+- Contact forms – reCAPTCHA v3
+- Hire shop, venue styling, blog
+
+---
+
+## Environment Variables
+
+- **Database:** `DATABASE_URL` (pooler), `DIRECT_URL` (CLI)
+- **Auth:** `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `NEXT_PUBLIC_SITE_URL`
+- **Email:** `RESEND_API_KEY`, `RESEND_DEFAULT_FROM`
+- **Cloudinary:** `NEXT_PUBLIC_CLOUDINARY_*`, `CLOUDINARY_*`
+- **Google:** `NEXT_PUBLIC_GA_MEASUREMENT_ID` / `NEXT_PUBLIC_GOOGLE_ANALYTICS_ID`, reCAPTCHA keys
+- **YouTube:** `NEXT_PUBLIC_YOUTUBE_API_KEY`, optional `NEXT_PUBLIC_YOUTUBE_CHANNEL_ID`
+
+See `.env.local.example` and `DISASTER_RECOVERY_GUIDE.md` for full list.
+
+---
+
+## Documentation
+
+| File                        | Purpose                                      |
+|----------------------------|----------------------------------------------|
+| **DISASTER_RECOVERY_GUIDE.md** | Full rebuild, env vars, DB, deployments     |
+| **GTM_CONTAINER_QUALITY_FIX.md** | GTM setup, Google tag, thank-you trigger   |
+| **YOUTUBE_LIVE_TROUBLESHOOTING.md** | YouTube API on production                |
+| **COOKIEYES_GTM_403_FIX.md** | CookieYes 403 when loaded via GTM          |
+| **PAGE_SPEED_MOBILE_NOTES.md** | Mobile performance, LCP, deferred scripts |
+| **ADMIN_401_LIVE.md**      | Admin 401 troubleshooting                    |
+| **VERCEL_DATABASE_TIMEOUT_FIX.md** | DB connection timeouts on Vercel          |
+
+---
+
+## Hosting
+
+- **Vercel** – production
+- Custom domain: `stylishentertainment.co.uk` / `www.stylishentertainment.co.uk`
+- `AZURE_DEPLOYMENT.md` is legacy, not in use
+
+---
+
+## Conventions
+
+- **Blog pages:** Server `page.tsx` + client wrapper in `components/blog/` (framer-motion, lightbox)
+- **Prisma:** Singleton in `lib/prisma.ts`; use pooler for app, direct for CLI
+- **Images:** Next/Image + Cloudinary URLs; `next.config.js` remote patterns
+- **Cookies:** CookieYes not loaded on `/admin` or localhost
+- **GTM:** Container GTM-WB3F6V7; GA4 Measurement ID G-8WGHN47VLM

@@ -77,7 +77,7 @@ export default function OrdersPage() {
 
   const fetchOrders = async () => {
     try {
-      const url = filter !== "all" ? `/api/admin/orders?status=${filter}` : "/api/admin/orders";
+      const url = filter !== "all" ? `/api/admin/orders/?status=${filter}` : "/api/admin/orders/";
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();

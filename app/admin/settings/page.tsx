@@ -163,7 +163,7 @@ export default function AdminSettings() {
   const fetchInboxes = async () => {
     try {
       const headers = { ...getDevBypassHeaders(), "Content-Type": "application/json" };
-      const response = await fetch("/api/admin/inboxes", { headers });
+      const response = await fetch("/api/admin/inboxes/", { headers });
       if (response.ok) {
         const data = await response.json();
         setInboxes(data.inboxes || []);
@@ -218,7 +218,7 @@ export default function AdminSettings() {
       if (editingId) {
         // Update existing
         const headers = { ...getDevBypassHeaders(), "Content-Type": "application/json" };
-        const response = await fetch(`/api/admin/inboxes/${editingId}`, {
+        const response = await fetch(`/api/admin/inboxes/${editingId}/`, {
           method: "PUT",
           headers,
           body: JSON.stringify(dataToSend),
@@ -235,7 +235,7 @@ export default function AdminSettings() {
       } else {
         // Create new
         const headers = { ...getDevBypassHeaders(), "Content-Type": "application/json" };
-        const response = await fetch("/api/admin/inboxes", {
+        const response = await fetch("/api/admin/inboxes/", {
           method: "POST",
           headers,
           body: JSON.stringify(dataToSend),
@@ -261,7 +261,7 @@ export default function AdminSettings() {
 
     try {
       const headers = getDevBypassHeaders();
-      const response = await fetch(`/api/admin/inboxes/${id}`, {
+      const response = await fetch(`/api/admin/inboxes/${id}/`, {
         method: "DELETE",
         headers,
       });
@@ -280,7 +280,7 @@ export default function AdminSettings() {
   const updateInboxAssignedUsers = async (inboxId: string, assignedUsers: string[]) => {
     try {
       const headers = { ...getDevBypassHeaders(), "Content-Type": "application/json" };
-      const response = await fetch(`/api/admin/inboxes/${inboxId}`, {
+      const response = await fetch(`/api/admin/inboxes/${inboxId}/`, {
         method: "PUT",
         headers,
         body: JSON.stringify({ assignedUsers }),
@@ -393,7 +393,7 @@ export default function AdminSettings() {
       });
 
       const headers = { ...getDevBypassHeaders(), "Content-Type": "application/json" };
-      const response = await fetch("/api/admin/email/sync", {
+      const response = await fetch("/api/admin/email/sync/", {
         method: "POST",
         headers,
         body: JSON.stringify({ inboxId, deepSync }),
@@ -448,7 +448,7 @@ export default function AdminSettings() {
       });
       
       const headers = { ...getDevBypassHeaders(), "Content-Type": "application/json" };
-      const response = await fetch("/api/admin/inboxes/test-connection", {
+      const response = await fetch("/api/admin/inboxes/test-connection/", {
         method: "POST",
         headers,
         body: JSON.stringify({ inboxId }),
@@ -1070,7 +1070,7 @@ export default function AdminSettings() {
                 <Button
                   onClick={async () => {
                     try {
-                      const response = await fetch("/api/admin/calendar/export");
+                      const response = await fetch("/api/admin/calendar/export/");
                       if (response.ok) {
                         const blob = await response.blob();
                         const url = window.URL.createObjectURL(blob);
@@ -1119,7 +1119,7 @@ export default function AdminSettings() {
                       }
 
                       try {
-                        const response = await fetch("/api/admin/calendar/import", {
+                        const response = await fetch("/api/admin/calendar/import/", {
                           method: "POST",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify({ url }),
@@ -1164,7 +1164,7 @@ export default function AdminSettings() {
                       reader.onload = async (event) => {
                         const fileContent = event.target?.result as string;
                         try {
-                          const response = await fetch("/api/admin/calendar/import", {
+                          const response = await fetch("/api/admin/calendar/import/", {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({ fileContent }),

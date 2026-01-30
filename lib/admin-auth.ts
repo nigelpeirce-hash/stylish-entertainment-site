@@ -1,13 +1,14 @@
-import { getToken } from "next-auth/jwt";
+import { auth } from "@/auth";
 import { NextRequest } from "next/server";
 
+/**
+ * Require admin role. Uses auth() (same as /api/auth/session) for reliability
+ * in production. getToken can fail on 308-redirected requests (trailing slash).
+ */
 export async function requireAdmin(request: NextRequest) {
   // Dev bypass for development mode
   if (process.env.NODE_ENV === "development") {
-    // Check if dev bypass is enabled via header (set by client)
     const devBypass = request.headers.get("x-dev-bypass") === "true";
-    
-    // Also allow localhost automatically in dev mode
     const isLocalhost = request.headers.get("host")?.includes("localhost") || 
                         request.headers.get("host")?.includes("127.0.0.1") ||
                         request.headers.get("host")?.startsWith("192.168.") ||
@@ -23,19 +24,16 @@ export async function requireAdmin(request: NextRequest) {
     }
   }
 
-  const token = await getToken({
-    req: request as any,
-    secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
-  });
+  const session = await auth();
 
-  if (!token || (token.role as string) !== "admin") {
+  if (!session?.user || ((session.user as any).role as string) !== "admin") {
     return null;
   }
 
   return {
-    id: (token.id as string) || (token.sub as string),
-    email: token.email as string,
-    name: token.name as string,
-    role: token.role as string,
+    id: (session.user as any).id as string,
+    email: session.user.email as string,
+    name: session.user.name as string,
+    role: "admin" as const,
   };
 }

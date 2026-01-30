@@ -18,7 +18,7 @@ export function ConflictCountBadge() {
 
   const fetchConflictCount = async () => {
     try {
-      const response = await fetch("/api/admin/bookings/conflicts/count");
+      const response = await fetch("/api/admin/bookings/conflicts/count/", { credentials: "include" });
       if (response.ok) {
         const data = await response.json();
         setCount(data.count || 0);

@@ -152,7 +152,7 @@ export default function VenueAssetUploader() {
             }
 
             // Save to database via API
-            const response = await fetch("/api/admin/venue-assets/upload", {
+            const response = await fetch("/api/admin/venue-assets/upload/", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",

@@ -117,7 +117,7 @@ Kind regards,`,
     };
 
     try {
-      const response = await fetch("/api/admin/email-templates", {
+      const response = await fetch("/api/admin/email-templates/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(defaultTemplate),

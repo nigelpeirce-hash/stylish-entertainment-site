@@ -95,7 +95,7 @@ export default function AdminUsers() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/admin/users", {
+      const response = await fetch("/api/admin/users/", {
         headers: {
           ...getDevBypassHeaders(),
         },
@@ -114,7 +114,7 @@ export default function AdminUsers() {
   const handleRoleChange = async (userId: string, newRole: string) => {
     setUpdatingRole(userId);
     try {
-      const response = await fetch("/api/admin/users", {
+      const response = await fetch("/api/admin/users/", {
         method: "PATCH",
         headers: { 
           "Content-Type": "application/json",
@@ -146,7 +146,7 @@ export default function AdminUsers() {
 
     setDeletingUserId(userId);
     try {
-      const response = await fetch(`/api/admin/users?userId=${encodeURIComponent(userId)}`, {
+      const response = await fetch(`/api/admin/users/?userId=${encodeURIComponent(userId)}`, {
         method: "DELETE",
         headers: {
           ...getDevBypassHeaders(),

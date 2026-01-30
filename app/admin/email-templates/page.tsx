@@ -65,7 +65,7 @@ export default function EmailTemplates() {
 
   const fetchTemplates = async () => {
     try {
-      const response = await fetch("/api/admin/email-templates");
+      const response = await fetch("/api/admin/email-templates/");
       if (response.ok) {
         const data = await response.json();
         setTemplates(data.templates || []);
@@ -81,7 +81,7 @@ export default function EmailTemplates() {
     try {
       if (editingId) {
         // Update existing
-        const response = await fetch(`/api/admin/email-templates/${editingId}`, {
+        const response = await fetch(`/api/admin/email-templates/${editingId}/`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
@@ -96,7 +96,7 @@ export default function EmailTemplates() {
         }
       } else {
         // Create new
-        const response = await fetch("/api/admin/email-templates", {
+        const response = await fetch("/api/admin/email-templates/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
@@ -121,7 +121,7 @@ export default function EmailTemplates() {
     if (!confirm("Are you sure you want to delete this template?")) return;
 
     try {
-      const response = await fetch(`/api/admin/email-templates/${id}`, {
+      const response = await fetch(`/api/admin/email-templates/${id}/`, {
         method: "DELETE",
       });
 

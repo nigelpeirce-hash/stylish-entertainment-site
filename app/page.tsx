@@ -204,13 +204,15 @@ export default function Home() {
     if (metaDescription) {
       metaDescription.setAttribute("content", "Stylish Entertainment & Production - Exceptional entertainment for weddings, parties and events. Professional DJs, musicians, lighting design and venue styling across the UK and Wales. Strictly no YMCA.");
     }
-    setSliderImages(shuffleArray(gallerySliderImages));
+    // Defer shuffle until after LCP (~2.5s) so the first image stays priority and preload is used
+    const t = setTimeout(() => setSliderImages(shuffleArray(gallerySliderImages)), 2500);
+    return () => clearTimeout(t);
   }, []);
 
   return (
     <div>
       {/* Full Width Image Gallery Slider - random order on each load */}
-      <section className="relative w-full h-[60vh] sm:h-[75vh] md:h-[85vh] lg:h-[92vh] overflow-hidden bg-gray-900">
+      <section className="relative w-full h-[60vh] sm:h-[75vh] md:h-[85vh] lg:h-[92vh] h-60dvh sm:h-75dvh md:h-85dvh lg:h-92dvh overflow-hidden bg-gray-900">
         <Slider className="h-full">
           {sliderImages.map((image, index) => (
             <div key={image.src} className="relative w-full h-full flex-shrink-0 flex items-center justify-center bg-gray-900">
@@ -226,7 +228,7 @@ export default function Home() {
                 fetchPriority={index === 0 ? "high" : "auto"}
                 sizes="(max-width: 1920px) 100vw, 1920px"
                 loading={index <= 1 ? "eager" : "lazy"}
-                quality={78}
+                quality={72}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
             </div>

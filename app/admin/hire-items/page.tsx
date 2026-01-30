@@ -70,7 +70,7 @@ export default function HireItemsPage() {
 
   const fetchItems = async () => {
     try {
-      const response = await fetch("/api/admin/hire-items");
+      const response = await fetch("/api/admin/hire-items/");
       if (response.ok) {
         const data = await response.json();
         setItems(data.items || []);
@@ -86,7 +86,7 @@ export default function HireItemsPage() {
     try {
       if (editingId) {
         // Update existing
-        const response = await fetch(`/api/admin/hire-items/${editingId}`, {
+        const response = await fetch(`/api/admin/hire-items/${editingId}/`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -105,7 +105,7 @@ export default function HireItemsPage() {
         }
       } else {
         // Create new
-        const response = await fetch("/api/admin/hire-items", {
+        const response = await fetch("/api/admin/hire-items/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -133,7 +133,7 @@ export default function HireItemsPage() {
     if (!confirm("Are you sure you want to delete this item?")) return;
 
     try {
-      const response = await fetch(`/api/admin/hire-items/${id}`, {
+      const response = await fetch(`/api/admin/hire-items/${id}/`, {
         method: "DELETE",
       });
 

@@ -237,13 +237,17 @@ export default function Galleries() {
 
     updateColumns();
     window.addEventListener('resize', updateColumns);
-    return () => window.removeEventListener('resize', updateColumns);
+    window.addEventListener('orientationchange', updateColumns); // Ensure columns recalc on iPhone rotation
+    return () => {
+      window.removeEventListener('resize', updateColumns);
+      window.removeEventListener('orientationchange', updateColumns);
+    };
   }, []);
 
   return (
     <div>
       {/* Hero */}
-      <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
+      <section className="relative min-h-[60vh] min-h-60dvh flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <img
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw"

@@ -31,7 +31,7 @@ export function AddBasicStaff({ onAdd }: AddBasicStaffProps) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/admin/freelance-crew/add", {
+      const response = await fetch("/api/admin/freelance-crew/add/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

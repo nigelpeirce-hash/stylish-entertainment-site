@@ -148,7 +148,7 @@ export default function Breadcrumbs() {
         if (dynamicId && dynamicId.length > 10) { // Likely an ID (cuid is ~25 chars)
           setLoadingDynamic(true);
           try {
-            const response = await fetch(`/api/admin/breadcrumb-data?type=${type}&id=${dynamicId}`);
+            const response = await fetch(`/api/admin/breadcrumb-data/?type=${type}&id=${dynamicId}`);
             if (response.ok) {
               const data = await response.json();
               setDynamicLabels({ [dynamicId]: data.label });

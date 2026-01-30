@@ -40,7 +40,7 @@ export default function SandboxBookFromQuotePage() {
     setStaffOptions([]);
     if (!artistType) return;
     setLoadingStaff(true);
-    const endpoint = artistType === "dj" ? "/api/admin/djs" : "/api/admin/musicians";
+    const endpoint = artistType === "dj" ? "/api/admin/djs/" : "/api/admin/musicians/";
     fetch(endpoint)
       .then((r) => r.json())
       .then((data) => {

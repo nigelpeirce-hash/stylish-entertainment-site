@@ -49,7 +49,7 @@ export function EnquiryDrawer({ enquiry, isOpen, onClose, onUpdate }: EnquiryDra
 
   const fetchEmailHistory = async () => {
     try {
-      const response = await fetch(`/api/admin/enquiries/${enquiry.id}/emails`);
+      const response = await fetch(`/api/admin/enquiries/${enquiry.id}/emails/`);
       if (response.ok) {
         const data = await response.json();
         setEmailHistory(data.emails || []);
@@ -69,7 +69,7 @@ export function EnquiryDrawer({ enquiry, isOpen, onClose, onUpdate }: EnquiryDra
     }
 
     try {
-      const response = await fetch(`/api/admin/enquiries/${enquiry.id}/talent-status`);
+      const response = await fetch(`/api/admin/enquiries/${enquiry.id}/talent-status/`);
       if (response.ok) {
         const data = await response.json();
         setTalentStatus(data.talentStatus || {});
@@ -112,7 +112,7 @@ export function EnquiryDrawer({ enquiry, isOpen, onClose, onUpdate }: EnquiryDra
     setTalentStatus(newStatus);
 
     try {
-      await fetch(`/api/admin/enquiries/${enquiry.id}/talent-status`, {
+      await fetch(`/api/admin/enquiries/${enquiry.id}/talent-status/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ talentId, contacted: checked }),

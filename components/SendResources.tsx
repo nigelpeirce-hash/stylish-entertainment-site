@@ -38,7 +38,7 @@ export function SendResources({ bookingId, clientEmail, clientName, venueName }:
     setSuccess(false);
 
     try {
-      const response = await fetch("/api/admin/send-resource", {
+      const response = await fetch("/api/admin/send-resource/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

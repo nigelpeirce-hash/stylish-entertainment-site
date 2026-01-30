@@ -49,7 +49,7 @@ export function BookingIntegrityWarning({
     try {
       setLoading(true);
       // Fetch all bookings to check for conflicts
-      const response = await fetch("/api/admin/bookings?status=all");
+      const response = await fetch("/api/admin/bookings/?status=all", { credentials: "include" });
       if (response.ok) {
         const data = await response.json();
         const bookings = data.bookings || [];
@@ -64,11 +64,12 @@ export function BookingIntegrityWarning({
               }
 
               const checkResponse = await fetch(
-                `/api/admin/bookings/check-conflicts?email=${encodeURIComponent(
+                `/api/admin/bookings/check-conflicts/?email=${encodeURIComponent(
                   booking.email
                 )}&eventDate=${encodeURIComponent(booking.eventDate)}&venuePostcode=${encodeURIComponent(
                   booking.venuePostcode || ""
-                )}`
+                )}`,
+                { credentials: "include" }
               );
 
               if (checkResponse.ok) {

@@ -143,7 +143,7 @@ export default function EmailAuditPage() {
         headers["x-dev-bypass"] = "true";
       }
       
-      const response = await fetch("/api/admin/email/audit", { headers });
+      const response = await fetch("/api/admin/email/audit/", { headers });
       if (response.ok) {
         const data = await response.json();
         setAuditResults(data.audit || []);
@@ -168,7 +168,7 @@ export default function EmailAuditPage() {
 
   const handleSync = async (inboxId: string) => {
     try {
-      const response = await fetch("/api/admin/email/sync", {
+      const response = await fetch("/api/admin/email/sync/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ inboxId }),

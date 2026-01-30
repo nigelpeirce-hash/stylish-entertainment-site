@@ -198,7 +198,7 @@ export default function BookingDetail() {
   const fetchBooking = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/admin/bookings/${bookingId}?t=${Date.now()}`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/?t=${Date.now()}`, {
         cache: 'no-store',
       });
       if (response.ok) {
@@ -242,7 +242,7 @@ export default function BookingDetail() {
   const handleHandoff = async (assignTo: "wife" | "husband") => {
     if (!booking) return;
     try {
-      const response = await fetch(`/api/admin/bookings/${booking.id}`, {
+      const response = await fetch(`/api/admin/bookings/${booking.id}/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -262,7 +262,7 @@ export default function BookingDetail() {
     setSendingAction(resourceType);
     try {
       if (resourceType === "brochure") {
-        const response = await fetch("/api/admin/send-resource", {
+        const response = await fetch("/api/admin/send-resource/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({

@@ -132,7 +132,7 @@ function ViceVersaContent() {
   const fetchBookings = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/admin/bookings");
+      const response = await fetch("/api/admin/bookings/");
       if (response.ok) {
         const data = await response.json();
         setBookings(data.bookings || []);
@@ -146,7 +146,7 @@ function ViceVersaContent() {
 
   const handleHandoff = async (bookingId: string, to: "ali" | "husband", note?: string) => {
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}/handoff`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/handoff/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -172,7 +172,7 @@ function ViceVersaContent() {
 
   const handleMarkTechReady = async (bookingId: string) => {
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isTechReady: true }),

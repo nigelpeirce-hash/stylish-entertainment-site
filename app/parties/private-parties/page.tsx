@@ -29,7 +29,7 @@ const serviceAreaKeywords = [
 ];
 
 export const metadata: Metadata = {
-  title: "Private Parties | Bespoke Party Planning & Technical Production | Stylish Entertainment",
+  title: "Private Parties | Bespoke Party Planning & Technical Production",
   description: "Full party planning and production services. Creative DJs, bands, entertainment and beautiful lighting for private parties across the UK and Wales. Serving 100+ towns. Trusted by Babington House for 20+ years.",
   keywords: [
     "Private party planning",
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
     canonical: "./",
   },
   openGraph: {
-    title: "Private Parties | Bespoke Party Planning & Technical Production | Stylish Entertainment",
+    title: "Private Parties | Bespoke Party Planning & Technical Production",
     description: "Full party planning and production services across the UK and Wales. Serving 100+ towns.",
   },
 };

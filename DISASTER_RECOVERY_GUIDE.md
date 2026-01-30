@@ -1,8 +1,8 @@
 # Disaster Recovery & Complete Rebuild Guide
 ## Stylish Entertainment Website
 
-**Last Updated:** January 28, 2026  
-**Version:** 1.4  
+**Last Updated:** January 2026  
+**Version:** 1.5  
 **Purpose:** Complete technical documentation for rebuilding the system from scratch in case of catastrophic failure
 
 ---
@@ -75,8 +75,10 @@
 - **Hosting:** Vercel
 - **Email:** Resend
 - **Images:** Cloudinary (account: drtwveoqo)
-- **Analytics:** Google Analytics
+- **Analytics:** Google Tag Manager (GTM-WB3F6V7), Google Analytics 4 (G-8WGHN47VLM)
+- **Cookie Consent:** CookieYes (1246a38a4c6731928c675e0f)
 - **Spam Protection:** Google reCAPTCHA v3
+- **Video Gallery:** YouTube Data API v3
 
 ### Project Structure
 
@@ -306,7 +308,8 @@ DIRECT_URL="postgresql://postgres:8bYD7LNFFWwPaREy@db.qraijuzzktertoujrwat.supab
 
 **Important Configuration Notes:**
 - ✅ **Pooler Username Format:** Must be `postgres.qraijuzzktertoujrwat` (with project ref) - NOT just `postgres`
-- ✅ **Pooler Hostname:** `aws-1-eu-west-1.pooler.supabase.com` (Session Pooler on port 5432)
+- ✅ **Pooler Hostname:** `aws-1-eu-west-1.pooler.supabase.com`
+- ✅ **Ports:** Session Pooler = 5432; Transaction Pooler = 6543 (add `?pgbouncer=true` for 6543)
 - ✅ **SSL Mode:** `sslmode=no-verify` for pooler (required for Supabase)
 - ✅ **Direct Connection:** Use `postgres` (without project ref) for direct connection
 - ⚠️ **DNS Issues:** If pooler hostname doesn't resolve, check Supabase Dashboard to verify pooler is enabled
@@ -633,10 +636,20 @@ CLOUDINARY_API_SECRET="[From Cloudinary Dashboard]"
 
 #### Google Services (Optional but Recommended)
 ```env
-NEXT_PUBLIC_GA_MEASUREMENT_ID="G-XXXXXXXXXX"
-NEXT_PUBLIC_RECAPTCHA_SITE_KEY="6LdXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
-RECAPTCHA_SECRET_KEY="[From Google reCAPTCHA Admin]"
+# Analytics – use one; GTM loads GA via container
+NEXT_PUBLIC_GOOGLE_ANALYTICS_ID="G-8WGHN47VLM"
+# or NEXT_PUBLIC_GA_MEASUREMENT_ID="G-8WGHN47VLM"
+
+# reCAPTCHA v3 (contact forms)
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY="[From recaptcha.admin.google.com]"
+RECAPTCHA_SECRET_KEY="[From recaptcha.admin.google.com]"
+
+# YouTube (video gallery /galleries/videos)
+NEXT_PUBLIC_YOUTUBE_API_KEY="[From Google Cloud Console]"
+# Optional: NEXT_PUBLIC_YOUTUBE_CHANNEL_ID="@stylishentertainment937"
 ```
+
+**GTM:** Google Tag Manager container GTM-WB3F6V7 is loaded via `components/GoogleTagManager.tsx`. GA4 events (e.g. form_submission on thank-you page) are configured in GTM. See `GTM_CONTAINER_QUALITY_FIX.md`.
 
 #### Google Places API (Optional)
 ```env
@@ -702,18 +715,24 @@ NODE_ENV="development"
 NEXT_PUBLIC_DEBUG=true
 
 # ============================================
-# YOUTUBE API
+# YOUTUBE API (video gallery)
 # ============================================
 
-NEXT_PUBLIC_YOUTUBE_API_KEY=AIzaSyAvy1Ws_I-_xMw-6_Bk4jrwk5_eRlkIj18
-# Optional: Use Channel ID (starts with UC...) instead of handle
-# NEXT_PUBLIC_YOUTUBE_CHANNEL_ID=UCXXXXXXXXXXXXXXXXXXXXXXXXX
+NEXT_PUBLIC_YOUTUBE_API_KEY=AIzaSy...
+# Optional: NEXT_PUBLIC_YOUTUBE_CHANNEL_ID=@stylishentertainment937
+
+# ============================================
+# GOOGLE RECAPTCHA (contact forms)
+# ============================================
+
+NEXT_PUBLIC_RECAPTCHA_SITE_KEY=6Lc...
+RECAPTCHA_SECRET_KEY=6Lc...
 
 # ============================================
 # EMAIL (Resend)
 # ============================================
 
-RESEND_API_KEY=re_3zKmJ2nA_DVCha2ZoeW7m3Kb34L9f7wns
+RESEND_API_KEY=re_xxxxx
 ```
 
 **Important Notes:**
@@ -1626,8 +1645,18 @@ git push origin main           # Deploy to Vercel (auto)
 4. **Test backups regularly**
 5. **Keep this document updated**
 
+### Related Documentation
+
+- **CURSOR_CONTEXT.md** – Agent familiarisation, tech stack, conventions
+- **GTM_CONTAINER_QUALITY_FIX.md** – GTM setup, Google tag, conversion triggers
+- **YOUTUBE_LIVE_TROUBLESHOOTING.md** – YouTube API on production
+- **COOKIEYES_GTM_403_FIX.md** – CookieYes 403 when loaded via GTM
+- **PAGE_SPEED_MOBILE_NOTES.md** – Mobile performance optimisations
+- **ADMIN_401_LIVE.md** – Admin 401 Unauthorized troubleshooting
+
 ### Version History
 
+- **v1.5** (January 2026) - Added GTM, CookieYes, YouTube API, reCAPTCHA; updated env vars; added related doc references
 - **v1.4** (January 28, 2026) - Build config alignment (Webpack, no Turbopack):
   - `next.config.js`: Explicit `webpack: (config) => config`; no `turbo` or `experimental.turbo`
   - `experimental.serverSourceMaps: false` only (removed webpackBuildWorker, server minification overrides)
