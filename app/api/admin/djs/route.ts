@@ -48,11 +48,17 @@ export async function GET(request: NextRequest) {
       orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
     });
 
-    // Fix Cloudinary URLs for all DJs to ensure they work with the resize transformation
-    const djsWithFixedUrls = djs.map(dj => ({
-      ...dj,
-      imageUrl: fixCloudinaryUrlForDisplay(dj.imageUrl),
-    }));
+    // Fix Cloudinary URLs for display; guard against non-string imageUrl
+    const djsWithFixedUrls = djs.map(dj => {
+      const url = dj.imageUrl != null && typeof dj.imageUrl === "string" ? dj.imageUrl : null;
+      let imageUrl: string | null = null;
+      try {
+        imageUrl = fixCloudinaryUrlForDisplay(url);
+      } catch {
+        imageUrl = url;
+      }
+      return { ...dj, imageUrl };
+    });
 
     return NextResponse.json({ djs: djsWithFixedUrls });
   } catch (error) {

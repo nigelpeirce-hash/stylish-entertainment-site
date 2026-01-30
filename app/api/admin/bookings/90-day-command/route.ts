@@ -79,6 +79,7 @@ export async function GET(request: NextRequest) {
             },
             take: 1, // Only need to know if any exist, not all of them
           },
+          NewEnquiry: { select: { id: true } },
         },
         orderBy: {
           eventDate: 'asc'
@@ -103,6 +104,7 @@ export async function GET(request: NextRequest) {
               staff: true
             }
           },
+          NewEnquiry: { select: { id: true } },
         },
         orderBy: {
           eventDate: 'asc'

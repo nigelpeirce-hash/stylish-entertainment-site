@@ -47,20 +47,22 @@ export function trackEvent(
 
 /**
  * Track enquiry form completion - CONVERSION EVENT
- * Uses existing GA4 event name: Form_Submission
+ * Fires Form_Submission (custom) and generate_lead (GA4 recommended – mark as Key event in GA4 Admin)
  */
 export function trackEnquiryComplete(params: {
   eventType?: string;
   eventDate?: string;
   source?: string;
 }) {
-  // Fire the existing event name that's already set up as a key event
-  trackEvent('Form_Submission', {
+  const payload = {
     event_category: 'enquiry',
     event_type: params.eventType || 'general',
     event_date: params.eventDate,
     source: params.source || 'contact_form',
-  });
+  };
+  trackEvent('Form_Submission', payload);
+  // GA4 recommended event – in GA4 Admin → Events → mark "generate_lead" as Key event to see conversions
+  trackEvent('generate_lead', { ...payload, method: params.source || 'contact_form' });
 }
 
 /**

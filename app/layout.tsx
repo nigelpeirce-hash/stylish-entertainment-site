@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Raleway, Bebas_Neue, Dancing_Script, Playfair_Display } from "next/font/google";
 import Script from "next/script";
 import { Suspense } from "react";
+import { headers } from "next/headers";
 import "./globals.css";
 
 /** Avoid static prerender for app; framer-motion triggers useState-null during prerender. */
@@ -112,11 +113,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname") ?? "";
+  const isHome = pathname === "/" || pathname === "";
+
   return (
     <html lang="en" className={`${raleway.variable} ${bebasNeue.variable} ${dancingScript.variable} ${playfairDisplay.variable}`}>
       <head>
@@ -124,12 +129,15 @@ export default function RootLayout({
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        {/* Homepage LCP: preload first hero slider image so it starts before JS (saves ~200ms+ on mobile) */}
-        <link
-          rel="preload"
-          as="image"
-          href="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto,w_1080/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg"
-        />
+        {/* Homepage-only LCP preload (avoids "preloaded but not used" on admin/other pages) */}
+        {isHome && (
+          <link
+            rel="preload"
+            as="image"
+            href="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_60,dpr_auto,w_1080/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg"
+            fetchPriority="high"
+          />
+        )}
       </head>
       <body className="relative min-h-screen" style={{
         background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
@@ -206,8 +214,8 @@ export default function RootLayout({
           <ErrorBoundaryWrapper>
             <div className="relative z-10 block">
               <main className="min-h-screen">{children}</main>
-              {/* Site-wide CTA disabled for now. To restore: import SiteWideCTA + add <SiteWideCTA /> here. */}
-              <Footer />
+              {/* No marketing footer on admin – Command Center only */}
+              {!pathname.startsWith("/admin") && <Footer />}
             </div>
           </ErrorBoundaryWrapper>
         </Providers>

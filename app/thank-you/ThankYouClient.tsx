@@ -6,6 +6,7 @@ import { CheckCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import UpdateEnquiryForm from "./UpdateEnquiryForm";
+import { trackEnquiryComplete } from "@/lib/analytics";
 
 export default function ThankYouClient() {
   const [bookingId, setBookingId] = useState<string | null>(null);
@@ -17,6 +18,19 @@ export default function ThankYouClient() {
     const storedBookingId = sessionStorage.getItem("recentBookingId");
     const storedEmail = sessionStorage.getItem("recentBookingEmail");
     const storedTimestamp = sessionStorage.getItem("recentBookingTimestamp");
+    const storedEventType = sessionStorage.getItem("recentEventType");
+
+    // Fire conversion once when landing from form submit (gtag is loaded by then; avoids missing event on fast submit)
+    const conversionFired = sessionStorage.getItem("thank_you_conversion_fired");
+    const justSubmitted = storedTimestamp && !conversionFired;
+    if (justSubmitted) {
+      const timestamp = parseInt(storedTimestamp, 10);
+      const secondsAgo = (Date.now() - timestamp) / 1000;
+      if (secondsAgo < 60) {
+        trackEnquiryComplete({ eventType: storedEventType || "general", source: "contact_form" });
+        sessionStorage.setItem("thank_you_conversion_fired", "1");
+      }
+    }
 
     // Only show update form if booking was submitted within last 24 hours
     if (storedBookingId && storedEmail && storedTimestamp) {

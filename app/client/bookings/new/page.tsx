@@ -151,7 +151,7 @@ export default function NewBookingPage() {
         <Card className="bg-gray-800 border-champagne-gold/30 max-w-md">
           <CardContent className="pt-6 text-center">
             <p className="text-green-400 text-lg mb-4">
-              Booking submitted successfully! Redirecting to dashboard...
+              Booking request submitted. Redirecting to dashboard...
             </p>
           </CardContent>
         </Card>

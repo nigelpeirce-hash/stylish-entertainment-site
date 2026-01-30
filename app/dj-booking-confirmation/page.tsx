@@ -209,10 +209,10 @@ export default function DJBookingConfirmationPage() {
         <Card className="bg-gray-800 border-champagne-gold/30 max-w-md">
           <CardContent className="pt-6 text-center space-y-4">
             <p className="text-green-400 text-lg">
-              Booking form submitted successfully!
+              Booking request submitted
             </p>
             <p className="text-gray-400 text-sm">
-              We will be in touch soon to confirm your booking.
+              We&apos;ll be in touch soon to confirm your booking.
             </p>
             {createAccount && !session ? (
               <p className="text-gray-300 text-sm">

@@ -9,28 +9,36 @@ import { motion } from "framer-motion";
 import {
   Mail,
   Inbox,
-  Send,
   Users,
   Calendar,
   Settings,
   RefreshCw,
-  TrendingUp,
   Clock,
   LogOut,
   Package,
   Music,
   AlertCircle,
   Database,
-  FlaskConical,
+  FileText,
+  Plus,
+  Send,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { DeveloperSettings } from "@/components/admin/DeveloperSettings";
 import AdminHelp from "@/components/AdminHelp";
 import VenueAssetUploader from "@/components/VenueAssetUploader";
 import { NewSubmissionNotifier } from "@/components/NewSubmissionNotifier";
 import { BookingIntegrityWarning } from "@/components/BookingIntegrityWarning";
 import { ConflictCountBadge } from "@/components/ConflictCountBadge";
 import { isSuperAdmin } from "@/lib/admin-permissions";
-import { Badge } from "@/components/ui/badge";
 import { AddBookingModal } from "@/components/admin/bookings/add-booking-modal";
 
 export default function AdminDashboard() {
@@ -47,9 +55,15 @@ export default function AdminDashboard() {
     urgent: 0,
     medium: 0,
   });
+  /** New Enquiries breakdown: urgent (event < 180 days OR created > 24h ago, no first touch) vs standard */
+  const [enquiryUrgentCount, setEnquiryUrgentCount] = useState(0);
+  /** Pending bookings with no first touch yet (for Send First Touch modal) */
+  const [newEnquiryBookings, setNewEnquiryBookings] = useState<any[]>([]);
   const [unreadThreads, setUnreadThreads] = useState<any[]>([]);
   const [recentThreads, setRecentThreads] = useState<any[]>([]);
   const [showNewBookingModal, setShowNewBookingModal] = useState(false);
+  const [showFirstTouchModal, setShowFirstTouchModal] = useState(false);
+  const [sendingFirstTouchId, setSendingFirstTouchId] = useState<string | null>(null);
   const [lastSynced, setLastSynced] = useState<Date | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -78,6 +92,16 @@ export default function AdminDashboard() {
       const urgent = bookings.filter((b: any) => b.priority === "urgent").length;
       const medium = bookings.filter((b: any) => b.priority === "medium").length;
       const newEnquiries = bookings.filter((b: any) => !b.lastEmailSentAt);
+      const now = new Date();
+      const twentyFourHoursMs = 24 * 60 * 60 * 1000;
+      const urgentCount = newEnquiries.filter((b: any) => {
+        const eventDate = b.eventDate ? new Date(b.eventDate) : null;
+        const createdAt = b.createdAt ? new Date(b.createdAt) : null;
+        const daysToEvent = eventDate ? (eventDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24) : 9999;
+        const createdMoreThan24hAgo = createdAt ? (now.getTime() - createdAt.getTime()) > twentyFourHoursMs : false;
+        const noFirstTouch = !b.lastEmailSentAt;
+        return daysToEvent < 180 || (createdMoreThan24hAgo && noFirstTouch);
+      }).length;
 
       setStats({
         unreadEmails: unread.length,
@@ -86,6 +110,8 @@ export default function AdminDashboard() {
         todayEvents: 0,
       });
       setPriorityStats({ urgent, medium });
+      setEnquiryUrgentCount(urgentCount);
+      setNewEnquiryBookings(newEnquiries);
       setUnreadThreads(unread.slice(0, 5));
       setRecentThreads(recent.slice(0, 5));
     } catch (error) {
@@ -258,6 +284,15 @@ export default function AdminDashboard() {
     : session?.user?.email || null;
   const isSuperAdminUser = isSuperAdmin(userEmail);
 
+  const [greetingText, setGreetingText] = useState("Welcome back");
+  useEffect(() => {
+    if (!mounted) return;
+    const hour = new Date().getHours();
+    const timeGreeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
+    const firstName = (displayName || "").split(/\s+/)[0] || displayName || "there";
+    setGreetingText(`${timeGreeting}, ${firstName}`);
+  }, [mounted, displayName]);
+
   // Show loading state - ensure consistent rendering between server and client
   if (!mounted || (status === "loading" || loading) && !devBypass) {
     return (
@@ -283,6 +318,74 @@ export default function AdminDashboard() {
           fetchStats();
         }}
       />
+      <Dialog open={showFirstTouchModal} onOpenChange={setShowFirstTouchModal}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="font-serif">Send First Touch</DialogTitle>
+            <DialogDescription>
+              Choose a booking to send the First Touch thank-you email. This will mark the enquiry as contacted and stop the red pulse on the dashboard.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 max-h-[50vh] overflow-y-auto">
+            {newEnquiryBookings.length === 0 ? (
+              <p className="text-gray-400 text-sm">No enquiries waiting for first touch.</p>
+            ) : (
+              newEnquiryBookings.map((b: any) => {
+                const eventDate = b.eventDate ? new Date(b.eventDate).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "—";
+                return (
+                  <div
+                    key={b.id}
+                    className="flex items-center justify-between gap-3 p-3 rounded-lg bg-gray-800/80 border border-gray-700"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-white truncate">{b.name}</p>
+                      <p className="text-xs text-gray-400 truncate">
+                        {b.venueName || "Venue TBC"} · {eventDate}
+                      </p>
+                    </div>
+                    <Button
+                      size="sm"
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        setSendingFirstTouchId(b.id);
+                        try {
+                          const res = await fetch(`/api/admin/bookings/${b.id}/send-first-touch`, {
+                            method: "POST",
+                            credentials: "include",
+                          });
+                          const data = await res.json().catch(() => ({}));
+                          if (res.ok && data.success) {
+                            setNewEnquiryBookings((prev) => prev.filter((x: any) => x.id !== b.id));
+                            fetchStats();
+                            if (newEnquiryBookings.length <= 1) setShowFirstTouchModal(false);
+                          } else {
+                            alert(data.error || "Failed to send First Touch email");
+                          }
+                        } catch (err) {
+                          alert("Failed to send First Touch email");
+                        } finally {
+                          setSendingFirstTouchId(null);
+                        }
+                      }}
+                      disabled={sendingFirstTouchId !== null}
+                      className="bg-champagne-gold text-black hover:bg-gold-light shrink-0"
+                    >
+                      {sendingFirstTouchId === b.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4 mr-1" />
+                          Send
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
       <div className="min-h-screen bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
         {/* Booking Integrity Warning */}
         <BookingIntegrityWarning />
@@ -294,7 +397,7 @@ export default function AdminDashboard() {
       <ConflictCountBadge />
       
       <div className="container mx-auto max-w-7xl">
-        {/* Header */}
+        {/* Header – clean greeting only; dev warning moved to DeveloperSettings */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -302,48 +405,10 @@ export default function AdminDashboard() {
         >
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <h1 className="text-4xl font-bold">
-                  {displayName?.toLowerCase().includes("ali") || viewAs === "ali" ? "Ali's Desk" : "Admin Dashboard"}
-                </h1>
-                {viewAs && (
-                  <div className="flex gap-2 items-center">
-                    <span className="text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded border border-blue-500/30">
-                      Viewing as: {viewAs === "ali" ? "Ali" : "Nigel"}
-                    </span>
-                    <Button
-                      onClick={() => {
-                        const url = new URL(window.location.href);
-                        url.searchParams.delete("view");
-                        window.location.href = url.toString();
-                      }}
-                      variant="ghost"
-                      size="sm"
-                      className="text-xs h-6 px-2 text-gray-400 hover:text-white"
-                    >
-                      Exit Demo
-                    </Button>
-                  </div>
-                )}
-              </div>
-              <p className="text-gray-400">Welcome back, {displayName}</p>
-              {devBypass && (
-                <p className="text-xs text-yellow-400 mt-1">⚠️ Development Mode - Auth Bypassed</p>
-              )}
-              {!viewAs && isSuperAdminUser && (
-                <div className="flex gap-2 mt-2">
-                  <Link href="/admin?view=ali">
-                    <Button variant="ghost" size="sm" className="text-xs h-7 px-3 text-blue-400 hover:text-blue-300 hover:bg-blue-500/10">
-                      👁️ View as Ali
-                    </Button>
-                  </Link>
-                  <Link href="/admin?view=nigel">
-                    <Button variant="ghost" size="sm" className="text-xs h-7 px-3 text-purple-400 hover:text-purple-300 hover:bg-purple-500/10">
-                      👁️ View as Nigel
-                    </Button>
-                  </Link>
-                </div>
-              )}
+              <h1 className="font-serif text-4xl font-bold text-white tracking-tight">
+                {displayName?.toLowerCase().includes("ali") || viewAs === "ali" ? "Ali's Desk" : "Admin Dashboard"}
+              </h1>
+              <p className="font-serif text-gray-400 mt-1">{greetingText}</p>
             </div>
             <div className="flex flex-wrap gap-3">
               <AdminHelp />
@@ -356,21 +421,17 @@ export default function AdminDashboard() {
                   90-Day Command Centre
                 </Button>
               </Link>
-              <div className="flex flex-col gap-2">
-                <Button
-                  onClick={handleSyncEmails}
-                  disabled={isSyncing}
-                  className="bg-champagne-gold text-black hover:bg-gold-light disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <RefreshCw className={`w-4 h-4 mr-2 ${isSyncing ? "animate-spin" : ""}`} />
-                  {isSyncing ? "Syncing..." : "Sync Emails"}
-                </Button>
-                {lastSynced && (
-                  <p className="text-xs text-gray-400 text-center">
-                    Last synced: {lastSynced.toLocaleTimeString()}
-                  </p>
-                )}
-              </div>
+              <Button
+                onClick={handleSyncEmails}
+                disabled={isSyncing}
+                className="bg-champagne-gold text-black hover:bg-gold-light disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <RefreshCw className={`w-4 h-4 mr-2 ${isSyncing ? "animate-spin" : ""}`} />
+                {isSyncing ? "Syncing..." : "Sync Emails"}
+              </Button>
+              {lastSynced && (
+                <p className="text-xs text-gray-400 self-center hidden sm:block">Last synced: {lastSynced.toLocaleTimeString()}</p>
+              )}
               <Button
                 onClick={() => signOut({ callbackUrl: "/login" })}
                 variant="outline"
@@ -383,610 +444,313 @@ export default function AdminDashboard() {
           </div>
         </motion.div>
 
-        {/* Stats Grid */}
+        {/* KPI row – 90-Day Command Centre: only these 3 high-end cards; pulse on New Enquiries */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
         >
-          <Link href="/admin/inbox">
-            <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400 mb-1">Unread Emails</p>
-                    <p className="text-3xl font-bold text-white">{stats.unreadEmails}</p>
-                  </div>
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <Mail className="w-6 h-6 text-champagne-gold" />
-                  </div>
+          <Link href="/admin/inbox" className="block">
+            <Card className="bg-gray-800/90 border border-gray-600 hover:border-champagne-gold/40 transition-all cursor-pointer h-full shadow-lg">
+              <CardContent className="p-8 flex items-center justify-between">
+                <div>
+                  <p className="font-serif text-sm uppercase tracking-widest text-gray-400 mb-2">Unread Emails</p>
+                  <p className="text-5xl font-bold text-white tabular-nums tracking-tight">{stats.unreadEmails}</p>
                 </div>
+                <Mail className="w-10 h-10 text-champagne-gold/80" />
               </CardContent>
             </Card>
           </Link>
-
-          <Link href="/admin/inbox">
-            <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-400 mb-1">Total Threads</p>
-                    <p className="text-3xl font-bold text-white">{stats.totalThreads}</p>
-                  </div>
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <Inbox className="w-6 h-6 text-champagne-gold" />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Link href="/admin/bookings?status=pending">
-            <Card className={`bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer relative overflow-hidden ${
-              stats.pendingBookings > 0 
-                ? "border-red-500 ring-4 ring-red-500/70 bg-red-950/30 animate-throb" 
-                : priorityStats.urgent > 0 
-                ? "ring-2 ring-red-500/50 animate-throb" 
-                : ""
-            }`}>
-              {/* Red flashing overlay for new enquiries */}
-              {stats.pendingBookings > 0 && (
-                <div className="absolute inset-0 bg-red-500/10 animate-throb pointer-events-none" />
-              )}
-              <CardContent className="p-6 relative z-10">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="text-sm text-gray-400">New Enquiries</p>
-                      {stats.pendingBookings > 0 && (
-                        <span className="px-2 py-0.5 bg-red-900/60 border border-red-500 rounded text-xs font-bold text-red-300 animate-throb">
-                          NEW
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <p className={`text-3xl font-bold ${
-                        stats.pendingBookings > 0 ? "text-red-300" : "text-white"
-                      }`}>
-                        {stats.pendingBookings}
-                      </p>
-                      {stats.pendingBookings > 0 && (
-                        <div className="text-red-400 animate-throb">
-                          <AlertCircle className="w-5 h-5" />
-                        </div>
-                      )}
-                    </div>
-                    {stats.pendingBookings > 0 && (
-                      <div className="flex gap-2 mt-2 flex-wrap">
-                        {priorityStats.urgent > 0 && (
-                          <span className="px-2 py-0.5 bg-red-900/60 border border-red-500/70 rounded text-xs font-bold text-red-300 animate-throb">
-                            {priorityStats.urgent} URGENT
-                          </span>
-                        )}
-                        {priorityStats.medium > 0 && (
-                          <span className="px-2 py-0.5 bg-yellow-900/40 border border-yellow-500/50 rounded text-xs font-bold text-yellow-400">
-                            {priorityStats.medium} Medium
+          <div className="block relative" title="View pending leads">
+            <Link href="/admin/bookings?status=pending" className="block">
+              <Card className={`h-full transition-all cursor-pointer relative overflow-hidden shadow-lg ${
+                stats.pendingBookings > 0
+                  ? "bg-red-950/50 border-red-500/50 ring-2 ring-red-500/20 animate-pulse"
+                  : "bg-gray-800/90 border border-gray-600 hover:border-champagne-gold/40"
+              }`}>
+                {stats.pendingBookings > 0 && (
+                  <div className="absolute inset-0 bg-red-500/5 pointer-events-none animate-pulse" />
+                )}
+                <CardContent className="p-8 relative z-10 flex flex-col">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2 flex-wrap">
+                        <p className="font-serif text-sm uppercase tracking-widest text-gray-400">New Enquiries</p>
+                        {enquiryUrgentCount > 0 && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-semibold bg-red-600/80 text-red-100 border border-red-400/50 animate-pulse">
+                            !! {enquiryUrgentCount} URGENT
                           </span>
                         )}
                       </div>
-                    )}
-                    {stats.pendingBookings > 0 && (
-                      <p className="text-xs text-red-300 mt-2 font-bold animate-throb">
-                        ⚠️ No action taken yet - Send first reply
+                      <p className={`font-serif text-5xl font-bold tabular-nums tracking-tight ${stats.pendingBookings > 0 ? "text-red-200" : "text-white"}`}>
+                        {stats.pendingBookings}
                       </p>
-                    )}
-                  </div>
-                  <div className={`p-3 rounded-lg ${
-                    stats.pendingBookings > 0 
-                      ? "bg-red-900/40 animate-throb" 
-                      : "bg-champagne-gold/20"
-                  }`}>
-                    <Calendar className={`w-6 h-6 ${
-                      stats.pendingBookings > 0 
-                        ? "text-red-300" 
-                        : "text-champagne-gold"
-                    }`} />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-
-          <Card className="bg-gray-800 border-champagne-gold/30">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-400 mb-1">Today's Events</p>
-                  <p className="text-3xl font-bold text-white">{stats.todayEvents}</p>
-                </div>
-                <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                  <Clock className="w-6 h-6 text-champagne-gold" />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Unread Emails & Recent Activity */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"
-        >
-          {/* Unread Emails */}
-          <Card className="bg-gray-800 border-champagne-gold/30">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Mail className="w-5 h-5 text-champagne-gold" />
-                  Unread Emails
-                </CardTitle>
-                <Link href="/admin/inbox?isRead=false">
-                  <Button variant="ghost" size="sm" className="text-xs text-champagne-gold hover:text-champagne-gold/80">
-                    View All
-                  </Button>
-                </Link>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {unreadThreads.length === 0 ? (
-                <p className="text-gray-400 text-sm">No unread emails</p>
-              ) : (
-                <div className="space-y-3">
-                  {unreadThreads.map((thread: any) => {
-                    const inboxName = thread.EmailInbox?.name || "Unknown";
-                    const inboxBadgeColor = inboxName.toLowerCase().includes("gmail") 
-                      ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
-                      : inboxName.toLowerCase().includes("123") || inboxName.toLowerCase().includes("reg")
-                      ? "bg-champagne-gold/20 text-champagne-gold border-champagne-gold/30"
-                      : "bg-gray-700/50 text-gray-300 border-gray-600/30";
-                    
-                    const senderName = thread.fromName || thread.fromEmail || "Unknown";
-                    const lastEmail = thread.Email?.[0];
-                    const snippet = lastEmail?.textContent 
-                      ? lastEmail.textContent.substring(0, 50).replace(/\s+/g, " ").trim() + (lastEmail.textContent.length > 50 ? "..." : "")
-                      : "No preview available";
-
-                    return (
-                      <Link 
-                        key={thread.id} 
-                        href={`/admin/inbox?threadId=${thread.id}`}
-                        className="block p-3 rounded-lg bg-gray-900/50 hover:bg-gray-900/80 border border-gray-700/50 hover:border-champagne-gold/30 transition-all"
+                      <p className="font-serif text-sm text-gray-400 mt-2">
+                        {stats.pendingBookings} waiting for first touch
+                      </p>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="mt-3 border-champagne-gold/60 text-champagne-gold hover:bg-champagne-gold/10"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setShowFirstTouchModal(true);
+                        }}
                       >
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-semibold text-white text-sm truncate">{senderName}</span>
-                              <Badge className={`text-xs ${inboxBadgeColor}`}>
-                                {inboxName}
-                              </Badge>
-                            </div>
-                            <p className="text-sm font-medium text-gray-200 truncate">{thread.subject || "No subject"}</p>
-                          </div>
-                        </div>
-                        {snippet && (
-                          <p className="text-xs text-gray-400 line-clamp-2">{snippet}</p>
-                        )}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Recent Activity */}
-          <Card className="bg-gray-800 border-champagne-gold/30">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="w-5 h-5 text-champagne-gold" />
-                  Recent Activity
-                </CardTitle>
-                <Link href="/admin/inbox">
-                  <Button variant="ghost" size="sm" className="text-xs text-champagne-gold hover:text-champagne-gold/80">
-                    View All
-                  </Button>
-                </Link>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {recentThreads.length === 0 ? (
-                <p className="text-gray-400 text-sm">No recent activity</p>
-              ) : (
-                <div className="space-y-3">
-                  {recentThreads.map((thread: any) => {
-                    const inboxName = thread.EmailInbox?.name || "Unknown";
-                    const inboxBadgeColor = inboxName.toLowerCase().includes("gmail") 
-                      ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
-                      : inboxName.toLowerCase().includes("123") || inboxName.toLowerCase().includes("reg")
-                      ? "bg-champagne-gold/20 text-champagne-gold border-champagne-gold/30"
-                      : "bg-gray-700/50 text-gray-300 border-gray-600/30";
-                    
-                    const senderName = thread.fromName || thread.fromEmail || "Unknown";
-                    const lastEmail = thread.Email?.[0];
-                    const snippet = lastEmail?.textContent 
-                      ? lastEmail.textContent.substring(0, 50).replace(/\s+/g, " ").trim() + (lastEmail.textContent.length > 50 ? "..." : "")
-                      : "No preview available";
-
-                    return (
-                      <Link 
-                        key={thread.id} 
-                        href={`/admin/inbox?threadId=${thread.id}`}
-                        className="block p-3 rounded-lg bg-gray-900/50 hover:bg-gray-900/80 border border-gray-700/50 hover:border-champagne-gold/30 transition-all"
-                      >
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-semibold text-white text-sm truncate">{senderName}</span>
-                              <Badge className={`text-xs ${inboxBadgeColor}`}>
-                                {inboxName}
-                              </Badge>
-                            </div>
-                            <p className="text-sm font-medium text-gray-200 truncate">{thread.subject || "No subject"}</p>
-                          </div>
-                        </div>
-                        {snippet && (
-                          <p className="text-xs text-gray-400 line-clamp-2">{snippet}</p>
-                        )}
-                      </Link>
-                    );
-                  })}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </motion.div>
-
-        {/* Main Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="mb-12"
-        >
-          <h2 className="text-2xl font-bold mb-6">Main Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Link href="/admin/90-day-command">
-              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <TrendingUp className="w-6 h-6 text-champagne-gold" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">90-Day Command Centre</h3>
-                    <p className="text-sm text-gray-400">Upcoming events & status tracking</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/admin/bookings">
-              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <Calendar className="w-6 h-6 text-champagne-gold" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Manage Bookings</h3>
-                    <p className="text-sm text-gray-400">View and manage all bookings</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/admin/orders">
-              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <Package className="w-6 h-6 text-champagne-gold" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Hire Orders</h3>
-                    <p className="text-sm text-gray-400">View and manage orders</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/admin/staff-management">
-              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <Users className="w-6 h-6 text-champagne-gold" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Staff Management</h3>
-                    <p className="text-sm text-gray-400">Team directory & contact info</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/admin/email-demo">
-              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <Mail className="w-6 h-6 text-champagne-gold" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Email Templates</h3>
-                    <p className="text-sm text-gray-400">Preview all email templates</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/admin/sandbox/book-from-quote">
-              <Card className="bg-gray-800 border-amber-500/30 hover:border-amber-500/60 transition-all cursor-pointer h-full">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-amber-500/20 rounded-lg">
-                    <FlaskConical className="w-6 h-6 text-amber-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Book-from-Quote sandbox</h3>
-                    <p className="text-sm text-gray-400">Generate test links for quote confirmation flow</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/admin/sandbox/client-portal">
-              <Card className="bg-gray-800 border-amber-500/30 hover:border-amber-500/60 transition-all cursor-pointer h-full">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-amber-500/20 rounded-lg">
-                    <FlaskConical className="w-6 h-6 text-amber-400" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Client portal sandbox</h3>
-                    <p className="text-sm text-gray-400">Generate magic-link to test client portal (music, final details)</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            {isSuperAdminUser && (
-              <Link href="/admin/users">
-                <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                  <CardContent className="p-6 flex items-center gap-4">
-                    <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                      <Users className="w-6 h-6 text-champagne-gold" />
+                        <Send className="w-4 h-4 mr-1.5" />
+                        Send First Touch
+                      </Button>
                     </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white">User Management</h3>
-                      <p className="text-sm text-gray-400">Manage users and roles</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            )}
-
-            <Link href="/admin/inbox">
-              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <Inbox className="w-6 h-6 text-champagne-gold" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-lg font-semibold text-white">Email Inbox</h3>
-                    <p className="text-sm text-gray-400">View and manage emails</p>
-                    <p className="text-xs text-yellow-400 mt-1">
-                      💡 Configure inboxes in Settings first
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/admin/hire-items">
-              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <Package className="w-6 h-6 text-champagne-gold" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Hire Shop Items</h3>
-                    <p className="text-sm text-gray-400">Manage products & pricing</p>
+                    <AlertCircle className={`w-10 h-10 flex-shrink-0 ${stats.pendingBookings > 0 ? "text-red-400/90" : "text-champagne-gold/80"}`} />
                   </div>
                 </CardContent>
               </Card>
             </Link>
           </div>
+          <div>
+            <Card className="bg-gray-800/90 border border-gray-600 h-full shadow-lg">
+              <CardContent className="p-8 flex items-center justify-between">
+                <div>
+                  <p className="font-serif text-sm uppercase tracking-widest text-gray-400 mb-2">Today&apos;s Events</p>
+                  <p className="text-5xl font-bold text-white tabular-nums tracking-tight">{stats.todayEvents}</p>
+                </div>
+                <Clock className="w-10 h-10 text-champagne-gold/80" />
+              </CardContent>
+            </Card>
+          </div>
         </motion.div>
 
-        {/* Additional Tools */}
+        {/* Main Actions – three strategic columns: Daily Ops, The Talent, Inventory & Assets */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="mb-12"
+          transition={{ delay: 0.15 }}
+          className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12"
         >
-          <h2 className="text-2xl font-bold mb-6">Additional Tools</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Daily Ops */}
+          <div>
+            <h2 className="font-serif text-lg font-semibold text-gray-300 uppercase tracking-widest mb-4">Daily Ops</h2>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowNewBookingModal(true)}
+              className="w-full mb-3 border-amber-500/50 text-amber-200/90 hover:bg-amber-500/10 hover:border-amber-400/60 hover:text-amber-100 font-medium transition-all"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Quick Action: New Booking
+            </Button>
+            <div className="space-y-3">
+              <Link href="/admin/bookings">
+                <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <Calendar className="w-5 h-5 text-champagne-gold/80" />
+                    <div>
+                      <h3 className="font-medium text-white">Manage Bookings</h3>
+                      <p className="text-xs text-gray-400">View and manage all bookings</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+              <Link href="/admin/inbox">
+                <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <Inbox className="w-5 h-5 text-champagne-gold/80" />
+                    <div>
+                      <h3 className="font-medium text-white">Email Inbox</h3>
+                      <p className="text-xs text-gray-400">{stats.unreadEmails} unread</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+              <Card
+                className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer"
+                onClick={() => setShowNewBookingModal(true)}
+              >
+                <CardContent className="p-4 flex items-center gap-3">
+                  <Calendar className="w-5 h-5 text-champagne-gold/80" />
+                  <div>
+                    <h3 className="font-medium text-white">New Booking</h3>
+                    <p className="text-xs text-gray-400">Create a new booking entry</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* The Talent */}
+          <div>
+            <h2 className="font-serif text-lg font-semibold text-gray-300 uppercase tracking-widest mb-4">The Talent</h2>
+            <div className="space-y-3">
+              <Link href="/admin/djs">
+                <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <Music className="w-5 h-5 text-champagne-gold/80" />
+                    <div>
+                      <h3 className="font-medium text-white">DJs</h3>
+                      <p className="text-xs text-gray-400">Manage DJ profiles</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+              <Link href="/admin/musicians">
+                <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <Music className="w-5 h-5 text-champagne-gold/80" />
+                    <div>
+                      <h3 className="font-medium text-white">Musicians</h3>
+                      <p className="text-xs text-gray-400">Manage musician profiles</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+              <Link href="/admin/staff-management">
+                <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <Users className="w-5 h-5 text-champagne-gold/80" />
+                    <div>
+                      <h3 className="font-medium text-white">Staff Management</h3>
+                      <p className="text-xs text-gray-400">Team directory and contact info</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
+          </div>
+
+          {/* Inventory & Assets – Hire Shop, Venue Brochures, Email Templates; Venue Upload at bottom */}
+          <div>
+            <h2 className="font-serif text-lg font-semibold text-gray-300 uppercase tracking-widest mb-4">Inventory & Assets</h2>
+            <div className="space-y-3">
+              <Link href="/admin/hire-items">
+                <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <Package className="w-5 h-5 text-champagne-gold/80" />
+                    <div>
+                      <h3 className="font-medium text-white">Hire Shop</h3>
+                      <p className="text-xs text-gray-400">Manage products and pricing</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+              <Link href="/admin/email-templates">
+                <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <FileText className="w-5 h-5 text-champagne-gold/80" />
+                    <div>
+                      <h3 className="font-medium text-white">Email Templates</h3>
+                      <p className="text-xs text-gray-400">Manage email templates</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+              <Link href="/admin/orders">
+                <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <Package className="w-5 h-5 text-champagne-gold/80" />
+                    <div>
+                      <h3 className="font-medium text-white">Hire Orders</h3>
+                      <p className="text-xs text-gray-400">View and manage orders</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </div>
+            {/* Venue Upload at bottom of column so it doesn't dominate the center */}
+            <div className="mt-6 pt-6 border-t border-gray-700">
+              <p className="font-serif text-sm font-medium text-gray-400 uppercase tracking-widest mb-3">Upload Venue Brochure</p>
+              <Card className="bg-gray-800/80 border border-gray-700">
+                <CardContent className="p-4">
+                  <VenueAssetUploader />
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* DeveloperSettings – Auth Bypassed warning + dev tools; hidden unless toggled */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="mb-8"
+        >
+          <DeveloperSettings authBypassed={!!devBypass}>
             {isSuperAdminUser && (
               <>
-                <Link href="/admin/settings">
-                  <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                    <CardContent className="p-6 flex items-center gap-4">
-                      <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                        <Settings className="w-6 h-6 text-champagne-gold" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-white">Settings</h3>
-                        <p className="text-sm text-gray-400">Configure email inboxes</p>
-                        <p className="text-xs text-blue-400 mt-1">
-                          ⚙️ Test connections & sync emails
-                        </p>
+                <Link href="/admin/db-audit">
+                  <Card className="bg-gray-800 border border-gray-600 hover:border-gray-500 transition-all cursor-pointer h-full">
+                    <CardContent className="p-4 flex items-center gap-3">
+                      <Database className="w-5 h-5 text-indigo-400" />
+                      <div>
+                        <h3 className="font-medium text-white text-sm">Database Audit</h3>
+                        <p className="text-xs text-gray-400">Compare schema with Supabase</p>
                       </div>
                     </CardContent>
                   </Card>
                 </Link>
                 <Link href="/admin/email-audit">
-                  <Card className="bg-gray-800 border-purple-500/30 hover:border-purple-500/60 transition-all cursor-pointer h-full">
-                    <CardContent className="p-6 flex items-center gap-4">
-                      <div className="p-3 bg-purple-500/20 rounded-lg">
-                        <Mail className="w-6 h-6 text-purple-400" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-white">Email Audit</h3>
-                        <p className="text-sm text-gray-400">Diagnose email sync issues</p>
-                        <p className="text-xs text-purple-400 mt-1">
-                          🔍 Check server vs database stats
-                        </p>
+                  <Card className="bg-gray-800 border border-gray-600 hover:border-gray-500 transition-all cursor-pointer h-full">
+                    <CardContent className="p-4 flex items-center gap-3">
+                      <Mail className="w-5 h-5 text-purple-400" />
+                      <div>
+                        <h3 className="font-medium text-white text-sm">Email Audit</h3>
+                        <p className="text-xs text-gray-400">Diagnose email sync issues</p>
                       </div>
                     </CardContent>
                   </Card>
                 </Link>
-                <Link href="/admin/db-audit">
-                  <Card className="bg-gray-800 border-indigo-500/30 hover:border-indigo-500/60 transition-all cursor-pointer h-full">
-                    <CardContent className="p-6 flex items-center gap-4">
-                      <div className="p-3 bg-indigo-500/20 rounded-lg">
-                        <Database className="w-6 h-6 text-indigo-400" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-white">Database Audit</h3>
-                        <p className="text-sm text-gray-400">Compare schema with Supabase</p>
-                        <p className="text-xs text-indigo-400 mt-1">
-                          🔍 Verify all fields exist
-                        </p>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-                {(process.env.NODE_ENV === "development" || typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")) && (
+                {(process.env.NODE_ENV === "development" || (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"))) && (
                   <Link href="/admin/dev-bypass-toggle">
-                    <Card className="bg-gray-800 border-yellow-500/30 hover:border-yellow-500/60 transition-all cursor-pointer h-full">
-                      <CardContent className="p-6 flex items-center gap-4">
-                        <div className="p-3 bg-yellow-500/20 rounded-lg">
-                          <AlertCircle className="w-6 h-6 text-yellow-400" />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="text-lg font-semibold text-white">Dev Bypass Toggle</h3>
-                          <p className="text-sm text-gray-400">Enable/disable auth bypass</p>
-                          <p className="text-xs text-yellow-400 mt-1">
-                            ⚠️ Development only
-                          </p>
+                    <Card className="bg-gray-800 border border-gray-600 hover:border-gray-500 transition-all cursor-pointer h-full">
+                      <CardContent className="p-4 flex items-center gap-3">
+                        <AlertCircle className="w-5 h-5 text-yellow-400" />
+                        <div>
+                          <h3 className="font-medium text-white text-sm">Dev Bypass</h3>
+                          <p className="text-xs text-gray-400">Enable or disable auth bypass</p>
                         </div>
                       </CardContent>
                     </Card>
                   </Link>
                 )}
+                <Link href="/admin/hire-items/seed">
+                  <Card className="bg-gray-800 border border-gray-600 hover:border-gray-500 transition-all cursor-pointer h-full">
+                    <CardContent className="p-4 flex items-center gap-3">
+                      <Package className="w-5 h-5 text-champagne-gold/80" />
+                      <div>
+                        <h3 className="font-medium text-white text-sm">Seed Hire Items</h3>
+                        <p className="text-xs text-gray-400">Create initial hire items</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+                <Link href="/admin/users">
+                  <Card className="bg-gray-800 border border-gray-600 hover:border-gray-500 transition-all cursor-pointer h-full">
+                    <CardContent className="p-4 flex items-center gap-3">
+                      <Users className="w-5 h-5 text-champagne-gold/80" />
+                      <div>
+                        <h3 className="font-medium text-white text-sm">User Management</h3>
+                        <p className="text-xs text-gray-400">Manage users and roles</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+                <Link href="/admin/settings">
+                  <Card className="bg-gray-800 border border-gray-600 hover:border-gray-500 transition-all cursor-pointer h-full">
+                    <CardContent className="p-4 flex items-center gap-3">
+                      <Settings className="w-5 h-5 text-champagne-gold/80" />
+                      <div>
+                        <h3 className="font-medium text-white text-sm">Settings</h3>
+                        <p className="text-xs text-gray-400">Configure email inboxes</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               </>
             )}
-
-            <Link href="/admin/email-templates">
-              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <Mail className="w-6 h-6 text-champagne-gold" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Email Templates</h3>
-                    <p className="text-sm text-gray-400">Manage email templates</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/admin/emails">
-              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <Send className="w-6 h-6 text-champagne-gold" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Email Journey</h3>
-                    <p className="text-sm text-gray-400">Preview customer lifecycle emails</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/admin/djs">
-              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <Music className="w-6 h-6 text-champagne-gold" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">DJs</h3>
-                    <p className="text-sm text-gray-400">Manage DJ profiles</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/admin/musicians">
-              <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <Music className="w-6 h-6 text-champagne-gold" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">Musicians</h3>
-                    <p className="text-sm text-gray-400">Manage musician profiles</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          </div>
-        </motion.div>
-
-        {/* Utility Tools - SuperAdmin Only */}
-        {isSuperAdminUser && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="mb-8"
-          >
-            <h2 className="text-2xl font-bold mb-6">Utility Tools</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Link href="/admin/hire-items/seed">
-                <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
-                  <CardContent className="p-6 flex items-center gap-4">
-                    <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                      <Package className="w-6 h-6 text-champagne-gold" />
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white">Seed Hire Items</h3>
-                      <p className="text-sm text-gray-400">Create initial hire items</p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-
-              <Card 
-                className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full"
-                onClick={() => setShowNewBookingModal(true)}
-              >
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className="p-3 bg-champagne-gold/20 rounded-lg">
-                    <Calendar className="w-6 h-6 text-champagne-gold" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-semibold text-white">New Booking</h3>
-                    <p className="text-sm text-gray-400">Create a new booking entry</p>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </motion.div>
-        )}
-
-        {/* Venue Asset Uploader */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mb-8"
-        >
-          <h2 className="text-xl font-bold mb-4">Venue Assets</h2>
-          <div className="max-w-xl">
-            <VenueAssetUploader />
-          </div>
+          </DeveloperSettings>
         </motion.div>
       </div>
     </div>

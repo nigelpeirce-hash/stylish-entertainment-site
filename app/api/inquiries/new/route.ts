@@ -17,7 +17,7 @@ const getResend = () => {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, phoneAreaCode, phoneNumber, eventDate, venuePostcode, eventType } = body;
+    const { name, email, phoneAreaCode, phoneNumber, eventDate, venuePostcode, eventType, message } = body;
 
     // Validate required fields
     if (!name || !email || !eventDate || !venuePostcode) {
@@ -70,6 +70,7 @@ export async function POST(request: NextRequest) {
         email,
         phoneAreaCode: phoneAreaCode || null,
         phoneNumber: phoneNumber || null,
+        message: message && String(message).trim() ? String(message).trim() : null,
         eventDate: parsedEventDate,
         venuePostcode: normalizedPostcode,
         eventType: eventType || null, // Store event type from form
@@ -77,6 +78,7 @@ export async function POST(request: NextRequest) {
         originalBookingId: existingBooking?.id || null,
         conflictDetectedAt: existingBooking ? new Date() : null,
         status: "new",
+        updatedAt: new Date(),
       },
     });
 

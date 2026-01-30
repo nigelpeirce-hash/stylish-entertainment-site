@@ -25,7 +25,26 @@ DATABASE_URL="postgresql://postgres.PROJECT_REF:PASSWORD@aws-1-eu-west-1.pooler.
 
 Use your real project ref, password, and region (e.g. `aws-1-eu-west-1`). Get the exact host from **Supabase Dashboard → Settings → Database → Connection string → URI**, then switch the port to **6543** and add `&pgbouncer=true`.
 
-### 2. Restart the dev server
+### 2. Update `DATABASE_URL` in Vercel (production)
+
+The 500s on live (e.g. `/api/admin/djs/`, `/api/admin/musicians/`) are from the same limit. Update the env var in Vercel:
+
+1. **Vercel Dashboard** → your project → **Settings** → **Environment Variables**
+2. Find **DATABASE_URL**
+3. Change the URL so that:
+   - Port is **6543** (not 5432)
+   - Query string includes **pgbouncer=true** and **sslmode=no-verify**
+
+**Example (replace PROJECT_REF and PASSWORD):**
+```env
+DATABASE_URL="postgresql://postgres.PROJECT_REF:PASSWORD@aws-1-eu-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true&sslmode=no-verify"
+```
+
+4. **Redeploy** (e.g. trigger a new deployment or push a commit) so the new value is used.
+
+One change fixes all DB-backed routes (admin DJs, musicians, bookings, etc.). No code changes needed.
+
+### 3. Restart the dev server (local)
 
 ```bash
 # Stop the server (Ctrl+C), then:

@@ -46,6 +46,7 @@ const BOOKING_INCLUDE = {
       { WarehouseItem: { name: "asc" } },
     ],
   },
+  NewEnquiry: { select: { id: true } },
 } as const;
 
 function prismaErrorPayload(error: unknown): { error: string; prismaCode?: string; prismaMessage?: string; prismaMeta?: unknown } {

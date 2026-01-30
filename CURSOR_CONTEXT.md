@@ -2,7 +2,7 @@
 
 Agent familiarisation for the Stylish Entertainment website project.
 
-**Last updated:** January 2026
+**Last updated:** January 30, 2026
 
 ---
 
@@ -10,6 +10,7 @@ Agent familiarisation for the Stylish Entertainment website project.
 
 - **Dev:** `npm run dev` → Next.js on port 3001 with Turbopack
 - **Build:** `npm run build` → `next build` (no extra flags)
+- **Deploy:** Commit changes, then `git push`; Vercel builds from repo. Run `npm run build` locally first to verify.
 - **Production builds** use Webpack (see `next.config.js` webpack config)
 - TypeScript strict; build errors ignored in config for flexibility
 - **Root layout** has `export const dynamic = "force-dynamic"` (framer-motion prerender workaround; affects performance)
@@ -47,8 +48,9 @@ Agent familiarisation for the Stylish Entertainment website project.
 
 ### Components (`/components`)
 - Shared UI, forms, admin components
-- **CookieYes.tsx** – consent banner (delayed 2.5s for LCP)
+- **CookieYes.tsx** – consent banner (delayed 2.5s for LCP); injects contrast-override `<style>` after load for WCAG AA. Contrast rules also in `app/globals.css`.
 - **GoogleTagManager.tsx**, **GoogleAnalytics.tsx** – analytics
+- **ui/slider.tsx** – hero slider; dot buttons use 48×48px min touch target for accessibility
 
 ### Data (`/data`)
 - `reviews.ts`, `testimonials.ts` – static content
@@ -120,6 +122,15 @@ See `.env.local.example` and `DISASTER_RECOVERY_GUIDE.md` for full list.
 
 - **Blog pages:** Server `page.tsx` + client wrapper in `components/blog/` (framer-motion, lightbox)
 - **Prisma:** Singleton in `lib/prisma.ts`; use pooler for app, direct for CLI
-- **Images:** Next/Image + Cloudinary URLs; `next.config.js` remote patterns
-- **Cookies:** CookieYes not loaded on `/admin` or localhost
+- **Images:** Next/Image + Cloudinary URLs; `next.config.js` remote patterns. Homepage: LCP hero uses preload URL (w_640,q_60) and `unoptimized`; `smallerCloudinaryUrl()` for below-fold (services, team); `sliderCloudinaryUrl()` for non-LCP slider images.
+- **Cookies:** CookieYes not loaded on `/admin` or localhost; contrast overrides in globals.css + injected style after load
 - **GTM:** Container GTM-WB3F6V7; GA4 Measurement ID G-8WGHN47VLM
+
+---
+
+## Performance & PageSpeed
+
+- **Layout:** LCP preload in `<head>` (hero image w_640,q_60, fetchPriority high). Preconnect/dns-prefetch to Cloudinary. Fonts: Raleway swap+preload; Bebas, Dancing Script, Playfair optional, no preload.
+- **Homepage (`app/page.tsx`):** Hero section is static (no framer-motion). First slider image matches preload URL; other slider images use `sliderCloudinaryUrl()` (w_1080,q_60). Services/team use `smallerCloudinaryUrl()` (w_800,q_60).
+- **Cache:** `next.config.js` sets long-lived Cache-Control for static assets (svg, png, ico, jpg, jpeg, webp).
+- **Scores (as of Jan 2026):** Desktop ~98 Performance, 100 Accessibility/Best Practices/SEO; Mobile ~83 Performance, 100 elsewhere. Further gains: render blocking (~460ms mobile), unused JS/CSS, long main-thread tasks.

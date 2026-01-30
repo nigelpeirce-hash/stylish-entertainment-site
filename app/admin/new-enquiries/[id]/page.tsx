@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, ArrowLeft, User, Mail, Phone, Calendar, MapPin, CheckCircle2, Clock, Package } from "lucide-react";
+import { AlertTriangle, ArrowLeft, User, Mail, Phone, Calendar, MapPin, CheckCircle2, Clock, Package, MessageSquare, FileText } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -23,6 +23,7 @@ interface NewEnquiry {
   email: string;
   phoneAreaCode: string | null;
   phoneNumber: string | null;
+  message: string | null;
   eventDate: string;
   venuePostcode: string;
   venueName: string | null;
@@ -133,6 +134,15 @@ export default function NewEnquiryDetail() {
           </Button>
         </Link>
 
+        {/* Workflow hint */}
+        <div className="flex items-center gap-3 p-4 rounded-lg bg-champagne-gold/10 border border-champagne-gold/30 text-gray-200 text-sm">
+          <FileText className="w-5 h-5 text-champagne-gold flex-shrink-0" />
+          <div>
+            <span className="font-semibold text-champagne-gold">Flow: </span>
+            See what they want below → Convert to booking → Build & send quote on the booking.
+          </div>
+        </div>
+
         {/* Conflict Warning Banner */}
         {enquiry.isConflict && (
           <motion.div
@@ -205,6 +215,23 @@ export default function NewEnquiryDetail() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* What they want / Client message – prominent first */}
+            <div>
+              <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-champagne-gold" />
+                What they want
+              </h3>
+              {enquiry.message && enquiry.message.trim() ? (
+                <div className="p-4 rounded-lg bg-champagne-gold/10 border border-champagne-gold/30 text-white whitespace-pre-wrap">
+                  {enquiry.message.trim()}
+                </div>
+              ) : (
+                <div className="p-4 rounded-lg bg-gray-700/50 border border-dashed border-gray-600 text-gray-400 italic">
+                  No message from client. They didn’t say what they need (e.g. DJ, lighting, other items). You can add notes on the booking after converting.
+                </div>
+              )}
+            </div>
+
             {/* Contact Information */}
             <div>
               <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
@@ -374,7 +401,7 @@ export default function NewEnquiryDetail() {
                 }}
                 className="bg-champagne-gold text-black hover:bg-champagne-gold/90"
               >
-                Convert to Booking
+                Convert to booking & build quote
               </Button>
               <Button
                 variant="outline"

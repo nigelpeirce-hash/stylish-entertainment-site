@@ -19,7 +19,6 @@ import { formSchema, type FormData, eventTypeOptions, djOptions, upsellOptions }
 import DJSelectionModal from "@/components/DJSelectionModal";
 import { AnimatePresence } from "framer-motion";
 import { VenueAutocomplete } from "@/components/VenueAutocomplete";
-import { trackEnquiryComplete } from "@/lib/analytics";
 
 // Load Google reCAPTCHA v3
 declare global {
@@ -164,18 +163,12 @@ export default function ContactForm() {
 
       // Redirect to thank-you page on success (status 200)
       if (response.status === 200) {
-        // Track conversion in Google Analytics
-        trackEnquiryComplete({
-          eventType: data.eventType,
-          eventDate: data.eventDate,
-          source: 'contact_form',
-        });
-        
-        // Store booking details in sessionStorage for thank-you page
+        // Always set timestamp and event type so thank-you page can fire conversion (gtag is loaded by then)
+        sessionStorage.setItem("recentBookingTimestamp", Date.now().toString());
+        sessionStorage.setItem("recentEventType", data.eventType || "general");
         if (result.bookingId) {
           sessionStorage.setItem("recentBookingId", result.bookingId);
           sessionStorage.setItem("recentBookingEmail", data.email);
-          sessionStorage.setItem("recentBookingTimestamp", Date.now().toString());
         }
         router.push("/thank-you/");
       }

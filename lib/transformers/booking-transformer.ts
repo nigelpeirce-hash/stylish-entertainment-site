@@ -7,6 +7,8 @@
  * All data sanitization happens here, not in React components.
  */
 
+import { getWorkflowStage, getWorkflowLabel, type WorkflowStage } from "@/lib/workflow-stage";
+
 /**
  * Sanitized booking interface - represents the clean data shape the UI expects
  */
@@ -82,6 +84,11 @@ export interface SanitizedBooking {
   depositPaidClickedAt?: string | null;
   updatedAt?: string;
   lastEmailSentAt?: string | null;
+  /** ISO date of latest Options & Quote (artist quote) email sent; used to grey out Quote Builder and show Resend */
+  artistQuoteSentAt?: string | null;
+  /** Workflow stage for traffic light: deposit_received | new_enquiry | booking_form_received */
+  workflowStage?: WorkflowStage | null;
+  workflowLabel?: string | null;
   finalDetailsConfirmed?: boolean | null;
   finalDetailsConfirmedManual?: boolean | null;
   djWorksheetApproved?: boolean | null;
@@ -347,6 +354,22 @@ export function transformBooking(
     depositPaidClickedAt: convertDate(booking?.depositPaidClickedAt),
     updatedAt: convertDate(booking?.updatedAt) || undefined,
     lastEmailSentAt: convertDate(booking?.lastEmailSentAt),
+    artistQuoteSentAt: (() => {
+      const emailsSent = booking?.emailsSent as { artistQuotes?: { sentAt: string }[] } | undefined;
+      const quotes = emailsSent?.artistQuotes;
+      if (!Array.isArray(quotes) || quotes.length === 0) return null;
+      const last = quotes[quotes.length - 1];
+      return last?.sentAt ?? null;
+    })(),
+    ...((): { workflowStage: WorkflowStage; workflowLabel: string } => {
+      const b = booking as { NewEnquiry?: { id: string }[] } | undefined;
+      const stage = getWorkflowStage({
+        depositReceived: booking?.depositReceived,
+        depositReceivedManual: booking?.depositReceivedManual,
+        NewEnquiry: b?.NewEnquiry,
+      });
+      return { workflowStage: stage, workflowLabel: getWorkflowLabel(stage) };
+    })(),
     finalDetailsConfirmed: booking?.finalDetailsConfirmed ?? null,
     finalDetailsConfirmedManual: booking?.finalDetailsConfirmedManual ?? null,
     djWorksheetApproved: booking?.djWorksheetApproved ?? null,

@@ -128,6 +128,7 @@ export async function POST(
           email: enquiry.email,
           phoneAreaCode: enquiry.phoneAreaCode,
           phoneNumber: enquiry.phoneNumber,
+          message: enquiry.message || null, // What they want – for building quote
           eventType: normalizeEventType(enquiry.eventType), // ✅ Automatic: From enquiry form
           eventDate: enquiry.eventDate, // ✅ Automatic: Event Date
           venueName: enquiry.venueName || "TBD", // ✅ Automatic: Venue

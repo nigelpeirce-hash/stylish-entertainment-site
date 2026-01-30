@@ -50,11 +50,17 @@ export async function GET(request: NextRequest) {
       orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
     });
 
-    // Fix Cloudinary URLs for all musicians to ensure they work with the resize transformation
-    const musiciansWithFixedUrls = musicians.map(musician => ({
-      ...musician,
-      imageUrl: fixCloudinaryUrlForDisplay(musician.imageUrl),
-    }));
+    // Fix Cloudinary URLs for display; guard against non-string imageUrl
+    const musiciansWithFixedUrls = musicians.map(musician => {
+      const url = musician.imageUrl != null && typeof musician.imageUrl === "string" ? musician.imageUrl : null;
+      let imageUrl: string | null = null;
+      try {
+        imageUrl = fixCloudinaryUrlForDisplay(url);
+      } catch {
+        imageUrl = url;
+      }
+      return { ...musician, imageUrl };
+    });
 
     return NextResponse.json({ musicians: musiciansWithFixedUrls });
   } catch (error) {

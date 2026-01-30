@@ -2,7 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import useSWR from "swr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,8 @@ import {
   PoundSterling,
   Package,
   HelpCircle,
+  MessageSquare,
+  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { ArtistDispatch } from "@/components/ArtistDispatch";
@@ -47,8 +49,11 @@ import { FlexibleOperatorSidebar } from "@/components/FlexibleOperatorSidebar";
 // import { WhatsAppThread } from "@/components/WhatsAppThread"; // TEMPORARILY HIDDEN
 import { CrewAssignments } from "@/components/CrewAssignments";
 import { SafetyDeleteButton } from "@/components/SafetyDeleteButton";
+import { getWorkflowBadgeClass, PHASE_STEPS, getPhaseStepIndex } from "@/lib/workflow-stage";
+import { AdminFooter } from "@/components/admin/AdminFooter";
 import { TeamAssignment } from "@/components/admin/TeamAssignment";
 import { TechnicalEquipment } from "@/components/admin/TechnicalEquipment";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -164,6 +169,7 @@ export default function BookingDetail() {
   const [sendingDepositInvoice, setSendingDepositInvoice] = useState(false);
   const [sendingFinalizeInvite, setSendingFinalizeInvite] = useState(false);
   const [venues, setVenues] = useState<{ id: string; venueName: string; venuePostcode?: string | null; defaultCeremonyTime?: string | null; defaultFinishTime?: string | null; venueNotes?: string | null }[]>([]);
+  const quoteBuilderSectionRef = useRef<HTMLDivElement>(null);
   const { toast, toastState } = useToast();
 
   // Determine if we should fetch (authorization check)
@@ -464,19 +470,29 @@ export default function BookingDetail() {
   const phoneNumber = getPhoneNumber();
   const googleMapsUrl = getGoogleMapsUrl();
 
+  // Phase-based Command Center: Enquiry vs Confirmed/Paid
+  const depositReceived = !!(booking.depositReceived || (booking as { depositReceivedManual?: boolean })?.depositReceivedManual);
+  const isEnquiry = booking.status === "pending" || !depositReceived;
+  const isConfirmedOrPaid = booking.status === "confirmed" || depositReceived;
+
+  const scrollToQuoteBuilder = () => quoteBuilderSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+  const isNewEnquiry = booking.workflowStage === "new_enquiry";
+  const phaseStepIndex = getPhaseStepIndex(booking);
+
   return (
     <div className="min-h-screen bg-gray-900">
       {/* Safe Mode Warning Banner */}
       {isFallbackMode && (
-        <div className="sticky top-0 z-[60] bg-amber-600/90 backdrop-blur-sm border-b-2 border-amber-500 shadow-lg">
+        <div className="sticky top-0 z-[60] bg-amber-100 border-b border-amber-400 shadow-sm">
           <div className="container mx-auto max-w-[1920px] px-4 sm:px-6 lg:px-8 py-3">
             <div className="flex items-center justify-center gap-3">
               <span className="text-2xl">⚠️</span>
               <div className="flex-1 text-center">
-                <p className="text-white font-semibold text-sm">
+                <p className="text-amber-900 font-semibold text-sm">
                   Safe Mode Active: Limited data loaded due to database sync issues
                 </p>
-                <p className="text-white/80 text-xs mt-1">
+                <p className="text-amber-800/80 text-xs mt-1">
                   Staff assignments and other relation data will appear once the database push succeeds
                 </p>
               </div>
@@ -484,71 +500,128 @@ export default function BookingDetail() {
           </div>
         </div>
       )}
-      {/* Sticky Header */}
-      <div className={`sticky ${isFallbackMode ? 'top-[72px]' : 'top-0'} z-50 bg-gray-900/95 backdrop-blur-sm border-b-2 border-champagne-gold/30 shadow-lg`}>
+      {/* Sticky Header: Client Names + Event Date */}
+      <div className={`sticky ${isFallbackMode ? "top-[72px]" : "top-0"} z-50 bg-gray-800/95 backdrop-blur-sm border-b border-gray-700 shadow-sm`}>
         <div className="container mx-auto max-w-[1920px] px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between gap-4">
-            {/* Left: Back Button */}
             <Link href="/admin/bookings">
-              <Button variant="outline" size="sm" className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10">
+              <Button variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-700">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
               </Button>
             </Link>
 
-            {/* Center: Name, Date, Venue */}
             <div className="flex-1 text-center">
               <div className="flex items-center justify-center gap-3 mb-2 flex-wrap">
                 <h1 className="text-2xl font-bold text-white">
-                  {deduplicateName(getDisplayName(booking.name) || booking.name)}
+                  {isEnquiry ? `Enquiry: ${deduplicateName(getDisplayName(booking.name) || booking.name)}` : deduplicateName(getDisplayName(booking.name) || booking.name)}
                 </h1>
+                {isNewEnquiry && (
+                  <span className="inline-flex h-3 w-3 rounded-full bg-amber-500 animate-pulse" title="New Enquiry" aria-hidden />
+                )}
                 {booking.eventType && (
-                  <span className="border border-amber-500/30 text-amber-500 text-xs uppercase tracking-widest px-2 py-1 rounded">
+                  <span className="border border-amber-400/60 text-amber-200 text-xs uppercase tracking-widest px-2 py-1 rounded bg-amber-500/20">
                     {booking.eventType}
                   </span>
                 )}
                 {booking.confirmedViaBookFromQuote && (
-                  <span className="border border-emerald-500/50 bg-emerald-500/20 text-emerald-400 text-xs uppercase tracking-widest px-2 py-1 rounded font-semibold">
+                  <span className="border border-emerald-400 bg-emerald-500/20 text-emerald-200 text-xs uppercase tracking-widest px-2 py-1 rounded font-semibold">
                     Confirmed via Book-from-Quote
                   </span>
                 )}
               </div>
               <div className="flex flex-col items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-white" />
-                  <span className="font-bold text-white/70 text-lg">
+                  <Calendar className="w-5 h-5 text-gray-400" />
+                  <span className="font-bold text-gray-200 text-lg">
                     {formatEventDate(booking.eventDate)}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 pt-2 border-t border-gray-700/50 px-4">
+                <div className="flex items-center gap-2 pt-2 border-t border-gray-600 px-4">
                   <span className="text-lg">📍</span>
-                  <span className="font-semibold text-gray-300">{booking.venueName || "TBD"}</span>
+                  <span className="font-semibold text-gray-400">{booking.venueName || "TBD"}</span>
                   {booking.venuePostcode && (
-                    <span className="font-bold text-amber-500 ml-2">{booking.venuePostcode}</span>
+                    <span className="font-bold text-amber-400 ml-2">{booking.venuePostcode}</span>
                   )}
                 </div>
               </div>
+              {/* Quick Actions bar */}
+              <div className="flex flex-wrap items-center justify-center gap-2 mt-3 pt-3 border-t border-gray-600">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-amber-400 text-amber-200 hover:bg-amber-500/20"
+                  onClick={scrollToQuoteBuilder}
+                >
+                  Send Quote
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-amber-400 text-amber-200 hover:bg-amber-500/20"
+                  onClick={async () => {
+                    if (!booking?.email) return;
+                    setSendingDepositInvoice(true);
+                    try {
+                      const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice/`, { method: "POST" });
+                      const data = await res.json();
+                      if (res.ok) {
+                        await handleBookingUpdate();
+                        toast({ title: "Deposit invoice sent", description: `Email sent to ${deduplicateName(getDisplayName(booking.name) || booking.name)}` });
+                      } else throw new Error(data?.error ?? "Failed to send");
+                    } catch (e: unknown) {
+                      toast({ title: "Error", description: (e as Error)?.message ?? "Failed to send", variant: "destructive" });
+                    } finally {
+                      setSendingDepositInvoice(false);
+                    }
+                  }}
+                  disabled={sendingDepositInvoice || !booking?.email}
+                >
+                  {sendingDepositInvoice ? "Sending…" : "Send Deposit Invoice"}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-emerald-400 text-emerald-200 hover:bg-emerald-500/20"
+                  onClick={async () => {
+                    if (!booking?.email) return;
+                    setSendingFinalizeInvite(true);
+                    try {
+                      const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite/`, { method: "POST" });
+                      const data = await res.json();
+                      if (res.ok) {
+                        await handleBookingUpdate();
+                        if (data.skipped) toast({ title: "Portal invite not sent", description: data.message || "Deposit already confirmed." });
+                        else toast({ title: "Portal invite sent", description: `Sign-in link sent to ${deduplicateName(getDisplayName(booking.name) || booking.name)}.` });
+                      } else throw new Error(data?.error || "Failed to send");
+                    } catch (e: unknown) {
+                      toast({ title: "Error", description: (e as Error)?.message ?? "Failed to send", variant: "destructive" });
+                    } finally {
+                      setSendingFinalizeInvite(false);
+                    }
+                  }}
+                  disabled={sendingFinalizeInvite || !booking?.email}
+                >
+                  {sendingFinalizeInvite ? "Sending…" : "Portal Link"}
+                </Button>
+              </div>
             </div>
 
-            {/* Right: Edit, Internal Brief, Hand-off & Settings */}
             <div className="flex items-center gap-2">
               <Button
                 onClick={() => setShowEditModal(true)}
                 variant="outline"
                 size="sm"
-                className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 font-semibold"
+                className="border-gray-600 text-gray-300 hover:bg-gray-700 font-semibold"
               >
                 <Edit className="w-4 h-4 mr-2" />
                 Edit booking
               </Button>
-              {/* Master Internal Brief Button */}
               <Button
-                onClick={() => {
-                  router.push(`/admin/bookings/${booking.id}/brief`);
-                }}
+                onClick={() => router.push(`/admin/bookings/${booking.id}/brief`)}
                 variant="outline"
                 size="sm"
-                className="border-amber-500 text-amber-500 hover:bg-amber-500/10 font-semibold"
+                className="border-amber-400 text-amber-700 hover:bg-amber-50 font-semibold"
               >
                 <FileText className="w-4 h-4 mr-2" />
                 Generate Master Brief
@@ -557,10 +630,7 @@ export default function BookingDetail() {
                 onClick={() => handleHandoff("ali")}
                 variant={booking.assignedTo === "ali" || booking.assignedTo === "wife" ? "default" : "outline"}
                 size="sm"
-                className={booking.assignedTo === "ali" || booking.assignedTo === "wife" 
-                  ? "bg-blue-500 hover:bg-blue-600 text-white" 
-                  : "border-blue-500 text-blue-400 hover:bg-blue-900/20"
-                }
+                className={booking.assignedTo === "ali" || booking.assignedTo === "wife" ? "bg-blue-600 hover:bg-blue-700 text-white" : "border-blue-400 text-blue-700 hover:bg-blue-50"}
               >
                 🙋‍♀️ {wifeName}
               </Button>
@@ -568,10 +638,7 @@ export default function BookingDetail() {
                 onClick={() => handleHandoff("husband")}
                 variant={booking.assignedTo === "husband" ? "default" : "outline"}
                 size="sm"
-                className={booking.assignedTo === "husband" 
-                  ? "bg-purple-500 hover:bg-purple-600 text-white" 
-                  : "border-purple-500 text-purple-400 hover:bg-purple-900/20"
-                }
+                className={booking.assignedTo === "husband" ? "bg-purple-600 hover:bg-purple-700 text-white" : "border-purple-400 text-purple-700 hover:bg-purple-50"}
               >
                 🛠️ {yourName}
               </Button>
@@ -579,107 +646,168 @@ export default function BookingDetail() {
                 onClick={() => setIsSidebarOpen(true)}
                 variant="outline"
                 size="sm"
-                className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10"
+                className="border-gray-600 text-gray-300 hover:bg-gray-700"
               >
                 <Settings className="w-4 h-4" />
               </Button>
             </div>
             {staffAssignments.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2 border-t border-gray-800 pt-2">
+              <div className="flex flex-wrap gap-2 mt-2 border-t border-gray-200 pt-2">
                 {staffAssignments.map((assignment) => (
-                  <span key={assignment.id} className="text-xs font-bold text-champagne-gold">
-                    {assignment.role?.toLowerCase().includes('dj') ? '🎧' : '💡'} {assignment.staff.name}
+                  <span key={assignment.id} className="text-xs font-bold text-amber-700">
+                    {assignment.role?.toLowerCase().includes("dj") ? "🎧" : "💡"} {assignment.staff.name}
                   </span>
                 ))}
               </div>
             )}
           </div>
         </div>
+        {/* Phase Tracker: hairline, current step muted gold/charcoal */}
+        <div className="border-t border-gray-700 bg-gray-800/80">
+          <div className="container mx-auto max-w-[1920px] px-4 sm:px-6 lg:px-8 py-3">
+            <nav className="flex items-center justify-center gap-0 flex-wrap" aria-label="Phase progress">
+              {PHASE_STEPS.map((label, i) => {
+                const isCurrent = i === phaseStepIndex;
+                const isPast = i < phaseStepIndex;
+                return (
+                  <span key={label} className="flex items-center">
+                    <span
+                      className={`px-2 sm:px-3 py-1 text-xs font-medium rounded transition-colors ${
+                        isCurrent ? "bg-amber-500/20 text-amber-200 border border-amber-400/60" : isPast ? "text-gray-400 bg-gray-700 border border-gray-600" : "text-gray-500 border border-transparent"
+                      }`}
+                    >
+                      {label}
+                    </span>
+                    {i < PHASE_STEPS.length - 1 && (
+                      <span className="w-3 sm:w-4 h-px bg-gray-600 mx-0.5" aria-hidden />
+                    )}
+                  </span>
+                );
+              })}
+            </nav>
+          </div>
+        </div>
       </div>
 
-
-      {/* 3-Column Layout */}
+      {/* 2-Column Layout: Left = Booking/Production, Right = Sticky sidebar (What they want + Client Details + Emails) */}
       <div className="container mx-auto max-w-[1920px] px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Column: WhatsApp Conversation (The Inbox) - TEMPORARILY HIDDEN */}
-          {/* <div className="lg:col-span-4">
-            <div className="sticky top-24">
-              {(booking.phoneNumber || booking.phoneAreaCode) ? (
-                <WhatsAppThread
+          {/* Left Column: Booking & Production Details */}
+          <div className="lg:col-span-8 space-y-4">
+            {/* Confirmed/Paid: Team Assignment & Artist Worksheet at top */}
+            {isConfirmedOrPaid && (
+              <>
+                <TeamAssignment
                   bookingId={booking.id}
-                  phoneNumber={phoneNumber || null}
-                  eventDate={booking.eventDate}
-                  clientName={booking.name}
+                  staffAssignments={staffAssignments}
+                  onUpdate={handleBookingUpdate}
                 />
-              ) : (
-                <Card className="bg-gray-800 border-champagne-gold/30">
-                  <CardContent className="p-8 text-center text-gray-400">
-                    <Phone className="w-12 h-12 mx-auto mb-4 text-gray-500" />
-                    <p className="text-white">No phone number available</p>
-                    <p className="text-sm mt-2 text-gray-400">WhatsApp conversation will appear here</p>
-                  </CardContent>
-                </Card>
-              )}
-            </div>
-          </div> */}
+                {hasDJService && (
+                  <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg font-semibold text-white">Artist Worksheet</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <ArtistDispatch
+                        bookingId={booking.id}
+                        booking={booking}
+                        onUpdate={handleBookingUpdate}
+                      />
+                    </CardContent>
+                  </Card>
+                )}
+              </>
+            )}
 
-          {/* Middle Column: The Logistics */}
-          <div className="lg:col-span-6 space-y-4">
-            {/* Client Details */}
-            <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="text-lg font-semibold text-white">Client Details</CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowEditModal(true)}
-                    className="text-gray-400 hover:text-champagne-gold"
-                    title="Edit client, venue, timings & details"
-                  >
-                    <Edit className="w-4 h-4 mr-1" />
-                    Edit
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div>
-                  <p className="text-sm text-gray-400 mb-1">Name</p>
-                  <p className="text-white font-medium text-base">{deduplicateName(getDisplayName(booking.name) || booking.name)}</p>
-                </div>
-                <div>
-                  <p className="text-sm text-gray-400 mb-1">Email</p>
-                  <a
-                    href={`mailto:${booking.email}`}
-                    className="text-champagne-gold hover:text-champagne-gold/80 flex items-center gap-2"
-                  >
-                    {booking.email}
-                    <Mail className="w-4 h-4" />
-                  </a>
-                </div>
-                {phoneNumber && (
-                  <div>
-                    <p className="text-sm text-gray-400 mb-1">Phone</p>
-                    <a
-                      href={`tel:${phoneNumber}`}
-                      className="text-champagne-gold hover:text-champagne-gold/80 flex items-center gap-2"
+            {/* Lead Insight – highlighted when Enquiry */}
+            {(booking.message?.trim() || (Array.isArray(booking.services) && booking.services.length > 0) || (Array.isArray(booking.upsellItems) && booking.upsellItems.length > 0)) && (
+              <Card className={`bg-slate-800/40 border-slate-600/50 shadow-sm ${isEnquiry ? "ring-2 ring-champagne-gold/50" : ""}`}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-champagne-gold" />
+                    Lead Insight
+                  </CardTitle>
+                  <p className="text-xs text-gray-400">Add these to the quote below</p>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {booking.message?.trim() && (
+                    <div>
+                      <p className="text-xs font-semibold text-champagne-gold uppercase tracking-wider mb-2 flex items-center gap-1">
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        Their message
+                      </p>
+                      <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-600/50 text-white whitespace-pre-wrap text-sm leading-relaxed">
+                        {booking.message.trim()}
+                      </div>
+                    </div>
+                  )}
+                  {((Array.isArray(booking.services) && booking.services.length > 0) || (Array.isArray(booking.upsellItems) && booking.upsellItems.length > 0)) && (
+                    <div>
+                      <p className="text-xs font-semibold text-champagne-gold uppercase tracking-wider mb-2 flex items-center gap-1">
+                        <Package className="w-3.5 h-3.5" />
+                        Items they’re interested in
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {Array.isArray(booking.services) && booking.services.map((s) => {
+                          const label = typeof s === "string" ? (s === "dj" ? "DJ" : s === "lighting" ? "Lighting" : s === "musicians" ? "Live musicians" : s.charAt(0).toUpperCase() + s.slice(1)) : String(s);
+                          return (
+                            <button
+                              key={`service-${label}`}
+                              type="button"
+                              onClick={scrollToQuoteBuilder}
+                              className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-champagne-gold/25 text-champagne-gold border border-champagne-gold/40 hover:bg-champagne-gold/40 transition-colors cursor-pointer"
+                            >
+                              {label === "DJ" && "🎧 "}
+                              {label === "Lighting" && "💡 "}
+                              {label === "Live musicians" && "🎵 "}
+                              {label}
+                            </button>
+                          );
+                        })}
+                        {Array.isArray(booking.upsellItems) && booking.upsellItems.map((u) => {
+                          const label = typeof u === "string"
+                            ? (u === "lighting" ? "Lighting" : u === "musicians" ? "Musicians" : u === "fire-pits" ? "Fire pits" : u === "venue-styling" ? "Venue styling" : u.charAt(0).toUpperCase() + u.slice(1).replace(/-/g, " "))
+                            : String(u);
+                          return (
+                            <button
+                              key={`upsell-${label}`}
+                              type="button"
+                              onClick={scrollToQuoteBuilder}
+                              className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-amber-500/20 text-amber-300 border border-amber-500/40 hover:bg-amber-500/30 transition-colors cursor-pointer"
+                            >
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* No message/items yet – prompt to add so you know what to quote */}
+            {(!booking.message?.trim() && (!Array.isArray(booking.services) || booking.services.length === 0) && (!Array.isArray(booking.upsellItems) || booking.upsellItems.length === 0)) && (
+              <Card className="bg-gray-800/80 border border-dashed border-gray-600">
+                <CardContent className="py-4">
+                  <p className="text-sm text-gray-400 flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-gray-500" />
+                    No message or items yet.{" "}
+                    <button
+                      type="button"
+                      onClick={() => setShowEditModal(true)}
+                      className="text-champagne-gold hover:text-champagne-gold/80 font-medium underline"
                     >
-                      {phoneNumber}
-                      <Phone className="w-4 h-4" />
-                    </a>
-                  </div>
-                )}
-                {booking.contactPreference && (
-                  <div>
-                    <p className="text-sm text-gray-400 mb-1">Preferred Contact</p>
-                    <p className="text-white">{booking.contactPreference}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                      Add in Edit
+                    </button>{" "}
+                    (Additional message, services & upsells) so you know what to build the quote for.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
 
-            {/* Quote Builder - Multi-Service */}
-            <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
+            {/* Quote Builder – scroll target; highlighted when Enquiry */}
+            <Card ref={quoteBuilderSectionRef} className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors ${isEnquiry ? "ring-2 ring-champagne-gold/50" : ""}`}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg font-semibold text-white">Quote Builder</CardTitle>
                 <p className="text-xs text-gray-400">Build and send quotes for DJs, musicians, lighting, styling & more</p>
@@ -692,19 +820,28 @@ export default function BookingDetail() {
                   venueName={booking.venueName}
                   venueAddress={booking.venueAddress || undefined}
                   eventDate={booking.eventDate}
+                  quoteSentAt={booking.artistQuoteSentAt ?? undefined}
                   onSend={handleBookingUpdate}
                 />
               </CardContent>
             </Card>
 
-            {/* Manual Communication — priority action */}
+            {/* Send booking deposit — priority action */}
             <Card className={`bg-gray-800 border-amber-500/20 ${getSectionBgColor()} transition-colors`}>
               <CardHeader className="pb-3">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
                     <Mail className="w-5 h-5 text-amber-500" />
-                    Manual Communication
+                    Send booking deposit
                   </CardTitle>
+                  {booking.workflowStage && booking.workflowLabel && (
+                    <span
+                      className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getWorkflowBadgeClass(booking.workflowStage)}`}
+                      title="Workflow stage"
+                    >
+                      {booking.workflowLabel}
+                    </span>
+                  )}
                   <Popover>
                     <PopoverTrigger asChild>
                       <Button
@@ -959,24 +1096,54 @@ export default function BookingDetail() {
             </Card>
           </div>
 
-          {/* Right Column: The Artist Wing */}
-          <div className="lg:col-span-6">
+          {/* Right Column: Client Info & Emails */}
+          <div className="lg:col-span-4">
             <div className="sticky top-24 max-h-[calc(100vh-8rem)] overflow-y-auto space-y-4">
-              {/* Artist Worksheet - Only show if DJ service */}
-              {hasDJService && (
-                <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg font-semibold text-white">Artist Worksheet</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <ArtistDispatch
-                      bookingId={booking.id}
-                      booking={booking}
-                      onUpdate={handleBookingUpdate}
-                    />
-                  </CardContent>
-                </Card>
-              )}
+              {/* Client Info – name, email, phone, contact pref */}
+              <Card className="bg-gray-800 border-champagne-gold/30">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg font-semibold text-white">Client Info</CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowEditModal(true)}
+                      className="text-gray-400 hover:text-champagne-gold"
+                      title="Edit client & venue"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div>
+                    <p className="text-xs text-gray-400 mb-1">Name</p>
+                    <p className="text-white font-medium">{deduplicateName(getDisplayName(booking.name) || booking.name)}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-400 mb-1">Email</p>
+                    <a href={`mailto:${booking.email}`} className="text-champagne-gold hover:text-champagne-gold/80 flex items-center gap-2">
+                      {booking.email}
+                      <Mail className="w-4 h-4" />
+                    </a>
+                  </div>
+                  {phoneNumber && (
+                    <div>
+                      <p className="text-xs text-gray-400 mb-1">Phone</p>
+                      <a href={`tel:${phoneNumber}`} className="text-champagne-gold hover:text-champagne-gold/80 flex items-center gap-2">
+                        {phoneNumber}
+                        <Phone className="w-4 h-4" />
+                      </a>
+                    </div>
+                  )}
+                  {booking.contactPreference && (
+                    <div>
+                      <p className="text-xs text-gray-400 mb-1">Preferred Contact</p>
+                      <p className="text-white text-sm">{booking.contactPreference}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
               {/* Client emails (bookings + 1st touch) */}
               <ClientEmailsCard
@@ -1005,64 +1172,134 @@ export default function BookingDetail() {
               </CardContent>
             </Card>
 
-              {/* Technical Equipment - Warehouse Pick List */}
-              <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
-                    <Package className="w-5 h-5 text-amber-500" />
-                    Technical Equipment
-                  </CardTitle>
-                  <p className="text-sm text-gray-400 mt-1">
-                    Add warehouse items to the pick list. These will appear in the Artist Worksheet and Master Internal Brief.
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <TechnicalEquipment bookingId={booking.id} onUpdate={handleBookingUpdate} />
-                </CardContent>
-              </Card>
-
-              {/* DJ Worksheet - Only show if DJ service */}
-              {hasDJService && (
-                <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg font-semibold text-white">DJ Worksheet</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <DJInquiryReply
-                      bookingId={booking.id}
-                      clientEmail={booking.email}
-                      clientName={booking.name}
-                      venueName={booking.venueName}
-                      venueAddress={booking.venueAddress || undefined}
-                      venuePostcode={booking.venuePostcode || undefined}
-                      eventDate={booking.eventDate}
-                      djName={booking.preferredDJ || undefined}
-                      onSend={handleBookingUpdate}
-                    />
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Team Assignment - New Searchable Section */}
-              <TeamAssignment
-                bookingId={booking.id}
-                staffAssignments={staffAssignments}
-                onUpdate={handleBookingUpdate}
-              />
-
-              {/* Crew Assignments (Venue + Timings: venueName, eventDate, djArrivalTime, djStartTime from booking) */}
-              <CrewAssignments
-                bookingId={booking.id}
-                venueName={booking.venueName}
-                eventDate={booking.eventDate}
-                djArrivalTime={booking.djArrivalTime}
-                djStartTime={booking.djStartTime}
-                staffAssignments={staffAssignments}
-                onUpdate={handleBookingUpdate}
-              />
-
-              {/* Legacy Quick Staff (for backward compatibility) */}
-              <Card className="bg-gray-800 border-champagne-gold/30">
+              {/* Production: accordion when Enquiry, expanded when Confirmed/Paid */}
+              {isEnquiry ? (
+                <Accordion type="single" defaultValue="" className="border border-gray-700 rounded-lg bg-gray-800/50">
+                  <AccordionItem value="production">
+                    <AccordionTrigger className="px-4 py-3 text-base font-semibold text-white hover:no-underline">
+                      Production
+                    </AccordionTrigger>
+                    <AccordionContent className="px-4 pb-4 space-y-4">
+                      {hasDJService && (
+                        <>
+                          <Card className="bg-gray-800/80 border-champagne-gold/20">
+                            <CardHeader className="pb-2">
+                              <CardTitle className="text-base font-semibold text-white">Artist Worksheet</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <ArtistDispatch bookingId={booking.id} booking={booking} onUpdate={handleBookingUpdate} />
+                            </CardContent>
+                          </Card>
+                          <Card className="bg-gray-800/80 border-champagne-gold/20">
+                            <CardHeader className="pb-2">
+                              <CardTitle className="text-base font-semibold text-white">DJ Worksheet</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <DJInquiryReply
+                                bookingId={booking.id}
+                                clientEmail={booking.email}
+                                clientName={booking.name}
+                                venueName={booking.venueName}
+                                venueAddress={booking.venueAddress || undefined}
+                                venuePostcode={booking.venuePostcode || undefined}
+                                eventDate={booking.eventDate}
+                                djName={booking.preferredDJ || undefined}
+                                onSend={handleBookingUpdate}
+                              />
+                            </CardContent>
+                          </Card>
+                        </>
+                      )}
+                      <Card className="bg-gray-800/80 border-champagne-gold/20">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
+                            <Package className="w-4 h-4 text-amber-500" />
+                            Technical Equipment
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <TechnicalEquipment bookingId={booking.id} onUpdate={handleBookingUpdate} />
+                        </CardContent>
+                      </Card>
+                      <TeamAssignment
+                        bookingId={booking.id}
+                        staffAssignments={staffAssignments}
+                        onUpdate={handleBookingUpdate}
+                      />
+                      <CrewAssignments
+                        bookingId={booking.id}
+                        venueName={booking.venueName}
+                        eventDate={booking.eventDate}
+                        djArrivalTime={booking.djArrivalTime}
+                        djStartTime={booking.djStartTime}
+                        staffAssignments={staffAssignments}
+                        onUpdate={handleBookingUpdate}
+                      />
+                      <Card className="bg-gray-800/80 border-champagne-gold/20">
+                        <CardHeader className="pb-2">
+                          <div className="flex items-center justify-between">
+                            <CardTitle className="text-base font-semibold text-white">Team</CardTitle>
+                            <div className="flex gap-2">
+                              <AddBasicStaff onAdd={handleBookingUpdate} />
+                              <QuickStaffConfirm
+                                bookingId={booking.id}
+                                venueName={booking.venueName}
+                                eventDate={booking.eventDate}
+                                onConfirm={handleBookingUpdate}
+                              />
+                            </div>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          {staffAssignments.length > 0 ? (
+                            <div className="space-y-2">
+                              {staffAssignments.map((a) => (
+                                <div key={a.id} className="flex items-center gap-2 text-sm text-white">
+                                  <span>{a.role?.toLowerCase().includes("dj") ? "🎧" : "💡"}</span>
+                                  {a.staff.name}
+                                </div>
+                              ))}
+                            </div>
+                          ) : (
+                            <p className="text-gray-400 text-sm">No staff assigned yet</p>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              ) : (
+                <>
+                  {/* Confirmed/Paid: Production sections visible (no accordion); Artist Worksheet is on left at top */}
+                  <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg font-semibold text-white flex items-center gap-2">
+                        <Package className="w-5 h-5 text-amber-500" />
+                        Technical Equipment
+                      </CardTitle>
+                      <p className="text-sm text-gray-400 mt-1">
+                        Add warehouse items to the pick list. These will appear in the Artist Worksheet and Master Internal Brief.
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <TechnicalEquipment bookingId={booking.id} onUpdate={handleBookingUpdate} />
+                    </CardContent>
+                  </Card>
+                  <TeamAssignment
+                    bookingId={booking.id}
+                    staffAssignments={staffAssignments}
+                    onUpdate={handleBookingUpdate}
+                  />
+                  <CrewAssignments
+                    bookingId={booking.id}
+                    venueName={booking.venueName}
+                    eventDate={booking.eventDate}
+                    djArrivalTime={booking.djArrivalTime}
+                    djStartTime={booking.djStartTime}
+                    staffAssignments={staffAssignments}
+                    onUpdate={handleBookingUpdate}
+                  />
+                  <Card className="bg-gray-800 border-champagne-gold/30">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-lg font-semibold text-white">Team</CardTitle>
@@ -1149,10 +1386,15 @@ export default function BookingDetail() {
                   )}
                 </CardContent>
               </Card>
+                </>
+              )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Admin footer: thin line + Last updated from booking */}
+      <AdminFooter updatedAt={booking.updatedAt ?? undefined} />
 
       {/* Edit Modal */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>

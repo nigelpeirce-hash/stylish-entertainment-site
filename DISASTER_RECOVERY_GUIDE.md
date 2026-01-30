@@ -1,8 +1,8 @@
 # Disaster Recovery & Complete Rebuild Guide
 ## Stylish Entertainment Website
 
-**Last Updated:** January 2026  
-**Version:** 1.5  
+**Last Updated:** January 30, 2026  
+**Version:** 1.6  
 **Purpose:** Complete technical documentation for rebuilding the system from scratch in case of catastrophic failure
 
 ---
@@ -1656,6 +1656,15 @@ git push origin main           # Deploy to Vercel (auto)
 
 ### Version History
 
+- **v1.6** (January 30, 2026) - Performance & accessibility:
+  - **LCP:** Homepage hero preload in `app/layout.tsx` (w_640, q_60, fetchPriority high); first slider image uses same URL and `unoptimized` so preload is reused. Mobile LCP improved.
+  - **Images:** `app/page.tsx` – `smallerCloudinaryUrl()` for below-fold (services, team; w_800,q_60); `sliderCloudinaryUrl()` for non-LCP slider images (w_1080,q_60). Reduces image delivery on mobile.
+  - **Fonts:** `app/layout.tsx` – Bebas Neue, Dancing Script, Playfair Display use `display: "optional"` and `preload: false` to reduce render blocking. Raleway stays `display: "swap"`, `preload: true`.
+  - **Cache:** `next.config.js` – long-lived cache headers for static assets (favicon, .svg, .png, .ico, .jpg, .jpeg, .webp in `public/`).
+  - **Hero:** Homepage hero section no longer uses framer-motion (plain divs) for faster first paint.
+  - **CookieYes:** Contrast overrides in `app/globals.css` and injected `<style>` after load in `components/CookieYes.tsx` for WCAG AA. Accessibility 100.
+  - **Slider:** `components/ui/slider.tsx` – dot buttons have 48×48px min touch target for mobile accessibility.
+  - **Deploy:** Run `npm run build` before deploy; commit then `git push` (Vercel builds from repo). PageSpeed: Desktop ~98 Performance, 100 Accessibility/Best Practices/SEO; Mobile ~83 Performance, 100 elsewhere.
 - **v1.5** (January 2026) - Added GTM, CookieYes, YouTube API, reCAPTCHA; updated env vars; added related doc references
 - **v1.4** (January 28, 2026) - Build config alignment (Webpack, no Turbopack):
   - `next.config.js`: Explicit `webpack: (config) => config`; no `turbo` or `experimental.turbo`

@@ -17,6 +17,7 @@ import { Badge } from "@/components/ui/badge";
 import { SafetyDeleteButton } from "@/components/SafetyDeleteButton";
 import { CommandMenu } from "@/components/admin/command-menu";
 import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
+import { getWorkflowStage, getWorkflowLabel, getTrafficLightStyles } from "@/lib/workflow-stage";
 
 interface StaffAssignment {
   id: string;
@@ -50,6 +51,7 @@ interface Booking {
   staffAssignments?: StaffAssignment[]; // Staff assignments with brief status
   unreadPortalMessages?: boolean; // Whether there are unread portal messages
   staffPendingAction?: boolean; // True if staff has responded to hold but isn't yet confirmed
+  NewEnquiry?: { id: string }[]; // For traffic light: converted from new enquiry
 }
 
 interface SystemHealth {
@@ -1074,6 +1076,7 @@ export default function NinetyDayCommandCentre() {
                         <th className="text-left p-4 text-sm font-semibold text-gray-300">Date</th>
                         <th className="text-left p-4 text-sm font-semibold text-gray-300">Days</th>
                         <th className="text-left p-4 text-sm font-semibold text-gray-300">Status</th>
+                        <th className="text-left p-4 text-sm font-semibold text-gray-300">Workflow</th>
                         <th className="text-left p-4 text-sm font-semibold text-gray-300">Staff</th>
                         <th className="text-left p-4 text-sm font-semibold text-gray-300">Actions</th>
                       </tr>
@@ -1085,11 +1088,14 @@ export default function NinetyDayCommandCentre() {
                         const isUnassigned = !booking.staffAssignments || booking.staffAssignments.length === 0;
                         const requiresStaff = needsStaffing(booking);
                         const shouldPulse = requiresStaff && isUnassigned && booking.daysRemaining <= 14;
+                        const workflowStage = getWorkflowStage(booking);
+                        const workflowLabel = getWorkflowLabel(workflowStage);
+                        const workflowBorder = workflowStage === "deposit_received" ? "border-l-4 border-l-emerald-500" : workflowStage === "new_enquiry" ? "border-l-4 border-l-red-500" : "border-l-4 border-l-amber-500";
                         
                         return (
                           <tr
                             key={booking.id}
-                            className={`border-b border-gray-800 hover:bg-gray-800/50 transition-colors ${
+                            className={`border-b border-gray-800 hover:bg-gray-800/50 transition-colors ${workflowBorder} ${
                               isToday ? "bg-blue-50/10" : isTomorrow ? "bg-amber-50/50" : ""
                             }`}
                           >
@@ -1120,6 +1126,11 @@ export default function NinetyDayCommandCentre() {
                               <Badge className={`${getStatusBadgeClass(booking.status)} rounded-full px-2 py-1 text-xs font-bold uppercase tracking-wider`}>
                                 {booking.status}
                               </Badge>
+                            </td>
+                            <td className="p-4">
+                              <span className="text-xs font-medium text-gray-300" title="Workflow stage">
+                                {workflowLabel}
+                              </span>
                             </td>
                             <td className="p-4">
                               <div className="flex items-center gap-2">

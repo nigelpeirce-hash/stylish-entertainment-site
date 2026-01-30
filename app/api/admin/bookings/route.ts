@@ -71,6 +71,7 @@ export async function GET(request: NextRequest) {
         User: {
           select: { id: true, name: true, email: true },
         },
+        NewEnquiry: { select: { id: true } },
       },
       orderBy: [
         { priority: "desc" }, // Urgent first (alphabetically "urgent" > "medium" > "low")
@@ -99,7 +100,18 @@ export async function GET(request: NextRequest) {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
-    return NextResponse.json({ bookings: sortedBookings });
+    // Add artistQuoteSentAt for each booking (for "pulse until quote sent" UX)
+    const bookingsWithQuoteSent = sortedBookings.map((b) => {
+      const emailsSent = b.emailsSent as { artistQuotes?: { sentAt: string }[] } | undefined;
+      const quotes = emailsSent?.artistQuotes;
+      const artistQuoteSentAt =
+        Array.isArray(quotes) && quotes.length > 0
+          ? (quotes[quotes.length - 1]?.sentAt ?? null)
+          : null;
+      return { ...b, artistQuoteSentAt };
+    });
+
+    return NextResponse.json({ bookings: bookingsWithQuoteSent });
   } catch (error: any) {
     console.error("Error fetching bookings:", error);
     return NextResponse.json(

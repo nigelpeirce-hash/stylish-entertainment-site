@@ -26,6 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
+import { getWorkflowStage, getWorkflowLabel, getTrafficLightStyles } from "@/lib/workflow-stage";
 
 interface Booking {
   id: string;
@@ -46,6 +47,11 @@ interface Booking {
   services: string[];
   archivedAt: string | null;
   user: { id: string; name: string; email: string } | null;
+  depositReceived?: boolean | null;
+  depositReceivedManual?: boolean | null;
+  NewEnquiry?: { id: string }[];
+  /** ISO date of latest Options & Quote email sent; pulse stops when set */
+  artistQuoteSentAt?: string | null;
   staffAssignments?: Array<{
     id: string;
     role: string;
@@ -635,7 +641,7 @@ function AdminBookingsContent() {
         </DialogContent>
       </Dialog>
 
-      {/* Inbox List */}
+      {/* Inbox – tile grid */}
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
         {bookings.length === 0 ? (
           <Card className="bg-gray-800 border-champagne-gold/30">
@@ -645,108 +651,132 @@ function AdminBookingsContent() {
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {bookings.map((booking) => {
               const initials = getInitials(booking.name);
               const initialsColor = getInitialsColor(booking.name);
-              const flagColor = getFlagColor(booking.flaggedFor);
               const flagIconColor = getFlagIconColor(booking.flaggedFor);
-              
+              const workflowStage = getWorkflowStage(booking);
+              const trafficLightStyles = getTrafficLightStyles(workflowStage);
+              const workflowLabel = getWorkflowLabel(workflowStage);
+              const borderAccent =
+                workflowStage === "deposit_received"
+                  ? "border-t-4 border-t-emerald-500"
+                  : workflowStage === "new_enquiry"
+                    ? "border-t-4 border-t-red-500"
+                    : "border-t-4 border-t-amber-500";
+              const isNewEnquiryNoQuote =
+                workflowStage !== "deposit_received" && !booking.artistQuoteSentAt;
+
               return (
                 <motion.div
                   key={booking.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="h-full"
                 >
                   <div
-                    className={`flex flex-col gap-2 p-4 rounded-lg transition-all border-l-4 ${
-                      booking.conflictStatus === "pending"
-                        ? "border-red-500 bg-red-950/20"
-                        : booking.assignedTo
-                        ? getHandoffColor(booking.assignedTo, booking.handoffStatus)
-                        : booking.flaggedFor === "user1"
-                        ? `${getFlagColor(booking.flaggedFor)} ${getBorderColor(booking.flaggedFor)}`
-                        : booking.flaggedFor === "user2"
-                        ? `${getFlagColor(booking.flaggedFor)} ${getBorderColor(booking.flaggedFor)}`
-                        : "border-transparent bg-gray-800 hover:bg-gray-750"
-                    }`}
+                    className={`h-full flex flex-col rounded-xl border border-gray-700 overflow-hidden transition-all hover:shadow-xl hover:border-gray-600 shadow-lg ${borderAccent} ${trafficLightStyles} ${isNewEnquiryNoQuote ? "animate-pulse" : ""}`}
                   >
-                    <div className="flex items-center gap-3">
+                    {/* Tile header: checkbox + flag */}
+                    <div className="flex items-start justify-between p-3 pb-0">
                       <input
                         type="checkbox"
                         checked={selectedIds.has(booking.id)}
                         onChange={() => toggleSelect(booking.id)}
                         onClick={(e) => e.stopPropagation()}
-                        className="flex-shrink-0 rounded border-gray-600 bg-gray-800 text-champagne-gold focus:ring-champagne-gold"
+                        className="mt-1 rounded border-gray-600 bg-gray-800 text-champagne-gold focus:ring-champagne-gold"
                         aria-label={`Select ${booking.name}`}
                       />
-                      <Link href={`/admin/bookings/${booking.id}`} className="flex-1 min-w-0">
-                        <div className="flex items-center gap-4 cursor-pointer">
-                      {/* Left: Initials Circle */}
-                      <div className="flex-shrink-0">
-                        <div className={`w-12 h-12 rounded-full ${initialsColor} flex items-center justify-center text-white font-bold text-lg`}>
-                          {initials}
-                        </div>
-                      </div>
-
-                        {/* Center: Client Name, Date, Venue */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-3 flex-wrap">
-                            <h3 className="font-medium text-white text-lg truncate">
-                              {deduplicateName(getDisplayName(booking.name) || booking.name)}
-                            </h3>
-                            {getHandoffBadge(booking.assignedTo, booking.handoffStatus) && (
-                              <span className="px-2 py-1 rounded text-xs font-medium bg-gray-700 text-white border border-gray-600">
-                                {getHandoffBadge(booking.assignedTo, booking.handoffStatus)}
-                              </span>
-                            )}
-                            <span className="text-champagne-gold font-medium text-sm whitespace-nowrap">
-                              {formatEventDate(booking.eventDate)}
-                            </span>
-                          </div>
-                          <div className="mt-1">
-                            <div className="text-xs text-amber-500/70 uppercase">
-                              {booking.venueName || "Venue TBD"}
-                            </div>
-                            {booking.venuePostcode && (
-                              <div className="text-xs text-gray-400 mt-0.5">
-                                {booking.venuePostcode}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Right: Priority Flag */}
-                        <div className="flex-shrink-0">
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              handleToggleFlag(booking.id, booking.flaggedFor);
-                            }}
-                            className={`p-2 rounded-full hover:bg-gray-700 transition-colors ${flagIconColor}`}
-                            title={
-                              booking.flaggedFor === "user1"
-                                ? `Flagged for ${user1Name}`
-                                : booking.flaggedFor === "user2"
-                                ? `Flagged for ${user2Name}`
-                                : `Flag for ${user1Name}`
-                            }
-                          >
-                            <Flag
-                              className={`w-5 h-5 ${
-                                booking.flaggedFor ? "fill-current" : ""
-                              }`}
-                            />
-                          </button>
-                        </div>
-                      </div>
-                    </Link>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleToggleFlag(booking.id, booking.flaggedFor);
+                        }}
+                        className={`p-1.5 rounded-lg hover:bg-gray-700 transition-colors ${flagIconColor}`}
+                        title={
+                          booking.flaggedFor === "user1"
+                            ? `Flagged for ${user1Name}`
+                            : booking.flaggedFor === "user2"
+                              ? `Flagged for ${user2Name}`
+                              : `Flag for ${user1Name}`
+                        }
+                      >
+                        <Flag
+                          className={`w-4 h-4 ${booking.flaggedFor ? "fill-current" : ""}`}
+                        />
+                      </button>
                     </div>
 
-                    {/* Assignment Buttons - Hide for archived, show Restore instead */}
+                    {/* Main content – clickable to open booking */}
+                    <Link
+                      href={`/admin/bookings/${booking.id}`}
+                      className="flex-1 flex flex-col p-4 pt-2 min-w-0 group"
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={`flex-shrink-0 w-11 h-11 rounded-xl ${initialsColor} flex items-center justify-center text-white font-bold text-sm`}
+                        >
+                          {initials}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-semibold text-white text-base truncate group-hover:text-champagne-gold transition-colors">
+                            {deduplicateName(getDisplayName(booking.name) || booking.name)}
+                          </h3>
+                          <p className="text-champagne-gold font-medium text-sm mt-0.5">
+                            {formatEventDate(booking.eventDate)}
+                          </p>
+                          <p className="text-xs text-amber-500/80 uppercase tracking-wide mt-1">
+                            {booking.venueName || "Venue TBD"}
+                          </p>
+                          {booking.venuePostcode && (
+                            <p className="text-xs text-gray-400 mt-0.5">{booking.venuePostcode}</p>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Badges row */}
+                      <div className="flex flex-wrap gap-1.5 mt-3">
+                        <span
+                          className="px-2 py-0.5 rounded-md text-xs font-medium bg-gray-700/80 text-gray-200 border border-gray-600"
+                          title="Workflow stage"
+                        >
+                          {workflowLabel}
+                        </span>
+                        {getHandoffBadge(booking.assignedTo, booking.handoffStatus) && (
+                          <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-gray-700 text-white border border-gray-600">
+                            {getHandoffBadge(booking.assignedTo, booking.handoffStatus)}
+                          </span>
+                        )}
+                        {booking.conflictStatus === "pending" && (
+                          <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-red-900/50 text-red-300 border border-red-500/50">
+                            Conflict
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+
+                    {/* Staff assigned (if any) */}
+                    {booking.staffAssignments && booking.staffAssignments.length > 0 && (
+                      <div className="px-4 pb-2">
+                        <div className="flex flex-wrap gap-2">
+                          {booking.staffAssignments.map((assignment: any) => (
+                            <span
+                              key={assignment.id}
+                              className="text-xs font-semibold text-champagne-gold flex items-center gap-1"
+                            >
+                              <span>{assignment.role?.toLowerCase().includes("dj") ? "🎧" : "💡"}</span>
+                              {assignment.staff?.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Assignment buttons */}
                     {showArchived ? (
-                      <div className="flex gap-2 mt-2 pt-2 border-t border-gray-700">
+                      <div className="p-3 pt-2 border-t border-gray-700 flex flex-col gap-2">
                         <Button
                           onClick={(e) => {
                             e.preventDefault();
@@ -754,16 +784,16 @@ function AdminBookingsContent() {
                             handleRestore(booking.id);
                           }}
                           size="sm"
-                          className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+                          className="w-full bg-green-600 hover:bg-green-700 text-white"
                         >
-                          ↩️ Restore Booking
+                          ↩️ Restore
                         </Button>
-                        <span className="text-xs text-gray-500 self-center">
+                        <span className="text-xs text-gray-500 text-center">
                           Archived {booking.archivedAt ? new Date(booking.archivedAt).toLocaleDateString() : ""}
                         </span>
                       </div>
                     ) : (
-                      <div className="flex gap-2 mt-2 pt-2 border-t border-gray-700">
+                      <div className="p-3 pt-2 border-t border-gray-700 grid grid-cols-2 gap-2">
                         <Button
                           onClick={(e) => {
                             e.preventDefault();
@@ -771,13 +801,13 @@ function AdminBookingsContent() {
                             handleAssign(booking.id, "ali");
                           }}
                           size="sm"
-                          className={`flex-1 ${
+                          className={`text-xs ${
                             booking.assignedTo === "ali" || booking.assignedTo === "wife"
                               ? "bg-blue-600 hover:bg-blue-700 text-white"
-                              : "bg-blue-900/30 hover:bg-blue-900/50 text-black border border-blue-500/50 font-medium"
+                              : "bg-gray-700 hover:bg-gray-600 text-gray-200 border border-gray-600"
                           }`}
                         >
-                          🙋‍♀️ For {wifeName}
+                          🙋‍♀️ {wifeName}
                         </Button>
                         <Button
                           onClick={(e) => {
@@ -786,32 +816,14 @@ function AdminBookingsContent() {
                             handleAssign(booking.id, "you");
                           }}
                           size="sm"
-                          className={`flex-1 ${
+                          className={`text-xs ${
                             booking.assignedTo === "you"
                               ? "bg-purple-600 hover:bg-purple-700 text-white"
-                              : "bg-purple-900/30 hover:bg-purple-900/50 text-black border border-purple-500/50 font-medium"
+                              : "bg-gray-700 hover:bg-gray-600 text-gray-200 border border-gray-600"
                           }`}
                         >
-                          🛠️ For {yourName}
+                          🛠️ {yourName}
                         </Button>
-                      </div>
-                    )}
-                    {/* Updated for 50% larger size */}
-                    {booking.staffAssignments && booking.staffAssignments.length > 0 && (
-                      <div className="bg-champagne-gold/5 p-2 rounded-md mt-2 border border-champagne-gold/10">
-                        <div className="flex flex-wrap gap-3 lg:flex-row flex-col">
-                          {booking.staffAssignments.map((assignment: any) => (
-                            <span 
-                              key={assignment.id} 
-                              className="text-[16px] font-extrabold text-champagne-gold flex items-center gap-2"
-                            >
-                              <span className="text-[20px]">
-                                {assignment.role?.toLowerCase().includes('dj') ? '🎧' : '💡'}
-                              </span>
-                              {assignment.staff?.name}
-                            </span>
-                          ))}
-                        </div>
                       </div>
                     )}
                   </div>

@@ -7,6 +7,7 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useState, useEffect } from "react";
 import { CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
@@ -19,6 +20,7 @@ const formSchema = z.object({
   phoneNumber: z.string().optional(),
   eventDate: z.string().min(1, "Please provide your event date"),
   venuePostcode: z.string().min(5, "Please enter a valid postcode (minimum 5 characters)"),
+  message: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -217,6 +219,23 @@ export default function NewInquiry() {
                   )}
                   <p className="text-xs text-gray-400 mt-1">
                     We'll use this to check our availability for your date and location
+                  </p>
+                </div>
+
+                {/* What they want / message */}
+                <div>
+                  <Label htmlFor="message" className="text-gray-200">
+                    What do you need? (e.g. DJ, lighting, other items)
+                  </Label>
+                  <Textarea
+                    id="message"
+                    {...register("message")}
+                    placeholder="Tell us what you're looking for – DJ, lighting, musicians, fire pits, venue styling, or anything else"
+                    rows={4}
+                    className="mt-2 bg-gray-700 border-gray-600 text-white placeholder:text-gray-400 focus:border-champagne-gold resize-y"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">
+                    This helps us build your quote quickly
                   </p>
                 </div>
 

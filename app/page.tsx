@@ -150,14 +150,21 @@ const TestimonialsSection = () => {
   );
 };
 
-// LCP image: same URL as layout preload so the browser reuses the preloaded response (faster LCP)
-const LCP_HERO_URL = "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto,w_1080/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg";
+// LCP image: same URL as layout preload (w_1080; w_640 worsened mobile LCP in Lighthouse runs)
+const LCP_HERO_URL = "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_60,dpr_auto,w_1080/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg";
 
 /** Below-fold image delivery: smaller Cloudinary params (~20 KiB savings) */
 function smallerCloudinaryUrl(url: string): string {
   return url
     .replace("q_auto", "q_60")
     .replace(/\/(upload\/[^/]+)\//, (_, t) => `/${t},w_800/`);
+}
+
+/** Slider images: cap at w_1080,q_60 for mobile image delivery (~175 KiB savings) */
+function sliderCloudinaryUrl(url: string): string {
+  return url
+    .replace("q_auto", "q_60")
+    .replace(/\/(upload\/[^/]+)\//, (_, t) => `/${t},w_1080/`);
 }
 
 // Homepage Gallery Slider Images
@@ -227,7 +234,7 @@ export default function Home() {
           {sliderImages.map((image, index) => (
             <div key={image.src} className="relative w-full h-full flex-shrink-0 flex items-center justify-center bg-gray-900">
               <Image
-                src={index === 0 && image.src.includes("Saltburn_231005__0020_0640_nmzjp6") ? LCP_HERO_URL : image.src}
+                src={index === 0 && image.src.includes("Saltburn_231005__0020_0640_nmzjp6") ? LCP_HERO_URL : sliderCloudinaryUrl(image.src)}
                 alt={image.alt}
                 fill
                 className="object-cover"

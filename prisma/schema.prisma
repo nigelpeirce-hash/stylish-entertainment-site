@@ -563,12 +563,13 @@ model NewEnquiry {
   email                 String
   phoneAreaCode         String?
   phoneNumber           String?
+  message               String?   // What they want: DJ, lighting, other items, notes from client
   eventDate             DateTime
   venuePostcode         String
   venueName             String?
   eventType             String?   // "wedding" | "corporate" | "party" | "other"
   enquiryType           String?   // "hire_only" | "general" etc.
-  selectedHireItems     Json?     // [{ hireItemId, quantity }] for hire-only
+  selectedHireItems      Json?     // [{ hireItemId, quantity }] for hire-only
   isConflict            Boolean   @default(false)
   originalBookingId     String?
   conflictDetectedAt    DateTime?

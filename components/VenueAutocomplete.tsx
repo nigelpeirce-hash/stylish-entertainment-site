@@ -186,7 +186,7 @@ export function VenueAutocomplete({
 
                 return (
                   <li
-                    key={suggestion}
+                    key={`${suggestion}-${index}`}
                     className={cn(
                       "px-4 py-2 cursor-pointer text-sm transition-colors",
                       index === selectedIndex 

@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Send, Loader2, Plus, X, Star, Music, Mic2 } from "lucide-react";
+import { Send, Loader2, Plus, X, Star, Music, Mic2, CheckCircle } from "lucide-react";
 import Image from "next/image";
 import { ResponsiveImage } from "@/components/cloudinary";
 
@@ -37,6 +37,8 @@ interface MultiArtistReplyProps {
   venueName: string;
   venueAddress?: string;
   eventDate: string;
+  /** When set, show "Quote sent" state, grey out main CTA, and offer Resend */
+  quoteSentAt?: string | null;
   onSend?: () => void;
 }
 
@@ -47,6 +49,7 @@ export function MultiArtistReply({
   venueName,
   venueAddress,
   eventDate,
+  quoteSentAt,
   onSend,
 }: MultiArtistReplyProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -210,6 +213,11 @@ export function MultiArtistReply({
       })
     : "";
 
+  const quoteSent = !!quoteSentAt;
+  const sentDateFormatted = quoteSentAt
+    ? new Date(quoteSentAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })
+    : "";
+
   return (
     <Dialog
       open={isOpen}
@@ -218,17 +226,36 @@ export function MultiArtistReply({
         setIsOpen(open);
       }}
     >
-      <DialogTrigger asChild>
-        <Button variant="outline" className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10">
-          <Send className="w-4 h-4 mr-2" />
-          Send Quote with Options
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 text-white border-champagne-gold/30">
+      <div className="flex flex-wrap items-center gap-2">
+        {quoteSent ? (
+          <>
+            <span className="inline-flex items-center gap-2 text-sm text-gray-400">
+              <CheckCircle className="w-4 h-4 text-green-500" />
+              Quote sent {sentDateFormatted}
+            </span>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="border-gray-600 text-gray-400 hover:bg-gray-800 hover:text-gray-300">
+                Resend quote
+              </Button>
+            </DialogTrigger>
+          </>
+        ) : (
+          <DialogTrigger asChild>
+            <Button variant="outline" className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10">
+              <Send className="w-4 h-4 mr-2" />
+              Send Quote with Options
+            </Button>
+          </DialogTrigger>
+        )}
+      </div>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 text-white border-champagne-gold/30" aria-describedby="multi-artist-quote-desc">
         <DialogHeader>
           <DialogTitle className="text-2xl font-serif text-champagne-gold">
             Send Quote with Multiple Options
           </DialogTitle>
+          <DialogDescription id="multi-artist-quote-desc" className="text-sm text-gray-400 mt-1 sr-only">
+            Add DJs and musicians to send a quote for {venueName} on {formattedDate}
+          </DialogDescription>
           <p className="text-sm text-gray-400 mt-1">
             {venueName} on {formattedDate}
           </p>

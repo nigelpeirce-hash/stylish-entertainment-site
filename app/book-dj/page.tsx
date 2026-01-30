@@ -245,13 +245,10 @@ function BookDJPageContent() {
         <Card className="bg-gray-800 border-champagne-gold/30 max-w-md">
           <CardContent className="pt-6 text-center space-y-4">
             <p className="text-green-400 text-lg">
-              Booking submitted successfully!
+              Booking request submitted
             </p>
             <p className="text-gray-400 text-sm">
-              We'll be in touch soon to confirm your booking.
-            </p>
-            <p className="text-gray-300 text-xs mt-2">
-              Once your booking is confirmed, you'll be able to complete the DJ worksheet and manage your booking online.
+              We&apos;ll be in touch soon. Once your booking is confirmed, you&apos;ll be able to complete the DJ worksheet and manage your booking online.
             </p>
             {createAccount && !session ? (
               <p className="text-gray-300 text-sm">
