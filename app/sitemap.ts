@@ -1,5 +1,4 @@
 import { MetadataRoute } from 'next';
-import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,32 +10,25 @@ function url(path: string, changeFrequency: 'weekly' | 'monthly' | 'yearly' = 'm
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  // --- Dynamic: DJs from DB ---
+  // --- Dynamic: DJs and hire items from DB ---
+  // Use dynamic import so build doesn't fail when DATABASE_URL is missing/invalid (e.g. some Vercel build regions)
   let djUrls: MetadataRoute.Sitemap = [];
+  let hireUrls: MetadataRoute.Sitemap = [];
   try {
-    const djs = await prisma.dJ.findMany({
-      where: { isActive: true },
-      select: { slug: true },
-    });
+    const { prisma } = await import('@/lib/prisma');
+    const [djs, items] = await Promise.all([
+      prisma.dJ.findMany({ where: { isActive: true }, select: { slug: true } }),
+      prisma.hireItem.findMany({ where: { isActive: true }, select: { slug: true } }),
+    ]);
     djUrls = (djs.filter((dj) => dj.slug) as { slug: string }[]).map((dj) =>
       url(`/artists/djs/${dj.slug}/`, 'monthly', 0.7)
     );
-  } catch (error) {
-    console.warn('Could not fetch DJs for sitemap:', error);
-  }
-
-  // --- Dynamic: Hire items from DB ---
-  let hireUrls: MetadataRoute.Sitemap = [];
-  try {
-    const items = await prisma.hireItem.findMany({
-      where: { isActive: true },
-      select: { slug: true },
-    });
     hireUrls = (items.filter((item) => item.slug) as { slug: string }[]).map((item) =>
       url(`/hire/${item.slug}/`, 'monthly', 0.6)
     );
   } catch (error) {
-    console.warn('Could not fetch hire items for sitemap:', error);
+    // DB unavailable during build (e.g. DATABASE_URL not set in Vercel) - return static-only sitemap
+    console.warn('Sitemap: skipping DB (missing/invalid DATABASE_URL or connection failed):', (error as Error)?.message);
   }
 
   // --- Static: all public pages ---
