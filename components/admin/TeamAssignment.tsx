@@ -192,7 +192,10 @@ export function TeamAssignment({
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-full p-0" align="start">
-              <Command className="bg-gray-900 border-gray-700">
+              <Command
+                className="bg-gray-900 border-gray-700"
+                shouldFilter={false}
+              >
                 <CommandInput
                   placeholder="Search staff..."
                   value={searchQuery}
@@ -253,9 +256,10 @@ export function TeamAssignment({
 
         {/* Assign Button */}
         <Button
+          type="button"
           onClick={handleAssign}
           disabled={isSubmitting || !selectedStaffId || !selectedRole}
-          className="w-full bg-champagne-gold text-black hover:bg-champagne-gold/90"
+          className="w-full bg-champagne-gold text-black hover:bg-champagne-gold/90 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isSubmitting ? "Assigning..." : "Assign Staff"}
         </Button>

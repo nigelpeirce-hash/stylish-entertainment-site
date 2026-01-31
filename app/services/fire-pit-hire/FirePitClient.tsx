@@ -49,7 +49,7 @@ export default function FirePitClient() {
         }}
       >
         {/* Service Details */}
-        <section className="py-20 px-4">
+        <section className="py-20 px-3 sm:px-4">
           <div className="container mx-auto max-w-6xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -143,7 +143,7 @@ export default function FirePitClient() {
         </section>
 
         {/* CTA */}
-        <section className="py-20 px-4">
+        <section className="py-20 px-3 sm:px-4">
           <div className="container mx-auto max-w-4xl text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

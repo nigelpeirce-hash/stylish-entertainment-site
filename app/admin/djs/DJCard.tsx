@@ -8,6 +8,7 @@ import Image from "next/image";
 import { User } from "lucide-react";
 import { motion } from "framer-motion";
 import { ResponsiveImage } from "@/components/cloudinary";
+import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 
 interface DJ {
   id: string;
@@ -55,7 +56,7 @@ export function DJCard({ dj, onEdit, onDelete }: DJCardProps) {
                 />
               ) : (
                 <Image
-                  src={dj.imageUrl}
+                  src={sanitizeCloudinaryUrl(dj.imageUrl) || dj.imageUrl}
                   alt={dj.name}
                   fill
                   className="object-cover"

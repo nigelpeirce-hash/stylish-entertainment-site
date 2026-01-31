@@ -12,6 +12,8 @@ import {
 } from "@/lib/booking-integrity";
 import { sendNewLeadNotification } from "@/lib/pushover-notifications";
 import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
+import sendEmail from "@/lib/email/send-email";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
 // Force dynamic rendering to prevent build-time errors
 export const dynamic = 'force-dynamic';
@@ -58,8 +60,18 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-    const { name, email, phone, eventDate, venueName, venueNamePostcode, eventType, preferredDJ, upsells, message, recaptchaToken } = body;
-    
+    // Support both /contact-us form (eventDate, venueName, preferredDJ, upsells) and /contact form (weddingDate, venueNamePostcode, services)
+    const eventDate = body.eventDate ?? body.weddingDate;
+    const venueName = body.venueName;
+    const venueNamePostcode = body.venueNamePostcode;
+    const eventType = body.eventType;
+    const preferredDJ = body.preferredDJ;
+    const upsells = body.upsells;
+    const bodyServices = body.services; // /contact form sends "services" (e.g. ["DJs", "Lighting Design"])
+    const message = body.message != null ? String(body.message).trim() : "";
+    const contactPreference = body.contactPreference || "Email";
+    const { name, email, phone, recaptchaToken } = body;
+
     // Log incoming request for debugging
     console.log("📧 Contact form submission received:", {
       name,
@@ -69,9 +81,11 @@ export async function POST(request: NextRequest) {
       hasVenueNamePostcode: !!venueNamePostcode,
       eventType,
       hasMessage: !!message,
+      hasPreferredDJ: !!preferredDJ,
+      hasServices: Array.isArray(bodyServices) && bodyServices.length > 0,
       timestamp: new Date().toISOString(),
     });
-    
+
     // Extract venue name (handle both venueName and venueNamePostcode fields)
     const clientVenueName = venueName || venueNamePostcode || null;
 
@@ -185,7 +199,7 @@ export async function POST(request: NextRequest) {
     // Generate booking reference
     const bookingReference = generateBookingReference();
 
-    // Map upsells to services array
+    // Map upsells (from /contact-us) and services (from /contact) to booking services array
     const services: string[] = [];
     if (upsells && Array.isArray(upsells)) {
       upsells.forEach((upsell: string) => {
@@ -193,6 +207,17 @@ export async function POST(request: NextRequest) {
         if (upsell === "musicians") services.push("musicians");
         if (upsell === "fire-pits") services.push("fire-pits");
         if (upsell === "venue-styling") services.push("venue-styling");
+      });
+    }
+    if (bodyServices && Array.isArray(bodyServices)) {
+      bodyServices.forEach((s: string) => {
+        const lower = String(s).toLowerCase();
+        if (lower.includes("dj") && !services.includes("DJs")) services.push("DJs");
+        else if ((lower.includes("lighting") || lower.includes("design")) && !services.includes("lighting")) services.push("lighting");
+        else if ((lower.includes("musician") || lower.includes("live")) && !services.includes("musicians")) services.push("musicians");
+        else if ((lower.includes("fire") || lower.includes("pit")) && !services.includes("fire-pits")) services.push("fire-pits");
+        else if ((lower.includes("venue") || lower.includes("styling") || lower.includes("decoration")) && !services.includes("venue-styling")) services.push("venue-styling");
+        else if (s && !services.includes(s)) services.push(s);
       });
     }
 
@@ -225,11 +250,11 @@ export async function POST(request: NextRequest) {
           preferredDJ: preferredDJ || null,
           services,
           upsellItems: upsells || [],
-          message,
+          message: message || null,
           status: "pending",
           // @ts-ignore - Priority field exists in schema but TypeScript types may be out of sync
           priority,
-          contactPreference: "Email", // Default for contact form submissions
+          contactPreference, // From form (e.g. /contact sends "Phone" or "Email")
           bookingReference, // Add booking reference for email threading
           conflictStatus, // Mark if conflict detected
           authorizedSenders: [], // Initialize empty array
@@ -286,6 +311,24 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Dashboard + email notification for significant event (AuditLog + admin email)
+    const eventDateLabel = eventDate
+      ? new Date(eventDate).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+      : undefined;
+    try {
+      await notifyAdminSignificantEvent({
+        type: "booking_request_received",
+        bookingId: booking.id,
+        title: "Booking Request Received",
+        description: `${name} – ${clientVenueName || "Venue TBC"}${eventDateLabel ? ` – ${eventDateLabel}` : ""}`,
+        bookingName: name,
+        venueName: clientVenueName || undefined,
+        eventDate: eventDateLabel,
+      });
+    } catch (e) {
+      console.warn("Admin notification (booking_request_received) failed:", e);
+    }
+
     // TODO: Verify reCAPTCHA token on server side if needed
     // For now, we'll trust the client-side verification
 
@@ -307,8 +350,9 @@ export async function POST(request: NextRequest) {
         })
       : null;
 
-    // Create email content
-    const emailSubject = `New Contact Form Submission from ${name}`;
+    // Create email content – subject makes it clear this is a booking request notification
+    const eventLabel = adminEventDateFormatted ? ` – ${eventType || "Event"} ${adminEventDateFormatted}` : "";
+    const emailSubject = `Booking Request Received: ${name}${eventLabel}`;
     const emailHtml = `
       <!DOCTYPE html>
       <html>
@@ -329,7 +373,7 @@ export async function POST(request: NextRequest) {
         <div class="container">
           <div class="header">
             <img src="${logoUrl}" alt="Stylish Entertainment" class="logo" style="max-width: 200px; height: auto; margin-bottom: 15px;" />
-            <h1 style="margin: 0; font-size: 24px;">New Contact Form Submission</h1>
+            <h1 style="margin: 0; font-size: 24px;">Booking Request Received</h1>
           </div>
           <div class="content">
             <div class="field">
@@ -386,6 +430,12 @@ export async function POST(request: NextRequest) {
               }).join(", ")}</div>
             </div>
             ` : ''}
+            ${services && services.length > 0 ? `
+            <div class="field">
+              <div class="field-label">Services requested:</div>
+              <div class="field-value">${services.join(", ")}</div>
+            </div>
+            ` : ''}
             <div class="field">
               <div class="field-label">Message:</div>
               <div class="field-value">${message.replace(/\n/g, '<br>')}</div>
@@ -397,100 +447,79 @@ export async function POST(request: NextRequest) {
       </html>
     `;
 
-    // Send email to your business email using Resend
+    // Send notification to business: primary recipient + optional backup
     const recipientEmail = process.env.CONTACT_FORM_EMAIL || "info@stylishentertainment.co.uk";
-    
-    // Use Resend for business notification email
+    const backupEmail = process.env.NOTIFICATION_EMAIL || undefined; // optional second inbox
+    const recipients = [recipientEmail, ...(backupEmail && backupEmail !== recipientEmail ? [backupEmail] : [])];
+
     const emailConfig = getResendConfig("booking");
     const resend = getResend();
     let emailResult: any = { success: false, error: "Email not sent" };
-    
-    console.log("📧 Attempting to send business email:", {
+
+    console.log("📧 Attempting to send booking request notification:", {
       hasResendClient: !!resend,
-      recipient: recipientEmail,
+      recipients: recipients.join(", "),
       from: emailConfig.from,
-      replyTo: emailConfig.replyTo,
     });
-    
+
+    const sendBusinessNotification = async (to: string): Promise<{ success: boolean; messageId?: string; error?: string }> => {
+      if (!resend) return { success: false, error: "RESEND_API_KEY not configured" };
+      const result = await resend.emails.send({
+        from: emailConfig.from,
+        replyTo: emailConfig.replyTo,
+        to: [to],
+        subject: emailSubject,
+        html: emailHtml,
+      });
+      const messageId = result.data?.id;
+      const hasError = result.error || !messageId;
+      if (hasError) {
+        return {
+          success: false,
+          error: (result.error as any)?.message || JSON.stringify(result.error) || "No messageId",
+        };
+      }
+      return { success: true, messageId };
+    };
+
     try {
-      if (resend) {
+      let sent = false;
+      for (const to of recipients) {
         try {
-          console.log("📤 Sending business notification via Resend...");
-          console.log("📤 Email details:", {
-            from: emailConfig.from,
+          const result = await sendBusinessNotification(to);
+          if (result.success) {
+            console.log("✅ Booking request notification sent to:", to, "messageId:", result.messageId);
+            emailResult = { success: true, messageId: result.messageId };
+            sent = true;
+          } else {
+            console.warn("⚠️ Failed to send to", to, result.error);
+          }
+        } catch (e) {
+          console.warn("⚠️ Error sending to", to, e);
+        }
+      }
+      if (!sent && resend) {
+        // Fallback: try shared sendEmail (uses RESEND_DEFAULT_FROM – may work if booking 'from' domain isn't verified)
+        try {
+          const fallback = await sendEmail({
             to: recipientEmail,
-            subject: emailSubject.substring(0, 50) + "...",
-          });
-          const businessEmailResult = await resend.emails.send({
-            from: emailConfig.from,
-            replyTo: emailConfig.replyTo,
-            to: [recipientEmail],
             subject: emailSubject,
             html: emailHtml,
           });
-          
-          // Log the FULL response for debugging
-          console.log("🔍 Full Resend response:", JSON.stringify(businessEmailResult, null, 2));
-          
-          // Resend returns { data: { id: '...' }, error: null } on success
-          // Or { data: null, error: {...} } on failure
-          const messageId = businessEmailResult.data?.id;
-          const hasError = businessEmailResult.error || !messageId;
-          
-          if (hasError) {
-            console.error("❌ Resend returned error or no messageId:", {
-              error: businessEmailResult.error,
-              errorType: typeof businessEmailResult.error,
-              errorKeys: businessEmailResult.error ? Object.keys(businessEmailResult.error) : [],
-              messageId: messageId,
-              data: businessEmailResult.data,
-              hasData: !!businessEmailResult.data,
-              fullResponse: JSON.stringify(businessEmailResult, null, 2),
-            });
-            emailResult = { 
-              success: false, 
-              error: businessEmailResult.error?.message || 
-                     (typeof businessEmailResult.error === 'string' ? businessEmailResult.error : JSON.stringify(businessEmailResult.error)) ||
-                     "Resend returned no messageId",
-              errorDetails: businessEmailResult.error,
-            };
-          } else {
-            console.log("✅ Business email sent via Resend:", {
-              messageId: messageId,
-              to: recipientEmail,
-              from: emailConfig.from,
-              responseData: businessEmailResult.data,
-            });
-            emailResult = { 
-              success: true, 
-              messageId: messageId 
-            };
+          if (fallback?.data?.id && !fallback?.error) {
+            console.log("✅ Booking request notification sent via fallback (RESEND_DEFAULT_FROM) to:", recipientEmail);
+            emailResult = { success: true, messageId: fallback.data.id };
           }
-        } catch (resendError: any) {
-          console.error("❌ Error sending business email via Resend:", resendError);
-          console.error("❌ Resend error type:", resendError?.constructor?.name || typeof resendError);
-          console.error("❌ Resend error message:", resendError?.message || String(resendError));
-          console.error("❌ Resend error details:", JSON.stringify(resendError, Object.getOwnPropertyNames(resendError), 2));
-          emailResult = { 
-            success: false, 
-            error: resendError instanceof Error ? resendError.message : "Resend API error",
-            errorDetails: resendError?.message || String(resendError),
-          };
+        } catch (fallbackErr) {
+          console.error("❌ Fallback sendEmail also failed:", fallbackErr);
         }
-      } else {
-        // No Resend API key - email cannot be sent
-        console.error("❌ RESEND_API_KEY not set - email cannot be sent");
-        emailResult = { 
-          success: false, 
-          error: "RESEND_API_KEY not configured" 
-        };
+      }
+      if (!emailResult.success && !resend) {
+        emailResult = { success: false, error: "RESEND_API_KEY not configured" };
       }
     } catch (emailError) {
       console.error("❌ Unexpected error sending business email:", emailError);
-      emailResult = { 
-        success: false, 
-        error: emailError instanceof Error ? emailError.message : "Unknown error" 
-      };
+      emailResult = { success: false, error: emailError instanceof Error ? emailError.message : "Unknown error" };
     }
 
     if (!emailResult?.success) {

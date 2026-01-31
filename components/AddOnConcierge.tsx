@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
@@ -230,7 +231,7 @@ export default function AddOnConcierge({
                   {/* Thumbnail Image */}
                   <div className="relative w-full h-48 overflow-hidden rounded-t-lg">
                     <Image
-                      src={addOn.imageUrl}
+                      src={sanitizeCloudinaryUrl(addOn.imageUrl) || addOn.imageUrl}
                       alt={addOn.imageAlt}
                       fill
                       className="object-cover"

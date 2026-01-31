@@ -49,6 +49,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { toDisplayFee } from "@/lib/transformers/booking-transformer";
 
 interface Booking {
   id: string;
@@ -711,7 +712,7 @@ export default function BookingDetail() {
                           </div>
                           <p className="text-gray-600 text-xs mb-1">Role: {assignment.role}</p>
                           <p className="text-gray-600 text-xs">
-                            Fee: £{assignment.agreedFee.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            Fee: £{toDisplayFee(assignment.agreedFee).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </p>
                           {assignment.confirmationEmailSent && (
                             <p className="text-xs text-green-600 mt-1">✓ Confirmation sent</p>

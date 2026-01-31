@@ -47,7 +47,7 @@ export default function Parties() {
     document.title = "Party Entertainment & Production | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Professional party entertainment, lighting design and production services across the UK and Wales. Private parties, corporate events and Christmas celebrations.");
+      metaDescription.setAttribute("content", "Professional party entertainment, lighting design and production services across the UK. Private parties, corporate events and Christmas celebrations.");
     }
   }, []);
 
@@ -179,7 +179,7 @@ export default function Parties() {
               Ready to Plan Your Perfect Party?
             </h2>
             <p className="text-lg md:text-xl text-gray-300 mb-8">
-              Based in Frome, Somerset, we serve parties across the UK and Wales. Get in touch to discuss your event 
+              Based in Frome, Somerset, we serve parties across the UK. Get in touch to discuss your event 
               and let&apos;s create something extraordinary together.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

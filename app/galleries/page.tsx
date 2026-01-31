@@ -221,7 +221,7 @@ export default function Galleries() {
     document.title = "Wedding Galleries | Professional Wedding Lighting & Venue Styling Photos";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Browse our portfolio of professional wedding lighting design and venue styling across the UK and Wales. See our work at prestigious venues.");
+      metaDescription.setAttribute("content", "Browse our portfolio of professional wedding lighting design and venue styling across the UK. See our work at prestigious venues.");
     }
 
     // Calculate columns based on screen size
@@ -272,7 +272,7 @@ export default function Galleries() {
       </section>
 
       {/* Main Gallery Section with Tabs */}
-      <section className="py-12 md:py-20 px-4 bg-gray-800 relative">
+      <section className="py-12 md:py-20 px-3 sm:px-4 bg-gray-800 relative">
         <div className="container mx-auto max-w-7xl">
           {/* Tab Navigation and Content */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -386,7 +386,7 @@ export default function Galleries() {
       </section>
 
       {/* Featured: Before and After Section */}
-      <section className="py-12 md:py-20 px-4 bg-gray-900">
+      <section className="py-12 md:py-20 px-3 sm:px-4 bg-gray-900">
         <div className="container mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

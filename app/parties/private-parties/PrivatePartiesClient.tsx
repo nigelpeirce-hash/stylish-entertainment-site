@@ -196,7 +196,7 @@ export default function PrivatePartiesClient() {
         }}
       >
         {/* Welcome Section */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <section className="py-20 px-3 sm:px-4 lg:px-8">
           <div className="container mx-auto max-w-6xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -340,7 +340,7 @@ export default function PrivatePartiesClient() {
         </section>
 
         {/* Trusted by Babington */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <section className="py-20 px-3 sm:px-4 lg:px-8">
           <div className="container mx-auto max-w-4xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -377,7 +377,7 @@ export default function PrivatePartiesClient() {
         </section>
 
         {/* Service Area - Expanded */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        <section className="py-20 px-3 sm:px-4 lg:px-8 relative overflow-hidden">
           {/* Subtle SVG Map Background */}
           <div className="absolute inset-0 opacity-5 pointer-events-none">
             <svg viewBox="0 0 400 400" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
@@ -521,7 +521,7 @@ export default function PrivatePartiesClient() {
                 <p className="text-gray-300 text-sm mt-4">
                   Whether you&apos;re planning a private party, corporate event or celebration in Frome, Malmesbury, 
                   Marlborough, Devizes, Castle Cary, Cheltenham, Gloucester, Sherborne, Exeter, Bath, Bristol 
-                  or any of the 200+ towns we serve across the UK and Wales, 
+                  or any of the 200+ towns we serve across the UK, 
                   we provide expert party planning and technical production services.
                 </p>
               </div>
@@ -530,7 +530,7 @@ export default function PrivatePartiesClient() {
         </section>
 
         {/* Experience Section */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <section className="py-20 px-3 sm:px-4 lg:px-8">
           <div className="container mx-auto max-w-6xl">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card className="bg-white/5 backdrop-blur-lg border-champagne-gold/30">
@@ -559,7 +559,7 @@ export default function PrivatePartiesClient() {
         </section>
 
         {/* Call to Action */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <section className="py-20 px-3 sm:px-4 lg:px-8">
           <div className="container mx-auto max-w-4xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

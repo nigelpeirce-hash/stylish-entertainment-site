@@ -3,6 +3,7 @@ import { getToken } from "next-auth/jwt";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -202,6 +203,22 @@ export async function POST(request: NextRequest) {
     } catch (emailError) {
       console.error("Error sending notification email:", emailError);
       // Don't fail the request if email fails
+    }
+
+    if (booking?.id) {
+      try {
+        await notifyAdminSignificantEvent({
+          type: "portal_message",
+          bookingId: booking.id,
+          title: "Portal message",
+          description: `Message from ${user.name || user.email}: ${message.slice(0, 100)}${message.length > 100 ? "…" : ""}`,
+          bookingName: booking.name ?? undefined,
+          venueName: booking.venueName ?? undefined,
+          eventDate: booking.eventDate ? new Date(booking.eventDate).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : undefined,
+        });
+      } catch (e) {
+        console.warn("Admin notification (portal_message) failed:", e);
+      }
     }
 
     return NextResponse.json({

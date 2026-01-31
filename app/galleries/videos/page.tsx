@@ -63,7 +63,7 @@ export default function Videos() {
     document.title = "Video Gallery | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Watch our video gallery showcasing wedding lighting design, party entertainment, DJ sets and event production across the UK and Wales.");
+      metaDescription.setAttribute("content", "Watch our video gallery showcasing wedding lighting design, party entertainment, DJ sets and event production across the UK.");
     }
 
     // Fetch videos from YouTube API if available
@@ -327,7 +327,7 @@ export default function Videos() {
           >
             <p className="text-lg md:text-xl text-gray-300 leading-relaxed">
               Explore our video collection showcasing stunning wedding lighting designs, party entertainment, 
-              DJ performances and event production across the UK and Wales. From elegant fairy light installations 
+              DJ performances and event production across the UK. From elegant fairy light installations 
               to energetic dance floor moments, see how we bring extraordinary celebrations to life.
             </p>
             <div className="mt-6">

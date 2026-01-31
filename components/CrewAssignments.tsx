@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { UserPlus, CheckCircle2, XCircle, Clock, Mail } from "lucide-react";
+import { toDisplayFee } from "@/lib/transformers/booking-transformer";
 
 interface FreelanceCrew {
   id: string;
@@ -214,18 +215,11 @@ export function CrewAssignments({
                   <div className="flex-1">
                     <p className="text-white font-semibold mb-1">{assignment.staff.name}</p>
                     <p className="text-gray-400 text-sm">Role: {assignment.role}</p>
-                    {(() => {
-                      const fee = typeof assignment.agreedFee === 'number' 
-                        ? assignment.agreedFee 
-                        : typeof assignment.agreedFee === 'object' && assignment.agreedFee !== null
-                          ? Number((assignment.agreedFee as any).fee) || Number((assignment.agreedFee as any).amount) || 0
-                          : Number(assignment.agreedFee) || 0;
-                      return fee > 0 ? (
-                        <p className="text-gray-400 text-sm">
-                          Fee: £{fee.toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </p>
-                      ) : null;
-                    })()}
+                    {toDisplayFee(assignment.agreedFee) > 0 && (
+                      <p className="text-gray-400 text-sm">
+                        Fee: £{toDisplayFee(assignment.agreedFee).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </p>
+                    )}
                   </div>
                   <div className="flex flex-col items-end gap-2">
                     {getStatusBadge(assignment.status)}

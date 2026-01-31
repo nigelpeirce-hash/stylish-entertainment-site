@@ -23,6 +23,7 @@ export default function Navigation() {
   const [venuesOpen, setVenuesOpen] = useState(false);
 
   const navLinks = [
+    { href: "/request-quote", label: "Request a quote" },
     { href: "/contact-us", label: "Contact" },
   ];
 
@@ -137,7 +138,7 @@ export default function Navigation() {
         }}
       />
       
-      <div className="container mx-auto px-4 sm:px-6 relative z-20">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 relative z-20">
         <div className="flex items-center justify-between h-32 md:h-36 relative">
           <div className="flex flex-col flex-shrink-0">
             <Link href="/" className="relative group z-20 hover:opacity-90 transition-opacity duration-300">
@@ -206,7 +207,7 @@ export default function Navigation() {
               exit={{ opacity: 0, height: 0 }}
               className="bg-black/95 backdrop-blur-lg border-t-2 border-[#d4af37]/30 shadow-xl relative z-20"
             >
-              <div className="container mx-auto px-4 py-4 sm:py-6 space-y-4">
+              <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-6 space-y-4">
                 {/* Navigation Links */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4">
                   {/* Artists Dropdown */}

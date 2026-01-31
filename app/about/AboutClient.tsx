@@ -63,7 +63,7 @@ export default function AboutClient() {
     <div>
       {/* Main Content */}
       <section 
-        className="pt-20 pb-8 px-6 md:px-4"
+        className="pt-20 pb-8 px-3 sm:px-4"
         style={{
           background: 'radial-gradient(circle at top, rgb(55 65 81) 0%, rgb(31 41 55) 50%, rgb(17 24 39) 100%)'
         }}

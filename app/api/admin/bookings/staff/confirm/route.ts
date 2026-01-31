@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { staffConfirmationEmail } from "@/lib/email-staff-confirmation";
 import { getResendConfig } from "@/lib/email-config";
 import { Resend } from "resend";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
 // Lazy initialization to prevent build-time errors
 const getResend = () => {
@@ -52,6 +53,7 @@ export async function POST(request: NextRequest) {
       where: { id: bookingId },
       select: {
         id: true,
+        name: true,
         eventDate: true,
         venueName: true,
       },
@@ -250,6 +252,22 @@ export async function POST(request: NextRequest) {
         console.error("Error sending staff confirmation email:", emailError);
         // Don't fail the request if email fails - assignment is still created
       }
+    }
+
+    try {
+      const eventDateLabel = new Date(booking.eventDate).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+      await notifyAdminSignificantEvent({
+        type: "artist_assigned",
+        bookingId,
+        title: "Artist Assigned",
+        description: `${staff.name} assigned as ${role}${agreedFee ? ` – £${agreedFee}` : ""}`,
+        performedBy: (admin as any)?.name ?? (admin as any)?.email,
+        bookingName: booking.name ?? undefined,
+        venueName: booking.venueName ?? undefined,
+        eventDate: eventDateLabel,
+      });
+    } catch (e) {
+      console.warn("Admin notification (artist_assigned) failed:", e);
     }
 
     return NextResponse.json({

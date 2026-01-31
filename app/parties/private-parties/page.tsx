@@ -30,7 +30,7 @@ const serviceAreaKeywords = [
 
 export const metadata: Metadata = {
   title: "Private Parties | Bespoke Party Planning & Technical Production",
-  description: "Full party planning and production services. Creative DJs, bands, entertainment and beautiful lighting for private parties across the UK and Wales. Serving 100+ towns. Trusted by Babington House for 20+ years.",
+  description: "Full party planning and production services. Creative DJs, bands, entertainment and beautiful lighting for private parties across the UK. Serving 100+ towns. Trusted by Babington House for 20+ years.",
   keywords: [
     "Private party planning",
     "Bespoke party planning",
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "Private Parties | Bespoke Party Planning & Technical Production",
-    description: "Full party planning and production services across the UK and Wales. Serving 100+ towns.",
+    description: "Full party planning and production services across the UK. Serving 100+ towns.",
   },
 };
 
@@ -236,7 +236,7 @@ export default function PrivateParties() {
           </div>
         ))}
         <p>
-          Our comprehensive service area covers the UK and Wales. 
+          Our comprehensive service area covers the UK. 
           Whether you&apos;re planning a private party in Frome, Malmesbury, Marlborough, Devizes, Castle Cary, Cheltenham, 
           Gloucester, Sherborne, Exeter or any of the 200+ towns we serve, we provide expert party planning and production services.
         </p>

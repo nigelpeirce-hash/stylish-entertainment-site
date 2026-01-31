@@ -117,7 +117,7 @@ export default function WeddingLightingClient() {
       </section>
 
       {/* Text Paragraph */}
-      <section className="py-16 px-4 bg-gray-800">
+      <section className="py-16 px-3 sm:px-4 bg-gray-800">
         <div className="container mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -136,7 +136,7 @@ export default function WeddingLightingClient() {
       </section>
 
       {/* Gallery */}
-      <section className="py-16 px-4 bg-gray-900">
+      <section className="py-16 px-3 sm:px-4 bg-gray-900">
         <div className="container mx-auto max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

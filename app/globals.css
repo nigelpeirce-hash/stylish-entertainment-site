@@ -60,6 +60,35 @@ p[data-cky-tag="title"],
   border-color: #424242 !important;
 }
 
+/* Mobile: slightly tighter horizontal padding and safe-area for iPhone (notch/home indicator).
+   Use .content-px on sections for consistent padding; main gets safe-area only. */
+@supports (padding: env(safe-area-inset-left)) {
+  .safe-area-x {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Optional utility: content horizontal padding (tighter on mobile, respects safe-area when used with safe-area-x parent) */
+@layer utilities {
+  .content-px {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  @media (min-width: 640px) {
+    .content-px {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+  @media (min-width: 1024px) {
+    .content-px {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+}
+
 /* Site-wide CTA: always in document flow, never sticky or fixed. Must scroll with page. */
 .site-wide-cta {
   position: static !important;
@@ -1015,6 +1044,25 @@ input[type="time"]::-webkit-datetime-edit-ampm-field {
   padding: 0.65rem 1rem !important;
 }
 .contact-ui button { font-size: 1.09375rem !important; min-height: 2.75rem !important; padding: 0.5rem 1rem !important; }
+
+/* Contact form field: label above input, no overlap on mobile */
+.contact-ui .contact-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  align-items: stretch;
+}
+.contact-ui .contact-form-field > label {
+  display: block;
+  line-height: 1.4;
+  margin-bottom: 0;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+}
+.contact-ui .contact-form-field > label + * {
+  margin-top: 0;
+}
 
 /* ---- Client portal (.portal-ui) ---- */
 .portal-ui {

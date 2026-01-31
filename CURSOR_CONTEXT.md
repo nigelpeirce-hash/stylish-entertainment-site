@@ -70,6 +70,13 @@ Agent familiarisation for the Stylish Entertainment website project.
 
 ---
 
+## Sandbox Demos (Admin)
+
+- `/admin/sandbox/footer-demo` – Footer original vs refactored
+- `/admin/sandbox/terms-portal-demo` – Link to T&C portal flow demo
+- `/admin/sandbox/book-from-quote` – Book-from-quote token
+- `/admin/sandbox/client-portal` – Client portal magic link
+
 ## Key Features
 
 - Event booking and admin management
@@ -96,11 +103,22 @@ See `.env.local.example` and `DISASTER_RECOVERY_GUIDE.md` for full list.
 
 ---
 
+## Recent Work (Jan 2026)
+
+- **T&C Portal:** Planned, not implemented. `TERMS_PORTAL_MODULE_PLAN.md` – personalised T&Cs in client portal, e-sign, deposit non-refundable, gating. Demo: `/terms-portal-flow-demo.html` or Admin → Sandbox → Terms portal demo.
+- **Terms content:** `lib/terms-content.ts` – `TERMS_ABRIDGED`, `DEPOSIT_CLAUSE`, `COMPANY_*` (Stylish Entertainment Ltd, 88 Weymouth Road, Alison & Nigel Peirce). Full terms: `TERMS_SECTIONS` (10 sections).
+- **Footer:** Address and "All rights reserved" removed. `FooterRefactored.tsx`; demo at `/admin/sandbox/footer-demo`.
+- **Breadcrumbs:** Centralised in `lib/breadcrumb-config.ts`, `lib/breadcrumb-utils.ts`.
+- **T&C at first touch:** Contact form, client new booking – no T&C. Book DJ, Book from quote – T&C required.
+
+---
+
 ## Documentation
 
 | File                        | Purpose                                      |
 |----------------------------|----------------------------------------------|
 | **DISASTER_RECOVERY_GUIDE.md** | Full rebuild, env vars, DB, deployments     |
+| **TERMS_PORTAL_MODULE_PLAN.md** | T&C portal (planned): personalised T&Cs, e-sign |
 | **GTM_CONTAINER_QUALITY_FIX.md** | GTM setup, Google tag, thank-you trigger   |
 | **YOUTUBE_LIVE_TROUBLESHOOTING.md** | YouTube API on production                |
 | **COOKIEYES_GTM_403_FIX.md** | CookieYes 403 when loaded via GTM          |

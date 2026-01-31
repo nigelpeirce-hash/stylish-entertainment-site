@@ -160,7 +160,7 @@ export default function ChristmasClient() {
 
       {/* Introduction */}
       <section
-        className="py-16 px-4 sm:px-6 lg:px-8 relative"
+        className="py-16 px-3 sm:px-4 lg:px-8 relative"
         style={{
           background: 'radial-gradient(circle at center, rgb(17 24 39) 0%, rgb(3 7 18) 50%, rgb(2 6 23) 100%)'
         }}
@@ -218,7 +218,7 @@ export default function ChristmasClient() {
       </section>
 
       {/* Gallery - Moved Higher */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-950">
+      <section className="py-16 px-3 sm:px-4 lg:px-8 bg-gray-950">
         <div className="container mx-auto max-w-full">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -232,7 +232,7 @@ export default function ChristmasClient() {
       </section>
 
       {/* What We Offer - Z-Pattern Layout */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-slate-950">
+      <section className="py-16 px-3 sm:px-4 lg:px-8 bg-slate-950">
         <div className="container mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -359,7 +359,7 @@ export default function ChristmasClient() {
 
       {/* Call to Action - Exclusive Invitation */}
       <section
-        className="py-16 px-4 sm:px-6 lg:px-8 relative"
+        className="py-16 px-3 sm:px-4 lg:px-8 relative"
         style={{
           background: 'radial-gradient(circle at center, rgb(17 24 39) 0%, rgb(3 7 18) 50%, rgb(2 6 23) 100%)'
         }}
@@ -410,7 +410,7 @@ export default function ChristmasClient() {
                   </Button>
                 </div>
                 <p className="text-gray-400 text-sm mt-8">
-                  Serving weddings and events across the UK and Wales
+                  Serving weddings and events across the UK
                 </p>
               </CardContent>
             </Card>

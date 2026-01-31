@@ -10,14 +10,14 @@ export default function FaqClient() {
     document.title = "FAQ | Frequently Asked Questions | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Frequently asked questions about Stylish Entertainment. Learn about our DJs, lighting design, venue styling, pricing, booking process and service areas across the UK and Wales.");
+      metaDescription.setAttribute("content", "Frequently asked questions about Stylish Entertainment. Learn about our DJs, lighting design, venue styling, pricing, booking process and service areas across the UK.");
     }
   }, []);
 
   return (
     <div>
       {/* Main Content */}
-      <section className="pt-20 pb-8 px-4 bg-gray-800">
+      <section className="pt-20 pb-8 px-3 sm:px-4 bg-gray-800">
         <div className="container mx-auto max-w-5xl">
           {/* Page Title */}
           <motion.div

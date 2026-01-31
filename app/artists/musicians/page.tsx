@@ -19,7 +19,7 @@ export default function Musicians() {
     if (metaDescription) {
       metaDescription.setAttribute(
         "content",
-        "Professional live musicians for weddings and events. Harpists, bands, duos, trios and performers across the UK and Wales."
+        "Professional live musicians for weddings and events. Harpists, bands, duos, trios and performers across the UK."
       );
     }
 
@@ -136,7 +136,7 @@ export default function Musicians() {
       </section>
 
       {/* Selling Points */}
-      <section className="py-16 px-4 bg-gray-900">
+      <section className="py-16 px-3 sm:px-4 bg-gray-900">
         <div className="container mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -267,7 +267,7 @@ export default function Musicians() {
       </section>
 
       {/* Services */}
-      <section className="py-16 px-4 bg-gray-800">
+      <section className="py-16 px-3 sm:px-4 bg-gray-800">
         <div className="container mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -308,7 +308,7 @@ export default function Musicians() {
       </section>
 
       {/* CTA */}
-      <section className="py-16 px-4 bg-gray-900">
+      <section className="py-16 px-3 sm:px-4 bg-gray-900">
         <div className="container mx-auto max-w-4xl text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getStaffPushKeys, sendPushoverNotification } from "@/lib/pushover-notifications";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -197,6 +198,20 @@ export async function PATCH(
       await Promise.allSettled(notifications);
     } catch (e) {
       console.error("[final-details] Pushover notify error:", e);
+    }
+
+    try {
+      await notifyAdminSignificantEvent({
+        type: "final_details_confirmed",
+        bookingId,
+        title: "Final details confirmed",
+        description: `${booking.name} confirmed final details – ready to dispatch`,
+        bookingName: booking.name ?? undefined,
+        venueName: booking.venueName ?? undefined,
+        eventDate: formattedDate,
+      });
+    } catch (e) {
+      console.warn("Admin notification (final_details_confirmed) failed:", e);
     }
 
     return NextResponse.json({ success: true });

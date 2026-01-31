@@ -108,7 +108,7 @@ export default function ServicesClient() {
       </section>
 
       {/* Services Grid */}
-      <section className="py-20 px-4 bg-gray-800">
+      <section className="py-20 px-3 sm:px-4 bg-gray-800">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 max-w-6xl mx-auto">
             {services.map((service, index) => {
@@ -172,7 +172,7 @@ export default function ServicesClient() {
       </section>
 
       {/* Additional Info */}
-      <section className="pt-20 pb-8 px-4 bg-gray-900">
+      <section className="pt-20 pb-8 px-3 sm:px-4 bg-gray-900">
         <div className="container mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

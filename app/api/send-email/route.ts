@@ -1,4 +1,3 @@
-import { createHmac } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { Resend } from "resend";
 import { getJourneyEmail, type JourneyStage, type JourneyEmailData } from "@/lib/email-journey-templates";
@@ -6,17 +5,9 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "@/lib/get-session";
 import { getResendConfig } from "@/lib/email-config";
 import { getBrochureLink, getVenueAsset, getTrackingUrl } from "@/lib/venue-assets";
-
 import { getEmailBaseUrl } from "@/lib/get-base-url";
 import { getClientPortalLoginUrl } from "@/lib/client-portal-url";
-
-/** Build signed "I've paid" URL for booking confirmation email. */
-function buildMarkedPaidUrl(bookingId: string): string {
-  const baseUrl = getEmailBaseUrl();
-  const secret = process.env.DEPOSIT_PAID_LINK_SECRET || process.env.NEXTAUTH_SECRET || "deposit-paid-fallback";
-  const sig = createHmac("sha256", secret).update(bookingId).digest("hex");
-  return `${baseUrl}/api/client/bookings/${bookingId}/marked-deposit-paid?sig=${encodeURIComponent(sig)}`;
-}
+import { buildMarkedPaidUrl } from "@/lib/deposit-paid-link";
 
 // Force dynamic rendering to prevent build-time errors
 export const dynamic = 'force-dynamic';

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { ShoppingCart, Plus, Minus, X, Package, ChevronDown, ChevronUp, CheckCircle2, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 import { trackEnquiryComplete } from "@/lib/analytics";
 
 const STORAGE_KEY = "public_hire_basket";
@@ -257,7 +258,7 @@ export default function HirePage() {
                     {item.imageUrl ? (
                       <Link href={`/hire/${item.slug || item.id}`}>
                         <img
-                          src={item.imageUrl}
+                          src={sanitizeCloudinaryUrl(item.imageUrl) || item.imageUrl}
                           alt={item.name}
                           className="w-full h-48 object-cover rounded-lg mb-4 cursor-pointer hover:opacity-90 transition-opacity"
                         />

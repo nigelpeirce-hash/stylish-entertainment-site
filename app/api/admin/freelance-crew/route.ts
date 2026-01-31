@@ -22,22 +22,29 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const activeOnly = searchParams.get("activeOnly") === "true";
-    const role = searchParams.get("role"); // Filter by role (e.g., "DJ", "Lighting")
+    const role = searchParams.get("role")?.trim() || undefined; // e.g. "DJ", "Lighting", "Styling", "Musician", "Production"
 
-    const whereClause: any = {};
+    const whereClause: Record<string, unknown> = {};
     if (activeOnly) {
       whereClause.isActive = true;
     }
-    if (role) {
-      whereClause.roles = {
-        has: role, // Check if roles array contains the specified role
-      };
-    }
 
-    const crew = await prisma.freelanceCrew.findMany({
+    let crew = await prisma.freelanceCrew.findMany({
       where: Object.keys(whereClause).length > 0 ? whereClause : undefined,
       orderBy: { name: "asc" },
     });
+
+    // When filtering by role, match flexibly (case-insensitive, substring) so e.g. "Lighting"
+    // matches "Lighting Design" and "Styling" matches "Venue Styling".
+    if (role) {
+      const roleLower = role.toLowerCase();
+      crew = crew.filter((member) =>
+        (member.roles || []).some((r) => {
+          const rLower = r.toLowerCase();
+          return rLower === roleLower || rLower.includes(roleLower) || roleLower.includes(rLower);
+        })
+      );
+    }
 
     return NextResponse.json({ crew });
   } catch (error: any) {

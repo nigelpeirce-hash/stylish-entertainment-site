@@ -4,6 +4,18 @@
  */
 
 /**
+ * Removes placeholder "?" or path fragments that break Cloudinary URLs.
+ * Cloudinary URLs use path-based transformations, not query strings; a stray "?" in the path breaks the link.
+ * Use this for any imageUrl from DB/props before using as img src.
+ */
+export function sanitizeCloudinaryUrl(url: string | null | undefined): string {
+  if (!url || typeof url !== 'string') return '';
+  if (!url.includes('cloudinary.com')) return url;
+  const pathOnly = url.split('?')[0];
+  return pathOnly || url;
+}
+
+/**
  * Ensures a Cloudinary URL has proper transformations for display
  * If the URL already has transformations, it preserves them
  * If not, it adds standard transformations
@@ -18,6 +30,7 @@ export function fixCloudinaryUrl(url: string | null | undefined, options?: {
 }): string | null {
   if (!url) return null;
   if (!url.includes('cloudinary.com')) return url;
+  url = sanitizeCloudinaryUrl(url);
 
   const {
     width = 400,

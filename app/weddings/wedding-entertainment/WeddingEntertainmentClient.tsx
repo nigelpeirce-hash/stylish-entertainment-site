@@ -151,7 +151,7 @@ export default function WeddingEntertainmentClient() {
       </section>
 
       {/* Text Under Hero */}
-      <section className="py-16 px-4 bg-gray-800">
+      <section className="py-16 px-3 sm:px-4 bg-gray-800">
         <div className="container mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -183,7 +183,7 @@ export default function WeddingEntertainmentClient() {
       </section>
 
       {/* Wedding DJs Section */}
-      <section className="py-20 px-4 bg-gray-900">
+      <section className="py-20 px-3 sm:px-4 bg-gray-900">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -406,7 +406,7 @@ export default function WeddingEntertainmentClient() {
       </section>
 
       {/* Musicians Section */}
-      <section className="py-20 px-4 bg-gray-800">
+      <section className="py-20 px-3 sm:px-4 bg-gray-800">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

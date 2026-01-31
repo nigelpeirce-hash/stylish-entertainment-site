@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter, useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import Image from "next/image";
+import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -304,7 +305,7 @@ export default function OrderDetailPage() {
                     <div key={item.id} className="flex gap-4 items-center">
                       {item.hireItem.imageUrl && (
                         <Image
-                          src={item.hireItem.imageUrl}
+                          src={sanitizeCloudinaryUrl(item.hireItem.imageUrl) || item.hireItem.imageUrl}
                           alt={item.itemName}
                           width={80}
                           height={80}

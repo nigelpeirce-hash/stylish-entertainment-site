@@ -247,61 +247,61 @@ export default function ContactForm() {
                     </motion.div>
                   )}
 
-                  <div>
+                  <div className="contact-form-field">
                     <Label htmlFor="name" className="text-gray-200">Full Name *</Label>
                     <Input
                       id="name"
                       {...register("name")}
                       placeholder="Your full name"
-                      className="mt-2 bg-white/5 backdrop-blur-md border-champagne-gold/30 text-white placeholder:text-gray-400 focus:border-champagne-gold focus:ring-1 focus:ring-champagne-gold/50"
+                      className="bg-white/5 backdrop-blur-md border-champagne-gold/30 text-white placeholder:text-gray-400 focus:border-champagne-gold focus:ring-1 focus:ring-champagne-gold/50"
                     />
                     {errors.name && (
                       <p className="text-sm text-red-400 mt-1">{errors.name.message}</p>
                     )}
                   </div>
 
-                  <div>
+                  <div className="contact-form-field">
                     <Label htmlFor="email" className="text-gray-200">Email Address *</Label>
                     <Input
                       id="email"
                       type="email"
                       {...register("email")}
                       placeholder="your.email@example.com"
-                      className="mt-2 bg-white/5 backdrop-blur-md border-champagne-gold/30 text-white placeholder:text-gray-400 focus:border-champagne-gold focus:ring-1 focus:ring-champagne-gold/50"
+                      className="bg-white/5 backdrop-blur-md border-champagne-gold/30 text-white placeholder:text-gray-400 focus:border-champagne-gold focus:ring-1 focus:ring-champagne-gold/50"
                     />
                     {errors.email && (
                       <p className="text-sm text-red-400 mt-1">{errors.email.message}</p>
                     )}
                   </div>
 
-                  <div>
+                  <div className="contact-form-field">
                     <Label htmlFor="phone" className="text-gray-200">Phone Number *</Label>
                     <Input
                       id="phone"
                       type="tel"
                       {...register("phone")}
                       placeholder="+44 7970 793177"
-                      className="mt-2 bg-white/5 backdrop-blur-md border-champagne-gold/30 text-white placeholder:text-gray-400 focus:border-champagne-gold focus:ring-1 focus:ring-champagne-gold/50"
+                      className="bg-white/5 backdrop-blur-md border-champagne-gold/30 text-white placeholder:text-gray-400 focus:border-champagne-gold focus:ring-1 focus:ring-champagne-gold/50"
                     />
                     {errors.phone && (
                       <p className="text-sm text-red-400 mt-1">{errors.phone.message}</p>
                     )}
                   </div>
 
-                  <div>
+                  <div className="contact-form-field">
                     <Label htmlFor="eventDate" className="text-gray-200">Event Date *</Label>
                     <Input
                       id="eventDate"
                       type="date"
                       {...register("eventDate")}
-                      className="mt-2 bg-white/5 backdrop-blur-md border-champagne-gold/30 text-white focus:border-champagne-gold focus:ring-1 focus:ring-champagne-gold/50"
+                      className="bg-white/5 backdrop-blur-md border-champagne-gold/30 text-white focus:border-champagne-gold focus:ring-1 focus:ring-champagne-gold/50"
                     />
                     {errors.eventDate && (
                       <p className="text-sm text-red-400 mt-1">{errors.eventDate.message}</p>
                     )}
                   </div>
 
-                  <div>
+                  <div className="contact-form-field">
                     <Label htmlFor="venueName" className="text-gray-200">Venue Name *</Label>
                     <VenueAutocomplete
                       id="venueName"
@@ -312,12 +312,11 @@ export default function ContactForm() {
                     />
                   </div>
 
-                  <div>
+                  <div className="contact-form-field">
                     <Label htmlFor="eventType" className="text-gray-200">Event Type *</Label>
                     <Select
                       id="eventType"
                       {...register("eventType")}
-                      className="mt-2"
                     >
                       {eventTypeOptions.map((option) => (
                         <option key={option.value} value={option.value}>
@@ -331,13 +330,13 @@ export default function ContactForm() {
                   </div>
 
                   {/* DJ Selection */}
-                  <div>
+                  <div className="contact-form-field">
                     <Label className="text-gray-200">Preferred DJ (Optional)</Label>
                     <Button
                       type="button"
                       onClick={() => setIsDJModalOpen(true)}
                       variant="outline"
-                      className="mt-2 w-full bg-white/5 backdrop-blur-md border-champagne-gold/30 text-white hover:bg-white/10 hover:border-champagne-gold/50 flex items-center justify-between"
+                      className="w-full bg-white/5 backdrop-blur-md border-champagne-gold/30 text-white hover:bg-white/10 hover:border-champagne-gold/50 flex items-center justify-between"
                     >
                       <span className="flex items-center gap-2">
                         <Music className="w-4 h-4" />
@@ -364,7 +363,9 @@ export default function ContactForm() {
                         transition={{ duration: 0.3 }}
                       >
                         <div className="pt-4 border-t border-gray-700">
-                          <Label className="text-gray-200 mb-4 block">Enhance Your Package (Optional)</Label>
+                          <div className="contact-form-field mb-4">
+                            <Label className="text-gray-200">Enhance Your Package (Optional)</Label>
+                          </div>
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {upsellOptions.map((upsell) => (
                               <label
@@ -394,13 +395,13 @@ export default function ContactForm() {
                     )}
                   </AnimatePresence>
 
-                  <div>
+                  <div className="contact-form-field">
                     <Label htmlFor="message" className="text-gray-200">Message *</Label>
                     <Textarea
                       id="message"
                       {...register("message")}
                       placeholder="Tell us about your event and any specific requirements..."
-                      className="mt-2 min-h-[120px] bg-white/5 backdrop-blur-md border-champagne-gold/30 text-white placeholder:text-gray-400 focus:border-champagne-gold focus:ring-1 focus:ring-champagne-gold/50"
+                      className="min-h-[120px] bg-white/5 backdrop-blur-md border-champagne-gold/30 text-white placeholder:text-gray-400 focus:border-champagne-gold focus:ring-1 focus:ring-champagne-gold/50"
                     />
                     {errors.message && (
                       <p className="text-sm text-red-400 mt-1">{errors.message.message}</p>

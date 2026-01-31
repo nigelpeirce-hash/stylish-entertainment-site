@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { sendHandoffNotification } from "@/lib/pushover-notifications";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -67,10 +68,10 @@ export async function PATCH(
       );
     }
 
-    // Get booking name before update for notification
+    // Get booking details before update for notification
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      select: { name: true },
+      select: { name: true, venueName: true, eventDate: true },
     });
 
     // Update booking
@@ -103,6 +104,22 @@ export async function PATCH(
         // Don't fail the handoff if notification fails
         console.error("Failed to send hand-off notification:", notificationError);
       }
+    }
+
+    try {
+      const assignLabel = updatedBooking.assignedTo === "ali" ? "Ali" : updatedBooking.assignedTo === "husband" ? "Nigel" : updatedBooking.assignedTo;
+      await notifyAdminSignificantEvent({
+        type: "handoff",
+        bookingId,
+        title: "Handoff",
+        description: `Assigned to ${assignLabel}${updatedBooking.handoffNote ? ` – ${updatedBooking.handoffNote}` : ""}`,
+        performedBy: (admin as any)?.name ?? (admin as any)?.email,
+        bookingName: booking?.name ?? updatedBooking.name ?? undefined,
+        venueName: booking?.venueName ?? undefined,
+        eventDate: booking?.eventDate ? new Date(booking.eventDate).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : undefined,
+      });
+    } catch (e) {
+      console.warn("Admin notification (handoff) failed:", e);
     }
 
     // If it's a tech alert, log it

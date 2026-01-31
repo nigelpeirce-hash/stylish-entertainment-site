@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>iPhone-width demo | STYLISH</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%);
+      min-height: 100vh;
+      color: #e5e7eb;
+    }
+    /* When viewed on desktop: show a phone frame at 390px width (iPhone 14/15) */
+    .phone-frame {
+      max-width: 390px;
+      margin: 0 auto;
+      min-height: 100vh;
+      background: #0f0a05;
+      box-shadow: 0 0 0 2px #374151, 0 25px 50px -12px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    /* Safe-area simulation (optional - only affects when viewport-fit=cover) */
+    .safe-area-x {
+      padding-left: max(12px, env(safe-area-inset-left, 0));
+      padding-right: max(12px, env(safe-area-inset-right, 0));
+    }
+    /* Section padding: px-3 on mobile (12px) */
+    .section-padding { padding-left: 12px; padding-right: 12px; }
+    @media (min-width: 640px) {
+      .section-padding { padding-left: 16px; padding-right: 16px; }
+    }
+
+    .section { padding-top: 3rem; padding-bottom: 3rem; }
+    .section--dark { background: #000; }
+    .section--muted { background: rgba(31, 41, 55, 0.5); }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      background: rgba(212, 175, 55, 0.2);
+      color: #d4af37;
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      margin-bottom: 1rem;
+    }
+    h1 { font-size: 1.75rem; font-weight: 700; margin: 0 0 0.5rem; color: #fff; }
+    h2 { font-size: 1.5rem; font-weight: 700; margin: 0 0 1rem; color: #fff; text-align: center; }
+    .text-muted { color: #9ca3af; font-size: 0.95rem; }
+    .text-gold { color: #d4af37; }
+
+    /* DJ card block */
+    .dj-wrapper {
+      position: relative;
+      max-width: 56rem;
+      margin: 0 auto;
+    }
+    .dj-card {
+      background: #111827;
+      border: 2px solid rgba(212, 175, 55, 0.4);
+      border-radius: 0.5rem;
+      overflow: hidden;
+      width: 100%;
+    }
+    .dj-card__image {
+      height: 320px;
+      background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+      font-size: 3rem;
+    }
+    .dj-card__body { padding: 1.5rem; }
+    .dj-card__name { font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0 0 0.25rem; }
+    .dj-card__role { font-size: 0.875rem; color: #d4af37; margin: 0 0 1rem; }
+    .dj-card__bio { color: #d1d5db; font-size: 0.875rem; line-height: 1.6; margin: 0 0 1rem; }
+    .dj-card__cta {
+      display: block;
+      width: 100%;
+      padding: 1rem 1.5rem;
+      background: #d4af37;
+      color: #000;
+      font-weight: 600;
+      text-align: center;
+      border: none;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+
+    /* Arrows - inset on mobile (left-2 / right-2) so they don't overhang */
+    .dj-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(31, 41, 55, 0.95);
+      border: 1px solid #374151;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 10;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+    }
+    .dj-arrow:hover { background: #d4af37; color: #000; }
+    .dj-arrow--prev { left: 8px; }   /* left-2 = 8px */
+    .dj-arrow--next { right: 8px; }  /* right-2 = 8px */
+    .dj-arrow svg { width: 20px; height: 20px; }
+
+    .dots { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem; }
+    .dot {
+      width: 12px; height: 12px; border-radius: 50%;
+      background: #4b5563; border: none; cursor: pointer; padding: 0;
+    }
+    .dot.active { background: #d4af37; }
+
+    .footer-bar {
+      padding: 1rem 12px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: #6b7280;
+      border-top: 1px solid #374151;
+    }
+    .demo-label {
+      position: fixed;
+      top: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #d4af37;
+      color: #000;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 4px;
+      z-index: 100;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="demo-label">iPhone width (390px)</div>
+  <div class="phone-frame safe-area-x">
+    <!-- Hero strip -->
+    <section class="section section-padding">
+      <span class="badge">Wedding DJs</span>
+      <h1>Meet Our DJs</h1>
+      <p class="text-muted">Experienced professionals who know how to read a room and keep your dance floor packed.</p>
+    </section>
+
+    <!-- DJ card + arrows (same structure as live site) -->
+    <section class="section section--dark section-padding">
+      <h2 class="text-gold">Meet Our DJs</h2>
+      <div class="dj-wrapper">
+        <div class="dj-card">
+          <div class="dj-card__image">🎧</div>
+          <div class="dj-card__body">
+            <h3 class="dj-card__name">Sample DJ</h3>
+            <p class="dj-card__role">Professional Wedding DJ</p>
+            <p class="dj-card__bio">Professional DJ with years of experience in wedding entertainment. Specialising in reading the room and creating unforgettable dance floors.</p>
+            <button type="button" class="dj-card__cta">Enquire About Sample DJ →</button>
+          </div>
+        </div>
+        <button type="button" class="dj-arrow dj-arrow--prev" aria-label="Previous DJ">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        </button>
+        <button type="button" class="dj-arrow dj-arrow--next" aria-label="Next DJ">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </button>
+        <div class="dots">
+          <button type="button" class="dot active" aria-label="DJ 1"></button>
+          <button type="button" class="dot" aria-label="DJ 2"></button>
+          <button type="button" class="dot" aria-label="DJ 3"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Extra section to show padding -->
+    <section class="section section--muted section-padding">
+      <h2>Section with px-3 padding</h2>
+      <p class="text-muted">This block uses 12px horizontal padding on mobile so text and images sit slightly wider. Arrows above are inset (8px) so they don’t overhang the card.</p>
+    </section>
+
+    <footer class="footer-bar safe-area-x">STYLISH Entertainment · iPhone-width demo</footer>
+  </div>
+</body>
+</html>

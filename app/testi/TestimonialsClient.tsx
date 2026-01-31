@@ -7,7 +7,7 @@ import Link from "next/link";
 import GoogleReviews from "@/components/GoogleReviews";
 import { ExternalLink } from "lucide-react";
 import { RefinedStar } from "@/components/RefinedStar";
-import { testimonials, type Testimonial } from "@/data/testimonials";
+import { testimonials, type Testimonial, getVenueFiltersFromTestimonials } from "@/data/testimonials";
 
 // Helper function to shuffle array
 function shuffleArray<T>(array: T[]): T[] {
@@ -57,8 +57,6 @@ export default function TestimonialsClient() {
     // Shuffle regular testimonials after component mounts on client
     setShuffledTestimonials(shuffleArray(regularTestimonials));
   }, [regularTestimonials]);
-
-  const venueFilters: VenueFilter[] = ["All", "Babington House", "London", "Somerset", "Wiltshire"];
 
   return (
     <div>

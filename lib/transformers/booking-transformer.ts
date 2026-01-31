@@ -136,8 +136,8 @@ export interface SanitizedBooking {
 }
 
 /**
- * Helper to safely convert any value that might be an object with {fee} key to a number
- * Handles nested objects recursively to prevent React rendering errors
+ * Helper to safely convert any value that might be an object with {fee} key to a number.
+ * Handles nested objects recursively to prevent React rendering errors.
  */
 function sanitizeFeeValue(val: unknown): number {
   if (typeof val === 'number') return isNaN(val) ? 0 : val;
@@ -147,11 +147,9 @@ function sanitizeFeeValue(val: unknown): number {
   }
   if (typeof val === 'object' && val !== null) {
     const obj = val as Record<string, unknown>;
-    // Try to extract numeric value from common keys
     if (typeof obj.fee === 'number') return obj.fee;
     if (typeof obj.amount === 'number') return obj.amount;
     if (typeof obj.value === 'number') return obj.value;
-    // If nested object, recurse (but limit depth to prevent infinite loops)
     if (typeof obj.fee === 'object' && obj.fee !== null) {
       const nested = sanitizeFeeValue(obj.fee);
       if (nested > 0) return nested;
@@ -160,7 +158,6 @@ function sanitizeFeeValue(val: unknown): number {
       const nested = sanitizeFeeValue(obj.amount);
       if (nested > 0) return nested;
     }
-    // Try to parse string values
     if (typeof obj.fee === 'string') {
       const parsed = parseFloat(obj.fee);
       if (!isNaN(parsed)) return parsed;
@@ -171,6 +168,11 @@ function sanitizeFeeValue(val: unknown): number {
     }
   }
   return 0;
+}
+
+/** Use in UI when displaying fee/amount so objects like { fee } are never rendered as React children. */
+export function toDisplayFee(val: unknown): number {
+  return sanitizeFeeValue(val);
 }
 
 /**

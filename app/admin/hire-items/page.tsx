@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 
 interface HireItem {
   id: string;
@@ -406,7 +407,7 @@ export default function HireItemsPage() {
                   />
                   {formData.imageUrl && (
                     <Image
-                      src={formData.imageUrl}
+                      src={sanitizeCloudinaryUrl(formData.imageUrl) || formData.imageUrl}
                       alt="Preview"
                       width={128}
                       height={128}

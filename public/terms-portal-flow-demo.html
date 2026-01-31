@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>T&amp;C Portal Flow Demo – Stylish Entertainment</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 24px;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: linear-gradient(160deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
+      color: #e5e5e5;
+      min-height: 100vh;
+    }
+    .page-header {
+      text-align: center;
+      margin-bottom: 32px;
+      padding: 24px 16px;
+    }
+    .page-header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0 0 8px;
+      color: #fff;
+    }
+    .page-header p {
+      font-size: 14px;
+      color: #888;
+      margin: 0;
+    }
+    .nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 32px;
+      padding: 12px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      border: 1px solid rgba(212,175,55,0.3);
+    }
+    .nav a {
+      padding: 8px 14px;
+      text-decoration: none;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-radius: 4px;
+      background: rgba(212,175,55,0.2);
+      color: #D4AF37;
+    }
+    .nav a:hover { background: rgba(212,175,55,0.35); }
+    .section {
+      max-width: 900px;
+      margin: 0 auto 48px;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #D4AF37;
+      color: #fff;
+    }
+    .flow-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .flow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 20px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      border-left: 4px solid #D4AF37;
+    }
+    .flow-step-num {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #D4AF37;
+      color: #1a1a1a;
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .flow-step p { margin: 0; line-height: 1.6; color: #ccc; }
+    .flow-step strong { color: #fff; }
+    .mockup {
+      background: #1a1a1a;
+      border-radius: 12px;
+      border: 1px solid rgba(212,175,55,0.3);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+    .mockup-label {
+      padding: 8px 16px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: rgba(212,175,55,0.15);
+      color: #D4AF37;
+      border-bottom: 1px solid rgba(212,175,55,0.2);
+    }
+    .mockup-inner {
+      padding: 20px;
+      font-size: 14px;
+    }
+    .mock-portal {
+      max-width: 700px;
+    }
+    .mock-tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #333;
+    }
+    .mock-tab {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      background: #333;
+      color: #888;
+    }
+    .mock-tab.active {
+      background: rgba(212,175,55,0.2);
+      color: #D4AF37;
+    }
+    .mock-tab.locked {
+      opacity: 0.6;
+    }
+    .gate-banner {
+      background: rgba(234,179,8,0.15);
+      border: 1px solid rgba(234,179,8,0.4);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #fbbf24;
+    }
+    .gate-banner strong { color: #fcd34d; }
+    .terms-doc {
+      background: #0f0f0f;
+      padding: 24px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      font-size: 13px;
+      line-height: 1.7;
+      color: #ccc;
+      margin-bottom: 20px;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+    .terms-doc h3 { font-size: 16px; color: #D4AF37; margin: 0 0 12px; }
+    .terms-doc .party { margin-bottom: 16px; }
+    .terms-doc .highlight { color: #fff; }
+    .sign-form {
+      padding: 16px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      margin-top: 16px;
+    }
+    .sign-form label { display: block; margin-bottom: 8px; font-size: 13px; color: #aaa; }
+    .sign-form input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      background: #1a1a1a;
+      border: 1px solid #444;
+      border-radius: 6px;
+      color: #fff;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+    .sign-form .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background: #D4AF37;
+      color: #1a1a1a;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .sign-form .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .acceptance-confirmed {
+      padding: 16px;
+      background: rgba(34,197,94,0.15);
+      border: 1px solid rgba(34,197,94,0.4);
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .acceptance-confirmed .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(34,197,94,0.3);
+      color: #4ade80;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .acceptance-confirmed p { margin: 0; font-size: 13px; color: #aaa; }
+    .acceptance-confirmed .meta { font-family: monospace; font-size: 12px; color: #D4AF37; margin-top: 8px; }
+    .print-btn {
+      display: inline-block;
+      padding: 10px 20px;
+      background: #333;
+      color: #D4AF37;
+      border: 1px solid #D4AF37;
+      border-radius: 6px;
+      font-size: 13px;
+      text-decoration: none;
+      margin-top: 12px;
+    }
+    .print-btn:hover { background: rgba(212,175,55,0.2); }
+    .breadcrumb {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 16px;
+    }
+    .breadcrumb span { color: #888; }
+    .breadcrumb .here { color: #D4AF37; }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <h1>T&amp;C Portal Flow Demo</h1>
+    <p>Where and how the personalised T&amp;C acceptance appears in the client portal</p>
+  </div>
+
+  <nav class="nav" aria-label="Jump to section">
+    <a href="#flow">Flow</a>
+    <a href="#where">Where it shows</a>
+    <a href="#pending">State: Pending</a>
+    <a href="#accepted">State: Accepted</a>
+    <a href="#print">Print / PDF</a>
+  </nav>
+
+  <div class="section" id="flow">
+    <h2 class="section-title">1. Flow</h2>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <span class="flow-step-num">1</span>
+        <p><strong>Client logs in</strong> → lands on client dashboard (<code>/client/dashboard</code>)</p>
+      </div>
+      <div class="flow-step">
+        <span class="flow-step-num">2</span>
+        <p><strong>Booking card</strong> → each event shows a card with tabs: Overview | Music | Budget | Contract</p>
+      </div>
+      <div class="flow-step">
+        <span class="flow-step-num">3</span>
+        <p><strong>Contract tab</strong> → default/first tab when terms not yet accepted. Shows personalised T&amp;C document</p>
+      </div>
+      <div class="flow-step">
+        <span class="flow-step-num">4</span>
+        <p><strong>Other tabs gated</strong> → Overview, Music, Budget show a banner: "Please accept Terms in Contract tab to continue"</p>
+      </div>
+      <div class="flow-step">
+        <span class="flow-step-num">5</span>
+        <p><strong>Client accepts</strong> → checkbox + type name → "Accept & Sign" → API stores acceptance, sends email</p>
+      </div>
+      <div class="flow-step">
+        <span class="flow-step-num">6</span>
+        <p><strong>All tabs unlock</strong> → client can use Music, Budget, etc. Contract tab shows confirmation + Print button</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="where">
+    <h2 class="section-title">2. Where it shows</h2>
+    <p style="color:#888; margin-bottom:20px;">Client portal → Dashboard → Booking card → <strong>Contract tab</strong></p>
+    <div class="breadcrumb">
+      /client/dashboard → Your events → <span>Wedding · 15 June 2025 · Priston Mill</span> → <span class="here">Contract tab</span>
+    </div>
+  </div>
+
+  <div class="section" id="pending">
+    <h2 class="section-title">3. Contract tab – Pending (terms not yet accepted)</h2>
+    <div class="mockup mock-portal">
+      <div class="mockup-label">Client portal – Contract tab (pending state)</div>
+      <div class="mockup-inner">
+        <div class="mock-tabs">
+          <span class="mock-tab">Overview</span>
+          <span class="mock-tab locked">Music</span>
+          <span class="mock-tab locked">Budget</span>
+          <span class="mock-tab active">Contract</span>
+        </div>
+        <div class="terms-doc">
+          <h3>Booking Agreement – Personalised for Sarah & James</h3>
+          <div class="party">
+            <strong class="highlight">Stylish Entertainment Ltd</strong><br>
+            88 Weymouth Road, Frome, Somerset BA11 1HJ
+          </div>
+          <div class="party">
+            <strong class="highlight">Client</strong><br>
+            Sarah & James<br>
+            sarah@example.com
+          </div>
+          <p><strong class="highlight">Booking Details</strong><br>
+          This agreement is for the provision of <strong>DJ Nige</strong> at <strong>Priston Mill</strong> on <strong>Saturday, 15 June 2025</strong>.</p>
+          <p><strong>Summary of key terms</strong> <em>(abridged)</em><br>
+          • Deposit required on confirmation; balance due before or on the night.<br>
+          • All deposits non-refundable once paid.<br>
+          • Cancellations in writing; may incur charges within 30 days.<br>
+          • Full terms at /terms-and-conditions</p>
+          <p><strong>Full terms and conditions</strong><br>
+          <em>1. Booking Confirmation · 2. Payment Terms · 3. Cancellation Policy · 4. Artist Availability · 5. Setup and Access · 6. Venue Requirements · 7. Equipment and Safety · 8. Music and Requests · 9. Liability · 10. Data Protection</em> — (same as footer page)</p>
+          <p><strong>Deposit and Cancellation</strong><br>
+          By paying your deposit, you confirm that you have read and accept these terms. All deposits are <strong>non-refundable</strong> once paid.</p>
+          <p>—</p>
+          <p><strong>For Stylish Entertainment Ltd</strong><br>
+          88 Weymouth Road, Frome, Somerset BA11 1HJ<br>
+          Signed: Alison Peirce & Nigel Peirce (pre-signed)</p>
+        </div>
+        <div class="sign-form">
+          <label><input type="checkbox"> I have read and accept the Terms &amp; Conditions. I agree that typing my name below constitutes my electronic signature.</label>
+          <label>Type your full name to confirm:</label>
+          <input type="text" placeholder="Sarah & James" value="">
+          <button class="btn">Accept & Sign</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="section-title">4. Gated tab (e.g. Music) – When terms not accepted</h2>
+    <div class="mockup mock-portal">
+      <div class="mockup-label">Client portal – Music tab (gated)</div>
+      <div class="mockup-inner">
+        <div class="mock-tabs">
+          <span class="mock-tab">Overview</span>
+          <span class="mock-tab active">Music</span>
+          <span class="mock-tab locked">Budget</span>
+          <span class="mock-tab">Contract</span>
+        </div>
+        <div class="gate-banner">
+          <strong>Terms required</strong> — Please accept the Terms &amp; Conditions in the <strong>Contract</strong> tab to access Music, Budget and other features.
+        </div>
+        <p style="color:#666; font-size:13px;">[Rest of tab content hidden or disabled until terms accepted]</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="accepted">
+    <h2 class="section-title">5. Contract tab – Accepted</h2>
+    <div class="mockup mock-portal">
+      <div class="mockup-label">Client portal – Contract tab (accepted state)</div>
+      <div class="mockup-inner">
+        <div class="mock-tabs">
+          <span class="mock-tab">Overview</span>
+          <span class="mock-tab">Music</span>
+          <span class="mock-tab">Budget</span>
+          <span class="mock-tab active">Contract</span>
+        </div>
+        <div class="acceptance-confirmed">
+          <span class="badge">✓ Confirmed</span>
+          <p>Terms accepted on <strong>29 January 2025</strong> at <strong>14:32</strong></p>
+          <p class="meta">IP: 192.168.1.1 · Signed as: Sarah & James</p>
+        </div>
+        <p style="font-size:13px; color:#888;">A confirmation email has been sent. You can view and print your signed agreement below.</p>
+        <a href="#" class="print-btn">🖨 Print / Download PDF</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="section" id="print">
+    <h2 class="section-title">6. Print / PDF output</h2>
+    <p style="color:#888; margin-bottom:16px;">Print button generates a populated document with:</p>
+    <ul style="color:#aaa; line-height:2; padding-left:20px;">
+      <li>Full company details (Stylish Entertainment Ltd, 88 Weymouth Road, Frome, Somerset BA11 1HJ)</li>
+      <li>Client name &amp; email</li>
+      <li>Event date, venue, artist/service</li>
+      <li>All T&C sections + deposit non-refundable clause</li>
+      <li>Client signature block (name + date)</li>
+      <li>Company signatories: Alison Peirce &amp; Nigel Peirce</li>
+    </ul>
+  </div>
+
+  <p style="text-align:center; margin-top:48px; font-size:12px; color:#555;">
+    Stylish Entertainment Ltd · T&amp;C Portal Module Flow Demo
+  </p>
+</body>
+</html>

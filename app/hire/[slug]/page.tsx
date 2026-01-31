@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Package, Plus } from "lucide-react";
 import Link from "next/link";
+import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 
 interface HireItem {
   id: string;
@@ -175,7 +176,7 @@ export default function HireItemPage() {
           <div>
             {item.imageUrl ? (
               <img
-                src={item.imageUrl}
+                src={sanitizeCloudinaryUrl(item.imageUrl) || item.imageUrl}
                 alt={item.name}
                 className="w-full h-96 object-cover rounded-lg"
               />

@@ -6,7 +6,7 @@ import { useEffect, useState, Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, CheckCircle2, Clock, User, Mail, Phone, Calendar, MapPin, ExternalLink, RefreshCw, Package } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, User, Mail, Phone, Calendar, MapPin, ExternalLink, RefreshCw, Package, FileText } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -47,6 +47,7 @@ function NewEnquiriesContent() {
   const router = useRouter();
   const [enquiries, setEnquiries] = useState<NewEnquiry[]>([]);
   const [hireEnquiries, setHireEnquiries] = useState<NewEnquiry[]>([]);
+  const [quoteRequestEnquiries, setQuoteRequestEnquiries] = useState<NewEnquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -89,6 +90,7 @@ function NewEnquiriesContent() {
         const data = await response.json();
         setEnquiries(data.enquiries || []);
         setHireEnquiries(data.hireEnquiries || []);
+        setQuoteRequestEnquiries(data.quoteRequestEnquiries || []);
       }
     } catch (error) {
       console.error("Error fetching enquiries:", error);
@@ -131,7 +133,7 @@ function NewEnquiriesContent() {
 
   const conflictEnquiries = enquiries.filter(e => e.isConflict);
   const newEnquiries = enquiries.filter(e => !e.isConflict);
-  const nonHireEnquiries = newEnquiries.filter(e => e.enquiryType !== "hire_only");
+  const nonHireEnquiries = newEnquiries.filter(e => e.enquiryType !== "hire_only" && e.enquiryType !== "quote_request");
 
   return (
     <div className="min-h-screen bg-gray-900 p-4 md:p-6 lg:p-8">
@@ -235,6 +237,43 @@ function NewEnquiriesContent() {
           </motion.div>
         )}
 
+        {/* Quote requests (Request a quote page) */}
+        {quoteRequestEnquiries.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-4"
+          >
+            <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+              <FileText className="w-6 h-6 text-champagne-gold" />
+              Quote Requests ({quoteRequestEnquiries.length})
+            </h2>
+            <p className="text-gray-400 text-sm">Request a quote (lighting, DJ, production, hire, combination).</p>
+            <div className="space-y-3">
+              {quoteRequestEnquiries.map((enquiry) => (
+                <Card key={enquiry.id} className="bg-gray-800 border-champagne-gold/30">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white font-semibold">{enquiry.name}</p>
+                        <p className="text-gray-400 text-sm">{enquiry.email}</p>
+                        <p className="text-gray-400 text-sm mt-1">
+                          {formatDate(enquiry.eventDate)} · {enquiry.venueName || enquiry.venuePostcode}
+                        </p>
+                      </div>
+                      <Link href={`/admin/new-enquiries/${enquiry.id}`} className="flex-shrink-0">
+                        <Button variant="outline" size="sm" className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10">
+                          Review
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </motion.div>
+        )}
+
         {/* Hire Enquiries */}
         {hireEnquiries.length > 0 && (
           <motion.div
@@ -319,7 +358,7 @@ function NewEnquiriesContent() {
           <h2 className="text-2xl font-bold text-white">
             New Enquiries ({nonHireEnquiries.length})
           </h2>
-          {nonHireEnquiries.length === 0 && conflictEnquiries.length === 0 && hireEnquiries.length === 0 && (
+          {nonHireEnquiries.length === 0 && conflictEnquiries.length === 0 && hireEnquiries.length === 0 && quoteRequestEnquiries.length === 0 && (
             <Card className="bg-gray-800 border-gray-700">
               <CardContent className="p-12 text-center">
                 <CheckCircle2 className="w-16 h-16 text-gray-600 mx-auto mb-4" />

@@ -1,9 +1,32 @@
 /**
  * Single source of truth for Terms & Conditions content.
- * Used by AcceptTermsModule, terms-and-conditions page, and any T&C dialogs.
+ * Used by: terms-and-conditions page (footer link), AcceptTermsModule, portal personalised T&C document.
  */
 
 export const TERMS_LAST_UPDATED = new Date();
+
+/** Company details – used in personalised booking agreements */
+export const COMPANY_NAME = "Stylish Entertainment Ltd";
+export const COMPANY_ADDRESS = "88 Weymouth Road, Frome, Somerset BA11 1HJ";
+export const COMPANY_SIGNATORIES = "Alison Peirce & Nigel Peirce";
+
+/** Abridged summary – key points for quick reading before the full terms */
+export const TERMS_ABRIDGED = `• Deposit is required on confirmation; balance due before or on the night.
+• All deposits are non-refundable once paid.
+• Cancellations must be in writing; may incur charges within 30 days of event.
+• We confirm artist availability; if unavailable, replacement or refund offered.
+• Venue permission required; equipment PAT tested and insured.
+• Full terms at stylishentertainment.co.uk/terms-and-conditions`;
+
+/** Deposit & cancellation clause – added to personalised portal T&C document */
+export const DEPOSIT_CLAUSE = {
+  heading: "Deposit and Cancellation",
+  body:
+    "By paying your deposit, you confirm that you have read and accept these terms. All deposits are non-refundable once paid. " +
+    "In the event of cancellation by you, the deposit will not be returned. If you need to cancel after paying your deposit, " +
+    "please notify us in writing as soon as possible. Any balance paid may be refundable subject to our cancellation policy " +
+    "and the notice period given. We recommend securing cancellation insurance for your event.",
+};
 
 export interface TermsSection {
   id: string;

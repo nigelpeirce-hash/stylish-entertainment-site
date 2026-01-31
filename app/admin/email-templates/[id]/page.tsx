@@ -568,7 +568,12 @@ export default function EmailTemplateEditor() {
                             </Button>
                           </div>
                           <p className="text-xs text-gray-500 mt-1">
-                            {lockedEventData.contractData.fee || "Not set"}
+                            {(() => {
+                              const f = lockedEventData.contractData.fee;
+                              if (f == null || f === "") return "Not set";
+                              if (typeof f === "object" && "fee" in f) return String((f as { fee?: unknown }).fee ?? "Not set");
+                              return String(f);
+                            })()}
                           </p>
                         </div>
 

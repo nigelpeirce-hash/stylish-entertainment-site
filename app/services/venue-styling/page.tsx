@@ -1,13 +1,21 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Palette } from "lucide-react";
+import { Palette, Calculator } from "lucide-react";
 import Gallery, { Photo } from "@/components/Gallery";
-import { useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { ServiceQuoteGenerator } from "@/components/ServiceQuoteGenerator";
 
 const stylingPhotos: Photo[] = [
   {
@@ -67,11 +75,13 @@ const stylingPhotos: Photo[] = [
 ];
 
 export default function VenueStylingService() {
+  const [quoteOpen, setQuoteOpen] = useState(false);
+
   useEffect(() => {
     document.title = "Venue Styling | Professional Wedding Styling | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Complete venue transformation with elegant styling. Table centerpieces, drapery, custom backdrops and cohesive design themes across the UK and Wales.");
+      metaDescription.setAttribute("content", "Complete venue transformation with elegant styling. Table centerpieces, drapery, custom backdrops and cohesive design themes across the UK.");
     }
   }, []);
 
@@ -104,7 +114,7 @@ export default function VenueStylingService() {
       </section>
 
       {/* Service Details */}
-      <section className="py-20 px-4 bg-gray-800">
+      <section className="py-20 px-3 sm:px-4 bg-gray-800">
         <div className="container mx-auto max-w-4xl">
           <Card className="bg-gray-800 border-champagne-gold/30">
             <CardHeader>
@@ -136,13 +146,37 @@ export default function VenueStylingService() {
                   ))}
                 </ul>
               </div>
+              <div className="pt-6 border-t border-champagne-gold/30 flex flex-wrap gap-3">
+                <Dialog open={quoteOpen} onOpenChange={setQuoteOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="lg" className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10">
+                      <Calculator className="w-5 h-5 mr-2" />
+                      Get a quote
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto bg-gray-900 border-champagne-gold/30">
+                    <DialogHeader>
+                      <DialogTitle className="text-white">Venue styling quote</DialogTitle>
+                    </DialogHeader>
+                    <ServiceQuoteGenerator
+                      category="venue_styling"
+                      title="Venue styling quote"
+                      compact
+                      onClose={() => setQuoteOpen(false)}
+                    />
+                  </DialogContent>
+                </Dialog>
+                <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
+                  <Link href="/contact-us">Get in Touch</Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
       </section>
 
       {/* Gallery */}
-      <section className="py-20 px-4 bg-gray-900">
+      <section className="py-20 px-3 sm:px-4 bg-gray-900">
         <div className="container mx-auto max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -163,7 +197,7 @@ export default function VenueStylingService() {
       </section>
 
       {/* CTA */}
-      <section className="pt-20 pb-8 px-4 bg-gray-800">
+      <section className="pt-20 pb-8 px-3 sm:px-4 bg-gray-800">
         <div className="container mx-auto max-w-4xl text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

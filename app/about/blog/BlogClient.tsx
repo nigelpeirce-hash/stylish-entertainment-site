@@ -77,7 +77,7 @@ export default function BlogClient() {
       </section>
 
       {/* Blog Posts */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-800">
+      <section className="py-20 px-3 sm:px-4 lg:px-8 bg-gray-800">
         <div className="container mx-auto max-w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10">
             {blogPosts.map((post, index) => (

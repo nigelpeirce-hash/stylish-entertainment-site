@@ -86,6 +86,12 @@ const nextConfig = {
   },
   async redirects() {
     return [
+      // --- STATIC DEMO PAGES ---
+      {
+        source: '/phone-demo.html',
+        destination: '/iphone-demo.html',
+        permanent: false,
+      },
       // --- NEW ANALYTICS-DRIVEN REDIRECTS (Priority) ---
       {
         source: '/dj-nige',

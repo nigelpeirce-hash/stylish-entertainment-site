@@ -17,6 +17,11 @@ interface SelectedHireItem {
   name?: string;
 }
 
+interface QuoteRequestData {
+  services?: string[];
+  message?: string;
+}
+
 interface NewEnquiry {
   id: string;
   name: string;
@@ -28,6 +33,7 @@ interface NewEnquiry {
   venuePostcode: string;
   venueName: string | null;
   enquiryType?: string | null;
+  quoteRequestData?: QuoteRequestData | null;
   selectedHireItems?: SelectedHireItem[] | null;
   isConflict: boolean;
   originalBookingId: string | null;
@@ -208,6 +214,11 @@ export default function NewEnquiryDetail() {
                     Hire only
                   </Badge>
                 )}
+                {enquiry.enquiryType === "quote_request" && (
+                  <Badge className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
+                    Quote request
+                  </Badge>
+                )}
                 <Badge className={enquiry.isConflict ? "bg-amber-600 text-white" : "bg-blue-600 text-white"}>
                   {enquiry.isConflict ? "Conflict" : "New"}
                 </Badge>
@@ -215,15 +226,32 @@ export default function NewEnquiryDetail() {
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Quote request: services requested */}
+            {enquiry.enquiryType === "quote_request" && (enquiry.quoteRequestData as QuoteRequestData)?.services?.length > 0 && (
+              <div>
+                <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-champagne-gold" />
+                  Services requested
+                </h3>
+                <div className="p-4 rounded-lg bg-champagne-gold/10 border border-champagne-gold/30 flex flex-wrap gap-2">
+                  {((enquiry.quoteRequestData as QuoteRequestData).services || []).map((s) => (
+                    <Badge key={s} className="bg-champagne-gold/20 text-champagne-gold border border-champagne-gold/40">
+                      {s === "lighting" ? "Lighting" : s === "dj_kit" ? "DJ & kit" : s === "production" ? "Production" : s === "hire_only" ? "Hire only" : s === "combination" ? "Combination" : s}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* What they want / Client message – prominent first */}
             <div>
               <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
                 <MessageSquare className="w-5 h-5 text-champagne-gold" />
                 What they want
               </h3>
-              {enquiry.message && enquiry.message.trim() ? (
+              {(enquiry.message && enquiry.message.trim()) || (enquiry.enquiryType === "quote_request" && (enquiry.quoteRequestData as QuoteRequestData)?.message) ? (
                 <div className="p-4 rounded-lg bg-champagne-gold/10 border border-champagne-gold/30 text-white whitespace-pre-wrap">
-                  {enquiry.message.trim()}
+                  {(enquiry.enquiryType === "quote_request" && (enquiry.quoteRequestData as QuoteRequestData)?.message) || enquiry.message?.trim() || ""}
                 </div>
               ) : (
                 <div className="p-4 rounded-lg bg-gray-700/50 border border-dashed border-gray-600 text-gray-400 italic">
@@ -268,12 +296,12 @@ export default function NewEnquiryDetail() {
               </div>
             </div>
 
-            {/* Hire-only: Requested items */}
-            {enquiry.enquiryType === "hire_only" && (enquiry.selectedHireItems as SelectedHireItem[])?.length > 0 && (
+            {/* Hire-only or Quote request: Requested hire items */}
+            {(enquiry.enquiryType === "hire_only" || enquiry.enquiryType === "quote_request") && (enquiry.selectedHireItems as SelectedHireItem[])?.length > 0 && (
               <div>
                 <h3 className="text-lg font-semibold text-white mb-3 flex items-center gap-2">
                   <Package className="w-5 h-5 text-champagne-gold" />
-                  Requested items
+                  Requested hire items
                 </h3>
                 <ul className="space-y-1 p-3 bg-gray-700/50 rounded-lg">
                   {(enquiry.selectedHireItems as SelectedHireItem[]).map((row, idx) => (
@@ -299,10 +327,10 @@ export default function NewEnquiryDetail() {
                 <div className="p-3 bg-gray-700/50 rounded-lg">
                   <p className="text-xs text-gray-400 mb-1 flex items-center gap-1">
                     <MapPin className="w-3 h-3" />
-                    {enquiry.enquiryType === "hire_only" ? "Venue" : "Venue Postcode"}
+                    {(enquiry.enquiryType === "hire_only" || enquiry.enquiryType === "quote_request") ? "Venue" : "Venue Postcode"}
                   </p>
                   <p className="text-white font-semibold">
-                    {enquiry.enquiryType === "hire_only" && enquiry.venueName && enquiry.venueName !== "TBC"
+                    {(enquiry.enquiryType === "hire_only" || enquiry.enquiryType === "quote_request") && enquiry.venueName && enquiry.venueName !== "TBC"
                       ? enquiry.venueName
                       : enquiry.venuePostcode}
                   </p>

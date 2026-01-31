@@ -41,6 +41,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       enquiries,
       hireEnquiries: enquiries.filter((e: any) => e.enquiryType === "hire_only"),
+      quoteRequestEnquiries: enquiries.filter((e: any) => e.enquiryType === "quote_request"),
     });
   } catch (error) {
     console.error("Error fetching new enquiries:", error);

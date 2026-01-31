@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { createBookDJQuoteToken } from "@/lib/book-dj-quote-token";
 import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
 const getResend = () => {
   const apiKey = process.env.RESEND_API_KEY;
@@ -508,6 +509,21 @@ export async function POST(request: NextRequest) {
       }
     } catch (dbError) {
       console.error("Error logging artist quote to database:", dbError);
+    }
+
+    try {
+      await notifyAdminSignificantEvent({
+        type: "quote_sent",
+        bookingId,
+        title: "Quote Sent",
+        description: `Quote sent to ${clientEmail} for ${venueName || "venue"}${formattedDate ? ` – ${formattedDate}` : ""}`,
+        performedBy: (admin as any)?.name ?? (admin as any)?.email,
+        bookingName: clientName,
+        venueName: venueName || undefined,
+        eventDate: formattedDate || undefined,
+      });
+    } catch (e) {
+      console.warn("Admin notification (quote_sent) failed:", e);
     }
 
     const isDevelopment = !getResend();

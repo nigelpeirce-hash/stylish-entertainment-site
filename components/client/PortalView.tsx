@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Clock, MapPin, Mail, Phone, Users, AlertCircle, Headphones, Sparkles, CheckCircle2, ShieldCheck, Mic, ChevronDown, Banknote, FileText, Music, Link2, Upload } from "lucide-react";
 import { getGreetingName, deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
 import Image from "next/image";
+import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 import confetti from "canvas-confetti";
 import HireShop from "@/components/client/HireShop";
 import GuestRequestsView from "@/components/client/GuestRequestsView";
@@ -842,7 +843,7 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
                             <div className="w-full h-full rounded-full bg-gray-800 flex items-center justify-center overflow-hidden">
                               {assignment.staff.imageUrl ? (
                                 <Image
-                                  src={assignment.staff.imageUrl}
+                                  src={sanitizeCloudinaryUrl(assignment.staff.imageUrl) || assignment.staff.imageUrl}
                                   alt={assignment.staff.name || "Team member"}
                                   fill
                                   className="object-cover rounded-full"

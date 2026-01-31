@@ -80,7 +80,7 @@ export default function KitHireClient() {
             Professional Equipment & Technical Hire
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md">
-            Industry-standard sound, lighting and styling props for UK and Wales events
+            Industry-standard sound, lighting and styling props for UK events
           </p>
         </motion.div>
         <div className="relative z-20 w-full">
@@ -95,7 +95,7 @@ export default function KitHireClient() {
         }}
       >
         {/* Service Details */}
-        <section className="py-20 px-4">
+        <section className="py-20 px-3 sm:px-4">
           <div className="container mx-auto max-w-6xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -176,7 +176,7 @@ export default function KitHireClient() {
         </section>
 
         {/* CTA */}
-        <section className="py-20 px-4">
+        <section className="py-20 px-3 sm:px-4">
           <div className="container mx-auto max-w-4xl text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}

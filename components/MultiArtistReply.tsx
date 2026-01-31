@@ -10,6 +10,7 @@ import { Card } from "@/components/ui/card";
 import { Send, Loader2, Plus, X, Star, Music, Mic2, CheckCircle } from "lucide-react";
 import Image from "next/image";
 import { ResponsiveImage } from "@/components/cloudinary";
+import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 
 interface Artist {
   id: string;
@@ -323,7 +324,7 @@ export function MultiArtistReply({
                             artist.imageUrl.includes("cloudinary.com") ? (
                               <ResponsiveImage publicId={artist.imageUrl} alt={artist.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" width={40} height={40} />
                             ) : (
-                              <Image src={artist.imageUrl} alt={artist.name} width={40} height={40} className="rounded-full object-cover" onError={() => {}} />
+                              <Image src={sanitizeCloudinaryUrl(artist.imageUrl) || artist.imageUrl} alt={artist.name} width={40} height={40} className="rounded-full object-cover" onError={() => {}} />
                             )
                           )}
                           <div className="flex-1 min-w-0">
@@ -357,7 +358,7 @@ export function MultiArtistReply({
                             artist.imageUrl.includes("cloudinary.com") ? (
                               <ResponsiveImage publicId={artist.imageUrl} alt={artist.name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" width={40} height={40} />
                             ) : (
-                              <Image src={artist.imageUrl} alt={artist.name} width={40} height={40} className="rounded-full object-cover" onError={() => {}} />
+                              <Image src={sanitizeCloudinaryUrl(artist.imageUrl) || artist.imageUrl} alt={artist.name} width={40} height={40} className="rounded-full object-cover" onError={() => {}} />
                             )
                           )}
                           <div className="flex-1 min-w-0">
@@ -393,7 +394,7 @@ export function MultiArtistReply({
                         />
                       ) : (
                         <Image
-                          src={artist.imageUrl}
+                          src={sanitizeCloudinaryUrl(artist.imageUrl) || artist.imageUrl}
                           alt={artist.name}
                           width={60}
                           height={60}

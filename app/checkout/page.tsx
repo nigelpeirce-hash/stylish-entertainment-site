@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, CheckCircle, Package } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 
 interface CartItem {
   id: string;
@@ -206,7 +207,7 @@ export default function CheckoutPage() {
                   <div key={item.id} className="flex gap-3">
                     {item.hireItem.imageUrl && (
                       <Image
-                        src={item.hireItem.imageUrl}
+                        src={sanitizeCloudinaryUrl(item.hireItem.imageUrl) || item.hireItem.imageUrl}
                         alt={item.hireItem.name}
                         width={64}
                         height={64}

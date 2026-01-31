@@ -23,6 +23,9 @@ import {
   Plus,
   Send,
   Loader2,
+  Bell,
+  ArrowRight,
+  Calculator,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -66,6 +69,8 @@ export default function AdminDashboard() {
   const [sendingFirstTouchId, setSendingFirstTouchId] = useState<string | null>(null);
   const [lastSynced, setLastSynced] = useState<Date | null>(null);
   const [isSyncing, setIsSyncing] = useState(false);
+  /** Recent significant events (booking request, quote sent, deposit paid, etc.) for dashboard notifications */
+  const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
   // Track redirect to prevent multiple redirects
   const redirectAttemptedRef = useRef(false);
@@ -114,6 +119,17 @@ export default function AdminDashboard() {
       setNewEnquiryBookings(newEnquiries);
       setUnreadThreads(unread.slice(0, 5));
       setRecentThreads(recent.slice(0, 5));
+
+      // Fetch recent significant activity (notifications feed)
+      try {
+        const activityRes = await fetch("/api/admin/activity?limit=15&days=7", { credentials: "include" });
+        const activityData = await activityRes.json().catch(() => ({}));
+        if (activityRes.ok && Array.isArray(activityData.activity)) {
+          setRecentActivity(activityData.activity);
+        }
+      } catch {
+        // Non-blocking
+      }
     } catch (error) {
       console.error("Error fetching dashboard summary:", error);
     } finally {
@@ -523,6 +539,81 @@ export default function AdminDashboard() {
           </div>
         </motion.div>
 
+        {/* Recent activity – significant events (booking request, quote sent, deposit paid, etc.) */}
+        {recentActivity.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.12 }}
+            className="mb-12"
+          >
+            <Card className="bg-gray-800/90 border border-gray-600">
+              <CardHeader className="pb-2">
+                <CardTitle className="font-serif text-lg flex items-center gap-2 text-white">
+                  <Bell className="w-5 h-5 text-champagne-gold/80" />
+                  Recent activity
+                </CardTitle>
+                <p className="text-sm text-gray-400">Significant events – you get email + dashboard notifications for these.</p>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <ul className="space-y-2 max-h-64 overflow-y-auto">
+                  {recentActivity.map((item: any) => {
+                    const actionLabel =
+                      item.action === "booking_request_received"
+                        ? "Booking request"
+                        : item.action === "quote_sent"
+                          ? "Quote sent"
+                          : item.action === "deposit_paid"
+                            ? "Deposit paid"
+                            : item.action === "artist_assigned"
+                              ? "Artist assigned"
+                              : item.action === "handoff"
+                                ? "Handoff"
+                                : item.action === "dispatched"
+                                  ? "Dispatched"
+                                  : item.action === "portal_message"
+                                    ? "Portal message"
+                                    : item.action === "final_details_confirmed"
+                                      ? "Final details"
+                                      : item.action === "brief_sent"
+                                        ? "Brief sent"
+                                        : item.action;
+                    const timeAgo = item.createdAt
+                      ? (() => {
+                          const d = new Date(item.createdAt);
+                          const now = new Date();
+                          const mins = Math.floor((now.getTime() - d.getTime()) / 60000);
+                          if (mins < 1) return "Just now";
+                          if (mins < 60) return `${mins}m ago`;
+                          const hours = Math.floor(mins / 60);
+                          if (hours < 24) return `${hours}h ago`;
+                          return `${Math.floor(hours / 24)}d ago`;
+                        })()
+                      : "";
+                    return (
+                      <li key={item.id}>
+                        <Link
+                          href={`/admin/bookings/${item.bookingId}`}
+                          className="flex items-center gap-3 p-3 rounded-lg bg-gray-900/60 border border-gray-700 hover:border-champagne-gold/40 hover:bg-gray-800/80 transition-all group"
+                        >
+                          <span className="shrink-0 px-2 py-0.5 rounded text-xs font-semibold bg-champagne-gold/20 text-champagne-gold border border-champagne-gold/40">
+                            {actionLabel}
+                          </span>
+                          <span className="flex-1 min-w-0 text-sm text-gray-300 truncate" title={item.description}>
+                            {item.bookingName || "Booking"} {item.venueName ? `· ${item.venueName}` : ""}
+                          </span>
+                          <span className="text-xs text-gray-500 shrink-0">{timeAgo}</span>
+                          <ArrowRight className="w-4 h-4 text-gray-500 group-hover:text-champagne-gold shrink-0" />
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </CardContent>
+            </Card>
+          </motion.div>
+        )}
+
         {/* Main Actions – three strategic columns: Daily Ops, The Talent, Inventory & Assets */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -631,6 +722,17 @@ export default function AdminDashboard() {
                     <div>
                       <h3 className="font-medium text-white">Hire Shop</h3>
                       <p className="text-xs text-gray-400">Manage products and pricing</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+              <Link href="/admin/service-quote-items">
+                <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <Calculator className="w-5 h-5 text-champagne-gold/80" />
+                    <div>
+                      <h3 className="font-medium text-white">Lighting & Styling Quote Items</h3>
+                      <p className="text-xs text-gray-400">Fairy lights, festoon, lanterns – for quote generator</p>
                     </div>
                   </CardContent>
                 </Card>

@@ -106,7 +106,7 @@ export default function VenuesClient() {
   return (
     <div>
       {/* Venues List */}
-      <section className="pt-20 pb-8 px-4 bg-gray-800">
+      <section className="pt-20 pb-8 px-3 sm:px-4 bg-gray-800">
         <div className="container mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

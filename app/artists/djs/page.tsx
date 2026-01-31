@@ -289,7 +289,7 @@ export default function DJs() {
       </section>
 
       {/* Selling Points */}
-      <section className="py-16 px-4 bg-gray-900">
+      <section className="py-16 px-3 sm:px-4 bg-gray-900">
         <div className="container mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -738,7 +738,7 @@ export default function DJs() {
       </section>
 
       {/* Fun Video Gallery - Portrait Style */}
-      <section className="py-20 px-4 bg-gray-900">
+      <section className="py-20 px-3 sm:px-4 bg-gray-900">
         <div className="container mx-auto max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -814,7 +814,7 @@ export default function DJs() {
       </section>
 
       {/* How Does It Work */}
-      <section className="py-20 px-4 bg-gray-900">
+      <section className="py-20 px-3 sm:px-4 bg-gray-900">
         <div className="container mx-auto max-w-5xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -873,7 +873,8 @@ export default function DJs() {
                   {[
                     "London", "Bristol", "Bath", "Birmingham", "Somerset", "Wiltshire",
                     "Devon", "Dorset", "Oxford", "Cardiff", "Surrey", "Gloucestershire",
-                    "Essex", "Sussex", "Exeter", "South Wales"
+                    "Essex", "Sussex", "Exeter", "South Wales", "Wales",
+                    "Cornwall", "Leicestershire", "Herefordshire", "Hampshire", "Berkshire", "Warwickshire"
                   ].map((location, index) => (
                     <span
                       key={index}

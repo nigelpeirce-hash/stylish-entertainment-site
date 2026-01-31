@@ -72,6 +72,7 @@ const commonRoles = [
   "Sound",
   "Styling",
   "Coordinator",
+  "Production",
 ];
 
 export default function StaffManagement() {

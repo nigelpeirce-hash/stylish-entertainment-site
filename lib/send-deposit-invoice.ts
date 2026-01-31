@@ -8,6 +8,7 @@ import { Resend } from "resend";
 import { getResendConfig } from "@/lib/email-config";
 import { depositInvoiceEmail } from "@/lib/email-templates";
 import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
+import { buildMarkedPaidUrl } from "@/lib/deposit-paid-link";
 
 const getResend = () => {
   const apiKey = process.env.RESEND_API_KEY;
@@ -81,6 +82,7 @@ export async function sendDepositInvoiceForBooking(bookingId: string): Promise<S
     amount,
     reference,
     bankDetails: bankDetails ?? undefined,
+    markedPaidUrl: buildMarkedPaidUrl(booking.id),
   };
 
   const emailContent = depositInvoiceEmail(payload);

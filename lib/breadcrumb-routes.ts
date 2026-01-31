@@ -1,53 +1,34 @@
 /**
  * Breadcrumb Route Verification System
- * Defines valid admin routes and their labels
+ * 
+ * DEPRECATED: This file is kept for backward compatibility.
+ * New code should use breadcrumb-config.ts and breadcrumb-utils.ts instead.
+ * 
+ * These functions now proxy to the centralized configuration.
  */
 
-// Map of valid admin routes to their display labels
-export const adminRoutes: Record<string, string> = {
-  "/admin": "Admin Dashboard",
-  "/admin/bookings": "Bookings",
-  "/admin/settings": "Settings",
-  "/admin/users": "User Management",
-  "/admin/hire-items": "Hire Shop Items",
-  "/admin/email-audit": "Email Setup Audit",
-  "/admin/db-audit": "Database Audit",
-  "/admin/dev-bypass-toggle": "Dev Bypass Toggle",
-  "/admin/90-day-command": "90-Day Command Centre",
-  "/admin/orders": "Hire Orders",
-  "/admin/inbox": "Email Inbox",
-  "/admin/email-templates": "Email Templates",
-  "/admin/emails": "Email Journey",
-  "/admin/freelance-crew": "Freelance Crew",
-  "/admin/enquiries": "Enquiries",
-  "/admin/new-enquiries": "New Enquiries",
-  "/admin/djs": "DJs",
-  "/admin/musicians": "Musicians",
-  "/admin/vice-versa": "Vice Versa Dashboard",
-  "/admin/setup": "Setup",
-  "/admin/dev-entry": "Dev Entry",
-  "/admin/bookings/fix-dates": "Fix Dates",
-  "/admin/hire-items/seed": "Seed Hire Items",
-  "/admin/email-templates/create-default": "Create Default Templates",
-  "/admin/email-previews": "Email Template Previews",
-  // Password reset routes (public but accessed from admin)
-  "/reset-password": "Password Reset",
-  "/forgot-password": "Forgot Password",
-};
+import { BREADCRUMB_ROUTE_LABELS } from "./breadcrumb-config";
+import { isRouteClickable as _isRouteClickable, getRouteLabel as _getRouteLabel } from "./breadcrumb-utils";
 
-// Routes that don't have their own page (parent routes that are just containers)
-// These routes exist and are clickable, so they're not in this list
-export const nonPageRoutes: string[] = [
-  // None - all admin routes have actual pages
-];
+/**
+ * @deprecated Use BREADCRUMB_ROUTE_LABELS from breadcrumb-config.ts instead
+ */
+export const adminRoutes: Record<string, string> = BREADCRUMB_ROUTE_LABELS;
 
-// Check if a route exists
+/**
+ * @deprecated No longer used - all admin routes have actual pages
+ */
+export const nonPageRoutes: string[] = [];
+
+/**
+ * Check if a route exists
+ * @deprecated Use isRouteClickable from breadcrumb-utils.ts instead
+ */
 export function routeExists(path: string): boolean {
-  // Remove trailing slashes
   const normalizedPath = path.replace(/\/$/, "");
   
-  // Check exact match
-  if (adminRoutes[normalizedPath]) {
+  // Check exact match in route labels
+  if (BREADCRUMB_ROUTE_LABELS[normalizedPath]) {
     return true;
   }
   
@@ -56,27 +37,24 @@ export function routeExists(path: string): boolean {
   if (normalizedPath.includes("/[id]") || normalizedPath.match(/\/[a-z0-9]{20,}/)) {
     // Check if parent route exists
     const parentPath = normalizedPath.split("/").slice(0, -1).join("/");
-    return routeExists(parentPath) || adminRoutes[parentPath] !== undefined;
+    return routeExists(parentPath) || BREADCRUMB_ROUTE_LABELS[parentPath] !== undefined;
   }
   
   return false;
 }
 
-// Get the label for a route
+/**
+ * Get the label for a route
+ * @deprecated Use getRouteLabel from breadcrumb-utils.ts instead
+ */
 export function getRouteLabel(path: string): string | null {
-  const normalizedPath = path.replace(/\/$/, "");
-  return adminRoutes[normalizedPath] || null;
+  return _getRouteLabel(path);
 }
 
-// Check if a route should be clickable
+/**
+ * Check if a route should be clickable
+ * @deprecated Use isRouteClickable from breadcrumb-utils.ts instead
+ */
 export function isRouteClickable(path: string): boolean {
-  const normalizedPath = path.replace(/\/$/, "");
-  
-  // Never point admin routes to root
-  if (normalizedPath.startsWith("/admin") && normalizedPath === "/") {
-    return false;
-  }
-  
-  // Check if route exists
-  return routeExists(normalizedPath);
+  return _isRouteClickable(path);
 }

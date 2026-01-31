@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveImage } from "@/components/cloudinary";
+import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -223,7 +224,7 @@ export function DJForm({
                   />
                 ) : (
                   <Image
-                    src={formData.imageUrl}
+                    src={sanitizeCloudinaryUrl(formData.imageUrl) || formData.imageUrl}
                     alt="Preview"
                     width={128}
                     height={128}

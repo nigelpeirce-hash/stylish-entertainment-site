@@ -9,6 +9,7 @@ import { Plus, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Edit, Trash2, Music } from "lucide-react";
 import Image from "next/image";
+import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 import { MusicianForm } from "./MusicianForm";
 import { Toast } from "@/components/ui/toast";
 import Link from "next/link";
@@ -35,7 +36,7 @@ function MusicianCard({ musician, onEdit, onDelete }: {
         <div className="relative h-40 w-full bg-gray-800">
           {musician.imageUrl ? (
             <Image 
-              src={musician.imageUrl} 
+              src={sanitizeCloudinaryUrl(musician.imageUrl) || musician.imageUrl} 
               alt={musician.name} 
               fill 
               className="object-cover transition-transform duration-500 group-hover:scale-110"

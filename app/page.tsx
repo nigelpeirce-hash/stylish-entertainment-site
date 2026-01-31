@@ -16,7 +16,7 @@ const services = [
     title: "Weddings",
     href: "/weddings/wedding-entertainment",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163781/Emma-Conrad-2-9-23-682_utvftj.jpg",
-    alt: "Exceptional entertainment and lighting design for weddings, parties and events across the UK and Wales",
+    alt: "Exceptional entertainment and lighting design for weddings, parties and events across the UK",
   },
   {
     title: "Parties",
@@ -28,25 +28,25 @@ const services = [
     title: "DJs",
     href: "/artists/djs",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163683/NP-Decks-2_y32tje.jpg",
-    alt: "Professional DJ for weddings, parties and events across the UK and Wales",
+    alt: "Professional DJ for weddings, parties and events across the UK",
   },
   {
     title: "Musicians",
     href: "/artists/musicians",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163656/IMG_3148_owtb29.jpg",
-    alt: "Live Musicians for weddings, parties and events across the UK and Wales",
+    alt: "Live Musicians for weddings, parties and events across the UK",
   },
   {
     title: "Lighting Gallery",
     href: "/galleries",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw",
-    alt: "Professional Lighting Design for weddings, parties and events across the UK and Wales",
+    alt: "Professional Lighting Design for weddings, parties and events across the UK",
   },
   {
     title: "Kit Hire",
     href: "/what-we-do/equipment-dj-band-sound-kit",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768214470/DJ-Decks_mlezxe.jpg",
-    alt: "Equipment hire for weddings, parties and events across the UK and Wales",
+    alt: "Equipment hire for weddings, parties and events across the UK",
   },
   {
     title: "Hire Shop",
@@ -219,7 +219,7 @@ export default function Home() {
     document.title = "Stylish Entertainment & Production | Professional DJs, Lighting Design & Venue Styling";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Stylish Entertainment & Production - Exceptional entertainment for weddings, parties and events. Professional DJs, musicians, lighting design and venue styling across the UK and Wales. Strictly no YMCA.");
+      metaDescription.setAttribute("content", "Stylish Entertainment & Production - Exceptional entertainment for weddings, parties and events. Professional DJs, musicians, lighting design and venue styling across the UK. Strictly no YMCA.");
     }
     // Defer shuffle until after LCP (~2.5s) so the first image stays priority and preload is used
     const t = setTimeout(() => setSliderImages(shuffleArray(gallerySliderImages)), 2500);
@@ -264,7 +264,7 @@ export default function Home() {
             Exceptional <span className="text-gradient">Entertainment</span>
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold leading-relaxed px-4 drop-shadow-md mb-8">
-            Professional DJs, musicians, lighting design and venue styling for weddings, parties and events across the UK and Wales. Strictly no YMCA.
+            Professional DJs, musicians, lighting design and venue styling for weddings, parties and events across the UK. Strictly no YMCA.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button asChild variant="outline" size="lg" className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 hover:scale-105 transition-all duration-300">
@@ -275,7 +275,7 @@ export default function Home() {
       </section>
 
       {/* What set our DJ's apart */}
-      <section className="py-16 md:py-24 px-4 bg-gray-900 relative overflow-hidden">
+      <section className="py-16 md:py-24 px-3 sm:px-4 bg-gray-900 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-champagne-gold/5 via-transparent to-transparent pointer-events-none" />
         <div className="container mx-auto max-w-3xl relative z-10">
           <motion.div
@@ -304,7 +304,7 @@ export default function Home() {
       </section>
 
       {/* Services Section */}
-      <section className="py-20 px-4 bg-gray-700">
+      <section className="py-20 px-3 sm:px-4 bg-gray-700">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -361,7 +361,7 @@ export default function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 px-4 bg-gray-800 relative overflow-hidden">
+      <section className="py-20 px-3 sm:px-4 bg-gray-800 relative overflow-hidden">
         <div className="container mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -393,7 +393,7 @@ export default function Home() {
       </section>
 
       {/* Meet the Team Section */}
-      <section className="py-20 px-4 bg-gray-700">
+      <section className="py-20 px-3 sm:px-4 bg-gray-700">
         <div className="container mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
+import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { 
@@ -213,7 +214,7 @@ export default function WeddingLandingClient() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-4 bg-gray-800/50">
+      <section className="py-20 px-3 sm:px-4 bg-gray-800/50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -253,7 +254,7 @@ export default function WeddingLandingClient() {
       </section>
 
       {/* Portal Preview Section */}
-      <section className="py-20 px-4">
+      <section className="py-20 px-3 sm:px-4">
         <div className="max-w-6xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -355,7 +356,7 @@ export default function WeddingLandingClient() {
       </section>
 
       {/* Meet Our DJs Section */}
-      <section className="py-20 px-4 bg-black">
+      <section className="py-20 px-3 sm:px-4 bg-black">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -376,8 +377,8 @@ export default function WeddingLandingClient() {
               <Loader2 className="w-8 h-8 text-champagne-gold animate-spin" />
             </div>
           ) : djs.length > 0 ? (
-            <div className="relative">
-              {/* DJ Card - Full Width */}
+            <div className="relative max-w-5xl mx-auto">
+              {/* DJ Card - arrows positioned relative to card so they don't overhang on mobile */}
               <motion.div
                 key={currentDJIndex}
                 initial={{ opacity: 0, x: 20 }}
@@ -385,13 +386,13 @@ export default function WeddingLandingClient() {
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden max-w-5xl mx-auto">
+                <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden w-full">
                   <div className="grid md:grid-cols-5 gap-0">
                     {/* DJ Image - Larger */}
                     <div className="relative h-80 md:h-[550px] md:col-span-2 overflow-hidden">
                       {djs[currentDJIndex]?.imageUrl ? (
                         <Image
-                          src={djs[currentDJIndex].imageUrl!}
+                          src={sanitizeCloudinaryUrl(djs[currentDJIndex].imageUrl) || djs[currentDJIndex].imageUrl!}
                           alt={djs[currentDJIndex].name}
                           fill
                           className="object-cover"
@@ -474,22 +475,22 @@ export default function WeddingLandingClient() {
                 </Card>
               </motion.div>
 
-              {/* Navigation Arrows */}
+              {/* Navigation Arrows - inset on mobile so they don't overhang; outside on md+ */}
               {djs.length > 1 && (
                 <>
                   <button
                     onClick={prevDJ}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 md:-translate-x-14 w-12 h-12 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-white hover:bg-champagne-gold hover:text-black transition-colors z-10"
+                    className="absolute left-2 sm:left-0 top-1/2 -translate-y-1/2 sm:-translate-x-1/2 md:-translate-x-14 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-800/95 border border-gray-700 flex items-center justify-center text-white hover:bg-champagne-gold hover:text-black transition-colors z-10 shadow-lg"
                     aria-label="Previous DJ"
                   >
-                    <ChevronLeft className="w-6 h-6" />
+                    <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
                   <button
                     onClick={nextDJ}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-14 w-12 h-12 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-white hover:bg-champagne-gold hover:text-black transition-colors z-10"
+                    className="absolute right-2 sm:right-0 top-1/2 -translate-y-1/2 sm:translate-x-1/2 md:translate-x-14 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-800/95 border border-gray-700 flex items-center justify-center text-white hover:bg-champagne-gold hover:text-black transition-colors z-10 shadow-lg"
                     aria-label="Next DJ"
                   >
-                    <ChevronRight className="w-6 h-6" />
+                    <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
                   </button>
                 </>
               )}
@@ -527,7 +528,7 @@ export default function WeddingLandingClient() {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 px-4 bg-gray-800/50">
+      <section className="py-20 px-3 sm:px-4 bg-gray-800/50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
@@ -565,7 +566,7 @@ export default function WeddingLandingClient() {
       </section>
 
       {/* Upsell - Complete Your Wedding */}
-      <section className="py-20 px-4 bg-black">
+      <section className="py-20 px-3 sm:px-4 bg-black">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -736,7 +737,7 @@ export default function WeddingLandingClient() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4">
+      <section className="py-20 px-3 sm:px-4">
         <div className="max-w-4xl mx-auto text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -774,14 +775,14 @@ export default function WeddingLandingClient() {
       </section>
 
       {/* Coverage Area */}
-      <section className="py-12 px-4 border-t border-gray-800">
+      <section className="py-12 px-3 sm:px-4 border-t border-gray-800">
         <div className="max-w-6xl mx-auto text-center">
-          <p className="text-gray-400 mb-4">Proudly serving weddings across the UK and Wales</p>
+          <p className="text-gray-400 mb-4">Proudly serving weddings across the UK</p>
         </div>
       </section>
 
       {/* Footer Brand */}
-      <footer className="py-8 px-4 border-t border-gray-800 bg-black">
+      <footer className="py-8 px-3 sm:px-4 border-t border-gray-800 bg-black">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <Image
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png"

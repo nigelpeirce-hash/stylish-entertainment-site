@@ -534,6 +534,23 @@ model HireOrderItem {
   @@index([orderId])
 }
 
+/// Line items for Lighting & Venue Styling quote generator (fairy lights, festoon, lanterns, etc.)
+model ServiceQuoteItem {
+  id           String   @id @default(cuid())
+  name         String   // e.g. "Fairy lights (warm white, 10m string)"
+  description  String?
+  unit         String   // e.g. "per 10m string", "per metre", "each"
+  pricePerUnit Float    @default(0)
+  category     String   // "lighting" | "venue_styling"
+  displayOrder Int      @default(0)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([category])
+  @@index([isActive])
+}
+
 model Musician {
   id             String   @id
   name           String
@@ -568,8 +585,9 @@ model NewEnquiry {
   venuePostcode         String
   venueName             String?
   eventType             String?   // "wedding" | "corporate" | "party" | "other"
-  enquiryType           String?   // "hire_only" | "general" etc.
-  selectedHireItems      Json?     // [{ hireItemId, quantity }] for hire-only
+  enquiryType           String?   // "hire_only" | "general" | "quote_request" etc.
+  quoteRequestData      Json?     // { services: string[], message?: string } for quote_request
+  selectedHireItems      Json?     // [{ hireItemId, quantity }] for hire-only / quote_request
   isConflict            Boolean   @default(false)
   originalBookingId     String?
   conflictDetectedAt    DateTime?

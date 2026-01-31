@@ -1,12 +1,20 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Calculator } from "lucide-react";
 import ImageCarousel, { ImagePhoto } from "@/components/ImageCarousel";
-import { useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { ServiceQuoteGenerator } from "@/components/ServiceQuoteGenerator";
 
 const lightingPhotos: ImagePhoto[] = [
   {
@@ -54,11 +62,13 @@ const lightingPhotos: ImagePhoto[] = [
 ];
 
 export default function LightingDesignService() {
+  const [quoteOpen, setQuoteOpen] = useState(false);
+
   useEffect(() => {
     document.title = "Lighting Design | Professional Wedding Lighting | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Transform your wedding venue with bespoke lighting design. LED uplighting, intelligent moving lights, atmospheric mood lighting and dance floor packages across the UK and Wales.");
+      metaDescription.setAttribute("content", "Transform your wedding venue with bespoke lighting design. LED uplighting, intelligent moving lights, atmospheric mood lighting and dance floor packages across the UK.");
     }
   }, []);
 
@@ -90,7 +100,7 @@ export default function LightingDesignService() {
       </section>
 
       {/* Service Details */}
-      <section className="py-20 px-4 bg-gray-800">
+      <section className="py-20 px-3 sm:px-4 bg-gray-800">
         <div className="container mx-auto max-w-4xl">
           <Card className="bg-gray-800 border-champagne-gold/30">
             <CardHeader>
@@ -135,7 +145,7 @@ export default function LightingDesignService() {
                 </p>
                 
                 <p className="text-base sm:text-lg">
-                  Eager to turn your vision into reality? Based in <span className="text-champagne-gold font-medium">Frome, Somerset</span>, we extend our services across <span className="text-white font-medium">the UK and Wales</span>.
+                  Eager to turn your vision into reality? Based in <span className="text-champagne-gold font-medium">Frome, Somerset</span>, we extend our services across <span className="text-white font-medium">the UK</span>.
                 </p>
                 
                 <p className="text-base sm:text-lg">
@@ -147,7 +157,26 @@ export default function LightingDesignService() {
                 </p>
               </div>
 
-              <div className="pt-6 border-t border-champagne-gold/30">
+              <div className="pt-6 border-t border-champagne-gold/30 flex flex-wrap gap-3">
+                <Dialog open={quoteOpen} onOpenChange={setQuoteOpen}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="lg" className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10">
+                      <Calculator className="w-5 h-5 mr-2" />
+                      Get a quote
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto bg-gray-900 border-champagne-gold/30">
+                    <DialogHeader>
+                      <DialogTitle className="text-white">Lighting quote</DialogTitle>
+                    </DialogHeader>
+                    <ServiceQuoteGenerator
+                      category="lighting"
+                      title="Lighting quote"
+                      compact
+                      onClose={() => setQuoteOpen(false)}
+                    />
+                  </DialogContent>
+                </Dialog>
                 <Button asChild size="lg" className="w-full sm:w-auto bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
                   <Link href="/contact-us">Get in Touch</Link>
                 </Button>
@@ -158,7 +187,7 @@ export default function LightingDesignService() {
       </section>
 
       {/* Gallery */}
-      <section className="py-20 px-4 bg-gray-900">
+      <section className="py-20 px-3 sm:px-4 bg-gray-900">
         <div className="container mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -177,7 +206,7 @@ export default function LightingDesignService() {
       </section>
 
       {/* CTA */}
-      <section className="pt-20 pb-8 px-4 bg-gray-800">
+      <section className="pt-20 pb-8 px-3 sm:px-4 bg-gray-800">
         <div className="container mx-auto max-w-4xl text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

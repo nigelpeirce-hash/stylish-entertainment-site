@@ -74,7 +74,7 @@ import { Toast } from "@/components/ui/toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { debug } from "@/lib/debug";
-import { SanitizedBooking } from "@/lib/transformers/booking-transformer";
+import { SanitizedBooking, toDisplayFee } from "@/lib/transformers/booking-transformer";
 import { useBookingUpdates } from "@/lib/hooks/useBookingUpdates";
 
 // Use the sanitized booking interface from transformer
@@ -465,7 +465,11 @@ export default function BookingDetail() {
     );
   }
 
-  const staffAssignments = booking.staffAssignments ?? [];
+  // Normalize so agreedFee is always a number (never { fee }) to avoid "Objects are not valid as a React child"
+  const staffAssignments = (booking.staffAssignments ?? []).map((a) => ({
+    ...a,
+    agreedFee: toDisplayFee((a as { agreedFee?: unknown }).agreedFee),
+  }));
 
   const phoneNumber = getPhoneNumber();
   const googleMapsUrl = getGoogleMapsUrl();
@@ -517,7 +521,7 @@ export default function BookingDetail() {
                   {isEnquiry ? `Enquiry: ${deduplicateName(getDisplayName(booking.name) || booking.name)}` : deduplicateName(getDisplayName(booking.name) || booking.name)}
                 </h1>
                 {isNewEnquiry && (
-                  <span className="inline-flex h-3 w-3 rounded-full bg-amber-500 animate-pulse" title="New Enquiry" aria-hidden />
+                  <span className="inline-flex h-3 w-3 rounded-full bg-amber-500 animate-pulse" title="Booking Request Received" aria-hidden />
                 )}
                 {booking.eventType && (
                   <span className="border border-amber-400/60 text-amber-200 text-xs uppercase tracking-widest px-2 py-1 rounded bg-amber-500/20">
@@ -720,7 +724,7 @@ export default function BookingDetail() {
             )}
 
             {/* Lead Insight – highlighted when Enquiry */}
-            {(booking.message?.trim() || (Array.isArray(booking.services) && booking.services.length > 0) || (Array.isArray(booking.upsellItems) && booking.upsellItems.length > 0)) && (
+            {(booking.message?.trim() || (booking.preferredDJ && booking.preferredDJ.trim()) || (Array.isArray(booking.services) && booking.services.length > 0) || (Array.isArray(booking.upsellItems) && booking.upsellItems.length > 0)) && (
               <Card className={`bg-slate-800/40 border-slate-600/50 shadow-sm ${isEnquiry ? "ring-2 ring-champagne-gold/50" : ""}`}>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
@@ -730,17 +734,28 @@ export default function BookingDetail() {
                   <p className="text-xs text-gray-400">Add these to the quote below</p>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {booking.message?.trim() && (
+                  {/* Preferred DJ / Artist – prominent (applies to DJs and musicians) */}
+                  {booking.preferredDJ && booking.preferredDJ.trim() && (
                     <div>
                       <p className="text-xs font-semibold text-champagne-gold uppercase tracking-wider mb-2 flex items-center gap-1">
-                        <MessageSquare className="w-3.5 h-3.5" />
-                        Their message
+                        <Radio className="w-3.5 h-3.5" />
+                        Preferred DJ / Artist
                       </p>
-                      <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-600/50 text-white whitespace-pre-wrap text-sm leading-relaxed">
-                        {booking.message.trim()}
+                      <div className="p-4 rounded-lg bg-champagne-gold/15 border-2 border-champagne-gold/50 text-white text-lg font-medium">
+                        {booking.preferredDJ.trim()}
                       </div>
                     </div>
                   )}
+                  {/* Message – always shown so you see what they asked for */}
+                  <div>
+                    <p className="text-xs font-semibold text-champagne-gold uppercase tracking-wider mb-2 flex items-center gap-1">
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      Message
+                    </p>
+                    <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-600/50 text-white whitespace-pre-wrap text-sm leading-relaxed">
+                      {booking.message?.trim() ? booking.message.trim() : "—"}
+                    </div>
+                  </div>
                   {((Array.isArray(booking.services) && booking.services.length > 0) || (Array.isArray(booking.upsellItems) && booking.upsellItems.length > 0)) && (
                     <div>
                       <p className="text-xs font-semibold text-champagne-gold uppercase tracking-wider mb-2 flex items-center gap-1">
@@ -787,7 +802,7 @@ export default function BookingDetail() {
             )}
 
             {/* No message/items yet – prompt to add so you know what to quote */}
-            {(!booking.message?.trim() && (!Array.isArray(booking.services) || booking.services.length === 0) && (!Array.isArray(booking.upsellItems) || booking.upsellItems.length === 0)) && (
+            {(!booking.message?.trim() && !(booking.preferredDJ && booking.preferredDJ.trim()) && (!Array.isArray(booking.services) || booking.services.length === 0) && (!Array.isArray(booking.upsellItems) || booking.upsellItems.length === 0)) && (
               <Card className="bg-gray-800/80 border border-dashed border-gray-600">
                 <CardContent className="py-4">
                   <p className="text-sm text-gray-400 flex items-center gap-2">
@@ -913,54 +928,79 @@ export default function BookingDetail() {
                   )}
                 </div>
 
-                {/* Deposit Received Toggle */}
-                <div className="flex items-center justify-between p-4 bg-gray-900/70 rounded-lg border-2 border-gray-600 hover:border-amber-500/30 transition-all">
-                  <div className="flex items-center gap-4">
-                    <Checkbox
-                      id="depositReceivedManual"
-                      checked={booking.depositReceivedManual || false}
-                      onCheckedChange={async (checked) => {
-                        try {
-                          const response = await fetch(`/api/admin/bookings/${booking.id}/flexible-update/`, {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ depositReceivedManual: checked }),
-                          });
-                          if (response.ok) {
-                            await handleBookingUpdate();
-                            toast({
-                              title: "Updated",
-                              description: checked ? "Deposit marked as received" : "Deposit marked as pending",
-                            });
-                          } else {
-                            throw new Error("Failed to update deposit status");
-                          }
-                        } catch (error) {
-                          toast({
-                            title: "Error",
-                            description: "Failed to update deposit status",
-                            variant: "destructive",
-                          });
+                {/* Deposit Received Toggle – flashing red when client reported, static green when manually confirmed */}
+                {(() => {
+                  const needsConfirmation = !!booking.depositPaidClickedAt && !booking.depositReceivedManual;
+                  const confirmed = !!booking.depositReceivedManual;
+                  return (
+                    <div
+                      className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
+                        needsConfirmation
+                          ? "bg-gray-900/70 border-red-500/60 hover:border-red-500/80"
+                          : confirmed
+                            ? "bg-gray-900/70 border-emerald-500/40 hover:border-emerald-500/50"
+                            : "bg-gray-900/70 border-gray-600 hover:border-amber-500/30"
+                      }`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <span
+                          className={`inline-block h-3 w-3 rounded-full shrink-0 ${
+                            confirmed
+                              ? "bg-emerald-500"
+                              : needsConfirmation
+                                ? "bg-red-500 animate-pulse"
+                                : "bg-amber-500/70"
+                          }`}
+                          title={confirmed ? "Deposit confirmed" : needsConfirmation ? "Client reported paid – confirm when bank checked" : "Pending"}
+                          aria-hidden
+                        />
+                        <Checkbox
+                          id="depositReceivedManual"
+                          checked={booking.depositReceivedManual || false}
+                          onCheckedChange={async (checked) => {
+                            try {
+                              const response = await fetch(`/api/admin/bookings/${booking.id}/flexible-update/`, {
+                                method: "PATCH",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ depositReceivedManual: checked }),
+                              });
+                              if (response.ok) {
+                                await handleBookingUpdate();
+                                toast({
+                                  title: "Updated",
+                                  description: checked ? "Deposit marked as received" : "Deposit marked as pending",
+                                });
+                              } else {
+                                throw new Error("Failed to update deposit status");
+                              }
+                            } catch (error) {
+                              toast({
+                                title: "Error",
+                                description: "Failed to update deposit status",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                          className="h-6 w-6 border-2 border-amber-500/50 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500"
+                        />
+                        <label htmlFor="depositReceivedManual" className="text-white font-bold text-base cursor-pointer">
+                          Deposit Received
+                        </label>
+                      </div>
+                      <Badge
+                        className={
+                          confirmed
+                            ? "bg-emerald-500/30 text-emerald-400 border-2 border-emerald-500/50 font-bold"
+                            : needsConfirmation
+                              ? "bg-red-500/30 text-red-400 border-2 border-red-500/50 font-bold"
+                              : "bg-amber-500/30 text-amber-400 border-2 border-amber-500/50 font-bold"
                         }
-                      }}
-                      className="h-6 w-6 border-2 border-amber-500/50 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500"
-                    />
-                    <label htmlFor="depositReceivedManual" className="text-white font-bold text-base cursor-pointer">
-                      Deposit Received
-                    </label>
-                  </div>
-                  <Badge
-                    className={
-                      booking.depositReceivedManual
-                        ? "bg-emerald-500/30 text-emerald-400 border-2 border-emerald-500/50 font-bold"
-                        : booking.depositPaidClickedAt
-                          ? "bg-amber-500/30 text-amber-400 border-2 border-amber-500/50 font-bold"
-                          : "bg-amber-500/30 text-amber-400 border-2 border-amber-500/50 font-bold"
-                    }
-                  >
-                    {booking.depositReceivedManual ? "Paid" : booking.depositPaidClickedAt ? "Client reported paid" : "Pending"}
-                  </Badge>
-                </div>
+                      >
+                        {confirmed ? "Paid" : needsConfirmation ? "Client reported – confirm" : "Pending"}
+                      </Badge>
+                    </div>
+                  );
+                })()}
 
                 {/* Client reported paid (from "I've paid" in email) – flash until admin confirms deposit received */}
                 {booking.depositPaidClickedAt && (
@@ -1140,6 +1180,12 @@ export default function BookingDetail() {
                     <div>
                       <p className="text-xs text-gray-400 mb-1">Preferred Contact</p>
                       <p className="text-white text-sm">{booking.contactPreference}</p>
+                    </div>
+                  )}
+                  {booking.preferredDJ && booking.preferredDJ.trim() && (
+                    <div>
+                      <p className="text-xs text-gray-400 mb-1">Preferred DJ / Artist</p>
+                      <p className="text-champagne-gold font-medium">{booking.preferredDJ.trim()}</p>
                     </div>
                   )}
                 </CardContent>
@@ -1356,24 +1402,7 @@ export default function BookingDetail() {
                             <p className="text-xs text-yellow-400 mt-1">⚠️ No contact info available</p>
                           )}
                           <p className="text-gray-400 text-xs">
-                            Fee: £{(() => {
-                              const fee = assignment.agreedFee;
-                              // Ensure we always return a number, never an object
-                              if (typeof fee === 'number' && !isNaN(fee)) {
-                                return fee;
-                              }
-                              if (typeof fee === 'object' && fee !== null) {
-                                // Extract numeric value from object
-                                const obj = fee as any;
-                                const extracted = Number(obj.fee) || Number(obj.amount) || Number(obj.value) || 0;
-                                return isNaN(extracted) ? 0 : extracted;
-                              }
-                              if (typeof fee === 'string') {
-                                const parsed = parseFloat(fee);
-                                return isNaN(parsed) ? 0 : parsed;
-                              }
-                              return 0;
-                            })().toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            Fee: £{toDisplayFee(assignment.agreedFee).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </p>
                           {assignment.confirmationEmailSent && (
                             <p className="text-xs text-green-400 mt-1">✓ Confirmation sent</p>

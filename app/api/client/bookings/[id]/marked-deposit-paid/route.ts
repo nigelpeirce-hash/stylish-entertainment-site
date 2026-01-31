@@ -2,6 +2,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendDepositPaidNotification } from "@/lib/pushover-notifications";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -47,7 +48,7 @@ export async function GET(
 
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      select: { id: true, name: true, bookingReference: true, depositPaidClickedAt: true },
+      select: { id: true, name: true, bookingReference: true, depositPaidClickedAt: true, venueName: true, eventDate: true },
     });
 
     if (!booking) {
@@ -70,6 +71,20 @@ export async function GET(
       name: booking.name,
       bookingReference: booking.bookingReference,
     });
+
+    try {
+      await notifyAdminSignificantEvent({
+        type: "deposit_paid",
+        bookingId: booking.id,
+        title: "Deposit marked paid (client)",
+        description: `${booking.name} clicked "I've paid" – ref ${booking.bookingReference ?? "—"}`,
+        bookingName: booking.name,
+        venueName: booking.venueName ?? undefined,
+        eventDate: booking.eventDate ? new Date(booking.eventDate).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" }) : undefined,
+      });
+    } catch (e) {
+      console.warn("Admin notification (deposit_paid) failed:", e);
+    }
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk";
     return NextResponse.redirect(new URL("/client/deposit-paid-thank-you", baseUrl));

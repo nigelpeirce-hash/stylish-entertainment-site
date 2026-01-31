@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Raleway, Bebas_Neue, Dancing_Script, Playfair_Display } from "next/font/google";
 import Script from "next/script";
 import { Suspense } from "react";
@@ -7,6 +7,13 @@ import "./globals.css";
 
 /** Avoid static prerender for app; framer-motion triggers useState-null during prerender. */
 export const dynamic = "force-dynamic";
+
+/** Safe-area insets (notch/home indicator) work when viewport extends into safe areas. */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
@@ -56,7 +63,7 @@ export const metadata: Metadata = {
     default: "STYLISH Entertainment | DJs, Lighting & Events for Weddings, Parties & Celebrations",
     template: "%s | STYLISH Entertainment"
   },
-  description: "Premium entertainment for weddings, parties and events across the UK and Wales. Professional DJs, lighting design and venue styling.",
+  description: "Premium entertainment for weddings, parties and events across the UK. Professional DJs, lighting design and venue styling.",
   keywords: ["West Country DJs", "London Event DJs", "Somerset Wedding DJs", "Party DJs Bath", "Bristol Event Entertainment", "Dorset Wedding DJs", "Devon Party DJs", "DJs Cornwall", "Stylish Entertainment", "Luxury Event Lighting Hire", "Wedding Entertainment", "Party Entertainment", "Corporate Event DJs", "Private Party DJs", "Event Lighting Design", "Venue Styling", "Event Musicians", "Babington House DJ", "Professional DJs", "Event Sound Systems", "LED Event Lighting", "Celebration Entertainment"],
   authors: [{ name: "Stylish Entertainment" }],
   creator: "Stylish Entertainment",
@@ -72,7 +79,7 @@ export const metadata: Metadata = {
     url: "https://www.stylishentertainment.co.uk",
     siteName: "STYLISH Entertainment",
     title: "STYLISH Entertainment | DJs, Lighting & Events for Weddings, Parties & Celebrations",
-    description: "Premium entertainment for weddings, parties and events across the UK and Wales. Professional DJs, lighting design and venue styling.",
+    description: "Premium entertainment for weddings, parties and events across the UK. Professional DJs, lighting design and venue styling.",
     images: [
       {
         url: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw",
@@ -85,7 +92,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "STYLISH Entertainment | DJs, Lighting & Events for Weddings, Parties & Celebrations",
-    description: "Premium entertainment for weddings, parties and events across the UK and Wales. Professional DJs, lighting design and venue styling.",
+    description: "Premium entertainment for weddings, parties and events across the UK. Professional DJs, lighting design and venue styling.",
     images: ["https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw"],
     creator: "@stylishentertainment",
   },
@@ -212,7 +219,7 @@ export default async function RootLayout({
           </Suspense>
           <Breadcrumbs />
           <ErrorBoundaryWrapper>
-            <div className="relative z-10 block">
+            <div className="relative z-10 block safe-area-x">
               <main className="min-h-screen">{children}</main>
               {/* No marketing footer on admin – Command Center only */}
               {!pathname.startsWith("/admin") && <Footer />}

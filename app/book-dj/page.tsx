@@ -17,6 +17,7 @@ import Link from "next/link";
 import { Calendar, User, Mail, Phone, MapPin, Music } from "lucide-react";
 import DJSelectionModal from "@/components/DJSelectionModal";
 import UpsellSection from "@/components/UpsellSection";
+import { AcceptTermsModule } from "@/components/AcceptTermsModule";
 
 const bookingSchema = z.object({
   // Client Information
@@ -78,6 +79,7 @@ function BookDJPageContent() {
   const [quoteLoading, setQuoteLoading] = useState(false);
   const [quoteError, setQuoteError] = useState<string | null>(null);
   const [prefillApplied, setPrefillApplied] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const {
     register,
@@ -213,7 +215,7 @@ function BookDJPageContent() {
           message: data.message,
           preferredDJ: selectedDJ,
           upsellItems: selectedUpsells,
-          termsAccepted: true, // Terms accepted by submitting the form
+          termsAccepted,
         }),
       });
 
@@ -631,12 +633,22 @@ function BookDJPageContent() {
                   />
                 </div>
 
+                {/* Terms & Conditions */}
+                <div className="border-t border-gray-700 pt-6">
+                  <AcceptTermsModule
+                    accepted={termsAccepted}
+                    onAcceptChange={setTermsAccepted}
+                    disabled={isSubmitting}
+                    variant="dark"
+                  />
+                </div>
+
                 {/* Form Actions */}
                 <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-700">
                   <Button
                     type="submit"
                     className="bg-champagne-gold text-black hover:bg-gold-light"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || !termsAccepted}
                   >
                     {isSubmitting ? "Submitting..." : "Submit Booking"}
                   </Button>

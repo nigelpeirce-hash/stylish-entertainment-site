@@ -22,6 +22,7 @@ import { getNameFormatSuggestions, isValidNameFormat, getDisplayName } from "@/l
 import { useToast } from "@/hooks/use-toast";
 import { Toast } from "@/components/ui/toast";
 import Image from "next/image";
+import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 
 interface TeamMember {
   id: string;
@@ -809,7 +810,7 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
                           >
                             {member.imageUrl && (
                               <Image
-                                src={member.imageUrl}
+                                src={sanitizeCloudinaryUrl(member.imageUrl) || member.imageUrl}
                                 alt={member.name}
                                 width={20}
                                 height={20}
@@ -834,7 +835,7 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
                         <div key={member.id} className="flex items-center gap-3 bg-white/5 rounded-lg p-2">
                           {member.imageUrl && (
                             <Image
-                              src={member.imageUrl}
+                              src={sanitizeCloudinaryUrl(member.imageUrl) || member.imageUrl}
                               alt={member.name}
                               width={32}
                               height={32}
@@ -849,7 +850,7 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
                             <Input
                               type="number"
                               placeholder="Fee £"
-                              value={member.fee}
+                              value={typeof member.fee === "number" ? member.fee : (typeof member.fee === "string" ? member.fee : (member.fee && typeof member.fee === "object" && "fee" in member.fee ? String((member.fee as { fee?: unknown }).fee ?? "") : ""))}
                               onChange={(e) => updateMemberFee(member.id, e.target.value)}
                               className="w-24 bg-white/10 border-none text-white text-sm p-2 h-8"
                               disabled={loading}

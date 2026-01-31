@@ -3,7 +3,17 @@ export interface Testimonial {
   author: string;
   venue: string;
   venueUrl?: string;
-  venueFilter?: string; // 'Babington House', 'London', 'Somerset', 'Wiltshire'
+  venueFilter?: string; // county or venue name for filtering (e.g. 'Babington House', 'London', 'Somerset', 'Wiltshire', 'Cornwall', 'Dorset')
+}
+
+/** Unique venue/county filter labels from testimonials: Babington House first, then others alphabetically. Used for filter buttons on testimonials and venue pages. */
+export function getVenueFiltersFromTestimonials(): string[] {
+  const set = new Set<string>();
+  for (const t of testimonials) {
+    if (t.venueFilter) set.add(t.venueFilter);
+  }
+  const rest = [...set].filter((f) => f !== "Babington House").sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+  return set.has("Babington House") ? ["Babington House", ...rest] : rest;
 }
 
 export const testimonials: Testimonial[] = [
@@ -19,6 +29,7 @@ export const testimonials: Testimonial[] = [
     author: "Vienna and Ben Balkwill",
     venue: "Pencarrow Estate, Bodmin, Cornwall",
     venueUrl: "https://www.pencarrow.co.uk/",
+    venueFilter: "Cornwall",
   },
   {
     quote: "Just wanted to say thank you soo much for helping us host such an amazing night on our special day. It was such fun and we've had so many nice comments from guests about how good the evening part was! Nigel, you are a top tier DJ! You really brought the party vibe we wanted and were an absolutely great host. Cannot thank you enough! We will 100% be recommending Stylish Entertainment.",
@@ -32,6 +43,7 @@ export const testimonials: Testimonial[] = [
     author: "Katie & Andrew McLaughlin",
     venue: "Rockingham Castle, Leicestershire",
     venueUrl: "https://www.rockinghamcastle.com/",
+    venueFilter: "Leicestershire",
   },
   {
     quote: "I just wanted to say a huge thank you to Stylish Entertainment and to Rich. He was amazing! The DJ is such a big part of the wedding for me, the music can make or break the night! Rich listened to exactly what we wanted, and played amazing music! We had lots of compliments. Also he was such a lovely person to have as part of our wedding. The venue were late moving tables so we had to delay the first song. Rich was so lovely and accommodating. Thanks so much to Rich, he was excellent!",
@@ -45,6 +57,7 @@ export const testimonials: Testimonial[] = [
     author: "Vicky & Oli",
     venue: "Hotel du Vin, Poole, Dorset",
     venueUrl: "https://www.hotelduvin.com/locations/poole/",
+    venueFilter: "Dorset",
   },
   {
     quote: "We have been meaning to drop you a line to say a HUGE HUGE THANK YOU for doing such an amazing job with the DJing and lighting etc at our wedding. So many people commented on how great you were and how good the music was and it really made the night so special so really thank you from the bottom of our hearts. Everyone loved Mark Anthony as well and that all went really smoothly and I think the stage worked really well generally as a podium for people to dance on afterwards! Anyway we thought you were awesome and everyone had such a great time, thanks once again for making the party and hope to see you at Babington some time.",
@@ -65,6 +78,7 @@ export const testimonials: Testimonial[] = [
     author: "Antonia & Jonathan Pass",
     venue: "Eastnor Castle Wedding, Herefordshire",
     venueUrl: "https://www.eastnorcastle.com/",
+    venueFilter: "Herefordshire",
   },
   {
     quote: "Just wanted to say a huge thank you for the amazing DJ set you played at our wedding last month! Everyone had the best night and the music was a huge part of that and a key reason the dance floor was full right until the very end! The tree lighting also looked incredible and photographed so well! So thanks to the team for that also!",
@@ -112,6 +126,7 @@ export const testimonials: Testimonial[] = [
     author: "Mr & Mrs Colton",
     venue: "The Wellington Arms, Basingstoke",
     venueUrl: "https://www.thewellingtonarms.com/",
+    venueFilter: "Hampshire",
   },
   {
     quote: "We just wanted to say thank you so much for doing such a fantastic job at our Wedding!! We thought the music was perfect and catered to all our guests!! Took us by surprise with Come Together just before the first dance song but worked so so well to get everyone in the mood! So memorable! Everything went so perfectly and was just magical on the day for us! Our photographers mentioned in the 10 years they've been working they've not seen a dance floor so full for so long, and so many of our guests singled out the music as their highlight. So we'd like to thank you for making such a huge difference to our big day.",
@@ -139,12 +154,14 @@ export const testimonials: Testimonial[] = [
     author: "Liam Price",
     venue: "Parklands Quendon Hall, Essex",
     venueUrl: "https://www.parklandsquendonhall.co.uk/",
+    venueFilter: "Essex",
   },
   {
     quote: "We would just like to do a review for James for our wedding day. From start to finish James was fantastic to deal with an absolutely got we wanted. His mixing and ability to judge the audience was better than I have ever seen. We have had so many friends and family compliment the DJ and we will definitely be using him again! Just superb!",
     author: "George and Kathryn",
     venue: "Dene Farm, Stockbridge, Hampshire",
     venueUrl: "https://www.denefarm.co.uk/",
+    venueFilter: "Hampshire",
   },
   {
     quote: "We just wanted to say a HUGE thank you for supplying us with the beautiful lights... really made everything look so fabulous and definitely would have loved to keep them forever!!!!!! We may just have to have more parties so we can hire them again! Thank you to you and your team for doing such a great job.",
@@ -163,6 +180,7 @@ export const testimonials: Testimonial[] = [
     quote: "We want to send our heartfelt thanks to you, Nigel, Dave & Simon - they were awesome. Everything was seamless between them and the band and we had such a great eclectic mix to get everyone in the mood and dancing. I'm not kidding when I say that we've never seen my 61yr old father dance so that's certainly testament to the great vibes created, thank you. We wish we could do it all over again and hope to have an opportunity to recommend you guys very soon.",
     author: "Hollie & Lewis Corby",
     venue: "Penarth Pier Pavilion, Wales",
+    venueFilter: "Wales",
   },
   {
     quote: "I just wanted to say a massive thank you for dj-ing on Thursday. We had an amazing time and I didn't stop dancing all night. Mum also appreciated the Rolling Stones - she said to pass on the message! I thought the orangery and the outside lights all looked great.",
@@ -175,22 +193,26 @@ export const testimonials: Testimonial[] = [
     quote: "I hope you are well. I just wanted to write some positive feedback about James H, who I booked as the DJ at my recent wedding. My wife, Clare, and I could not be happier we chose him. He was positive, friendly and communicative thought the whole process - a real pleasure to deal with. He kept the dancefloor full all night and so many of our guests commented how great the music was. Clare and I were both able to relax and enjoy the evening knowing the music was in good hands. Thank you for your service and providing us with a great DJ.",
     author: "Clare and James Fisher",
     venue: "Marquee Wedding, Ruscombe, Berkshire",
+    venueFilter: "Berkshire",
   },
   {
     quote: "It was a great success. Once we got people on the dance floor Nigel played some fabulous music. We loved Darude, Insomnia and have some great video footage of people dancing. I hope we did not keep him too late! It was wonderful he could play until 1.30am. Our guests loved the music and the Castle looked fabulous.",
     author: "Charles Berkeley",
     venue: "Berkeley Castle, Gloucestershire",
     venueUrl: "https://www.berkeley-castle.com/",
+    venueFilter: "Gloucestershire",
   },
   {
     quote: "Just to say a huge Thank you to Nigel and Simon they were totally amazing on Saturday night!!! We had a tough crowd but Nigel won and everyone was up on their feet. Everyone has commented on how good they were so please pass a huge thank you onto them from us.",
     author: "Anna-Marie Panter",
     venue: "Hatton Hall, Warwickshire",
+    venueFilter: "Warwickshire",
   },
   {
     quote: "I wanted to follow up our wedding in which Rich Smith DJ'd for us at Kingscote Barn. I can't thank Rich enough for the evening. He was simply awesome. The music was great and the party was the best we've ever had. The comments and feedback from our guests are still coming in, the last 30 minutes in a large group is one of the best experiences I've ever had! Can you please pass on our thanks and tell him he is the first phone call I will make in future if we have a party!",
     author: "Rich Farmer",
     venue: "Kingscote Barn, Gloucestershire",
+    venueFilter: "Gloucestershire",
   },
   {
     quote: "THANK YOU FROM THE BOTTOM OF OUR HEARTS FOR MAKING OUR WEDDING RECEPTION SO PERFECT. You really made it magical and everything that we could have every wished for. I wish we could take you everywhere with us! We will never forget the dancing and how you played us out with Into The Mystic. It meant so much.",
@@ -237,6 +259,7 @@ export const testimonials: Testimonial[] = [
     quote: "Just a note to say that Saturday was a great day and James was brilliant and made a real contribution. He provided exactly what we wanted, with a thoughtful selection based on our choices. He kept a nice atmosphere going in the early part of the evening and then got everyone going with some real floor fillers. He was friendly and responsive and really added to the day. Thank you for your help in making all the arrangements.",
     author: "Stephen & Lisa Rouse",
     venue: "The Penny Farthing Cafe Bar, Cowbridge, Wales",
+    venueFilter: "Wales",
   },
   {
     quote: "Thank you for a brilliant evening. You are a fantastic DJ and the saxophonist was just the icing on top on the cake. Everyone was raving about the music.",
@@ -249,6 +272,7 @@ export const testimonials: Testimonial[] = [
     quote: "Just wanted to drop you a note to say how great James and the Sax Lady were on Saturday. We had an amazing party and they really did make it for me. We had some amazing feedback from people at the party and also nearby neighbours who enjoyed it from their gardens too!",
     author: "Steve Abbott",
     venue: "Private Party, Braintree, Essex",
+    venueFilter: "Essex",
   },
   {
     quote: "A quick thank you for arranging our fantastic DJ Rich for our 50th birthday party. He was great, super choice of songs, read the audience and worked around the band seamlessly. It was a shame that we couldn't have had an extra few hours…. The party was a great success all in all. If we have another need for a DJ in the future then we will be in touch again.",

@@ -122,7 +122,7 @@ export default function WhatWeDoClient() {
         style={{
           background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
         }}
-        className="py-20 px-4"
+        className="py-20 px-3 sm:px-4"
       >
         <div className="container mx-auto max-w-7xl">
           <motion.div
@@ -185,7 +185,7 @@ export default function WhatWeDoClient() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-4 bg-gray-900">
+      <section className="py-20 px-3 sm:px-4 bg-gray-900">
         <div className="container mx-auto max-w-4xl text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

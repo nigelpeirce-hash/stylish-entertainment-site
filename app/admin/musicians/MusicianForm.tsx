@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -210,7 +211,7 @@ export function MusicianForm({
             {formData.imageUrl && (
               <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-gray-700 mt-2">
                 <Image
-                  src={formData.imageUrl}
+                  src={sanitizeCloudinaryUrl(formData.imageUrl) || formData.imageUrl}
                   alt="Preview"
                   width={128}
                   height={128}

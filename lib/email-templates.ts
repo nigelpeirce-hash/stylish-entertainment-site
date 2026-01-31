@@ -459,13 +459,15 @@ export interface DepositInvoicePayload {
   amount: number | null;
   reference: string;
   bankDetails?: DepositInvoiceBankDetails | null;
+  /** Signed "I've paid" URL – when set, show button below bank details (amber). */
+  markedPaidUrl?: string | null;
 }
 
 /**
  * Deposit invoice – "please pay" email. Event-type aware (wedding, corporate, private).
  * Use before payment; distinct from deposit confirmation ("you're in") sent after.
  */
-export function depositInvoiceEmail({ booking, amount, reference, bankDetails }: DepositInvoicePayload): {
+export function depositInvoiceEmail({ booking, amount, reference, bankDetails, markedPaidUrl }: DepositInvoicePayload): {
   subject: string;
   html: string;
   text: string;
@@ -498,6 +500,16 @@ export function depositInvoiceEmail({ booking, amount, reference, bankDetails }:
       <p style="font-size: 15px; color: #1a1a1a; margin: 12px 0 0 0;"><strong>Reference</strong> ${reference}</p>
     </div>`;
 
+  const amber = "#D97706";
+  const ivePaidBlock =
+    markedPaidUrl && markedPaidUrl !== "#"
+      ? `
+      <p style="font-size: 14px; color: #666; margin: 20px 0 12px 0;">Once you&apos;ve paid, let us know so we can confirm:</p>
+      <p style="margin: 16px 0 24px 0;">
+        <a href="${markedPaidUrl}" style="display: inline-block; background: ${amber}; color: #fff; font-size: 16px; font-weight: 600; padding: 14px 28px; border-radius: 8px; text-decoration: none;">I&apos;ve paid</a>
+      </p>`
+      : "";
+
   const bankText = `\n\nPay by bank transfer\nUse the payment details below. Please quote the reference.\n\nBank details:\nBank: ${bank.name}\nSort code: ${bank.sortCode}\nAccount number: ${bank.accountNumber}${bank.iban ? `\nIBAN: ${bank.iban}` : ""}${bank.swift ? `\nSWIFT/BIC: ${bank.swift}` : ""}\nReference: ${reference}\n`;
 
   const html = `
@@ -522,6 +534,7 @@ export function depositInvoiceEmail({ booking, amount, reference, bankDetails }:
           <p style="font-size: 16px; font-weight: 600; color: #1a1a1a; margin: 24px 0 8px 0;">Pay by bank transfer</p>
           <p style="font-size: 14px; color: #666; margin: 0 0 8px 0;">Use the payment details below. Please quote the reference.</p>
           ${bankBlock}
+          ${ivePaidBlock}
           <p style="font-size: 16px; line-height: 1.6; color: #333; margin: 24px 0 0 0;">${closing}</p>
         </div>
         ${SIGNATURE_BLOCK_HTML}
@@ -531,7 +544,8 @@ export function depositInvoiceEmail({ booking, amount, reference, bankDetails }:
   `;
 
   const shortLabel = eventLabelShort(booking.eventType);
-  const text = `Deposit invoice\n\nHi ${clientName},\n\n${intro}\n\nYour ${shortLabel} date, ${eventDate},${showVenue ? ` at ${venue}.` : "."}\n\n${amountText}${bankText}\n\n${closing}\n\n${CLIENT_SIGNOFF_TEXT}`;
+  const ivePaidText = markedPaidUrl && markedPaidUrl !== "#" ? `\n\nOnce you've paid, let us know: ${markedPaidUrl}\n` : "";
+  const text = `Deposit invoice\n\nHi ${clientName},\n\n${intro}\n\nYour ${shortLabel} date, ${eventDate},${showVenue ? ` at ${venue}.` : "."}\n\n${amountText}${bankText}${ivePaidText}\n\n${closing}\n\n${CLIENT_SIGNOFF_TEXT}`;
 
   return {
     subject: `Deposit invoice: ${clientName} – Stylish Entertainment Ltd`,

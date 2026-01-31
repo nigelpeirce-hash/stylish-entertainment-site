@@ -94,7 +94,8 @@ export function EmailCompositionCenter({
     if (typeof v === "object" && "amount" in (v as object)) return String((v as { amount?: unknown }).amount ?? "");
     return String(v);
   };
-  const feeStr = typeof fee === "string" ? fee : safeStr(fee);
+  // Never render an object as React child (e.g. booking.bookingFee as { fee } from API)
+  const feeStr: string = typeof fee === "string" ? fee : (typeof fee === "number" ? String(fee) : safeStr(fee));
 
   // Replace variables in text
   const replaceVariables = (text: string): string => {
@@ -349,7 +350,7 @@ export function EmailCompositionCenter({
                 id="fee"
                 type="number"
                 step="0.01"
-                value={feeStr}
+                value={feeStr ?? ""}
                 onChange={(e) => setFee(e.target.value)}
                 placeholder="0.00"
                 className="bg-gray-900 text-white border-gray-700"

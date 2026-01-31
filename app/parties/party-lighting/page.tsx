@@ -4,7 +4,7 @@ import { createMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = createMetadata({
   title: "Party Lighting | Creative Party & Event Lighting",
-  description: "Hire party lighting, mirror balls, fairy lights, festoon lighting, disco and mood lighting for parties across the UK and Wales.",
+  description: "Hire party lighting, mirror balls, fairy lights, festoon lighting, disco and mood lighting for parties across the UK.",
   pathname: "parties/party-lighting",
 });
 

@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, CheckCircle2, Loader2, ShoppingBag } from "lucide-react";
 import Image from "next/image";
+import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 
 interface HireItem {
   id: string;
@@ -192,7 +193,7 @@ export default function HireShop({ bookingId, venueName, eventType, onItemsChang
                     {item.imageUrl && (
                       <div className="relative w-14 h-14 rounded-md overflow-hidden flex-shrink-0">
                         <Image
-                          src={item.imageUrl}
+                          src={sanitizeCloudinaryUrl(item.imageUrl) || item.imageUrl}
                           alt={item.name}
                           fill
                           className="object-cover"

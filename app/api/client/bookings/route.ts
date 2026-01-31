@@ -130,7 +130,7 @@ export async function POST(request: NextRequest) {
         budget: body.budget,
         contactPreference: body.contactPreference,
         preferredDJ: body.preferredDJ || null,
-        
+
         // Payment
         finalBalance: body.finalBalance,
         paymentPayerName: body.paymentPayerName,

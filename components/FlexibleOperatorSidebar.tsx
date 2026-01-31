@@ -34,6 +34,7 @@ import {
   Circle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { toDisplayFee } from "@/lib/transformers/booking-transformer";
 
 interface FeeLineItem {
   id: string;
@@ -112,7 +113,13 @@ export function FlexibleOperatorSidebar({
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [eventDateOverride, setEventDateOverride] = useState(booking.eventDate);
   const [venueNameOverride, setVenueNameOverride] = useState(booking.venueName);
-  const [bookingFee, setBookingFee] = useState((booking as any).bookingFee ?? "");
+  const [bookingFee, setBookingFee] = useState(() => {
+    const v = (booking as any).bookingFee;
+    if (v == null) return "";
+    if (typeof v === "string") return v;
+    if (typeof v === "object" && v !== null && "fee" in v) return String((v as { fee?: unknown }).fee ?? "");
+    return String(v);
+  });
   
   // Manual Override States
   const [depositReceived, setDepositReceived] = useState(booking.depositReceived || false);
@@ -125,9 +132,9 @@ export function FlexibleOperatorSidebar({
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
 
-  // Calculate total fee
+  // Calculate total fee (use toDisplayFee so we never add an object like { fee })
   useEffect(() => {
-    const subtotal = feeItems.reduce((sum, item) => sum + (item.amount || 0), 0);
+    const subtotal = feeItems.reduce((sum, item) => sum + toDisplayFee(item.amount), 0);
     if (taxInclusive) {
       setTotalFee(subtotal); // Tax already included
     } else {
@@ -160,7 +167,8 @@ export function FlexibleOperatorSidebar({
   }, [booking.adminNotes]);
 
   useEffect(() => {
-    setBookingFee((booking as any).bookingFee ?? "");
+    const v = (booking as any).bookingFee;
+    setBookingFee(v == null ? "" : typeof v === "string" ? v : (typeof v === "object" && v !== null && "fee" in v ? String((v as { fee?: unknown }).fee ?? "") : String(v)));
   }, [(booking as any).bookingFee]);
 
   // Load feeBreakdown from booking if it exists (with validation)
@@ -507,7 +515,7 @@ export function FlexibleOperatorSidebar({
                           step="0.01"
                           min="0"
                           placeholder="0.00"
-                          value={item.amount || ""}
+                          value={toDisplayFee(item.amount) || ""}
                           onChange={(e) =>
                             updateFeeItem(
                               item.id,
@@ -558,12 +566,12 @@ export function FlexibleOperatorSidebar({
                   <p className="text-xs text-gray-400 mt-1">
                     Subtotal: £
                     {(
-                      feeItems.reduce((sum, item) => sum + (item.amount || 0), 0) *
+                      feeItems.reduce((sum, item) => sum + toDisplayFee(item.amount), 0) *
                       (1 - taxRate / 100)
                     ).toFixed(2)}{" "}
                     + VAT ({taxRate}%): £
                     {(
-                      feeItems.reduce((sum, item) => sum + (item.amount || 0), 0) *
+                      feeItems.reduce((sum, item) => sum + toDisplayFee(item.amount), 0) *
                       (taxRate / 100)
                     ).toFixed(2)}
                   </p>
@@ -585,7 +593,7 @@ export function FlexibleOperatorSidebar({
                   id="bookingFee"
                   type="text"
                   placeholder="e.g. £150"
-                  value={bookingFee}
+                  value={typeof bookingFee === "string" ? bookingFee : String(bookingFee ?? "")}
                   onChange={(e) => setBookingFee(e.target.value)}
                   className="bg-gray-800 border-gray-700 text-white"
                 />
@@ -866,7 +874,7 @@ export function FlexibleOperatorSidebar({
                         key={log.id}
                         className="p-2 bg-gray-900/50 rounded border border-gray-700 text-xs"
                       >
-                        <p className="text-gray-300">{log.description}</p>
+                        <p className="text-gray-300">{typeof log.description === "string" ? log.description : String(log.description ?? "")}</p>
                         <p className="text-gray-500 mt-0.5">
                           {formatAuditDate(log.createdAt)}
                           {log.performedBy && ` • ${log.performedBy}`}

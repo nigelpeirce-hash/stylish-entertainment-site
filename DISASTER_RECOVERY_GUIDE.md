@@ -2,7 +2,7 @@
 ## Stylish Entertainment Website
 
 **Last Updated:** January 30, 2026  
-**Version:** 1.6  
+**Version:** 1.7  
 **Purpose:** Complete technical documentation for rebuilding the system from scratch in case of catastrophic failure
 
 ---
@@ -31,6 +31,15 @@
 - [ ] Assess data loss (database, images, files)
 - [ ] Document current error messages and symptoms
 - [ ] Check service status pages for outages
+
+### Deploy (Routine)
+
+```bash
+npm run build
+git add . && git commit -m "message" && git push origin main
+```
+
+Vercel auto-deploys on push to main. Redeploy after env var changes.
 
 ### Critical Services to Verify
 - [ ] **Supabase Database** - https://supabase.com/dashboard
@@ -1648,6 +1657,8 @@ git push origin main           # Deploy to Vercel (auto)
 ### Related Documentation
 
 - **CURSOR_CONTEXT.md** – Agent familiarisation, tech stack, conventions
+- **TERMS_PORTAL_MODULE_PLAN.md** – T&C portal (planned): personalised T&Cs, e-sign, deposit clause, gating
+- **BREADCRUMB_AUDIT.md** – Breadcrumb refactor notes
 - **GTM_CONTAINER_QUALITY_FIX.md** – GTM setup, Google tag, conversion triggers
 - **YOUTUBE_LIVE_TROUBLESHOOTING.md** – YouTube API on production
 - **COOKIEYES_GTM_403_FIX.md** – CookieYes 403 when loaded via GTM
@@ -1656,6 +1667,12 @@ git push origin main           # Deploy to Vercel (auto)
 
 ### Version History
 
+- **v1.7** (January 30, 2026) - T&C, footer, breadcrumbs, demos:
+  - **T&C Portal Module:** Planned (not implemented). See `TERMS_PORTAL_MODULE_PLAN.md`. Portal will require personalised T&C acceptance before other features. Demo: `/terms-portal-flow-demo.html` or Admin → Sandbox → Terms portal demo.
+  - **Terms content:** `lib/terms-content.ts` – Added `COMPANY_*`, `DEPOSIT_CLAUSE`, `TERMS_ABRIDGED`. Existing `TERMS_SECTIONS` unchanged.
+  - **Footer:** Postal address and "All rights reserved" removed. `FooterRefactored.tsx` available; demo at `/admin/sandbox/footer-demo`.
+  - **Breadcrumbs:** Refactored to `lib/breadcrumb-config.ts`, `lib/breadcrumb-utils.ts`. See `BREADCRUMB_AUDIT.md`.
+  - **T&C at first touch:** Contact form and client portal new booking – no T&C (enquiry only). Book DJ and Book from quote – T&C required.
 - **v1.6** (January 30, 2026) - Performance & accessibility:
   - **LCP:** Homepage hero preload in `app/layout.tsx` (w_640, q_60, fetchPriority high); first slider image uses same URL and `unoptimized` so preload is reused. Mobile LCP improved.
   - **Images:** `app/page.tsx` – `smallerCloudinaryUrl()` for below-fold (services, team; w_800,q_60); `sliderCloudinaryUrl()` for non-LCP slider images (w_1080,q_60). Reduces image delivery on mobile.

@@ -10,6 +10,7 @@ import {
 } from "@/lib/booking-integrity";
 import { generateBriefToken } from "@/lib/brief-token";
 import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
 // Force dynamic rendering to prevent build-time errors
 export const dynamic = 'force-dynamic';
@@ -530,6 +531,24 @@ export async function POST(
 
     // Log dispatch for audit trail
     console.log("Artist dispatch completed:", dispatchMetadata);
+
+    try {
+      const eventDateLabel = booking.eventDate
+        ? new Date(booking.eventDate).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+        : undefined;
+      await notifyAdminSignificantEvent({
+        type: "dispatched",
+        bookingId,
+        title: "Dispatched",
+        description: `Event details dispatched to ${recipientName}`,
+        performedBy: admin.name || admin.email,
+        bookingName: booking.name ?? undefined,
+        venueName: booking.venueName ?? undefined,
+        eventDate: eventDateLabel,
+      });
+    } catch (e) {
+      console.warn("Admin notification (dispatched) failed:", e);
+    }
 
     return NextResponse.json({
       success: true,
