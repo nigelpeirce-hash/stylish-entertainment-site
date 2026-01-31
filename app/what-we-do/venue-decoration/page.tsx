@@ -1,12 +1,37 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
 import { Palette } from "lucide-react";
-import ImageCarousel, { ImagePhoto } from "@/components/ImageCarousel";
+import { ImagePhoto } from "@/components/ImageCarousel";
+import HorizontalImageCarousel from "@/components/HorizontalImageCarousel";
+import BeforeAfter from "@/components/BeforeAfter";
 import { useEffect } from "react";
+
+// Before and After transformations – featured on venue styling
+const beforeAfterTransforms = [
+  {
+    before: {
+      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163654/IMG_1070_pelq7j.jpg",
+      alt: "Venue before transformation - empty space ready for styling and lighting design",
+    },
+    after: {
+      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163716/IMG_1098_hqiw3d.jpg",
+      alt: "Venue after transformation - elegant outdoor terrace with professional venue styling, festoon lighting and beautiful decorations",
+    },
+  },
+  {
+    before: {
+      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768753000/IMG_2530_njx41m.jpg",
+      alt: "Venue before transformation - empty space ready for fun and creative styling",
+    },
+    after: {
+      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768751155/IMG_3188_zviff5.jpg",
+      alt: "Venue after transformation - fun and creative party styling with vibrant decorations and lighting design",
+    },
+  },
+];
 
 const stylingPhotos: ImagePhoto[] = [
   {
@@ -52,12 +77,6 @@ const stylingPhotos: ImagePhoto[] = [
     alt: "Lost Orangery venue with elegant styling, professional decoration, and sophisticated wedding design",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163723/IMG_6321_xu8q8j.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Professional venue styling with creative decorations and elegant design creating a beautiful celebration atmosphere",
-  },
-  {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163716/IMG_1098_hqiw3d.jpg",
     width: 1200,
     height: 900,
@@ -96,21 +115,23 @@ export default function VenueDecoration() {
     <div>
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-50 flex items-center justify-center">
-          <img
+        <div className="absolute inset-0 z-0">
+          <Image
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg"
             alt="Saltburn venue with elegant venue styling, professional wedding decoration, and sophisticated interior design creating a luxurious wedding atmosphere"
-            className="w-full h-full object-cover object-center brightness-110"
-            style={{ objectPosition: 'center center' }}
-            loading="eager"
-            fetchPriority="high"
+            fill
+            className="object-cover object-center brightness-110"
+            style={{ objectPosition: "center center" }}
+            priority
+            sizes="100vw"
           />
         </div>
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/60 via-black/30 to-gray-900" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-48 md:pt-52"
+          className="relative z-20 text-center px-4 max-w-4xl mx-auto pt-48 md:pt-52"
         >
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">Venue Decoration</h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md">
@@ -119,9 +140,51 @@ export default function VenueDecoration() {
         </motion.div>
       </section>
 
+      {/* Featured: Before and After – transformations as a feature */}
+      <section className="py-16 md:py-20 px-4 sm:px-6 bg-gray-900">
+        <div className="container mx-auto max-w-6xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mb-10 md:mb-14 text-center"
+          >
+            <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
+              <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Featured</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans mb-3 text-white font-bold">
+              Before and After
+            </h2>
+            <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto">
+              See the dramatic transformations we create – from empty spaces to stunning celebrations
+            </p>
+          </motion.div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 max-w-6xl mx-auto">
+            {beforeAfterTransforms.map((transform, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <Card className="h-full bg-gray-800/50 backdrop-blur-sm border-2 border-champagne-gold/30 shadow-xl overflow-hidden hover:border-champagne-gold/60 transition-all duration-300">
+                  <CardContent className="p-4 sm:p-6">
+                    <BeforeAfter before={transform.before} after={transform.after} />
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Content – cohesive with what-we-do/lighting, equipment */}
+      <div>
       {/* Service Details */}
       <section className="py-20 px-3 sm:px-4 bg-gray-800">
-        <div className="container mx-auto max-w-4xl">
+        <div className="container mx-auto max-w-6xl">
           <Card className="bg-gray-800 border-champagne-gold/30">
             <CardHeader>
               <div className="flex items-center gap-3 mb-4">
@@ -157,7 +220,7 @@ export default function VenueDecoration() {
         </div>
       </section>
 
-      {/* Gallery */}
+      {/* Gallery – Horizontal Carousel */}
       <section className="py-20 px-3 sm:px-4 bg-gray-900">
         <div className="container mx-auto max-w-7xl">
           <motion.div
@@ -165,65 +228,52 @@ export default function VenueDecoration() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="mb-12"
+            className="text-center mb-12"
           >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-sans mb-3 sm:mb-4 text-center text-white font-bold px-4">Venue Styling Gallery</h2>
-            <p className="text-base sm:text-lg text-gray-300 text-center max-w-2xl mx-auto px-4">
+            <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
+              <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">The Look</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-sans mb-3 sm:mb-4 text-white font-bold px-4">Venue Styling Gallery</h2>
+            <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto px-4">
               Elegant styling that reflects your personal vision
             </p>
           </motion.div>
-          <div className="flex justify-center">
-            <ImageCarousel images={stylingPhotos} />
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="flex justify-center"
+          >
+            <HorizontalImageCarousel
+              images={stylingPhotos}
+              aspectRatio="wide"
+              autoplayMs={5000}
+              showDots
+            />
+          </motion.div>
         </div>
       </section>
 
-      {/* Bottom Text Section */}
-      <section className="py-16 px-3 sm:px-4 bg-gray-800">
+      {/* Bottom Text – no page CTA; site-wide CTA below */}
+      <section className="py-20 px-3 sm:px-4 bg-gray-800">
         <div className="container mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="prose prose-lg prose-invert max-w-none"
           >
             <p className="text-white text-lg md:text-xl leading-relaxed mb-4">
               We offer a complete range of wedding and party décor ideas to decorate your venue inside and out using a combination of creative drapery, lighting design, dressings, props, furniture hire and special effects.
             </p>
-            <p className="text-white text-lg md:text-xl leading-relaxed mb-6">
+            <p className="text-gray-300 text-lg md:text-xl leading-relaxed">
               We have a passion for providing unique ideas that make for great talking points and wonderful memories.
             </p>
-            <div className="bg-gradient-to-br from-champagne-gold/10 to-yellow-400/10 border-2 border-champagne-gold/30 rounded-lg p-6 mb-6">
-              <p className="text-white text-lg md:text-xl leading-relaxed mb-4">
-                <Link href="/contact-us" className="text-champagne-gold hover:text-gold-light underline font-semibold">Check Availability</Link> today and speak to us about your party or event.
-              </p>
-              <p className="text-white text-base md:text-lg leading-relaxed">
-                We offer our venue styling in the following areas: <span className="font-semibold text-champagne-gold">Venue styling Somerset, Wiltshire, Devon, Bristol, Bath, Swindon, Oxford</span>.
-              </p>
-            </div>
           </motion.div>
         </div>
       </section>
-
-      {/* CTA */}
-      <section className="pt-20 pb-8 px-3 sm:px-4 bg-gray-900">
-        <div className="container mx-auto max-w-4xl text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans mb-4 sm:mb-6 text-white font-bold px-4">
-              Ready to style your venue?
-            </h2>
-            <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
-              <Link href="/contact-us">Check Availability</Link>
-            </Button>
-          </motion.div>
-        </div>
-      </section>
+      </div>
     </div>
   );
 }

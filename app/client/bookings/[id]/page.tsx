@@ -56,6 +56,7 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
       musicDislikes: true,
       musicNotesToDJ: true,
       musicFileUrl: true,
+      portalHeroImageUrl: true,
       venueWhat3Words: true,
       venueLoadInNotes: true,
       numberOfGuests: true,

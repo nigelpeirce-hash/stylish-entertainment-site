@@ -83,8 +83,8 @@ export default function PartyDJsClient() {
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768160337/James-Hudson-DJ_cvk8ab.png"
-            alt="Professional DJ services by James H DJ, showcasing professional wedding DJ setup with high-quality sound equipment and lighting"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163790/Party-dj-with-lazer_wnhreb.jpg"
+            alt="Party DJ with laser lighting effects creating a vibrant and energetic dance floor atmosphere"
             fill
             className="object-cover object-center"
             priority

@@ -2,7 +2,7 @@
 
 Agent familiarisation for the Stylish Entertainment website project.
 
-**Last updated:** January 30, 2026
+**Last updated:** January 31, 2026
 
 ---
 
@@ -105,11 +105,14 @@ See `.env.local.example` and `DISASTER_RECOVERY_GUIDE.md` for full list.
 
 ## Recent Work (Jan 2026)
 
-- **T&C Portal:** Planned, not implemented. `TERMS_PORTAL_MODULE_PLAN.md` – personalised T&Cs in client portal, e-sign, deposit non-refundable, gating. Demo: `/terms-portal-flow-demo.html` or Admin → Sandbox → Terms portal demo.
-- **Terms content:** `lib/terms-content.ts` – `TERMS_ABRIDGED`, `DEPOSIT_CLAUSE`, `COMPANY_*` (Stylish Entertainment Ltd, 88 Weymouth Road, Alison & Nigel Peirce). Full terms: `TERMS_SECTIONS` (10 sections).
+- **Middleware:** `x-pathname` passed on request headers so layout reads pathname. Fixes admin 500; Footer and SiteWideCTA hidden on `/admin`.
+- **Sitemap:** Dynamic Prisma import – build succeeds when `DATABASE_URL` missing/invalid (returns static-only sitemap). Vercel env vars are per project.
+- **Page CTA:** `SiteWideCTA` at bottom of every page (non-sticky). Hidden on `/admin`, `/contact`, `/thank-you`. Demo: `public/page-cta-demo.html`.
+- **Kin House:** Removed 404 Cloudinary image from gallery.
+- **T&C Portal:** Planned, not implemented. `TERMS_PORTAL_MODULE_PLAN.md` – personalised T&Cs in client portal, e-sign, deposit non-refundable, gating. Demo: Admin → Sandbox → Terms portal demo.
+- **Terms content:** `lib/terms-content.ts` – `TERMS_ABRIDGED`, `DEPOSIT_CLAUSE`, `COMPANY_*`. Full terms: `TERMS_SECTIONS`.
 - **Footer:** Address and "All rights reserved" removed. `FooterRefactored.tsx`; demo at `/admin/sandbox/footer-demo`.
 - **Breadcrumbs:** Centralised in `lib/breadcrumb-config.ts`, `lib/breadcrumb-utils.ts`.
-- **T&C at first touch:** Contact form, client new booking – no T&C. Book DJ, Book from quote – T&C required.
 
 ---
 

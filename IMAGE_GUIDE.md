@@ -3,25 +3,24 @@
 ## Required Format for All Images
 
 Every image MUST include:
-1. **Cloudinary URL with optimization** (`f_auto,q_auto`)
+1. **Cloudinary URL with optimization** (`f_auto,q_auto` or `f_auto,q_auto,dpr_auto`)
 2. **Descriptive alt text** (for accessibility and SEO)
 3. **Caption** (if applicable, for galleries)
 
 ## Cloudinary URL Format
 
-**Standard format:**
+**Standard format (display / hero / gallery):**
 ```
-https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v[VERSION]/[FILENAME]_[HASH].[EXT]
+https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v[VERSION]/[FILENAME]_[HASH].[EXT]
 ```
 
-**With additional transformations:**
-```
-https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,c_auto,g_auto,h_667,w_1000/[FILENAME]_[HASH].[EXT]
-```
+**Mobile-optimised (below-fold, services, cards):** Use `w_800,q_60` or `smallerCloudinaryUrl()` for capped delivery. See `app/page.tsx`.
 
 **Parameters:**
 - `f_auto` - Automatic format selection (WebP, AVIF when supported)
 - `q_auto` - Automatic quality optimization
+- `dpr_auto` - Device Pixel Ratio – serves 2x/3x for retina displays (use for hero, gallery, lightbox)
+- `q_60` / `w_800` - Fixed quality/width for below-fold (mobile performance)
 - `c_auto` - Automatic cropping (optional)
 - `g_auto` - Automatic gravity/positioning (optional)
 - `w_1000` - Width constraint (optional)
@@ -32,12 +31,13 @@ https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,c_auto,g_auto,h_
 ### For Gallery Images (Photo[] array):
 ```typescript
 {
-  src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v[VERSION]/[FILENAME]_[HASH].[EXT]",
+  src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v[VERSION]/[FILENAME]_[HASH].[EXT]",
   width: 1200,
   height: 900,
   alt: "Descriptive alt text describing the image content, venue, couple names if applicable, and context",
 }
 ```
+**Next/Image in masonry:** Add `sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 300px"` (or match column width) for responsive loading.
 
 ### For Homepage Slider Images:
 ```typescript
@@ -109,8 +109,8 @@ If you need captions in addition to alt text, add a `caption` property:
    - Copy the full URL (including version number and hash)
 
 2. **Add optimization parameters:**
-   - Insert `f_auto,q_auto` after `/upload/` in the URL
-   - Example: `.../upload/f_auto,q_auto/v1768162661/...`
+   - Insert `f_auto,q_auto,dpr_auto` after `/upload/` for display contexts (hero, gallery, lightbox)
+   - Example: `.../upload/f_auto,q_auto,dpr_auto/v1768162661/...`
 
 3. **Write descriptive alt text:**
    - Describe what's in the image
@@ -130,10 +130,11 @@ https://res.cloudinary.com/drtwveoqo/image/upload/
 
 **Required Optimization:**
 ```
-f_auto,q_auto
+f_auto,q_auto,dpr_auto   (display / hero / gallery – retina support)
+f_auto,q_auto           (minimal; use dpr_auto for display contexts)
 ```
 
 **Full Example:**
 ```
-https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162661/Exterior-LED-mood-Lighting_jjuuar.jpg
+https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162661/Exterior-LED-mood-Lighting_jjuuar.jpg
 ```

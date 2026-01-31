@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { normalizeMixcloudEmbeds } from "@/lib/mixcloud-utils";
 
 // Force dynamic rendering to prevent database connection during build
 export const dynamic = 'force-dynamic';
@@ -11,7 +12,10 @@ const updateDjSchema = z.object({
   name: z.string().min(1).optional(),
   slug: z.string().optional(),
   bio: z.string().optional(),
+  strapLine: z.string().optional().nullable(),
+  fullBio: z.string().optional().nullable(),
   mixcloudUrl: z.string().url().optional().nullable(),
+  mixcloudEmbeds: z.array(z.string()).optional(), // Accept any string; we normalize (iframe, page URL, widget URL)
   youtubeEmbed: z.string().url().optional().nullable(),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
@@ -42,7 +46,10 @@ export async function GET(
       return NextResponse.json({ error: "DJ not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ dj });
+    const mixcloudEmbeds = Array.isArray(dj.mixcloudEmbeds) && (dj.mixcloudEmbeds as string[]).length > 0
+      ? (dj.mixcloudEmbeds as string[])
+      : (dj.mixcloudUrl ? [dj.mixcloudUrl] : []);
+    return NextResponse.json({ ...dj, mixcloudEmbeds });
   } catch (error) {
     console.error("Error fetching DJ:", error);
     return NextResponse.json(
@@ -68,11 +75,28 @@ export async function PUT(
 
     const body = await request.json();
     const validatedData = updateDjSchema.parse(body);
+    const { mixcloudEmbeds: rawMixcloudEmbeds, ...rest } = validatedData;
+    const updateData: Record<string, unknown> = { ...rest };
+    if (rawMixcloudEmbeds !== undefined) {
+      const mixcloudEmbeds = normalizeMixcloudEmbeds(
+        rawMixcloudEmbeds.filter((u) => u && typeof u === "string" && u.trim() !== "")
+      );
+      updateData.mixcloudEmbeds = mixcloudEmbeds.length > 0 ? mixcloudEmbeds : null;
+    }
+    if (validatedData.strapLine !== undefined) {
+      updateData.strapLine = validatedData.strapLine || null;
+    }
+    if (validatedData.fullBio !== undefined) {
+      updateData.fullBio = validatedData.fullBio || null;
+    }
+    if (validatedData.youtubeEmbed !== undefined) {
+      updateData.youtubeEmbed = validatedData.youtubeEmbed || null;
+    }
 
     try {
       const dj = await prisma.dJ.update({
         where: { id: djId },
-        data: validatedData,
+        data: updateData as any,
       });
 
       return NextResponse.json({ dj });

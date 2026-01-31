@@ -15,7 +15,7 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
+import FooterRefactored from "@/components/FooterRefactored";
 import SiteWideCTA from "@/components/SiteWideCTA";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import GoogleTagManager from "@/components/GoogleTagManager";
@@ -225,7 +225,7 @@ export default async function RootLayout({
               {/* Page CTA – in-flow, not sticky. To undo: remove next line and the SiteWideCTA import. */}
               {!pathname.startsWith("/admin") && <SiteWideCTA />}
               {/* No marketing footer on admin – Command Center only */}
-              {!pathname.startsWith("/admin") && <Footer />}
+              {!pathname.startsWith("/admin") && <FooterRefactored />}
             </div>
           </ErrorBoundaryWrapper>
         </Providers>

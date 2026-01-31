@@ -95,6 +95,7 @@ model Booking {
   musicDislikes               String?
   musicRequests               String?
   musicFileUrl                String?
+  portalHeroImageUrl          String?                  // Client-uploaded hero photo (venue or couple) for portal
   createdAt                   DateTime                 @default(now())
   updatedAt                   DateTime
   archivedAt                  DateTime?                // Soft delete - when set, booking is archived
@@ -286,7 +287,10 @@ model DJ {
   createdAt      DateTime @default(now())
   updatedAt      DateTime
   mixcloudUrl    String?
+  mixcloudEmbeds Json?     // Array of Mixcloud embed URLs (e.g. iframe URLs)
   youtubeEmbed   String?
+  strapLine      String?   // Short tagline for card
+  fullBio        String?   // Long bio for modal (optional --- then Recent Testimonials)
 
   @@index([displayOrder])
   @@index([isActive])
@@ -567,6 +571,8 @@ model Musician {
   createdAt      DateTime @default(now())
   updatedAt      DateTime
   youtubeEmbed   String?
+  strapLine      String?   // Short tagline for card
+  fullBio        String?   // Long bio for modal / expandable
 
   @@index([displayOrder])
   @@index([instrument])

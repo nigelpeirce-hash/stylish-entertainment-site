@@ -1,6 +1,6 @@
 /**
- * Service areas derived from actual testimonials.
- * Used by: DJ page (/artists/djs), testimonials filters, and other pages.
+ * Service areas – editorial tiles and county-based data.
+ * Single source of truth for cohesive display across artists/djs, private-parties, venue-decoration.
  */
 
 import { getVenueFiltersFromTestimonials } from "@/data/testimonials";
@@ -9,6 +9,42 @@ export interface ServiceRegion {
   region: string;
   counties: string[];
   description?: string;
+}
+
+/** Editorial region tiles – luxury magazine style, used site-wide. */
+export interface EditorialServiceRegion {
+  region: string;
+  description: string;
+}
+
+/** Canonical editorial regions in display order. Nationwide Reach. Local Expertise. */
+export const EDITORIAL_SERVICE_REGIONS: EditorialServiceRegion[] = [
+  {
+    region: "The West Country & Cotswolds",
+    description: "Our heartland. From the rolling hills of Somerset to the manor houses of Gloucestershire and the wilds of Devon.",
+  },
+  {
+    region: "London & The Home Counties",
+    description: "Effortless logistics for city celebrations, from Mayfair rooftops to rural estates in Surrey and Berkshire.",
+  },
+  {
+    region: "The Midlands & Beyond",
+    description: "Bringing high-end production to the heart of England, Wales, and the East.",
+  },
+  {
+    region: "International Destinations",
+    description: "We travel for the right party. From Monaco to the Mediterranean, our sounds go wherever you do.",
+  },
+];
+
+/** Headline and sub-headline for editorial service areas block. */
+export const EDITORIAL_SERVICE_HEADLINE = {
+  headline: "Nationwide Reach. Local Expertise.",
+  subheadline: "Based in the West Country, our teams are on the road weekly, bringing the STYLISH vibe to prestigious venues across the UK and Europe.",
+};
+
+export function getEditorialServiceRegions(): EditorialServiceRegion[] {
+  return EDITORIAL_SERVICE_REGIONS;
 }
 
 /** Counties/regions we have testimonials from (excludes venue names like Babington House). */

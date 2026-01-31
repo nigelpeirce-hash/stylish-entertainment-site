@@ -14,6 +14,7 @@ export default function SeedHireItems() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [seeding, setSeeding] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const [result, setResult] = useState<"success" | "error" | null>(null);
   const [message, setMessage] = useState("");
 
@@ -42,6 +43,32 @@ export default function SeedHireItems() {
       }
     }
   }, [status, session, router]);
+
+  const clearSeededItems = async () => {
+    setClearing(true);
+    setResult(null);
+    setMessage("");
+    try {
+      const response = await fetch("/api/admin/hire-items/seed/", {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setResult("success");
+        setMessage(data.message || "Seeded items removed. Shop Closed sign will show.");
+        setTimeout(() => router.push("/hire"), 2000);
+      } else {
+        const error = await response.json();
+        setResult("error");
+        setMessage(error.error || "Failed to remove items");
+      }
+    } catch (error) {
+      setResult("error");
+      setMessage("An error occurred while clearing items");
+    } finally {
+      setClearing(false);
+    }
+  };
 
   const seedItems = async () => {
     setSeeding(true);
@@ -100,6 +127,9 @@ export default function SeedHireItems() {
               <p className="text-gray-400">
                 This will create the initial hire items: Lanterns, Candlesticks, Mirroballs (40 available), and Vases (10 available).
               </p>
+              <p className="text-sm text-gray-500">
+                To show the &quot;Shop Closed&quot; sign again, remove the seeded items below.
+              </p>
 
               {result === "success" && (
                 <div className="p-4 bg-green-900/20 border border-green-500/30 rounded-lg">
@@ -117,13 +147,21 @@ export default function SeedHireItems() {
               )}
 
               {!result && (
-                <div className="flex gap-3 justify-center">
+                <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                   <Button
                     onClick={seedItems}
                     disabled={seeding}
                     className="bg-champagne-gold text-black hover:bg-gold-light"
                   >
                     {seeding ? "Seeding..." : "Seed Hire Items"}
+                  </Button>
+                  <Button
+                    onClick={clearSeededItems}
+                    disabled={clearing}
+                    variant="outline"
+                    className="border-red-500/50 text-red-400 hover:bg-red-900/30 hover:border-red-500"
+                  >
+                    {clearing ? "Removing..." : "Remove Seeded Items"}
                   </Button>
                   <Link href="/admin">
                     <Button variant="outline" className="border-gray-600 text-gray-300">

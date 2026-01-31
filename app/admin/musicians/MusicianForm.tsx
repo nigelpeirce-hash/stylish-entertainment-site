@@ -17,6 +17,8 @@ interface Musician {
   instrument: string | null;
   imageUrl: string | null;
   bio: string | null;
+  strapLine: string | null;
+  fullBio: string | null;
   youtubeEmbed: string | null;
   seoTitle: string | null;
   seoDescription: string | null;
@@ -28,6 +30,8 @@ type FormDataState = {
   name: string;
   instrument: string;
   bio: string;
+  strapLine: string;
+  fullBio: string;
   youtubeEmbed: string;
   seoTitle: string;
   seoDescription: string;
@@ -123,14 +127,39 @@ export function MusicianForm({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-white">Bio</Label>
+            <Label className="text-white">Short bio (card fallback / SEO)</Label>
             <Textarea
               value={formData.bio}
               onChange={(e) =>
                 onFormDataChange({ ...formData, bio: e.target.value })
               }
-              rows={4}
-              placeholder="Musician bio and experience..."
+              rows={3}
+              placeholder="Short bio for card and SEO..."
+              className="bg-gray-900/50 text-white border-gray-700 focus:border-champagne-gold"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-white">Strap line (card tagline)</Label>
+            <Input
+              value={formData.strapLine}
+              onChange={(e) =>
+                onFormDataChange({ ...formData, strapLine: e.target.value })
+              }
+              placeholder="e.g., Harpist for weddings and events"
+              className="bg-gray-900/50 text-white border-gray-700 focus:border-champagne-gold"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-white">Full bio (modal / Read more)</Label>
+            <Textarea
+              value={formData.fullBio}
+              onChange={(e) =>
+                onFormDataChange({ ...formData, fullBio: e.target.value })
+              }
+              rows={10}
+              placeholder="Long bio for the Read more modal. Plain text or markdown."
               className="bg-gray-900/50 text-white border-gray-700 focus:border-champagne-gold"
             />
           </div>

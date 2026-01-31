@@ -30,7 +30,7 @@ export default function ProfessionalDJBlogContent() {
     { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163197/DJ-Kit-on-Croquet-Lawn_jncfnl.jpg", alt: "Professional DJ kit setup on croquet lawn showcasing quality sound equipment" },
     { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163297/Mirjam-and-Ben-1062-1_vy1hgx.jpg", alt: "Professional DJ Nige performing at a wedding, showcasing expert mixing and crowd engagement" },
     { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163359/Rich-S-DJ_qxsnht.jpg", alt: "Professional DJ Rich S performing at a luxury venue, showcasing professional DJ services" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163392/james-Malin_ovqqnf.jpg", alt: "Professional DJ James H performing at wedding and party events" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163775/PHOTO-2021-11-03-15-09-53-4_xd4tvz.jpg", alt: "Professional DJ James H performing at wedding and party events" },
   ], []);
 
   return (
@@ -205,7 +205,7 @@ export default function ProfessionalDJBlogContent() {
                       </div>
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163392/james-Malin_ovqqnf.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163775/PHOTO-2021-11-03-15-09-53-4_xd4tvz.jpg"
                           alt="Professional DJ James H performing at wedding and party events"
                           images={allImages}
                           index={5}

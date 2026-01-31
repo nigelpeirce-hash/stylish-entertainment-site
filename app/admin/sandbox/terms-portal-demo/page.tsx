@@ -9,7 +9,7 @@ import { ArrowLeft, ExternalLink, RefreshCw } from "lucide-react";
 /**
  * T&C Portal Flow Demo
  *
- * Links to the terms-portal-flow-demo.html (opens in new tab).
+ * Links to the terms-portal-flow-demo (opens in new tab).
  * X-Frame-Options: DENY prevents embedding; opening in new tab works.
  *
  * Access: Admin → Sandbox → Terms portal demo
@@ -49,7 +49,7 @@ export default function TermsPortalDemoPage() {
             Visual demo of where and how the personalised T&C acceptance appears in the client portal.
           </p>
           <a
-            href="/terms-portal-flow-demo.html"
+            href="/terms-portal-flow-demo"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 bg-champagne-gold text-black font-semibold rounded-lg hover:bg-champagne-gold/90 transition-colors"

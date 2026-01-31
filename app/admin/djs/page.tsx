@@ -17,6 +17,7 @@ interface DJ {
   slug: string | null;
   bio: string | null;
   mixcloudUrl: string | null;
+  mixcloudEmbeds?: string[];
   seoTitle: string | null;
   seoDescription: string | null;
   imageUrl: string | null;
@@ -52,7 +53,9 @@ export default function DJsPage() {
   const [formData, setFormData] = useState({
     name: "",
     bio: "",
-    mixcloudUrl: "",
+    strapLine: "",
+    fullBio: "",
+    mixcloudEmbeds: ["", ""] as string[],
     youtubeEmbed: "",
     seoTitle: "",
     seoDescription: "",
@@ -111,11 +114,12 @@ export default function DJsPage() {
     setIsSaving(true);
     try {
       const slug = generateSlug(formData.name);
+      const mixcloudEmbeds = formData.mixcloudEmbeds.filter((u) => u.trim() !== "");
       const payload = {
         ...formData,
         slug, // Auto-generate slug from name
         imageUrl: formData.imageUrl || null,
-        mixcloudUrl: formData.mixcloudUrl || null,
+        mixcloudEmbeds: mixcloudEmbeds.length > 0 ? mixcloudEmbeds : undefined,
         youtubeEmbed: formData.youtubeEmbed || null,
       };
 
@@ -181,10 +185,16 @@ export default function DJsPage() {
   };
 
   const handleEdit = (dj: DJ) => {
+    const embeds = (dj.mixcloudEmbeds && dj.mixcloudEmbeds.length > 0)
+      ? dj.mixcloudEmbeds
+      : (dj.mixcloudUrl ? [dj.mixcloudUrl] : ["", ""]);
+    const mixcloudEmbeds = embeds.length >= 2 ? embeds : [...embeds, ...Array(2 - embeds.length).fill("")];
     setFormData({
       name: dj.name,
       bio: dj.bio || "",
-      mixcloudUrl: dj.mixcloudUrl || "",
+      strapLine: (dj as any).strapLine || "",
+      fullBio: (dj as any).fullBio || "",
+      mixcloudEmbeds,
       youtubeEmbed: (dj as any).youtubeEmbed || "",
       seoTitle: dj.seoTitle || "",
       seoDescription: dj.seoDescription || "",
@@ -208,7 +218,9 @@ export default function DJsPage() {
     setFormData({
       name: "",
       bio: "",
-      mixcloudUrl: "",
+      strapLine: "",
+      fullBio: "",
+      mixcloudEmbeds: ["", ""],
       youtubeEmbed: "",
       seoTitle: "",
       seoDescription: "",
@@ -246,7 +258,7 @@ export default function DJsPage() {
         background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
       }}
     >
-      <div className="container mx-auto max-w-6xl">
+      <div className="container mx-auto w-full max-w-full px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -1,574 +1,433 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import Lightbox from "yet-another-react-lightbox";
-import { ChevronLeft, ChevronRight, Lightbulb, Sun, Sparkles, MapPin, Mail, Phone } from "lucide-react";
+import { ChevronLeft, ChevronRight, Sparkles, Sun, Lightbulb, ExternalLink } from "lucide-react";
 import "yet-another-react-lightbox/styles.css";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
-interface ImagePhoto {
+type EventFilter = "all" | "weddings" | "corporate" | "outdoor";
+
+interface Photo {
   src: string;
+  alt: string;
   width: number;
   height: number;
-  alt: string;
-  category?: "dance-floor" | "outdoor-festoon" | "atmospheric";
+  eventTypes: EventFilter[];
+  venue?: string;
+  serviceType?: "dance-floor" | "festoon" | "atmospheric";
 }
 
-// Categorized photos
-const danceFloorPhotos: ImagePhoto[] = [
+// Hero mood images – high-impact, spaced for premium feel
+const heroMoodImages: Photo[] = [
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162649/Kin-House-Mirrorball-Clusters_fi5n50.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Mirrorball clusters creating a vibrant dance floor atmosphere",
-    category: "dance-floor",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162258/Fairy-light-Tunnel_sc40ed.jpg",
+    alt: "Magical fairy light tunnel creating a romantic entrance for weddings and events",
+    width: 1920,
+    height: 1080,
+    eventTypes: ["weddings", "outdoor"],
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162892/Mirrorballs-and-staging_inwzu8.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Mirror balls and staging with colourful party lighting creating a classic disco atmosphere",
-    category: "dance-floor",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163720/A-Big-Lazer-e1430894875463_xgpiil.jpg",
+    alt: "Dramatic laser lighting effects on the dance floor for high-energy celebrations",
+    width: 1920,
+    height: 1080,
+    eventTypes: ["corporate", "outdoor"],
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163461/IMG_8429_pxkrsu.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Dance floor with colourful moving lights and party lighting effects for a high energy celebration",
-    category: "dance-floor",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162636/IMG_8030_b5un4j.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Marquee interior with dynamic party lighting and mirror balls above the dance floor",
-    category: "dance-floor",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162850/Saltburn_231005__0050_1558_y6diu8.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Saltburn venue with dramatic party lighting and mirror balls creating a vibrant dance floor atmosphere",
-    category: "dance-floor",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163524/Amber-LED-Mood-lighting_zuiexc.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Amber LED mood lighting washing venue walls and columns for a sophisticated party look",
-    category: "dance-floor",
-  },
-];
-
-const outdoorFestoonPhotos: ImagePhoto[] = [
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163799/The-Newt-Somerset-with-our-Fairy-Light-Tunnel-installed-for-their-first-wedding_qwbpur.jpg",
-    width: 1200,
-    height: 900,
-    alt: "The Newt in Somerset with a stunning fairy light tunnel installed for an elegant evening party",
-    category: "outdoor-festoon",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163791/Edison-Vintage-Festoon-on-a-hot-night_qlolnk.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Edison vintage festoon lighting strung outdoors on a warm summer night for an alfresco party",
-    category: "outdoor-festoon",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163633/Stretch-Marquee-Lighting-e1483614284289_lmsqwr.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Stretch marquee with professional party lighting and festoon lights creating a warm evening atmosphere",
-    category: "outdoor-festoon",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162258/Fairy-light-Tunnel_sc40ed.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Fairy light tunnel creating a spectacular entrance for an evening party or wedding",
-    category: "outdoor-festoon",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162299/STYLISH-babs-july2016_ria-mishaal-photography_017_xsbk3l.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Babington House grounds with festoon and feature lighting creating a magical outdoor party setting",
-    category: "outdoor-festoon",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163716/IMG_1098_hqiw3d.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Outdoor terrace with festoon and feature lighting creating a relaxed party atmosphere",
-    category: "outdoor-festoon",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768741340/_F4R3275_tukoww.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Chill Out Camp with vintage Edison festoon lighting and fairy lights creating a magical outdoor party atmosphere",
-    category: "outdoor-festoon",
-  },
-];
-
-const atmosphericPhotos: ImagePhoto[] = [
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163764/IMG_1811_qctvz4.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Dynamic party lighting with vibrant colors creating an energetic atmosphere",
-    category: "atmospheric",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163751/led-red_ukq9hf.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Red LED party lighting creating a dramatic and atmospheric mood",
-    category: "atmospheric",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163720/A-Big-Lazer-e1430894875463_xgpiil.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Professional laser lighting effects creating spectacular visual displays for party celebrations",
-    category: "atmospheric",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163684/IMG_2731_yk0kmb.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Party lighting with colorful effects and atmospheric mood lighting",
-    category: "atmospheric",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768733441/Babington-House-Bar-with-DJ-Niges-setup_zdgqtq.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Babington House bar with DJ Nige's setup and atmospheric party lighting for a late night celebration",
-    category: "atmospheric",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163161/Ashton-Court-Mansion_ikmf6q.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Ashton Court Mansion exterior illuminated with colourful party lighting for an evening event",
-    category: "atmospheric",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768736010/The-Newt-Somerset-with-our-Fairy-Light-Tunnel-installed-for-their-first-wedding_xwmaca.jpg",
+    alt: "The Newt Somerset wedding venue with fairy light tunnel installation – prestigious venue transformation",
+    width: 1920,
+    height: 1080,
+    eventTypes: ["weddings"],
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768731384/Pennard-House-Lighting-with-Amber-Up-lighting_sljvaa.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Pennard House with amber uplighting highlighting architectural details for an evening party",
-    category: "atmospheric",
+    alt: "Pennard House amber uplighting highlighting architectural features for elegant evening events",
+    width: 1920,
+    height: 1080,
+    eventTypes: ["weddings", "corporate"],
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163448/Entrance-Lighting-02_rojobv.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Venue entrance with creative party lighting highlighting steps and doorway",
-    category: "atmospheric",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162858/DJ-Nige-Soho-Famhouse_spyy7e.jpg",
-    width: 1200,
-    height: 900,
-    alt: "DJ Nige performing at Soho Farmhouse with vibrant party lighting and full dance floor",
-    category: "atmospheric",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163745/Pool-Party01_qe5ro0.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Pool party with colourful lighting reflecting on the water for a stylish summer celebration",
-    category: "atmospheric",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163197/DJ-Kit-on-Croquet-Lawn_jncfnl.jpg",
-    width: 1200,
-    height: 900,
-    alt: "DJ kit set up on a croquet lawn with party lighting ready for an outdoor celebration",
-    category: "atmospheric",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163408/Babington-House-Alfresco-dining-daytime_xk0vra.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Babington House alfresco dining setup ready for evening party lighting and entertainment",
-    category: "atmospheric",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768741340/_F4R3275_tukoww.jpg",
+    alt: "Chill Out Camp with vintage Edison festoon lighting and fairy lights – alfresco party atmosphere",
+    width: 1920,
+    height: 1080,
+    eventTypes: ["weddings", "outdoor"],
   },
 ];
 
-const allPhotos = [...danceFloorPhotos, ...outdoorFestoonPhotos, ...atmosphericPhotos];
+// Service toolkit – half-screen cards with photo + minimal text
+const toolkitServices = [
+  {
+    id: "mirror-ball",
+    title: "Mirror Ball Clusters",
+    description: "Dramatic disco atmosphere with signature mirror ball installations. Perfect for dance floors and high-energy celebrations.",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162930/Mirrorball-Cluster-Glitterball-Clusters_mwjd8x.jpg",
+    alt: "Mirrorball cluster and glitterball clusters creating disco atmosphere on the dance floor",
+    galleryCategory: "dance-floor",
+  },
+  {
+    id: "festoon",
+    title: "Edison Vintage Festoons",
+    description: "Warm, nostalgic lighting for outdoor and indoor spaces. Fairy light tunnels and festoon strings for weddings and alfresco events.",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163791/Edison-Vintage-Festoon-on-a-hot-night_qlolnk.jpg",
+    alt: "Edison vintage festoon lighting strung outdoors on a warm summer night",
+    galleryCategory: "festoon",
+  },
+  {
+    id: "uplighting",
+    title: "LED Architectural Uplighting",
+    description: "Highlight venue features with intelligent colour-changing LED systems. Amber, warm white, and dramatic colour washes.",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162636/IMG_8030_b5un4j.jpg",
+    alt: "LED architectural uplighting for venues",
+    galleryCategory: "atmospheric",
+  },
+  {
+    id: "fairy-tunnel",
+    title: "Fairy Light Tunnels",
+    description: "Magical entrances and pathways. Transform any space with our iconic fairy light tunnel installations.",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162258/Fairy-light-Tunnel_sc40ed.jpg",
+    alt: "Fairy light tunnel creating spectacular entrance for weddings and evening events",
+    galleryCategory: "festoon",
+  },
+];
 
-// Masonry Grid Component
-function MasonryGrid({ photos }: { photos: ImagePhoto[] }) {
-  const [lightboxIndex, setLightboxIndex] = useState(-1);
+// Venue spotlights – narrative case studies
+const venueSpotlights = [
+  {
+    venue: "Babington House",
+    tagline: "Making Babington House feel intimate",
+    narrative: "Soho House's Somerset retreat demanded a balance of sophistication and warmth. We deployed vintage Edison festoons, bush lights, and atmospheric uplighting to create intimate zones across the grounds.",
+    images: [
+      {
+        src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163784/babs-bush-lights_ria-mishaal-photography_01_wvrfst.jpg",
+        alt: "Babington House bush lights and festoon lighting – Ria Mishaal Photography",
+      },
+      {
+        src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768733527/Babington-House-mini-chill-out-camp_lrjeoi.jpg",
+        alt: "Babington House mini chill-out camp with atmospheric lighting and festoons",
+      },
+    ],
+    testimonial: "The lighting transformed the space completely. Our guests couldn't stop talking about the fairy lights.",
+    testimonialAttribution: "— Wedding at Babington House",
+  },
+  {
+    venue: "Pennard House",
+    tagline: "Architectural uplighting meets alfresco dining",
+    narrative: "Pennard House's stunning architecture called for amber uplighting to highlight its features. We complemented it with festoon lighting for the pizzarova area and tree lighting for outdoor dining.",
+    images: [
+      {
+        src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768731384/Pennard-House-Lighting-with-Amber-Up-lighting_sljvaa.jpg",
+        alt: "Pennard House with amber uplighting highlighting architectural details",
+      },
+      {
+        src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163641/Pennard-House-Festoon-Pizzarova_rpdwep.jpg",
+        alt: "Pennard House festoon lighting and pizzarova alfresco dining area",
+      },
+    ],
+    testimonial: "Professional, creative, and exactly what we envisioned. The amber uplighting made the house glow.",
+    testimonialAttribution: "— Private Event, Pennard House",
+  },
+  {
+    venue: "The Newt",
+    tagline: "First wedding with our fairy light tunnel",
+    narrative: "The Newt Somerset's first wedding with our fairy light tunnel installation. A prestigious Somerset estate transformed with a magical entrance that set the tone for the entire evening.",
+    images: [
+      {
+        src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768736010/The-Newt-Somerset-with-our-Fairy-Light-Tunnel-installed-for-their-first-wedding_xwmaca.jpg",
+        alt: "The Newt Somerset wedding venue with fairy light tunnel installation",
+      },
+      {
+        src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162325/The-Newt-Somerset-we-used-over-800-metres-of-fairy-lights-for-the-Threshing-Barn_xa47ry.jpg",
+        alt: "The Newt Somerset Threshing Barn with over 800 metres of fairy lights",
+      },
+    ],
+    testimonial: "The fairy light tunnel was the highlight of our wedding. Magical.",
+    testimonialAttribution: "— Wedding at The Newt, Somerset",
+  },
+];
 
-  return (
-    <>
-      <div 
-        className="masonry-grid"
-        style={{
-          columnCount: "auto",
-          columnWidth: "300px",
-          columnGap: "1.5rem",
-          padding: "1rem 0",
-        }}
-      >
-        {photos.map((photo, index) => (
-          <div
-            key={index}
-            className="mb-6 break-inside-avoid cursor-pointer group"
-            onClick={() => setLightboxIndex(index)}
-          >
-            <div className="relative overflow-hidden rounded-lg bg-gray-900 shadow-lg hover:shadow-2xl transition-all duration-300 group-hover:scale-[1.02] border border-champagne-gold/20">
-              <Image
-                src={photo.src}
-                alt={photo.alt}
-                width={photo.width}
-                height={photo.height}
-                className="w-full h-auto object-cover"
-                loading="lazy"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-            </div>
-          </div>
-        ))}
-      </div>
-      <Lightbox
-        open={lightboxIndex >= 0}
-        close={() => setLightboxIndex(-1)}
-        index={lightboxIndex}
-        slides={photos.map(p => ({ src: p.src, alt: p.alt }))}
-        render={{ buttonPrev: () => <ChevronLeft className="w-8 h-8 text-white" />, buttonNext: () => <ChevronRight className="w-8 h-8 text-white" /> }}
-      />
-    </>
-  );
-}
-
-// Interactive Lighting Enquiry CTA Bar
-function LightingEnquiryBar() {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    const toggleVisibility = () => {
-      if (window.pageYOffset > 300) {
-        setIsVisible(true);
-      } else {
-        setIsVisible(false);
-      }
-    };
-    window.addEventListener("scroll", toggleVisibility);
-    return () => window.removeEventListener("scroll", toggleVisibility);
-  }, []);
-
-  return (
-    <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 100, opacity: 0 }}
-          className="fixed bottom-6 left-0 right-0 z-50 px-4 flex justify-center pointer-events-none"
-        >
-          <Link
-            href="/contact-us/"
-            className="pointer-events-auto bg-white/10 backdrop-blur-xl border-2 border-champagne-gold/50 text-white px-8 py-4 rounded-full font-bold shadow-[0_10px_30px_rgba(212,175,55,0.3)] hover:scale-105 transition-all duration-300 hover:bg-white/15 hover:border-champagne-gold flex items-center gap-3 group"
-          >
-            <Sparkles className="w-5 h-5 text-champagne-gold group-hover:rotate-12 transition-transform" />
-            <span>Lighting Enquiry</span>
-          </Link>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
+// Filterable gallery – all photos with event type tags
+const filterablePhotos: Photo[] = [
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162258/Fairy-light-Tunnel_sc40ed.jpg", alt: "Romantic fairy light tunnel entrance for garden weddings", width: 1200, height: 900, eventTypes: ["weddings", "outdoor"], venue: "Various", serviceType: "festoon" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163529/Wedding-Tree-Lighting_pgzhix.jpg", alt: "Wedding tree lighting with fairy lights for magical outdoor setting", width: 1200, height: 900, eventTypes: ["weddings", "outdoor"], serviceType: "festoon" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768740556/Albert-Palmer-Photography-001-2-e1642519560978_yjkunf.jpg", alt: "Wedding reception with festoon and outdoor lighting – Albert Palmer Photography", width: 1200, height: 900, eventTypes: ["weddings"], serviceType: "festoon" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768742527/Church-Exterior-Lighting_a8rzbd.jpg", alt: "Church exterior lighting for evening wedding ceremony", width: 1200, height: 900, eventTypes: ["weddings"], serviceType: "atmospheric" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768739479/EXTERIOR-DINING-TREE-LIGHTING_ur4vlb.jpg", alt: "Exterior dining with tree lighting for alfresco wedding or corporate dinner", width: 1200, height: 900, eventTypes: ["weddings", "corporate", "outdoor"], serviceType: "atmospheric" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163720/A-Big-Lazer-e1430894875463_xgpiil.jpg", alt: "Laser lighting on dance floor for corporate party or celebration", width: 1200, height: 900, eventTypes: ["corporate", "outdoor"], serviceType: "dance-floor" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163661/Hedsor-House-with-DJ-and-Sax_zv7pnl.jpg", alt: "Hedsor House dance floor with DJ and sax – corporate event entertainment", width: 1200, height: 900, eventTypes: ["corporate"], venue: "Hedsor House", serviceType: "dance-floor" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163648/Party-dj-lighting_tuh8hm.jpg", alt: "Party DJ lighting for corporate or private celebrations", width: 1200, height: 900, eventTypes: ["corporate", "outdoor"], serviceType: "dance-floor" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163791/Edison-Vintage-Festoon-on-a-hot-night_qlolnk.jpg", alt: "Edison vintage festoon lighting for outdoor corporate or private events", width: 1200, height: 900, eventTypes: ["outdoor", "corporate"], serviceType: "festoon" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163633/Stretch-Marquee-Lighting-e1483614284289_lmsqwr.jpg", alt: "Stretch marquee with festoon lights for outdoor weddings or events", width: 1200, height: 900, eventTypes: ["weddings", "outdoor"], serviceType: "festoon" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162715/Kin-House-Exterior-Terrace-Lighting_lxvlpk.jpg", alt: "Kin House exterior terrace mood lighting for evening events", width: 1200, height: 900, eventTypes: ["weddings", "corporate", "outdoor"], venue: "Kin House", serviceType: "atmospheric" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162636/IMG_8030_b5un4j.jpg", alt: "Atmospheric mood lighting for wedding or party venue", width: 1200, height: 900, eventTypes: ["weddings", "corporate"], serviceType: "atmospheric" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768749164/MartinBeddallPhotography02-e1530632660291_pabjzl.jpg", alt: "Wedding celebration with professional lighting – Martin Beddall Photography", width: 1200, height: 900, eventTypes: ["weddings"], serviceType: "dance-floor" },
+];
 
 export default function PartyLightingClient() {
+  const [heroIndex, setHeroIndex] = useState(0);
+  const [filter, setFilter] = useState<EventFilter>("all");
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
+
+  // Hero auto-advance
+  const advanceHero = useCallback(() => {
+    setHeroIndex((i) => (i + 1) % heroMoodImages.length);
+  }, []);
+  useEffect(() => {
+    const t = setInterval(advanceHero, 5000);
+    return () => clearInterval(t);
+  }, [advanceHero]);
+
+  const filteredPhotos = filter === "all" ? filterablePhotos : filterablePhotos.filter((p) => p.eventTypes.includes(filter));
+
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
+  };
+
   return (
-    <div>
-      {/* Hero */}
-      <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-50 flex items-center justify-center">
-          <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163790/Party-dj-with-lazer_wnhreb.jpg"
-            alt="Party DJ with laser lighting effects creating a vibrant and energetic dance floor atmosphere"
-            fill
-            className="object-cover object-center brightness-110"
-            priority
-            sizes="100vw"
-          />
+    <div className="min-h-screen bg-gray-950 text-white">
+      {/* 1. Mood-Based Hero Gallery – full-width carousel */}
+      <section className="relative h-[70vh] min-h-[400px] w-full overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={heroIndex}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="absolute inset-0"
+          >
+            <Image
+              src={heroMoodImages[heroIndex].src}
+              alt={heroMoodImages[heroIndex].alt}
+              fill
+              className="object-cover"
+              sizes="100vw"
+              priority
+              quality={85}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
+            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-4xl md:text-6xl font-bold mb-2"
+              >
+                Party Lighting
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="text-lg md:text-xl text-white/90 max-w-xl"
+              >
+                Transform any space with creative lighting. Trusted by Babington House, The Newt & beyond.
+              </motion.p>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Hero nav dots */}
+        <div className="absolute bottom-8 right-8 md:bottom-12 md:right-12 flex gap-2 z-10">
+          {heroMoodImages.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setHeroIndex(i)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                i === heroIndex ? "bg-champagne-gold w-6" : "bg-white/50 hover:bg-white/80"
+              }`}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
         </div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-48 md:pt-52"
+        <button
+          onClick={() => setHeroIndex((i) => (i - 1 + heroMoodImages.length) % heroMoodImages.length)}
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-10"
+          aria-label="Previous"
         >
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
-            Party Lighting
-          </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md">
-            Transform any party space with creative lighting, mirror balls and festoons
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+        <button
+          onClick={() => setHeroIndex((i) => (i + 1) % heroMoodImages.length)}
+          className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-10"
+          aria-label="Next"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </button>
+      </section>
+
+      {/* 2. Service Toolkit Cards – half-screen layouts */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
+        <div className="max-w-6xl mx-auto mb-16 text-center">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">Our Lighting Toolkit</h2>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            Each service paired with a professional photo. Hover for details, click to view gallery.
           </p>
-        </motion.div>
-      </section>
+        </div>
 
-      {/* Our Lighting Toolkit */}
-      <section className="py-16 px-4 bg-gray-800 relative">
-        <div className="container mx-auto max-w-6xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-sans mb-6 text-white font-bold">
-              Our <span className="text-gradient">Lighting Toolkit</span>
-            </h2>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="space-y-24 md:space-y-32">
+          {toolkitServices.map((service, i) => (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              key={service.id}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+              transition={{ duration: 0.6 }}
+              className={`grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center max-w-6xl mx-auto ${
+                i % 2 === 1 ? "lg:flex-row-reverse" : ""
+              }`}
             >
-              <Card className="bg-white/5 backdrop-blur-lg border-white/10 hover:border-champagne-gold/30 transition-all h-full">
-                <CardContent className="p-6 text-center">
-                  <Sparkles className="w-12 h-12 text-champagne-gold mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-2">Mirror Ball Clusters</h3>
-                  <p className="text-gray-300 text-sm">Dramatic disco atmosphere with our signature mirror ball installations</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <Card className="bg-white/5 backdrop-blur-lg border-white/10 hover:border-champagne-gold/30 transition-all h-full">
-                <CardContent className="p-6 text-center">
-                  <Sun className="w-12 h-12 text-champagne-gold mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-2">Edison Vintage Festoons</h3>
-                  <p className="text-gray-300 text-sm">Warm, nostalgic lighting perfect for outdoor and indoor spaces</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <Card className="bg-white/5 backdrop-blur-lg border-white/10 hover:border-champagne-gold/30 transition-all h-full">
-                <CardContent className="p-6 text-center">
-                  <Lightbulb className="w-12 h-12 text-champagne-gold mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-2">LED Architectural Uplighting</h3>
-                  <p className="text-gray-300 text-sm">Highlight architectural features with intelligent colour-changing LED systems</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <Card className="bg-white/5 backdrop-blur-lg border-white/10 hover:border-champagne-gold/30 transition-all h-full">
-                <CardContent className="p-6 text-center">
-                  <Sparkles className="w-12 h-12 text-champagne-gold mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-2">Fairy Light Tunnels</h3>
-                  <p className="text-gray-300 text-sm">Create magical entrances and pathways with our fairy light installations</p>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Category Grid: The Dance Floor */}
-      <section className="py-16 px-4 bg-gray-900">
-        <div className="container mx-auto max-w-7xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mb-8"
-          >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-sans mb-4 text-white font-bold">
-              The Dance Floor
-            </h2>
-            <p className="text-gray-300 text-lg">Mirrorballs and disco lighting for high-energy celebrations</p>
-          </motion.div>
-          <MasonryGrid photos={danceFloorPhotos} />
-        </div>
-      </section>
-
-      {/* Glassmorphism Promotional Card - DJs */}
-      <section className="py-12 px-4 bg-gray-900">
-        <div className="container mx-auto max-w-4xl">
-          <Card className="bg-white/5 backdrop-blur-xl border-champagne-gold/30 shadow-2xl">
-            <CardContent className="p-8 text-center">
-              <h3 className="text-2xl sm:text-3xl font-bold text-champagne-gold mb-4">
-                Complete Your Party Experience
-              </h3>
-              <p className="text-white text-lg md:text-xl leading-relaxed mb-6">
-                Pair your lighting with professional DJ services. Our expert DJs create the perfect atmosphere with seamless mixing and crowd-pleasing playlists.
-              </p>
-              <Link
-                href="/artists/djs"
-                className="inline-block px-8 py-3 bg-champagne-gold/20 backdrop-blur-md border-2 border-champagne-gold text-champagne-gold font-semibold rounded-lg hover:bg-champagne-gold hover:text-black transition-all duration-300 hover:scale-105 shadow-lg"
-              >
-                Explore Our DJs
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Category Grid: Outdoor & Festoon */}
-      <section className="py-16 px-4 bg-gray-800">
-        <div className="container mx-auto max-w-7xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mb-8"
-          >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-sans mb-4 text-white font-bold">
-              Outdoor & Festoon
-            </h2>
-            <p className="text-gray-300 text-lg">Fairy light tunnels, festoon lighting, and alfresco ambiance</p>
-          </motion.div>
-          <MasonryGrid photos={outdoorFestoonPhotos} />
-        </div>
-      </section>
-
-      {/* Glassmorphism Promotional Card - Musicians */}
-      <section className="py-12 px-4 bg-gray-800">
-        <div className="container mx-auto max-w-4xl">
-          <Card className="bg-white/5 backdrop-blur-xl border-champagne-gold/30 shadow-2xl">
-            <CardContent className="p-8 text-center">
-              <h3 className="text-2xl sm:text-3xl font-bold text-champagne-gold mb-4">
-                Add Live Music to Your Event
-              </h3>
-              <p className="text-white text-lg md:text-xl leading-relaxed mb-6">
-                Elevate your event with live music. From jazz trios to saxophone and percussion, our talented musicians add elegance and energy to any celebration.
-              </p>
-              <Link
-                href="/artists/musicians"
-                className="inline-block px-8 py-3 bg-champagne-gold/20 backdrop-blur-md border-2 border-champagne-gold text-champagne-gold font-semibold rounded-lg hover:bg-champagne-gold hover:text-black transition-all duration-300 hover:scale-105 shadow-lg"
-              >
-                Explore Our Musicians
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Category Grid: Atmospheric Mood Lighting */}
-      <section className="py-16 px-4 bg-gray-900">
-        <div className="container mx-auto max-w-7xl md:max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mb-8"
-          >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-sans mb-4 text-white font-bold">
-              Atmospheric Mood Lighting
-            </h2>
-            <p className="text-gray-300 text-lg">Sophisticated uplighting and architectural illumination</p>
-          </motion.div>
-          <MasonryGrid photos={atmosphericPhotos} />
-        </div>
-      </section>
-
-      {/* Service Area Map-Style Card */}
-      <section className="py-16 px-4 bg-gray-800">
-        <div className="container mx-auto max-w-6xl">
-          <Card className="bg-white/5 backdrop-blur-xl border-champagne-gold/30 shadow-2xl">
-            <CardContent className="p-8 md:p-12">
-              <div className="flex items-start gap-4 mb-6">
-                <MapPin className="w-8 h-8 text-champagne-gold flex-shrink-0 mt-1" />
-                <div>
-                  <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">
-                    Service Area
-                  </h3>
-                  <p className="text-gray-300 text-lg leading-relaxed mb-6">
-                    Based in Frome, Somerset, we serve venues across the West Country. Our premium lighting installations are featured at prestigious venues including:
-                  </p>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div className="bg-gradient-to-br from-champagne-gold/10 to-yellow-400/10 border border-champagne-gold/30 rounded-lg p-6">
-                      <h4 className="text-xl font-bold text-champagne-gold mb-2">Babington House</h4>
-                      <p className="text-gray-200 text-sm">Soho House venue in Somerset - Resident DJ and lighting specialists</p>
-                    </div>
-                    <div className="bg-gradient-to-br from-champagne-gold/10 to-yellow-400/10 border border-champagne-gold/30 rounded-lg p-6">
-                      <h4 className="text-xl font-bold text-champagne-gold mb-2">The Newt</h4>
-                      <p className="text-gray-200 text-sm">Historic Somerset estate - Featured fairy light tunnel installation</p>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-3 justify-center">
-                    {["Somerset", "Wiltshire", "Dorset", "Devon", "Gloucestershire", "Bath", "Bristol"].map((location) => (
-                      <span
-                        key={location}
-                        className="px-4 py-2 bg-gray-700/50 backdrop-blur-sm text-white rounded-full text-sm font-medium border border-champagne-gold/20"
-                      >
-                        {location}
-                      </span>
-                    ))}
+              <div className={i % 2 === 1 ? "lg:order-2" : ""}>
+                <div className="relative aspect-[4/3] rounded-xl overflow-hidden group">
+                  <Image
+                    src={service.image}
+                    alt={service.alt}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                    <Link
+                      href={`#gallery?cat=${service.galleryCategory}`}
+                      className="inline-flex items-center gap-2 px-4 py-2 bg-champagne-gold text-black font-medium rounded-lg hover:bg-gold-light transition-colors"
+                    >
+                      View Gallery
+                      <ExternalLink className="w-4 h-4" />
+                    </Link>
                   </div>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Final CTA */}
-      <section className="py-16 px-4 bg-gray-900">
-        <div className="container mx-auto max-w-4xl text-center">
-          <Card className="bg-gradient-to-br from-champagne-gold/10 to-yellow-400/10 border-2 border-champagne-gold/40 shadow-xl">
-            <CardContent className="p-8 md:p-12">
-              <p className="text-white text-xl md:text-2xl leading-relaxed mb-8 font-semibold">
-                Ready to transform your event with professional party lighting?
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-gold-light">
-                  <Link href="/contact-us/">Request a Quote</Link>
-                </Button>
-                <a
-                  href="tel:+447970793177"
-                  className="inline-flex items-center gap-2 px-8 py-3 bg-transparent border-2 border-champagne-gold text-champagne-gold font-semibold rounded-lg hover:bg-champagne-gold hover:text-black transition-all duration-300"
-                >
-                  <Phone className="w-5 h-5" />
-                  Call 07970793177
-                </a>
+              <div className={i % 2 === 1 ? "lg:order-1" : ""}>
+                <div className="flex items-center gap-3 mb-4">
+                  {service.id === "mirror-ball" && <Sparkles className="w-8 h-8 text-champagne-gold" />}
+                  {service.id === "festoon" && <Sun className="w-8 h-8 text-champagne-gold" />}
+                  {service.id === "uplighting" && <Lightbulb className="w-8 h-8 text-champagne-gold" />}
+                  {service.id === "fairy-tunnel" && <Sparkles className="w-8 h-8 text-champagne-gold" />}
+                  <h3 className="text-2xl md:text-3xl font-bold">{service.title}</h3>
+                </div>
+                <p className="text-gray-400 text-lg leading-relaxed">{service.description}</p>
               </div>
-            </CardContent>
-          </Card>
+            </motion.div>
+          ))}
         </div>
       </section>
 
-      {/* Interactive Lighting Enquiry Bar */}
-      <LightingEnquiryBar />
+      {/* 3. Venue Spotlights – storytelling case studies */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+        <div className="max-w-6xl mx-auto mb-16 text-center">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">Venue Spotlights</h2>
+          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+            Narrative case studies: the goal, the solution, the result.
+          </p>
+        </div>
+
+        <div className="max-w-5xl mx-auto space-y-20">
+          {venueSpotlights.map((spotlight) => (
+            <motion.article
+              key={spotlight.venue}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="space-y-6"
+            >
+              <div>
+                <span className="text-champagne-gold text-sm font-medium tracking-wide uppercase">
+                  {spotlight.venue}
+                </span>
+                <h3 className="text-2xl md:text-3xl font-bold mt-1">{spotlight.tagline}</h3>
+              </div>
+              <p className="text-gray-400 text-lg leading-relaxed">{spotlight.narrative}</p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                {spotlight.images.map((img, i) => (
+                  <div key={i} className="relative aspect-[4/3] rounded-xl overflow-hidden">
+                    <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
+                  </div>
+                ))}
+              </div>
+
+              <blockquote className="border-l-4 border-champagne-gold pl-6 py-2 mt-6 bg-gray-900/50 rounded-r-lg">
+                <p className="text-white/90 italic">&ldquo;{spotlight.testimonial}&rdquo;</p>
+                <cite className="text-gray-500 text-sm not-italic mt-1 block">{spotlight.testimonialAttribution}</cite>
+              </blockquote>
+            </motion.article>
+          ))}
+        </div>
+      </section>
+
+      {/* 4. Interactive Filtering – Weddings / Corporate / Outdoor */}
+      <section id="gallery" className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
+        <div className="max-w-6xl mx-auto mb-12">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">Browse by Event</h2>
+          <p className="text-gray-400 text-lg mb-8">
+            Find the lighting style that matches your event. Filter without reloading.
+          </p>
+
+          <div className="flex flex-wrap gap-3">
+            {(["all", "weddings", "corporate", "outdoor"] as const).map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className={`px-5 py-2.5 rounded-full font-medium transition-all ${
+                  filter === f
+                    ? "bg-champagne-gold text-black"
+                    : "bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10"
+                }`}
+              >
+                {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <motion.div
+          layout
+          className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        >
+          <AnimatePresence mode="popLayout">
+            {filteredPhotos.map((photo, i) => (
+              <motion.div
+                key={photo.src + i}
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.25 }}
+                className="relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer group"
+                onClick={() => openLightbox(i)}
+              >
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+                  <span className="text-sm text-white/90 line-clamp-2">{photo.alt}</span>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+      </section>
+
+      <Lightbox
+        open={lightboxOpen}
+        close={() => setLightboxOpen(false)}
+        index={lightboxIndex}
+        slides={filteredPhotos.map((p) => ({ src: p.src, alt: p.alt }))}
+        render={{
+          buttonPrev: () => <ChevronLeft className="w-8 h-8 text-white" />,
+          buttonNext: () => <ChevronRight className="w-8 h-8 text-white" />,
+        }}
+      />
     </div>
   );
 }

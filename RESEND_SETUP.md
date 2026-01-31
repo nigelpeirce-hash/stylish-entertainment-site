@@ -51,11 +51,14 @@ RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 1. Go to your Vercel project dashboard
 2. Go to **Settings** → **Environment Variables**
-3. Add:
-   - **Name:** `RESEND_API_KEY`
-   - **Value:** Your Resend API key
-   - **Environment:** Production, Preview, Development (select all)
-4. Click **Save**
+3. Add **both** variables (required for password reset, contact form, portal emails, etc.):
+
+   | Name | Value | Environment |
+   |------|-------|-------------|
+   | `RESEND_API_KEY` | Your Resend API key (e.g. `re_xxx...`) | Production, Preview, Development |
+   | `RESEND_DEFAULT_FROM` | `STYLISH Entertainment <info@stylishentertainment.co.uk>` | Production, Preview, Development |
+
+4. Click **Save** and redeploy
 
 ### Step 5: Restart Your Server
 

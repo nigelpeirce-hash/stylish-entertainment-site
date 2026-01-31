@@ -1,13 +1,149 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import ImageCarousel, { ImagePhoto } from "@/components/ImageCarousel";
+import { ImagePhoto } from "@/components/ImageCarousel";
+import HorizontalImageCarousel from "@/components/HorizontalImageCarousel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import WaveDivider from "@/components/WaveDivider";
-import { Calendar, Users, Sparkles, CheckCircle2, Video, Lightbulb, Music2, Award } from "lucide-react";
+import { Calendar, Users, Sparkles, CheckCircle2, Video, Lightbulb, Music2, ChevronLeft, ChevronRight } from "lucide-react";
+
+const processSteps = [
+  {
+    id: "vision",
+    title: "The Vision (Consultation)",
+    Icon: Video,
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg",
+    imageAlt: "Initial consultation meeting for event planning",
+    description: "Every extraordinary event begins with understanding your vision. Through comprehensive consultations, we explore your ideas, preferences, and goals to create a bespoke plan that reflects your unique style.",
+    bullets: [
+      "Comprehensive event consultation to understand your vision",
+      "Budget planning and cost management",
+      "Venue selection and site visits",
+    ],
+  },
+  {
+    id: "design",
+    title: "The Design (Production)",
+    Icon: Lightbulb,
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg",
+    imageAlt: "Lighting design and production setup in progress",
+    description: "From concept to reality, we transform your vision into a meticulously planned production. Our technical expertise ensures every element—from lighting design to sound systems—is perfectly orchestrated.",
+    bullets: [
+      "Lighting design and installation",
+      "Sound system setup and management",
+      "Venue styling and decoration",
+    ],
+  },
+  {
+    id: "night",
+    title: "The Night (Execution)",
+    Icon: Music2,
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163815/Highcliffe-Castle-Wedding-2-web_pgsbaa.jpg",
+    imageAlt: "Party in full swing with flawless execution",
+    description: "On the day, our experienced team executes every detail flawlessly. With seamless coordination and dedicated on-site management, you can relax and enjoy your celebration while we handle everything behind the scenes.",
+    bullets: [
+      "Day-of event coordination and management",
+      "Supplier liaison and coordination",
+      "Problem-solving and on-the-day support",
+    ],
+  },
+];
+
+function ProcessCarousel() {
+  const [stepIndex, setStepIndex] = useState(0);
+  const step = processSteps[stepIndex];
+  const Icon = step.Icon;
+
+  const goPrev = () => setStepIndex((i) => (i === 0 ? processSteps.length - 1 : i - 1));
+  const goNext = () => setStepIndex((i) => (i === processSteps.length - 1 ? 0 : i + 1));
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6 }}
+      className="relative overflow-hidden rounded-xl border border-champagne-gold/30 bg-gray-900 shadow-xl"
+    >
+      <div className="flex flex-col lg:flex-row">
+        {/* Image - compact aspect */}
+        <div className="relative w-full lg:w-1/2 aspect-video lg:aspect-[4/3] shrink-0">
+          <Image
+            src={step.image}
+            alt={step.imageAlt}
+            fill
+            className="object-cover transition-opacity duration-300"
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            priority={stepIndex === 0}
+          />
+          {/* Step labels on image */}
+          <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
+            <span className="text-white/90 text-sm font-medium drop-shadow-lg">
+              Step {stepIndex + 1} of {processSteps.length}
+            </span>
+          </div>
+        </div>
+        {/* Content */}
+        <div className="flex-1 p-6 md:p-8 flex flex-col justify-center">
+          <Card className="bg-transparent border-0 shadow-none">
+            <CardHeader className="p-0 pb-4">
+              <div className="flex items-center gap-3 mb-2">
+                <Icon className="h-6 w-6 text-champagne-gold shrink-0" />
+                <CardTitle className="text-white text-xl md:text-2xl">{step.title}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="p-0">
+              <p className="text-gray-200 leading-relaxed mb-4">{step.description}</p>
+              <ul className="space-y-2 text-gray-300 text-sm">
+                {step.bullets.map((bullet, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-champagne-gold mt-1">•</span>
+                    <span>{bullet}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardContent>
+          </Card>
+          {/* Nav arrows + dots */}
+          <div className="flex items-center justify-between mt-6 pt-6 border-t border-champagne-gold/20">
+            <button
+              onClick={goPrev}
+              className="flex items-center gap-1 text-champagne-gold hover:text-gold-light transition-colors"
+              aria-label="Previous step"
+            >
+              <ChevronLeft className="w-5 h-5" />
+              <span className="text-sm font-medium">Previous</span>
+            </button>
+            <div className="flex gap-2">
+              {processSteps.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => setStepIndex(idx)}
+                  className={`rounded-full transition-all duration-300 ${
+                    idx === stepIndex ? "w-8 h-2 bg-champagne-gold" : "w-2 h-2 bg-white/40 hover:bg-white/60"
+                  }`}
+                  aria-label={`Go to step ${idx + 1}`}
+                />
+              ))}
+            </div>
+            <button
+              onClick={goNext}
+              className="flex items-center gap-1 text-champagne-gold hover:text-gold-light transition-colors"
+              aria-label="Next step"
+            >
+              <span className="text-sm font-medium">Next</span>
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 const partyPlanningPhotos: ImagePhoto[] = [
   {
@@ -177,7 +313,7 @@ export default function PartyPlanningClient() {
           </div>
         </section>
 
-        {/* Gallery */}
+        {/* Gallery - Horizontal Carousel */}
         <section className="py-16 px-4 bg-gray-950/50">
           <div className="container mx-auto max-w-7xl">
             <motion.div
@@ -187,14 +323,19 @@ export default function PartyPlanningClient() {
               transition={{ duration: 0.8 }}
               className="flex justify-center"
             >
-              <ImageCarousel images={partyPlanningPhotos} />
+              <HorizontalImageCarousel
+                images={partyPlanningPhotos}
+                aspectRatio="wide"
+                autoplayMs={5000}
+                showDots
+              />
             </motion.div>
           </div>
         </section>
 
-        {/* The Process - Z-Pattern Layout */}
+        {/* The Process - Compact Carousel */}
         <section className="py-20 px-4">
-          <div className="container mx-auto max-w-6xl space-y-16">
+          <div className="container mx-auto max-w-6xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -207,143 +348,7 @@ export default function PartyPlanningClient() {
               </h2>
             </motion.div>
 
-            {/* Section 1: The Vision (Consultation) */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="flex flex-col lg:flex-row items-center gap-8"
-            >
-              <div className="flex-1 relative h-80 lg:h-96 rounded-lg overflow-hidden border border-champagne-gold/30">
-                <Image
-                  src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg"
-                  alt="Initial consultation meeting for event planning"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-              </div>
-              <Card className="flex-1 bg-white/5 backdrop-blur-md border-champagne-gold/30">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Video className="h-6 w-6 text-champagne-gold" />
-                    <CardTitle className="text-white">The Vision (Consultation)</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-200 leading-relaxed mb-4">
-                    Every extraordinary event begins with understanding your vision. Through comprehensive consultations, we explore your ideas, preferences, and goals to create a bespoke plan that reflects your unique style.
-                  </p>
-                  <ul className="space-y-2 text-gray-300 text-sm">
-                    <li className="flex items-start gap-2">
-                      <span className="text-champagne-gold mt-1">•</span>
-                      <span>Comprehensive event consultation to understand your vision</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-champagne-gold mt-1">•</span>
-                      <span>Budget planning and cost management</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-champagne-gold mt-1">•</span>
-                      <span>Venue selection and site visits</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Section 2: The Design (Production) */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="flex flex-col lg:flex-row-reverse items-center gap-8"
-            >
-              <div className="flex-1 relative h-80 lg:h-96 rounded-lg overflow-hidden border border-champagne-gold/30">
-                <Image
-                  src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg"
-                  alt="Lighting design and production setup in progress"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-              </div>
-              <Card className="flex-1 bg-white/5 backdrop-blur-md border-champagne-gold/30">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Lightbulb className="h-6 w-6 text-champagne-gold" />
-                    <CardTitle className="text-white">The Design (Production)</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-200 leading-relaxed mb-4">
-                    From concept to reality, we transform your vision into a meticulously planned production. Our technical expertise ensures every element—from lighting design to sound systems—is perfectly orchestrated.
-                  </p>
-                  <ul className="space-y-2 text-gray-300 text-sm">
-                    <li className="flex items-start gap-2">
-                      <span className="text-champagne-gold mt-1">•</span>
-                      <span>Lighting design and installation</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-champagne-gold mt-1">•</span>
-                      <span>Sound system setup and management</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-champagne-gold mt-1">•</span>
-                      <span>Venue styling and decoration</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Section 3: The Night (Execution) */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="flex flex-col lg:flex-row items-center gap-8"
-            >
-              <div className="flex-1 relative h-80 lg:h-96 rounded-lg overflow-hidden border border-champagne-gold/30">
-                <Image
-                  src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163815/Highcliffe-Castle-Wedding-2-web_pgsbaa.jpg"
-                  alt="Party in full swing with flawless execution"
-                  fill
-                  className="object-cover"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-              </div>
-              <Card className="flex-1 bg-white/5 backdrop-blur-md border-champagne-gold/30">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <Music2 className="h-6 w-6 text-champagne-gold" />
-                    <CardTitle className="text-white">The Night (Execution)</CardTitle>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-200 leading-relaxed mb-4">
-                    On the day, our experienced team executes every detail flawlessly. With seamless coordination and dedicated on-site management, you can relax and enjoy your celebration while we handle everything behind the scenes.
-                  </p>
-                  <ul className="space-y-2 text-gray-300 text-sm">
-                    <li className="flex items-start gap-2">
-                      <span className="text-champagne-gold mt-1">•</span>
-                      <span>Day-of event coordination and management</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-champagne-gold mt-1">•</span>
-                      <span>Supplier liaison and coordination</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-champagne-gold mt-1">•</span>
-                      <span>Problem-solving and on-the-day support</span>
-                    </li>
-                  </ul>
-                </CardContent>
-              </Card>
-            </motion.div>
+            <ProcessCarousel />
           </div>
         </section>
 

@@ -4,6 +4,14 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Music2 } from "lucide-react";
 import Image from "next/image";
 import { Slider } from "@/components/ui/slider";
@@ -71,12 +79,15 @@ export default function Musicians() {
           };
 
           const mappedMusicians = data.musicians.map((musician: any) => {
+            const strapLine = (musician.strapLine && musician.strapLine.trim()) ? musician.strapLine : null;
             return {
               name: musician.name,
               image: musician.imageUrl || null,
               alt: `${musician.name} performing at weddings and events, showcasing professional live music entertainment`,
               instrument: musician.instrument || "Musician",
+              strapLine,
               bio: musician.bio || "",
+              fullBio: (musician.fullBio && musician.fullBio.trim()) ? musician.fullBio : null,
               youtubeEmbed: normalizeYouTubeUrl(musician.youtubeEmbed),
             };
           });
@@ -229,6 +240,11 @@ export default function Musicians() {
                           </div>
                           <CardHeader className="p-4 sm:p-6 md:p-6 lg:p-8 bg-gray-900 flex flex-col justify-start pb-20 sm:pb-6 md:pb-6 lg:pb-8">
                             <CardTitle className="text-xl sm:text-2xl md:text-3xl mb-2 sm:mb-3 text-white font-bold">{musician.name}</CardTitle>
+                            {musician.strapLine && (
+                              <span className="inline-block mb-2 px-2.5 py-1 bg-champagne-gold/20 text-champagne-gold rounded-full text-xs font-semibold border border-champagne-gold/40 w-fit">
+                                {musician.strapLine}
+                              </span>
+                            )}
                             <p className="text-sm sm:text-base text-gray-200 mb-3 sm:mb-4 leading-relaxed">{musician.bio}</p>
                             
                             <div className="mb-4">
@@ -237,6 +253,55 @@ export default function Musicians() {
                                 {musician.instrument}
                               </span>
                             </div>
+
+                            {musician.fullBio && (
+                              <div className="mb-4">
+                                <Dialog>
+                                  <DialogTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      className="w-full border-champagne-gold text-champagne-gold hover:bg-champagne-gold hover:text-black transition-all duration-300 font-semibold"
+                                    >
+                                      Read more
+                                    </Button>
+                                  </DialogTrigger>
+                                  <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                                    <DialogHeader>
+                                      <DialogTitle className="text-3xl md:text-4xl text-white font-bold mb-4">
+                                        {musician.name}
+                                      </DialogTitle>
+                                    </DialogHeader>
+                                    <div className="text-base sm:text-lg text-gray-100 leading-relaxed space-y-6 prose prose-lg max-w-none">
+                                      {musician.fullBio.split('\n\n').filter((p: string) => p.trim()).map((paragraph: string, index: number) => {
+                                        const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+                                        const parts: (string | JSX.Element)[] = [];
+                                        let lastIndex = 0;
+                                        let match;
+                                        while ((match = linkRegex.exec(paragraph)) !== null) {
+                                          if (match.index > lastIndex) {
+                                            parts.push(paragraph.substring(lastIndex, match.index));
+                                          }
+                                          parts.push(
+                                            <Link key={match.index} href={match[2]} className="text-champagne-gold hover:text-champagne-gold/80 underline">
+                                              {match[1]}
+                                            </Link>
+                                          );
+                                          lastIndex = match.index + match[0].length;
+                                        }
+                                        if (lastIndex < paragraph.length) {
+                                          parts.push(paragraph.substring(lastIndex));
+                                        }
+                                        return (
+                                          <p key={index} className="mb-4 leading-relaxed text-gray-100">
+                                            {parts.length > 0 ? parts : paragraph}
+                                          </p>
+                                        );
+                                      })}
+                                    </div>
+                                  </DialogContent>
+                                </Dialog>
+                              </div>
+                            )}
 
                             {musician.youtubeEmbed && musician.youtubeEmbed.trim() !== "" && musician.youtubeEmbed.startsWith('http') && (
                               <div className="space-y-3 sm:space-y-4">

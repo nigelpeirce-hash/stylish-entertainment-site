@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
 
 /** Create NextResponse.next() with x-pathname on the forwarded request so layout can read it. */
 function nextWithPathname(pathname: string, request: NextRequest): NextResponse {
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set("x-pathname", pathname);
   return NextResponse.next({ request: { headers: requestHeaders } });
+}
+
+/** Check for session cookie presence (Edge-safe; no JWT decode). Real auth happens in pages/APIs. */
+function hasSessionCookie(request: NextRequest): boolean {
+  const cookie = request.cookies.get("authjs.session-token") ?? request.cookies.get("__Secure-authjs.session-token");
+  return !!cookie?.value;
 }
 
 export async function middleware(request: NextRequest) {
@@ -16,8 +21,6 @@ export async function middleware(request: NextRequest) {
   if (process.env.NODE_ENV === "production") {
     const url = request.nextUrl.clone();
     const hostname = request.headers.get("host") || "";
-    
-    // Check if request is HTTP and should be HTTPS
     if (
       request.headers.get("x-forwarded-proto") !== "https" &&
       !hostname.includes("localhost") &&
@@ -28,28 +31,13 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Check if the route is protected
+  // Protect /client routes (no getToken – Edge-safe cookie check)
   if (pathname.startsWith("/client")) {
-    const pathname = request.nextUrl.pathname;
     const magicToken = request.nextUrl.searchParams.get("token");
-
-    // Tokenized magic link: /client/bookings/[id]?token=... grants immediate access (no login)
     if (/^\/client\/bookings\/[^/]+$/.test(pathname) && magicToken) {
       return nextWithPathname(pathname, request);
     }
-
-    const token = await getToken({
-      req: request,
-      secret: process.env.NEXTAUTH_SECRET,
-    });
-
-    // Allow admins to access client pages for preview/testing
-    if (token && (token as any).role === "admin") {
-      return nextWithPathname(pathname, request);
-    }
-
-    // If no token, redirect to login
-    if (!token) {
+    if (!hasSessionCookie(request)) {
       const url = new URL("/login", request.url);
       url.searchParams.set("callbackUrl", request.nextUrl.pathname);
       return NextResponse.redirect(url, 302);

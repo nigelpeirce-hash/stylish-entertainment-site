@@ -460,7 +460,7 @@ async function main() {
       slug: "dj-nige",
       email: "nige@stylishentertainment.co.uk",
       bio: "With over 20 years of experience, DJ Nige is a master at reading the room and creating the perfect atmosphere for any event. Specialising in weddings and corporate events across the South West, his seamless mixing style and extensive music knowledge ensure every dance floor stays packed all night long.",
-      imageUrl: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1/stylish-entertainment/djs/nige",
+      imageUrl: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163779/Dj-Sax-Bongos_zlozkq.jpg",
       isActive: true,
       displayOrder: 1,
       mixcloudUrl: "https://www.mixcloud.com/djnige/",

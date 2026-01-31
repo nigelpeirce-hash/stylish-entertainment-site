@@ -6,6 +6,9 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
+// Names of the hardcoded dev seed items – used for unseed
+const SEED_ITEM_NAMES = ["Lanterns", "Candlesticks", "Mirroballs", "Vases"];
+
 // Seed initial hire items
 export async function POST(request: NextRequest) {
   try {
@@ -71,6 +74,32 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Error seeding hire items:", error);
+    return NextResponse.json(
+      { error: "Internal server error" },
+      { status: 500 }
+    );
+  }
+}
+
+// Unseed: remove hardcoded dev seed items so "Shop Closed" sign shows
+export async function DELETE(request: NextRequest) {
+  try {
+    const admin = await requireAdmin(request);
+    if (!admin) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const deleted = await prisma.hireItem.deleteMany({
+      where: { name: { in: SEED_ITEM_NAMES } },
+    });
+
+    return NextResponse.json({
+      success: true,
+      message: `Removed ${deleted.count} seeded item(s). Shop Closed sign will show if no items remain.`,
+      deleted: deleted.count,
+    });
+  } catch (error) {
+    console.error("Error unseeding hire items:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

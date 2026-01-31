@@ -20,6 +20,8 @@ interface Musician {
   instrument: string | null;
   imageUrl: string | null;
   bio: string | null;
+  strapLine?: string | null;
+  fullBio?: string | null;
   youtubeEmbed: string | null;
   isActive: boolean;
   displayOrder: number;
@@ -99,6 +101,8 @@ export default function MusiciansPage() {
     name: "",
     instrument: "",
     bio: "",
+    strapLine: "",
+    fullBio: "",
     youtubeEmbed: "",
     seoTitle: "",
     seoDescription: "",
@@ -161,6 +165,8 @@ export default function MusiciansPage() {
         imageUrl: formData.imageUrl || null,
         instrument: formData.instrument || null,
         youtubeEmbed: formData.youtubeEmbed || null,
+        strapLine: formData.strapLine || null,
+        fullBio: formData.fullBio || null,
       };
 
       if (editingId) {
@@ -229,6 +235,8 @@ export default function MusiciansPage() {
       name: musician.name,
       instrument: musician.instrument || "",
       bio: musician.bio || "",
+      strapLine: musician.strapLine ?? "",
+      fullBio: musician.fullBio ?? "",
       youtubeEmbed: musician.youtubeEmbed || "",
       seoTitle: (musician as any).seoTitle || "",
       seoDescription: (musician as any).seoDescription || "",
@@ -253,6 +261,8 @@ export default function MusiciansPage() {
       name: "",
       instrument: "",
       bio: "",
+      strapLine: "",
+      fullBio: "",
       youtubeEmbed: "",
       seoTitle: "",
       seoDescription: "",
@@ -298,7 +308,7 @@ export default function MusiciansPage() {
         background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
       }}
     >
-      <div className="container mx-auto max-w-7xl">
+      <div className="w-full max-w-full px-4 container mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}

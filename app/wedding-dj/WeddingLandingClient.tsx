@@ -2,108 +2,111 @@
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { 
-  Music, 
-  Sparkles, 
-  Heart, 
-  Users, 
-  Calendar,
-  CheckCircle2,
-  Star,
-  ArrowRight,
-  Phone,
-  Mail,
-  MessageCircle,
-  Smartphone,
-  Share2,
-  ListMusic,
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-} from "lucide-react";
+import Lightbox from "yet-another-react-lightbox";
+import { ChevronLeft, ChevronRight, Mic, Music, Sparkles, CheckCircle2, X, ArrowRight } from "lucide-react";
+import "yet-another-react-lightbox/styles.css";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import LazyIframe from "@/components/LazyIframe";
 
 interface DJ {
-  id: string;
   name: string;
-  slug: string | null;
-  imageUrl: string | null;
-  bio: string | null;
-  mixcloudUrl: string | null;
+  image: string | null;
+  alt: string;
+  mixingStyle: string;
+  bio: string;
+  fullBio: string | null;
   youtubeEmbed: string | null;
-  seoTitle: string | null;
-  seoDescription: string | null;
+  mixcloudEmbeds: string[];
 }
 
-const features = [
-  {
-    icon: Smartphone,
-    title: "Personal Client Portal",
-    description: "Your own private dashboard to manage every detail of your wedding entertainment - music preferences, timings and more.",
-  },
-  {
-    icon: Share2,
-    title: "Guest Song Requests",
-    description: "Share a link with your guests so they can request their favourite songs. We'll build your playlist together.",
-  },
-  {
-    icon: Sparkles,
-    title: "Stunning Lighting Design",
-    description: "Transform your venue with uplighting, festoon lights and dance floor lighting that creates the perfect atmosphere.",
-  },
-  {
-    icon: ListMusic,
-    title: "Curated Playlists",
-    description: "From your ceremony to the last dance - every moment perfectly soundtracked to your taste.",
-  },
+// Normalize YouTube URLs to embed format (matches /artists/djs)
+function normalizeYouTubeUrl(url: string | null | undefined): string | null {
+  if (!url || url.trim() === "") return null;
+  const normalized = url.trim();
+  let videoId: string | null = null;
+  if (normalized.includes("/embed/")) {
+    videoId = normalized.split("/embed/")[1]?.split("?")[0]?.split("&")[0];
+    if (videoId) {
+      const queryParams = normalized.includes("?") ? normalized.split("?")[1] : "";
+      return `https://www.youtube.com/embed/${videoId}${queryParams ? "?" + queryParams : ""}`;
+    }
+  } else if (normalized.includes("youtube.com/watch?v=")) {
+    videoId = normalized.split("v=")[1]?.split("&")[0];
+  } else if (normalized.includes("youtu.be/")) {
+    videoId = normalized.split("youtu.be/")[1]?.split("?")[0];
+  } else if (normalized.includes("youtube.com") || normalized.includes("youtu.be")) {
+    const withProtocol = normalized.startsWith("http") ? normalized : `https://${normalized}`;
+    if (withProtocol.includes("/embed/")) videoId = withProtocol.split("/embed/")[1]?.split("?")[0];
+    else if (withProtocol.includes("watch?v=")) videoId = withProtocol.split("v=")[1]?.split("&")[0];
+    else if (withProtocol.includes("youtu.be/")) videoId = withProtocol.split("youtu.be/")[1]?.split("?")[0];
+  }
+  if (videoId) return `https://www.youtube.com/embed/${videoId}`;
+  if (normalized.startsWith("https://")) return normalized;
+  if (normalized.startsWith("http://")) return normalized.replace("http://", "https://");
+  return null;
+}
+
+// Hero image – dance floor with modern lighting
+const heroImage = {
+  src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163720/A-Big-Lazer-e1430894875463_xgpiil.jpg",
+  alt: "Packed dance floor with dramatic laser lighting – sophisticated wedding celebration",
+};
+
+// Social proof gallery – packed dancefloors, stylish setups
+const galleryPhotos = [
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768749164/MartinBeddallPhotography02-e1530632660291_pabjzl.jpg", alt: "Wedding celebration with professional lighting – Martin Beddall Photography" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163661/Hedsor-House-with-DJ-and-Sax_zv7pnl.jpg", alt: "Hedsor House dance floor with DJ and sax – sophisticated wedding entertainment" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163299/Nigel-DJ-Babs-House-0009-1_hmbsn3.jpg", alt: "DJ performing at Babington House with professional wedding entertainment" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768736010/The-Newt-Somerset-with-our-Fairy-Light-Tunnel-installed-for-their-first-wedding_xwmaca.jpg", alt: "The Newt Somerset wedding with fairy light tunnel – magical atmosphere" },
 ];
 
-const testimonials = [
-  {
-    quote: "The guest song request feature was amazing! Our friends loved being part of the playlist.",
-    author: "Sarah & James",
-    venue: "Babington House",
-  },
-  {
-    quote: "Professional, organised and the lighting transformed our barn venue. Couldn't recommend more highly.",
-    author: "Emma & Tom",
-    venue: "Priston Mill",
-  },
-  {
-    quote: "The client portal made planning so easy. We could see everything in one place.",
-    author: "Lucy & Ben",
-    venue: "The Rectory Hotel",
-  },
-];
-
-const stats = [
-  { value: "500+", label: "Weddings" },
-  { value: "5★", label: "Reviews" },
-  { value: "15+", label: "Years Experience" },
-  { value: "100%", label: "Would Recommend" },
+// Comparison table data
+const comparisonRows = [
+  { feature: "Microphone Use", typical: "Constant \"Shout-outs\"", us: "Only when strictly necessary" },
+  { feature: "Music Choice", typical: "Same 50 songs every week", us: "Tailored to your specific taste" },
+  { feature: "Equipment", typical: "Bulky, dated, distracting", us: "High-end, sleek, discreet" },
+  { feature: "Professionalism", typical: "Part-time hobbyist", us: "Full-time entertainment experts" },
 ];
 
 export default function WeddingLandingClient() {
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   const [djs, setDjs] = useState<DJ[]>([]);
   const [loadingDJs, setLoadingDJs] = useState(true);
-  const [currentDJIndex, setCurrentDJIndex] = useState(0);
 
-  // Fetch DJs
   useEffect(() => {
     const fetchDJs = async () => {
       try {
-        const response = await fetch("/api/djs");
-        if (response.ok) {
-          const data = await response.json();
-          // API returns { djs: [...] }
-          setDjs(data.djs || []);
-        }
-      } catch (error) {
-        console.error("Error fetching DJs:", error);
+        const res = await fetch("/api/djs");
+        const data = await res.json();
+        const apiDJs = data.djs ?? [];
+        const mapped: DJ[] = apiDJs.map((dj: { name: string; imageUrl?: string | null; bio?: string | null; strapLine?: string | null; fullBio?: string | null; youtubeEmbed?: string | null; mixcloudEmbeds?: string[]; mixcloudUrl?: string | null }) => {
+          const rawEmbeds = Array.isArray(dj.mixcloudEmbeds) ? dj.mixcloudEmbeds : (dj.mixcloudUrl ? [dj.mixcloudUrl] : []);
+          const embeds = rawEmbeds.filter((u: string) => u && typeof u === "string" && u.trim() !== "");
+          return {
+            name: dj.name,
+            image: dj.imageUrl ?? null,
+            alt: `${dj.name} – professional wedding DJ`,
+            mixingStyle: (dj.strapLine && dj.strapLine.trim()) ? dj.strapLine : "Professional DJ Services",
+            bio: dj.bio ?? "",
+            fullBio: dj.fullBio && dj.fullBio.trim() ? dj.fullBio : null,
+            youtubeEmbed: normalizeYouTubeUrl(dj.youtubeEmbed),
+            mixcloudEmbeds: embeds,
+          };
+        });
+        setDjs(mapped);
+      } catch {
+        setDjs([]);
       } finally {
         setLoadingDJs(false);
       }
@@ -111,691 +114,458 @@ export default function WeddingLandingClient() {
     fetchDJs();
   }, []);
 
-  // Helper to convert YouTube URL to embed URL
-  const getYouTubeEmbedUrl = (url: string | null): string | null => {
-    if (!url) return null;
-    // Handle various YouTube URL formats
-    const videoIdMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]+)/);
-    if (videoIdMatch) {
-      return `https://www.youtube.com/embed/${videoIdMatch[1]}`;
-    }
-    // If already an embed URL, return as-is
-    if (url.includes('/embed/')) return url;
-    return null;
-  };
-
-  const nextDJ = () => {
-    setCurrentDJIndex((prev) => (prev + 1) % djs.length);
-  };
-
-  const prevDJ = () => {
-    setCurrentDJIndex((prev) => (prev - 1 + djs.length) % djs.length);
+  const openLightbox = (index: number) => {
+    setLightboxIndex(index);
+    setLightboxOpen(true);
   };
 
   return (
-    <div className="min-h-screen bg-gray-900">
+    <div className="min-h-screen bg-gray-950 text-white">
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
-        {/* Background */}
+      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163688/Nigel-DJ-Babs-House-0008-1_ol2gkr.jpg"
-            alt="Wedding DJ performing at Babington House"
+            src={heroImage.src}
+            alt={heroImage.alt}
             fill
-            className="object-cover opacity-50"
+            className="object-cover brightness-[0.7]"
             priority
+            sizes="100vw"
+            quality={85}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-gray-900/80 via-gray-900/60 to-gray-900" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-gray-950" />
         </div>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-4 py-20 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            {/* Trust Badge */}
-            <div className="inline-flex items-center gap-2 bg-champagne-gold/20 border border-champagne-gold/30 rounded-full px-4 py-2 mb-6">
-              <Star className="w-4 h-4 text-champagne-gold fill-champagne-gold" />
-              <span className="text-champagne-gold text-sm font-medium">
-                Rated 5 Stars on Google
-              </span>
-            </div>
-
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight">
-              Your Wedding,{" "}
-              <span className="text-champagne-gold">Your Music</span>
-            </h1>
-
-            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-8">
-              Professional wedding DJs with a personal touch. 
-              Stunning lighting, guest song requests and your own client portal 
-              to plan every detail.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <Link href="/contact-us">
-                <Button size="lg" className="bg-champagne-gold text-black hover:bg-gold-light text-lg px-8 py-6 font-semibold">
-                  Get Your Free Quote
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-              <Link href="/galleries">
-                <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 text-lg px-8 py-6">
-                  View Our Work
-                </Button>
-              </Link>
-            </div>
-
-            {/* Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-3xl mx-auto">
-              {stats.map((stat, i) => (
-                <div key={i} className="text-center">
-                  <div className="text-3xl md:text-4xl font-bold text-champagne-gold mb-1">
-                    {stat.value}
-                  </div>
-                  <div className="text-gray-400 text-sm">{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-
-        {/* Scroll indicator */}
         <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 2 }}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-32 md:pt-40"
         >
-          <div className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-2">
-            <div className="w-1.5 h-3 bg-white/50 rounded-full" />
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+            You&apos;re Terrified of a Cheesy DJ.<br />
+            <span className="text-champagne-gold">We&apos;re the Antidote.</span>
+          </h1>
+          <p className="text-lg md:text-xl text-white/95 mb-10 max-w-2xl mx-auto">
+            High-quality, modern wedding entertainment for couples who hate &quot;wedding music.&quot; We&apos;re across the UK, we&apos;re professional, and we promise: no cringe, no cheesy chat, and absolutely no &quot;YMCA.&quot;
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-gold-light font-semibold text-lg px-8 py-6">
+              <Link href="/contact-us/">Check Your Date</Link>
+            </Button>
           </div>
         </motion.div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-20 px-3 sm:px-4 bg-gray-800/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              More Than Just a DJ
-            </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              We&apos;ve built technology that makes planning your wedding entertainment effortless
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {features.map((feature, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Card className="bg-gray-800 border-gray-700 h-full hover:border-champagne-gold/50 transition-colors">
-                  <CardContent className="p-6">
-                    <div className="w-12 h-12 rounded-lg bg-champagne-gold/20 flex items-center justify-center mb-4">
-                      <feature.icon className="w-6 h-6 text-champagne-gold" />
-                    </div>
-                    <h3 className="text-white font-semibold text-lg mb-2">
-                      {feature.title}
-                    </h3>
-                    <p className="text-gray-400 text-sm">
-                      {feature.description}
-                    </p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Portal Preview Section */}
-      <section className="py-20 px-3 sm:px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-            >
-              <span className="text-champagne-gold text-sm font-medium uppercase tracking-wider">
-                Exclusive Feature
-              </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-white mt-2 mb-6">
-                Your Personal Wedding Portal
-              </h2>
-              <p className="text-gray-300 text-lg mb-8">
-                Every couple gets access to their own private portal where you can:
-              </p>
-              <ul className="space-y-4">
-                {[
-                  "Add your must-play and do-not-play songs",
-                  "Share a request link with your guests",
-                  "View and manage all song requests",
-                  "See your timeline and event details",
-                  "Message us directly anytime",
-                ].map((item, i) => (
-                  <li key={i} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-5 h-5 text-champagne-gold flex-shrink-0 mt-0.5" />
-                    <span className="text-gray-300">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link href="/contact-us" className="inline-block mt-8">
-                <Button className="bg-champagne-gold text-black hover:bg-gold-light">
-                  See It In Action
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Button>
-              </Link>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="relative"
-            >
-              <div className="bg-gray-800 rounded-2xl p-4 border border-gray-700">
-                <div className="bg-gray-900 rounded-xl p-6">
-                  {/* Mock Portal UI */}
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-full bg-champagne-gold/20 flex items-center justify-center">
-                      <Heart className="w-5 h-5 text-champagne-gold" />
-                    </div>
-                    <div>
-                      <div className="text-white font-semibold">Sarah & James</div>
-                      <div className="text-gray-500 text-sm">15th March 2025 • Babington House</div>
-                    </div>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4 mb-6">
-                    <div className="bg-gray-800 rounded-lg p-4">
-                      <div className="text-2xl font-bold text-champagne-gold">23</div>
-                      <div className="text-gray-400 text-sm">Song Requests</div>
-                    </div>
-                    <div className="bg-gray-800 rounded-lg p-4">
-                      <div className="text-2xl font-bold text-green-400">Ready</div>
-                      <div className="text-gray-400 text-sm">Portal Status</div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <div className="bg-gray-800 rounded-lg p-3 flex items-center gap-3">
-                      <div className="w-8 h-8 rounded bg-purple-500/20 flex items-center justify-center">
-                        <Music className="w-4 h-4 text-purple-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-white text-sm truncate">Blinding Lights</div>
-                        <div className="text-gray-500 text-xs">The Weeknd • Uncle Frank</div>
-                      </div>
-                    </div>
-                    <div className="bg-gray-800 rounded-lg p-3 flex items-center gap-3">
-                      <div className="w-8 h-8 rounded bg-pink-500/20 flex items-center justify-center">
-                        <Music className="w-4 h-4 text-pink-400" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-white text-sm truncate">First Dance Song</div>
-                        <div className="text-gray-500 text-xs">Your Choice • Must Play</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Floating badge */}
-              <div className="absolute -bottom-4 -right-4 bg-champagne-gold text-black px-4 py-2 rounded-full font-semibold text-sm shadow-lg">
-                Included Free!
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Meet Our DJs Section */}
-      <section className="py-20 px-3 sm:px-4 bg-black">
-        <div className="max-w-6xl mx-auto">
+      {/* Anti-Cringe Manifesto */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
+        <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12"
+            className="text-center mb-16"
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Meet Our <span className="text-champagne-gold">DJs</span>
-            </h2>
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">Straight Talk for Your Big Day</h2>
             <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              Experienced professionals who know how to read a room and keep your dance floor packed
+              We get it. You&apos;ve seen the &quot;standard&quot; wedding DJ: the neon booth, the flashing lights from 1994, and the guy on the mic who won&apos;t stop talking over the best part of the song.
             </p>
+            <p className="text-champagne-gold font-bold text-xl mt-6">That isn&apos;t us.</p>
           </motion.div>
 
-          {loadingDJs ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 text-champagne-gold animate-spin" />
-            </div>
-          ) : djs.length > 0 ? (
-            <div className="relative max-w-5xl mx-auto">
-              {/* DJ Card - arrows positioned relative to card so they don't overhang on mobile */}
-              <motion.div
-                key={currentDJIndex}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden w-full">
-                  <div className="grid md:grid-cols-5 gap-0">
-                    {/* DJ Image - Larger */}
-                    <div className="relative h-80 md:h-[550px] md:col-span-2 overflow-hidden">
-                      {djs[currentDJIndex]?.imageUrl ? (
-                        <Image
-                          src={sanitizeCloudinaryUrl(djs[currentDJIndex].imageUrl) || djs[currentDJIndex].imageUrl!}
-                          alt={djs[currentDJIndex].name}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 100vw, 40vw"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gray-800 flex items-center justify-center">
-                          <Music className="w-16 h-16 text-gray-600" />
-                        </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent to-gray-900/30 hidden md:block" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent md:hidden" />
-                    </div>
-
-                    {/* DJ Info - Full Content */}
-                    <div className="p-6 md:p-8 md:col-span-3 flex flex-col">
-                      <div className="flex items-start justify-between mb-4">
-                        <div>
-                          <h3 className="text-2xl md:text-3xl text-white font-bold mb-2">
-                            {djs[currentDJIndex]?.name}
-                          </h3>
-                          <div className="inline-flex items-center gap-2 text-champagne-gold text-sm">
-                            <Music className="w-4 h-4" />
-                            Professional Wedding DJ
-                          </div>
-                        </div>
-                        {/* DJ Counter */}
-                        <div className="text-gray-500 text-sm">
-                          {currentDJIndex + 1} / {djs.length}
-                        </div>
-                      </div>
-                      
-                      {/* Bio */}
-                      <div className="mb-6 max-h-[120px] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-transparent">
-                        <p className="text-gray-300 leading-relaxed">
-                          {djs[currentDJIndex]?.bio || "Professional DJ with years of experience in wedding entertainment. Specialising in reading the room and creating unforgettable dance floors."}
-                        </p>
-                      </div>
-
-                      {/* YouTube Embed */}
-                      {djs[currentDJIndex]?.youtubeEmbed && getYouTubeEmbedUrl(djs[currentDJIndex].youtubeEmbed) && (
-                        <div className="mb-4">
-                          <div className="aspect-video rounded-lg overflow-hidden bg-gray-800">
-                            <iframe
-                              src={getYouTubeEmbedUrl(djs[currentDJIndex].youtubeEmbed)!}
-                              title={`${djs[currentDJIndex].name} Video`}
-                              className="w-full h-full"
-                              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                              allowFullScreen
-                            />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Mixcloud Embed */}
-                      {djs[currentDJIndex]?.mixcloudUrl && (
-                        <div className="mb-4">
-                          <iframe
-                            width="100%"
-                            height="60"
-                            src={`https://www.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=${encodeURIComponent(djs[currentDJIndex].mixcloudUrl!)}`}
-                            frameBorder="0"
-                            className="rounded-lg"
-                            allow="autoplay"
-                          />
-                        </div>
-                      )}
-
-                      {/* Enquire CTA */}
-                      <div className="mt-auto pt-6 border-t border-gray-800">
-                        <Link href="/contact-us">
-                          <Button className="w-full bg-champagne-gold text-black hover:bg-gold-light font-semibold py-6 text-lg">
-                            Enquire About {djs[currentDJIndex]?.name}
-                            <ArrowRight className="ml-2 w-5 h-5" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-
-              {/* Navigation Arrows - inset on mobile so they don't overhang; outside on md+ */}
-              {djs.length > 1 && (
-                <>
-                  <button
-                    onClick={prevDJ}
-                    className="absolute left-2 sm:left-0 top-1/2 -translate-y-1/2 sm:-translate-x-1/2 md:-translate-x-14 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-800/95 border border-gray-700 flex items-center justify-center text-white hover:bg-champagne-gold hover:text-black transition-colors z-10 shadow-lg"
-                    aria-label="Previous DJ"
-                  >
-                    <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
-                  </button>
-                  <button
-                    onClick={nextDJ}
-                    className="absolute right-2 sm:right-0 top-1/2 -translate-y-1/2 sm:translate-x-1/2 md:translate-x-14 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-800/95 border border-gray-700 flex items-center justify-center text-white hover:bg-champagne-gold hover:text-black transition-colors z-10 shadow-lg"
-                    aria-label="Next DJ"
-                  >
-                    <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
-                  </button>
-                </>
-              )}
-
-              {/* Dots Indicator */}
-              {djs.length > 1 && (
-                <div className="flex items-center justify-center gap-2 mt-8">
-                  {djs.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentDJIndex(index)}
-                      className={`w-3 h-3 rounded-full transition-colors ${
-                        index === currentDJIndex
-                          ? "bg-champagne-gold"
-                          : "bg-gray-600 hover:bg-gray-500"
-                      }`}
-                      aria-label={`Go to DJ ${index + 1}`}
-                    />
-                  ))}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-gray-400 mb-6">Our talented DJs are ready for your wedding</p>
-              <Link href="/contact-us">
-                <Button className="bg-champagne-gold text-black hover:bg-gold-light font-semibold px-8 py-6 text-lg">
-                  Enquire Now
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Testimonials */}
-      <section className="py-20 px-3 sm:px-4 bg-gray-800/50">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Loved by Couples
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-6">
-            {testimonials.map((testimonial, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <Card className="bg-gray-800 border-gray-700 h-full">
-                  <CardContent className="p-6">
-                    <div className="flex gap-1 mb-4">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-4 h-4 text-champagne-gold fill-champagne-gold" />
-                      ))}
-                    </div>
-                    <p className="text-gray-300 mb-4 italic">
-                      &ldquo;{testimonial.quote}&rdquo;
-                    </p>
-                    <div className="text-white font-semibold">{testimonial.author}</div>
-                    <div className="text-gray-500 text-sm">{testimonial.venue}</div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Upsell - Complete Your Wedding */}
-      <section className="py-20 px-3 sm:px-4 bg-black">
-        <div className="max-w-6xl mx-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-              Complete Your <span className="text-champagne-gold">Wedding Package</span>
-            </h2>
-            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-              Enhance your celebration with our additional services - book together and save
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {/* Lighting Design */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0 }}
-            >
-              <Link href="/services/lighting-design">
-                <Card className="bg-gray-900 border-gray-700 overflow-hidden group hover:border-champagne-gold/50 transition-all h-full">
-                  <div className="relative h-48 overflow-hidden">
-                    <Image
-                      src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163633/Stretch-Marquee-Lighting-e1483614284289_lmsqwr.jpg"
-                      alt="Venue Lighting Design"
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent" />
-                    <div className="absolute top-3 right-3 bg-champagne-gold text-black text-xs font-bold px-2 py-1 rounded">
-                      POPULAR
-                    </div>
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-champagne-gold transition-colors">
-                      Lighting Design
-                    </h3>
-                    <p className="text-gray-400 text-sm mb-3">
-                      Transform your venue with uplighting, festoons and atmospheric mood lighting.
-                    </p>
-                    <span className="text-champagne-gold text-sm font-medium flex items-center gap-1">
-                      Learn more <ArrowRight className="w-4 h-4" />
-                    </span>
-                  </CardContent>
-                </Card>
-              </Link>
-            </motion.div>
-
-            {/* Live Musicians */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
             >
-              <Link href="/artists/musicians">
-                <Card className="bg-gray-900 border-gray-700 overflow-hidden group hover:border-champagne-gold/50 transition-all h-full">
-                  <div className="relative h-48 overflow-hidden">
-                    <Image
-                      src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163506/DJ-Nige-white-dance-floor-lighting_kigdwb.jpg"
-                      alt="Live Musicians"
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent" />
+              <Card className="bg-white/5 border-champagne-gold/30 h-full">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <Mic className="w-10 h-10 text-champagne-gold flex-shrink-0 mt-1" />
+                    <div>
+                      <h3 className="text-xl font-bold mb-2">No &quot;Cheesy&quot; Commentary</h3>
+                      <p className="text-gray-300">We let the music do the talking. No shouting at your guests to get on the dance floor.</p>
+                    </div>
                   </div>
-                  <CardContent className="p-4">
-                    <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-champagne-gold transition-colors">
-                      Live Musicians
-                    </h3>
-                    <p className="text-gray-400 text-sm mb-3">
-                      Add a live saxophone, percussion, or vocalist to elevate your DJ set.
-                    </p>
-                    <span className="text-champagne-gold text-sm font-medium flex items-center gap-1">
-                      Learn more <ArrowRight className="w-4 h-4" />
-                    </span>
-                  </CardContent>
-                </Card>
-              </Link>
+                </CardContent>
+              </Card>
             </motion.div>
-
-            {/* Venue Styling */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.15 }}
+            >
+              <Card className="bg-white/5 border-champagne-gold/30 h-full">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <Music className="w-10 h-10 text-champagne-gold flex-shrink-0 mt-1" />
+                    <div>
+                      <h3 className="text-xl font-bold mb-2">Curated Playlists</h3>
+                      <p className="text-gray-300">Your &quot;Do Not Play&quot; list is our sacred text. If you hate it, we don&apos;t play it.</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
             >
-              <Link href="/services/venue-styling">
-                <Card className="bg-gray-900 border-gray-700 overflow-hidden group hover:border-champagne-gold/50 transition-all h-full">
-                  <div className="relative h-48 overflow-hidden">
-                    <Image
-                      src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162330/Venue-Styling-Candles-and-autumn-floristry_tbjfee.jpg"
-                      alt="Venue Styling"
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent" />
+              <Card className="bg-white/5 border-champagne-gold/30 h-full">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <Sparkles className="w-10 h-10 text-champagne-gold flex-shrink-0 mt-1" />
+                    <div>
+                      <h3 className="text-xl font-bold mb-2">Sleek Aesthetics</h3>
+                      <p className="text-gray-300">Our setups are designed to complement your decor, not clutter it. Minimalist, high-end, and modern.</p>
+                    </div>
                   </div>
-                  <CardContent className="p-4">
-                    <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-champagne-gold transition-colors">
-                      Venue Styling
-                    </h3>
-                    <p className="text-gray-400 text-sm mb-3">
-                      Candles, floristry, draping and decor to create your perfect aesthetic.
-                    </p>
-                    <span className="text-champagne-gold text-sm font-medium flex items-center gap-1">
-                      Learn more <ArrowRight className="w-4 h-4" />
-                    </span>
-                  </CardContent>
-                </Card>
-              </Link>
+                </CardContent>
+              </Card>
             </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.25 }}
+            >
+              <Card className="bg-white/5 border-champagne-gold/30 h-full">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4">
+                    <CheckCircle2 className="w-10 h-10 text-champagne-gold flex-shrink-0 mt-1" />
+                    <div>
+                      <h3 className="text-xl font-bold mb-2">Across the UK</h3>
+                      <p className="text-gray-300">Whether it&apos;s a London loft or a Scottish castle, we bring the vibe to you.</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
-            {/* Fire Pit Hire */}
+      {/* Meet Our DJs – Card View */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">Meet Our DJs</h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              Real people, real expertise. No faceless agencies—just DJs who care about your day.
+            </p>
+          </motion.div>
+
+          {loadingDJs ? (
+            <div className="text-center py-12 text-gray-400">
+              <p>Loading DJs...</p>
+            </div>
+          ) : djs.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {djs.map((dj, index) => (
+                <motion.div
+                  key={dj.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:border-champagne-gold/60 group h-full flex flex-col">
+                    <div className="relative aspect-[4/3] overflow-hidden bg-gray-900">
+                      {dj.image ? (
+                        <Image
+                          src={dj.image}
+                          alt={dj.alt}
+                          fill
+                          className="object-cover object-center group-hover:scale-110 transition-transform duration-500"
+                          style={{ objectPosition: "center center" }}
+                          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                          priority={index === 0}
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-gray-400">
+                          <span>Image not available</span>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-90" />
+                      <div className="absolute bottom-0 left-0 right-0 p-4">
+                        <h3 className="text-xl font-bold text-white drop-shadow-lg">{dj.name}</h3>
+                        <span className="inline-block mt-1 px-2.5 py-1 bg-champagne-gold/20 text-champagne-gold rounded-full text-xs font-semibold border border-champagne-gold/40">
+                          {dj.mixingStyle}
+                        </span>
+                      </div>
+                    </div>
+                    <CardContent className="p-4 flex flex-col flex-1">
+                      {dj.bio && (
+                        <p className="text-sm text-gray-300 leading-relaxed line-clamp-3 mb-4 flex-1">{dj.bio}</p>
+                      )}
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <button
+                            type="button"
+                            className="inline-flex items-center gap-2 text-champagne-gold hover:text-gold-light font-semibold text-sm transition-colors group/link text-left"
+                          >
+                            Read More
+                            <ArrowRight className="w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
+                          </button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 border-champagne-gold/30">
+                          <DialogHeader>
+                            <DialogTitle className="text-2xl md:text-3xl text-white font-bold mb-2">
+                              {dj.name}
+                            </DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-6 mt-2">
+                            {(dj.fullBio || dj.bio) && (
+                              <p className="text-base text-gray-200 leading-relaxed">
+                                {(dj.fullBio && dj.fullBio.trim()) ? dj.fullBio : dj.bio}
+                              </p>
+                            )}
+                            {dj.youtubeEmbed && (
+                              <div>
+                                <h4 className="text-sm font-bold text-champagne-gold mb-2 uppercase tracking-wider">YouTube</h4>
+                                <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-gray-800">
+                                  <LazyIframe
+                                    src={dj.youtubeEmbed}
+                                    title={`${dj.name} – video`}
+                                    className="absolute inset-0 w-full h-full"
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                    allowFullScreen
+                                    referrerPolicy="strict-origin-when-cross-origin"
+                                    height="100%"
+                                  />
+                                </div>
+                              </div>
+                            )}
+                            {dj.mixcloudEmbeds.length > 0 && (
+                              <div>
+                                <h4 className="text-sm font-bold text-champagne-gold mb-2 uppercase tracking-wider">Mixcloud</h4>
+                                <div className="space-y-3">
+                                  {dj.mixcloudEmbeds.map((embed, idx) => (
+                                    <div key={idx} className="relative w-full rounded-lg overflow-hidden bg-gray-800" style={{ height: "120px" }}>
+                                      <LazyIframe
+                                        src={embed}
+                                        title={`${dj.name} – mix ${idx + 1}`}
+                                        className="absolute inset-0 w-full h-full"
+                                        allow="encrypted-media; fullscreen; autoplay; idle-detection; speaker-selection; web-share"
+                                        frameBorder="0"
+                                        height="120"
+                                      />
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {!dj.fullBio && !dj.bio && !dj.youtubeEmbed && dj.mixcloudEmbeds.length === 0 && (
+                              <p className="text-gray-400">No additional details available.</p>
+                            )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-gray-400">
+              <p>No DJs available at the moment.</p>
+              <Link href="/artists/djs/" className="inline-block mt-4 text-champagne-gold hover:underline">
+                Explore our DJs
+              </Link>
+            </div>
+          )}
+
+          {djs.length > 0 && (
+            <div className="text-center mt-8">
+              <Link
+                href="/artists/djs/"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white/5 border border-champagne-gold/40 text-champagne-gold font-medium rounded-lg hover:bg-champagne-gold/10 transition-colors"
+              >
+                See all DJs
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Social Proof – Gallery + Testimonial */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">What Couples Say</h2>
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+            {galleryPhotos.map((photo, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+                className="relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer group"
+                onClick={() => openLightbox(i)}
+              >
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  priority={i === 0}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.blockquote
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-3xl mx-auto text-center border-l-4 border-champagne-gold pl-6 py-4 bg-gray-900/50 rounded-r-lg"
+          >
+            <p className="text-xl md:text-2xl text-white/95 italic mb-4">
+              &ldquo;The absolute opposite of a wedding DJ. Our guests didn&apos;t leave the floor once, and there wasn&apos;t a single &apos;standard&apos; wedding track played. Sophisticated and high-energy.&rdquo;
+            </p>
+            <cite className="text-champagne-gold not-italic font-medium">— Sarah & James, 2025</cite>
+          </motion.blockquote>
+        </div>
+      </section>
+
+      {/* How We Work – 3 Steps */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">3 Steps to a Better Party</h2>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="text-center"
+            >
+              <div className="w-16 h-16 rounded-full bg-champagne-gold text-black font-bold text-2xl flex items-center justify-center mx-auto mb-4">1</div>
+              <h3 className="text-xl font-bold mb-2">The Vibe Check</h3>
+              <p className="text-gray-400">We chat about your musical taste, your &quot;must-haves,&quot; and your &quot;absolutely-nots.&quot;</p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+              className="text-center"
+            >
+              <div className="w-16 h-16 rounded-full bg-champagne-gold text-black font-bold text-2xl flex items-center justify-center mx-auto mb-4">2</div>
+              <h3 className="text-xl font-bold mb-2">The Logistics</h3>
+              <p className="text-gray-400">We handle everything—insurance, PAT testing, and coordinating with your venue across the UK.</p>
+            </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.3 }}
+              className="text-center"
             >
-              <Link href="/services/fire-pit-hire">
-                <Card className="bg-gray-900 border-gray-700 overflow-hidden group hover:border-champagne-gold/50 transition-all h-full">
-                  <div className="relative h-48 overflow-hidden">
-                    <Image
-                      src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163430/Fire-Pits-and-Marshmallows_ke3nk5.jpg"
-                      alt="Fire Pit Hire"
-                      fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent" />
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="text-white font-semibold text-lg mb-2 group-hover:text-champagne-gold transition-colors">
-                      Fire Pit Hire
-                    </h3>
-                    <p className="text-gray-400 text-sm mb-3">
-                      Create a cosy outdoor gathering spot with our fire pits and marshmallow stations.
-                    </p>
-                    <span className="text-champagne-gold text-sm font-medium flex items-center gap-1">
-                      Learn more <ArrowRight className="w-4 h-4" />
-                    </span>
-                  </CardContent>
-                </Card>
-              </Link>
+              <div className="w-16 h-16 rounded-full bg-champagne-gold text-black font-bold text-2xl flex items-center justify-center mx-auto mb-4">3</div>
+              <h3 className="text-xl font-bold mb-2">The Night</h3>
+              <p className="text-gray-400">We show up, blend in, and play a set that actually reflects who you are as a couple.</p>
             </motion.div>
           </div>
-
-          {/* Bundle CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mt-12 text-center"
-          >
-            <div className="inline-flex items-center gap-3 bg-gradient-to-r from-champagne-gold/20 to-champagne-gold/10 border border-champagne-gold/30 rounded-full px-6 py-3">
-              <Sparkles className="w-5 h-5 text-champagne-gold" />
-              <span className="text-white font-medium">
-                Bundle DJ + Lighting and save 10% on your booking
-              </span>
-            </div>
-          </motion.div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 px-3 sm:px-4">
-        <div className="max-w-4xl mx-auto text-center">
+      {/* Comparison Table */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+        <div className="max-w-4xl mx-auto overflow-x-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-              Ready to Start Planning?
-            </h2>
-            <p className="text-gray-300 text-lg mb-8 max-w-2xl mx-auto">
-              Get a free, no-obligation quote for your wedding. We&apos;ll get back to you within 24 hours with availability and pricing.
-            </p>
-
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <Link href="/contact-us">
-                <Button size="lg" className="bg-champagne-gold text-black hover:bg-gold-light text-lg px-8 py-6 font-semibold">
-                  Get Your Free Quote
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Button>
-              </Link>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-center gap-8 text-gray-400">
-              <a href="tel:07970793177" className="flex items-center gap-2 hover:text-white transition-colors">
-                <Phone className="w-4 h-4" />
-                07970 793 177
-              </a>
-              <a href="mailto:info@stylishentertainment.co.uk" className="flex items-center gap-2 hover:text-white transition-colors">
-                <Mail className="w-4 h-4" />
-                info@stylishentertainment.co.uk
-              </a>
-            </div>
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b-2 border-champagne-gold/50">
+                  <th className="text-left py-4 px-4 text-gray-400 font-semibold">Feature</th>
+                  <th className="text-left py-4 px-4 text-red-400/90 font-semibold">The &quot;Typical&quot; DJ</th>
+                  <th className="text-left py-4 px-4 text-champagne-gold font-semibold">Us</th>
+                </tr>
+              </thead>
+              <tbody>
+                {comparisonRows.map((row, i) => (
+                  <tr key={i} className="border-b border-white/10 hover:bg-white/5 transition-colors">
+                    <td className="py-4 px-4 font-medium">{row.feature}</td>
+                    <td className="py-4 px-4 text-gray-500">
+                      <span className="inline-flex items-center gap-2">
+                        <X className="w-4 h-4 text-red-500/70" />
+                        {row.typical}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 text-gray-200">
+                      <span className="inline-flex items-center gap-2">
+                        <CheckCircle2 className="w-4 h-4 text-champagne-gold" />
+                        {row.us}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </motion.div>
         </div>
       </section>
 
-      {/* Coverage Area */}
-      <section className="py-12 px-3 sm:px-4 border-t border-gray-800">
-        <div className="max-w-6xl mx-auto text-center">
-          <p className="text-gray-400 mb-4">Proudly serving weddings across the UK</p>
+      {/* Final CTA */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50 border-t border-white/5">
+        <div className="max-w-3xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready for a wedding that doesn&apos;t feel like a school disco?</h2>
+            <p className="text-gray-400 text-lg mb-8">Stop settling for &quot;standard.&quot; Let&apos;s talk about your music.</p>
+            <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-gold-light font-semibold text-lg px-10 py-6">
+              <Link href="/contact-us/">Check Availability & Pricing</Link>
+            </Button>
+          </motion.div>
         </div>
       </section>
 
-      {/* Footer Brand */}
-      <footer className="py-8 px-3 sm:px-4 border-t border-gray-800 bg-black">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-          <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png"
-            alt="Stylish Entertainment Ltd"
-            width={160}
-            height={50}
-            className="brightness-[1.2]"
-          />
-          <p className="text-gray-500 text-sm">
-            © {new Date().getFullYear()} Stylish Entertainment Ltd. All rights reserved.
-          </p>
-        </div>
-      </footer>
+      <Lightbox
+        open={lightboxOpen}
+        close={() => setLightboxOpen(false)}
+        index={lightboxIndex}
+        slides={galleryPhotos.map((p) => ({ src: p.src, alt: p.alt }))}
+        render={{
+          buttonPrev: () => <ChevronLeft className="w-8 h-8 text-white" />,
+          buttonNext: () => <ChevronRight className="w-8 h-8 text-white" />,
+        }}
+      />
     </div>
   );
 }

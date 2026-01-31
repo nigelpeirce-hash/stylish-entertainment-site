@@ -16,6 +16,7 @@ interface DJ {
   slug: string | null;
   bio: string | null;
   mixcloudUrl: string | null;
+  mixcloudEmbeds?: string[];
   seoTitle: string | null;
   seoDescription: string | null;
   imageUrl: string | null;

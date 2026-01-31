@@ -10,11 +10,50 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
-const HIDE_ON_PATHS = ["/contact", "/contact-us", "/admin", "/thank-you"];
+/**
+ * Pages that have their own prominent CTA section – hide site-wide CTA to avoid doubles.
+ * One CTA per page. /what-we-do/venue-decoration uses site-wide CTA (not in list).
+ */
+const PREFIX_HIDE = ["/admin", "/contact", "/contact-us", "/thank-you"];
+const EXACT_HIDE = [
+  "/wedding-dj",
+  "/party-planning-and-organising",
+  "/what-we-do",
+  "/what-we-do/lighting",
+  "/what-we-do/equipment-dj-band-sound-kit",
+  "/services",
+  "/services/venue-styling",
+  "/services/lighting-design",
+  "/services/djs",
+  "/services/kit-hire",
+  "/services/fire-pit-hire",
+  "/parties",
+  "/parties/private-parties",
+  "/parties/christmas",
+  "/parties/corporate",
+  "/parties/corporate-events",
+  "/artists/djs",
+  "/artists/musicians",
+  "/artists/party-djs",
+  "/weddings/wedding-lighting",
+  "/weddings/wedding-entertainment",
+  "/hire",
+  "/kin-house-wiltshire",
+  "/mells-barn-weddings",
+  "/babington-wedding-info",
+  "/pennard-house-lighting",
+  "/venues/north-cadbury-court",
+];
+
+function shouldHide(pathname: string | null): boolean {
+  if (!pathname) return false;
+  if (PREFIX_HIDE.some((p) => pathname.startsWith(p))) return true;
+  return EXACT_HIDE.some((p) => pathname === p || pathname === `${p}/`);
+}
 
 export default function SiteWideCTA() {
   const pathname = usePathname();
-  const hide = pathname && HIDE_ON_PATHS.some((p) => pathname.startsWith(p));
+  const hide = shouldHide(pathname);
   if (hide) return null;
 
   return (

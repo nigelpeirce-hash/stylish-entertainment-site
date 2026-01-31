@@ -21,6 +21,8 @@ export async function GET(request: NextRequest) {
         name: true,
         slug: true,
         bio: true,
+        strapLine: true,
+        fullBio: true,
         imageUrl: true,
         instrument: true,
         seoTitle: true,

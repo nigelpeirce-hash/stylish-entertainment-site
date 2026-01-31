@@ -3,7 +3,7 @@
  * Used by: terms-and-conditions page (footer link), AcceptTermsModule, portal personalised T&C document.
  */
 
-export const TERMS_LAST_UPDATED = new Date();
+export const TERMS_LAST_UPDATED = new Date("2026-01-31");
 
 /** Company details – used in personalised booking agreements */
 export const COMPANY_NAME = "Stylish Entertainment Ltd";

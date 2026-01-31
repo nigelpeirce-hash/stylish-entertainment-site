@@ -1,732 +1,452 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useState } from "react";
-import Image from "next/image";
+import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 import Lightbox from "yet-another-react-lightbox";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Map, Sparkles, Music, MapPin } from "lucide-react";
 import "yet-another-react-lightbox/styles.css";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Card, CardContent } from "@/components/ui/card";
+import { getEditorialServiceRegions, EDITORIAL_SERVICE_HEADLINE } from "@/lib/service-areas";
 import { Button } from "@/components/ui/button";
-import WaveDivider from "@/components/WaveDivider";
-import { Map, Sparkles, Music, Video, MapPin, CheckCircle2, ArrowRight } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 
-const privatePartyPhotos = [
+// Hero mood images – party moments (first dance feel, marquee, packed dancefloor)
+const heroMoodImages = [
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163371/Lighting-Design-at-Kings-Weston-House_qxzunv.jpg",
-    alt: "Professional lighting design at Kings Weston House creating an elegant atmosphere for a private party",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768736010/The-Newt-Somerset-with-our-Fairy-Light-Tunnel-installed-for-their-first-wedding_xwmaca.jpg",
+    alt: "Magical fairy light tunnel at The Newt Somerset – first wedding, prestigious venue transformation",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163141/IMG_6712-1-e1444841687100_wakppz.jpg",
-    alt: "Elegant private party setup with beautiful lighting and sophisticated decor",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163720/A-Big-Lazer-e1430894875463_xgpiil.jpg",
+    alt: "Packed dance floor with dramatic laser lighting – high-energy party celebration",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162844/Orangery1_dpfega.jpg",
-    alt: "Orangery venue with stunning party lighting and elegant private party atmosphere",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163745/Pool-Party01_qe5ro0.jpg",
-    alt: "Pool party with colourful lighting reflecting on the water for a stylish summer celebration",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768741340/_F4R3275_tukoww.jpg",
+    alt: "Lit marquee at night with Edison festoon and fairy lights – alfresco party atmosphere",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163299/Nigel-DJ-Babs-House-0009-1_hmbsn3.jpg",
-    alt: "DJ Nige performing at Babington House with professional party lighting and entertainment",
+    alt: "DJ performing at Babington House with professional party lighting and entertainment",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163181/IMG_6095_fo6lhk.jpg",
-    alt: "Private party with atmospheric lighting and elegant decor creating a memorable celebration",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163745/Pool-Party01_qe5ro0.jpg",
+    alt: "Pool party with colourful lighting reflecting on the water – stylish summer celebration",
   },
 ];
 
-const serviceAreas = [
+// Gallery photos
+const galleryPhotos = [
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163371/Lighting-Design-at-Kings-Weston-House_qxzunv.jpg", alt: "Professional lighting design at Kings Weston House for a private party" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162844/Orangery1_dpfega.jpg", alt: "Orangery venue with stunning party lighting and elegant atmosphere" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163745/Pool-Party01_qe5ro0.jpg", alt: "Pool party with colourful lighting reflecting on the water" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163299/Nigel-DJ-Babs-House-0009-1_hmbsn3.jpg", alt: "DJ performing at Babington House with professional entertainment" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163181/IMG_6095_fo6lhk.jpg", alt: "Private party with atmospheric lighting and elegant decor" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768731384/Pennard-House-Lighting-with-Amber-Up-lighting_sljvaa.jpg", alt: "Pennard House with amber uplighting for elegant evening events" },
+];
+
+// Transformation pillars – impact-focused copy
+const transformationPillars = [
   {
-    region: "Somerset",
-    previewTowns: ["Frome", "Bruton", "Castle Cary", "Glastonbury"],
-    allTowns: [
-      "Frome", "Bruton", "Castle Cary", "Glastonbury", "Wells", "Taunton",
-      "Shepton Mallet", "Street", "Yeovil", "Bridgwater", "Wincanton",
-      "Somerton", "Crewkerne", "Ilminster", "Chard", "Dunster", "Watchet",
-      "Minehead", "Burnham-on-Sea", "Highbridge", "Cheddar", "Axbridge",
-      "Wedmore", "Langport", "Martock", "South Petherton", "Milborne Port",
-      "Templecombe", "Norton-sub-Hamdon", "Montacute", "Stoke-sub-Hamdon",
-      "Cucklington", "Zeals", "Evercreech", "Ditcheat", "Pilton"
-    ],
-    isHomeBase: true,
+    icon: Map,
+    title: "Design & Planning",
+    copy: "We handle the logistics; you enjoy the hors d'oeuvres.",
   },
   {
-    region: "Wiltshire",
-    previewTowns: ["Malmesbury", "Marlborough", "Devizes", "Salisbury"],
-    allTowns: [
-      "Malmesbury", "Marlborough", "Devizes", "Salisbury", "Warminster",
-      "Westbury", "Trowbridge", "Bradford-on-Avon", "Chippenham", "Swindon",
-      "Melksham", "Corsham", "Amesbury", "Calne", "Tidworth", "Pewsey",
-      "Royal Wootton Bassett", "Ludgershall", "Tisbury", "Downton",
-      "Fordingbridge", "Alderbury", "Woodford", "Redlynch", "Britford",
-      "Durrington", "Bulford", "Larkhill", "Easterton", "Market Lavington",
-      "Burbage", "Great Bedwyn", "Ramsbury", "Ogbourne St George"
-    ],
-    isHomeBase: false,
+    icon: Sparkles,
+    title: "Production & Lighting",
+    copy: "Atmosphere on demand. We turn empty fields into magical marquees.",
   },
   {
-    region: "Gloucestershire",
-    previewTowns: ["South Gloucestershire", "Cheltenham", "Gloucester"],
-    allTowns: [
-      "South Gloucestershire", "Cheltenham", "Gloucester", "Stroud",
-      "Cirencester", "Tetbury", "Tewkesbury", "Dursley", "Thornbury",
-      "Chipping Sodbury", "Yate", "Wotton-under-Edge", "Moreton-in-Marsh",
-      "Fairford", "Lechlade", "Nailsworth", "Painswick", "Stonehouse",
-      "Berkeley", "Lydney", "Newent", "Winchcombe", "Chipping Campden",
-      "Broadway", "Bourton-on-the-Water", "Stow-on-the-Wold", "Northleach",
-      "Kemble", "Sapperton", "Rodmarton", "Eastleach", "Ampney Crucis"
-    ],
-    isHomeBase: false,
-  },
-  {
-    region: "Bath",
-    previewTowns: ["Bath", "Midsomer Norton", "Radstock"],
-    allTowns: [
-      "Bath", "Midsomer Norton", "Radstock", "Keynsham", "Saltford",
-      "Peasedown St John", "Combe Down", "Lansdown", "Twerton", "Oldfield Park",
-      "Widcombe", "Claverton Down", "Bathampton", "Batheaston", "Bathford",
-      "Compton Dando", "Wellow", "Peasedown", "Camerton", "Priston",
-      "Englishcombe", "Hinton Charterhouse", "Freshford", "Limpley Stoke"
-    ],
-    isHomeBase: false,
-  },
-  {
-    region: "Bristol",
-    previewTowns: ["Clifton", "City Centre", "Westbury-on-Trym"],
-    allTowns: [
-      "Clifton", "City Centre", "Westbury-on-Trym", "Chew Magna",
-      "Bishopston", "Redland", "Hotwells", "Hanham", "Longwell Green",
-      "Brislington", "Knowle", "Bedminster", "Ashton Gate", "Southville",
-      "Windmill Hill", "Totterdown", "St Werburghs", "Montpelier", "Cotham",
-      "Stokes Croft", "St Pauls", "Easton", "Fishponds", "Staple Hill",
-      "Kingswood", "Whitchurch", "Westbury Park", "Henleaze", "Westbury Village"
-    ],
-    isHomeBase: false,
-  },
-  {
-    region: "Dorset",
-    previewTowns: ["Sherborne", "Gillingham", "Shaftesbury"],
-    allTowns: [
-      "Sherborne", "Gillingham", "Shaftesbury", "Dorchester", "Weymouth",
-      "Bridport", "Blandford Forum", "Wimborne Minster", "Sturminster Newton",
-      "Bere Regis", "Verwood", "Wareham", "Swanage", "Poole", "Bournemouth",
-      "Christchurch", "Ferndown", "Wimborne", "Corfe Mullen", "Blandford St Mary",
-      "Stalbridge", "Templecombe", "Stalbridge", "Milborne Port", "Templecombe",
-      "Puddletown", "Cerne Abbas", "Milton Abbas", "Abbotsbury", "Lyme Regis"
-    ],
-    isHomeBase: false,
-  },
-  {
-    region: "Devon",
-    previewTowns: ["Exeter", "Honiton", "Crediton"],
-    allTowns: [
-      "Exeter", "Honiton", "Crediton", "Tiverton", "Okehampton",
-      "Barnstaple", "Bideford", "South Molton", "Chulmleigh", "Dawlish",
-      "Teignmouth", "Newton Abbot", "Torquay", "Paignton", "Totnes",
-      "Dartmouth", "Salcombe", "Kingsbridge", "Plymouth", "Tavistock",
-      "Holsworthy", "Hatherleigh", "Winkleigh", "North Tawton", "Bow"
-    ],
-    isHomeBase: false,
+    icon: Music,
+    title: "Entertainment",
+    copy: "The perfect soundtrack for people who hate generic wedding bands.",
   },
 ];
+
+// Planning journey – concierge-style timeline
+const planningSteps = [
+  { label: "Empty Venue", description: "Your vision, our starting point" },
+  { label: "Discovery", description: "We listen. You dream." },
+  { label: "Design", description: "Bespoke plans, no cookie-cutter" },
+  { label: "Delivery", description: "Flawless execution on the day" },
+  { label: "Flawless Night", description: "Memories made" },
+];
+
+// SEO location data – accordion at bottom. Order: West Country first, then London/Home Counties, Midlands, etc.
+const SERVICE_AREAS_ORDER = ["Somerset", "Wiltshire", "Gloucestershire", "Bath", "Bristol", "Dorset", "Devon", "Oxfordshire", "London", "Surrey", "Berkshire"];
+const serviceAreasRaw: { region: string; towns: string[] }[] = [
+  { region: "Somerset", towns: ["Frome", "Bruton", "Castle Cary", "Glastonbury", "Wells", "Taunton", "Shepton Mallet", "Street", "Yeovil", "Bridgwater", "Wincanton", "Somerton", "Crewkerne", "Ilminster", "Chard", "Dunster", "Watchet", "Minehead", "Burnham-on-Sea", "Highbridge", "Cheddar", "Axbridge", "Wedmore", "Langport", "Martock", "South Petherton", "Milborne Port", "Templecombe", "Norton-sub-Hamdon", "Montacute", "Stoke-sub-Hamdon", "Cucklington", "Zeals", "Evercreech", "Ditcheat", "Pilton"] },
+  { region: "Wiltshire", towns: ["Malmesbury", "Marlborough", "Devizes", "Salisbury", "Warminster", "Westbury", "Trowbridge", "Bradford-on-Avon", "Chippenham", "Swindon", "Melksham", "Corsham", "Amesbury", "Calne", "Tidworth", "Pewsey", "Royal Wootton Bassett", "Ludgershall", "Tisbury", "Downton", "Fordingbridge", "Alderbury", "Woodford", "Redlynch", "Britford", "Durrington", "Bulford", "Larkhill", "Easterton", "Market Lavington", "Burbage", "Great Bedwyn", "Ramsbury", "Ogbourne St George"] },
+  { region: "Gloucestershire", towns: ["South Gloucestershire", "Cheltenham", "Gloucester", "Stroud", "Cirencester", "Tetbury", "Tewkesbury", "Dursley", "Thornbury", "Chipping Sodbury", "Yate", "Wotton-under-Edge", "Moreton-in-Marsh", "Fairford", "Lechlade", "Nailsworth", "Painswick", "Stonehouse", "Berkeley", "Lydney", "Newent", "Winchcombe", "Chipping Campden", "Broadway", "Bourton-on-the-Water", "Stow-on-the-Wold", "Northleach", "Kemble", "Sapperton", "Rodmarton", "Eastleach", "Ampney Crucis"] },
+  { region: "Bath", towns: ["Bath", "Midsomer Norton", "Radstock", "Keynsham", "Saltford", "Peasedown St John", "Combe Down", "Lansdown", "Twerton", "Oldfield Park", "Widcombe", "Claverton Down", "Bathampton", "Batheaston", "Bathford", "Compton Dando", "Wellow", "Peasedown", "Camerton", "Priston", "Englishcombe", "Hinton Charterhouse", "Freshford", "Limpley Stoke"] },
+  { region: "Bristol", towns: ["Clifton", "City Centre", "Westbury-on-Trym", "Chew Magna", "Bishopston", "Redland", "Hotwells", "Hanham", "Longwell Green", "Brislington", "Knowle", "Bedminster", "Ashton Gate", "Southville", "Windmill Hill", "Totterdown", "St Werburghs", "Montpelier", "Cotham", "Stokes Croft", "St Pauls", "Easton", "Fishponds", "Staple Hill", "Kingswood", "Whitchurch", "Westbury Park", "Henleaze", "Westbury Village"] },
+  { region: "Dorset", towns: ["Sherborne", "Gillingham", "Shaftesbury", "Dorchester", "Weymouth", "Bridport", "Blandford Forum", "Wimborne Minster", "Sturminster Newton", "Bere Regis", "Verwood", "Wareham", "Swanage", "Poole", "Bournemouth", "Christchurch", "Ferndown", "Wimborne", "Corfe Mullen", "Blandford St Mary", "Stalbridge", "Templecombe", "Milborne Port", "Puddletown", "Cerne Abbas", "Milton Abbas", "Abbotsbury", "Lyme Regis"] },
+  { region: "Devon", towns: ["Exeter", "Honiton", "Crediton", "Tiverton", "Okehampton", "Barnstaple", "Bideford", "South Molton", "Chulmleigh", "Dawlish", "Teignmouth", "Newton Abbot", "Torquay", "Paignton", "Totnes", "Dartmouth", "Salcombe", "Kingsbridge", "Plymouth", "Tavistock", "Holsworthy", "Hatherleigh", "Winkleigh", "North Tawton", "Bow"] },
+];
+const serviceAreas = [...serviceAreasRaw].sort((a, b) => {
+  const ia = SERVICE_AREAS_ORDER.indexOf(a.region);
+  const ib = SERVICE_AREAS_ORDER.indexOf(b.region);
+  if (ia >= 0 && ib >= 0) return ia - ib;
+  if (ia >= 0) return -1;
+  if (ib >= 0) return 1;
+  return a.region.localeCompare(b.region);
+});
 
 export default function PrivatePartiesClient() {
+  const [heroIndex, setHeroIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
-  const [serviceAreaModalOpen, setServiceAreaModalOpen] = useState(false);
-  const [selectedCountyIndex, setSelectedCountyIndex] = useState<number | null>(null);
+
+  const advanceHero = useCallback(() => {
+    setHeroIndex((i) => (i + 1) % heroMoodImages.length);
+  }, []);
+  useEffect(() => {
+    const t = setInterval(advanceHero, 5000);
+    return () => clearInterval(t);
+  }, [advanceHero]);
 
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
     setLightboxOpen(true);
   };
 
-  const openCountyModal = (index: number) => {
-    setSelectedCountyIndex(index);
-    setServiceAreaModalOpen(true);
-  };
-
   return (
-    <div>
-      {/* Hero */}
-      <section className="relative min-h-[60vh] flex items-center justify-center text-white overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163810/image2_l1hxxx.jpg"
-            alt="Private party celebration with professional entertainment, lighting and party planning"
-            fill
-            className="object-cover object-center"
-            priority
-            sizes="100vw"
-          />
+    <div className="min-h-screen bg-gray-950 text-white">
+      {/* 1. Babington Standard Hero – rotating gallery */}
+      <section className="relative h-[75vh] min-h-[450px] w-full overflow-hidden">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={heroIndex}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="absolute inset-0"
+          >
+            <Image
+              src={heroMoodImages[heroIndex].src}
+              alt={heroMoodImages[heroIndex].alt}
+              fill
+              className="object-cover"
+              sizes="100vw"
+              priority
+              quality={85}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/30" />
+            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-4xl md:text-6xl lg:text-7xl font-bold mb-4"
+              >
+                Events That Feel Like a Soho House Night.
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+                className="text-lg md:text-xl text-white/95 max-w-2xl"
+              >
+                For 20 years we&apos;ve set the technical stage for the world&apos;s most exclusive parties. Now we&apos;re bringing that standard to your event.
+              </motion.p>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* Hero nav dots */}
+        <div className="absolute bottom-8 right-8 md:bottom-12 md:right-12 flex gap-2 z-10">
+          {heroMoodImages.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setHeroIndex(i)}
+              className={`w-2 h-2 rounded-full transition-all ${
+                i === heroIndex ? "bg-champagne-gold w-6" : "bg-white/50 hover:bg-white/80"
+              }`}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
         </div>
-        <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/70 via-black/40 to-gray-900" />
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="relative z-20 text-center px-4 max-w-4xl mx-auto pt-48 md:pt-52"
+        <button
+          onClick={() => setHeroIndex((i) => (i - 1 + heroMoodImages.length) % heroMoodImages.length)}
+          className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-10"
+          aria-label="Previous"
         >
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
-            Private Parties
-          </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md">
-            Bespoke Party Planning & Technical Production
-          </p>
-        </motion.div>
-        <div className="absolute bottom-0 left-0 right-0 z-20">
-          <WaveDivider />
+          <ChevronLeft className="w-6 h-6" />
+        </button>
+        <button
+          onClick={() => setHeroIndex((i) => (i + 1) % heroMoodImages.length)}
+          className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-10"
+          aria-label="Next"
+        >
+          <ChevronRight className="w-6 h-6" />
+        </button>
+      </section>
+
+      {/* 2. Transformation Three-Column Grid */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">Bespoke Event Production</h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              The Soho House standard, delivered anywhere.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {transformationPillars.map((pillar, i) => (
+              <motion.div
+                key={pillar.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+              >
+                <Card className="bg-white/5 backdrop-blur border-champagne-gold/30 hover:border-champagne-gold/50 transition-all h-full">
+                  <CardContent className="p-8">
+                    <pillar.icon className="w-12 h-12 text-champagne-gold mb-6" />
+                    <h3 className="text-xl md:text-2xl font-bold mb-4">{pillar.title}</h3>
+                    <p className="text-gray-300 text-lg leading-relaxed">{pillar.copy}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* Content */}
-      <div
-        style={{
-          background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
-        }}
-      >
-        {/* Welcome Section */}
-        <section className="py-20 px-3 sm:px-4 lg:px-8">
-          <div className="container mx-auto max-w-6xl">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="text-center mb-12"
-            >
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-sans mb-6 text-white font-bold">
-                Welcome to STYLISH
-              </h2>
-              <p className="text-gray-200 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto">
-                Planning a party? We&apos;re here to help. We provide creative DJs, bands and entertainment, beautiful lighting and full party planning and production. With years of experience, we offer honest advice to help you create the best event possible.
-              </p>
-            </motion.div>
+      {/* 3. Planning Journey – horizontal timeline */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">Your Planning Journey</h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              From empty venue to flawless execution. Think concierge, not checklist.
+            </p>
+          </motion.div>
 
-            {/* Three Pillars */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12 mb-16">
-              <Card className="bg-white/5 backdrop-blur-lg border-champagne-gold/30 hover:border-champagne-gold/50 transition-all duration-300">
-                <CardHeader>
-                  <Map className="w-10 h-10 text-champagne-gold mb-4" />
-                  <CardTitle className="text-white">Planning & Design</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-300 leading-relaxed">
-                    Expert logistics, theme development and honest advice. From initial concept to final floor plan, we guide you through every decision to ensure your party vision becomes reality.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/5 backdrop-blur-lg border-champagne-gold/30 hover:border-champagne-gold/50 transition-all duration-300">
-                <CardHeader>
-                  <Sparkles className="w-10 h-10 text-champagne-gold mb-4" />
-                  <CardTitle className="text-white">Production & Lighting</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-300 leading-relaxed">
-                    Transform any space—from pool parties to marquees. Dynamic lighting designs, technical production and atmospheric staging that elevates your celebration to extraordinary heights.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/5 backdrop-blur-lg border-champagne-gold/30 hover:border-champagne-gold/50 transition-all duration-300">
-                <CardHeader>
-                  <Music className="w-10 h-10 text-champagne-gold mb-4" />
-                  <CardTitle className="text-white">Entertainment</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-300 leading-relaxed">
-                    Curated DJs, bands and performers who understand the &apos;Babington Standard&apos;. Whether it&apos;s sophisticated background music or an energetic dance floor, we deliver entertainment excellence.
-                  </p>
-                </CardContent>
-              </Card>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative"
+          >
+            {/* Desktop horizontal timeline */}
+            <div className="hidden md:block relative pt-2 pb-4">
+              <div className="absolute top-9 left-[8%] right-[8%] h-0.5 bg-gradient-to-r from-gray-600 via-champagne-gold/40 to-champagne-gold rounded-full" />
+              <div className="relative flex justify-between">
+                {planningSteps.map((step, i) => (
+                  <div key={step.label} className="flex-1 flex flex-col items-center text-center min-w-0 px-2">
+                    <div
+                      className={`w-14 h-14 rounded-full flex items-center justify-center font-bold text-base mb-4 z-10 ${
+                        i === 0 ? "bg-gray-600/80 text-gray-300" : i === planningSteps.length - 1 ? "bg-champagne-gold text-black" : "bg-white/10 text-champagne-gold border-2 border-champagne-gold/50"
+                      }`}
+                    >
+                      {i + 1}
+                    </div>
+                    <h3 className="text-base font-bold mb-1">{step.label}</h3>
+                    <p className="text-gray-500 text-sm">{step.description}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Planning Journey */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="mb-16"
-            >
-              <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-8">The Planning Journey</h3>
-              <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
-                <div className="flex-1 max-w-xs">
-                  <Card className="bg-white/5 backdrop-blur-lg border-champagne-gold/30 text-center">
-                    <CardContent className="p-6">
-                      <div className="w-12 h-12 rounded-full bg-champagne-gold text-black font-bold text-xl flex items-center justify-center mx-auto mb-4">
-                        1
-                      </div>
-                      <h4 className="text-white font-semibold mb-2">Discovery Consultation</h4>
-                      <p className="text-gray-300 text-sm">Initial consultation to understand your vision and requirements</p>
-                    </CardContent>
-                  </Card>
-                </div>
-                <ArrowRight className="text-champagne-gold w-8 h-8 rotate-90 md:rotate-0" />
-                <div className="flex-1 max-w-xs">
-                  <Card className="bg-white/5 backdrop-blur-lg border-champagne-gold/30 text-center">
-                    <CardContent className="p-6">
-                      <div className="w-12 h-12 rounded-full bg-champagne-gold text-black font-bold text-xl flex items-center justify-center mx-auto mb-4">
-                        2
-                      </div>
-                      <h4 className="text-white font-semibold mb-2">Site Visit & Design</h4>
-                      <p className="text-gray-300 text-sm">On-site assessment and bespoke design proposal</p>
-                    </CardContent>
-                  </Card>
-                </div>
-                <ArrowRight className="text-champagne-gold w-8 h-8 rotate-90 md:rotate-0" />
-                <div className="flex-1 max-w-xs">
-                  <Card className="bg-white/5 backdrop-blur-lg border-champagne-gold/30 text-center">
-                    <CardContent className="p-6">
-                      <div className="w-12 h-12 rounded-full bg-champagne-gold text-black font-bold text-xl flex items-center justify-center mx-auto mb-4">
-                        3
-                      </div>
-                      <h4 className="text-white font-semibold mb-2">Flawless Execution</h4>
-                      <p className="text-gray-300 text-sm">Event day coordination and seamless production delivery</p>
-                    </CardContent>
-                  </Card>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Featured Images Grid - Moved Higher */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="mb-16"
-            >
-              <h3 className="text-2xl md:text-3xl font-bold text-white text-center mb-8">Gallery</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {privatePartyPhotos.map((photo, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    whileHover={{ scale: 1.05 }}
-                    className="relative cursor-pointer overflow-hidden rounded-lg border-2 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all duration-300"
-                    onClick={() => openLightbox(index)}
-                  >
-                    <div className="relative aspect-[4/3]" style={{ minHeight: "300px" }}>
-                      <Image
-                        src={photo.src}
-                        alt={photo.alt}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        loading={index < 3 ? "eager" : "lazy"}
-                      />
-                      <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-all duration-300" />
+            {/* Mobile vertical timeline */}
+            <div className="md:hidden space-y-6">
+              {planningSteps.map((step, i) => (
+                <div key={step.label} className="flex gap-4">
+                  <div className="flex flex-col items-center">
+                    <div
+                      className={`w-12 h-12 rounded-full flex items-center justify-center font-bold flex-shrink-0 ${
+                        i === 0 ? "bg-gray-600 text-gray-300" : i === planningSteps.length - 1 ? "bg-champagne-gold text-black" : "bg-white/10 text-champagne-gold border-2 border-champagne-gold/50"
+                      }`}
+                    >
+                      {i + 1}
                     </div>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.div>
-          </div>
-        </section>
-
-        {/* Trusted by Babington */}
-        <section className="py-20 px-3 sm:px-4 lg:px-8">
-          <div className="container mx-auto max-w-4xl">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <Card className="bg-gradient-to-br from-champagne-gold/10 to-transparent border-2 border-champagne-gold/30">
-                <CardContent className="p-6 sm:p-8">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="text-4xl">⭐</div>
-                    <div>
-                      <h3 className="text-2xl sm:text-3xl font-bold text-white mb-3">
-                        Trusted by the Best
-                      </h3>
-                      <p className="text-gray-200 text-lg leading-relaxed">
-                        For over 20 years we have been the sole supplier of entertainment and party production at the legendary{" "}
-                        <Link
-                          href="https://www.babingtonhouse.co.uk"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-champagne-gold hover:text-gold-light underline font-semibold"
-                        >
-                          Babington House (Soho House & Co)
-                        </Link>{" "}
-                        where celebs hang-out and party.
-                      </p>
-                    </div>
+                    {i < planningSteps.length - 1 && (
+                      <div className="w-0.5 flex-1 bg-gradient-to-b from-champagne-gold/50 to-champagne-gold min-h-[24px] mt-2" />
+                    )}
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-        </section>
+                  <div className="pb-6">
+                    <h3 className="text-lg font-bold mb-1">{step.label}</h3>
+                    <p className="text-gray-500 text-sm">{step.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
-        {/* Service Area - Expanded */}
-        <section className="py-20 px-3 sm:px-4 lg:px-8 relative overflow-hidden">
-          {/* Subtle SVG Map Background */}
-          <div className="absolute inset-0 opacity-5 pointer-events-none">
-            <svg viewBox="0 0 400 400" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
-              <defs>
-                <linearGradient id="mapGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" stopColor="#d4af37" />
-                  <stop offset="100%" stopColor="#d4af37" stopOpacity="0.3" />
-                </linearGradient>
-              </defs>
-              {/* Simplified South West England outline */}
-              <path
-                d="M 120 150 Q 150 120 180 130 Q 220 140 260 130 Q 300 120 320 140 Q 340 160 350 200 Q 360 240 340 280 Q 320 300 280 310 Q 240 320 200 310 Q 160 300 140 280 Q 110 260 100 220 Q 110 180 120 150 Z"
-                fill="url(#mapGradient)"
-                stroke="#d4af37"
-                strokeWidth="2"
-                opacity="0.3"
-              />
-              {/* Bristol marker */}
-              <circle cx="240" cy="200" r="8" fill="#d4af37" opacity="0.5" />
-              {/* Bath marker */}
-              <circle cx="220" cy="220" r="6" fill="#d4af37" opacity="0.5" />
-              {/* Frome marker (home base) */}
-              <circle cx="200" cy="240" r="10" fill="#d4af37" opacity="0.7">
-                <animate
-                  attributeName="opacity"
-                  values="0.7;1;0.7"
-                  dur="2s"
-                  repeatCount="indefinite"
-                />
-              </circle>
-            </svg>
-          </div>
-
-          <div className="container mx-auto max-w-6xl relative z-10">
+      {/* 4. Gallery */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
+        <div className="max-w-6xl mx-auto mb-12 text-center">
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">Atmospheric Venue Transformations</h2>
+          <p className="text-gray-400 text-lg">Serving the West Country&apos;s most prestigious venues.</p>
+        </div>
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {galleryPhotos.map((photo, i) => (
             <motion.div
+              key={i}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
+              transition={{ delay: i * 0.05 }}
+              className="relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer group"
+              onClick={() => openLightbox(i)}
             >
-              <div className="text-center mb-12">
-                <div className="flex items-center justify-center gap-3 mb-4">
-                  <MapPin className="h-8 w-8 text-champagne-gold" />
-                  <h2 className="text-3xl md:text-4xl font-bold text-white">Service Area</h2>
-                </div>
-                <p className="text-gray-300 text-lg max-w-3xl mx-auto">
-                  We offer party planning and production across the West Country
-                </p>
-              </div>
+              <Image
+                src={photo.src}
+                alt={photo.alt}
+                fill
+                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            </motion.div>
+          ))}
+        </div>
+      </section>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                {serviceAreas.map((area, idx) => (
-                  <Card
-                    key={idx}
-                    className="bg-white/5 backdrop-blur-lg border-champagne-gold/30 hover:border-champagne-gold/50 transition-all duration-300"
-                  >
-                    <CardHeader>
-                      <div className="flex items-center gap-3">
-                        <MapPin className="h-5 w-5 text-champagne-gold flex-shrink-0" />
-                        <CardTitle className="text-white text-xl">{area.region}</CardTitle>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        {area.previewTowns.map((town, townIdx) => (
-                          <div key={townIdx} className="flex items-center gap-2">
-                            {area.isHomeBase && town === "Frome" ? (
-                              <>
-                                <div className="relative">
-                                  <div className="w-2 h-2 rounded-full bg-champagne-gold animate-pulse"></div>
-                                  <div className="absolute inset-0 w-2 h-2 rounded-full bg-champagne-gold animate-ping opacity-75"></div>
-                                </div>
-                                <span className="text-gray-200 font-semibold">{town}</span>
-                                <span className="text-xs text-champagne-gold/70">(Home Base)</span>
-                              </>
-                            ) : (
-                              <>
-                                <CheckCircle2 className="w-4 h-4 text-champagne-gold/60 flex-shrink-0" />
-                                <span className="text-gray-200">{town}</span>
-                              </>
-                            )}
-                          </div>
-                        ))}
-                        {area.allTowns.length > area.previewTowns.length && (
-                          <div className="pt-3">
-                            <Button
-                              onClick={() => openCountyModal(idx)}
-                              variant="outline"
-                              size="sm"
-                              className="w-full bg-white/5 backdrop-blur-md border-champagne-gold/40 text-white hover:bg-white/10 hover:border-champagne-gold/60 transition-all duration-300 text-xs"
-                            >
-                              Find out more ({area.allTowns.length - area.previewTowns.length} more towns)
-                            </Button>
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              {/* View Full Service Area Button */}
-              <div className="text-center mb-8">
-                <Button
-                  onClick={() => {
-                    setSelectedCountyIndex(null);
-                    setServiceAreaModalOpen(true);
-                  }}
-                  variant="outline"
-                  className="bg-white/5 backdrop-blur-md border-champagne-gold/50 text-white hover:bg-white/10 hover:border-champagne-gold/70 transition-all duration-300"
-                >
-                  View Complete Service Area
-                  <MapPin className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-
-              {/* Destination SEO Text */}
-              <Card className="bg-white/5 backdrop-blur-lg border-champagne-gold/30 mt-8">
-                <CardContent className="p-6 text-center">
-                  <p className="text-gray-200 leading-relaxed max-w-3xl mx-auto">
-                    Planning a destination wedding from London or overseas? We specialize in remote planning for venues across the West Country, acting as your local technical partners and on-the-ground experts.
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* SEO-Friendly Service Area Text (Visually Hidden but Crawlable) */}
-              <div className="sr-only mt-8" aria-hidden="true">
-                <h3 className="text-white font-bold mb-4">Complete Service Area Coverage</h3>
-                <p className="text-gray-300 mb-4">
-                  STYLISH Entertainment provides party planning and event production services across the West Country, 
-                  serving over 200 towns and locations. Our comprehensive coverage includes:
-                </p>
-                {serviceAreas.map((area, idx) => (
-                  <div key={idx} className="mb-4">
-                    <h4 className="text-white font-semibold mb-2">Party Planning in {area.region}</h4>
-                    <p className="text-gray-300 text-sm">
-                      We offer professional party planning services in {area.region} covering: {area.allTowns.join(", ")}.
+      {/* 5. Babington Social Proof */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <Card className="bg-gradient-to-br from-champagne-gold/10 to-transparent border-2 border-champagne-gold/40">
+              <CardContent className="p-8 md:p-12">
+                <div className="flex items-start gap-6">
+                  <span className="text-5xl">⭐</span>
+                  <div>
+                    <h3 className="text-2xl md:text-3xl font-bold mb-4">The Soho House Standard, Delivered Anywhere</h3>
+                    <p className="text-gray-200 text-lg leading-relaxed mb-6">
+                      For over 20 years we have been the sole supplier of entertainment and party production at the legendary{" "}
+                      <Link
+                        href="https://www.babingtonhouse.co.uk"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-champagne-gold hover:text-gold-light underline font-semibold"
+                      >
+                        Babington House (Soho House & Co)
+                      </Link>
+                      —where celebs hang out and party.
+                    </p>
+                    <p className="text-gray-300">
+                      Hundreds of weddings, parties and events. Every detail perfect. We&apos;re proud to be part of the Soho House family.
                     </p>
                   </div>
-                ))}
-                <p className="text-gray-300 text-sm mt-4">
-                  Whether you&apos;re planning a private party, corporate event or celebration in Frome, Malmesbury, 
-                  Marlborough, Devizes, Castle Cary, Cheltenham, Gloucester, Sherborne, Exeter, Bath, Bristol 
-                  or any of the 200+ towns we serve across the UK, 
-                  we provide expert party planning and technical production services.
-                </p>
-              </div>
-            </motion.div>
-          </div>
-        </section>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </section>
 
-        {/* Experience Section */}
-        <section className="py-20 px-3 sm:px-4 lg:px-8">
-          <div className="container mx-auto max-w-6xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="bg-white/5 backdrop-blur-lg border-champagne-gold/30">
-                <CardContent className="p-6">
-                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">
-                    Perfection in Every Detail
-                  </h3>
-                  <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
-                    We have created hundreds of weddings, parties and events at Babington where every detail has to be perfect. As a company they certainly do not carry any dead wood and we are proud to be part of the Soho House family.
-                  </p>
-                </CardContent>
-              </Card>
+      {/* 6. CTA */}
+      <section className="py-16 px-4 bg-gray-900/50 border-t border-white/5">
+        <div className="max-w-3xl mx-auto text-center">
+          <p className="text-gray-200 text-lg mb-6">
+            Contact us about your party plans on{" "}
+            <a href="tel:+447970793177" className="text-champagne-gold hover:text-gold-light font-bold underline">
+              07970793177
+            </a>
+          </p>
+          <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-gold-light">
+            <Link href="/contact-us/">Get in Touch</Link>
+          </Button>
+        </div>
+      </section>
 
-              <Card className="bg-white/5 backdrop-blur-lg border-champagne-gold/30">
-                <CardContent className="p-6">
-                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4">
-                    Your Vision, Our Expertise
-                  </h3>
-                  <p className="text-gray-300 text-base sm:text-lg leading-relaxed">
-                    Whether you want a themed fancy-dress or a stylish Gatsbyesque party, find out how we can help you deliver the best party possible.
-                  </p>
-                </CardContent>
-              </Card>
+      {/* 7. Editorial Service Areas + Town Accordion */}
+      <section className="py-16 px-4 bg-gray-950 border-t border-white/5">
+        <div className="max-w-6xl mx-auto">
+          {/* Editorial tiles – cohesive with artists/djs */}
+          <div className="text-center mb-12">
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3">
+              {EDITORIAL_SERVICE_HEADLINE.headline}
+            </h3>
+            <p className="text-base sm:text-lg text-gray-300 leading-relaxed max-w-2xl mx-auto mb-10">
+              {EDITORIAL_SERVICE_HEADLINE.subheadline}
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-12">
+              {getEditorialServiceRegions().map((tile) => (
+                <Card key={tile.region} className="bg-gray-900/80 border-champagne-gold/30 text-left">
+                  <CardContent className="p-6">
+                    <h4 className="text-lg font-bold text-champagne-gold mb-2">{tile.region}</h4>
+                    <p className="text-gray-300 text-sm leading-relaxed">{tile.description}</p>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           </div>
-        </section>
-
-        {/* Call to Action */}
-        <section className="py-20 px-3 sm:px-4 lg:px-8">
-          <div className="container mx-auto max-w-4xl">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <Card className="bg-gradient-to-br from-champagne-gold/20 to-transparent border-2 border-champagne-gold/50 shadow-[0_0_30px_rgba(212,175,55,0.3)]">
-                <CardContent className="p-8 sm:p-12 text-center">
-                  <p className="text-gray-200 text-lg md:text-xl leading-relaxed mb-6">
-                    So please contact us about your party plans on{" "}
-                    <a
-                      href="tel:+447970793177"
-                      className="text-champagne-gold hover:text-gold-light underline font-bold text-xl"
-                    >
-                      07970793177
-                    </a>
-                  </p>
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
-                    <Button
-                      asChild
-                      size="lg"
-                      className="bg-champagne-gold text-black hover:bg-gold-light hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(212,175,55,0.5)]"
-                    >
-                      <Link href="/contact-us">Get in Touch</Link>
-                    </Button>
-                  </div>
-                  <p className="text-champagne-gold font-semibold text-lg mt-6">
-                    Regards,<br />
-                    <span className="text-white font-cursive">Ali & Nige</span>
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
+          {/* Town accordion – detailed locations */}
+          <div className="flex items-center gap-3 mb-6">
+            <MapPin className="w-6 h-6 text-champagne-gold/70" />
+            <h3 className="text-lg font-semibold text-gray-400">Where We Serve</h3>
           </div>
-        </section>
-      </div>
+          <p className="text-gray-500 text-sm mb-6">
+            Click a county to see towns we serve across the West Country.
+          </p>
+          <Accordion type="single" className="w-full">
+            {serviceAreas.map((area, idx) => (
+              <AccordionItem key={area.region} value={`area-${idx}`} className="border border-white/10 rounded-lg mb-2 overflow-hidden">
+                <AccordionTrigger className="px-6 py-4 hover:bg-white/5 hover:no-underline text-left">
+                  <span className="font-medium">{area.region}</span>
+                  <span className="text-gray-500 text-sm ml-2">({area.towns.length} towns)</span>
+                </AccordionTrigger>
+                <AccordionContent className="px-6 pb-4 pt-0">
+                  <div className="flex flex-wrap gap-2">
+                    {area.towns.map((town) => (
+                      <span
+                        key={town}
+                        className="px-3 py-1.5 bg-white/5 text-gray-300 rounded-full text-sm border border-white/10"
+                      >
+                        {town}
+                      </span>
+                    ))}
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+          <div className="sr-only mt-8" aria-hidden="true">
+            <h3>Where We Serve – Party Planning Service Areas</h3>
+            <p>STYLISH Entertainment provides bespoke event production across the West Country. We serve 200+ towns including:</p>
+            {serviceAreas.map((area) => (
+              <div key={area.region}>
+                <h4>Party Planning in {area.region}</h4>
+                <p>{area.region}: {area.towns.join(", ")}.</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-      {/* Lightbox */}
       <Lightbox
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
         index={lightboxIndex}
-        slides={privatePartyPhotos.map((photo) => ({ src: photo.src }))}
-        on={{ view: ({ index }) => setLightboxIndex(index) }}
+        slides={galleryPhotos.map((p) => ({ src: p.src, alt: p.alt }))}
         render={{
-          buttonPrev: () => (
-            <button
-              className="yarl__button yarl__button_prev"
-              style={{
-                backgroundColor: "rgba(212, 175, 55, 0.9)",
-                color: "#1a1a1a",
-                border: "2px solid rgba(255, 255, 255, 0.3)",
-                borderRadius: "50%",
-                padding: "16px",
-                width: "56px",
-                height: "56px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
-              }}
-              aria-label="Previous image"
-            >
-              <ChevronLeft size={28} strokeWidth={3} />
-            </button>
-          ),
-          buttonNext: () => (
-            <button
-              className="yarl__button yarl__button_next"
-              style={{
-                backgroundColor: "rgba(212, 175, 55, 0.9)",
-                color: "#1a1a1a",
-                border: "2px solid rgba(255, 255, 255, 0.3)",
-                borderRadius: "50%",
-                padding: "16px",
-                width: "56px",
-                height: "56px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
-              }}
-              aria-label="Next image"
-            >
-              <ChevronRight size={28} strokeWidth={3} />
-            </button>
-          ),
+          buttonPrev: () => <ChevronLeft className="w-8 h-8 text-white" />,
+          buttonNext: () => <ChevronRight className="w-8 h-8 text-white" />,
         }}
       />
-
-      {/* Service Area Modal */}
-      <Dialog 
-        open={serviceAreaModalOpen} 
-        onOpenChange={(open) => {
-          setServiceAreaModalOpen(open);
-          if (!open) setSelectedCountyIndex(null);
-        }}
-      >
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 border-champagne-gold/50">
-          <DialogHeader>
-            <DialogTitle className="text-2xl md:text-3xl font-bold text-white flex items-center gap-3">
-              <MapPin className="h-6 w-6 text-champagne-gold" />
-              {selectedCountyIndex !== null 
-                ? `${serviceAreas[selectedCountyIndex].region} - Complete Service Area`
-                : "Complete Service Area"
-              }
-            </DialogTitle>
-          </DialogHeader>
-          <div className="mt-6 space-y-6">
-            {(selectedCountyIndex !== null 
-              ? [serviceAreas[selectedCountyIndex]] 
-              : serviceAreas
-            ).map((area, idx) => {
-              const actualIdx = selectedCountyIndex !== null ? selectedCountyIndex : idx;
-              return (
-                <Card
-                  key={actualIdx}
-                  className="bg-white/5 backdrop-blur-lg border-champagne-gold/30"
-                >
-                  <CardHeader>
-                    <div className="flex items-center gap-3">
-                      <MapPin className="h-5 w-5 text-champagne-gold flex-shrink-0" />
-                      <CardTitle className="text-white text-xl">{area.region}</CardTitle>
-                      {area.isHomeBase && (
-                        <span className="text-xs text-champagne-gold/70 bg-champagne-gold/10 px-2 py-1 rounded">
-                          Home Base
-                        </span>
-                      )}
-                      <span className="ml-auto text-xs text-champagne-gold/70">
-                        {area.allTowns.length} towns
-                      </span>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                      {area.allTowns.map((town, townIdx) => (
-                        <div key={townIdx} className="flex items-center gap-2">
-                          {area.isHomeBase && town === "Frome" ? (
-                            <>
-                              <div className="relative">
-                                <div className="w-2 h-2 rounded-full bg-champagne-gold animate-pulse"></div>
-                                <div className="absolute inset-0 w-2 h-2 rounded-full bg-champagne-gold animate-ping opacity-75"></div>
-                              </div>
-                              <span className="text-gray-200 font-semibold text-sm">{town}</span>
-                            </>
-                          ) : (
-                            <>
-                              <CheckCircle2 className="w-4 h-4 text-champagne-gold/60 flex-shrink-0" />
-                              <span className="text-gray-200 text-sm">{town}</span>
-                            </>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-          </div>
-          <div className="mt-6 p-4 bg-champagne-gold/10 rounded-lg border border-champagne-gold/30">
-            <p className="text-gray-200 text-sm leading-relaxed">
-              <strong className="text-champagne-gold">Note:</strong> This is a comprehensive list of areas we serve. If your location isn&apos;t listed, please contact us to discuss your event requirements—we may still be able to assist!
-            </p>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

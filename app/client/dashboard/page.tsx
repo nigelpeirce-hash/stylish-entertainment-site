@@ -11,7 +11,7 @@ import { motion } from "framer-motion";
 import { Calendar, MessageSquare, User, Plus } from "lucide-react";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { SingleEventHero } from "./SingleEventHero";
-import CountdownClock from "@/components/CountdownClock";
+import PortalCountdownClock from "@/components/client/PortalCountdownClock";
 import MusicPlaylistManager from "@/components/MusicPlaylistManager";
 import GuestCountTracker from "@/components/GuestCountTracker";
 import BudgetTracker from "@/components/BudgetTracker";
@@ -231,6 +231,7 @@ export default function ClientDashboard() {
                 // Single Event Hero View
                 <SingleEventHero
                   booking={bookings[0]}
+                  onHeroUploaded={fetchBookings}
                 />
               ) : (
                 // Multiple Bookings List View
@@ -277,7 +278,7 @@ export default function ClientDashboard() {
 
                       {/* Countdown Clock - Hidden for admins */}
                       {session?.user && (session.user as any)?.role !== "admin" && (
-                        <Card className="bg-gray-800/50 backdrop-blur-md border-2 border-champagne-gold/50 animate-pulse">
+                        <Card className="bg-gray-800/50 backdrop-blur-md border-2 border-champagne-gold/50">
                           <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-white">
                               <Calendar className="w-5 h-5 text-champagne-gold" />
@@ -285,7 +286,14 @@ export default function ClientDashboard() {
                             </CardTitle>
                           </CardHeader>
                           <CardContent>
-                            <CountdownClock targetDate={new Date(booking.eventDate)} />
+                            <PortalCountdownClock
+                              targetDate={
+                                (booking.eventType || "").toLowerCase().includes("wedding") &&
+                                booking.ceremonyTime
+                                  ? new Date(booking.ceremonyTime)
+                                  : new Date(booking.eventDate)
+                              }
+                            />
                           </CardContent>
                         </Card>
                       )}

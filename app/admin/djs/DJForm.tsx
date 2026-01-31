@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Save, X, Loader2 } from "lucide-react";
+import { Save, X, Loader2, Plus, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 interface DJ {
@@ -18,6 +18,7 @@ interface DJ {
   slug: string | null;
   bio: string | null;
   mixcloudUrl: string | null;
+  mixcloudEmbeds?: string[];
   seoTitle: string | null;
   seoDescription: string | null;
   imageUrl: string | null;
@@ -28,7 +29,9 @@ interface DJ {
 type FormDataState = {
   name: string;
   bio: string;
-  mixcloudUrl: string;
+  strapLine: string;
+  fullBio: string;
+  mixcloudEmbeds: string[];
   youtubeEmbed: string;
   seoTitle: string;
   seoDescription: string;
@@ -112,16 +115,44 @@ export function DJForm({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-white">Bio</Label>
+            <Label className="text-white">Short bio (card fallback / SEO)</Label>
             <Textarea
               value={formData.bio}
               onChange={(e) =>
                 onFormDataChange({ ...formData, bio: e.target.value })
               }
-              rows={4}
-              placeholder="DJ bio and experience..."
+              rows={3}
+              placeholder="Short bio for card and SEO..."
               className="bg-gray-900/50 text-white border-gray-700 focus:border-champagne-gold"
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-white">Strap line (card tagline)</Label>
+            <Input
+              value={formData.strapLine}
+              onChange={(e) =>
+                onFormDataChange({ ...formData, strapLine: e.target.value })
+              }
+              placeholder="e.g. Seamless Mixing or Over 20 years as resident DJ at Babington House"
+              className="bg-gray-900/50 text-white border-gray-700 focus:border-champagne-gold"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-white">Full bio (modal / Read more)</Label>
+            <Textarea
+              value={formData.fullBio}
+              onChange={(e) =>
+                onFormDataChange({ ...formData, fullBio: e.target.value })
+              }
+              rows={14}
+              placeholder="Long bio for the modal. Use --- on a line to separate a 'Recent Testimonials' section; use **Venue name** for each testimonial heading."
+              className="bg-gray-900/50 text-white border-gray-700 focus:border-champagne-gold"
+            />
+            <p className="text-xs text-gray-400">
+              Use --- on its own line before testimonials. Use **Venue name** for each testimonial block.
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -140,17 +171,57 @@ export function DJForm({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-white">Mixcloud URL (optional)</Label>
-            <Input
-              value={formData.mixcloudUrl}
-              onChange={(e) =>
-                onFormDataChange({ ...formData, mixcloudUrl: e.target.value })
+            <Label className="text-white">Mixcloud URLs (page URL or embed URL)</Label>
+            {formData.mixcloudEmbeds.map((url, index) => (
+              <div key={index} className="flex gap-2 items-center">
+                <Input
+                  value={url}
+                  onChange={(e) => {
+                    const next = [...formData.mixcloudEmbeds];
+                    next[index] = e.target.value;
+                    onFormDataChange({ ...formData, mixcloudEmbeds: next });
+                  }}
+                  placeholder={
+                    index === 0
+                      ? "https://www.mixcloud.com/username/show-name/"
+                      : "Or embed URL / iframe code"
+                  }
+                  className="bg-gray-900/50 text-white border-gray-700 focus:border-champagne-gold flex-1"
+                />
+                {formData.mixcloudEmbeds.length > 2 && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="text-gray-400 hover:text-red-400 shrink-0"
+                    onClick={() => {
+                      const next = formData.mixcloudEmbeds.filter((_, i) => i !== index);
+                      onFormDataChange({ ...formData, mixcloudEmbeds: next });
+                    }}
+                    aria-label="Remove Mixcloud URL"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                )}
+              </div>
+            ))}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="border-gray-600 text-gray-300 mt-1"
+              onClick={() =>
+                onFormDataChange({
+                  ...formData,
+                  mixcloudEmbeds: [...formData.mixcloudEmbeds, ""],
+                })
               }
-              placeholder="https://www.mixcloud.com/username/show-name/"
-              className="bg-gray-900/50 text-white border-gray-700 focus:border-champagne-gold"
-            />
+            >
+              <Plus className="w-4 h-4 mr-1" />
+              Add another Mixcloud URL
+            </Button>
             <p className="text-xs text-gray-400">
-              Full Mixcloud URL (e.g., https://www.mixcloud.com/djnige/live-mix/)
+              Page URL (e.g. mixcloud.com/username/show-name/) or WordPress embed code—we convert to widget format automatically.
             </p>
           </div>
 

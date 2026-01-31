@@ -51,6 +51,10 @@ const nextConfig = {
             key: 'X-XSS-Protection',
             value: '1; mode=block',
           },
+          {
+            key: 'Permissions-Policy',
+            value: 'encrypted-media=(self "https://player-widget.mixcloud.com" "https://www.youtube.com" "https://youtube.com")',
+          },
         ],
       },
       // Longer cache for static assets (helps PageSpeed "efficient cache lifetimes")
@@ -90,6 +94,11 @@ const nextConfig = {
       {
         source: '/phone-demo.html',
         destination: '/iphone-demo.html',
+        permanent: false,
+      },
+      {
+        source: '/terms-portal-flow-demo.html',
+        destination: '/terms-portal-flow-demo',
         permanent: false,
       },
       // --- NEW ANALYTICS-DRIVEN REDIRECTS (Priority) ---

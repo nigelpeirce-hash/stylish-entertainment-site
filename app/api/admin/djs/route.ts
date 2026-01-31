@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { normalizeMixcloudEmbeds } from "@/lib/mixcloud-utils";
 import * as z from "zod";
 import { randomUUID } from "crypto";
 import { fixCloudinaryUrlForDisplay } from "@/lib/cloudinary-utils";
@@ -13,7 +14,10 @@ const djSchema = z.object({
   name: z.string().min(1, "Name is required"),
   slug: z.string().optional(),
   bio: z.string().optional(),
+  strapLine: z.string().optional().nullable(),
+  fullBio: z.string().optional().nullable(),
   mixcloudUrl: z.string().url().optional().nullable(),
+  mixcloudEmbeds: z.array(z.string()).optional(), // Accept any string; we normalize (iframe, page URL, widget URL)
   youtubeEmbed: z.string().url().optional().nullable(),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
@@ -48,7 +52,7 @@ export async function GET(request: NextRequest) {
       orderBy: [{ displayOrder: "asc" }, { name: "asc" }],
     });
 
-    // Fix Cloudinary URLs for display; guard against non-string imageUrl
+    // Fix Cloudinary URLs for display; normalize mixcloudEmbeds from mixcloudUrl when null
     const djsWithFixedUrls = djs.map(dj => {
       const url = dj.imageUrl != null && typeof dj.imageUrl === "string" ? dj.imageUrl : null;
       let imageUrl: string | null = null;
@@ -57,7 +61,10 @@ export async function GET(request: NextRequest) {
       } catch {
         imageUrl = url;
       }
-      return { ...dj, imageUrl };
+      const mixcloudEmbeds = Array.isArray(dj.mixcloudEmbeds) && dj.mixcloudEmbeds.length > 0
+        ? (dj.mixcloudEmbeds as string[])
+        : (dj.mixcloudUrl ? [dj.mixcloudUrl] : []);
+      return { ...dj, imageUrl, mixcloudEmbeds };
     });
 
     return NextResponse.json({ djs: djsWithFixedUrls });
@@ -96,12 +103,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const { mixcloudEmbeds: rawMixcloudEmbeds, ...rest } = validatedData;
+    const mixcloudEmbeds = rawMixcloudEmbeds
+      ? normalizeMixcloudEmbeds(rawMixcloudEmbeds.filter((u) => u && typeof u === "string" && u.trim() !== ""))
+      : [];
     const dj = await prisma.dJ.create({
       data: {
         id: randomUUID(),
-        ...validatedData,
+        ...rest,
         slug,
         imageUrl: validatedData.imageUrl || null,
+        strapLine: validatedData.strapLine || null,
+        fullBio: validatedData.fullBio || null,
+        youtubeEmbed: validatedData.youtubeEmbed || null,
+        mixcloudEmbeds: mixcloudEmbeds.length > 0 ? mixcloudEmbeds : null,
         updatedAt: new Date(),
       },
     });

@@ -8,6 +8,20 @@ import { Sparkles, Palette, Music, Zap } from "lucide-react";
 
 const services = [
   {
+    title: "DJs",
+    icon: Music,
+    description: "Professional DJ services with state-of-the-art equipment and seamless mixing.",
+    features: [
+      "Premium sound systems",
+      "Wireless microphones for speeches",
+      "Professional DJ equipment",
+      "Music consultation and playlist creation",
+      "MC services available",
+    ],
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/v1768163779/Dj-Sax-Bongos_zlozkq.jpg",
+    alt: "Professional wedding DJ services across the West Country",
+  },
+  {
     title: "Lighting Design",
     icon: Sparkles,
     description: "Transform your venue with bespoke lighting design that creates the perfect atmosphere for your special day.",
@@ -32,22 +46,8 @@ const services = [
       "Custom backdrops and photo walls",
       "Cohesive design theme throughout",
     ],
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162260/Saltburn_231005__0020_0638_fpdevj.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163723/IMG_6321_xu8q8j.jpg",
     alt: "Elegant wedding venue styling across the West Country",
-  },
-  {
-    title: "DJs",
-    icon: Music,
-    description: "Professional DJ services with state-of-the-art equipment and seamless mixing.",
-    features: [
-      "Premium sound systems",
-      "Wireless microphones for speeches",
-      "Professional DJ equipment",
-      "Music consultation and playlist creation",
-      "MC services available",
-    ],
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163392/james-Malin_ovqqnf.jpg",
-    alt: "Professional wedding DJ services across the West Country",
   },
   {
     title: "Kit Hire",
@@ -74,7 +74,7 @@ const services = [
       "Perfect for outdoor receptions",
     ],
     galleryTrigger: false,
-    image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?w=1200&h=800&fit=crop",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163430/Fire-Pits-and-Marshmallows_ke3nk5.jpg",
     alt: "Outdoor fire pit hire for wedding venues",
   },
 ];
@@ -102,7 +102,7 @@ export default function ServicesClient() {
         >
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">What We Do</h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md">
-            Comprehensive entertainment services across the West Country
+            Comprehensive entertainment services UK-wide
           </p>
         </motion.div>
       </section>

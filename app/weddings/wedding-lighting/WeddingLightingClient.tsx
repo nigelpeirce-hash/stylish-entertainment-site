@@ -86,6 +86,12 @@ const galleryPhotos: Photo[] = [
     height: 900,
     alt: "Sophisticated wedding lighting design creating an atmospheric celebration",
   },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163734/F4R3490_dyrug0.jpg",
+    width: 1200,
+    height: 900,
+    alt: "Professional wedding and party lighting creating an atmospheric celebration",
+  },
 ];
 
 export default function WeddingLightingClient() {

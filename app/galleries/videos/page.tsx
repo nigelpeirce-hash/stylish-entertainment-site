@@ -408,12 +408,12 @@ export default function Videos() {
                   </CardHeader>
                   {expandedPlaylist === playlist.id && (
                     <CardContent>
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                         {playlist.videos.map((video, videoIndex) => (
                           <div key={`${playlist.id}-${video.id}-${videoIndex}`} className="space-y-2">
                             <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-800">
                               <LazyIframe
-                                src={`https://www.youtube.com/embed/${video.id}`}
+                                src={`https://www.youtube.com/embed/${video.id}?vq=hd1080`}
                                 title={video.title}
                                 className="w-full h-full relative"
                                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -457,7 +457,7 @@ export default function Videos() {
               </h2>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {allVideos.map((video, index) => (
                 <motion.div
                   key={`all-videos-${video.id}-${index}`}
@@ -469,7 +469,7 @@ export default function Videos() {
                 >
                   <div className="relative aspect-video rounded-lg overflow-hidden bg-gray-800 shadow-lg">
                     <LazyIframe
-                      src={`https://www.youtube.com/embed/${video.id}`}
+                      src={`https://www.youtube.com/embed/${video.id}?vq=hd1080`}
                       title={video.title}
                       className="w-full h-full relative"
                       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

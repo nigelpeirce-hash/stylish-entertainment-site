@@ -42,86 +42,8 @@ function getDJTestimonials(djName: string) {
   });
 }
 
-// Hardcoded fallback data for legacy DJs with full content
-const legacyDJs: { [key: string]: any } = {
-  "DJ Nige": {
-    name: "DJ Nige",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163297/Mirjam-and-Ben-1062-1_vy1hgx.jpg",
-    alt: "DJ Nige performing at Mirjam and Ben's wedding at Babington House, Somerset, showcasing professional wedding DJ services with elegant lighting",
-    mixingStyle: "Seamless Mixing",
-    bio: "Over 20 years as resident DJ at Babington House Hotel, Nige brings sophistication and energy to every event.",
-    fullBio: `DJ Nige started his DJ career at the age of 14, honing his skills at local parties and events before entering into the wider world of London's radio, music, and advertising industries. Throughout his career, DJ Nige has established himself as a highly talented and sought-after producer & DJ, with highlights including working as a freelance producer for Pete Tong's Essential Selection on Radio 1, which took him around clubs in the UK and Europe, playing as a resident DJ at Babington House Hotel in Somerset for 20 years, and entertaining crowds at the Glastonbury Festival as backstage DJ at the Pyramid stage.
-
-Nige's journey took a significant turn when he transitioned from performing at iconic festivals like Glastonbury to high-profile London venues, including The Met Bar. This move reflected his growing reputation and the demand for his unique ability to blend technical excellence with an intuitive understanding of crowd dynamics. Working alongside industry leaders and entertaining A-list clients, Nige established himself as a trusted name in premium event entertainment.
-
-Alongside his DJing career, Nige also co-founded an award-winning TV & Radio production company, Factory Studios, where he mixed and produced many dance compilation albums. Since 2003, Nige has been resident DJ at celebrity hangout, Babington House Hotel in Somerset, where his skills on the decks & reading a crowd has been sought out for the entertainment of Adele, James Corden, Kate Winslet, Eddie Redmayne, Russell Howard, and Michael McIntyre to name a few!
-
-With his exceptional talent and extensive knowledge of music, DJ Nige is the perfect choice for any event, whether it's a wedding, corporate party, or birthday celebration. His music knowledge is extensive and ever-growing, with a love of music from all eras and genres. He plays everything from Contemporary, House, Garage, Ibiza, Old Skool, Soul, Funk, Dance, Reggae, Rock N Roll, R&B, Indie, Urban, Ska and any other genre from the 30,000 tracks he holds on his Mac. However, if you're looking for cheesy hits or synchronised dancing, you are dancing on the wrong turntables!
-
-For more on Nige's technical expertise and industry recognition, including his Artic License and lighting design work, see his [technical bio on our About page](/about).
-
----
-
-**Recent Testimonials**
-
-**The Met Bar, London**
-"Thank you Nige. You did a magnificent job!, It was a magical night for the Stringers and I am happy you were on hand to help make it so! See you soon."
-— Rob Stringer, CEO Sony Music Worldwide, The Met Bar, London.
-
-**Sessions Art Club, London EC2**
-"Just wanted to say a massive thank you for last night Nigel. You and Leo (Sax player) were absolute champions. Not sure a single guest left the dance floor for the 2.5hrs you were playing. We have had some many amazing comments today and you guys are mentioned in almost every text. Apologies we couldn't get you on sooner, and if that 11pm curfew wasn't there we'd still be dancing now!"
-— Sophie & Sam Hawsley, Sessions Art Club, London
-
-**Dorfold Hall, Nantwich, Cheshire**
-"I wanted to drop you an email to thank both you and Nigel. He was brilliant on the day and everyone had a fantastic time (we've had lots of positive feedback on the tunes he played). We loved having him there, and his set was absolutely banging. Please pass on Nancy and my thanks for his part in such a memorable and incredible day. He was, predictably, fantastic."
-— Alex & Nancy Horlock, Dorfold Hall, Nantwich, Cheshire
-
-**Babington House Hotel, Somerset**
-"Hope you're really well and had a good bank holiday weekend. Just a quick note to say a massive thank you for everything last week. It all went so well and really helped make our day so special. Music on Thursday was perfect and exactly want Emma and I wanted! I had so many people on the night and the next day commenting on what a great mix you had and it really kept everyone on the dance floor all night. Also the light in the walled garden were beautiful and helped create such a lovely atmosphere for dinner. Thank you again!"
-— Max & Emma Rayner, Babington House Hotel`,
-    youtubeEmbed: "https://www.youtube.com/embed/RAdejWBYWaw?si=4-GnDsRvsG4ZpYio",
-    mixcloudEmbeds: [
-      "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2Fnigelpeirce1%2Fbabington-nye-part-1%2F",
-      "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2Fnigelpeirce1%2Fkitchen-disco-volume-2%2F",
-      "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2Fnigelpeirce1%2Fthe-90s-club-classics-mix%2F",
-      "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2Fnigelpeirce1%2Fthe-80s-remixed-mix%2F",
-      "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2Fnigelpeirce1%2Fuk-garage-old-skool-minimix%2F",
-    ],
-  },
-  "DJ Rich": {
-    name: "DJ Rich",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163359/Rich-S-DJ_qxsnht.jpg",
-    alt: "Professional wedding DJ Rich S performing at a luxury London venue, showcasing professional DJ services with high-quality sound and lighting",
-    mixingStyle: "Oxford & London Resident | JACKfm Presenter | O2 Academy",
-    bio: "Award-winning radio presenter and versatile DJ, experienced in playing for thousands at student nights, corporate events and celebrations.",
-    fullBio: `After discovering a passion and love for music whilst studying, Rich worked his way up through the student night scene in Oxford (Fuzzy Ducks, Bridge Mondays etc…) and London (Crazy Larrys, Embargos etc…). Accustomed to playing regularly in front of 1000's of people, his musical style is broad and Rich is experienced in playing weddings, 18th, 21st, 30th Birthdays and a multitude of corporate events.
-
-Through a vast knowledge of music past and present, his range and ability to play whatever style is necessary for your party is invaluable. His exuberance and hard work has also seen him become a co-presenter on Oxfordshire's largest local breakfast show The Morning Glory on the multi-award winning JACKfm in Oxfordshire. When not presenting early mornings, Rich is honing his DJing as resident for the O2 Academy in Oxford. Rich is an extremely accomplished and adaptable DJ who is ideal for a party whatever the occasion.`,
-    youtubeEmbed: "https://www.youtube.com/embed/H7bTX4sbUwI",
-    mixcloudEmbeds: [
-      "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FDjrichsmith%2Fsomething-chilled-mix%2F",
-      "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FDjrichsmith%2Fwedding-mix%2F",
-    ],
-  },
-  "James H DJ": {
-    name: "James H DJ",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163392/james-Malin_ovqqnf.jpg",
-    alt: "Professional DJ James H Hudson performing at wedding and party events, showcasing professional DJ services with expert mixing and entertainment",
-    mixingStyle: "From Radio to Prestigious Venues",
-    bio: "Award-winning DJ with an eclectic style, creating unforgettable moments at London's most prestigious venues.",
-    fullBio: `Beginning his career in radio, it wasn't long before James's innovative style of presenting got him noticed. He soon moved into TV and with his love of music made a name for himself as a respected DJ across the UK. Having performed at awards, festivals and some of London's most prestigious venues and events, James has developed a unique style that appeals to diverse audiences. James prides himself on working closely with clients to ensure unique sets that reflect your personal style, creating unforgettable moments. With an eclectic taste in music and the ability to mix any genre or decade seamlessly, James creates a dynamic atmosphere that keeps guests engaged from the first song to the last. His attention to detail and commitment to excellence make him a standout choice for clients seeking something truly special.`,
-    youtubeEmbed: "https://www.youtube.com/embed/r7PAMv1CbOg",
-    mixcloudEmbeds: [
-      "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FJamesMalinHudson%2Fhere-comes-the-bride-saxhouse%2F",
-      "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FJamesMalinHudson%2Flets-get-married-discosoulpop%2F",
-      "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FJamesMalinHudson%2Fthrow-the-bouquet-kisstory%2F",
-      "https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&mini=1&feed=%2FJamesMalinHudson%2Fshotgun-alternativeindierock%2F",
-    ],
-  },
-};
-
 import { getVenuesWeveWorkedAt } from "@/lib/venues-weve-worked-at";
-import { getServiceAreasByRegion } from "@/lib/service-areas";
+import { getEditorialServiceRegions, EDITORIAL_SERVICE_HEADLINE } from "@/lib/service-areas";
 
 const allVenues = getVenuesWeveWorkedAt();
 
@@ -143,7 +65,14 @@ export default function DJs() {
         const response = await fetch("/api/djs");
         if (response.ok) {
           const data = await response.json();
-          // Map database DJs to the format expected by the UI
+          const apiDjs = data.djs ?? [];
+          if (apiDjs.length === 0) {
+            setDjs([]);
+            setLoading(false);
+            return;
+          }
+
+          // Map database DJs to the format expected by the UI (admin is master, no fallbacks)
           // Helper function to normalize YouTube URLs to embed format
           const normalizeYouTubeUrl = (url: string | null | undefined): string | null => {
             if (!url || url.trim() === "") return null;
@@ -215,29 +144,29 @@ export default function DJs() {
             return null;
           };
 
-          const mappedDJs = data.djs.map((dj: any) => {
-            const legacy = legacyDJs[dj.name];
-            // Handle youtubeEmbed: use database value if it's a valid URL, otherwise fall back to legacy
-            const dbYoutubeEmbed = normalizeYouTubeUrl(dj.youtubeEmbed);
-            const legacyYoutubeEmbed = normalizeYouTubeUrl(legacy?.youtubeEmbed);
-            const youtubeEmbed = dbYoutubeEmbed || legacyYoutubeEmbed || null;
-            
+          const mappedDJs = apiDjs.map((dj: any) => {
+            const youtubeEmbed = normalizeYouTubeUrl(dj.youtubeEmbed);
+            const bio = dj.bio || "";
+            const fullBio = (dj.fullBio && dj.fullBio.trim()) ? dj.fullBio : bio;
+            const strapLine = (dj.strapLine && dj.strapLine.trim()) ? dj.strapLine : "Professional DJ Services";
+            const mixcloudEmbeds = (dj.mixcloudEmbeds && dj.mixcloudEmbeds.length > 0)
+              ? dj.mixcloudEmbeds
+              : (dj.mixcloudUrl ? [dj.mixcloudUrl] : []);
             return {
               name: dj.name,
-              image: dj.imageUrl || legacy?.image || null,
-              alt: legacy?.alt || `${dj.name} performing at weddings and events, showcasing professional DJ services`,
-              mixingStyle: legacy?.mixingStyle || "Professional DJ Services",
-              bio: dj.bio || legacy?.bio || "",
-              fullBio: legacy?.fullBio || dj.bio || "",
-              youtubeEmbed: youtubeEmbed,
-              mixcloudEmbeds: legacy?.mixcloudEmbeds || (dj.mixcloudUrl ? [dj.mixcloudUrl] : []),
+              image: dj.imageUrl ?? null,
+              alt: `${dj.name} performing at weddings and events, showcasing professional DJ services`,
+              mixingStyle: strapLine,
+              bio,
+              fullBio,
+              youtubeEmbed: youtubeEmbed ?? null,
+              mixcloudEmbeds,
             };
           });
           setDjs(mappedDJs);
         }
       } catch (error) {
         console.error("Error fetching DJs:", error);
-        // Fallback to empty array or legacy DJs if API fails
         setDjs([]);
       } finally {
         setLoading(false);
@@ -546,6 +475,53 @@ export default function DJs() {
                     </div>
                     <CardContent className="p-4 sm:p-5 flex flex-col flex-1">
                       <p className="text-sm text-gray-300 leading-relaxed line-clamp-3 mb-4 flex-1">{dj.bio}</p>
+
+                      {/* Watch & Listen – visible on tile */}
+                      {(dj.youtubeEmbed || (dj.mixcloudEmbeds && dj.mixcloudEmbeds.length > 0)) && (
+                        <div className="space-y-3 mb-4">
+                          {dj.youtubeEmbed && dj.youtubeEmbed.trim() !== "" && dj.youtubeEmbed.startsWith("http") && (
+                            <div>
+                              <span className="text-xs font-semibold text-champagne-gold uppercase tracking-wider">Watch</span>
+                              <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black/20 mt-1">
+                                <LazyIframe
+                                  src={dj.youtubeEmbed}
+                                  title={`${dj.name} - Video`}
+                                  className="absolute inset-0 w-full h-full"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                  allowFullScreen
+                                  referrerPolicy="strict-origin-when-cross-origin"
+                                />
+                              </div>
+                            </div>
+                          )}
+                          {dj.mixcloudEmbeds && dj.mixcloudEmbeds.length > 0 && (
+                            <div>
+                              <span className="text-xs font-semibold text-champagne-gold uppercase tracking-wider">Listen</span>
+                              <div className="space-y-2 mt-1">
+                                {dj.mixcloudEmbeds.slice(0, 2).map((embed: string, idx: number) => (
+                                  <div
+                                    key={idx}
+                                    className="relative w-full rounded overflow-hidden bg-black/20"
+                                    style={{ height: "48px" }}
+                                  >
+                                    <LazyIframe
+                                      src={embed}
+                                      title={`${dj.name} - Mix ${idx + 1}`}
+                                      className="absolute inset-0 w-full h-full"
+                                      allow="encrypted-media; fullscreen; autoplay; idle-detection; speaker-selection; web-share"
+                                      frameBorder="0"
+                                    />
+                                  </div>
+                                ))}
+                                {dj.mixcloudEmbeds.length > 2 && (
+                                  <p className="text-xs text-gray-400">+{dj.mixcloudEmbeds.length - 2} more in full bio</p>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
                       <div className="mt-auto">
                       <Dialog>
                           <DialogTrigger asChild>
@@ -563,8 +539,9 @@ export default function DJs() {
                               </DialogTitle>
                               <div className="text-base sm:text-lg text-gray-100 leading-relaxed space-y-6 prose prose-lg max-w-none">
                                 {(() => {
-                                  const parts = dj.fullBio.split('---');
-                                  const bioText = parts[0];
+                                  const fullBio = dj.fullBio || "";
+                                  const parts = fullBio.split('---');
+                                  const bioText = parts[0] || "";
                                   const testimonialsText = parts[1];
                                   
                                   return (
@@ -855,6 +832,7 @@ export default function DJs() {
             </Card>
           </motion.div>
 
+          {/* Nationwide Reach – Editorial Region Tiles */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -862,43 +840,36 @@ export default function DJs() {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="mb-8"
           >
-            <Card className="border-champagne-gold/30 bg-gray-800 shadow-lg">
-              <CardContent className="p-8 sm:p-10 md:p-12">
-                <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4 text-center">
-                  Our Service Areas
-                </h3>
-                <p className="text-base sm:text-lg text-gray-300 leading-relaxed text-center mb-8">
-                  Our party DJs and mobile DJs play in the following regions, backed by real client reviews:
-                </p>
-                <div className="space-y-6">
-                  {getServiceAreasByRegion().map((area) => (
-                    <div key={area.region} className="space-y-3">
-                      <h4 className="text-lg font-semibold text-champagne-gold">
-                        {area.region}
+            <div className="text-center mb-10">
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3">
+                {EDITORIAL_SERVICE_HEADLINE.headline}
+              </h3>
+              <p className="text-base sm:text-lg text-gray-300 leading-relaxed max-w-2xl mx-auto">
+                {EDITORIAL_SERVICE_HEADLINE.subheadline}
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              {getEditorialServiceRegions().map((tile, index) => (
+                <motion.div
+                  key={tile.region}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: 0.1 * index }}
+                >
+                  <Card className="h-full border-champagne-gold/30 bg-gray-800/80 backdrop-blur-sm hover:border-champagne-gold/50 hover:shadow-lg transition-all duration-300">
+                    <CardContent className="p-6 sm:p-8">
+                      <h4 className="text-lg sm:text-xl font-bold text-champagne-gold mb-3 tracking-tight">
+                        {tile.region}
                       </h4>
-                      {area.description && (
-                        <p className="text-sm text-gray-400 -mt-1">
-                          {area.description}
-                        </p>
-                      )}
-                      <div className="flex flex-wrap gap-2">
-                        {area.counties.map((county) => (
-                          <span
-                            key={county}
-                            className="px-3 py-1.5 bg-gray-900/60 text-white rounded-full text-sm font-medium border border-champagne-gold/20 hover:border-champagne-gold/40 transition-all"
-                          >
-                            {county}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <p className="text-base sm:text-lg text-gray-300 leading-relaxed text-center mt-8 italic">
-                  And other areas of the UK and Europe by request.
-                </p>
-              </CardContent>
-            </Card>
+                      <p className="text-gray-300 leading-relaxed text-sm sm:text-base">
+                        {tile.description}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
           </motion.div>
 
           {/* Venues We've Played At */}

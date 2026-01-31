@@ -11,6 +11,8 @@ const updateMusicianSchema = z.object({
   name: z.string().min(1).optional(),
   slug: z.string().optional(),
   bio: z.string().optional(),
+  strapLine: z.string().optional().nullable(),
+  fullBio: z.string().optional().nullable(),
   instrument: z.string().optional(),
   youtubeEmbed: z.string().url().optional().nullable(),
   seoTitle: z.string().optional(),
@@ -69,9 +71,23 @@ export async function PUT(
     const body = await request.json();
     const validatedData = updateMusicianSchema.parse(body);
 
+    const updateData: Record<string, unknown> = {};
+    if (validatedData.name !== undefined) updateData.name = validatedData.name;
+    if (validatedData.slug !== undefined) updateData.slug = validatedData.slug;
+    if (validatedData.bio !== undefined) updateData.bio = validatedData.bio;
+    if (validatedData.strapLine !== undefined) updateData.strapLine = validatedData.strapLine ?? null;
+    if (validatedData.fullBio !== undefined) updateData.fullBio = validatedData.fullBio ?? null;
+    if (validatedData.instrument !== undefined) updateData.instrument = validatedData.instrument ?? null;
+    if (validatedData.youtubeEmbed !== undefined) updateData.youtubeEmbed = validatedData.youtubeEmbed ?? null;
+    if (validatedData.seoTitle !== undefined) updateData.seoTitle = validatedData.seoTitle ?? null;
+    if (validatedData.seoDescription !== undefined) updateData.seoDescription = validatedData.seoDescription ?? null;
+    if (validatedData.imageUrl !== undefined) updateData.imageUrl = validatedData.imageUrl ?? null;
+    if (validatedData.isActive !== undefined) updateData.isActive = validatedData.isActive;
+    if (validatedData.displayOrder !== undefined) updateData.displayOrder = validatedData.displayOrder;
+
     const musician = await prisma.musician.update({
       where: { id: musicianId },
-      data: validatedData,
+      data: updateData,
     });
 
     return NextResponse.json({ musician });

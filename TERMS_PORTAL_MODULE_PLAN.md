@@ -8,10 +8,10 @@ The portal T&C acceptance flow, gating, API, and schema changes are documented h
 
 ## Demo
 
-**Direct URL**: `/terms-portal-flow-demo.html`  
-**Via Admin**: `/admin/sandbox/terms-portal-demo` (embeds the demo)
+**Direct URL**: `/terms-portal-flow-demo`  
+**Via Admin**: `/admin/sandbox/terms-portal-demo` (opens demo in new tab)
 
-Open the demo at `https://yoursite.com/terms-portal-flow-demo.html` or go to Admin → Sandbox → Terms portal demo.
+Open the demo at `https://yoursite.com/terms-portal-flow-demo` or go to Admin → Sandbox → Terms portal demo. Demo imports full terms from `lib/terms-content.ts` (single source).
 
 ---
 

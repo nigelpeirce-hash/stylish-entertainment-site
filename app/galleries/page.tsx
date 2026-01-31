@@ -134,12 +134,6 @@ const stylingPhotos: Photo[] = [
     alt: "Lost Orangery venue with elegant styling, professional decoration and sophisticated wedding design",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163723/IMG_6321_xu8q8j.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Professional venue styling with creative decorations and elegant design creating a beautiful celebration atmosphere",
-  },
-  {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163716/IMG_1098_hqiw3d.jpg",
     width: 1200,
     height: 900,
@@ -271,6 +265,73 @@ export default function Galleries() {
         </motion.div>
       </section>
 
+      {/* Featured: Before and After – up top as a feature */}
+      <section className="py-16 md:py-20 px-3 sm:px-4 bg-gray-900">
+        <div className="container mx-auto max-w-6xl lg:max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mb-10 md:mb-14 text-center"
+          >
+            <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
+              <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Featured</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans mb-3 text-white font-bold">Before and After</h2>
+            <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto">
+              See the dramatic transformations we create at venues across the West Country
+            </p>
+          </motion.div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 max-w-6xl mx-auto mb-8 md:mb-10">
+            {beforeAfterTransforms.map((transform, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <Card className="h-full bg-gray-800/50 backdrop-blur-sm border-2 border-champagne-gold/30 shadow-xl overflow-hidden hover:border-champagne-gold/60 transition-all duration-300">
+                  <CardContent className="p-4 sm:p-6">
+                    <BeforeAfter before={transform.before} after={transform.after} />
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+          {/* Video Transformation – wider container so YouTube serves HD (720p+ needs ~1090px+) */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="max-w-3xl md:max-w-6xl lg:max-w-7xl mx-auto"
+          >
+            <Card className="bg-gray-800/50 backdrop-blur-sm border-2 border-champagne-gold/30 shadow-xl overflow-hidden hover:border-champagne-gold/60 transition-all duration-300">
+              <CardContent className="p-4 sm:p-6">
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-2 text-center">
+                  Fun & Creative Transformations
+                </h3>
+                <p className="text-sm text-gray-300 text-center mb-4">
+                  Watch how we transform spaces with fun and creative styling
+                </p>
+                <div className="relative w-full aspect-[9/16] sm:aspect-video rounded-lg overflow-hidden bg-gray-900 shadow-lg">
+                  <LazyIframe
+                    src="https://www.youtube.com/embed/47yP9a9lEg8?vq=hd1080"
+                    title="Venue transformation and fun styling example - Stylish Entertainment"
+                    className="absolute inset-0 w-full h-full"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    referrerPolicy="strict-origin-when-cross-origin"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </div>
+      </section>
+
       {/* Main Gallery Section with Tabs */}
       <section className="py-12 md:py-20 px-3 sm:px-4 bg-gray-800 relative">
         <div className="container mx-auto max-w-7xl">
@@ -382,80 +443,6 @@ export default function Galleries() {
               )}
             </AnimatePresence>
           </Tabs>
-        </div>
-      </section>
-
-      {/* Featured: Before and After Section */}
-      <section className="py-12 md:py-20 px-3 sm:px-4 bg-gray-900">
-        <div className="container mx-auto max-w-6xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mb-8 md:mb-12 text-center"
-          >
-            <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
-              <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Featured</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans mb-3 text-white font-bold">Before and After</h2>
-            <p className="text-sm sm:text-base text-gray-300 max-w-2xl mx-auto">
-              See the dramatic transformations we create at venues across the West Country
-            </p>
-          </motion.div>
-          
-          {/* Card-based layout for Before & After */}
-          <div className="grid grid-cols-1 lg:grid-cols-1 gap-6 max-w-5xl mx-auto">
-            {beforeAfterTransforms.map((transform, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <Card className="bg-gray-800/50 backdrop-blur-sm border-2 border-champagne-gold/30 shadow-xl overflow-hidden hover:border-champagne-gold/60 transition-all duration-300">
-                  <CardContent className="p-4 sm:p-6">
-                    <BeforeAfter
-                      before={transform.before}
-                      after={transform.after}
-                    />
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-            
-            {/* Video Transformation Example */}
-            <motion.div
-              initial={{ opacity: 0, y: 30, scale: 0.95 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: beforeAfterTransforms.length * 0.1 }}
-            >
-              <Card className="bg-gray-800/50 backdrop-blur-sm border-2 border-champagne-gold/30 shadow-xl overflow-hidden hover:border-champagne-gold/60 transition-all duration-300">
-                <CardContent className="p-4 sm:p-6">
-                  <div className="mb-4">
-                    <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 text-center">
-                      Fun & Creative Transformations
-                    </h3>
-                    <p className="text-sm sm:text-base text-gray-300 text-center mb-4">
-                      Watch how we transform spaces with fun and creative styling
-                    </p>
-                  </div>
-                  <div className="relative w-full aspect-[9/16] sm:aspect-video rounded-lg overflow-hidden bg-gray-900 shadow-lg">
-                    <LazyIframe
-                      src="https://www.youtube.com/embed/47yP9a9lEg8"
-                      title="Venue transformation and fun styling example - Stylish Entertainment"
-                      className="absolute inset-0 w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                      referrerPolicy="strict-origin-when-cross-origin"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
         </div>
       </section>
     </div>

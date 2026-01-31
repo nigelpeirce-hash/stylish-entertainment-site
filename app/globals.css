@@ -89,6 +89,24 @@ p[data-cky-tag="title"],
   }
 }
 
+/* Party lighting masonry – responsive columns: 1 col mobile, 2–3 tablet, 4+ desktop */
+@media (max-width: 639px) {
+  .party-lighting-masonry {
+    column-count: 1 !important;
+    column-width: 100% !important;
+  }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .party-lighting-masonry {
+    column-width: min(260px, 100%) !important;
+  }
+}
+@media (min-width: 1024px) {
+  .party-lighting-masonry {
+    column-width: min(280px, 100%) !important;
+  }
+}
+
 /* Site-wide CTA: always in document flow, never sticky or fixed. Must scroll with page. */
 .site-wide-cta {
   position: static !important;
@@ -112,6 +130,19 @@ p[data-cky-tag="title"],
 
 .animate-throb {
   animation: throb 2s ease-in-out infinite;
+}
+
+@keyframes swing {
+  0%, 100% {
+    transform: rotate(-6deg);
+  }
+  50% {
+    transform: rotate(6deg);
+  }
+}
+
+.animate-swing {
+  animation: swing 2s ease-in-out infinite;
 }
 
 @keyframes shimmer {
@@ -318,6 +349,176 @@ p[data-cky-tag="title"],
   
   .digital-display {
     gap: 0.5rem;
+  }
+}
+
+/* Portal Retro Digital Countdown – 70s/80s LED style */
+.portal-countdown-retro {
+  --retro-glow: #f4cf6d;
+  --retro-digit: #d4af37;
+  --retro-bg: #0a0a0c;
+  --retro-bezel: #1a1a1e;
+}
+
+.portal-countdown-retro__bezel {
+  position: relative;
+  background: linear-gradient(180deg, var(--retro-bezel) 0%, #0f0f12 50%, var(--retro-bezel) 100%);
+  border: 4px solid var(--retro-digit);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  box-shadow:
+    0 0 0 2px rgba(0, 0, 0, 0.5),
+    0 0 24px rgba(212, 175, 55, 0.25),
+    inset 0 2px 4px rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+}
+
+.portal-countdown-retro__scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.15) 2px,
+    rgba(0, 0, 0, 0.15) 4px
+  );
+  pointer-events: none;
+  border-radius: 8px;
+  margin: 4px;
+}
+
+.portal-countdown-retro__label {
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  color: var(--retro-digit);
+  text-align: center;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+}
+
+.portal-countdown-retro__display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  background: var(--retro-bg);
+  border: 2px solid rgba(212, 175, 55, 0.3);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  min-height: 3.5rem;
+}
+
+.portal-countdown-retro__display--expired .portal-countdown-retro__digit {
+  color: #f59e0b;
+  border-color: rgba(245, 158, 11, 0.5);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.4);
+}
+
+.portal-countdown-retro__unit {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.portal-countdown-retro__digit {
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--retro-digit);
+  background: linear-gradient(180deg, #1a1a1a 0%, #0a0a0c 100%);
+  border: 2px solid rgba(212, 175, 55, 0.5);
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+  min-width: 2.2rem;
+  text-align: center;
+  box-shadow:
+    0 0 12px rgba(212, 175, 55, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.6);
+  letter-spacing: 0.08em;
+}
+
+.portal-countdown-retro__colon {
+  font-family: ui-monospace, monospace;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--retro-digit);
+  align-self: flex-start;
+  margin-top: 0.35rem;
+  animation: portal-countdown-blink 1s step-end infinite;
+  text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+}
+
+.portal-countdown-retro__unit-label {
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: rgba(212, 175, 55, 0.6);
+  text-transform: uppercase;
+}
+
+.portal-countdown-retro__message {
+  font-family: ui-monospace, monospace;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--retro-digit);
+  text-align: center;
+  margin-top: 0.5rem;
+  text-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+}
+
+@keyframes portal-countdown-blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.25; }
+}
+
+/* Full-width variant for hero demo – countdown matches card width */
+.portal-countdown-retro.w-full {
+  width: 100%;
+}
+.portal-countdown-retro.w-full .portal-countdown-retro__bezel {
+  width: 100%;
+  box-sizing: border-box;
+}
+.portal-countdown-retro.w-full .portal-countdown-retro__display {
+  width: 100%;
+  max-width: 100%;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.portal-countdown-retro.w-full .portal-countdown-retro__unit {
+  flex: 1;
+  min-width: 0;
+}
+.portal-countdown-retro.w-full .portal-countdown-retro__digit {
+  width: 100%;
+  max-width: 4rem;
+  box-sizing: border-box;
+}
+/* Tighter when 6 units (years, months, days, hrs, min, sec) */
+.portal-countdown-retro.w-full .portal-countdown-retro__display[data-units="6"] .portal-countdown-retro__digit {
+  max-width: 3rem;
+  font-size: 1.35rem;
+}
+
+@media (max-width: 768px) {
+  .portal-countdown-retro__digit {
+    font-size: 1.35rem;
+    min-width: 1.85rem;
+    padding: 0.2rem 0.4rem;
+  }
+  .portal-countdown-retro__colon {
+    font-size: 1.2rem;
+  }
+  .portal-countdown-retro__label {
+    letter-spacing: 0.2em;
+    font-size: 0.55rem;
   }
 }
 

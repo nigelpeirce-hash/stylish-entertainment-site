@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { normalizeMixcloudUrl } from "@/lib/mixcloud-utils";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -19,10 +20,13 @@ export async function GET(request: NextRequest) {
         name: true,
         slug: true,
         bio: true,
+        strapLine: true,
+        fullBio: true,
         imageUrl: true,
         seoTitle: true,
         seoDescription: true,
         mixcloudUrl: true,
+        mixcloudEmbeds: true,
         youtubeEmbed: true,
         displayOrder: true,
         isActive: true,
@@ -37,8 +41,17 @@ export async function GET(request: NextRequest) {
       console.log(`[DJs API] Total DJs: ${allDJs.length}, Active: ${activeDJs.length}`);
     }
 
-    // Return active DJs (remove isActive from response as it's not needed)
-    const djs = activeDJs.map(({ isActive, ...dj }) => dj);
+    // Return active DJs with mixcloudEmbeds array (from mixcloudEmbeds or [mixcloudUrl])
+    // Normalize page URLs to widget URLs - www.mixcloud.com cannot be iframed (X-Frame-Options)
+    const djs = activeDJs.map(({ isActive, mixcloudUrl, mixcloudEmbeds, ...dj }) => {
+      const raw = Array.isArray(mixcloudEmbeds) && (mixcloudEmbeds as string[]).length > 0
+        ? (mixcloudEmbeds as string[])
+        : (mixcloudUrl ? [mixcloudUrl] : []);
+      const embeds = raw
+        .map((u) => (u && typeof u === "string" ? normalizeMixcloudUrl(u) : null))
+        .filter((u): u is string => !!u);
+      return { ...dj, mixcloudEmbeds: embeds };
+    });
 
     return NextResponse.json(
       { djs },

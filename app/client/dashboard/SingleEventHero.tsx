@@ -2,88 +2,123 @@
 
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { Calendar, FileText, Download, CheckCircle2 } from "lucide-react";
+import { Calendar, FileText, Download, CheckCircle2, Music, Banknote, ExternalLink, Sparkles } from "lucide-react";
 import { jsPDF } from "jspdf";
-import CountdownClock from "@/components/CountdownClock";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import PortalCountdownClock from "@/components/client/PortalCountdownClock";
 import MusicPlaylistManager from "@/components/MusicPlaylistManager";
 import GuestCountTracker from "@/components/GuestCountTracker";
 import BudgetTracker from "@/components/BudgetTracker";
 import AddOnConcierge from "@/components/AddOnConcierge";
+import CommunicationHistory from "@/components/client/CommunicationHistory";
+import HeroPhotoSection from "@/components/client/HeroPhotoSection";
 import { getLabel } from "@/lib/eventLabels";
 
 interface SingleEventHeroProps {
   booking: any;
+  onHeroUploaded?: () => void;
 }
 
-export function SingleEventHero({ booking }: SingleEventHeroProps) {
+export function SingleEventHero({ booking, onHeroUploaded }: SingleEventHeroProps) {
+  const eventDate = booking.eventDate ? new Date(booking.eventDate).toLocaleDateString("en-GB", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  }) : "Date not set";
+
   return (
-    <Card className="bg-gray-800/50 backdrop-blur-md border-champagne-gold/50">
-      <CardHeader>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <div>
-            <CardTitle className="text-3xl md:text-4xl text-white mb-2">
-              {booking.eventType}
-            </CardTitle>
-            <p className="text-gray-200 mb-1">
-              <strong>Date:</strong> {booking.eventDate ? new Date(booking.eventDate).toLocaleDateString('en-GB', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              }) : 'Date not set'}
-            </p>
-            <p className="text-gray-200 mb-1">
-              <strong>Venue:</strong> {booking.venueName}
-            </p>
-            <p className="text-gray-200">
-              <strong>Status:</strong>{" "}
-              <span
-                className={`capitalize ${
-                  booking.status === "confirmed"
-                    ? "text-green-400"
-                    : booking.status === "pending"
-                    ? "text-yellow-400"
-                    : "text-gray-400"
-                }`}
-              >
-                {booking.status}
-              </span>
-            </p>
+    <div className="space-y-6">
+      {/* Hero header + countdown */}
+      <Card className="relative bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-md border-champagne-gold/40 overflow-hidden">
+        {booking.portalHeroImageUrl && (
+          <div
+            className="absolute inset-0 bg-cover bg-center opacity-30 blur-sm"
+            style={{
+              backgroundImage: `url(${booking.portalHeroImageUrl})`,
+            }}
+          />
+        )}
+        {!booking.portalHeroImageUrl && (
+          <div className="absolute top-0 right-0 w-64 h-64 bg-champagne-gold/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        )}
+        <CardHeader className="relative">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Sparkles className="w-5 h-5 text-champagne-gold" />
+                <span className="text-champagne-gold/80 text-sm font-medium uppercase tracking-wider">{booking.eventType}</span>
+              </div>
+              <CardTitle className="text-3xl md:text-4xl text-white mb-2">
+                {booking.eventType}
+              </CardTitle>
+              <p className="text-gray-300 mb-1">
+                <strong className="text-gray-400">Date:</strong> {eventDate}
+              </p>
+              <p className="text-gray-300 mb-1">
+                <strong className="text-gray-400">Venue:</strong> {booking.venueName}
+              </p>
+              <p className="text-gray-300">
+                <strong className="text-gray-400">Status:</strong>{" "}
+                <span
+                  className={`capitalize font-medium ${
+                    booking.status === "confirmed"
+                      ? "text-green-400"
+                      : booking.status === "pending"
+                      ? "text-amber-400"
+                      : "text-gray-400"
+                  }`}
+                >
+                  {booking.status}
+                </span>
+              </p>
+            </div>
+            <div>
+              <PortalCountdownClock
+                targetDate={
+                  (booking.eventType || "").toLowerCase().includes("wedding") &&
+                  booking.ceremonyTime
+                    ? new Date(booking.ceremonyTime)
+                    : new Date(booking.eventDate)
+                }
+              />
+            </div>
           </div>
-          {/* Countdown Clock with border and pulse */}
-          <div className="border-2 border-champagne-gold/50 rounded-lg p-4 animate-pulse">
-            <CountdownClock targetDate={new Date(booking.eventDate)} />
-          </div>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="music">Music</TabsTrigger>
-            <TabsTrigger value="budget">Budget</TabsTrigger>
-            <TabsTrigger value="contract">Contract</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="overview" className="space-y-4 mt-6">
-            {/* Guest Count Tracker */}
-            <GuestCountTracker
-              bookingId={booking.id}
-              initialCount={booking.numberOfGuests || 0}
-            />
-            {/* Add-On Concierge */}
-            <AddOnConcierge
-              bookingId={booking.id}
+          <Link
+            href={`/client/bookings/${booking.id}`}
+            className="inline-flex items-center gap-2 mt-4 text-champagne-gold hover:text-champagne-gold/80 text-sm font-medium"
+          >
+            <ExternalLink className="w-4 h-4" />
+            View full booking portal
+          </Link>
+          <div className="mt-6 pt-4 border-t border-champagne-gold/20">
+            <HeroPhotoSection
+              heroImageUrl={booking.portalHeroImageUrl}
               eventType={booking.eventType}
-              eventDate={booking.eventDate}
+              bookingId={booking.id}
+              onUploaded={(url) => onHeroUploaded?.()}
             />
-            {/* Event Timeline - Removed for now (see TIMELINE_TASKS_BACKUP.md) */}
-            {/* Wedding Planning Checklist - Removed for now (see TIMELINE_TASKS_BACKUP.md) */}
-          </TabsContent>
+          </div>
+        </CardHeader>
+      </Card>
 
-          <TabsContent value="music" className="mt-6">
+      {/* 1. Music – first, fun section */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.05 }}
+      >
+        <div className="rounded-2xl overflow-hidden border border-champagne-gold/30 bg-gradient-to-b from-gray-800/90 to-gray-900/90">
+          <div className="px-6 py-4 bg-champagne-gold/10 border-b border-champagne-gold/30">
+            <h2 className="text-xl font-semibold text-white flex items-center gap-2">
+              <Music className="w-6 h-6 text-champagne-gold" />
+              Your playlist
+            </h2>
+            <p className="text-gray-400 text-sm mt-1">Must-plays, first dance, last song – help your DJ nail the vibe</p>
+          </div>
+          <div className="p-6">
             <MusicPlaylistManager
               bookingId={booking.id}
               eventType={booking.eventType}
@@ -95,36 +130,80 @@ export function SingleEventHero({ booking }: SingleEventHeroProps) {
                 musicNotesToDJ: booking.musicNotesToDJ,
               }}
             />
-          </TabsContent>
+          </div>
+        </div>
+      </motion.div>
 
-          <TabsContent value="budget" className="mt-6">
+      {/* 2. Budget */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <Card className="bg-gray-800/50 backdrop-blur-md border-champagne-gold/30">
+          <CardHeader>
+            <CardTitle className="text-xl text-white flex items-center gap-2">
+              <Banknote className="w-5 h-5 text-champagne-gold" />
+              Budget & payments
+            </CardTitle>
+            <p className="text-gray-400 text-sm">Deposit, balance and payment details</p>
+          </CardHeader>
+          <CardContent>
             <BudgetTracker
               bookingId={booking.id}
               totalBudget={booking.budget}
             />
-          </TabsContent>
+          </CardContent>
+        </Card>
+      </motion.div>
 
-          <TabsContent value="contract" className="mt-6">
-            <ContractSection booking={booking} />
-          </TabsContent>
-        </Tabs>
-      </CardContent>
-    </Card>
+      {/* 3. Guest count + add-ons */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.12 }}
+        className="grid gap-6 md:grid-cols-2"
+      >
+        <GuestCountTracker
+          bookingId={booking.id}
+          initialCount={booking.numberOfGuests || 0}
+        />
+        <AddOnConcierge
+          bookingId={booking.id}
+          eventType={booking.eventType}
+          eventDate={booking.eventDate}
+        />
+      </motion.div>
+
+      {/* 4. Messages – email thread */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.14 }}
+      >
+        <CommunicationHistory bookingId={booking.id} />
+      </motion.div>
+
+      {/* 5. Contract – footer-style at bottom */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.16 }}
+      >
+        <ContractFooter booking={booking} />
+      </motion.div>
+    </div>
   );
 }
 
-// Contract Section Component
-function ContractSection({ booking }: { booking: any }) {
+function ContractFooter({ booking }: { booking: any }) {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-
-  // Check if terms were accepted
   const termsAccepted = booking.terms_accepted === true;
   const acceptanceTimestamp = booking.acceptance_timestamp;
   const acceptanceIp = booking.acceptance_ip;
 
   const handleDownloadPDF = () => {
     setIsGeneratingPDF(true);
-
     try {
       const pdf = new jsPDF("p", "mm", "a4");
       const margin = 20;
@@ -132,45 +211,39 @@ function ContractSection({ booking }: { booking: any }) {
       const pageHeight = pdf.internal.pageSize.getHeight();
       let yPosition = margin;
 
-      // Header with logo/company name
       pdf.setFontSize(24);
       pdf.setFont("helvetica", "bold");
       pdf.setTextColor(0, 0, 0);
       pdf.text("STYLISH Entertainment", margin, yPosition);
       yPosition += 10;
 
-      // Divider line
-      pdf.setDrawColor(212, 175, 55); // Champagne gold
+      pdf.setDrawColor(212, 175, 55);
       pdf.setLineWidth(0.5);
       pdf.line(margin, yPosition, pageWidth - margin, yPosition);
       yPosition += 10;
 
-      // Title
       pdf.setFontSize(20);
-      pdf.setFont("helvetica", "bold");
       pdf.text("Booking Agreement", margin, yPosition);
       yPosition += 10;
 
-      // Booking Details
       pdf.setFontSize(12);
       pdf.setFont("helvetica", "normal");
-      
       const eventDate = booking.eventDate
-        ? new Date(booking.eventDate).toLocaleDateString('en-GB', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
+        ? new Date(booking.eventDate).toLocaleDateString("en-GB", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
           })
-        : 'Date not set';
+        : "Date not set";
 
-      pdf.text(`Event Type: ${booking.eventType || 'Not specified'}`, margin, yPosition);
+      pdf.text(`Event Type: ${booking.eventType || "Not specified"}`, margin, yPosition);
       yPosition += 7;
       pdf.text(`Event Date: ${eventDate}`, margin, yPosition);
       yPosition += 7;
-      pdf.text(`Venue: ${booking.venueName || 'Not specified'}`, margin, yPosition);
+      pdf.text(`Venue: ${booking.venueName || "Not specified"}`, margin, yPosition);
       yPosition += 7;
-      pdf.text(`Client Name: ${booking.name || 'Not specified'}`, margin, yPosition);
+      pdf.text(`Client Name: ${booking.name || "Not specified"}`, margin, yPosition);
       yPosition += 7;
       if (booking.numberOfGuests) {
         pdf.text(`Number of Guests: ${booking.numberOfGuests}`, margin, yPosition);
@@ -178,31 +251,26 @@ function ContractSection({ booking }: { booking: any }) {
       }
       yPosition += 5;
 
-      // Divider
       pdf.line(margin, yPosition, pageWidth - margin, yPosition);
       yPosition += 10;
 
-      // Digital Signature Section
       if (termsAccepted && acceptanceTimestamp && acceptanceIp) {
         pdf.setFontSize(14);
         pdf.setFont("helvetica", "bold");
         pdf.text("Digital Signature Confirmation", margin, yPosition);
         yPosition += 8;
-
         pdf.setFontSize(10);
         pdf.setFont("helvetica", "normal");
-        
         const acceptanceDate = new Date(acceptanceTimestamp);
-        const formattedDate = acceptanceDate.toLocaleDateString('en-GB', {
-          day: 'numeric',
-          month: 'long',
-          year: 'numeric',
+        const formattedDate = acceptanceDate.toLocaleDateString("en-GB", {
+          day: "numeric",
+          month: "long",
+          year: "numeric",
         });
-        const formattedTime = acceptanceDate.toLocaleTimeString('en-GB', {
-          hour: '2-digit',
-          minute: '2-digit',
+        const formattedTime = acceptanceDate.toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
         });
-
         pdf.text(`Status: Confirmed`, margin, yPosition);
         yPosition += 6;
         pdf.text(`Terms accepted on ${formattedDate} at ${formattedTime}`, margin, yPosition);
@@ -217,20 +285,17 @@ function ContractSection({ booking }: { booking: any }) {
         pdf.text("Terms acceptance pending", margin, yPosition);
       }
 
-      // Footer
       const footerY = pageHeight - 20;
       pdf.setFontSize(8);
       pdf.setFont("helvetica", "normal");
       pdf.setTextColor(128, 128, 128);
       pdf.text(
-        `Generated on ${new Date().toLocaleDateString('en-GB')} | Stylish Entertainment Ltd`,
+        `Generated on ${new Date().toLocaleDateString("en-GB")} | Stylish Entertainment Ltd`,
         margin,
         footerY
       );
 
-      // Save PDF
-      const fileName = `Booking-Agreement-${booking.id || 'contract'}.pdf`;
-      pdf.save(fileName);
+      pdf.save(`Booking-Agreement-${booking.id || "contract"}.pdf`);
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Failed to generate PDF. Please try again.");
@@ -240,67 +305,36 @@ function ContractSection({ booking }: { booking: any }) {
   };
 
   return (
-    <Card className="bg-gray-800/50 backdrop-blur-md border-champagne-gold/50">
-      <CardHeader>
-        <CardTitle className="text-xl text-white flex items-center gap-2">
-          <FileText className="w-5 h-5 text-champagne-gold" />
-          Contract & Agreement
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <div className="mt-8 rounded-xl border-t border-champagne-gold/20 bg-gray-900/60 py-6 px-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <FileText className="w-5 h-5 text-champagne-gold/80 shrink-0" />
+          <div>
+            <h3 className="text-base font-semibold text-white">Contract & agreement</h3>
+            <p className="text-sm text-gray-400">Terms and booking details</p>
+          </div>
+        </div>
         {termsAccepted && acceptanceTimestamp && acceptanceIp ? (
-          <>
-            {/* Status Badge */}
-            <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-champagne-gold" />
-              <span className="px-3 py-1 bg-champagne-gold/20 border border-champagne-gold/50 text-champagne-gold font-semibold rounded-full text-sm">
-                Status: Confirmed
-              </span>
-            </div>
-
-            {/* Acceptance Metadata */}
-            <div className="bg-gray-900/50 border border-champagne-gold/30 rounded-lg p-4 space-y-2">
-              {(() => {
-                const acceptanceDate = new Date(acceptanceTimestamp);
-                const formattedDate = acceptanceDate.toLocaleDateString('en-GB', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                });
-                const formattedTime = acceptanceDate.toLocaleTimeString('en-GB', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                });
-
-                return (
-                  <p className="text-gray-200 text-sm leading-relaxed">
-                    Terms accepted on <span className="font-semibold text-white">{formattedDate}</span> at{" "}
-                    <span className="font-semibold text-white">{formattedTime}</span> from IP:{" "}
-                    <span className="font-mono text-champagne-gold">{acceptanceIp}</span>
-                  </p>
-                );
-              })()}
-            </div>
-
-            {/* Download PDF Button */}
+          <div className="flex flex-wrap items-center gap-3">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/20 border border-green-500/40 text-green-400 rounded-full text-sm font-medium">
+              <CheckCircle2 className="w-4 h-4" />
+              Confirmed
+            </span>
             <Button
               onClick={handleDownloadPDF}
               disabled={isGeneratingPDF}
-              className="w-full bg-champagne-gold text-black hover:bg-champagne-gold/90 font-semibold"
+              variant="outline"
+              size="sm"
+              className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10"
             >
               <Download className="w-4 h-4 mr-2" />
-              {isGeneratingPDF ? "Generating PDF..." : "Download PDF Agreement"}
+              {isGeneratingPDF ? "Generating…" : "Download PDF"}
             </Button>
-          </>
-        ) : (
-          <div className="text-center py-8">
-            <p className="text-gray-400 mb-4">Contract acceptance pending</p>
-            <p className="text-sm text-gray-500">
-              Terms and conditions acceptance will be recorded here once you complete the secure booking process.
-            </p>
           </div>
+        ) : (
+          <p className="text-sm text-gray-500">Terms acceptance pending</p>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

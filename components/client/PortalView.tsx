@@ -12,6 +12,8 @@ import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 import confetti from "canvas-confetti";
 import HireShop from "@/components/client/HireShop";
 import GuestRequestsView from "@/components/client/GuestRequestsView";
+import PortalCountdownClock from "@/components/client/PortalCountdownClock";
+import HeroPhotoSection from "@/components/client/HeroPhotoSection";
 
 function stripReferralFromMessage(msg: string | null | undefined): string {
   if (!msg || typeof msg !== "string") return "";
@@ -87,6 +89,7 @@ interface Booking {
   lastSong?: string | null;
   musicNotesToDJ?: string | null;
   musicFileUrl?: string | null;
+  portalHeroImageUrl?: string | null;
   venueWhat3Words?: string | null;
   venueLoadInNotes?: string | null;
   clientAddress?: string | null;
@@ -179,14 +182,6 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
-  const [countdown, setCountdown] = useState<{
-    days: number;
-    hours: number;
-    minutes: number;
-    seconds: number;
-    hasPassed: boolean;
-  }>({ days: 0, hours: 0, minutes: 0, seconds: 0, hasPassed: false });
-  const [isAnimating, setIsAnimating] = useState(false);
   const [hireItems, setHireItems] = useState<HireItem[]>([]);
   const [loadingItems, setLoadingItems] = useState(true);
   const confettiTriggered = useRef(false);
@@ -314,36 +309,6 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
     return () => clearInterval(t);
   }, [booking.id, token]);
 
-  // Calculate countdown to event date with seconds
-  // Use ceremonyTime if it exists, otherwise fall back to eventDate
-  useEffect(() => {
-    const calculateCountdown = () => {
-      const targetDate = booking.ceremonyTime
-        ? new Date(booking.ceremonyTime as string | Date)
-        : new Date(booking.eventDate as string | Date);
-      const now = new Date();
-      const diff = targetDate.getTime() - now.getTime();
-
-      if (diff <= 0) {
-        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0, hasPassed: true });
-        return;
-      }
-
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-      setCountdown({ days, hours, minutes, seconds, hasPassed: false });
-      setIsAnimating(true);
-      setTimeout(() => setIsAnimating(false), 300);
-    };
-
-    calculateCountdown();
-    const interval = setInterval(calculateCountdown, 1000);
-    return () => clearInterval(interval);
-  }, [booking.eventDate, booking.ceremonyTime]);
-
   // Sync header countdown from this booking so "Countdown to Your Event" shows in client layout
   useEffect(() => {
     if (isPreview || !booking?.eventDate) return;
@@ -376,10 +341,12 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
     fetchHireItems();
   }, []);
 
-  // One-time confetti burst when deposit is received (toggle sets depositReceivedManual; either flag counts)
+  // One-time confetti burst when deposit is received (wedding only; Party/Corporate: no confetti)
   const isSecured = !!(booking.depositReceived || booking.depositReceivedManual);
+  const evType = (booking.eventType || "").toLowerCase();
+  const isWedding = evType.includes("wedding");
   useEffect(() => {
-    if (isSecured && !confettiTriggered.current) {
+    if (isWedding && isSecured && !confettiTriggered.current) {
       // Check sessionStorage to see if confetti has been shown for this booking
       const confettiKey = `confetti_shown_${booking.id}`;
       const hasShownConfetti = sessionStorage.getItem(confettiKey);
@@ -424,7 +391,7 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
         confettiTriggered.current = true;
       }
     }
-  }, [isSecured, booking.id]);
+  }, [isWedding, isSecured, booking.id]);
 
   const formatDate = (date: Date | string) => {
     const d = typeof date === 'string' ? new Date(date) : date;
@@ -467,8 +434,6 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
       });
     return () => { done = true; };
   }, [unlockThreeWeek, booking.id]);
-
-  const evType = (booking.eventType || "").toLowerCase();
 
   // Get greeting name with proper deduplication and formatting
   // Handles cases like "Tim & SarahTim & Sarah" → "Tim & Sarah"
@@ -625,42 +590,29 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
           </p>
         </div>
 
-        {/* Golden Grid Countdown Clock */}
-        {!countdown.hasPassed && (
-          <div className="mb-8">
-            <div className="grid grid-cols-4 gap-3 md:gap-4 mb-4">
-              {[
-                { value: countdown.days, label: "Days" },
-                { value: countdown.hours, label: "Hours" },
-                { value: countdown.minutes, label: "Mins" },
-                { value: countdown.seconds, label: "Secs" },
-              ].map(({ value, label }) => (
-                <div
-                  key={label}
-                  className="countdown-tile bg-gray-900/50 border border-amber-500/20 rounded-xl p-4 text-center cursor-default transition-all duration-300 hover:border-amber-500/40"
-                >
-                  <div
-                    className={`text-amber-500 font-light text-5xl transition-all duration-300 ${
-                      isAnimating ? "animate-pulse" : ""
-                    }`}
-                  >
-                    {value.toString().padStart(2, "0")}
-                  </div>
-                  <div className="text-[10px] text-gray-500 mt-2 uppercase tracking-wider">
-                    {label}
-                  </div>
-                </div>
-              ))}
-            </div>
-            
-            {/* Ceremony Detail */}
-            {ceremonyTimeDisplay && (
-              <p className="text-sm text-amber-500/80 text-center font-light">
-                Ceremony begins at {ceremonyTimeDisplay}
-              </p>
-            )}
+        {/* Retro Digital Countdown Clock */}
+        <div className="mb-8 flex flex-col items-center gap-4 relative overflow-hidden rounded-xl">
+          {booking.portalHeroImageUrl && (
+            <div
+              className="absolute inset-0 bg-cover bg-center opacity-25 blur-md -z-10"
+              style={{ backgroundImage: `url(${booking.portalHeroImageUrl})` }}
+            />
+          )}
+          <div className="w-full max-w-md">
+            <PortalCountdownClock
+              targetDate={
+                isWedding && booking.ceremonyTime
+                  ? new Date(booking.ceremonyTime as string | Date)
+                  : new Date(booking.eventDate as string | Date)
+              }
+            />
           </div>
-        )}
+          {isWedding && ceremonyTimeDisplay && (
+            <p className="text-sm text-amber-500/80 text-center font-light">
+              Ceremony begins at {ceremonyTimeDisplay}
+            </p>
+          )}
+        </div>
 
         <div className="space-y-6">
           {/* Booking Overview Card */}
@@ -784,6 +736,22 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
                   </div>
                 </div>
               )}
+
+              {/* Hero photo upload */}
+              <div className="pt-4 border-t border-white/10">
+                <HeroPhotoSection
+                  heroImageUrl={booking.portalHeroImageUrl ?? null}
+                  eventType={booking.eventType}
+                  bookingId={booking.id}
+                  onUploaded={(url) =>
+                    setBooking((prev) => ({
+                      ...prev,
+                      portalHeroImageUrl: url ?? undefined,
+                    }))
+                  }
+                  portalToken={token}
+                />
+              </div>
             </CardContent>
           </Card>
 

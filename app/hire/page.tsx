@@ -210,10 +210,41 @@ export default function HirePage() {
     );
   }
 
+  const isShopClosed = items.length === 0;
+
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gray-900 text-white relative">
+      {/* Shop Closed overlay - when no items seeded */}
+      {isShopClosed && (
+        <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/60 backdrop-blur-[2px]">
+          <div className="relative mt-8 flex flex-col items-center">
+            {/* Rope/chain - fixed */}
+            <div className="w-0.5 h-6 bg-amber-800/80 rounded-full mb-0" />
+            {/* Sign - swings from top */}
+            <div
+              className="px-8 py-4 bg-amber-950/95 border-2 border-champagne-gold/60 rounded-lg shadow-2xl animate-swing"
+              style={{ transformOrigin: "top center" }}
+            >
+              <p className="text-2xl md:text-3xl font-bold text-champagne-gold tracking-wide">
+                Shop Closed
+              </p>
+              <p className="text-sm md:text-base text-gray-400 mt-1 text-center">
+                At the moment — we&apos;ll be back soon
+              </p>
+            </div>
+          </div>
+          <p className="mt-12 text-gray-500 text-sm max-w-sm text-center px-4">
+            We&apos;re getting our hire catalogue ready. Check back soon or{" "}
+            <Link href="/contact-us" className="text-champagne-gold hover:underline">
+              get in touch
+            </Link>{" "}
+            for equipment enquiries.
+          </p>
+        </div>
+      )}
+
       {/* Header */}
-      <div className="bg-gray-800 border-b border-champagne-gold/30 sticky top-0 z-50">
+      <div className={`bg-gray-800 border-b border-champagne-gold/30 sticky top-0 z-50 transition-opacity duration-300 ${isShopClosed ? "opacity-40 pointer-events-none" : ""}`}>
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/what-we-do/equipment-dj-band-sound-kit">
             <Button variant="ghost" className="text-gray-300 hover:text-white">
@@ -235,7 +266,7 @@ export default function HirePage() {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
+      <div className={`container mx-auto px-4 py-8 transition-opacity duration-300 ${isShopClosed ? "opacity-40 pointer-events-none" : ""}`}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

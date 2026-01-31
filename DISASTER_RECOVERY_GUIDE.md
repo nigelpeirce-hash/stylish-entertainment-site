@@ -1,8 +1,8 @@
 # Disaster Recovery & Complete Rebuild Guide
 ## Stylish Entertainment Website
 
-**Last Updated:** January 30, 2026  
-**Version:** 1.7  
+**Last Updated:** January 31, 2026  
+**Version:** 1.8  
 **Purpose:** Complete technical documentation for rebuilding the system from scratch in case of catastrophic failure
 
 ---
@@ -40,6 +40,8 @@ git add . && git commit -m "message" && git push origin main
 ```
 
 Vercel auto-deploys on push to main. Redeploy after env var changes.
+
+**Vercel multi-project:** Env vars are per project. If you have multiple Vercel projects (e.g. ew61, 42ad), each must have `DATABASE_URL` set. Sitemap now uses dynamic Prisma import so build succeeds even when DB is unavailable (returns static-only sitemap).
 
 ### Critical Services to Verify
 - [ ] **Supabase Database** - https://supabase.com/dashboard
@@ -1667,8 +1669,13 @@ git push origin main           # Deploy to Vercel (auto)
 
 ### Version History
 
+- **v1.8** (January 31, 2026) - Admin fix, sitemap resilience, image cleanup:
+  - **Middleware:** `x-pathname` now passed on request headers (not response) so layout can read pathname. Fixes admin 500; layout correctly hides Footer and SiteWideCTA on `/admin`.
+  - **Sitemap:** Dynamic Prisma import – build no longer fails when `DATABASE_URL` is missing/invalid (e.g. some Vercel projects). Returns static-only sitemap if DB unavailable.
+  - **Kin House:** Removed 404 Cloudinary image from gallery (`app/kin-house-wiltshire/KinHouseClient.tsx`).
+  - **Page CTA:** SiteWideCTA at bottom of every page (non-sticky); hidden on `/admin`, `/contact`, `/thank-you`.
 - **v1.7** (January 30, 2026) - T&C, footer, breadcrumbs, demos:
-  - **T&C Portal Module:** Planned (not implemented). See `TERMS_PORTAL_MODULE_PLAN.md`. Portal will require personalised T&C acceptance before other features. Demo: `/terms-portal-flow-demo.html` or Admin → Sandbox → Terms portal demo.
+  - **T&C Portal Module:** Planned (not implemented). See `TERMS_PORTAL_MODULE_PLAN.md`. Portal will require personalised T&C acceptance before other features. Demo: `/terms-portal-flow-demo` or Admin → Sandbox → Terms portal demo.
   - **Terms content:** `lib/terms-content.ts` – Added `COMPANY_*`, `DEPOSIT_CLAUSE`, `TERMS_ABRIDGED`. Existing `TERMS_SECTIONS` unchanged.
   - **Footer:** Postal address and "All rights reserved" removed. `FooterRefactored.tsx` available; demo at `/admin/sandbox/footer-demo`.
   - **Breadcrumbs:** Refactored to `lib/breadcrumb-config.ts`, `lib/breadcrumb-utils.ts`. See `BREADCRUMB_AUDIT.md`.

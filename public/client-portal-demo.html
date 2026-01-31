@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Client Portal Demo – Sarah & Tim | Stylish Entertainment</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%);
+      color: #e5e5e5;
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+    }
+    .container { max-width: 1280px; margin: 0 auto; }
+    .champagne { color: #D4AF37; }
+    .gold-border { border-color: rgba(212,175,55,0.5); }
+
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .header h1 { font-size: 28px; font-weight: 700; margin: 0 0 4px; color: #fff; }
+    .header .email { color: #9ca3af; font-size: 14px; }
+    .header .tip { font-size: 14px; color: #D4AF37; font-style: italic; margin-top: 8px; }
+    .profile-btn {
+      padding: 10px 20px;
+      background: rgba(212,175,55,0.2);
+      color: #D4AF37;
+      border: 1px solid rgba(212,175,55,0.5);
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+    .profile-btn:hover { background: rgba(212,175,55,0.3); }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+    .quick-card {
+      background: rgba(31,41,55,0.5);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(212,175,55,0.5);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.2s;
+    }
+    .quick-card:hover { border-color: rgba(212,175,55,0.8); }
+    .quick-card .icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(212,175,55,0.2);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    .quick-card h3 { font-size: 16px; margin: 0 0 4px; color: #fff; }
+    .quick-card p { font-size: 13px; margin: 0; color: #9ca3af; }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+    .section-title .icon { color: #D4AF37; }
+
+    .booking-card {
+      background: rgba(31,41,55,0.5);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(212,175,55,0.5);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .booking-header {
+      padding: 24px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+    }
+    .booking-header h2 { font-size: 24px; margin: 0 0 8px; color: #fff; }
+    .booking-header p { margin: 0 0 4px; color: #d1d5db; font-size: 14px; }
+    .booking-header .status { color: #4ade80; }
+    .countdown {
+      padding: 16px 24px;
+      border: 2px solid rgba(212,175,55,0.5);
+      border-radius: 10px;
+      text-align: center;
+      min-width: 140px;
+    }
+    .countdown .label { font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.5px; }
+    .countdown .value { font-size: 28px; font-weight: 700; color: #D4AF37; }
+
+    .tabs {
+      display: flex;
+      gap: 4px;
+      padding: 0 24px 12px;
+      border-bottom: 1px solid #374151;
+    }
+    .tab {
+      padding: 10px 20px;
+      background: #374151;
+      color: #9ca3af;
+      border: none;
+      border-radius: 8px 8px 0 0;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .tab:hover { color: #fff; }
+    .tab.active { background: rgba(212,175,55,0.2); color: #D4AF37; }
+    .tab-content { padding: 24px; display: none; }
+    .tab-content.active { display: block; }
+
+    .tab-content h3 { font-size: 16px; color: #D4AF37; margin: 0 0 16px; }
+    .tab-content p { color: #9ca3af; font-size: 14px; line-height: 1.6; margin: 0 0 12px; }
+    .guest-count { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 16px; }
+    .music-list { list-style: none; padding: 0; margin: 0; }
+    .music-list li { padding: 8px 0; border-bottom: 1px solid #374151; color: #d1d5db; font-size: 14px; }
+    .budget-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #374151; }
+    .contract-pending {
+      padding: 20px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      border: 1px solid #374151;
+      margin-bottom: 20px;
+    }
+    .contract-pending p { font-size: 13px; color: #9ca3af; }
+    .demo-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(212,175,55,0.2);
+      color: #D4AF37;
+      border-radius: 20px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div>
+        <h1>Welcome back, Sarah & Tim</h1>
+        <p class="email">sarah.tim@example.com</p>
+        <p class="tip">Don't forget to break in your wedding shoes!</p>
+      </div>
+      <button type="button" class="profile-btn">Profile ▾</button>
+    </div>
+
+    <div class="quick-actions">
+      <a href="#" class="quick-card">
+        <div class="icon">+</div>
+        <div>
+          <h3>New Booking</h3>
+          <p>Submit a new enquiry</p>
+        </div>
+      </a>
+      <a href="#" class="quick-card">
+        <div class="icon">👤</div>
+        <div>
+          <h3>Profile</h3>
+          <p>View your profile & event dates</p>
+        </div>
+      </a>
+      <a href="#" class="quick-card">
+        <div class="icon">💬</div>
+        <div>
+          <h3>Messages</h3>
+          <p>View conversations</p>
+        </div>
+      </a>
+    </div>
+
+    <div class="section-title">
+      <span class="icon">📅</span> Your Bookings
+    </div>
+
+    <div class="booking-card">
+      <div class="booking-header">
+        <div>
+          <h2>Wedding</h2>
+          <p><strong>Date:</strong> Saturday, 15 June 2025</p>
+          <p><strong>Venue:</strong> Priston Mill</p>
+          <p><strong>Status:</strong> <span class="status">confirmed</span></p>
+        </div>
+        <div class="countdown">
+          <div class="label">Days to go</div>
+          <div class="value">136</div>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <button type="button" class="tab active" data-tab="overview">Overview</button>
+        <button type="button" class="tab" data-tab="music">Music</button>
+        <button type="button" class="tab" data-tab="budget">Budget</button>
+        <button type="button" class="tab" data-tab="contract">Contract</button>
+      </div>
+
+      <div id="overview" class="tab-content active">
+        <span class="demo-badge">Demo</span>
+        <h3>Overview</h3>
+        <div class="guest-count">👥 Guest count: <strong>120</strong></div>
+        <p>Add-on concierge: lighting packages, photo booth, fire pits, and more.</p>
+        <p>Manage your guest count and explore extras for your big day.</p>
+      </div>
+
+      <div id="music" class="tab-content">
+        <span class="demo-badge">Demo</span>
+        <h3>Music Details</h3>
+        <p>Must-play songs:</p>
+        <ul class="music-list">
+          <li>Shut Up and Dance – Walk the Moon</li>
+          <li>Dancing Queen – ABBA</li>
+          <li>Don't Stop Believin' – Journey</li>
+        </ul>
+        <p><strong>First dance:</strong> TBC</p>
+        <p><strong>Last song:</strong> TBC</p>
+        <p>Add your requests and notes for the DJ here.</p>
+      </div>
+
+      <div id="budget" class="tab-content">
+        <span class="demo-badge">Demo</span>
+        <h3>Budget Tracker</h3>
+        <div class="budget-row"><span>Deposit paid</span><span class="champagne">£500</span></div>
+        <div class="budget-row"><span>Balance due</span><span>£1,200</span></div>
+        <div class="budget-row"><span>Total</span><span class="champagne">£1,700</span></div>
+        <p style="margin-top: 16px;">Pay your balance before or on the night. Contact us if you have questions.</p>
+      </div>
+
+      <div id="contract" class="tab-content">
+        <span class="demo-badge">Demo</span>
+        <h3>Contract</h3>
+        <div class="contract-pending">
+          <p><strong>Booking Agreement – Sarah & Tim</strong></p>
+          <p>This agreement is for the provision of <strong>DJ Nige</strong> at <strong>Priston Mill</strong> on <strong>Saturday, 15 June 2025</strong>.</p>
+          <p>Terms acceptance required in the live portal. See <a href="/terms-portal-flow-demo" style="color:#D4AF37;">T&C Portal Flow Demo</a> for the full flow.</p>
+        </div>
+      </div>
+    </div>
+
+    <p style="text-align: center; margin-top: 32px; font-size: 12px; color: #6b7280;">
+      Client Portal Demo – Sarah & Tim · Stylish Entertainment Ltd
+    </p>
+  </div>
+
+  <script>
+    document.querySelectorAll('.tab').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var tabId = this.getAttribute('data-tab');
+        document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+        document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+        this.classList.add('active');
+        document.getElementById(tabId).classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

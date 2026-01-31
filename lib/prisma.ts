@@ -74,25 +74,8 @@ if (process.env.NODE_ENV === 'development' && !_gl.__dbStartupLogged) {
 }
 
 // Create pool with connection string
-// Test connection once per process in development (don't re-run on every prisma import)
-const _gt = typeof globalThis !== 'undefined' ? globalThis : (typeof global !== 'undefined' ? global : {});
-const _gtest = _gt as { __dbConnectionTestRun?: boolean };
-if (process.env.NODE_ENV === 'development' && !_gtest.__dbConnectionTestRun) {
-  _gtest.__dbConnectionTestRun = true;
-  const testPool = new pg.Pool({ connectionString, connectionTimeoutMillis: 5000, max: 1 });
-  testPool.query('SELECT 1')
-    .then(() => {
-      console.log('✅ Database connection test successful');
-      testPool.end();
-    })
-    .catch((err: Error) => {
-      console.error('❌ Database connection test failed:', err.message);
-      if (err.message.includes('Tenant or user not found')) {
-        console.error('   Username format, password, or project ref may be wrong.');
-      }
-      testPool.end();
-    });
-}
+// Skip connection test in dev to avoid extra pool (reduces "MaxClientsInSessionMode" when using Session mode)
+// To test: node -e "require('dotenv').config({path:'.env.local'}); const {Pool}=require('pg'); const p=new Pool({connectionString:process.env.DATABASE_URL}); p.query('SELECT 1').then(()=>{console.log('✅ Connected');p.end()}).catch(e=>{console.error('❌ Failed',e.message);p.end()})"
 
 // Add timeout parameters to connection string if not already present
 let enhancedConnectionString = connectionString;

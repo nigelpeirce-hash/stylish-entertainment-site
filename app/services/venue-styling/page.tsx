@@ -19,7 +19,7 @@ import { ServiceQuoteGenerator } from "@/components/ServiceQuoteGenerator";
 
 const stylingPhotos: Photo[] = [
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162260/Saltburn_231005__0020_0638_fpdevj.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163723/IMG_6321_xu8q8j.jpg",
     width: 1200,
     height: 800,
     alt: "Elegant Wedding Venue Styling",
@@ -91,7 +91,7 @@ export default function VenueStylingService() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,w_1920/v1768162260/Saltburn_231005__0020_0638_fpdevj.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,w_1920/v1768163723/IMG_6321_xu8q8j.jpg"
             alt="Saltburn venue with elegant venue styling, professional wedding decoration and sophisticated interior design creating a luxurious wedding atmosphere"
             fill
             className="object-cover object-center brightness-110"
