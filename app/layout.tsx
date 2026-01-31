@@ -16,6 +16,7 @@ export const viewport: Viewport = {
 };
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
+import SiteWideCTA from "@/components/SiteWideCTA";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import GoogleTagManager from "@/components/GoogleTagManager";
 import CookieYes from "@/components/CookieYes";
@@ -221,6 +222,8 @@ export default async function RootLayout({
           <ErrorBoundaryWrapper>
             <div className="relative z-10 block safe-area-x">
               <main className="min-h-screen">{children}</main>
+              {/* Page CTA – in-flow, not sticky. To undo: remove next line and the SiteWideCTA import. */}
+              {!pathname.startsWith("/admin") && <SiteWideCTA />}
               {/* No marketing footer on admin – Command Center only */}
               {!pathname.startsWith("/admin") && <Footer />}
             </div>

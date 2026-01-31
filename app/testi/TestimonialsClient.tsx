@@ -19,10 +19,8 @@ function shuffleArray<T>(array: T[]): T[] {
   return shuffled;
 }
 
-type VenueFilter = "All" | "Babington House" | "London" | "Somerset" | "Wiltshire";
-
 export default function TestimonialsClient() {
-  const [activeFilter, setActiveFilter] = useState<VenueFilter>("All");
+  const [activeFilter, setActiveFilter] = useState<string>("All");
   const [shuffledTestimonials, setShuffledTestimonials] = useState(testimonials);
   const [featuredTestimonials, setFeaturedTestimonials] = useState<Testimonial[]>([]);
 
@@ -40,6 +38,12 @@ export default function TestimonialsClient() {
     }
     return testimonials.filter((t) => !featuredTestimonials.includes(t));
   }, [featuredTestimonials]);
+
+  // Venue filter options: "All" plus unique filters from testimonials
+  const venueFilters = useMemo(
+    () => ["All", ...getVenueFiltersFromTestimonials()],
+    []
+  );
 
   // Filter testimonials based on active filter
   const filteredTestimonials = useMemo(() => {
@@ -196,14 +200,14 @@ export default function TestimonialsClient() {
               >
                 <Card className="bg-gray-900/50 backdrop-blur-sm border-champagne-gold/20 hover:border-champagne-gold/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all duration-300 h-full">
                   <CardContent className="p-6 sm:p-8">
-                    <p className="text-champagne-gold mb-4 leading-relaxed italic text-lg sm:text-xl md:text-2xl font-medium">
+                    <p className="text-gray-200 mb-4 leading-relaxed italic text-base sm:text-lg">
                       &quot;{testimonial.quote}&quot;
                     </p>
                     <div className="border-t border-champagne-gold/20 pt-4">
-                      <p className="text-white font-semibold text-base sm:text-lg">
+                      <p className="text-champagne-gold font-semibold text-sm sm:text-base">
                         {testimonial.author}
                       </p>
-                      <p className="text-gray-300 text-sm sm:text-base mt-1 flex items-center gap-2">
+                      <p className="text-gray-400 text-xs sm:text-sm mt-1 flex items-center gap-2">
                         {testimonial.venueUrl ? (
                           <>
                             <Link
@@ -213,7 +217,7 @@ export default function TestimonialsClient() {
                               className="hover:text-champagne-gold transition-colors underline flex items-center gap-1"
                             >
                               {testimonial.venue}
-                              <ExternalLink className="w-4 h-4" />
+                              <ExternalLink className="w-3 h-3" />
                             </Link>
                           </>
                         ) : (

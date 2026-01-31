@@ -121,6 +121,7 @@ Through a vast knowledge of music past and present, his range and ability to pla
 };
 
 import { getVenuesWeveWorkedAt } from "@/lib/venues-weve-worked-at";
+import { getServiceAreasByRegion } from "@/lib/service-areas";
 
 const allVenues = getVenuesWeveWorkedAt();
 
@@ -863,28 +864,37 @@ export default function DJs() {
           >
             <Card className="border-champagne-gold/30 bg-gray-800 shadow-lg">
               <CardContent className="p-8 sm:p-10 md:p-12">
-                <h3 className="text-2xl sm:text-3xl font-bold text-white mb-6 text-center">
+                <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4 text-center">
                   Our Service Areas
                 </h3>
-                <p className="text-base sm:text-lg text-gray-300 leading-relaxed text-center mb-6">
-                  Our party DJs and mobile DJs play in the following locations:
+                <p className="text-base sm:text-lg text-gray-300 leading-relaxed text-center mb-8">
+                  Our party DJs and mobile DJs play in the following regions, backed by real client reviews:
                 </p>
-                <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
-                  {[
-                    "London", "Bristol", "Bath", "Birmingham", "Somerset", "Wiltshire",
-                    "Devon", "Dorset", "Oxford", "Cardiff", "Surrey", "Gloucestershire",
-                    "Essex", "Sussex", "Exeter", "South Wales", "Wales",
-                    "Cornwall", "Leicestershire", "Herefordshire", "Hampshire", "Berkshire", "Warwickshire"
-                  ].map((location, index) => (
-                    <span
-                      key={index}
-                      className="px-4 py-2 bg-gray-800/80 text-white rounded-full text-sm sm:text-base font-medium border border-champagne-gold/30 hover:bg-champagne-gold/20 hover:border-champagne-gold/50 transition-all cursor-default shadow-sm"
-                    >
-                      {location}
-                    </span>
+                <div className="space-y-6">
+                  {getServiceAreasByRegion().map((area) => (
+                    <div key={area.region} className="space-y-3">
+                      <h4 className="text-lg font-semibold text-champagne-gold">
+                        {area.region}
+                      </h4>
+                      {area.description && (
+                        <p className="text-sm text-gray-400 -mt-1">
+                          {area.description}
+                        </p>
+                      )}
+                      <div className="flex flex-wrap gap-2">
+                        {area.counties.map((county) => (
+                          <span
+                            key={county}
+                            className="px-3 py-1.5 bg-gray-900/60 text-white rounded-full text-sm font-medium border border-champagne-gold/20 hover:border-champagne-gold/40 transition-all"
+                          >
+                            {county}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
-                <p className="text-base sm:text-lg text-gray-300 leading-relaxed text-center mt-6 italic">
+                <p className="text-base sm:text-lg text-gray-300 leading-relaxed text-center mt-8 italic">
                   And other areas of the UK and Europe by request.
                 </p>
               </CardContent>

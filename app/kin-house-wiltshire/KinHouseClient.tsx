@@ -19,12 +19,6 @@ const kinHousePhotos = [
     height: 1600,
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162837/02B12F9E-2B68-4CC9-9222-1CB8636346B5_1_105_c-e1711128118139_etauug.jpg",
-    alt: "Fairy-light canopy in Kilvert Hall at Kin House",
-    width: 1200,
-    height: 900,
-  },
-  {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163212/Kin-House-Kilvert-Hall-Lighting_htlcbj.jpg",
     alt: "Perfect for winter and autumn weddings and events at Kin House",
     width: 1200,

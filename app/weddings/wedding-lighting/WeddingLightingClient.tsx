@@ -161,7 +161,7 @@ export default function WeddingLightingClient() {
                 Our clients trust us to transform their most important moments into masterpieces.
               </p>
               <Link 
-                href="/testimonials" 
+                href="/testi" 
                 className="inline-flex items-center gap-2 text-champagne-gold hover:text-white transition-colors group"
               >
                 <span className="border-b border-champagne-gold">Read Client Experiences</span>

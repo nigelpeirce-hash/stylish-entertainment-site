@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page CTA Demo – Bottom of Every Page | Stylish Entertainment</title>
+  <style>
+    * { box-sizing: border-box; }
+    :root {
+      --champagne-gold: #D4AF37;
+      --gray-900: rgb(17 24 39);
+      --gray-800: rgb(31 41 55);
+      --gray-300: rgb(209 213 219);
+    }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      color: #1A1A1A;
+      line-height: 1.6;
+    }
+    .page-header {
+      text-align: center;
+      padding: 32px 16px;
+      background: linear-gradient(160deg, #f5f0e8 0%, #e8e4dc 100%);
+      border-bottom: 1px solid rgba(212,175,55,0.3);
+    }
+    .page-header h1 {
+      font-size: 24px;
+      font-weight: 600;
+      margin: 0 0 8px;
+      color: #1A1A1A;
+    }
+    .page-header p {
+      font-size: 14px;
+      color: #555;
+      margin: 0;
+    }
+
+    /* Sample page content – dark theme (typical for site) */
+    .page-content-dark {
+      min-height: 60vh;
+      background: var(--gray-900);
+      padding: 48px 24px;
+      color: var(--gray-300);
+    }
+    .page-content-dark h2 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      margin: 0 0 16px;
+    }
+    .page-content-dark p {
+      max-width: 640px;
+      font-size: 16px;
+    }
+
+    /* Sample page content – light theme */
+    .page-content-light {
+      min-height: 40vh;
+      background: #f9fafb;
+      padding: 48px 24px;
+      color: #374151;
+    }
+    .page-content-light h2 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #111827;
+      margin: 0 0 12px;
+    }
+
+    /* ========== CTA VARIANTS ========== */
+
+    /* Main CTA – full width, prominent (recommended) */
+    .cta-main {
+      width: 100%;
+      padding: 40px 24px;
+      background: var(--gray-900);
+      border-top: 1px solid rgba(212,175,55,0.2);
+    }
+    .cta-main-inner {
+      max-width: 896px;
+      margin: 0 auto;
+      padding: 32px 40px;
+      background: rgba(31,41,55,0.6);
+      border: 1px solid rgba(212,175,55,0.2);
+      border-radius: 12px;
+      text-align: center;
+    }
+    .cta-main h2 {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--champagne-gold);
+      margin: 0 0 12px;
+      line-height: 1.3;
+    }
+    .cta-main p {
+      font-size: 16px;
+      color: var(--gray-300);
+      margin: 0 0 24px;
+      max-width: 560px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .cta-main .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+    }
+    .cta-main .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 28px;
+      background: var(--champagne-gold);
+      color: #111827;
+      font-weight: 600;
+      font-size: 16px;
+      text-decoration: none;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+    }
+    .cta-main .btn-primary:hover {
+      background: rgba(212,175,55,0.9);
+      transform: translateY(-1px);
+    }
+    .cta-main .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 28px;
+      background: transparent;
+      color: var(--champagne-gold);
+      font-weight: 600;
+      font-size: 16px;
+      text-decoration: none;
+      border-radius: 8px;
+      border: 2px solid var(--champagne-gold);
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .cta-main .btn-secondary:hover {
+      background: var(--champagne-gold);
+      color: #111827;
+    }
+
+    /* Compact CTA – slim bar */
+    .cta-compact {
+      width: 100%;
+      padding: 24px;
+      background: var(--gray-900);
+      border-top: 1px solid rgba(212,175,55,0.2);
+    }
+    .cta-compact-inner {
+      max-width: 800px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+    .cta-compact p {
+      margin: 0;
+      font-size: 16px;
+      color: var(--gray-300);
+    }
+    .cta-compact .btn {
+      padding: 10px 24px;
+      background: var(--champagne-gold);
+      color: #111827;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      border-radius: 8px;
+      white-space: nowrap;
+    }
+    .cta-compact .btn:hover {
+      background: rgba(212,175,55,0.9);
+    }
+
+    /* Champagne bar CTA – matches footer feel */
+    .cta-champagne {
+      width: 100%;
+      padding: 32px 24px;
+      background: linear-gradient(135deg, var(--champagne-gold) 0%, #c4a02a 100%);
+      border-top: 2px solid rgba(0,0,0,0.1);
+    }
+    .cta-champagne-inner {
+      max-width: 640px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .cta-champagne h2 {
+      font-size: 22px;
+      font-weight: 700;
+      color: #111827;
+      margin: 0 0 8px;
+    }
+    .cta-champagne p {
+      font-size: 15px;
+      color: rgba(0,0,0,0.75);
+      margin: 0 0 20px;
+    }
+    .cta-champagne .btn {
+      display: inline-block;
+      padding: 12px 28px;
+      background: #111827;
+      color: var(--champagne-gold);
+      font-weight: 600;
+      font-size: 15px;
+      text-decoration: none;
+      border-radius: 8px;
+    }
+    .cta-champagne .btn:hover {
+      background: #1f2937;
+    }
+
+    /* Footer (minimal for context) */
+    .footer {
+      padding: 24px;
+      background: var(--champagne-gold);
+      color: #111827;
+      text-align: center;
+      font-size: 14px;
+    }
+    .footer a {
+      color: #111827;
+      font-weight: 600;
+    }
+
+    /* Variant labels */
+    .variant-label {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: rgba(212,175,55,0.9);
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed rgba(212,175,55,0.4);
+    }
+
+    /* Demo layout */
+    .demo-section {
+      margin-bottom: 48px;
+    }
+    .demo-section:last-of-type {
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>Page CTA Demo</h1>
+    <p>Proposed CTA block for the bottom of every page, above the footer. Choose a variant and implement site-wide.</p>
+  </header>
+
+  <!-- Simulated page content -->
+  <section class="page-content-dark">
+    <div style="max-width: 800px; margin: 0 auto;">
+      <h2>Sample Page Content</h2>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Professional DJs, musicians, lighting design and venue styling. Every gathering deserves to be extraordinary.</p>
+      <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+    </div>
+  </section>
+
+  <!-- VARIANT 1: Main CTA (recommended – matches SiteWideCTA) -->
+  <section class="cta-main">
+    <div class="cta-main-inner">
+      <div class="variant-label">Variant 1: Main CTA (recommended)</div>
+      <h2>Ready to create something extraordinary?</h2>
+      <p>Professional DJs, musicians, lighting design and venue styling across the UK. Get in touch to discuss your wedding, party or event—we'll get back to you within 24 hours.</p>
+      <div class="buttons">
+        <a href="/contact-us" class="btn-primary">Get in Touch</a>
+        <a href="tel:+447970793177" class="btn-secondary">Call 07970 793177</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    Stylish Entertainment Ltd · <a href="/contact-us">Contact</a> · <a href="/artists/djs">DJs</a> · <a href="/services">Services</a>
+  </footer>
+
+  <div style="height: 60px; background: #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #6b7280;">
+    — Scroll down for more variants —
+  </div>
+
+  <!-- VARIANT 2: Compact CTA -->
+  <section class="page-content-light">
+    <div style="max-width: 800px; margin: 0 auto;">
+      <h2>Light Page Example</h2>
+      <p>Some pages use a lighter background. The CTA should work on both dark and light page ends.</p>
+    </div>
+  </section>
+
+  <section class="cta-compact">
+    <div class="cta-compact-inner">
+      <div class="variant-label">Variant 2: Compact</div>
+      <p>Ready to discuss your event? Get in touch for a free quote.</p>
+      <a href="/contact-us" class="btn">Get in Touch</a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    Footer
+  </footer>
+
+  <div style="height: 60px; background: #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 13px; color: #6b7280;">
+    — Variant 3 —
+  </div>
+
+  <!-- VARIANT 3: Champagne bar (bridges into footer) -->
+  <section class="page-content-dark">
+    <div style="max-width: 800px; margin: 0 auto;">
+      <h2>Another Dark Page</h2>
+      <p>This variant uses the champagne-gold bar to create a visual bridge into the footer.</p>
+    </div>
+  </section>
+
+  <section class="cta-champagne">
+    <div class="cta-champagne-inner">
+      <div class="variant-label">Variant 3: Champagne Bar</div>
+      <h2>Let's make your event unforgettable</h2>
+      <p>Get in touch to discuss DJs, musicians, lighting and styling for your celebration.</p>
+      <a href="/contact-us" class="btn">Get Your Free Quote</a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    Footer
+  </footer>
+
+  <div style="padding: 32px 24px; background: #f3f4f6; font-size: 13px; color: #6b7280; text-align: center;">
+    <p style="margin: 0 0 8px;"><strong>Implementation notes</strong></p>
+    <p style="margin: 0;">Add the chosen CTA component to <code>app/layout.tsx</code> between <code>&lt;main&gt;</code> and <code>&lt;Footer&gt;</code>. Hide on contact pages and admin. The existing <code>SiteWideCTA</code> component matches Variant 1.</p>
+  </div>
+</body>
+</html>

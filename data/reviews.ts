@@ -66,19 +66,9 @@ export const reviews: Review[] = [
     venue: "Town Hall Hotel, London",
   },
   {
-    quote: "We thought the music was perfect and catered to all our guests!! Our photographers mentioned in the 10 years they've been working they've not seen a dance floor so full for so long.",
-    author: "Alina & Dan",
-    venue: "Babington House",
-  },
-  {
     quote: "I just wanted to say how great Rich was on Saturday! His set list was perfect! He took all our requests into consideration and we've had soo many of our family and friends saying how amazing he was!",
     author: "Liam",
     venue: "Parklands Quendon Hall, Essex",
-  },
-  {
-    quote: "We would just like to do a review for James for our wedding day. From start to finish James was fantastic to deal with an absolutely got we wanted. His mixing and ability to judge the audience was better than I have ever seen.",
-    author: "George & Kathryn",
-    venue: "Dene Farm, Stockbridge",
   },
   {
     quote: "We want to send our heartfelt thanks to you, Nigel, Dave & Simon - they were awesome. Everything was seamless between them and the band and we had such a great eclectic mix to get everyone in the mood and dancing.",

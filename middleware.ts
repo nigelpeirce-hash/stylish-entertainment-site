@@ -2,9 +2,11 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-function withPathnameHeader(response: NextResponse, pathname: string): NextResponse {
-  response.headers.set("x-pathname", pathname);
-  return response;
+/** Create NextResponse.next() with x-pathname on the forwarded request so layout can read it. */
+function nextWithPathname(pathname: string, request: NextRequest): NextResponse {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", pathname);
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 export async function middleware(request: NextRequest) {
@@ -22,7 +24,7 @@ export async function middleware(request: NextRequest) {
       !hostname.includes("127.0.0.1")
     ) {
       url.protocol = "https:";
-      return withPathnameHeader(NextResponse.redirect(url, 301), pathname);
+      return NextResponse.redirect(url, 301);
     }
   }
 
@@ -33,7 +35,7 @@ export async function middleware(request: NextRequest) {
 
     // Tokenized magic link: /client/bookings/[id]?token=... grants immediate access (no login)
     if (/^\/client\/bookings\/[^/]+$/.test(pathname) && magicToken) {
-      return withPathnameHeader(NextResponse.next(), pathname);
+      return nextWithPathname(pathname, request);
     }
 
     const token = await getToken({
@@ -43,18 +45,18 @@ export async function middleware(request: NextRequest) {
 
     // Allow admins to access client pages for preview/testing
     if (token && (token as any).role === "admin") {
-      return withPathnameHeader(NextResponse.next(), pathname);
+      return nextWithPathname(pathname, request);
     }
 
     // If no token, redirect to login
     if (!token) {
       const url = new URL("/login", request.url);
       url.searchParams.set("callbackUrl", request.nextUrl.pathname);
-      return withPathnameHeader(NextResponse.redirect(url), pathname);
+      return NextResponse.redirect(url, 302);
     }
   }
 
-  return withPathnameHeader(NextResponse.next(), pathname);
+  return nextWithPathname(pathname, request);
 }
 
 export const config = {

@@ -1,16 +1,16 @@
 "use client";
 
 /**
- * Site-wide CTA: "Ready to create something extraordinary?" + Get in Touch / Call.
- * Currently not rendered (removed from layout). Kept for future deployment.
- * To restore: add import + <SiteWideCTA /> in app/layout.tsx between <main> and <Footer>.
+ * Page CTA: "Ready to create something extraordinary?" + Get in Touch / Call.
+ * In-flow (not sticky). Renders above Footer on every page except contact/admin.
+ * To disable: set SHOW_PAGE_CTA = false in app/layout.tsx or remove the component.
  */
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 
-const HIDE_ON_PATHS = ["/contact", "/contact-us", "/admin"];
+const HIDE_ON_PATHS = ["/contact", "/contact-us", "/admin", "/thank-you"];
 
 export default function SiteWideCTA() {
   const pathname = usePathname();

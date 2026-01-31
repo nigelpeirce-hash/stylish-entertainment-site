@@ -4,14 +4,14 @@ import { testimonials } from "@/data/testimonials";
 
 export const metadata: Metadata = {
   title: "Client Reviews & Testimonials",
-  description: "Read 5-star reviews from our clients at Babington House, Kin House, and across the West Country. Discover why we are the top-rated wedding DJs in Somerset.",
+  description: "159+ 5-star wedding DJ reviews from Babington House, Devon, London, Monaco, Norfolk, Suffolk and across the UK and Europe. Discover why couples love our wedding entertainment.",
   keywords: ["Wedding DJ Testimonials", "Babington House Reviews", "Wedding Entertainment Reviews", "Party DJ Testimonials", "Somerset Wedding DJs"],
   alternates: {
     canonical: "./",
   },
   openGraph: {
     title: "Client Reviews & Testimonials",
-    description: "Read 5-star reviews from our clients at Babington House, Kin House, and across the West Country. Discover why we are the top-rated wedding DJs in Somerset.",
+    description: "159+ 5-star wedding DJ reviews from Babington House, Devon, London, Monaco, Norfolk, Suffolk and across the UK and Europe. Discover why couples love our wedding entertainment.",
   },
 };
 
