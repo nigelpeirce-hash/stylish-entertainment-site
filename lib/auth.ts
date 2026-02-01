@@ -2,6 +2,7 @@ import type { NextAuthConfig } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { sendClientFirstLoginNotification } from "@/lib/client-login-notifications";
 
 // Ensure NEXTAUTH_URL is set from NEXT_PUBLIC_SITE_URL if not explicitly set
 // This ensures consistent behavior across local and production environments
@@ -88,6 +89,28 @@ export const authOptions: NextAuthConfig = {
           }
 
           console.log("Password valid, returning user:", user.id);
+
+          // Track login: increment loginCount and set lastLoginAt
+          const wasFirstLogin = ((user as any).loginCount ?? 0) === 0 && (user.role || "client") === "client";
+          try {
+            await prisma.user.update({
+              where: { id: user.id },
+              data: {
+                loginCount: { increment: 1 },
+                lastLoginAt: new Date(),
+                updatedAt: new Date(),
+              },
+            });
+          } catch (updateErr: any) {
+            console.warn("[auth] Login count update failed:", updateErr?.message || updateErr);
+          }
+
+          // Notify admin on first client login (fire-and-forget)
+          if (wasFirstLogin) {
+            sendClientFirstLoginNotification(user.id).catch((err) =>
+              console.error("[auth] First login notification failed:", err)
+            );
+          }
 
           return {
             id: user.id,

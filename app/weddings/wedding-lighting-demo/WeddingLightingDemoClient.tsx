@@ -25,7 +25,7 @@ const galleryPhotos = [
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768741340/_F4R3275_tukoww.jpg", alt: "Festival vibe – Edison festoon and fairy lights" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163720/A-Big-Lazer-e1430894875463_xgpiil.jpg", alt: "After-party energy – dynamic dance floor lighting" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163596/STYLISH-babs-july2016_ria-mishaal-photography_006_qmds40.jpg", alt: "Babington House – intimate uplighting and pin-spotted tables" },
-  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg", alt: "Reception – warm glow that makes floral arrangements pop" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg", alt: "Reception – warm glow that makes floral arrangements pop" },
 ];
 
 // Lighting Personas – couples "find themselves"

@@ -32,6 +32,21 @@ const nextConfig = {
   // Force HTTPS in production
   async headers() {
     return [
+      // Allow demo/client-portal to be embedded in same-origin iframes (wedding-dj page)
+      {
+        source: '/demo/client-portal',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+        ],
+      },
+      {
+        source: '/demo/client-portal/',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+        ],
+      },
       {
         source: '/:path*',
         headers: [
@@ -45,7 +60,7 @@ const nextConfig = {
           },
           {
             key: 'X-Frame-Options',
-            value: 'DENY',
+            value: 'SAMEORIGIN',
           },
           {
             key: 'X-XSS-Protection',

@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 const PREFIX_HIDE = ["/admin", "/contact", "/contact-us", "/thank-you"];
 const EXACT_HIDE = [
   "/wedding-dj",
+  "/demo/client-portal",
   "/party-planning-and-organising",
   "/what-we-do",
   "/what-we-do/lighting",

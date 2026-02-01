@@ -130,12 +130,9 @@ export async function GET(request: NextRequest) {
       const unreadPortalMessages = booking.emailThreads && booking.emailThreads.length > 0;
 
       // Check if there are staff assignments that need action
-      // Staff has responded (status is "held" or "dispatched") but isn't yet "confirmed"
+      // Staff has responded (status is "held" or "dispatched") – admin may need to confirm or take action
       const staffPendingAction = booking.staffAssignments && booking.staffAssignments.some(
-        (assignment) => 
-          (assignment.status === "held" || assignment.status === "dispatched") && 
-          assignment.status !== "confirmed" &&
-          assignment.status !== "cancelled"
+        (assignment) => assignment.status === "held" || assignment.status === "dispatched"
       );
 
       // Remove emailThreads from the response (we only needed it for the check)

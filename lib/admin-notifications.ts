@@ -3,7 +3,7 @@
  * Sends email to admin inbox(es) and writes to AuditLog for dashboard activity feed.
  */
 
-import { prisma } from "@/lib/prisma";
+import { logActivity, type ActivityActor } from "@/lib/activity-log";
 import { getResendConfig } from "@/lib/email-config";
 import { Resend } from "resend";
 import sendEmail from "@/lib/email/send-email";
@@ -25,10 +25,14 @@ export interface NotifyAdminOptions {
   title: string;
   description: string;
   performedBy?: string | null;
+  actor?: ActivityActor;
+  metadata?: Record<string, unknown>;
   /** Optional: booking name/venue/date for email body */
   bookingName?: string;
   venueName?: string;
   eventDate?: string;
+  /** Optional: link text (default "View booking") - e.g. "View enquiry" for new enquiries */
+  linkText?: string;
 }
 
 const getResend = (): Resend | null => {
@@ -44,25 +48,21 @@ const getResend = (): Resend | null => {
  * Does not throw; logs errors and returns.
  */
 export async function notifyAdminSignificantEvent(options: NotifyAdminOptions): Promise<void> {
-  const { type, bookingId, title, description, performedBy, bookingName, venueName, eventDate } = options;
+  const { type, bookingId, title, description, performedBy, actor, metadata, bookingName, venueName, eventDate, linkText } = options;
 
   const recipientEmail = process.env.CONTACT_FORM_EMAIL || "info@stylishentertainment.co.uk";
   const backupEmail = process.env.NOTIFICATION_EMAIL;
   const recipients = [recipientEmail, ...(backupEmail && backupEmail !== recipientEmail ? [backupEmail] : [])];
 
   // 1. Create AuditLog entry (for dashboard activity feed)
-  try {
-    await prisma.auditLog.create({
-      data: {
-        bookingId,
-        action: type,
-        description: description.slice(0, 500),
-        performedBy: performedBy ?? undefined,
-      },
-    });
-  } catch (logError) {
-    console.error("[admin-notifications] AuditLog create failed:", logError);
-  }
+  await logActivity({
+    bookingId,
+    action: type,
+    description: description.slice(0, 500),
+    performedBy,
+    actor: actor ?? "system",
+    metadata: metadata ?? undefined,
+  });
 
   // 2. Send email to admin(s)
   const emailConfig = getResendConfig("general");
@@ -82,7 +82,7 @@ export async function notifyAdminSignificantEvent(options: NotifyAdminOptions): 
       ${performedBy ? `<p style="color: #666; font-size: 14px;"><strong>By:</strong> ${performedBy}</p>` : ""}
       <p style="margin-top: 20px; font-size: 14px;">
         <a href="${process.env.NEXTAUTH_URL || "https://stylishentertainment.co.uk"}/admin/bookings/${bookingId}" 
-           style="color: #D4AF37; font-weight: bold;">View booking →</a>
+           style="color: #D4AF37; font-weight: bold;">${linkText || "View booking"} →</a>
       </p>
     </div>
   `;

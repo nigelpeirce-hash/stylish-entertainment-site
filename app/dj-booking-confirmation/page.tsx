@@ -15,6 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { Music, User, Mail, Phone, MapPin, Calendar, PoundSterling } from "lucide-react";
+import { AcceptTermsModule } from "@/components/AcceptTermsModule";
 
 const bookingSchema = z.object({
   // Client Information
@@ -536,30 +537,13 @@ export default function DJBookingConfirmationPage() {
                 </div>
 
                 {/* Terms & Conditions */}
-                <div className="space-y-4 border-t border-gray-700 pt-6">
-                  <div className="flex items-start space-x-3">
-                    <Checkbox
-                      id="termsAccepted"
-                      {...register("termsAccepted")}
-                      className="mt-1"
-                    />
-                    <div className="flex-1">
-                      <Label htmlFor="termsAccepted" className="cursor-pointer text-sm">
-                        I accept the{" "}
-                        <Link 
-                          href="/terms-and-conditions" 
-                          target="_blank"
-                          className="text-champagne-gold hover:text-gold-light underline"
-                        >
-                          Terms and Conditions
-                        </Link>
-                        {" "}*
-                      </Label>
-                      {errors.termsAccepted && (
-                        <p className="text-sm text-red-400 mt-1">{errors.termsAccepted.message}</p>
-                      )}
-                    </div>
-                  </div>
+                <div className="border-t border-gray-700 pt-6">
+                  <AcceptTermsModule
+                    accepted={watch("termsAccepted")}
+                    onAcceptChange={(accepted) => setValue("termsAccepted", accepted, { shouldValidate: true })}
+                    disabled={isSubmitting}
+                    error={errors.termsAccepted?.message}
+                  />
                 </div>
 
                 {/* Form Actions */}
@@ -567,7 +551,7 @@ export default function DJBookingConfirmationPage() {
                   <Button
                     type="submit"
                     className="bg-champagne-gold text-black hover:bg-gold-light"
-                    disabled={isSubmitting}
+                    disabled={!watch("termsAccepted") || isSubmitting}
                   >
                     {isSubmitting ? "Submitting..." : "Submit"}
                   </Button>

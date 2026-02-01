@@ -5,15 +5,25 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, MapPin, Mail, Phone, Users, AlertCircle, Headphones, Sparkles, CheckCircle2, ShieldCheck, Mic, ChevronDown, Banknote, FileText, Music, Link2, Upload } from "lucide-react";
+import { Calendar, Clock, MapPin, Mail, Phone, Users, AlertCircle, Headphones, Sparkles, CheckCircle2, ShieldCheck, Mic, ChevronDown, Banknote, FileText, Music, HelpCircle } from "lucide-react";
 import { getGreetingName, deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
 import Image from "next/image";
+import Link from "next/link";
 import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 import confetti from "canvas-confetti";
-import HireShop from "@/components/client/HireShop";
 import GuestRequestsView from "@/components/client/GuestRequestsView";
+import { AcceptTermsModule } from "@/components/AcceptTermsModule";
+import { ContractFooter } from "@/components/client/ContractFooter";
 import PortalCountdownClock from "@/components/client/PortalCountdownClock";
 import HeroPhotoSection from "@/components/client/HeroPhotoSection";
+import ClientMusicModule from "@/components/client/ClientMusicModule";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 function stripReferralFromMessage(msg: string | null | undefined): string {
   if (!msg || typeof msg !== "string") return "";
@@ -48,16 +58,6 @@ interface StaffAssignment {
     imageUrl?: string | null; // Profile photo URL (Cloudinary/S3)
     bio?: string | null; // Optional bio field if added to schema
   };
-}
-
-interface HireItem {
-  id: string;
-  name: string;
-  description: string | null;
-  price: number;
-  imageUrl: string | null;
-  category: string | null;
-  slug: string | null;
 }
 
 interface Booking {
@@ -100,6 +100,8 @@ interface Booking {
   staffAssignments?: StaffAssignment[];
   guestRequestToken?: string | null;
   guestRequestsEnabled?: boolean;
+  termsAccepted?: boolean;
+  termsAcceptedAt?: Date | string | null;
   guestRequests?: Array<{
     id: string;
     songTitle?: string | null;
@@ -182,13 +184,13 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
-  const [hireItems, setHireItems] = useState<HireItem[]>([]);
-  const [loadingItems, setLoadingItems] = useState(true);
   const confettiTriggered = useRef(false);
   const [paymentDetails, setPaymentDetails] = useState<{ staff: PaymentDetailsStaff[] } | null>(null);
   const [loadingPayment, setLoadingPayment] = useState(false);
   const [submittingFinalDetails, setSubmittingFinalDetails] = useState(false);
   const [submittingPaymentSent, setSubmittingPaymentSent] = useState(false);
+  const [portalTermsAccepted, setPortalTermsAccepted] = useState(false);
+  const [acceptingTerms, setAcceptingTerms] = useState(false);
   const [finalDetailsNotes, setFinalDetailsNotes] = useState(stripReferralFromMessage(initialBooking.message) || "");
   const [clientPhone, setClientPhone] = useState(formatClientPhone(initialBooking.phoneAreaCode, initialBooking.phoneNumber));
   const [venueWhat3Words, setVenueWhat3Words] = useState(initialBooking.venueWhat3Words ?? "");
@@ -198,15 +200,6 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
   const [clientTown, setClientTown] = useState(initialBooking.clientTown ?? "");
   const [clientCounty, setClientCounty] = useState(initialBooking.clientCounty ?? "");
   const [clientPostcode, setClientPostcode] = useState(initialBooking.clientPostcode ?? "");
-  const [firstDance, setFirstDance] = useState(initialBooking.firstDance ?? "");
-  const [lastSong, setLastSong] = useState(initialBooking.lastSong ?? "");
-  const [musicRequests, setMusicRequests] = useState(initialBooking.musicRequests ?? "");
-  const [musicDislikes, setMusicDislikes] = useState(initialBooking.musicDislikes ?? "");
-  const [musicNotesToDJ, setMusicNotesToDJ] = useState(initialBooking.musicNotesToDJ ?? "");
-  const [musicFileUrl, setMusicFileUrl] = useState(initialBooking.musicFileUrl ?? "");
-  const [uploadingMusicFile, setUploadingMusicFile] = useState(false);
-  const [musicFileUploadError, setMusicFileUploadError] = useState<string | null>(null);
-  const musicFileInputRef = useRef<HTMLInputElement>(null);
   const [numberOfGuests, setNumberOfGuests] = useState<string>(initialBooking.numberOfGuests != null ? String(initialBooking.numberOfGuests) : "");
   const [paymentSent, setPaymentSent] = useState(!!initialBooking.finalDetailsConfirmed);
   const [finalDetailsFeedback, setFinalDetailsFeedback] = useState<{ type: "success" | "error"; msg: string } | null>(null);
@@ -239,13 +232,6 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
     setClientTown(initialBooking.clientTown ?? "");
     setClientCounty(initialBooking.clientCounty ?? "");
     setClientPostcode(initialBooking.clientPostcode ?? "");
-    setFirstDance(initialBooking.firstDance ?? "");
-    setLastSong(initialBooking.lastSong ?? "");
-    setMusicRequests(initialBooking.musicRequests ?? "");
-    setMusicDislikes(initialBooking.musicDislikes ?? "");
-    setMusicNotesToDJ(initialBooking.musicNotesToDJ ?? "");
-    setMusicFileUrl(initialBooking.musicFileUrl ?? "");
-    setMusicFileUploadError(null);
     setNumberOfGuests(initialBooking.numberOfGuests != null ? String(initialBooking.numberOfGuests) : "");
     setPaymentSent(!!initialBooking.finalDetailsConfirmed);
   }, [initialBooking.id, initialBooking.staffAssignments?.length]);
@@ -309,6 +295,27 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
     return () => clearInterval(t);
   }, [booking.id, token]);
 
+  const handleAcceptTerms = async () => {
+    if (!portalTermsAccepted || acceptingTerms) return;
+    setAcceptingTerms(true);
+    try {
+      const url = token
+        ? `/api/client/bookings/${booking.id}/accept-terms?token=${encodeURIComponent(token)}`
+        : `/api/client/bookings/${booking.id}/accept-terms`;
+      const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({}) });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data?.success) {
+        setBooking((prev) => ({ ...prev, termsAccepted: true, termsAcceptedAt: new Date() }));
+      } else {
+        alert(data?.error || "Failed to accept terms. Please try again.");
+      }
+    } catch {
+      alert("Failed to accept terms. Please try again.");
+    } finally {
+      setAcceptingTerms(false);
+    }
+  };
+
   // Sync header countdown from this booking so "Countdown to Your Event" shows in client layout
   useEffect(() => {
     if (isPreview || !booking?.eventDate) return;
@@ -320,26 +327,6 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
       window.dispatchEvent(new Event("storage"));
     }
   }, [booking?.eventDate, isPreview]);
-
-  // Fetch hire items for upsell section
-  useEffect(() => {
-    const fetchHireItems = async () => {
-      try {
-        setLoadingItems(true);
-        const response = await fetch("/api/hire-items?isActive=true");
-        if (response.ok) {
-          const data = await response.json();
-          setHireItems(data.items || []);
-        }
-      } catch (error) {
-        console.error("Error fetching hire items:", error);
-      } finally {
-        setLoadingItems(false);
-      }
-    };
-
-    fetchHireItems();
-  }, []);
 
   // One-time confetti burst when deposit is received (wedding only; Party/Corporate: no confetti)
   const isSecured = !!(booking.depositReceived || booking.depositReceivedManual);
@@ -421,7 +408,10 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
     if (!unlockThreeWeek || !booking.id) return;
     let done = false;
     setLoadingPayment(true);
-    fetch(`/api/client/bookings/${booking.id}/payment-details`)
+    const url = token
+      ? `/api/client/bookings/${booking.id}/payment-details?token=${encodeURIComponent(token)}`
+      : `/api/client/bookings/${booking.id}/payment-details`;
+    fetch(url)
       .then((r) => r.json())
       .then((data) => {
         if (!done && data.withinWindow && Array.isArray(data.staff)) {
@@ -433,7 +423,7 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
         if (!done) setLoadingPayment(false);
       });
     return () => { done = true; };
-  }, [unlockThreeWeek, booking.id]);
+  }, [unlockThreeWeek, booking.id, token]);
 
   // Get greeting name with proper deduplication and formatting
   // Handles cases like "Tim & SarahTim & Sarah" → "Tim & Sarah"
@@ -458,13 +448,19 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
   // Talent Firewall: Musicians are treated exactly like DJs - both visible to clients
   const teamMembers = (booking.staffAssignments || []).filter((assignment) => {
     const role = assignment.role?.toLowerCase() || '';
-    // Only show client-facing roles (exclude Riggers, Technicians, Crew)
+    const isCrew = ['rigger', 'technician', 'crew', 'sound tech', 'lighting', 'production', 'styling'].some((c) => role.includes(c));
+    if (isCrew) return false;
     return (
       role.includes('dj') ||
       role.includes('musician') ||
       role.includes('band') ||
       role.includes('host') ||
-      role.includes('performer')
+      role.includes('performer') ||
+      role.includes('sax') ||
+      role.includes('pianist') ||
+      role.includes('guitarist') ||
+      role.includes('harpist') ||
+      role.includes('violinist')
     );
   });
   
@@ -481,6 +477,27 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
     if (r.includes('band')) return 'band';
     return 'other';
   };
+
+  const briefRecipientLabel = (() => {
+    if (teamMembers.length === 0) return "your artist";
+    const types = new Set(teamMembers.map((a) => getArtistType(a.role || "")));
+    if (types.size > 1 || types.has("other")) return "your artist";
+    if (types.has("dj")) return "your DJ";
+    if (types.has("musician")) return "your musician";
+    if (types.has("band")) return "your band";
+    return "your artist";
+  })();
+
+  const briefRecipientLabelCapitalized = briefRecipientLabel.replace(/^your /, "Your ");
+
+  const hasMusic = [
+    (booking.firstDance ?? "").trim(),
+    (booking.musicRequests ?? "").trim(),
+    (booking.lastSong ?? "").trim(),
+    (booking.musicDislikes ?? "").trim(),
+    (booking.musicNotesToDJ ?? "").trim(),
+    (booking.musicFileUrl ?? "").trim(),
+  ].some((s) => s.length > 0);
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
@@ -543,7 +560,46 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
 
   return (
     <div className="portal-ui min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-      <div className="container mx-auto max-w-6xl">
+      <div className="container mx-auto max-w-6xl relative">
+        {/* User guide – ? help button top-right */}
+        <Dialog>
+          <DialogTrigger asChild>
+            <button
+              type="button"
+              className="absolute top-0 right-0 p-2 rounded-full text-amber-500/70 hover:text-amber-400 hover:bg-amber-500/10 transition-colors"
+              aria-label="Portal guide"
+            >
+              <HelpCircle className="w-6 h-6" />
+            </button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-xl text-white flex items-center gap-2">
+                <HelpCircle className="w-5 h-5 text-amber-500" />
+                Client portal guide
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-6 text-gray-300 text-sm">
+              <section>
+                <h3 className="font-semibold text-amber-500/90 mb-2">Music</h3>
+                <p className="mb-2">Add your must-plays, do-not-plays, first dance, last song, Spotify links, or upload a PDF/Word music list. Your DJ or musician sees everything you save once they&apos;re assigned. Update anytime.</p>
+              </section>
+              <section>
+                <h3 className="font-semibold text-amber-500/90 mb-2">21-day Final Details</h3>
+                <p className="mb-2">Within 21 days of your event, the &quot;Lock it in&quot; form appears. Complete your music first, then add any last notes and day-of contact number. When you submit, our team reviews everything and sends your full brief to your artist. You&apos;ll get a quick confirmation.</p>
+              </section>
+              <section>
+                <h3 className="font-semibold text-amber-500/90 mb-2">Guest requests</h3>
+                <p className="mb-2">Share the guest-request link so your guests can suggest songs. You control what gets played — approve or leave pending. Nothing goes live without your stamp of approval.</p>
+              </section>
+              <section>
+                <h3 className="font-semibold text-amber-500/90 mb-2">Contract</h3>
+                <p className="mb-2">View your booking agreement and terms at the bottom of this page. If you&apos;ve accepted terms, you can download a PDF. Otherwise, use the link to view the full Terms & Conditions.</p>
+              </section>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {/* Header Section */}
         <div className="mb-8 text-center">
           {/* Event Type Badge + subtle sparkles */}
@@ -557,6 +613,15 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
             </div>
           )}
           
+          {/* Milestone alert — 7 days out (subtle) */}
+        {daysUntilEvent > 3 && daysUntilEvent <= 7 && !(booking.finalDetailsConfirmed || paymentSent) && (
+          <div className="mb-4 p-3 bg-amber-500/10 border border-amber-500/30 rounded-lg">
+            <p className="text-amber-200 text-sm font-medium">
+              Final tweaks are due this week — double-check your music and final details below ✨
+            </p>
+          </div>
+        )}
+
           {/* Emergency Header - 3 Days Out (hide once final details submitted) */}
         {isEmergencyWindow && !(booking.finalDetailsConfirmed || paymentSent) && (
           <div className="mb-6 p-4 bg-gradient-to-r from-red-600/20 via-amber-600/20 to-red-600/20 border-2 border-red-500/50 rounded-lg animate-pulse">
@@ -581,12 +646,15 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
               {greetingName || "there"}
             </span>
           </h1>
-          <p className="text-amber-500/70 text-base font-light mb-6">
+          <p className="text-amber-500/70 text-base font-light mb-2">
             {evType.includes("wedding")
               ? "Your big day is getting closer!"
               : evType.includes("party") || evType.includes("corporate")
                 ? "Something special's around the corner!"
                 : "We're so excited for you!"}
+          </p>
+          <p className="text-gray-400 text-sm font-light mb-6">
+            Everything you need — stress-free 🎉
           </p>
         </div>
 
@@ -611,6 +679,39 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
             <p className="text-sm text-amber-500/80 text-center font-light">
               Ceremony begins at {ceremonyTimeDisplay}
             </p>
+          )}
+
+          {/* Timeline visualisation */}
+          {(ceremonyTimeDisplay || booking.djStartTime || booking.djFinishTime) && (
+            <div className="mt-6 w-full max-w-md mx-auto">
+              <p className="text-xs text-gray-400 uppercase tracking-wider mb-3 text-center">Your day</p>
+              <div className="flex items-center gap-2">
+                {ceremonyTimeDisplay && (
+                  <div className="flex-1 min-w-0 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center">
+                    <p className="text-[10px] text-amber-500/70 uppercase">Ceremony</p>
+                    <p className="text-sm font-medium text-white">{ceremonyTimeDisplay}</p>
+                  </div>
+                )}
+                {(ceremonyTimeDisplay && booking.djStartTime) && (
+                  <div className="w-4 h-0.5 bg-amber-500/30 flex-shrink-0" />
+                )}
+                {booking.djStartTime && (
+                  <div className="flex-1 min-w-0 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center">
+                    <p className="text-[10px] text-amber-500/70 uppercase">{isWedding ? "First dance / party" : "Party"}</p>
+                    <p className="text-sm font-medium text-white">{formatTime24h(booking.djStartTime)}</p>
+                  </div>
+                )}
+                {(booking.djStartTime && booking.djFinishTime) && (
+                  <div className="w-4 h-0.5 bg-amber-500/30 flex-shrink-0" />
+                )}
+                {booking.djFinishTime && (
+                  <div className="flex-1 min-w-0 p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center">
+                    <p className="text-[10px] text-amber-500/70 uppercase">Last song</p>
+                    <p className="text-sm font-medium text-white">{formatTime24h(booking.djFinishTime)}</p>
+                  </div>
+                )}
+              </div>
+            </div>
           )}
         </div>
 
@@ -654,9 +755,12 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
                       {booking.djStartTime && booking.djFinishTime
                         ? `${formatTime24h(booking.djStartTime)} – ${formatTime24h(booking.djFinishTime)}`
                         : booking.djStartTime
-                        ? `${formatTime24h(booking.djStartTime)} – TBC`
-                        : "TBC"}
+                        ? `${formatTime24h(booking.djStartTime)} – to be confirmed`
+                        : "To be confirmed"}
                     </p>
+                    {(!booking.djStartTime || !booking.djFinishTime) && (
+                      <p className="text-xs text-gray-500 mt-1">Times will appear here once confirmed</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -878,6 +982,14 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
                               <BioSection bio={assignment.staff.bio} />
                             </div>
                           )}
+                          {isDJ && (
+                            <div className="mt-3 p-2 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                              <p className="text-[10px] uppercase tracking-wider text-amber-500/70 mb-1">Quick tip</p>
+                              <p className="text-xs text-gray-300 italic">
+                                &ldquo;I always check in with couples about volume for the first dance — it&apos;s your moment, not the party&apos;s yet.&rdquo;
+                              </p>
+                            </div>
+                          )}
                         </div>
                       </div>
                     );
@@ -887,8 +999,8 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
             </Card>
           )}
 
-          {/* No Staff Assigned Yet */}
-          {(!booking.staffAssignments || booking.staffAssignments.length === 0) && (
+          {/* No client-facing staff assigned yet (DJ/Musician/Band) */}
+          {teamMembers.length === 0 && (
             <Card className="portal-card bg-white/[0.02] backdrop-blur-md border border-white/10">
               <CardHeader>
                 <CardTitle className="text-xl text-white flex items-center gap-2">
@@ -897,12 +1009,11 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-gray-400">Details coming soon.</p>
-                <p className="text-sm text-gray-500">
-                  We&apos;ll assign your DJ or musician shortly. When they&apos;re confirmed, they&apos;ll appear here. Your music preferences and final details from this portal are shared with them as part of their confirmation.
+                <p className="text-gray-400">
+                  Your DJ or musician will appear here once they&apos;re confirmed. We&apos;re matching you with the perfect fit.
                 </p>
-                <p className="text-sm text-amber-400/90">
-                  If we&apos;ve just assigned your DJ or musician, refresh the page to see them.
+                <p className="text-sm text-gray-500">
+                  In the meantime, your music preferences and details from this portal are saved and ready to share with your artist when they&apos;re assigned.
                 </p>
                 <Button
                   type="button"
@@ -911,160 +1022,104 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
                   onClick={() => router.refresh()}
                   className="border-amber-500/50 text-amber-400 hover:bg-amber-500/10"
                 >
-                  Refresh page
+                  Refresh to check
                 </Button>
               </CardContent>
             </Card>
           )}
+
+          {/* Your Music – unified module (must-plays, do-not-plays, Spotify, PDF/Word upload) */}
+          <ClientMusicModule
+            bookingId={booking.id}
+            eventType={booking.eventType}
+            portalToken={token}
+            initialData={{
+              musicRequests: booking.musicRequests ?? "",
+              musicDislikes: booking.musicDislikes ?? "",
+              musicFileUrl: booking.musicFileUrl ?? "",
+              firstDance: booking.firstDance ?? "",
+              lastSong: booking.lastSong ?? "",
+              musicNotesToDJ: booking.musicNotesToDJ ?? "",
+            }}
+            onSave={() => {
+              router.refresh();
+              const url = token
+                ? `/api/client/bookings/${booking.id}?token=${encodeURIComponent(token)}`
+                : `/api/client/bookings/${booking.id}`;
+              fetch(url)
+                .then((r) => r.ok ? r.json() : null)
+                .then((d) => d?.booking && setBooking(d.booking as Booking));
+            }}
+            variant="portal"
+          />
+
+          {/* Guest Song Requests — you're the DJ-in-chief */}
+          <GuestRequestsView
+            bookingId={booking.id}
+            guestRequestToken={booking.guestRequestToken || null}
+            guestRequestsEnabled={booking.guestRequestsEnabled ?? true}
+            eventDate={new Date(booking.eventDate)}
+            baseUrl={baseUrl}
+            eventPassed={eventPassed}
+            portalToken={token}
+            venueName={booking.venueName}
+            coupleName={greetingName}
+            eventType={booking.eventType}
+            onToggleEnabled={async (enabled) => {
+              const url = token
+                ? `/api/client/bookings/${booking.id}/guest-requests/?token=${encodeURIComponent(token)}`
+                : `/api/client/bookings/${booking.id}/guest-requests/`;
+              const res = await fetch(url, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ enabled }),
+              });
+              if (!res.ok) {
+                const data = await res.json().catch(() => ({}));
+                throw new Error(data?.error ?? "Failed to update");
+              }
+              setBooking((prev) => ({ ...prev, guestRequestsEnabled: enabled }));
+            }}
+          />
 
           {/* 3-week window: Final Details form + Artist Payment card + Confirm payment button */}
           {unlockThreeWeek && (
             <>
               <Card className="portal-card bg-white/[0.02] backdrop-blur-md border border-white/10">
                 <CardHeader>
-                  <CardTitle className="text-xl text-white flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-amber-500" />
-                    Final Details
-                  </CardTitle>
-                  <p className="text-sm text-gray-400">Complete your music details first, then notes and logistics. This form is your final document—we’ll add it all to your booking and notify the team. Ready to dispatch once you confirm.</p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <CardTitle className="text-xl text-white flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-amber-500" />
+                      Lock it in — you&apos;re almost there
+                    </CardTitle>
+                    <span className="text-[10px] uppercase tracking-wider text-amber-500/80 font-medium">Final step</span>
+                  </div>
+                  <p className="text-sm text-gray-400">A few details so we can hand everything to {briefRecipientLabel}. Music is already saved above; add any last notes and we&apos;ll pull it all together.</p>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="border-b border-white/10 pb-6">
-                    <h4 className="text-sm font-semibold text-amber-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-                      <Music className="w-4 h-4" />
-                      Music details (required)
-                    </h4>
-                    <p className="text-xs text-gray-500 mb-4">We need your music details before we can confirm. Add at least one of the below.</p>
-                    <div className="space-y-4">
-                      {(booking.eventType || "").toLowerCase() === "wedding" && (
-                        <div>
-                          <label className="block text-sm text-gray-400 mb-1">First dance</label>
-                          <input
-                            type="text"
-                            value={firstDance}
-                            onChange={(e) => setFirstDance(e.target.value)}
-                            placeholder="Artist – Song"
-                            className="w-full px-4 py-2 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                          />
-                        </div>
-                      )}
-                      <div>
-                        <label className="block text-sm text-gray-400 mb-1">Music requests / must-plays</label>
-                        <textarea
-                          value={musicRequests}
-                          onChange={(e) => setMusicRequests(e.target.value)}
-                          placeholder="Songs or styles you’d like"
-                          rows={2}
-                          className="w-full px-4 py-2 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-gray-400 mb-1">Last song</label>
-                        <input
-                          type="text"
-                          value={lastSong}
-                          onChange={(e) => setLastSong(e.target.value)}
-                          placeholder="Optional"
-                          className="w-full px-4 py-2 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-gray-400 mb-1">Music dislikes / do-not-plays</label>
-                        <textarea
-                          value={musicDislikes}
-                          onChange={(e) => setMusicDislikes(e.target.value)}
-                          placeholder="Songs or genres to avoid"
-                          rows={2}
-                          className="w-full px-4 py-2 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm text-gray-400 mb-1">Notes for your DJ / musician</label>
-                        <textarea
-                          value={musicNotesToDJ}
-                          onChange={(e) => setMusicNotesToDJ(e.target.value)}
-                          placeholder="Volume, vibe, announcements, etc."
-                          rows={2}
-                          className="w-full px-4 py-2 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                        />
-                      </div>
-                      <div className="pt-2 border-t border-white/10">
-                        <label className="block text-sm text-gray-400 mb-1 flex items-center gap-2">
-                          <Link2 className="w-4 h-4" />
-                          Spotify playlist, or link to PDF / Word music list
-                        </label>
-                        <input
-                          type="url"
-                          value={musicFileUrl}
-                          onChange={(e) => {
-                            setMusicFileUrl(e.target.value);
-                            setMusicFileUploadError(null);
-                          }}
-                          placeholder="https://open.spotify.com/playlist/... or link to your PDF/Word document"
-                          className="w-full px-4 py-2 bg-gray-900/50 border border-amber-500/30 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Paste a Spotify playlist link, or a link to your music list (PDF/Word). Your artist will use this with your other preferences.
-                        </p>
-                        <div className="mt-3 flex flex-wrap items-center gap-2">
-                          <input
-                            ref={musicFileInputRef}
-                            type="file"
-                            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                            className="hidden"
-                            onChange={async (e) => {
-                              const f = e.target.files?.[0];
-                              if (!f) return;
-                              setMusicFileUploadError(null);
-                              setUploadingMusicFile(true);
-                              try {
-                                const fd = new FormData();
-                                fd.append("file", f);
-                                const res = await fetch(`/api/client/bookings/${booking.id}/upload-music-file/`, {
-                                  method: "POST",
-                                  body: fd,
-                                });
-                                const data = await res.json();
-                                if (res.ok && typeof data?.url === "string") {
-                                  setMusicFileUrl(data.url);
-                                  setMusicFileUploadError(null);
-                                } else {
-                                  setMusicFileUploadError(data?.error ?? "Upload failed");
-                                }
-                              } catch {
-                                setMusicFileUploadError("Upload failed");
-                              } finally {
-                                setUploadingMusicFile(false);
-                                e.target.value = "";
-                              }
-                            }}
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => musicFileInputRef.current?.click()}
-                            disabled={uploadingMusicFile}
-                            className="border-amber-500/50 text-amber-500 hover:bg-amber-500/10"
-                          >
-                            <Upload className="w-4 h-4 mr-1.5" />
-                            {uploadingMusicFile ? "Uploading…" : "Choose file to upload (PDF, Word)"}
-                          </Button>
-                          {musicFileUploadError && (
-                            <div className="flex flex-col gap-0.5">
-                              <span className="text-sm text-red-400">{musicFileUploadError}</span>
-                              {musicFileUploadError.toLowerCase().includes("not configured") && (
-                                <span className="text-xs text-gray-400">You can paste a link to your file above instead.</span>
-                              )}
-                            </div>
-                          )}
-                        </div>
+                  {hasMusic ? (
+                    <div className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+                      <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+                      <p className="text-sm text-emerald-200/90">You&apos;re on track. One last step and {briefRecipientLabel} has everything they need.</p>
+                    </div>
+                  ) : (
+                    <div className="p-3 rounded-lg bg-gray-900/50 border border-white/5">
+                      <p className="text-sm text-gray-400">{daysUntilEvent} days to go — final checklist</p>
+                    </div>
+                  )}
+
+                  {hasMusic && !(booking.finalDetailsConfirmed || paymentSent) && (
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-400">Your booking — 95% complete</p>
+                      <div className="h-1.5 rounded-full bg-gray-700 overflow-hidden">
+                        <div className="h-full w-[95%] rounded-full bg-gradient-to-r from-emerald-500 to-amber-500/80" />
                       </div>
                     </div>
-                  </div>
+                  )}
 
-                  <h4 className="text-sm font-semibold text-amber-500 uppercase tracking-wider pt-2">Notes & logistics</h4>
+                  <h4 className="text-sm font-semibold text-amber-500 uppercase tracking-wider pt-2">A few final details</h4>
                   <div>
-                    <label className="block text-sm font-medium text-gray-400 mb-2">General notes</label>
+                    <label className="block text-sm font-medium text-gray-400 mb-2">Last-minute notes for {briefRecipientLabel}</label>
                     <textarea
                       value={finalDetailsNotes}
                       onChange={(e) => setFinalDetailsNotes(e.target.value)}
@@ -1076,7 +1131,7 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
                   <div>
                     <label className="block text-sm font-medium text-gray-400 mb-2 flex items-center gap-2">
                       <Phone className="w-4 h-4" />
-                      Your phone (in case of emergency on the day)
+                      Day-of contact number
                     </label>
                     <input
                       type="tel"
@@ -1174,18 +1229,19 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
                   <Button
                     onClick={async () => {
                       setFinalDetailsFeedback(null);
-                      const hasMusic = [
-                        firstDance.trim(),
-                        musicRequests.trim(),
-                        lastSong.trim(),
-                        musicDislikes.trim(),
-                        musicNotesToDJ.trim(),
-                        musicFileUrl.trim(),
-                      ].some((s) => s.length > 0);
+                      const musicFromBooking = [
+                        (booking.firstDance ?? "").trim(),
+                        (booking.musicRequests ?? "").trim(),
+                        (booking.lastSong ?? "").trim(),
+                        (booking.musicDislikes ?? "").trim(),
+                        (booking.musicNotesToDJ ?? "").trim(),
+                        (booking.musicFileUrl ?? "").trim(),
+                      ];
+                      const hasMusic = musicFromBooking.some((s) => s.length > 0);
                       if (!hasMusic) {
                         setFinalDetailsFeedback({
                           type: "error",
-                          msg: "We need your music details before we can confirm. Please add at least one of: first dance, must-plays, do-not-plays, notes for your DJ, or a playlist/link.",
+                          msg: `Add your music in Your Music above first — then we can lock everything in for ${briefRecipientLabel}.`,
                         });
                         return;
                       }
@@ -1202,12 +1258,12 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
                           numberOfGuests: guestsVal,
                           venueWhat3Words: venueWhat3Words.trim() || null,
                           venueLoadInNotes: venueLoadInNotes.trim() || null,
-                          firstDance: firstDance.trim() || null,
-                          lastSong: lastSong.trim() || null,
-                          musicRequests: musicRequests.trim() || null,
-                          musicDislikes: musicDislikes.trim() || null,
-                          musicNotesToDJ: musicNotesToDJ.trim() || null,
-                          musicFileUrl: musicFileUrl.trim() || null,
+                          firstDance: (booking.firstDance ?? "").trim() || null,
+                          lastSong: (booking.lastSong ?? "").trim() || null,
+                          musicRequests: (booking.musicRequests ?? "").trim() || null,
+                          musicDislikes: (booking.musicDislikes ?? "").trim() || null,
+                          musicNotesToDJ: (booking.musicNotesToDJ ?? "").trim() || null,
+                          musicFileUrl: (booking.musicFileUrl ?? "").trim() || null,
                         };
                         if (!isWedding) {
                           payload.clientAddress = clientAddress.trim() || null;
@@ -1226,8 +1282,22 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
                         });
                         const data = await res.json();
                         if (res.ok) {
-                          setFinalDetailsFeedback({ type: "success", msg: "Final details confirmed. We've added everything to your booking and notified the team—ready to dispatch." });
+                          setFinalDetailsFeedback({ type: "success", msg: `All set. ${briefRecipientLabelCapitalized} has everything — see you on the day.` });
                           setPaymentSent(true);
+                          const confettiKey = `final_details_confetti_${booking.id}`;
+                          if (typeof window !== "undefined" && !sessionStorage.getItem(confettiKey)) {
+                            sessionStorage.setItem(confettiKey, "true");
+                            const duration = 2000;
+                            const animationEnd = Date.now() + duration;
+                            const defaults = { startVelocity: 25, spread: 360, ticks: 50, zIndex: 9999 };
+                            const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+                            const interval = setInterval(() => {
+                              if (Date.now() > animationEnd) return clearInterval(interval);
+                              const particleCount = 40 * ((animationEnd - Date.now()) / duration);
+                              confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.2, 0.4), y: Math.random() - 0.2 }, colors: ["#d4af37", "#f4cf6d", "#ffffff"] });
+                              confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.6, 0.8), y: Math.random() - 0.2 }, colors: ["#d4af37", "#f4cf6d", "#ffffff"] });
+                            }, 200);
+                          }
                           router.refresh();
                           setBooking((prev) => ({
                             ...prev,
@@ -1245,12 +1315,6 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
                             }),
                             venueWhat3Words: venueWhat3Words.trim() || null,
                             venueLoadInNotes: venueLoadInNotes.trim() || null,
-                            firstDance: firstDance || null,
-                            lastSong: lastSong || null,
-                            musicRequests: musicRequests || null,
-                            musicDislikes: musicDislikes || null,
-                            musicNotesToDJ: musicNotesToDJ || null,
-                            musicFileUrl: musicFileUrl.trim() || null,
                           }));
                         } else {
                           setFinalDetailsFeedback({ type: "error", msg: data?.error || "Failed to send." });
@@ -1264,8 +1328,14 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
                     disabled={submittingFinalDetails}
                     className="bg-amber-500 hover:bg-amber-600 text-black font-semibold transition-transform duration-200 hover:scale-[1.02] active:scale-[0.99]"
                   >
-                    {submittingFinalDetails ? "Sending…" : "Confirm & send final details"}
+                    {submittingFinalDetails ? "Sending…" : "Lock it in & send to our team"}
                   </Button>
+                  <p className="text-xs text-gray-500">
+                    We&apos;ll double-check everything, then send your full brief to {briefRecipientLabel}. You&apos;ll receive a quick confirmation.
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    What happens next: Our team reviews your details, then passes your full playlist and notes to {briefRecipientLabel}. Nothing is sent until we&apos;ve checked everything.
+                  </p>
                   {finalDetailsFeedback && (
                     <p className={finalDetailsFeedback.type === "success" ? "text-emerald-400 text-sm" : "text-red-400 text-sm"}>
                       {finalDetailsFeedback.msg}
@@ -1353,93 +1423,6 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
               </Card>
             </>
           )}
-
-          {/* Enhance Your Event Section - Using Original Component Style */}
-          <Card className="portal-card bg-white/[0.02] backdrop-blur-md border border-white/10">
-            <CardHeader>
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-champagne-gold" />
-                <CardTitle className="text-champagne-gold">
-                  Enhance Your Event
-                </CardTitle>
-              </div>
-              <p className="text-sm text-gray-400 mt-2">
-                Items you've selected for your event
-              </p>
-            </CardHeader>
-            <CardContent>
-              {booking.upsellItems && booking.upsellItems.length > 0 ? (
-                <div className="space-y-3">
-                  {booking.upsellItems.map((itemId, index) => {
-                    // Try to find the item in hireItems, otherwise display the ID/name
-                    const hireItem = hireItems.find(item => item.id === itemId);
-                    const itemName = hireItem?.name || itemId;
-                    
-                    return (
-                      <div
-                        key={index}
-                        className="flex items-center space-x-2 p-3 rounded bg-champagne-gold/10 border border-white/10 hover:border-amber-500/40 transition-all duration-300 cursor-pointer"
-                      >
-                        <CheckCircle2 className="w-4 h-4 text-champagne-gold flex-shrink-0" />
-                        <span className="text-sm text-champagne-gold font-medium flex-1">
-                          {itemName}
-                        </span>
-                        {hireItem && (
-                          <span className="text-xs text-gray-400">
-                            £{hireItem.price.toFixed(2)}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
-                  <div className="mt-4 p-3 bg-champagne-gold/10 border border-champagne-gold/30 rounded-lg">
-                    <p className="text-sm text-champagne-gold font-medium">
-                      {booking.upsellItems.length} item{booking.upsellItems.length !== 1 ? "s" : ""} confirmed
-                    </p>
-                    <p className="text-xs text-gray-400 mt-1">
-                      All items are confirmed for your event
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="p-3 text-sm text-gray-400">
-                  No additional items selected. Contact us if you'd like to add enhancements to your event.
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Hire Shop — add to booking, confirm request (no payment) */}
-          <HireShop
-            bookingId={booking.id}
-            venueName={booking.venueName}
-            eventType={booking.eventType}
-          />
-
-          {/* Guest Song Requests - Enhanced with Spotify integration */}
-          <GuestRequestsView
-            bookingId={booking.id}
-            guestRequestToken={booking.guestRequestToken || null}
-            guestRequestsEnabled={booking.guestRequestsEnabled ?? true}
-            eventDate={new Date(booking.eventDate)}
-            baseUrl={baseUrl}
-            eventPassed={eventPassed}
-            onToggleEnabled={async (enabled) => {
-              const url = token
-                ? `/api/client/bookings/${booking.id}/guest-requests/?token=${encodeURIComponent(token)}`
-                : `/api/client/bookings/${booking.id}/guest-requests/`;
-              const res = await fetch(url, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ enabled }),
-              });
-              if (!res.ok) {
-                const data = await res.json().catch(() => ({}));
-                throw new Error(data?.error ?? "Failed to update");
-              }
-              setBooking((prev) => ({ ...prev, guestRequestsEnabled: enabled }));
-            }}
-          />
 
           {/* Communication history — record of all comms for this booking */}
           <Card className="portal-card bg-white/[0.02] backdrop-blur-md border border-white/10">
@@ -1533,6 +1516,57 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
               )}
             </CardContent>
           </Card>
+
+          {/* Terms acceptance – when not yet accepted. Hide for existing confirmed/deposit-received bookings (treat as already accepted). */}
+          {!booking.termsAccepted &&
+            !(
+              booking.status === "confirmed" ||
+              booking.depositReceived === true ||
+              booking.depositReceivedManual === true
+            ) && (
+            <Card className="bg-gray-800/80 backdrop-blur border-amber-500/40">
+              <CardHeader>
+                <CardTitle className="text-lg text-white flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-amber-500" />
+                  Accept terms to complete your booking
+                </CardTitle>
+                <p className="text-sm text-gray-400">
+                  Please read and accept our Terms & Conditions below. This forms part of your booking agreement.
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <AcceptTermsModule
+                  accepted={portalTermsAccepted}
+                  onAcceptChange={setPortalTermsAccepted}
+                  disabled={acceptingTerms}
+                  variant="dark"
+                />
+                <Button
+                  onClick={handleAcceptTerms}
+                  disabled={!portalTermsAccepted || acceptingTerms}
+                  className="bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+                >
+                  {acceptingTerms ? "Accepting…" : "Accept terms"}
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Contract & agreement – existing ContractFooter from dashboard */}
+          <ContractFooter booking={booking} />
+
+          {/* Terms & Privacy – visible at bottom of portal */}
+          <div className="pt-8 pb-4 border-t border-white/10 mt-8">
+            <div className="flex flex-wrap items-center justify-center gap-4 text-sm text-gray-500">
+              <Link href="/terms-and-conditions/" className="text-amber-500/90 hover:text-amber-400 transition-colors">
+                Terms and Conditions
+              </Link>
+              <span className="text-white/30">·</span>
+              <Link href="/privacy-policy/" className="text-amber-500/90 hover:text-amber-400 transition-colors">
+                Privacy Policy
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

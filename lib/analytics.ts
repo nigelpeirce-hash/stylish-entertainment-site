@@ -35,13 +35,11 @@ export function trackEvent(
   params?: Record<string, unknown>
 ) {
   if (isAnalyticsDisabled()) {
-    console.log(`[Analytics] BLOCKED (internal): ${eventName}`, params);
     return;
   }
   
   if (typeof window !== 'undefined' && window.gtag) {
     window.gtag('event', eventName, params);
-    console.log(`[Analytics] Event tracked: ${eventName}`, params);
   }
 }
 

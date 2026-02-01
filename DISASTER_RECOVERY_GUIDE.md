@@ -1,8 +1,8 @@
 # Disaster Recovery & Complete Rebuild Guide
 ## Stylish Entertainment Website
 
-**Last Updated:** January 31, 2026  
-**Version:** 1.8  
+**Last Updated:** January 29, 2026  
+**Version:** 1.9  
 **Purpose:** Complete technical documentation for rebuilding the system from scratch in case of catastrophic failure
 
 ---
@@ -35,11 +35,13 @@
 ### Deploy (Routine)
 
 ```bash
+# Optional: clean build artifacts before build
+rm -rf .next node_modules/.cache
 npm run build
-git add . && git commit -m "message" && git push origin main
+git add . && git commit -m "Your commit message" && git push origin main
 ```
 
-Vercel auto-deploys on push to main. Redeploy after env var changes.
+Vercel auto-deploys on push to main. Redeploy after env var changes. Use quoted commit messages if they contain spaces or commas.
 
 **Vercel multi-project:** Env vars are per project. If you have multiple Vercel projects (e.g. ew61, 42ad), each must have `DATABASE_URL` set. Sitemap now uses dynamic Prisma import so build succeeds even when DB is unavailable (returns static-only sitemap).
 
@@ -321,6 +323,7 @@ DIRECT_URL="postgresql://postgres:8bYD7LNFFWwPaREy@db.qraijuzzktertoujrwat.supab
 - ✅ **Pooler Username Format:** Must be `postgres.qraijuzzktertoujrwat` (with project ref) - NOT just `postgres`
 - ✅ **Pooler Hostname:** `aws-1-eu-west-1.pooler.supabase.com`
 - ✅ **Ports:** Session Pooler = 5432; Transaction Pooler = 6543 (add `?pgbouncer=true` for 6543)
+- ✅ **Recommended:** Use Transaction mode (port 6543 + `pgbouncer=true`) to avoid "MaxClientsInSessionMode: max clients reached" — see `SUPABASE_MAX_CLIENTS_FIX.md`
 - ✅ **SSL Mode:** `sslmode=no-verify` for pooler (required for Supabase)
 - ✅ **Direct Connection:** Use `postgres` (without project ref) for direct connection
 - ⚠️ **DNS Issues:** If pooler hostname doesn't resolve, check Supabase Dashboard to verify pooler is enabled
@@ -354,9 +357,10 @@ export default defineConfig({
 **Connection Setup:** The connection pool is configured in `lib/prisma.ts`:
 - Uses `@prisma/adapter-pg` (PrismaPg)
 - Creates PostgreSQL pool with connection string from `DATABASE_URL`
-- Pool configuration optimized for serverless (max: 5 connections)
+- Pool configuration: max 1 in dev, 2 in production (to avoid exhausting Supabase pool)
 - Connection timeouts: 30s connection, 25s query/statement
 - Automatically validates pooler username format
+- No startup connection test (removed to reduce "MaxClientsInSessionMode" when using Session mode)
 
 #### 3.3 Push Database Schema
 
@@ -591,8 +595,7 @@ CLOUDINARY_API_SECRET=[From Cloudinary Dashboard]
 - Environment variables are included in build
 
 **Verify Deployment Success:**
-- Check deployment logs for "✅ Database connection test successful"
-- No `ETIMEDOUT` errors in logs
+- No `ETIMEDOUT` or `MaxClientsInSessionMode` errors in logs
 - Production site loads without database errors
 
 #### 6.4 Verify Deployment
@@ -1284,6 +1287,17 @@ Vercel is using the **direct connection** instead of the **pooler connection**. 
 - Never use direct connection for production
 - Document connection string in disaster recovery guide (this file)
 
+#### Issue: MaxClientsInSessionMode – "max clients reached"
+
+**Symptoms:**
+- Error: `MaxClientsInSessionMode: max clients reached - in Session mode max clients are limited to pool_size`
+- Database errors in dev (Turbopack) or production when traffic is high
+
+**Solution:** Switch to Transaction mode (port 6543). See `SUPABASE_MAX_CLIENTS_FIX.md`:
+- Change `DATABASE_URL` port from **5432** to **6543**
+- Add `pgbouncer=true` to the query string
+- Example: `postgresql://postgres.PROJECT_REF:PASSWORD@aws-1-eu-west-1.pooler.supabase.com:6543/postgres?pgbouncer=true&sslmode=no-verify`
+
 #### Issue: Database Connection Failed
 
 **Symptoms:**
@@ -1666,9 +1680,16 @@ git push origin main           # Deploy to Vercel (auto)
 - **COOKIEYES_GTM_403_FIX.md** – CookieYes 403 when loaded via GTM
 - **PAGE_SPEED_MOBILE_NOTES.md** – Mobile performance optimisations
 - **ADMIN_401_LIVE.md** – Admin 401 Unauthorized troubleshooting
+- **SUPABASE_MAX_CLIENTS_FIX.md** – MaxClientsInSessionMode; switch to Transaction mode (port 6543)
 
 ### Version History
 
+- **v1.9** (January 29, 2026) - Page layouts, Prisma, deploy:
+  - **Deploy:** Clean build sequence (`rm -rf .next node_modules/.cache`); quoted commit messages for spaces/commas.
+  - **Prisma:** Removed startup connection test to reduce MaxClientsInSessionMode; pool max 1 dev / 2 prod. See `SUPABASE_MAX_CLIENTS_FIX.md` for Transaction mode (6543).
+  - **Page layouts:** Venue styling (`/what-we-do/venue-decoration`) – featured before/after (2). Galleries (`/galleries`) – before/after moved up, wider YouTube. Lighting (`/what-we-do/lighting`) – gallery moved up after hero.
+  - **Room transformation:** New page `/room-transformation` with before/after slider.
+  - **YouTube HD:** `vq=hd1080` on embeds; wider player containers on galleries.
 - **v1.8** (January 31, 2026) - Admin fix, sitemap resilience, image cleanup:
   - **Middleware:** `x-pathname` now passed on request headers (not response) so layout can read pathname. Fixes admin 500; layout correctly hides Footer and SiteWideCTA on `/admin`.
   - **Sitemap:** Dynamic Prisma import – build no longer fails when `DATABASE_URL` is missing/invalid (e.g. some Vercel projects). Returns static-only sitemap if DB unavailable.

@@ -5,22 +5,9 @@ import { prisma } from "@/lib/prisma";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-/** Significant event types shown in dashboard activity feed */
-const SIGNIFICANT_ACTIONS = new Set([
-  "booking_request_received",
-  "quote_sent",
-  "deposit_paid",
-  "artist_assigned",
-  "handoff",
-  "dispatched",
-  "portal_message",
-  "final_details_confirmed",
-  "brief_sent",
-]);
-
 /**
  * GET /api/admin/activity
- * Returns recent significant events (AuditLog) for dashboard notifications.
+ * Returns recent activity (AuditLog) for dashboard – all meaningful actions.
  */
 export async function GET(request: NextRequest) {
   try {
@@ -36,18 +23,15 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const limit = Math.min(parseInt(searchParams.get("limit") || "25", 10), 50);
-    const days = Math.min(parseInt(searchParams.get("days") || "7", 10), 30);
+    const limit = Math.min(parseInt(searchParams.get("limit") || "50", 10), 50);
+    const days = Math.min(parseInt(searchParams.get("days") || "14", 10), 30);
 
     const since = new Date();
     since.setDate(since.getDate() - days);
     since.setHours(0, 0, 0, 0);
 
     const logs = await prisma.auditLog.findMany({
-      where: {
-        action: { in: Array.from(SIGNIFICANT_ACTIONS) },
-        createdAt: { gte: since },
-      },
+      where: { createdAt: { gte: since } },
       orderBy: { createdAt: "desc" },
       take: limit,
       select: {
@@ -56,6 +40,8 @@ export async function GET(request: NextRequest) {
         action: true,
         description: true,
         performedBy: true,
+        actor: true,
+        metadata: true,
         createdAt: true,
         Booking: {
           select: {
@@ -75,6 +61,8 @@ export async function GET(request: NextRequest) {
       action: log.action,
       description: log.description,
       performedBy: log.performedBy,
+      actor: log.actor ?? "system",
+      metadata: log.metadata as Record<string, unknown> | null,
       createdAt: log.createdAt,
       bookingName: log.Booking?.name ?? null,
       venueName: log.Booking?.venueName ?? null,

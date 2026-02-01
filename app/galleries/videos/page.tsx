@@ -294,7 +294,7 @@ export default function Videos() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <img
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163683/NP-Decks-2_y32tje.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163683/NP-Decks-2_y32tje.jpg"
             alt="Video gallery showcasing our work - Professional DJ performance and entertainment"
             className="w-full h-full object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}

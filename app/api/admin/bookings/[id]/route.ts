@@ -22,6 +22,8 @@ const BOOKING_INCLUDE = {
       id: true,
       name: true,
       email: true,
+      loginCount: true,
+      lastLoginAt: true,
     },
   },
   staffAssignments: {

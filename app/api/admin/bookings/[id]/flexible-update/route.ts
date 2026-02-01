@@ -1,9 +1,9 @@
+import { randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { DEPOSIT_CONFIRMED } from "@/lib/email-templates";
-import { getClientPortalLoginUrl } from "@/lib/client-portal-url";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
 
 // Force dynamic rendering
@@ -49,6 +49,8 @@ export async function PATCH(
         bookingFee: true,
         finalBalance: true,
         preferredDJ: true,
+        portalToken: true,
+        status: true,
       },
     });
 
@@ -127,6 +129,18 @@ export async function PATCH(
     }
     if (depositReceivedManual !== undefined) {
       updateData.depositReceivedManual = depositReceivedManual;
+      // When deposit first confirmed: set portalToken if missing, status=confirmed if pending, depositReceived
+      const wasDepositReceived = currentBooking.depositReceivedManual === true;
+      const isNowDepositReceived = depositReceivedManual === true;
+      if (!wasDepositReceived && isNowDepositReceived) {
+        updateData.depositReceived = true;
+        if (currentBooking.status === "pending") {
+          updateData.status = "confirmed";
+        }
+        if (!currentBooking.portalToken) {
+          updateData.portalToken = randomBytes(32).toString("hex");
+        }
+      }
     }
     // Venue Name and Venue Postcode: always allow updates (no override required)
     if (venueName !== undefined) {
@@ -185,9 +199,12 @@ export async function PATCH(
 
     if (shouldSendEmail) {
       try {
-        // Generate portal URL — login page with callback so client lands on their booking after sign-in
-        const baseUrl = getEmailBaseUrl();
-        const portalUrl = getClientPortalLoginUrl(baseUrl, bookingId);
+        // Use magic link (works without password) — portalToken set above when deposit confirmed
+        const baseUrl = getEmailBaseUrl().replace(/\/$/, "");
+        const portalToken = updateData.portalToken ?? (currentBooking.portalToken as string | null);
+        const portalUrl = portalToken
+          ? `${baseUrl}/client/bookings/${bookingId}?token=${encodeURIComponent(portalToken)}`
+          : `${baseUrl}/login?callbackUrl=${encodeURIComponent(`/client/bookings/${bookingId}`)}`;
 
         // Use updated booking data for email (eventDate/venueName may have changed this request; fee/balance from DB)
         const emailContent = DEPOSIT_CONFIRMED({

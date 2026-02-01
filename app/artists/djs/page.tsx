@@ -186,7 +186,7 @@ export default function DJs() {
         </div>
         <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163785/Nigel-DJ-Babs-House-0002-1_ktgbaf.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163785/Nigel-DJ-Babs-House-0002-1_ktgbaf.jpg"
             alt="DJ Nige performing at Babington House, showcasing professional wedding DJ services with elegant lighting"
             fill
             className="object-cover object-center brightness-110"

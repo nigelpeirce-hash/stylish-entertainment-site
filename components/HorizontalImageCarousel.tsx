@@ -130,24 +130,24 @@ export default function HorizontalImageCarousel({
             ))}
           </div>
 
-          {/* Navigation */}
+          {/* Navigation – compact buttons */}
           <button
             onClick={goToPrevious}
-            className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-champagne-gold/90 border border-champagne-gold/50 rounded-full p-2 md:p-3 opacity-0 group-hover:opacity-100 transition-all duration-300"
+            className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-champagne-gold/90 border border-champagne-gold/50 rounded-full p-1.5 md:p-2 opacity-0 group-hover:opacity-100 transition-all duration-300"
             aria-label="Previous image"
           >
-            <ChevronLeft className="w-5 h-5 md:w-6 md:h-6 text-white" />
+            <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-white" />
           </button>
           <button
             onClick={goToNext}
-            className="absolute right-3 md:right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-champagne-gold/90 border border-champagne-gold/50 rounded-full p-2 md:p-3 opacity-0 group-hover:opacity-100 transition-all duration-300"
+            className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-champagne-gold/90 border border-champagne-gold/50 rounded-full p-1.5 md:p-2 opacity-0 group-hover:opacity-100 transition-all duration-300"
             aria-label="Next image"
           >
-            <ChevronRight className="w-5 h-5 md:w-6 md:h-6 text-white" />
+            <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-white" />
           </button>
 
           {showDots && (
-            <div className="absolute bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+            <div className="absolute bottom-2 md:bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
               {images.map((_, index) => (
                 <button
                   key={index}
@@ -157,8 +157,8 @@ export default function HorizontalImageCarousel({
                   }}
                   className={`rounded-full transition-all duration-300 ${
                     index === currentIndex
-                      ? "w-6 md:w-8 h-2 bg-champagne-gold"
-                      : "w-2 h-2 bg-white/50 hover:bg-white/80"
+                      ? "w-5 md:w-6 h-1.5 bg-champagne-gold"
+                      : "w-1.5 h-1.5 bg-white/50 hover:bg-white/80"
                   }`}
                   aria-label={`Go to image ${index + 1}`}
                 />
@@ -177,12 +177,12 @@ export default function HorizontalImageCarousel({
         render={{
           buttonPrev: () => (
             <button className="yarl__button yarl__button_prev" style={lightboxBtnStyle} aria-label="Previous">
-              <ChevronLeft size={28} strokeWidth={3} />
+              <ChevronLeft size={18} strokeWidth={2.5} />
             </button>
           ),
           buttonNext: () => (
             <button className="yarl__button yarl__button_next" style={lightboxBtnStyle} aria-label="Next">
-              <ChevronRight size={28} strokeWidth={3} />
+              <ChevronRight size={18} strokeWidth={2.5} />
             </button>
           ),
         }}
@@ -194,13 +194,13 @@ export default function HorizontalImageCarousel({
 const lightboxBtnStyle: React.CSSProperties = {
   backgroundColor: "rgba(212, 175, 55, 0.9)",
   color: "#1a1a1a",
-  border: "2px solid rgba(255, 255, 255, 0.3)",
+  border: "1px solid rgba(255, 255, 255, 0.3)",
   borderRadius: "50%",
-  padding: "16px",
-  width: "56px",
-  height: "56px",
+  padding: "10px",
+  width: "40px",
+  height: "40px",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.4)",
 };

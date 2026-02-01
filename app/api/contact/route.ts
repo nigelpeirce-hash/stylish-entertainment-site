@@ -319,11 +319,13 @@ export async function POST(request: NextRequest) {
       await notifyAdminSignificantEvent({
         type: "booking_request_received",
         bookingId: booking.id,
-        title: "Booking Request Received",
+        actor: "client",
+        title: "New Enquiry",
         description: `${name} – ${clientVenueName || "Venue TBC"}${eventDateLabel ? ` – ${eventDateLabel}` : ""}`,
         bookingName: name,
         venueName: clientVenueName || undefined,
         eventDate: eventDateLabel,
+        linkText: "View enquiry",
       });
     } catch (e) {
       console.warn("Admin notification (booking_request_received) failed:", e);
@@ -352,7 +354,7 @@ export async function POST(request: NextRequest) {
 
     // Create email content – subject makes it clear this is a booking request notification
     const eventLabel = adminEventDateFormatted ? ` – ${eventType || "Event"} ${adminEventDateFormatted}` : "";
-    const emailSubject = `Booking Request Received: ${name}${eventLabel}`;
+    const emailSubject = `New Enquiry: ${name}${eventLabel}`;
     const emailHtml = `
       <!DOCTYPE html>
       <html>
@@ -373,7 +375,7 @@ export async function POST(request: NextRequest) {
         <div class="container">
           <div class="header">
             <img src="${logoUrl}" alt="Stylish Entertainment" class="logo" style="max-width: 200px; height: auto; margin-bottom: 15px;" />
-            <h1 style="margin: 0; font-size: 24px;">Booking Request Received</h1>
+            <h1 style="margin: 0; font-size: 24px;">New Enquiry</h1>
           </div>
           <div class="content">
             <div class="field">
@@ -456,7 +458,7 @@ export async function POST(request: NextRequest) {
     const resend = getResend();
     let emailResult: any = { success: false, error: "Email not sent" };
 
-    console.log("📧 Attempting to send booking request notification:", {
+    console.log("📧 Attempting to send enquiry notification to business:", {
       hasResendClient: !!resend,
       recipients: recipients.join(", "),
       from: emailConfig.from,
@@ -488,7 +490,7 @@ export async function POST(request: NextRequest) {
         try {
           const result = await sendBusinessNotification(to);
           if (result.success) {
-            console.log("✅ Booking request notification sent to:", to, "messageId:", result.messageId);
+            console.log("✅ Enquiry notification sent to:", to, "messageId:", result.messageId);
             emailResult = { success: true, messageId: result.messageId };
             sent = true;
           } else {
@@ -507,7 +509,7 @@ export async function POST(request: NextRequest) {
             html: emailHtml,
           });
           if (fallback?.data?.id && !fallback?.error) {
-            console.log("✅ Booking request notification sent via fallback (RESEND_DEFAULT_FROM) to:", recipientEmail);
+            console.log("✅ Enquiry notification sent via fallback (RESEND_DEFAULT_FROM) to:", recipientEmail);
             emailResult = { success: true, messageId: fallback.data.id };
           }
         } catch (fallbackErr) {

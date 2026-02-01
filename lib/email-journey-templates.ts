@@ -205,13 +205,13 @@ function buildEmailTemplate(
 
 /**
  * 1. Enquiry Auto-Responder
- * Immediate 'Thank you' – no brochure / download guide
+ * Immediate 'Thank you' – enquiry stage only (not a booking yet)
  */
 export function enquiryAutoresponder(data: JourneyEmailData) {
   const contentHtml = `
     <h1>Thank You for Your Enquiry</h1>
     <p>Dear {{clientName}},</p>
-    <p>Thank you for reaching out to Stylish Entertainment Ltd. We're delighted that you're considering us for {{eventType}} on {{eventDate}}.</p>
+    <p>Thank you for reaching out to Stylish Entertainment Ltd. We're delighted you've enquired about {{eventType}} on {{eventDate}}.</p>
     <p>We're excited to learn more about your vision and help bring it to life. We specialise in creating unforgettable celebrations with our expert DJ services, elegant lighting design, and sophisticated venue styling.</p>
     <p>We'll be in touch within 24 hours to discuss your requirements in detail. In the meantime, if you have any questions, please don't hesitate to get in touch.</p>
     {{signatureBlock}}
@@ -391,6 +391,7 @@ export function finalChase(data: JourneyEmailData) {
  * Sent 3 days after the event, asking for feedback/testimonials
  */
 export function postWeddingMagic(data: JourneyEmailData) {
+  const googleReviewUrl = process.env.NEXT_PUBLIC_GOOGLE_REVIEW_URL || "";
   const contentHtml = `
     <h1>Thank You for Choosing Us</h1>
     <p>Dear {{clientName}},</p>
@@ -399,7 +400,7 @@ export function postWeddingMagic(data: JourneyEmailData) {
     <h2>Share Your Experience</h2>
     <p>If you have a moment, we'd be incredibly grateful if you could share your thoughts:</p>
     <p style="text-align: center; margin: 30px 0;">
-      <a href="https://g.page/r/YOUR_GOOGLE_REVIEW_LINK" class="button-luxe" style="margin-right: 10px; margin-bottom: 10px;">Leave a Google Review</a>
+      ${googleReviewUrl ? `<a href="${googleReviewUrl}" class="button-luxe" style="margin-right: 10px; margin-bottom: 10px;">Leave a Google Review</a>` : ""}
       <a href="https://www.instagram.com/stylishentertainment/" class="button-luxe">Share on Instagram</a>
     </p>
     <p>We'd also love to see any photos from your day if you'd like to share them with us. Tag us <a href="https://www.instagram.com/stylishentertainment/" class="link">@stylishentertainment</a> on Instagram or send them directly to us.</p>

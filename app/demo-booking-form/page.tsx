@@ -124,7 +124,7 @@ export default function DemoBookingForm() {
                       ⚠️ Requires login
                     </p>
                   )}
-                  <Link href={demo.url} target="_blank">
+                  <Link href={demo.url} target="_blank" rel="noopener noreferrer">
                     <Button className="w-full bg-champagne-gold text-black hover:bg-gold-light">
                       Open {demo.title}
                       <ExternalLink className="w-4 h-4 ml-2" />

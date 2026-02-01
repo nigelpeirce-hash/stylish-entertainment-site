@@ -13,14 +13,14 @@ interface InstagramPost {
   instagramUrl: string;
 }
 
+// Thumbnail: save the image from the Instagram post, upload to Cloudinary, then paste the URL here.
+// Instagram doesn't provide a stable public image URL, so self-hosting the thumbnail is the most reliable.
 const featuredPosts: InstagramPost[] = [
-  // Add your Instagram post data here
-  // Example structure:
-  // {
-  //   image: "https://res.cloudinary.com/drtwveoqo/image/upload/...",
-  //   caption: "Beautiful wedding lighting installation",
-  //   instagramUrl: "https://www.instagram.com/p/ABC123/",
-  // },
+  {
+    image: "https://placehold.co/600x600/1a1a1a/c9a962?text=IG+post", // Replace with your Cloudinary URL after uploading the post image
+    caption: "Before & after room transformation — venue styling",
+    instagramUrl: "https://www.instagram.com/p/DS9v4tRDHAC/",
+  },
 ];
 
 export default function InstagramFeed() {
@@ -38,7 +38,7 @@ export default function InstagramFeed() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <img
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw"
             alt="Instagram feed showcasing our work"
             className="w-full h-full object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}

@@ -25,7 +25,7 @@ export default function SoundEquipment() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <img
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162508/Kin-House-Stage-Lighting-and-Sound-supply_j8yln4.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162508/Kin-House-Stage-Lighting-and-Sound-supply_j8yln4.jpg"
             alt="Professional stage lighting and sound system supply with complete DJ and band sound kit"
             className="w-full h-full object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}

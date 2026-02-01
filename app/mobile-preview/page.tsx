@@ -144,7 +144,7 @@ export default function MobilePreview() {
                     variant="outline"
                     className="border-gray-600 text-gray-300 hover:bg-gray-700 hover:border-champagne-gold hover:text-champagne-gold justify-start"
                   >
-                    <Link href={page.href} target="_blank">
+                    <Link href={page.href} target="_blank" rel="noopener noreferrer">
                       <ExternalLink className="h-4 w-4 mr-2" />
                       {page.label}
                     </Link>

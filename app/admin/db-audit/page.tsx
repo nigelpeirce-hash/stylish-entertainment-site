@@ -47,6 +47,13 @@ interface TableAudit {
   missingIndexes: string[];
 }
 
+interface CriticalColumnCheck {
+  table: string;
+  column: string;
+  exists: boolean;
+  description?: string;
+}
+
 interface AuditSummary {
   totalTables: number;
   existingTables: number;
@@ -56,12 +63,14 @@ interface AuditSummary {
   extraColumns: number;
   typeMismatches: number;
   missingIndexes: number;
+  criticalMissing?: number;
 }
 
 export default function DatabaseAuditPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [auditResults, setAuditResults] = useState<TableAudit[]>([]);
+  const [criticalColumns, setCriticalColumns] = useState<CriticalColumnCheck[]>([]);
   const [summary, setSummary] = useState<AuditSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -137,6 +146,7 @@ export default function DatabaseAuditPage() {
       if (response.ok) {
         const data = await response.json();
         setAuditResults(data.audit || []);
+        setCriticalColumns(data.criticalColumns || []);
         setSummary(data.summary || null);
       } else {
         const error = await response.json();
@@ -190,11 +200,13 @@ export default function DatabaseAuditPage() {
   }
 
   const expectedTables = [
-    "Account", "Session", "VerificationToken", "User", "Booking", "NewEnquiry",
-    "FormSubmission", "EmailInbox", "EmailThread", "Email", "Note", "Task",
-    "EmailTemplate", "HireItem", "Cart", "CartItem", "HireOrder", "HireOrderItem",
-    "DJ", "Musician", "VenueAsset", "FreelanceCrew", "BookingStaffAssignment",
-    "AuditLog", "CommsLog"
+    "Account", "AuditLog", "Booking", "BookingStaffAssignment", "BookingItem",
+    "BookingWarehouseItem", "Cart", "CartItem", "CommsLog", "DispatchConfirmation",
+    "DJ", "Email", "EmailFolder", "EmailInbox", "EmailTemplate", "EmailThread",
+    "FormSubmission", "FreelanceCrew", "GuestRequest", "HireItem", "HireOrder",
+    "HireOrderItem", "Musician", "NewEnquiry", "Note", "ServiceQuoteItem",
+    "Session", "Staff_Settings", "Task", "User", "Venue", "VenueAsset",
+    "VerificationToken", "WarehouseItem",
   ];
 
   const expectedTableSet = new Set(expectedTables);
@@ -235,6 +247,41 @@ export default function DatabaseAuditPage() {
               </Link>
             </div>
           </div>
+
+          {/* Critical Columns Alert */}
+          {criticalColumns.length > 0 && (
+            <Card className={`mb-8 border ${(summary?.criticalMissing ?? 0) > 0 ? "border-amber-500/50 bg-amber-950/20" : "border-green-500/30 bg-green-950/10"}`}>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <AlertCircle className={`w-5 h-5 ${(summary?.criticalMissing ?? 0) > 0 ? "text-amber-400" : "text-green-400"}`} />
+                  Critical Columns (Recent Migrations)
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  {criticalColumns.map((c) => (
+                    <div
+                      key={`${c.table}.${c.column}`}
+                      className={`flex items-center gap-2 p-2 rounded text-sm ${c.exists ? "bg-gray-800/80 text-gray-300" : "bg-amber-900/40 text-amber-200"}`}
+                      title={c.description}
+                    >
+                      {c.exists ? (
+                        <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
+                      ) : (
+                        <XCircle className="w-4 h-4 text-amber-400 shrink-0" />
+                      )}
+                      <span className="font-mono truncate">{c.table}.{c.column}</span>
+                    </div>
+                  ))}
+                </div>
+                {(summary?.criticalMissing ?? 0) > 0 && (
+                  <p className="text-sm text-amber-400 mt-3">
+                    Run the relevant supabase-*.sql migration in Supabase SQL Editor.
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           {/* Summary Cards */}
           {summary && (

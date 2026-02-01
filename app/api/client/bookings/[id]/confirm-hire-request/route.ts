@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
+import { logActivity } from "@/lib/activity-log";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -10,6 +12,7 @@ const ADMIN_EMAIL = "hello@stylishambience.co.uk";
 /**
  * POST /api/client/bookings/[id]/confirm-hire-request
  * Sends email to admin with requested hire items. No payment. Client sees "Request Sent! Nigel will update your final invoice shortly."
+ * Auth: session (user owns booking or admin) OR ?token= matching portalToken.
  */
 export async function POST(
   request: NextRequest,
@@ -22,6 +25,9 @@ export async function POST(
       return NextResponse.json({ error: "Booking ID required" }, { status: 400 });
     }
 
+    const token = request.nextUrl.searchParams.get("token");
+    const session = await auth();
+
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       select: {
@@ -30,10 +36,25 @@ export async function POST(
         email: true,
         eventDate: true,
         venueName: true,
+        userId: true,
+        portalToken: true,
       },
     });
     if (!booking) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+    }
+
+    let allowed = false;
+    if (token && booking.portalToken && booking.portalToken === token) {
+      allowed = true;
+    } else if (session?.user) {
+      const u = session.user as { id?: string; role?: string };
+      if (u.role === "admin") allowed = true;
+      else if (u.id && booking.userId === u.id) allowed = true;
+      else if (session.user.email && booking.email === session.user.email) allowed = true;
+    }
+    if (!allowed) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const items = await prisma.bookingItem.findMany({
@@ -95,6 +116,15 @@ export async function POST(
       subject,
       html,
       text,
+    });
+
+    await logActivity({
+      bookingId,
+      action: "hire_request_confirmed",
+      description: "Client confirmed hire request from portal",
+      actor: "client",
+      performedBy: booking.name ?? undefined,
+      metadata: { amount: `£${total.toFixed(2)}`, itemCount: items.length },
     });
 
     return NextResponse.json({

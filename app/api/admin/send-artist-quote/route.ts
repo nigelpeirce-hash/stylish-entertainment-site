@@ -513,6 +513,7 @@ export async function POST(request: NextRequest) {
 
     try {
       await notifyAdminSignificantEvent({
+        actor: "admin",
         type: "quote_sent",
         bookingId,
         title: "Quote Sent",

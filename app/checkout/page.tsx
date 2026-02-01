@@ -13,6 +13,7 @@ import { ArrowLeft, CheckCircle, Package } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
+import { AcceptTermsModule } from "@/components/AcceptTermsModule";
 
 interface CartItem {
   id: string;
@@ -39,6 +40,7 @@ export default function CheckoutPage() {
   const [orderCreated, setOrderCreated] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
   const [sessionId, setSessionId] = useState<string>("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const [formData, setFormData] = useState({
     customerName: "",
@@ -93,6 +95,10 @@ export default function CheckoutPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!cart) return;
+    if (!termsAccepted) {
+      alert("Please accept the Terms & Conditions to complete your order.");
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -102,6 +108,7 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           cartId: cart.id,
           ...formData,
+          termsAccepted: true,
         }),
       });
 
@@ -372,9 +379,24 @@ export default function CheckoutPage() {
                     </p>
                   </div>
 
+                  <AcceptTermsModule
+                    accepted={termsAccepted}
+                    onAcceptChange={setTermsAccepted}
+                    disabled={submitting}
+                    showDownloadPdf
+                    quoteSummary={{
+                      eventDate: formData.eventDate || "TBC",
+                      eventType: formData.eventType || "Hire",
+                      venueName: formData.venueName || "TBC",
+                      artistName: cart.items.length > 0 ? cart.items.map((i) => i.hireItem.name).join(", ") : "Hire items",
+                      clientName: formData.customerName,
+                      fee: `£${total.toFixed(2)}`,
+                    }}
+                  />
+
                   <Button
                     type="submit"
-                    disabled={submitting}
+                    disabled={!termsAccepted || submitting}
                     className="w-full bg-champagne-gold text-black hover:bg-gold-light"
                   >
                     {submitting ? "Submitting..." : "Submit Order"}

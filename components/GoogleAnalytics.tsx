@@ -3,8 +3,8 @@
 import Script from "next/script";
 
 export default function GoogleAnalytics() {
-  // Google Analytics Measurement ID (G-XXXXXXXXXX format)
-  const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-349239221";
+  // Use env var only – no hardcoded fallback (prevents wrong/test property in production)
+  const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
 
   if (!GA_MEASUREMENT_ID) {
     return null; // Don't load if not configured

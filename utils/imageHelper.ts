@@ -26,9 +26,9 @@ export function getCloudinaryUrl(config: ImageConfig): string {
   
   // Build transformation string
   // f_auto: automatic format selection (WebP, AVIF when supported)
-  // q_auto: automatic quality optimization
+  // q_85: fixed high quality for crisp display
   // dpr_auto: automatic device pixel ratio (serves 2x/3x for retina displays)
-  let transformations = "f_auto,q_auto,dpr_auto";
+  let transformations = "f_auto,q_85,dpr_auto";
   if (config.transformations) {
     transformations += `,${config.transformations}`;
   }
@@ -71,9 +71,9 @@ export function validateImage(image: {
     console.warn("Alt text should be at least 10 characters for better SEO");
   }
   
-  // Check if Cloudinary URL has optimization
-  if (image.src.includes("res.cloudinary.com") && !image.src.includes("f_auto,q_auto")) {
-    console.warn("Cloudinary URL should include f_auto,q_auto for optimization");
+  // Check if Cloudinary URL has optimization (f_auto + quality)
+  if (image.src.includes("res.cloudinary.com") && !image.src.includes("f_auto") && !image.src.includes("q_")) {
+    console.warn("Cloudinary URL should include f_auto and q_ for optimization");
   }
   
   // Check if Cloudinary URL has DPR support for retina displays
@@ -135,5 +135,7 @@ export function addRetinaSupport(cloudinaryUrl: string): string {
   
   // Add dpr_auto to the transformation string
   // Pattern: /f_auto,q_auto/ -> /f_auto,q_auto,dpr_auto/
-  return cloudinaryUrl.replace(/\/f_auto,q_auto\//, "/f_auto,q_auto,dpr_auto/");
+  return cloudinaryUrl.replace(/\/(upload\/[^/]+)\//, (_, t) =>
+    t.includes("dpr_") ? `/${t}/` : `/${t},dpr_auto/`
+  );
 }

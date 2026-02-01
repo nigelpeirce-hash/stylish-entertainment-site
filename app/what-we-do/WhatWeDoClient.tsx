@@ -90,7 +90,7 @@ export default function WhatWeDoClient() {
       <section className="relative min-h-[50vh] flex items-center justify-center text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg"
             alt="Complete event services - lighting, styling, sound, and entertainment"
             fill
             className="object-cover object-center"

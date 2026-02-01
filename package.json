@@ -20,7 +20,8 @@
     "scaffold:blog": "./scripts/scaffold-blog.sh",
     "test:prisma": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/test-prisma-connection.ts",
     "test:dispatch-setup": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/test-dispatch-setup.ts",
-    "test:recaptcha-env": "tsx scripts/check-recaptcha-env.ts"
+    "test:recaptcha-env": "tsx scripts/check-recaptcha-env.ts",
+    "audit:db": "tsx scripts/audit-database-supabase.ts"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.11.1",

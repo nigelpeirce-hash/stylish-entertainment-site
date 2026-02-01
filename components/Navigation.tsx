@@ -91,44 +91,6 @@ export default function Navigation() {
         }}
       />
       
-      {/* Animated shimmer effect - Enhanced gold */}
-      <div 
-        className="absolute inset-0 pointer-events-none animate-gradient-shift"
-        style={{ 
-          zIndex: 1,
-          background: `
-            linear-gradient(
-              120deg,
-              transparent 0%,
-              transparent 35%,
-              rgba(212, 175, 55, 0.25) 50%,
-              transparent 65%,
-              transparent 100%
-            )
-          `,
-          backgroundSize: '300% 300%',
-        }}
-      />
-      
-      {/* Animated light sweep - More prominent */}
-      <div 
-        className="absolute inset-0 pointer-events-none animate-light-sweep"
-        style={{ 
-          zIndex: 1,
-          background: `
-            linear-gradient(
-              90deg,
-              transparent 0%,
-              rgba(212, 175, 55, 0.15) 25%,
-              rgba(212, 175, 55, 0.3) 50%,
-              rgba(212, 175, 55, 0.15) 75%,
-              transparent 100%
-            )
-          `,
-          backgroundSize: '200% 100%',
-        }}
-      />
-      
       {/* Subtle backdrop blur for depth - Lighter to show more gold */}
       <div 
         className="absolute inset-0 backdrop-blur-sm pointer-events-none"
@@ -143,7 +105,7 @@ export default function Navigation() {
           <div className="flex flex-col flex-shrink-0">
             <Link href="/" className="relative group z-20 hover:opacity-90 transition-opacity duration-300">
               <img
-                src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png"
+                src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png"
                 alt="Stylish Entertainment Logo"
                 width={200}
                 height={80}
@@ -153,32 +115,6 @@ export default function Navigation() {
               />
             </Link>
           </div>
-
-          {/* Centered Tagline - Hidden on Mobile and in Admin */}
-          {!isAdmin && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.8 }}
-              className="hidden md:block absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 pointer-events-none px-2"
-              style={{ 
-                width: 'fit-content',
-                maxWidth: 'calc(100vw - 400px)',
-                minWidth: '200px'
-              }}
-            >
-              <h2 
-                className="font-semibold text-center whitespace-nowrap italic"
-                style={{
-                  fontSize: 'clamp(0.5rem, 0.96vw + 0.2rem, 0.8rem)',
-                  color: '#000000',
-                  textShadow: '0 1px 1px rgba(0, 0, 0, 0.165)'
-                }}
-              >
-                Make every gathering extraordinary
-              </h2>
-            </motion.div>
-          )}
 
             {/* Auth Button & Menu Button */}
             <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">

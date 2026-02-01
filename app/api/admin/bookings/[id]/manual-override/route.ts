@@ -1,3 +1,4 @@
+import { randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
@@ -51,10 +52,23 @@ export async function PATCH(
     let updateData: Record<string, any> = {};
 
     if (field === "depositReceived") {
+      const isConfirmingDeposit = Boolean(value);
       updateData = {
         depositReceived: Boolean(value),
         depositReceivedManual: true,
       };
+      if (isConfirmingDeposit) {
+        const booking = await prisma.booking.findUnique({
+          where: { id: bookingId },
+          select: { status: true, portalToken: true, depositReceivedManual: true },
+        });
+        if (booking?.status === "pending") {
+          (updateData as any).status = "confirmed";
+        }
+        if (!booking?.portalToken) {
+          (updateData as any).portalToken = randomBytes(32).toString("hex");
+        }
+      }
       action = "deposit_received_manual";
       description = value
         ? `${performedBy || "Admin"} manually marked Deposit as Paid`
@@ -101,24 +115,23 @@ export async function PATCH(
     
     console.log("Successfully updated booking:", updatedBooking);
 
-    // Create audit log entry
-    const auditLog = await prisma.auditLog.create({
-      data: {
-        bookingId,
-        action,
-        description: `${description} on ${new Date().toLocaleDateString("en-GB", {
-          day: "numeric",
-          month: "long",
-        })}`,
-        performedBy: performedBy || null,
-      },
+    const auditDescription = `${description} on ${new Date().toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+    })}`;
+    const { logActivity } = await import("@/lib/activity-log");
+    await logActivity({
+      bookingId,
+      action,
+      description: auditDescription,
+      actor: "admin",
+      performedBy: performedBy || undefined,
     });
 
     return NextResponse.json({
       success: true,
       message: "Manual override recorded",
       booking: updatedBooking,
-      auditLog,
     });
   } catch (error: any) {
     console.error("Error updating manual override:", error);

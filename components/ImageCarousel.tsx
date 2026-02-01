@@ -1,6 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
+
+const LIGHTBOX_BTN_STYLE: React.CSSProperties = {
+  backgroundColor: "rgba(212, 175, 55, 0.9)",
+  color: "#1a1a1a",
+  border: "1px solid rgba(255, 255, 255, 0.3)",
+  borderRadius: "50%",
+  padding: "10px",
+  width: "40px",
+  height: "40px",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.4)",
+};
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import dynamic from "next/dynamic";
 
@@ -73,43 +87,19 @@ export default function ImageCarousel({ images }: ImageCarouselProps) {
           buttonPrev: () => (
             <button
               className="yarl__button yarl__button_prev"
-              style={{
-                backgroundColor: "rgba(212, 175, 55, 0.9)",
-                color: "#1a1a1a",
-                border: "2px solid rgba(255, 255, 255, 0.3)",
-                borderRadius: "50%",
-                padding: "16px",
-                width: "56px",
-                height: "56px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
-              }}
+              style={LIGHTBOX_BTN_STYLE}
               aria-label="Previous image"
             >
-              <ChevronLeft size={28} strokeWidth={3} />
+              <ChevronLeft size={18} strokeWidth={2.5} />
             </button>
           ),
           buttonNext: () => (
             <button
               className="yarl__button yarl__button_next"
-              style={{
-                backgroundColor: "rgba(212, 175, 55, 0.9)",
-                color: "#1a1a1a",
-                border: "2px solid rgba(255, 255, 255, 0.3)",
-                borderRadius: "50%",
-                padding: "16px",
-                width: "56px",
-                height: "56px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
-              }}
+              style={LIGHTBOX_BTN_STYLE}
               aria-label="Next image"
             >
-              <ChevronRight size={28} strokeWidth={3} />
+              <ChevronRight size={18} strokeWidth={2.5} />
             </button>
           ),
         }}

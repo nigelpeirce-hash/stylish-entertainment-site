@@ -16,7 +16,7 @@ const processSteps = [
     id: "vision",
     title: "The Vision (Consultation)",
     Icon: Video,
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg",
     imageAlt: "Initial consultation meeting for event planning",
     description: "Every extraordinary event begins with understanding your vision. Through comprehensive consultations, we explore your ideas, preferences, and goals to create a bespoke plan that reflects your unique style.",
     bullets: [

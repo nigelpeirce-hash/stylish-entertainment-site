@@ -210,6 +210,7 @@ export async function POST(request: NextRequest) {
         await notifyAdminSignificantEvent({
           type: "portal_message",
           bookingId: booking.id,
+          actor: "client",
           title: "Portal message",
           description: `Message from ${user.name || user.email}: ${message.slice(0, 100)}${message.length > 100 ? "…" : ""}`,
           bookingName: booking.name ?? undefined,

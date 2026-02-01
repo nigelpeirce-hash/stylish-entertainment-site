@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { Resend } from "resend";
 import { verifyQuoteToken } from "@/lib/quote-token";
 import {
   getStaffPushKeys,
   sendPushoverNotification,
 } from "@/lib/pushover-notifications";
 import { sendDepositInvoiceForBooking } from "@/lib/send-deposit-invoice";
+import { staffConfirmationEmail } from "@/lib/email-staff-confirmation";
+import { getResendConfig } from "@/lib/email-config";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -217,6 +220,67 @@ export async function POST(request: NextRequest) {
       }
     } catch (e) {
       console.error("[confirm-from-quote] Deposit invoice error:", e);
+    }
+
+    // Send artist confirmation email if staff was assigned and has not been notified
+    if (staffId) {
+      try {
+        const assignment = await prisma.bookingStaffAssignment.findFirst({
+          where: { bookingId: payload.bookingId, staffId },
+          include: { staff: true },
+        });
+        if (
+          assignment &&
+          assignment.staff?.email &&
+          !assignment.confirmationEmailSent
+        ) {
+          const apiKey = process.env.RESEND_API_KEY;
+          if (apiKey && apiKey !== "re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx") {
+            const formattedDate = eventDateObj.toLocaleDateString("en-GB", {
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            });
+            const emailData = staffConfirmationEmail({
+              staffName: assignment.staff.name,
+              eventDate: formattedDate,
+              venueName: String(venueName).trim(),
+              role,
+              agreedFee: Number(agreedFee),
+              senderName: "Ali",
+            });
+            const config = getResendConfig("general");
+            const resend = new Resend(apiKey);
+            await resend.emails.send({
+              from: config.from,
+              replyTo: config.replyTo,
+              to: [assignment.staff.email],
+              subject: emailData.subject,
+              html: emailData.html,
+            });
+            await prisma.bookingStaffAssignment.update({
+              where: { id: assignment.id },
+              data: {
+                confirmationEmailSent: true,
+                confirmationSentAt: new Date(),
+              },
+            });
+            await prisma.commsLog.create({
+              data: {
+                bookingId: payload.bookingId,
+                platform: "email",
+                direction: "outbound",
+                email: assignment.staff.email,
+                contactName: assignment.staff.name,
+                message: `Job Confirmation email sent for ${role} at ${String(venueName).trim()}`,
+              },
+            });
+          }
+        }
+      } catch (e) {
+        console.error("[confirm-from-quote] Artist confirmation email error:", e);
+      }
     }
 
     return NextResponse.json({

@@ -13,7 +13,7 @@ export default function DJsServiceClient() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <img
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163790/Party-dj-with-lazer_wnhreb.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163790/Party-dj-with-lazer_wnhreb.jpg"
             alt="Party DJ with laser lighting effects creating a vibrant and energetic dance floor atmosphere"
             className="w-full h-full object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}

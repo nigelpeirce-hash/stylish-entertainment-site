@@ -2,7 +2,7 @@
 
 Agent familiarisation for the Stylish Entertainment website project.
 
-**Last updated:** January 31, 2026
+**Last updated:** January 29, 2026
 
 ---
 
@@ -61,7 +61,7 @@ Agent familiarisation for the Stylish Entertainment website project.
 
 | Service    | Purpose                                      |
 |-----------|-----------------------------------------------|
-| **Supabase** | PostgreSQL via Session Pooler (port 5432 or Transaction 6543) |
+| **Supabase** | PostgreSQL via pooler; prefer Transaction mode (port 6543 + pgbouncer) – see SUPABASE_MAX_CLIENTS_FIX.md |
 | **Resend**   | Transactional email                           |
 | **Cloudinary** | Images (account: drtwveoqo)                 |
 | **NextAuth**  | Sessions, admin/client auth                  |
@@ -84,7 +84,8 @@ Agent familiarisation for the Stylish Entertainment website project.
 - **DJs** and **Musicians** – public artist pages + admin CRUD
 - Client portal for bookings
 - Email automation (Resend, journey templates)
-- Video gallery – YouTube Data API v3 (`/galleries/videos`)
+- Video gallery – YouTube Data API v3 (`/galleries/videos`); embeds use `vq=hd1080`
+- Before/after transformations – `components/BeforeAfter.tsx`; featured on venue decoration, galleries; standalone `/room-transformation`
 - Contact forms – reCAPTCHA v3
 - Hire shop, venue styling, blog
 
@@ -105,6 +106,9 @@ See `.env.local.example` and `DISASTER_RECOVERY_GUIDE.md` for full list.
 
 ## Recent Work (Jan 2026)
 
+- **Page layouts (Jan 29):** Venue decoration – featured before/after (2 sliders). Galleries – before/after moved up, wider YouTube for HD, `vq=hd1080`. Lighting – gallery moved up after hero. New `/room-transformation` page.
+- **YouTube embeds:** Add `?vq=hd1080` to embed URLs; use wider containers (max-w-6xl / max-w-7xl) for HD on desktop.
+- **Prisma:** No startup connection test; pool max 1 dev / 2 prod. Transaction mode (6543) recommended for MaxClientsInSessionMode.
 - **Middleware:** `x-pathname` passed on request headers so layout reads pathname. Fixes admin 500; Footer and SiteWideCTA hidden on `/admin`.
 - **Sitemap:** Dynamic Prisma import – build succeeds when `DATABASE_URL` missing/invalid (returns static-only sitemap). Vercel env vars are per project.
 - **Page CTA:** `SiteWideCTA` at bottom of every page (non-sticky). Hidden on `/admin`, `/contact`, `/thank-you`. Demo: `public/page-cta-demo.html`.
@@ -128,6 +132,7 @@ See `.env.local.example` and `DISASTER_RECOVERY_GUIDE.md` for full list.
 | **PAGE_SPEED_MOBILE_NOTES.md** | Mobile performance, LCP, deferred scripts |
 | **ADMIN_401_LIVE.md**      | Admin 401 troubleshooting                    |
 | **VERCEL_DATABASE_TIMEOUT_FIX.md** | DB connection timeouts on Vercel          |
+| **SUPABASE_MAX_CLIENTS_FIX.md** | MaxClientsInSessionMode; use Transaction mode (6543) |
 
 ---
 

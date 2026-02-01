@@ -49,6 +49,24 @@ export async function GET(
         djFinishTime: true,
         portalToken: true,
         musicRequests: true,
+        musicDislikes: true,
+        firstDance: true,
+        lastSong: true,
+        musicNotesToDJ: true,
+        musicFileUrl: true,
+        termsAccepted: true,
+        termsAcceptedAt: true,
+        staffAssignments: {
+          where: { cancelledAt: null },
+          select: {
+            id: true,
+            role: true,
+            status: true,
+            staff: {
+              select: { id: true, name: true, email: true },
+            },
+          },
+        },
       },
     });
 

@@ -9,29 +9,31 @@ Every image MUST include:
 
 ## Cloudinary URL Format
 
-**Standard format (display / hero / gallery):**
+**Use `lib/cloudinary-urls.ts`** for centralized presets:
+- `cloudinaryUrl(path, "gallery")` – f_auto,q_85,dpr_auto,w_1200
+- `cloudinaryUrl(path, "card")` – f_auto,q_75,dpr_auto,w_800
+- `cloudinaryUrl(path, "hero")` – f_auto,q_75,dpr_auto,w_1920
+- `cloudinaryUrl(path, "thumbnail")` – f_auto,q_75,w_400
+
+**Standard format (display / gallery):**
 ```
-https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v[VERSION]/[FILENAME]_[HASH].[EXT]
+https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v[VERSION]/[FILENAME]_[HASH].[EXT]
 ```
 
-**Mobile-optimised (below-fold, services, cards):** Use `w_800,q_60` or `smallerCloudinaryUrl()` for capped delivery. See `app/page.tsx`.
+**Below-fold (services, cards):** Use `smallerCloudinaryUrl()` in `app/page.tsx` → w_800,q_75.
 
 **Parameters:**
 - `f_auto` - Automatic format selection (WebP, AVIF when supported)
-- `q_auto` - Automatic quality optimization
-- `dpr_auto` - Device Pixel Ratio – serves 2x/3x for retina displays (use for hero, gallery, lightbox)
-- `q_60` / `w_800` - Fixed quality/width for below-fold (mobile performance)
-- `c_auto` - Automatic cropping (optional)
-- `g_auto` - Automatic gravity/positioning (optional)
-- `w_1000` - Width constraint (optional)
-- `h_667` - Height constraint (optional)
+- `q_85` - High quality for gallery/display; `q_75` for cards/slider
+- `dpr_auto` - Device Pixel Ratio – 2x/3x for Retina
+- `w_800` / `w_1200` - Width cap for responsive delivery
 
 ## Image Object Template
 
 ### For Gallery Images (Photo[] array):
 ```typescript
 {
-  src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v[VERSION]/[FILENAME]_[HASH].[EXT]",
+  src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v[VERSION]/[FILENAME]_[HASH].[EXT]",
   width: 1200,
   height: 900,
   alt: "Descriptive alt text describing the image content, venue, couple names if applicable, and context",
@@ -130,8 +132,8 @@ https://res.cloudinary.com/drtwveoqo/image/upload/
 
 **Required Optimization:**
 ```
-f_auto,q_auto,dpr_auto   (display / hero / gallery – retina support)
-f_auto,q_auto           (minimal; use dpr_auto for display contexts)
+f_auto,q_85,dpr_auto,w_1200   (gallery / display – high-res, retina)
+f_auto,q_75,dpr_auto,w_800    (cards / below-fold – responsive)
 ```
 
 **Full Example:**

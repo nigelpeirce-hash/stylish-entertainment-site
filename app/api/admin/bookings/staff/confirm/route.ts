@@ -257,6 +257,7 @@ export async function POST(request: NextRequest) {
     try {
       const eventDateLabel = new Date(booking.eventDate).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
       await notifyAdminSignificantEvent({
+        actor: "admin",
         type: "artist_assigned",
         bookingId,
         title: "Artist Assigned",

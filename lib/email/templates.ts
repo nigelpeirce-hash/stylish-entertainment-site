@@ -70,7 +70,7 @@ export interface PortalInvitationInput {
 /**
  * PORTAL_INVITATION – Autoresponder: Your [Venue] Wedding/Booking Portal
  * Event-type aware: wedding → "Wedding Portal"; corporate/private → "Booking Portal".
- * Encourages sign-in with credentials; CTA goes to login so they land on their portal after sign-in.
+ * Uses magic link (portalUrl) so client can access without password.
  */
 export function PORTAL_INVITATION(input: PortalInvitationInput): {
   subject: string;
@@ -86,16 +86,16 @@ export function PORTAL_INVITATION(input: PortalInvitationInput): {
   venue = venue.replace(/babington\s+houe/gi, "Babington House");
   venue = venue.replace(/^babington\s+house$/i, "Babington House");
 
-  const subject = `Your ${venue} ${portalLabel} – sign in anytime | Stylish Entertainment Ltd`;
+  const subject = `Your ${venue} ${portalLabel} – access anytime | Stylish Entertainment Ltd`;
 
   const eventLabel = yourEventLabel(input.eventType);
   const intro = isWedding
-    ? `We've set up your personal planning portal for your wedding at <strong>${venue}</strong>. We've already added the key timings and venue details for you. This is where you can add music requests, dislikes, and your first dance song. When you're ready, sign in with the email we have on file and your password to access it.`
-    : `We've set up your personal booking portal for ${eventLabel} at <strong>${venue}</strong>. We've added the key timings and venue details. You can manage your preferences, add music details, and keep in touch with us. When you're ready, sign in with the email we have on file and your password to access it.`;
+    ? `We've set up your personal planning portal for your wedding at <strong>${venue}</strong>. We've already added the key timings and venue details for you. This is where you can add music requests, dislikes, and your first dance song. Click below to access it.`
+    : `We've set up your personal booking portal for ${eventLabel} at <strong>${venue}</strong>. We've added the key timings and venue details. You can manage your preferences, add music details, and keep in touch with us. Click below to access it.`;
 
   const introText = isWedding
-    ? `We've set up your personal planning portal for your wedding at ${venue}. We've already added the key timings and venue details for you. This is where you can add music requests, dislikes, and your first dance song. When you're ready, sign in with the email we have on file and your password to access it.`
-    : `We've set up your personal booking portal for ${eventLabel} at ${venue}. We've added the key timings and venue details. You can manage your preferences, add music details, and keep in touch with us. When you're ready, sign in with the email we have on file and your password to access it.`;
+    ? `We've set up your personal planning portal for your wedding at ${venue}. We've already added the key timings and venue details for you. This is where you can add music requests, dislikes, and your first dance song. Click below to access it.`
+    : `We've set up your personal booking portal for ${eventLabel} at ${venue}. We've added the key timings and venue details. You can manage your preferences, add music details, and keep in touch with us. Click below to access it.`;
 
   const html = `
     <!DOCTYPE html>
@@ -111,16 +111,16 @@ export function PORTAL_INVITATION(input: PortalInvitationInput): {
         <p style="font-size: 16px; line-height: 1.6; color: #333; margin: 20px 0;">Hi ${greetingName},</p>
         <p style="font-size: 16px; line-height: 1.6; color: #333; margin: 20px 0;">${intro}</p>
         <div style="text-align: center; margin: 36px 0;">
-          <a href="${input.portalUrl}" style="display: inline-block; background-color: ${GOLD}; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);">Sign in to your portal</a>
+          <a href="${input.portalUrl}" style="display: inline-block; background-color: ${GOLD}; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);">Access your portal</a>
         </div>
-        <p style="font-size: 14px; line-height: 1.6; color: #666; margin: 20px 0;">Use the email we have on file and your password to sign in. After signing in you'll be taken straight to your portal.</p>
+        <p style="font-size: 14px; line-height: 1.6; color: #666; margin: 20px 0;">This link takes you straight to your portal. Save it for quick access anytime.</p>
         ${SIGNATURE_BLOCK_HTML}
       </div>
     </body>
     </html>
   `;
 
-  const text = `Hi ${greetingName},\n\n${introText}\n\nSign in to your portal: ${input.portalUrl}\n\nUse the email we have on file and your password to sign in. After signing in you'll be taken straight to your portal.\n\n${CLIENT_SIGNOFF_TEXT}`;
+  const text = `Hi ${greetingName},\n\n${introText}\n\nAccess your portal: ${input.portalUrl}\n\nThis link takes you straight to your portal. Save it for quick access anytime.\n\n${CLIENT_SIGNOFF_TEXT}`;
 
   return { subject, html, text };
 }

@@ -13,7 +13,7 @@ const partyServices = [
     icon: Sparkles,
     description: "Transform your party venue with bespoke lighting design that creates the perfect atmosphere for your celebration.",
     href: "/parties/party-lighting",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163130/Saltburn_231005__0020_0640_nmzjp6.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163130/Saltburn_231005__0020_0640_nmzjp6.jpg",
     alt: "Professional party lighting design creating an atmospheric celebration",
   },
   {
@@ -21,7 +21,7 @@ const partyServices = [
     icon: Users,
     description: "Complete party planning and production services for private celebrations. From intimate gatherings to grand events.",
     href: "/parties/private-parties",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163810/image2_l1hxxx.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163810/image2_l1hxxx.jpg",
     alt: "Elegant private party with professional entertainment and lighting",
   },
   {
@@ -29,7 +29,7 @@ const partyServices = [
     icon: Building2,
     description: "Professional entertainment and production for corporate events, galas, conferences and product launches.",
     href: "/parties/corporate-events",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/e_enhance/ABS-Preview-50-percent0006_c51xsl.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/e_enhance/ABS-Preview-50-percent0006_c51xsl.jpg",
     alt: "Corporate event entertainment and production services",
   },
   {
@@ -37,7 +37,7 @@ const partyServices = [
     icon: Snowflake,
     description: "Festive entertainment and lighting for Christmas celebrations. Make your holiday party truly memorable.",
     href: "/parties/christmas",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162638/IMG_6124_reoaew.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162638/IMG_6124_reoaew.jpg",
     alt: "Festive Christmas party entertainment and lighting",
   },
 ];
@@ -57,7 +57,7 @@ export default function Parties() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <img
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163130/Saltburn_231005__0020_0640_nmzjp6.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163130/Saltburn_231005__0020_0640_nmzjp6.jpg"
             alt="Professional party entertainment and production services"
             className="w-full h-full object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}

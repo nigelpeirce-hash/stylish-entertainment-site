@@ -280,17 +280,12 @@ async function logNotificationError(
   notificationType: "new_lead" | "handoff" | "deposit_paid",
   error: string
 ): Promise<void> {
-  try {
-    await prisma.auditLog.create({
-      data: {
-        bookingId,
-        action: `notification_${notificationType}_failed`,
-        description: `Failed to send ${notificationType} notification: ${error}`,
-        performedBy: "system",
-      },
-    });
-  } catch (logError) {
-    // Don't throw - we don't want notification failures to break the app
-    console.error("Failed to log notification error to Audit Log:", logError);
-  }
+  const { logActivity } = await import("@/lib/activity-log");
+  await logActivity({
+    bookingId,
+    action: `notification_${notificationType}_failed`,
+    description: `Failed to send ${notificationType} notification: ${error}`,
+    actor: "system",
+    performedBy: "system",
+  });
 }

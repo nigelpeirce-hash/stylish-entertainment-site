@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
         createdAt: "desc",
       },
       include: {
-        user: {
+        User: {
           select: {
             id: true,
             name: true,
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
         services: booking.services || [],
         budget: booking.budget,
         message: booking.message,
-        user: booking.user,
+        user: booking.User,
         source: "booking", // Track source
       };
     });
@@ -83,7 +83,7 @@ export async function GET(request: NextRequest) {
         },
       },
       include: {
-        originalBooking: {
+        Booking: {
           select: {
             id: true,
             name: true,
@@ -120,7 +120,7 @@ export async function GET(request: NextRequest) {
       user: null,
       source: "new_enquiry", // Track source
       isConflict: enquiry.isConflict,
-      originalBooking: enquiry.originalBooking,
+      originalBooking: enquiry.Booking,
     }));
 
     // Combine both sources

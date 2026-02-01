@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
+import { logActivity } from "@/lib/activity-log";
 import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
 
 export const dynamic = "force-dynamic";
@@ -55,6 +56,15 @@ export async function POST(
         finalDetailsConfirmedManual: true,
         updatedAt: now,
       },
+    });
+
+    await logActivity({
+      bookingId,
+      action: "final_payment_sent",
+      description: "Client confirmed final payment sent",
+      actor: "client",
+      performedBy: booking.name ?? undefined,
+      metadata: { venueName: booking.venueName ?? undefined },
     });
 
     const assignments = await prisma.bookingStaffAssignment.findMany({

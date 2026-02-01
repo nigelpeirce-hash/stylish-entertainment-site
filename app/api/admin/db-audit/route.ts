@@ -33,8 +33,16 @@ interface IndexAudit {
   exists: boolean;
 }
 
+interface CriticalColumnCheck {
+  table: string;
+  column: string;
+  exists: boolean;
+  description?: string;
+}
+
 interface AuditResult {
   tables: TableAudit[];
+  criticalColumns: CriticalColumnCheck[];
   summary: {
     totalTables: number;
     existingTables: number;
@@ -44,6 +52,7 @@ interface AuditResult {
     extraColumns: number;
     typeMismatches: number;
     missingIndexes: number;
+    criticalMissing: number;
   };
 }
 
@@ -69,20 +78,16 @@ function mapPrismaToPostgres(prismaType: string): string {
   return typeMap[baseType] || baseType.toLowerCase();
 }
 
-// Extract Prisma schema information
-function parsePrismaSchema() {
-  // This is a simplified parser - in production, you might want to use @prisma/internals
-  // For now, we'll query the database and compare with what we know from the schema
-  const schemaModels = [
-    "Account", "Session", "VerificationToken", "User", "Booking", "NewEnquiry",
-    "FormSubmission", "EmailInbox", "EmailThread", "Email", "Note", "Task",
-    "EmailTemplate", "HireItem", "Cart", "CartItem", "HireOrder", "HireOrderItem",
-    "DJ", "Musician", "VenueAsset", "FreelanceCrew", "BookingStaffAssignment",
-    "AuditLog", "CommsLog"
-  ];
-
-  return schemaModels;
-}
+// All Prisma models (table names) – must match schema.prisma
+const EXPECTED_TABLES = [
+  "Account", "AuditLog", "Booking", "BookingStaffAssignment", "BookingItem",
+  "BookingWarehouseItem", "Cart", "CartItem", "CommsLog", "DispatchConfirmation",
+  "DJ", "Email", "EmailFolder", "EmailInbox", "EmailTemplate", "EmailThread",
+  "FormSubmission", "FreelanceCrew", "GuestRequest", "HireItem", "HireOrder",
+  "HireOrderItem", "Musician", "NewEnquiry", "Note", "ServiceQuoteItem",
+  "Session", "Staff_Settings", "Task", "User", "Venue", "VenueAsset",
+  "VerificationToken", "WarehouseItem",
+];
 
 export async function GET(request: NextRequest) {
   try {
@@ -102,9 +107,7 @@ export async function GET(request: NextRequest) {
 
     const tablesResult = await prisma.$queryRaw<Array<{ table_name: string }>>(tablesQuery);
     const actualTables = tablesResult.map(t => t.table_name);
-
-    // Get expected tables from Prisma schema
-    const expectedTables = parsePrismaSchema();
+    const expectedTables = EXPECTED_TABLES;
 
     const auditResults: TableAudit[] = [];
 
@@ -242,9 +245,38 @@ export async function GET(request: NextRequest) {
       sum + t.columns.filter(c => !c.typeMatch).length, 0);
     const missingIndexes = auditResults.reduce((sum, t) => sum + t.missingIndexes.length, 0);
 
+    // Critical column checks (recent migrations)
+    const criticalChecks: { table: string; column: string; description?: string }[] = [
+      { table: "AuditLog", column: "actor", description: "Activity feed actor (client/guest/admin/system)" },
+      { table: "AuditLog", column: "metadata", description: "Activity feed metadata (JSON)" },
+      { table: "BookingStaffAssignment", column: "briefStatus", description: "Brief acknowledgment status" },
+      { table: "BookingStaffAssignment", column: "briefToken", description: "Brief confirmation token" },
+    ];
+    const criticalColumns: CriticalColumnCheck[] = [];
+    for (const { table, column, description } of criticalChecks) {
+      if (!actualTables.includes(table)) {
+        criticalColumns.push({ table, column, exists: false, description });
+        continue;
+      }
+      const colResult = await prisma.$queryRaw<Array<{ column_name: string }>>(
+        Prisma.sql`
+          SELECT column_name FROM information_schema.columns
+          WHERE table_schema = 'public' AND table_name = ${table} AND column_name = ${column}
+        `
+      );
+      criticalColumns.push({
+        table,
+        column,
+        exists: colResult.length > 0,
+        description,
+      });
+    }
+    const criticalMissing = criticalColumns.filter((c) => !c.exists).length;
+
     return NextResponse.json({
       success: true,
       audit: auditResults,
+      criticalColumns,
       summary: {
         totalTables: expectedTables.length,
         existingTables,
@@ -254,6 +286,7 @@ export async function GET(request: NextRequest) {
         extraColumns,
         typeMismatches,
         missingIndexes,
+        criticalMissing,
       },
     });
   } catch (error: any) {

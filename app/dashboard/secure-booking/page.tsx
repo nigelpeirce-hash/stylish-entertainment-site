@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, Suspense } from "react";
+import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import { useClientStatus } from "@/hooks/useClientStatus";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,52 +20,134 @@ import Link from "next/link";
 import Image from "next/image";
 
 function SecureBookingPageContent() {
+  const { data: session, status } = useSession();
+  const searchParams = useSearchParams();
   const { clientName } = useClientStatus();
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [userIpAddress, setUserIpAddress] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [copiedRef, setCopiedRef] = useState(false);
+  const [booking, setBooking] = useState<{
+    id: string;
+    venueName: string;
+    eventDate: string;
+    eventType: string;
+    preferredDJ?: string | null;
+    services?: string[];
+    finalBalance?: string | null;
+    bookingFee?: string | null;
+  } | null>(null);
+  const [bookingError, setBookingError] = useState<string | null>(null);
 
-  // Fetch user IP address
+  // Resolve bookingId: URL param, sessionStorage (from IP recognition), or first user booking
+  const [bookingId, setBookingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fromUrl = searchParams.get("bookingId");
+    const fromStorage = typeof window !== "undefined" ? sessionStorage.getItem("stylish_booking_id") : null;
+    setBookingId(fromUrl || fromStorage || null);
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (!session?.user || !bookingId) return;
+    const fetchBooking = async () => {
+      try {
+        const res = await fetch("/api/client/bookings");
+        if (!res.ok) {
+          setBookingError("Could not load your booking");
+          return;
+        }
+        const data = await res.json();
+        const list = data.bookings || [];
+        const found = list.find((b: { id: string }) => b.id === bookingId);
+        if (found) {
+          setBooking({
+            id: found.id,
+            venueName: found.venueName || "Venue TBC",
+            eventDate: found.eventDate ? new Date(found.eventDate).toISOString().slice(0, 10) : "",
+            eventType: found.eventType || "Event",
+            preferredDJ: found.preferredDJ,
+            services: found.services,
+            finalBalance: found.finalBalance,
+            bookingFee: found.bookingFee,
+          });
+          setBookingError(null);
+        } else {
+          setBookingError("Booking not found or you do not have access");
+        }
+      } catch {
+        setBookingError("Could not load your booking");
+      }
+    };
+    fetchBooking();
+  }, [session, bookingId]);
+
+  // If logged in but no bookingId, try to use first booking
+  useEffect(() => {
+    if (session?.user && !bookingId && !booking) {
+      const fetchFirst = async () => {
+        try {
+          const res = await fetch("/api/client/bookings");
+          if (!res.ok) return;
+          const data = await res.json();
+          const list = data.bookings || [];
+          const first = list[0];
+          if (first) {
+            setBookingId(first.id);
+          }
+        } catch {
+          /* ignore */
+        }
+      };
+      fetchFirst();
+    }
+  }, [session, bookingId, booking]);
+
+  // Fetch user IP address (optional, for future use)
   useEffect(() => {
     const fetchIpAddress = async () => {
       try {
         const response = await fetch("https://api.ipify.org?format=json");
         const data = await response.json();
         setUserIpAddress(data.ip);
-      } catch (error) {
-        console.error("Error fetching IP address:", error);
-        // Fallback: try alternative service
+      } catch {
         try {
           const fallbackResponse = await fetch("https://api64.ipify.org?format=json");
           const fallbackData = await fallbackResponse.json();
           setUserIpAddress(fallbackData.ip);
-        } catch (fallbackError) {
-          console.error("Error fetching IP from fallback service:", fallbackError);
+        } catch {
+          /* ignore */
         }
       }
     };
-
     fetchIpAddress();
   }, []);
 
-  // NOTE: This will be replaced with actual booking data from API/session in production
-  // Currently using placeholder data for development
-  const bookingData = {
-    venueName: "Babington House",
-    eventDate: "2024-06-15",
-    eventType: "Wedding",
-    djArtists: ["Nigel"],
-    lightingAddOns: ["Fairy Light Tunnel", "LED Uplighting", "Table Candles"],
-    totalAmount: 2500,
-    depositAmount: 625, // 25% deposit
-  };
+  const bookingData = booking
+    ? {
+        venueName: booking.venueName,
+        eventDate: booking.eventDate,
+        eventType: booking.eventType,
+        djArtists: booking.preferredDJ ? [booking.preferredDJ] : [],
+        lightingAddOns: [] as string[],
+        totalAmount: parseFloat(String(booking.finalBalance || "0").replace(/[^0-9.-]/g, "")) || 0,
+        depositAmount: parseFloat(String(booking.bookingFee || "0").replace(/[^0-9.-]/g, "")) || 0,
+      }
+    : {
+        venueName: "…",
+        eventDate: "",
+        eventType: "…",
+        djArtists: [] as string[],
+        lightingAddOns: [] as string[],
+        totalAmount: 0,
+        depositAmount: 0,
+      };
 
-  const remainingBalance = bookingData.totalAmount - bookingData.depositAmount;
-
-  // Generate payment reference
-  const paymentReference = `STYLISH-${bookingData.venueName.substring(0, 3).toUpperCase()}-${bookingData.eventDate.replace(/-/g, '')}`;
+  const remainingBalance = Math.max(0, bookingData.totalAmount - bookingData.depositAmount);
+  const paymentReference = bookingData.venueName && bookingData.eventDate
+    ? `STYLISH-${bookingData.venueName.substring(0, 3).toUpperCase()}-${bookingData.eventDate.replace(/-/g, "")}`
+    : "STYLISH-TBC";
 
   // Copy to clipboard function
   const copyToClipboard = async (text: string) => {
@@ -90,42 +174,87 @@ function SecureBookingPageContent() {
       alert("Please accept the Terms & Conditions to proceed.");
       return;
     }
-
-    if (!userIpAddress) {
-      alert("Unable to capture IP address. Please refresh the page and try again.");
+    if (!booking?.id) {
+      alert("Please wait for your booking to load, or log in to access your booking.");
       return;
     }
 
     setIsSubmitting(true);
-
     try {
-      // API endpoint for accepting terms and conditions
       const response = await fetch("/api/bookings/accept-terms", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          terms_accepted: true,
-          acceptance_timestamp: new Date().toISOString(),
-          acceptance_ip: userIpAddress,
-          booking_id: "placeholder", // NOTE: Will be replaced with actual booking ID from session/context
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId: booking.id }),
       });
 
       if (response.ok) {
-        // Redirect to payment page or show success
-        // NOTE: Payment gateway integration will be implemented here
+        const data = await response.json();
+        if (data.success) {
+          alert("Terms accepted. Payment integration will follow.");
+          // NOTE: Payment gateway integration will be implemented here
+        } else {
+          throw new Error("Failed to accept terms");
+        }
       } else {
-        throw new Error("Failed to accept terms");
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to accept terms");
       }
     } catch (error) {
       console.error("Error submitting terms acceptance:", error);
-      alert("An error occurred. Please try again.");
+      alert(error instanceof Error ? error.message : "An error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  const isLoading = status === "loading";
+  const needsLogin = status === "unauthenticated";
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <p className="text-gray-600">Loading…</p>
+      </div>
+    );
+  }
+
+  if (needsLogin) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <Card className="max-w-md border border-champagne-gold/30">
+          <CardContent className="pt-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Sign in required</h2>
+            <p className="text-gray-600 mb-4">
+              Please log in to view your booking and accept terms.
+            </p>
+            <Link href="/login">
+              <Button className="bg-champagne-gold text-black hover:bg-champagne-gold/90">
+                Log in
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (bookingError && !booking) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <Card className="max-w-md border border-champagne-gold/30">
+          <CardContent className="pt-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-2">Booking not found</h2>
+            <p className="text-gray-600 mb-4">{bookingError}</p>
+            <Link href="/client/dashboard">
+              <Button variant="outline" className="border-champagne-gold text-champagne-gold">
+                Back to dashboard
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -199,7 +328,7 @@ function SecureBookingPageContent() {
                     <div className="flex-1">
                       <h3 className="font-semibold text-gray-900 mb-1">DJ/Artists</h3>
                       <p className="text-gray-700">
-                        {bookingData.djArtists.join(", ")}
+                        {bookingData.djArtists?.length ? bookingData.djArtists.join(", ") : "TBC"}
                       </p>
                     </div>
                   </div>
@@ -453,7 +582,7 @@ function SecureBookingPageContent() {
                 <Button
                   size="lg"
                   onClick={handlePayDeposit}
-                  disabled={!termsAccepted || isSubmitting}
+                  disabled={!termsAccepted || !booking?.id || isSubmitting}
                   className="w-full bg-champagne-gold text-black hover:bg-champagne-gold/90 font-bold text-lg py-6 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting ? "Processing..." : "Pay Secure Deposit"}

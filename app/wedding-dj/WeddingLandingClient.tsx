@@ -56,10 +56,10 @@ function normalizeYouTubeUrl(url: string | null | undefined): string | null {
   return null;
 }
 
-// Hero image – dance floor with modern lighting
+// Hero image – Mells Barn with fairy lights
 const heroImage = {
-  src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163720/A-Big-Lazer-e1430894875463_xgpiil.jpg",
-  alt: "Packed dance floor with dramatic laser lighting – sophisticated wedding celebration",
+  src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163500/Mells-Barn-Fairy-lights-in-ceiling_vmzs3p.jpg",
+  alt: "Mells Barn wedding venue with fairy lights in ceiling – magical atmosphere",
 };
 
 // Social proof gallery – packed dancefloors, stylish setups
@@ -147,7 +147,7 @@ export default function WeddingLandingClient() {
             <span className="text-champagne-gold">We&apos;re the Antidote.</span>
           </h1>
           <p className="text-lg md:text-xl text-white/95 mb-10 max-w-2xl mx-auto">
-            High-quality, modern wedding entertainment for couples who hate &quot;wedding music.&quot; We&apos;re across the UK, we&apos;re professional, and we promise: no cringe, no cheesy chat, and absolutely no &quot;YMCA.&quot;
+            High-quality, modern wedding entertainment for couples who hate &quot;wedding music.&quot; We&apos;re professional, and we promise: no cringe, no cheesy chat, and absolutely no &quot;YMCA.&quot;
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-gold-light font-semibold text-lg px-8 py-6">
@@ -239,8 +239,8 @@ export default function WeddingLandingClient() {
                   <div className="flex items-start gap-4">
                     <CheckCircle2 className="w-10 h-10 text-champagne-gold flex-shrink-0 mt-1" />
                     <div>
-                      <h3 className="text-xl font-bold mb-2">Across the UK</h3>
-                      <p className="text-gray-300">Whether it&apos;s a London loft or a Scottish castle, we bring the vibe to you.</p>
+                      <h3 className="text-xl font-bold mb-2">We Travel to You</h3>
+                      <p className="text-gray-300">Whether it&apos;s a grand ballroom or an intimate barn, we bring the vibe to your venue.</p>
                     </div>
                   </div>
                 </CardContent>
@@ -442,9 +442,9 @@ export default function WeddingLandingClient() {
             className="max-w-3xl mx-auto text-center border-l-4 border-champagne-gold pl-6 py-4 bg-gray-900/50 rounded-r-lg"
           >
             <p className="text-xl md:text-2xl text-white/95 italic mb-4">
-              &ldquo;The absolute opposite of a wedding DJ. Our guests didn&apos;t leave the floor once, and there wasn&apos;t a single &apos;standard&apos; wedding track played. Sophisticated and high-energy.&rdquo;
+              &ldquo;It&apos;s fair to say everyone loved it! Haven&apos;t had such a good dance in a long time and it&apos;s because you read the mood so well.&rdquo;
             </p>
-            <cite className="text-champagne-gold not-italic font-medium">— Sarah & James, 2025</cite>
+            <cite className="text-champagne-gold not-italic font-medium">— Demitria & David, Devonshire Terrace London</cite>
           </motion.blockquote>
         </div>
       </section>
@@ -471,7 +471,7 @@ export default function WeddingLandingClient() {
             >
               <div className="w-16 h-16 rounded-full bg-champagne-gold text-black font-bold text-2xl flex items-center justify-center mx-auto mb-4">1</div>
               <h3 className="text-xl font-bold mb-2">The Vibe Check</h3>
-              <p className="text-gray-400">We chat about your musical taste, your &quot;must-haves,&quot; and your &quot;absolutely-nots.&quot;</p>
+              <p className="text-gray-400">Your musical taste, your &quot;must-haves,&quot; and your &quot;absolutely-nots&quot;—all captured in your online planning space when you book, at your own pace.</p>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -482,7 +482,7 @@ export default function WeddingLandingClient() {
             >
               <div className="w-16 h-16 rounded-full bg-champagne-gold text-black font-bold text-2xl flex items-center justify-center mx-auto mb-4">2</div>
               <h3 className="text-xl font-bold mb-2">The Logistics</h3>
-              <p className="text-gray-400">We handle everything—insurance, PAT testing, and coordinating with your venue across the UK.</p>
+              <p className="text-gray-400">We handle everything—insurance, PAT testing, and coordinating with your venue. Your booking gives you access to your online planning space to build your playlist and preferences whenever you&apos;re ready.</p>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -499,8 +499,141 @@ export default function WeddingLandingClient() {
         </div>
       </section>
 
-      {/* Comparison Table */}
+      {/* Client Portal Section */}
       <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+        <div className="max-w-5xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">Your Music, Planned Without the Stress</h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              Wedding planning is overwhelming enough. We include a free online planning space where you can curate your music at your own pace—no pressure, no rushed phone calls.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+            >
+              <Card className="bg-white/5 border-champagne-gold/30 h-full">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-bold mb-3 text-champagne-gold">Build Your Playlist</h3>
+                  <p className="text-gray-300 text-sm leading-relaxed">
+                    Add your must-play tracks, flag your guilty pleasures, and update your choices as many times as you want. No judgment, just your music.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.15 }}
+            >
+              <Card className="bg-white/5 border-champagne-gold/30 h-full">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-bold mb-3 text-champagne-gold">Your &quot;Do Not Play&quot; List</h3>
+                  <p className="text-gray-300 text-sm leading-relaxed">
+                    The sacred veto. Tell us what makes you cringe and we promise—those tracks stay off your dancefloor.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              <Card className="bg-white/5 border-champagne-gold/30 h-full">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-bold mb-3 text-champagne-gold">Guest Requests (That You Control)</h3>
+                  <p className="text-gray-300 text-sm leading-relaxed">
+                    Your guests can suggest songs before the day. You approve what gets played. No hijacked playlists, no surprises.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.25 }}
+            >
+              <Card className="bg-white/5 border-champagne-gold/30 h-full">
+                <CardContent className="p-6">
+                  <h3 className="text-lg font-bold mb-3 text-champagne-gold">Everything in One Place</h3>
+                  <p className="text-gray-300 text-sm leading-relaxed">
+                    Your booking details, event timeline, countdown to the big day. One place, all organised, zero chaos.
+                  </p>
+                </CardContent>
+              </Card>
+            </motion.div>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-10"
+          >
+            <p className="text-gray-400 text-center mb-6">
+              Take a look at what your planning space looks like:
+            </p>
+            <div className="relative w-full rounded-xl overflow-hidden border border-champagne-gold/20 bg-gray-900 h-[min(55vh,420px)] sm:h-[min(60vh,500px)] md:h-[580px] lg:h-[650px]">
+              <LazyIframe
+                src="/demo/portal-preview"
+                title="Client portal preview"
+                className="relative w-full h-full"
+                style={{ height: "100%" }}
+              />
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-2xl mx-auto text-center bg-gray-900/50 border border-champagne-gold/20 rounded-lg p-6"
+          >
+            <p className="text-gray-300 text-sm leading-relaxed mb-4">
+              <strong className="text-white">Peace of mind:</strong> You stay in full control. Everything is agreed before the day. Your guests can&apos;t hijack the playlist, and you can tweak things right up until the week before.
+            </p>
+          </motion.div>
+
+          <div className="text-center mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button asChild variant="outline" size="lg" className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 font-semibold text-lg px-8 py-6">
+              <Link href="/demo/portal-preview" target="_blank" rel="noopener noreferrer">
+                See the Portal
+              </Link>
+            </Button>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="max-w-2xl mx-auto mt-10 text-center"
+          >
+            <blockquote className="text-base italic text-white/90 border-l-2 border-champagne-gold pl-4 text-left">
+              &ldquo;Your organisation and research has been magnificent, and the fact you have held everything technical together has made this weekend brilliant.&rdquo;
+              <cite className="block text-sm text-champagne-gold not-italic mt-2">— Rob & Jules, Babington House</cite>
+            </blockquote>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Comparison Table */}
+      <section className="pt-10 pb-20 md:pt-14 md:pb-28 px-4 md:px-8 bg-gray-950">
         <div className="max-w-4xl mx-auto overflow-x-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -566,6 +699,7 @@ export default function WeddingLandingClient() {
           buttonNext: () => <ChevronRight className="w-8 h-8 text-white" />,
         }}
       />
+
     </div>
   );
 }

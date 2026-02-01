@@ -18,12 +18,11 @@ interface TimeRemaining {
   total: number;
 }
 
-const MS_PER_SEC = 1000;
-const MS_PER_MIN = MS_PER_SEC * 60;
-const MS_PER_HOUR = MS_PER_MIN * 60;
-const MS_PER_DAY = MS_PER_HOUR * 24;
-const MS_PER_MONTH = MS_PER_DAY * 30.44; // ~avg days per month
-const MS_PER_YEAR = MS_PER_DAY * 365.25; // leap-year adjusted
+const MS_PER_MIN = 60 * 1000;
+const MS_PER_HOUR = 60 * MS_PER_MIN;
+const MS_PER_DAY = 24 * MS_PER_HOUR;
+const MS_PER_MONTH = MS_PER_DAY * 30.44;
+const MS_PER_YEAR = MS_PER_DAY * 365.25;
 
 export default function PortalCountdownClock({ targetDate, className = "" }: PortalCountdownClockProps) {
   const [time, setTime] = useState<TimeRemaining>({
@@ -57,69 +56,133 @@ export default function PortalCountdownClock({ targetDate, className = "" }: Por
       const hours = Math.floor(remaining / MS_PER_HOUR);
       remaining -= hours * MS_PER_HOUR;
       const minutes = Math.floor(remaining / MS_PER_MIN);
-      remaining -= minutes * MS_PER_MIN;
-      const seconds = Math.floor(remaining / MS_PER_SEC);
 
-      setTime({ years, months, days, hours, minutes, seconds, total: diff });
+      setTime({ years, months, days, hours, minutes, seconds: 0, total: diff });
     };
 
     tick();
-    const interval = setInterval(tick, 1000);
+    const interval = setInterval(tick, MS_PER_MIN);
     return () => clearInterval(interval);
   }, [targetDate]);
 
-  const pad = (n: number, len = 2) => n.toString().padStart(len, "0");
+  const totalDays = time.years * 365 + time.months * 30 + time.days;
+  const journeyProgress = Math.min(1, 1 - totalDays / 365);
+  const circumference = 2 * Math.PI * 90;
+  const strokeDashoffset = circumference * (1 - journeyProgress);
 
-  const units: { key: string; value: number; label: string }[] = [
-    { key: "y", value: time.years, label: "YRS" },
-    { key: "mo", value: time.months, label: "MTH" },
-    { key: "d", value: time.days, label: "DAYS" },
-    { key: "h", value: time.hours, label: "HRS" },
-    { key: "m", value: time.minutes, label: "MIN" },
-    { key: "s", value: time.seconds, label: "SEC" },
-  ];
+  // Milestone copy — playful, celebratory
+  const getMilestoneCopy = () => {
+    if (totalDays >= 60) return { headline: "Your playlist is nearly ready 🎶", sub: "Plenty of time — enjoy planning" };
+    if (totalDays >= 30) return { headline: "Your playlist is taking shape 🎶", sub: "Almost a month to go" };
+    if (totalDays >= 7) return { headline: "1 week to go — let the dance floor prep begin 💃", sub: "Everything's on track" };
+    if (totalDays >= 2) return { headline: "Just days away — almost time to dance! ✨", sub: "Final countdown" };
+    if (totalDays === 1) return { headline: "1 day to go — tomorrow's the big day! 🎉", sub: "Get some rest" };
+    return { headline: "Today is the day 🎊", sub: "Let's go!" };
+  };
+  const milestone = totalDays > 0 ? getMilestoneCopy() : null;
 
   if (time.total <= 0) {
     return (
-      <div className={`portal-countdown-retro ${className}`}>
-        <div className="portal-countdown-retro__bezel">
-          <div className="portal-countdown-retro__scanlines" />
-          <div className="portal-countdown-retro__label">TIME REMAINING</div>
-          <div className="portal-countdown-retro__display portal-countdown-retro__display--expired">
-            {units.flatMap((u, i) => [
-              <span key={u.key} className="portal-countdown-retro__digit">00</span>,
-              ...(i < units.length - 1 ? [<span key={`${u.key}-col`} className="portal-countdown-retro__colon">:</span>] : []),
-            ])}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className={`flex flex-col items-center justify-center py-8 px-4 ${className}`}
+      >
+        <div className="relative">
+          <div className="absolute inset-0 bg-champagne-gold/20 rounded-full blur-2xl animate-pulse" />
+          <div className="relative w-48 h-48 rounded-full border-2 border-champagne-gold/50 flex items-center justify-center bg-gradient-to-br from-champagne-gold/5 to-transparent">
+            <span className="text-4xl md:text-5xl font-light text-champagne-gold tracking-tight">Today</span>
           </div>
-          <div className="portal-countdown-retro__message">TODAY IS THE DAY</div>
         </div>
-      </div>
+        <p className="mt-6 text-xl md:text-2xl font-light text-white/90">Today is the day</p>
+        <p className="mt-2 text-sm text-white/50">Enjoy every moment</p>
+      </motion.div>
     );
   }
 
+  const displayDays = totalDays > 999 ? 999 : totalDays;
+
   return (
-    <div className={`portal-countdown-retro ${className}`}>
-      <div className="portal-countdown-retro__bezel">
-        <div className="portal-countdown-retro__scanlines" />
-        <div className="portal-countdown-retro__label">TIME REMAINING</div>
-        <div className="portal-countdown-retro__display" data-units={units.length}>
-          {units.flatMap((u, i) => [
-            <div key={u.key} className="portal-countdown-retro__unit">
-              <motion.span
-                key={`${u.key}-${u.value}`}
-                className="portal-countdown-retro__digit"
-                initial={{ scale: 1.05, opacity: 0.8 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ duration: 0.2 }}
-              >
-                {u.value < 100 ? pad(u.value) : pad(u.value, 3)}
-              </motion.span>
-              <span className="portal-countdown-retro__unit-label">{u.label}</span>
-            </div>,
-            ...(i < units.length - 1 ? [<span key={`${u.key}-col`} className="portal-countdown-retro__colon">:</span>] : []),
-          ])}
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+      className={`flex flex-col items-center justify-center py-6 px-4 ${className}`}
+    >
+      <div className="relative">
+        <div className="absolute inset-0 bg-champagne-gold/10 rounded-full blur-3xl scale-150 opacity-60" />
+        <svg className="relative w-56 h-56 md:w-64 md:h-64 -rotate-90" viewBox="0 0 200 200">
+          <circle
+            cx="100"
+            cy="100"
+            r="90"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="text-white/5"
+          />
+          <motion.circle
+            cx="100"
+            cy="100"
+            r="90"
+            fill="none"
+            stroke="url(#countdown-gradient)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            initial={{ strokeDashoffset: circumference }}
+            animate={{ strokeDashoffset }}
+            transition={{ duration: 1.2, ease: "easeInOut" }}
+          />
+          <defs>
+            <linearGradient id="countdown-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#d4af37" stopOpacity="0.4" />
+              <stop offset="50%" stopColor="#d4af37" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#f4cf6d" stopOpacity="0.6" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <motion.span
+            key={displayDays}
+            initial={{ scale: 0.92, opacity: 0.6 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="text-6xl md:text-7xl lg:text-8xl font-extralight text-white tabular-nums tracking-tight"
+          >
+            {displayDays}
+          </motion.span>
+          <span className="text-xs uppercase tracking-[0.35em] text-white/40 font-medium mt-1">
+            {displayDays === 1 ? "day" : "days"}
+          </span>
         </div>
       </div>
-    </div>
+
+      <motion.p
+        key={milestone?.headline ?? "default"}
+        initial={{ opacity: 0, y: 4 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+        className="mt-6 text-lg md:text-xl font-light text-white/90 tracking-wide text-center"
+      >
+        {milestone?.headline ?? "Until you say I do"}
+      </motion.p>
+
+      <p className="mt-3 text-sm text-white/40 font-light">
+        {time.hours}h {time.minutes}m to go
+      </p>
+
+      {milestone?.sub && (
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+          className="mt-6 text-xs uppercase tracking-widest text-champagne-gold/70"
+        >
+          {milestone.sub}
+        </motion.p>
+      )}
+    </motion.div>
   );
 }

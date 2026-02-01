@@ -21,7 +21,7 @@ const VIBE_TILES = [
     vibe: "Elevate the energy. Whether it's a soulful acoustic duo for your ceremony or a high-octane Sax and Bongos player to jam alongside your DJ.",
     buttonText: "Explore Live Music",
     href: "/artists/musicians/",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163839/Jade-and-Emma-0062_fz8ujk.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163839/Jade-and-Emma-0062_fz8ujk.jpg",
     imageAlt: "Live musicians performing at a wedding, showcasing saxophone and percussion",
   },
   {
@@ -57,7 +57,7 @@ export default function WeddingEntertainmentClient() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163781/Emma-Conrad-2-9-23-682_utvftj.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163781/Emma-Conrad-2-9-23-682_utvftj.jpg"
             alt="Emma and Conrad's wedding with professional entertainment, elegant lighting design, and beautiful wedding atmosphere captured by The Falkenburgs Photography"
             fill
             className="object-cover object-center brightness-75"

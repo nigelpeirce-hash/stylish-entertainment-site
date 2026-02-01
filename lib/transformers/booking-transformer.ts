@@ -94,6 +94,9 @@ export interface SanitizedBooking {
   djWorksheetApproved?: boolean | null;
   djWorksheetApprovedManual?: boolean | null;
   User?: { id: string; name: string; email: string } | null;
+  /** Client portal login stats (from User when booking has userId) */
+  clientLoginCount?: number | null;
+  clientLastLoginAt?: string | null;
   staffAssignments: Array<{
     id: string;
     role: string;
@@ -385,6 +388,9 @@ export function transformBooking(
           email: String(booking.User.email),
         }
       : null,
+    // Client portal login stats (from User)
+    clientLoginCount: typeof (booking?.User as any)?.loginCount === "number" ? (booking.User as any).loginCount : null,
+    clientLastLoginAt: (booking?.User as any)?.lastLoginAt ? convertDate((booking.User as any).lastLoginAt) : null,
     // Preserve bookingItems if present
     bookingItems: Array.isArray(booking?.bookingItems)
       ? booking.bookingItems.map((item: any) => ({

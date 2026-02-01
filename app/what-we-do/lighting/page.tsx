@@ -56,25 +56,25 @@ const EDITORIAL_TILES = [
 
 const lightingPhotos = [
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg",
     width: 1200,
     height: 900,
     alt: "Wedding reception with professional lighting design, elegant table settings, and ambient lighting at a West Country venue",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163679/IMG_3094-1_aiyu5i.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163679/IMG_3094-1_aiyu5i.jpg",
     width: 1200,
     height: 900,
     alt: "Elegant wedding reception with sophisticated lighting design creating a warm and romantic atmosphere with ambient mood lighting",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg",
     width: 1200,
     height: 900,
     alt: "Babington House wedding venue exterior with beautiful green LED mood lighting, showcasing luxury wedding lighting design in Somerset",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg",
     width: 1200,
     height: 900,
     alt: "Professional DJ setup at Babington House with custom lighting, professional sound equipment, and atmospheric wedding entertainment",
@@ -86,19 +86,19 @@ const lightingPhotos = [
     alt: "Emily and Tom's wedding reception with stunning atmospheric lighting design, captured by Jonny Barratt Photography, creating a magical evening ambiance",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768734499/Jade-and-Emma-0059-1_wddnet.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768734499/Jade-and-Emma-0059-1_wddnet.jpg",
     width: 1200,
     height: 900,
     alt: "Jade and Emma's wedding with elegant dance floor lighting design and romantic ambient lighting creating a beautiful celebration atmosphere",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162978/ITALLIAN-VILLA-02_jgy3tx.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162978/ITALLIAN-VILLA-02_jgy3tx.jpg",
     width: 1200,
     height: 900,
     alt: "Italian Villa wedding venue with stunning exterior LED mood lighting and professional wedding lighting design creating an elegant evening atmosphere",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162649/Kin-House-Mirrorball-Clusters_fi5n50.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162649/Kin-House-Mirrorball-Clusters_fi5n50.jpg",
     width: 1200,
     height: 900,
     alt: "Kin House venue with elegant mirrorball clusters and professional lighting design creating a sophisticated party atmosphere",
@@ -120,7 +120,7 @@ export default function Lighting() {
       <section className="relative min-h-[70vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162978/ITALLIAN-VILLA-02_jgy3tx.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162978/ITALLIAN-VILLA-02_jgy3tx.jpg"
             alt="Italian Villa wedding venue with stunning exterior LED mood lighting"
             fill
             className="object-cover object-center brightness-110"

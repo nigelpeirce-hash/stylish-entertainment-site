@@ -18,6 +18,9 @@ const createOrderSchema = z.object({
   venueName: z.string().optional(),
   venueAddress: z.string().optional(),
   notes: z.string().optional(),
+  termsAccepted: z.boolean().refine((v) => v === true, {
+    message: "You must accept the Terms & Conditions to complete your order",
+  }),
 });
 
 // Generate order number
@@ -77,6 +80,8 @@ export async function POST(request: NextRequest) {
         venueName: validatedData.venueName || undefined,
         venueAddress: validatedData.venueAddress || undefined,
         notes: validatedData.notes || undefined,
+        termsAccepted: true,
+        termsAcceptedAt: new Date(),
         totalAmount,
         status: "pending",
         userId: (token?.id as string) || undefined,

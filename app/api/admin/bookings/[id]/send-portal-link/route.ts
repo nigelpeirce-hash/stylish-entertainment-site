@@ -1,3 +1,4 @@
+import { randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
@@ -6,7 +7,7 @@ import { getDisplayName, getGreetingName } from "@/lib/utils/name-helpers";
 import { yourEventLabel } from "@/lib/email-templates";
 import { SIGNATURE_BLOCK_HTML_DARK, CLIENT_SIGNOFF_TEXT } from "@/lib/email-signature";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
-import { getClientPortalLoginUrl } from "@/lib/client-portal-url";
+import { logActivity } from "@/lib/activity-log";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -41,6 +42,7 @@ export async function POST(
         displayName: true,
         eventType: true,
         djFinishTime: true,
+        portalToken: true,
       },
     });
 
@@ -55,9 +57,17 @@ export async function POST(
       );
     }
 
-    // Generate portal link — login with callback so client lands on their booking after sign-in
-    const baseUrl = getEmailBaseUrl();
-    const portalUrl = getClientPortalLoginUrl(baseUrl, booking.id);
+    // Use magic link (works without password) — generate portalToken if not set
+    const baseUrl = getEmailBaseUrl().replace(/\/$/, "");
+    let portalToken = (booking.portalToken as string | null) || null;
+    if (!portalToken) {
+      portalToken = randomBytes(32).toString("hex");
+      await prisma.booking.update({
+        where: { id: bookingId },
+        data: { portalToken, updatedAt: new Date() },
+      });
+    }
+    const portalUrl = `${baseUrl}/client/bookings/${bookingId}?token=${encodeURIComponent(portalToken)}`;
 
     // Get greeting name for email
     const greetingName = getGreetingName(booking.name);
@@ -251,6 +261,15 @@ ${CLIENT_SIGNOFF_TEXT}
         { status: 500 }
       );
     }
+
+    await logActivity({
+      bookingId,
+      action: "portal_link_sent",
+      description: "Portal access link sent to client",
+      actor: "admin",
+      performedBy: admin?.name ?? admin?.email ?? "Admin",
+      metadata: { emailSubject: subject },
+    });
 
     return NextResponse.json({
       success: true,

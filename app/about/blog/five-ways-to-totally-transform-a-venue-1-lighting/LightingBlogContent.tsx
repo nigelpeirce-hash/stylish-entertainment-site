@@ -25,19 +25,19 @@ export default function LightingBlogContent() {
 
   // Collect all images for lightbox navigation
   const allImages = useMemo(() => [
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163068/Wedding-Tree-Lighting_ewqmh6.jpg", alt: "Light and Shade tree lighting creating a beautiful backdrop for events and photos" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163271/wedding-tree-lighting-2-e1510835516724_f1fant.jpg", alt: "Light and Shade tree lighting creating an elegant atmosphere for events" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162589/Light-and-Shade-KV_counyg.jpg", alt: "Light and Shade tree lighting with elegant shades creating a magical atmosphere" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162640/Smedmore-House-Dorset-Tree-Lighting-e1499338525247_trnxzr.jpg", alt: "Light and Shade tree lighting at Smedmore House, Dorset" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162939/Fairy-light-Canopy_vc1rkd.jpg", alt: "Fairy light canopy creating a warm and intimate atmosphere" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162570/Fairy-canopy-9_ytbop0.jpg", alt: "Elegant fairy light canopy installation for events" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163754/Pine-fairy-01_k7y1nh.jpg", alt: "Pine fairy light installation creating a magical atmosphere" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162637/Fairy-canopy-6-e1444840616907_lv3ncz.jpg", alt: "Fairy light canopy design for weddings, parties, and corporate events" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162262/Kin-House-LED-up-lighting_fr3ypq.jpg", alt: "Kin House LED up-lighting creating a dramatic atmosphere" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163392/Mells_Barn_LED_lighting-transformed-e1698060379974_geh36y.jpg", alt: "Mells Barn transformed with LED lighting" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162636/IMG_8030_b5un4j.jpg", alt: "LED up-lighting creating dramatic mood lighting for events" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163677/Babington-Bar-Violet_xc3jsd.jpg", alt: "Violet LED up-lighting in the bar at Babington House Hotel" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg", alt: "Babington House transformed with green LED mood lighting" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163068/Wedding-Tree-Lighting_ewqmh6.jpg", alt: "Light and Shade tree lighting creating a beautiful backdrop for events and photos" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163271/wedding-tree-lighting-2-e1510835516724_f1fant.jpg", alt: "Light and Shade tree lighting creating an elegant atmosphere for events" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162589/Light-and-Shade-KV_counyg.jpg", alt: "Light and Shade tree lighting with elegant shades creating a magical atmosphere" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162640/Smedmore-House-Dorset-Tree-Lighting-e1499338525247_trnxzr.jpg", alt: "Light and Shade tree lighting at Smedmore House, Dorset" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162939/Fairy-light-Canopy_vc1rkd.jpg", alt: "Fairy light canopy creating a warm and intimate atmosphere" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162570/Fairy-canopy-9_ytbop0.jpg", alt: "Elegant fairy light canopy installation for events" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163754/Pine-fairy-01_k7y1nh.jpg", alt: "Pine fairy light installation creating a magical atmosphere" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162637/Fairy-canopy-6-e1444840616907_lv3ncz.jpg", alt: "Fairy light canopy design for weddings, parties, and corporate events" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162262/Kin-House-LED-up-lighting_fr3ypq.jpg", alt: "Kin House LED up-lighting creating a dramatic atmosphere" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163392/Mells_Barn_LED_lighting-transformed-e1698060379974_geh36y.jpg", alt: "Mells Barn transformed with LED lighting" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162636/IMG_8030_b5un4j.jpg", alt: "LED up-lighting creating dramatic mood lighting for events" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163677/Babington-Bar-Violet_xc3jsd.jpg", alt: "Violet LED up-lighting in the bar at Babington House Hotel" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg", alt: "Babington House transformed with green LED mood lighting" },
   ], []);
 
   return (
@@ -46,7 +46,7 @@ export default function LightingBlogContent() {
       <section className="relative min-h-[50vh] flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-40 flex items-center justify-center">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163745/Pool-Party01_qe5ro0.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163745/Pool-Party01_qe5ro0.jpg"
             alt="Venue lighting transformation"
             fill
             className="object-cover object-center brightness-110"
@@ -116,7 +116,7 @@ export default function LightingBlogContent() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163068/Wedding-Tree-Lighting_ewqmh6.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163068/Wedding-Tree-Lighting_ewqmh6.jpg"
                           alt="Light and Shade tree lighting creating a beautiful backdrop for events and photos"
                           images={allImages}
                           index={0}
@@ -124,7 +124,7 @@ export default function LightingBlogContent() {
                       </div>
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163271/wedding-tree-lighting-2-e1510835516724_f1fant.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163271/wedding-tree-lighting-2-e1510835516724_f1fant.jpg"
                           alt="Light and Shade tree lighting creating an elegant atmosphere for events"
                           images={allImages}
                           index={1}
@@ -132,7 +132,7 @@ export default function LightingBlogContent() {
                       </div>
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162589/Light-and-Shade-KV_counyg.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162589/Light-and-Shade-KV_counyg.jpg"
                           alt="Light and Shade tree lighting with elegant shades creating a magical atmosphere"
                           images={allImages}
                           index={2}
@@ -140,7 +140,7 @@ export default function LightingBlogContent() {
                       </div>
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162640/Smedmore-House-Dorset-Tree-Lighting-e1499338525247_trnxzr.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162640/Smedmore-House-Dorset-Tree-Lighting-e1499338525247_trnxzr.jpg"
                           alt="Light and Shade tree lighting at Smedmore House, Dorset"
                           images={allImages}
                           index={3}
@@ -158,7 +158,7 @@ export default function LightingBlogContent() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162939/Fairy-light-Canopy_vc1rkd.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162939/Fairy-light-Canopy_vc1rkd.jpg"
                           alt="Fairy light canopy creating a warm and intimate atmosphere"
                           images={allImages}
                           index={4}
@@ -166,7 +166,7 @@ export default function LightingBlogContent() {
                       </div>
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162570/Fairy-canopy-9_ytbop0.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162570/Fairy-canopy-9_ytbop0.jpg"
                           alt="Elegant fairy light canopy installation for events"
                           images={allImages}
                           index={5}
@@ -174,7 +174,7 @@ export default function LightingBlogContent() {
                       </div>
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163754/Pine-fairy-01_k7y1nh.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163754/Pine-fairy-01_k7y1nh.jpg"
                           alt="Pine fairy light installation creating a magical atmosphere"
                           images={allImages}
                           index={6}
@@ -182,7 +182,7 @@ export default function LightingBlogContent() {
                       </div>
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162637/Fairy-canopy-6-e1444840616907_lv3ncz.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162637/Fairy-canopy-6-e1444840616907_lv3ncz.jpg"
                           alt="Fairy light canopy design for weddings, parties, and corporate events"
                           images={allImages}
                           index={7}
@@ -200,7 +200,7 @@ export default function LightingBlogContent() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162262/Kin-House-LED-up-lighting_fr3ypq.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162262/Kin-House-LED-up-lighting_fr3ypq.jpg"
                           alt="Kin House LED up-lighting creating a dramatic atmosphere"
                           images={allImages}
                           index={8}
@@ -208,7 +208,7 @@ export default function LightingBlogContent() {
                       </div>
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163392/Mells_Barn_LED_lighting-transformed-e1698060379974_geh36y.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163392/Mells_Barn_LED_lighting-transformed-e1698060379974_geh36y.jpg"
                           alt="Mells Barn transformed with LED lighting"
                           images={allImages}
                           index={9}
@@ -216,7 +216,7 @@ export default function LightingBlogContent() {
                       </div>
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162636/IMG_8030_b5un4j.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162636/IMG_8030_b5un4j.jpg"
                           alt="LED up-lighting creating dramatic mood lighting for events"
                           images={allImages}
                           index={10}
@@ -224,7 +224,7 @@ export default function LightingBlogContent() {
                       </div>
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163677/Babington-Bar-Violet_xc3jsd.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163677/Babington-Bar-Violet_xc3jsd.jpg"
                           alt="Violet LED up-lighting in the bar at Babington House Hotel"
                           images={allImages}
                           index={11}
@@ -232,7 +232,7 @@ export default function LightingBlogContent() {
                       </div>
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg md:col-span-2 max-w-3xl mx-auto">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg"
                           alt="Babington House transformed with green LED mood lighting"
                           images={allImages}
                           index={12}

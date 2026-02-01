@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { UserPlus, Search, CheckCircle2, X } from "lucide-react";
 import {
   Command,
@@ -54,6 +55,7 @@ export function TeamAssignment({
   const [selectedStaffId, setSelectedStaffId] = useState<string>("");
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sendEmail, setSendEmail] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -96,7 +98,7 @@ export function TeamAssignment({
           bookingId,
           staffId: selectedStaffId,
           role: selectedRole,
-          sendEmail: false, // Don't auto-send email on assignment
+          sendEmail,
         }),
       });
 
@@ -106,7 +108,7 @@ export function TeamAssignment({
         throw new Error(data.error || "Failed to assign staff");
       }
 
-      setSuccess("Staff assigned successfully!");
+      setSuccess(sendEmail ? "Staff assigned successfully! Confirmation email sent." : "Staff assigned successfully!");
       setSelectedStaffId("");
       setSearchQuery("");
       setOpen(false);
@@ -252,6 +254,19 @@ export function TeamAssignment({
               </Command>
             </PopoverContent>
           </Popover>
+        </div>
+
+        {/* Send confirmation email toggle */}
+        <div className="flex items-center space-x-2">
+          <Checkbox
+            id="sendEmail"
+            checked={sendEmail}
+            onCheckedChange={(checked) => setSendEmail(checked === true)}
+            className="border-champagne-gold/50 data-[state=checked]:bg-champagne-gold data-[state=checked]:border-champagne-gold"
+          />
+          <Label htmlFor="sendEmail" className="text-sm text-gray-300 cursor-pointer">
+            Send confirmation email to artist
+          </Label>
         </div>
 
         {/* Assign Button */}

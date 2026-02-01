@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-const WINDOW_DAYS = 21;
 
 function isCloudinaryConfigured(): boolean {
   return !!(process.env.CLOUDINARY_CLOUD_NAME || process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME) &&
@@ -27,7 +26,7 @@ function ext(name: string): string {
 
 /**
  * POST: upload a music list file (PDF/Word) for a booking.
- * Same access rules as final-details: booking must exist and be within 21 days of event.
+ * Auth: ?token= (portalToken) OR session. Available from day 1 until event.
  */
 export async function POST(
   request: NextRequest,
@@ -40,20 +39,32 @@ export async function POST(
       return NextResponse.json({ error: "Booking ID required" }, { status: 400 });
     }
 
+    const token = request.nextUrl.searchParams.get("token");
+    const session = await auth();
+
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      select: { id: true, eventDate: true },
+      select: { id: true, userId: true, eventDate: true, portalToken: true },
     });
     if (!booking) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
-    const now = new Date();
+    let allowed = false;
+    if (token && booking.portalToken && booking.portalToken === token) {
+      allowed = true;
+    } else if (session?.user) {
+      const u = session.user as { id?: string; role?: string };
+      if (u.role === "admin" || (!!u.id && booking.userId === u.id)) allowed = true;
+    }
+    if (!allowed) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const eventDate = new Date(booking.eventDate);
-    const daysUntil = Math.ceil((eventDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    if (daysUntil > WINDOW_DAYS || daysUntil < 0) {
+    if (eventDate < new Date()) {
       return NextResponse.json(
-        { error: "File upload is only allowed within 21 days of your event" },
+        { error: "File upload has closed now that your event has passed" },
         { status: 403 }
       );
     }

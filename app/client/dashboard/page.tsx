@@ -12,7 +12,7 @@ import { Calendar, MessageSquare, User, Plus } from "lucide-react";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { SingleEventHero } from "./SingleEventHero";
 import PortalCountdownClock from "@/components/client/PortalCountdownClock";
-import MusicPlaylistManager from "@/components/MusicPlaylistManager";
+import ClientMusicModule from "@/components/client/ClientMusicModule";
 import GuestCountTracker from "@/components/GuestCountTracker";
 import BudgetTracker from "@/components/BudgetTracker";
 import AddOnConcierge from "@/components/AddOnConcierge";
@@ -306,8 +306,8 @@ export default function ClientDashboard() {
                         />
                       </div>
 
-                      {/* Music Playlist Manager */}
-                      <MusicPlaylistManager
+                      {/* Music preferences – must-plays, do-not-plays, Spotify, PDF/Word upload */}
+                      <ClientMusicModule
                         bookingId={booking.id}
                         eventType={booking.eventType}
                         initialData={{
@@ -316,7 +316,9 @@ export default function ClientDashboard() {
                           firstDance: booking.firstDance,
                           lastSong: booking.lastSong,
                           musicNotesToDJ: booking.musicNotesToDJ,
+                          musicFileUrl: booking.musicFileUrl,
                         }}
+                        variant="card"
                       />
 
                       {/* Guest Count Tracker */}

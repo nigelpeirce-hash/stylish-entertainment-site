@@ -9,85 +9,79 @@ import Gallery, { Photo } from "@/components/Gallery";
 
 const galleryPhotos: Photo[] = [
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163840/Fairy-Light-Canopy-with-Shades-e1510835685909_wgdrd3.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163840/Fairy-Light-Canopy-with-Shades-e1510835685909_wgdrd3.jpg",
     width: 1200,
     height: 900,
     alt: "Fairy light canopy with shades creating a romantic wedding atmosphere with elegant lighting design",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163736/ChloeStu2-e1434724653198_n5lhsf.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163736/ChloeStu2-e1434724653198_n5lhsf.jpg",
     width: 1200,
     height: 900,
     alt: "Chloe and Stu's wedding with beautiful fairy light installations and atmospheric wedding lighting design",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163739/170504_matthew-pei-san_ria-mishaal-photography_0957_im3era.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163739/170504_matthew-pei-san_ria-mishaal-photography_0957_im3era.jpg",
     width: 1200,
     height: 900,
     alt: "Matthew and Pei San's wedding reception with stunning fairy light tunnel and professional wedding lighting, captured by Ria Mishaal Photography",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163700/Pennard-House_koaxfj.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163700/Pennard-House_koaxfj.jpg",
     width: 1200,
     height: 900,
     alt: "Pennard House wedding venue with elegant exterior lighting design and atmospheric wedding lighting installations",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163694/Jade-and-Emma-1081-1_bmnwh0.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163694/Jade-and-Emma-1081-1_bmnwh0.jpg",
     width: 1200,
     height: 900,
     alt: "Jade and Emma's wedding with beautiful fairy light installations and romantic wedding lighting design creating a magical atmosphere",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163641/Pennard-House-Festoon-Pizzarova_rpdwep.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163641/Pennard-House-Festoon-Pizzarova_rpdwep.jpg",
     width: 1200,
     height: 900,
     alt: "Pennard House wedding venue with festoon lighting and elegant outdoor wedding lighting design for alfresco dining",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163634/matt_emma_4191_vvmdww.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Matt and Emma's wedding with stunning fairy light installations and professional wedding lighting design creating a romantic atmosphere",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg",
     width: 1200,
     height: 900,
     alt: "Camilla and Richard's wedding reception with elegant lighting design, beautiful table settings, and atmospheric wedding lighting",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163596/STYLISH-babs-july2016_ria-mishaal-photography_006_qmds40.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163596/STYLISH-babs-july2016_ria-mishaal-photography_006_qmds40.jpg",
     width: 1200,
     height: 900,
     alt: "Babington House wedding with professional lighting design and elegant wedding lighting installations, captured by Ria Mishaal Photography",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768741340/_F4R3275_tukoww.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768741340/_F4R3275_tukoww.jpg",
     width: 1200,
     height: 900,
     alt: "Chill Out Camp with vintage Edison festoon lighting and fairy lights creating a magical wedding atmosphere",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768741619/IMG_0487_aoaxho.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768741619/IMG_0487_aoaxho.jpg",
     width: 1200,
     height: 900,
     alt: "Bar terrace with elegant wedding lighting design creating a romantic atmosphere",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768742034/IMG_1348_161201_zwmdh2.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768742034/IMG_1348_161201_zwmdh2.jpg",
     width: 1200,
     height: 900,
     alt: "Wedding venue with beautiful lighting and elegant styling",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768742094/IMG_4162_h3h0bb.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768742094/IMG_4162_h3h0bb.jpg",
     width: 1200,
     height: 900,
     alt: "Sophisticated wedding lighting design creating an atmospheric celebration",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163734/F4R3490_dyrug0.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163734/F4R3490_dyrug0.jpg",
     width: 1200,
     height: 900,
     alt: "Professional wedding and party lighting creating an atmospheric celebration",
@@ -101,7 +95,7 @@ export default function WeddingLightingClient() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <img
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163797/150730_sami-tammy_ria-mishaal-photography_775_bbo9bb.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163797/150730_sami-tammy_ria-mishaal-photography_775_bbo9bb.jpg"
             alt="Sami and Tammy's wedding with beautiful lighting design creating an elegant and romantic atmosphere, captured by Ria Mishaal Photography"
             className="w-full h-full object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}

@@ -36,9 +36,12 @@ interface HireShopProps {
   venueName?: string | null;
   eventType?: string | null;
   onItemsChange?: () => void;
+  /** Portal magic-link token; include in API calls when present for auth */
+  portalToken?: string | null;
 }
 
-export default function HireShop({ bookingId, venueName, eventType, onItemsChange }: HireShopProps) {
+export default function HireShop({ bookingId, venueName, eventType, onItemsChange, portalToken }: HireShopProps) {
+  const tokenParam = portalToken ? `?token=${encodeURIComponent(portalToken)}` : "";
   const isWedding = (eventType || "").toLowerCase() === "wedding";
   const venueLabel = venueName?.trim() || "your venue";
   const title = isWedding
@@ -76,7 +79,7 @@ export default function HireShop({ bookingId, venueName, eventType, onItemsChang
     (async () => {
       setLoadingCart(true);
       try {
-        const r = await fetch(`/api/client/bookings/${bookingId}/items`);
+        const r = await fetch(`/api/client/bookings/${bookingId}/items${tokenParam}`);
         const d = await r.json();
         if (!cancelled && r.ok) setCart(d.items || []);
       } catch {
@@ -89,13 +92,13 @@ export default function HireShop({ bookingId, venueName, eventType, onItemsChang
       }
     })();
     return () => { cancelled = true; };
-  }, [bookingId]);
+  }, [bookingId, tokenParam]);
 
   const addToBooking = async (hireItemId: string) => {
     setAddingId(hireItemId);
     setError(null);
     try {
-      const r = await fetch(`/api/client/bookings/${bookingId}/items`, {
+      const r = await fetch(`/api/client/bookings/${bookingId}/items${tokenParam}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ hireItemId }),
@@ -115,7 +118,7 @@ export default function HireShop({ bookingId, venueName, eventType, onItemsChang
     setConfirming(true);
     setError(null);
     try {
-      const r = await fetch(`/api/client/bookings/${bookingId}/confirm-hire-request`, {
+      const r = await fetch(`/api/client/bookings/${bookingId}/confirm-hire-request${tokenParam}`, {
         method: "POST",
       });
       const d = await r.json();

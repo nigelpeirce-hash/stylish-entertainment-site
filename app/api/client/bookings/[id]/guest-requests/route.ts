@@ -4,32 +4,26 @@ import { prisma } from "@/lib/prisma";
 
 /**
  * GET /api/client/bookings/[id]/guest-requests
- * 
- * Fetch all guest song requests for a booking (authenticated client)
+ *
+ * Fetch all guest song requests for a booking.
+ * Auth: session (user owns booking or admin) OR ?token= matching portalToken (magic link).
  */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const session = await getServerSession(request);
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const { id: bookingId } = await params;
+    const token = request.nextUrl.searchParams.get("token");
+    const session = await getServerSession(request);
 
-    // Verify the user has access to this booking
-    const booking = await prisma.booking.findFirst({
-      where: {
-        id: bookingId,
-        OR: [
-          { userId: session.user.id },
-          { email: session.user.email || "" },
-        ],
-      },
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
       select: {
         id: true,
+        userId: true,
+        email: true,
+        portalToken: true,
         guestRequests: {
           select: {
             id: true,
@@ -50,6 +44,20 @@ export async function GET(
 
     if (!booking) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+    }
+
+    let allowed = false;
+    if (token && booking.portalToken && booking.portalToken === token) {
+      allowed = true;
+    } else if (session?.user) {
+      const u = session.user as { id?: string; role?: string };
+      if (u.role === "admin") allowed = true;
+      else if (u.id && booking.userId === u.id) allowed = true;
+      else if (session.user.email && booking.email === session.user.email) allowed = true;
+    }
+
+    if (!allowed) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     return NextResponse.json({

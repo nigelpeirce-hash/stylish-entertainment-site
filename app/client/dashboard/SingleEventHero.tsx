@@ -1,20 +1,17 @@
 "use client";
 
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Calendar, FileText, Download, CheckCircle2, Music, Banknote, ExternalLink, Sparkles } from "lucide-react";
-import { jsPDF } from "jspdf";
+import { Music, Banknote, ExternalLink, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import PortalCountdownClock from "@/components/client/PortalCountdownClock";
-import MusicPlaylistManager from "@/components/MusicPlaylistManager";
+import ClientMusicModule from "@/components/client/ClientMusicModule";
 import GuestCountTracker from "@/components/GuestCountTracker";
 import BudgetTracker from "@/components/BudgetTracker";
 import AddOnConcierge from "@/components/AddOnConcierge";
 import CommunicationHistory from "@/components/client/CommunicationHistory";
 import HeroPhotoSection from "@/components/client/HeroPhotoSection";
-import { getLabel } from "@/lib/eventLabels";
+import { ContractFooter } from "@/components/client/ContractFooter";
 
 interface SingleEventHeroProps {
   booking: any;
@@ -119,7 +116,7 @@ export function SingleEventHero({ booking, onHeroUploaded }: SingleEventHeroProp
             <p className="text-gray-400 text-sm mt-1">Must-plays, first dance, last song – help your DJ nail the vibe</p>
           </div>
           <div className="p-6">
-            <MusicPlaylistManager
+            <ClientMusicModule
               bookingId={booking.id}
               eventType={booking.eventType}
               initialData={{
@@ -128,7 +125,9 @@ export function SingleEventHero({ booking, onHeroUploaded }: SingleEventHeroProp
                 firstDance: booking.firstDance,
                 lastSong: booking.lastSong,
                 musicNotesToDJ: booking.musicNotesToDJ,
+                musicFileUrl: booking.musicFileUrl,
               }}
+              variant="card"
             />
           </div>
         </div>
@@ -184,7 +183,7 @@ export function SingleEventHero({ booking, onHeroUploaded }: SingleEventHeroProp
         <CommunicationHistory bookingId={booking.id} />
       </motion.div>
 
-      {/* 5. Contract – footer-style at bottom */}
+      {/* 5. Contract – footer-style at bottom (ContractFooter: Booking Agreement PDF + T&Cs) */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -192,149 +191,6 @@ export function SingleEventHero({ booking, onHeroUploaded }: SingleEventHeroProp
       >
         <ContractFooter booking={booking} />
       </motion.div>
-    </div>
-  );
-}
-
-function ContractFooter({ booking }: { booking: any }) {
-  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
-  const termsAccepted = booking.terms_accepted === true;
-  const acceptanceTimestamp = booking.acceptance_timestamp;
-  const acceptanceIp = booking.acceptance_ip;
-
-  const handleDownloadPDF = () => {
-    setIsGeneratingPDF(true);
-    try {
-      const pdf = new jsPDF("p", "mm", "a4");
-      const margin = 20;
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
-      let yPosition = margin;
-
-      pdf.setFontSize(24);
-      pdf.setFont("helvetica", "bold");
-      pdf.setTextColor(0, 0, 0);
-      pdf.text("STYLISH Entertainment", margin, yPosition);
-      yPosition += 10;
-
-      pdf.setDrawColor(212, 175, 55);
-      pdf.setLineWidth(0.5);
-      pdf.line(margin, yPosition, pageWidth - margin, yPosition);
-      yPosition += 10;
-
-      pdf.setFontSize(20);
-      pdf.text("Booking Agreement", margin, yPosition);
-      yPosition += 10;
-
-      pdf.setFontSize(12);
-      pdf.setFont("helvetica", "normal");
-      const eventDate = booking.eventDate
-        ? new Date(booking.eventDate).toLocaleDateString("en-GB", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          })
-        : "Date not set";
-
-      pdf.text(`Event Type: ${booking.eventType || "Not specified"}`, margin, yPosition);
-      yPosition += 7;
-      pdf.text(`Event Date: ${eventDate}`, margin, yPosition);
-      yPosition += 7;
-      pdf.text(`Venue: ${booking.venueName || "Not specified"}`, margin, yPosition);
-      yPosition += 7;
-      pdf.text(`Client Name: ${booking.name || "Not specified"}`, margin, yPosition);
-      yPosition += 7;
-      if (booking.numberOfGuests) {
-        pdf.text(`Number of Guests: ${booking.numberOfGuests}`, margin, yPosition);
-        yPosition += 7;
-      }
-      yPosition += 5;
-
-      pdf.line(margin, yPosition, pageWidth - margin, yPosition);
-      yPosition += 10;
-
-      if (termsAccepted && acceptanceTimestamp && acceptanceIp) {
-        pdf.setFontSize(14);
-        pdf.setFont("helvetica", "bold");
-        pdf.text("Digital Signature Confirmation", margin, yPosition);
-        yPosition += 8;
-        pdf.setFontSize(10);
-        pdf.setFont("helvetica", "normal");
-        const acceptanceDate = new Date(acceptanceTimestamp);
-        const formattedDate = acceptanceDate.toLocaleDateString("en-GB", {
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        });
-        const formattedTime = acceptanceDate.toLocaleTimeString("en-GB", {
-          hour: "2-digit",
-          minute: "2-digit",
-        });
-        pdf.text(`Status: Confirmed`, margin, yPosition);
-        yPosition += 6;
-        pdf.text(`Terms accepted on ${formattedDate} at ${formattedTime}`, margin, yPosition);
-        yPosition += 6;
-        pdf.text(`IP Address: ${acceptanceIp}`, margin, yPosition);
-        yPosition += 6;
-        pdf.text(`This document serves as proof of digital signature and contract acceptance.`, margin, yPosition);
-      } else {
-        pdf.setFontSize(12);
-        pdf.setFont("helvetica", "italic");
-        pdf.setTextColor(128, 128, 128);
-        pdf.text("Terms acceptance pending", margin, yPosition);
-      }
-
-      const footerY = pageHeight - 20;
-      pdf.setFontSize(8);
-      pdf.setFont("helvetica", "normal");
-      pdf.setTextColor(128, 128, 128);
-      pdf.text(
-        `Generated on ${new Date().toLocaleDateString("en-GB")} | Stylish Entertainment Ltd`,
-        margin,
-        footerY
-      );
-
-      pdf.save(`Booking-Agreement-${booking.id || "contract"}.pdf`);
-    } catch (error) {
-      console.error("Error generating PDF:", error);
-      alert("Failed to generate PDF. Please try again.");
-    } finally {
-      setIsGeneratingPDF(false);
-    }
-  };
-
-  return (
-    <div className="mt-8 rounded-xl border-t border-champagne-gold/20 bg-gray-900/60 py-6 px-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <FileText className="w-5 h-5 text-champagne-gold/80 shrink-0" />
-          <div>
-            <h3 className="text-base font-semibold text-white">Contract & agreement</h3>
-            <p className="text-sm text-gray-400">Terms and booking details</p>
-          </div>
-        </div>
-        {termsAccepted && acceptanceTimestamp && acceptanceIp ? (
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-green-500/20 border border-green-500/40 text-green-400 rounded-full text-sm font-medium">
-              <CheckCircle2 className="w-4 h-4" />
-              Confirmed
-            </span>
-            <Button
-              onClick={handleDownloadPDF}
-              disabled={isGeneratingPDF}
-              variant="outline"
-              size="sm"
-              className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              {isGeneratingPDF ? "Generating…" : "Download PDF"}
-            </Button>
-          </div>
-        ) : (
-          <p className="text-sm text-gray-500">Terms acceptance pending</p>
-        )}
-      </div>
     </div>
   );
 }

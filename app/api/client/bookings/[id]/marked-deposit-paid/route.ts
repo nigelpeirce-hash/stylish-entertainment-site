@@ -76,6 +76,7 @@ export async function GET(
       await notifyAdminSignificantEvent({
         type: "deposit_paid",
         bookingId: booking.id,
+        actor: "client",
         title: "Deposit marked paid (client)",
         description: `${booking.name} clicked "I've paid" – ref ${booking.bookingReference ?? "—"}`,
         bookingName: booking.name,

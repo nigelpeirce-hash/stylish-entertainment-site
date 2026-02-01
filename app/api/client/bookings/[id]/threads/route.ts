@@ -60,7 +60,7 @@ export async function GET(
         fromEmail: true,
         fromName: true,
         lastMessageAt: true,
-        emails: {
+        Email: {
           orderBy: { receivedAt: "asc" },
           select: {
             id: true,
@@ -78,7 +78,11 @@ export async function GET(
       },
     });
 
-    return NextResponse.json({ threads });
+    const normalized = threads.map(({ Email, ...t }) => ({
+      ...t,
+      emails: Email,
+    }));
+    return NextResponse.json({ threads: normalized });
   } catch (e) {
     console.error("[GET /api/client/bookings/[id]/threads]", e);
     return NextResponse.json(

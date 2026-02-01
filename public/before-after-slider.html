@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Before & After — Record for Instagram</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #111;
+      color: #fff;
+      font-family: system-ui, -apple-system, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .hint { color: #888; font-size: 0.875rem; margin-bottom: 24px; text-align: center; }
+    .slider-wrap {
+      max-width: 900px;
+      width: 100%;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+    }
+    .slider-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      cursor: col-resize;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .slider-container img {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+    }
+    .before-img { z-index: 0; }
+    .after-wrap {
+      position: absolute;
+      top: 0; left: 0;
+      height: 100%;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .after-wrap img { display: block; }
+    .line {
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 4px;
+      background: #c9a962;
+      box-shadow: 0 0 12px rgba(0,0,0,0.5);
+      z-index: 2;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+    .handle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 48px;
+      height: 48px;
+      background: #c9a962;
+      border-radius: 50%;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      pointer-events: none;
+    }
+    .handle svg { width: 20px; height: 20px; stroke: #1a1a1a; }
+    .label {
+      position: absolute;
+      top: 16px;
+      padding: 8px 16px;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      z-index: 3;
+    }
+    .label-before { left: 16px; }
+    .label-after { right: 16px; }
+    .instruction { text-align: center; color: #666; font-size: 13px; margin-top: 16px; }
+  </style>
+</head>
+<body>
+  <h1>Before & After — Room Transformation</h1>
+  <p class="hint">Open this file in a browser, then record your screen while you drag the slider. Post the video as an Instagram Reel.</p>
+
+  <div class="slider-wrap">
+    <div class="slider-container" id="slider">
+      <img class="before-img" src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768753000/IMG_2530_njx41m.jpg" alt="Before">
+      <div class="after-wrap" id="afterWrap">
+        <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768751155/IMG_3188_zviff5.jpg" alt="After">
+      </div>
+      <div class="line" id="line">
+        <div class="handle">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </div>
+      </div>
+      <span class="label label-before">Before</span>
+      <span class="label label-after">After</span>
+    </div>
+  </div>
+  <p class="instruction">Drag the slider or click anywhere to compare · Record this screen for Instagram Reels</p>
+
+  <script>
+    (function() {
+      var slider = document.getElementById('slider');
+      var afterWrap = document.getElementById('afterWrap');
+      var line = document.getElementById('line');
+      var position = 50;
+
+      function setPosition(pct) {
+        position = Math.max(0, Math.min(100, pct));
+        afterWrap.style.width = position + '%';
+        line.style.left = position + '%';
+      }
+
+      function getPosition(e) {
+        var rect = slider.getBoundingClientRect();
+        var x = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+        return (x / rect.width) * 100;
+      }
+
+      slider.addEventListener('mousedown', function(e) {
+        e.preventDefault();
+        setPosition(getPosition(e));
+        function move(e) {
+          setPosition(getPosition(e));
+        }
+        function up() {
+          document.removeEventListener('mousemove', move);
+          document.removeEventListener('mouseup', up);
+        }
+        document.addEventListener('mousemove', move);
+        document.addEventListener('mouseup', up);
+      });
+
+      slider.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        setPosition(getPosition(e));
+        function move(e) {
+          setPosition(getPosition(e));
+        }
+        function end() {
+          document.removeEventListener('touchmove', move);
+          document.removeEventListener('touchend', end);
+        }
+        document.addEventListener('touchmove', move, { passive: false });
+        document.addEventListener('touchend', end);
+      }, { passive: false });
+
+      slider.addEventListener('click', function(e) {
+        if (e.target === slider || e.target.closest('.slider-container')) {
+          setPosition(getPosition(e));
+        }
+      });
+
+      setPosition(50);
+    })();
+  </script>
+</body>
+</html>

@@ -222,10 +222,10 @@ export default async function RootLayout({
           <ErrorBoundaryWrapper>
             <div className="relative z-10 block safe-area-x">
               <main className="min-h-screen">{children}</main>
-              {/* Page CTA – in-flow, not sticky. To undo: remove next line and the SiteWideCTA import. */}
-              {!pathname.startsWith("/admin") && <SiteWideCTA />}
-              {/* No marketing footer on admin – Command Center only */}
-              {!pathname.startsWith("/admin") && <FooterRefactored />}
+              {/* Page CTA – hidden on admin, client portal, and demo (demo ends on T&C/Privacy; peace of mind follows) */}
+              {!pathname.startsWith("/admin") && !pathname.startsWith("/client") && !pathname.startsWith("/demo") && <SiteWideCTA />}
+              {/* No marketing footer on admin, client portal, or demo – portal has Terms/Privacy in content */}
+              {!pathname.startsWith("/admin") && !pathname.startsWith("/client") && !pathname.startsWith("/demo") && <FooterRefactored />}
             </div>
           </ErrorBoundaryWrapper>
         </Providers>

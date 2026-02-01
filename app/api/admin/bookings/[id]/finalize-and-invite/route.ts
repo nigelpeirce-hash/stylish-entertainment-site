@@ -1,10 +1,10 @@
+import { randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { PORTAL_INVITATION } from "@/lib/email/templates";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
-import { getClientPortalLoginUrl } from "@/lib/client-portal-url";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -45,6 +45,7 @@ export async function POST(
         emailsSent: true,
         depositReceivedManual: true,
         depositReceived: true,
+        portalToken: true,
       },
     });
 
@@ -68,8 +69,9 @@ export async function POST(
       });
     }
 
-    const baseUrl = getEmailBaseUrl();
-    const portalUrl = getClientPortalLoginUrl(baseUrl, booking.id);
+    const baseUrl = getEmailBaseUrl().replace(/\/$/, "");
+    const portalToken = (booking.portalToken as string | null) || randomBytes(32).toString("hex");
+    const portalUrl = `${baseUrl}/client/bookings/${bookingId}?token=${encodeURIComponent(portalToken)}`;
 
     const { subject, html, text } = PORTAL_INVITATION({
       name: booking.name,
@@ -96,6 +98,7 @@ export async function POST(
       where: { id: bookingId },
       data: {
         status: "confirmed",
+        ...(booking.portalToken ? {} : { portalToken }),
         lastEmailSentAt: now,
         emailsSent,
         updatedAt: now,

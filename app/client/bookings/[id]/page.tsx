@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import PortalView from '@/components/client/PortalView';
 import { auth } from '@/auth';
@@ -48,6 +49,8 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
       depositReceived: true,
       depositReceivedManual: true,
       finalDetailsConfirmed: true,
+      termsAccepted: true,
+      termsAcceptedAt: true,
       message: true,
       eventType: true,
       firstDance: true,
@@ -66,21 +69,7 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
       djFinishTime: true,
       portalToken: true,
       staffAssignments: {
-        where: {
-          cancelledAt: null,
-          // Talent Firewall: client-facing roles only; exclude Riggers, Technicians, Crew
-          OR: [
-            { role: { in: ['DJ', 'Musician', 'Band', 'Performer', 'dj', 'musician', 'band', 'performer', 'Host', 'host'] } },
-            { role: { contains: 'saxophonist', mode: 'insensitive' } },
-            { role: { contains: 'pianist', mode: 'insensitive' } },
-            { role: { contains: 'guitarist', mode: 'insensitive' } },
-            { role: { contains: 'harpist', mode: 'insensitive' } },
-            { role: { contains: 'violinist', mode: 'insensitive' } },
-          ],
-          NOT: {
-            role: { in: ['Rigger', 'Technician', 'Crew', 'Sound Tech', 'rigger', 'technician', 'crew', 'sound tech'] },
-          },
-        },
+        where: { cancelledAt: null },
         select: {
           id: true,
           role: true,
@@ -176,7 +165,7 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
           <p className="text-gray-400 text-center max-w-md">
             This portal link is invalid or has expired. Please use the latest link from your email, or contact us for a new one.
           </p>
-          <a href="/login" className="mt-6 text-amber-500 hover:underline">Go to login</a>
+          <Link href="/login" className="mt-6 text-amber-500 hover:underline">Go to login</Link>
         </div>
       );
     }
@@ -197,7 +186,7 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
         <p className="text-gray-400 text-center max-w-md">
           You don&apos;t have access to this booking. If you believe this is an error, please contact us.
         </p>
-        <a href="/client/dashboard" className="mt-6 text-amber-500 hover:underline">Go to your dashboard</a>
+        <Link href="/client/dashboard" className="mt-6 text-amber-500 hover:underline">Go to your dashboard</Link>
       </div>
     );
   }

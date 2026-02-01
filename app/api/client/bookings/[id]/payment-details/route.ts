@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
 export const dynamic = "force-dynamic";
@@ -9,6 +10,7 @@ const WINDOW_DAYS = 21;
 /**
  * Returns assigned staff accountNumber and sortCode only when within 3-week (21-day) window.
  * Used by PortalView for the Artist Payment card.
+ * Auth: session (user owns booking or admin) OR ?token= matching portalToken.
  */
 export async function GET(
   request: NextRequest,
@@ -21,12 +23,28 @@ export async function GET(
       return NextResponse.json({ error: "Booking ID required" }, { status: 400 });
     }
 
+    const token = request.nextUrl.searchParams.get("token");
+    const session = await auth();
+
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      select: { id: true, eventDate: true },
+      select: { id: true, eventDate: true, userId: true, email: true, portalToken: true },
     });
     if (!booking) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+    }
+
+    let allowed = false;
+    if (token && booking.portalToken && booking.portalToken === token) {
+      allowed = true;
+    } else if (session?.user) {
+      const u = session.user as { id?: string; role?: string };
+      if (u.role === "admin") allowed = true;
+      else if (u.id && booking.userId === u.id) allowed = true;
+      else if (session.user.email && booking.email === session.user.email) allowed = true;
+    }
+    if (!allowed) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const now = new Date();

@@ -168,7 +168,7 @@ export function AcceptTermsModule({
                     <strong className="text-champagne-gold">Questions?</strong>{" "}
                     Contact us at{" "}
                     <a
-                      href="tel:07970793177"
+                      href="tel:+447970793177"
                       className="text-champagne-gold hover:underline"
                     >
                       07970793177

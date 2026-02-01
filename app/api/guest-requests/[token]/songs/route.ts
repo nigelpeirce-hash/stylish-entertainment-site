@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
+import { logActivity } from "@/lib/activity-log";
 import { v4 as uuidv4 } from "uuid";
 
 const MAX_SONGS_PER_GUEST = 3;
@@ -44,6 +45,8 @@ export async function POST(
       where: { guestRequestToken: token },
       select: {
         id: true,
+        name: true,
+        venueName: true,
         eventDate: true,
         guestRequestsEnabled: true,
         guestRequests: {
@@ -142,6 +145,15 @@ export async function POST(
         note: note?.trim() || null,
         status: "pending",
       },
+    });
+
+    await logActivity({
+      bookingId: booking.id,
+      action: "guest_request_submitted",
+      description: "Guest submitted song request",
+      actor: "guest",
+      performedBy: guestName?.trim() || "Guest",
+      metadata: { songTitle: trackName, songArtist: artistName },
     });
 
     // Create response with session cookie

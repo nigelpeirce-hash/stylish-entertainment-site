@@ -1,23 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "@/lib/get-session";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 
 // Force dynamic rendering to prevent database connection during build
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
+/**
+ * PATCH /api/client/bookings/[id]/tasks
+ * Toggle task completed. Auth: session (user owns booking or admin) OR ?token= matching portalToken.
+ */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> | { id: string } }
 ) {
   try {
-    const session = await getServerSession();
+    const resolved = params instanceof Promise ? await params : params;
+    const id = resolved.id;
+    const token = request.nextUrl.searchParams.get("token");
+    const session = await auth();
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { id } = await params;
     const body = await request.json();
     const { taskId, completed } = body;
 
@@ -28,18 +30,26 @@ export async function PATCH(
       );
     }
 
-    // Get the booking
     const booking = await prisma.booking.findUnique({
       where: { id },
+      select: { id: true, userId: true, email: true, portalToken: true, completedTasks: true },
     });
 
     if (!booking) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
-    // Verify ownership
-    if (booking.userId !== (session.user as any).id) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    let allowed = false;
+    if (token && booking.portalToken && booking.portalToken === token) {
+      allowed = true;
+    } else if (session?.user) {
+      const u = session.user as { id?: string; role?: string };
+      if (u.role === "admin") allowed = true;
+      else if (u.id && booking.userId === u.id) allowed = true;
+      else if (session.user.email && booking.email === session.user.email) allowed = true;
+    }
+    if (!allowed) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Update completed tasks array

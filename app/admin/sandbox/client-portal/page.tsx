@@ -67,12 +67,18 @@ export default function SandboxClientPortalPage() {
   return (
     <div className="min-h-screen bg-gray-900 text-white py-8 px-4">
       <div className="container mx-auto max-w-xl">
-        <div className="mb-6">
+        <div className="mb-6 flex items-center justify-between">
           <Link
             href="/admin"
             className="inline-flex items-center gap-2 text-champagne-gold hover:underline"
           >
             <ArrowLeft className="w-4 h-4" /> Back to admin
+          </Link>
+          <Link
+            href="/demo/guest-requests-workflow"
+            className="text-sm text-champagne-gold hover:underline"
+          >
+            Guest requests workflow demo →
           </Link>
         </div>
 

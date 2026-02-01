@@ -50,14 +50,13 @@ export async function DELETE(
       where: { id: assignmentId },
     });
 
-    // Log to audit log
-    await prisma.auditLog.create({
-      data: {
-        bookingId: assignment.bookingId,
-        action: "crew_removed",
-        description: `Crew member ${assignment.staff.name} (${assignment.role}) was removed from booking`,
-        performedBy: admin?.name || "Admin",
-      },
+    const { logActivity } = await import("@/lib/activity-log");
+    await logActivity({
+      bookingId: assignment.bookingId,
+      action: "crew_removed",
+      description: `Crew member ${assignment.staff.name} (${assignment.role}) was removed from booking`,
+      actor: "admin",
+      performedBy: admin?.name || "Admin",
     });
 
     return NextResponse.json({

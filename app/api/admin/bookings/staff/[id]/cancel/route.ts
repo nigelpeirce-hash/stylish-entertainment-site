@@ -82,14 +82,13 @@ export async function POST(
       },
     });
 
-    // Log to audit log
-    await prisma.auditLog.create({
-      data: {
-        bookingId: assignment.bookingId,
-        action: "crew_cancelled",
-        description: `Crew member ${assignment.staff.name} (${assignment.role}) was cancelled. Reason: ${reason.trim()}`,
-        performedBy: admin?.name || "Admin",
-      },
+    const { logActivity } = await import("@/lib/activity-log");
+    await logActivity({
+      bookingId: assignment.bookingId,
+      action: "crew_cancelled",
+      description: `Crew member ${assignment.staff.name} (${assignment.role}) was cancelled. Reason: ${reason.trim()}`,
+      actor: "admin",
+      performedBy: admin?.name || "Admin",
     });
 
     // Send cancellation email if staff has email

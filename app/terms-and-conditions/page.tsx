@@ -72,7 +72,7 @@ export default function TermsAndConditionsPage() {
                     <strong className="text-champagne-gold">Questions?</strong>{" "}
                     Please contact us at{" "}
                     <a
-                      href="tel:07970793177"
+                      href="tel:+447970793177"
                       className="text-champagne-gold hover:text-gold-light underline"
                     >
                       07970793177

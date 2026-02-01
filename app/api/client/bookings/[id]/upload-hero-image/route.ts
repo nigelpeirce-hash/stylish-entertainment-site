@@ -6,21 +6,23 @@ import { uploadToCloudinary } from "@/lib/cloudinary";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const WINDOW_DAYS = 21;
 const MAX_FILE_BYTES = 5 * 1024 * 1024; // 5MB
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 
-function isCloudinaryConfigured(): boolean {
-  return !!(
-    process.env.CLOUDINARY_CLOUD_NAME ||
-    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-  ) && !!process.env.CLOUDINARY_API_KEY && !!process.env.CLOUDINARY_API_SECRET;
+function getCloudinaryConfigStatus(): { configured: boolean; missing: string[] } {
+  const missing: string[] = [];
+  if (!process.env.CLOUDINARY_CLOUD_NAME && !process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME) {
+    missing.push("CLOUDINARY_CLOUD_NAME or NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME");
+  }
+  if (!process.env.CLOUDINARY_API_KEY) missing.push("CLOUDINARY_API_KEY");
+  if (!process.env.CLOUDINARY_API_SECRET) missing.push("CLOUDINARY_API_SECRET");
+  return { configured: missing.length === 0, missing };
 }
 
 /**
  * POST: upload hero image (venue or couple photo) for a booking.
  * Auth: ?token= (portalToken) OR session (user owns booking or admin).
- * Same 21-day window as music file upload.
+ * Available from day 1 until the event.
  */
 export async function POST(
   request: NextRequest,
@@ -70,23 +72,22 @@ export async function POST(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const now = new Date();
     const eventDate = new Date(booking.eventDate);
-    const daysUntil = Math.ceil(
-      (eventDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
-    );
-    if (daysUntil > WINDOW_DAYS || daysUntil < 0) {
+    if (eventDate < new Date()) {
       return NextResponse.json(
-        { error: "Hero photo upload is only allowed within 21 days of your event" },
+        { error: "Photo upload has closed now that your event has passed" },
         { status: 403 }
       );
     }
 
-    if (!isCloudinaryConfigured()) {
+    const cloudinaryStatus = getCloudinaryConfigStatus();
+    if (!cloudinaryStatus.configured) {
+      console.warn("[upload-hero-image] Cloudinary not configured – missing:", cloudinaryStatus.missing.join(", "));
       return NextResponse.json(
         {
-          error:
-            "Image upload is not configured. Add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to enable uploads.",
+          error: "Image upload is not configured.",
+          missing: cloudinaryStatus.missing,
+          hint: "Add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to .env.local",
         },
         { status: 503 }
       );

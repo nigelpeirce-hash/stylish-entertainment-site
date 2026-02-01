@@ -25,12 +25,12 @@ export default function ProfessionalDJBlogContent() {
 
   // Collect all images for lightbox navigation
   const allImages = useMemo(() => [
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg", alt: "Professional DJ setup at Babington House with custom lighting, professional sound equipment, and atmospheric wedding entertainment" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163683/NP-Decks-2_y32tje.jpg", alt: "Professional DJ decks and mixing equipment for high-quality sound production" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163197/DJ-Kit-on-Croquet-Lawn_jncfnl.jpg", alt: "Professional DJ kit setup on croquet lawn showcasing quality sound equipment" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163297/Mirjam-and-Ben-1062-1_vy1hgx.jpg", alt: "Professional DJ Nige performing at a wedding, showcasing expert mixing and crowd engagement" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163359/Rich-S-DJ_qxsnht.jpg", alt: "Professional DJ Rich S performing at a luxury venue, showcasing professional DJ services" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163775/PHOTO-2021-11-03-15-09-53-4_xd4tvz.jpg", alt: "Professional DJ James H performing at wedding and party events" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg", alt: "Professional DJ setup at Babington House with custom lighting, professional sound equipment, and atmospheric wedding entertainment" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163683/NP-Decks-2_y32tje.jpg", alt: "Professional DJ decks and mixing equipment for high-quality sound production" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163197/DJ-Kit-on-Croquet-Lawn_jncfnl.jpg", alt: "Professional DJ kit setup on croquet lawn showcasing quality sound equipment" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163297/Mirjam-and-Ben-1062-1_vy1hgx.jpg", alt: "Professional DJ Nige performing at a wedding, showcasing expert mixing and crowd engagement" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163359/Rich-S-DJ_qxsnht.jpg", alt: "Professional DJ Rich S performing at a luxury venue, showcasing professional DJ services" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163775/PHOTO-2021-11-03-15-09-53-4_xd4tvz.jpg", alt: "Professional DJ James H performing at wedding and party events" },
   ], []);
 
   return (
@@ -39,7 +39,7 @@ export default function ProfessionalDJBlogContent() {
       <section className="relative min-h-[50vh] flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-40 flex items-center justify-center">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163774/Jade-and-Emma-0064_t4shle.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163774/Jade-and-Emma-0064_t4shle.jpg"
             alt="Professional DJ and wedding entertainment at Babington House, Somerset"
             fill
             className="object-cover object-center brightness-110"
@@ -82,7 +82,7 @@ export default function ProfessionalDJBlogContent() {
                   <div className="my-8">
                     <div className="relative aspect-[16/9] overflow-hidden rounded-lg my-6">
                       <BlogImage
-                        src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg"
+                        src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg"
                         alt="Professional DJ setup at Babington House with custom lighting, professional sound equipment, and atmospheric wedding entertainment"
                         images={allImages}
                         index={0}
@@ -108,7 +108,7 @@ export default function ProfessionalDJBlogContent() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163683/NP-Decks-2_y32tje.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163683/NP-Decks-2_y32tje.jpg"
                           alt="Professional DJ decks and mixing equipment for high-quality sound production"
                           images={allImages}
                           index={1}
@@ -116,7 +116,7 @@ export default function ProfessionalDJBlogContent() {
                       </div>
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163197/DJ-Kit-on-Croquet-Lawn_jncfnl.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163197/DJ-Kit-on-Croquet-Lawn_jncfnl.jpg"
                           alt="Professional DJ kit setup on croquet lawn showcasing quality sound equipment"
                           images={allImages}
                           index={2}
@@ -165,7 +165,7 @@ export default function ProfessionalDJBlogContent() {
                     </p>
                     <div className="relative aspect-[4/3] overflow-hidden rounded-lg my-6">
                       <BlogImage
-                        src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163297/Mirjam-and-Ben-1062-1_vy1hgx.jpg"
+                        src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163297/Mirjam-and-Ben-1062-1_vy1hgx.jpg"
                         alt="Professional DJ Nige performing at a wedding, showcasing expert mixing and crowd engagement"
                         images={allImages}
                         index={3}
@@ -197,7 +197,7 @@ export default function ProfessionalDJBlogContent() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 my-6">
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163359/Rich-S-DJ_qxsnht.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163359/Rich-S-DJ_qxsnht.jpg"
                           alt="Professional DJ Rich S performing at a luxury venue, showcasing professional DJ services"
                           images={allImages}
                           index={4}
@@ -205,7 +205,7 @@ export default function ProfessionalDJBlogContent() {
                       </div>
                       <div className="relative aspect-[4/3] overflow-hidden rounded-lg">
                         <BlogImage
-                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163775/PHOTO-2021-11-03-15-09-53-4_xd4tvz.jpg"
+                          src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163775/PHOTO-2021-11-03-15-09-53-4_xd4tvz.jpg"
                           alt="Professional DJ James H performing at wedding and party events"
                           images={allImages}
                           index={5}

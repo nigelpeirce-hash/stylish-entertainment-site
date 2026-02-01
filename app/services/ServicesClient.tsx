@@ -32,7 +32,7 @@ const services = [
       "Atmospheric mood lighting",
       "Dance floor lighting packages",
     ],
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162978/ITALLIAN-VILLA-02_jgy3tx.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162978/ITALLIAN-VILLA-02_jgy3tx.jpg",
     alt: "Professional wedding lighting design at luxury West Country venue",
   },
   {
@@ -46,7 +46,7 @@ const services = [
       "Custom backdrops and photo walls",
       "Cohesive design theme throughout",
     ],
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163723/IMG_6321_xu8q8j.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163723/IMG_6321_xu8q8j.jpg",
     alt: "Elegant wedding venue styling across the West Country",
   },
   {
@@ -60,7 +60,7 @@ const services = [
       "DJ decks and mixers",
       "Cables and technical accessories",
     ],
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162508/Kin-House-Stage-Lighting-and-Sound-supply_j8yln4.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162508/Kin-House-Stage-Lighting-and-Sound-supply_j8yln4.jpg",
     alt: "Professional wedding equipment hire at Kin House across the West Country",
   },
   {
@@ -74,7 +74,7 @@ const services = [
       "Perfect for outdoor receptions",
     ],
     galleryTrigger: false,
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163430/Fire-Pits-and-Marshmallows_ke3nk5.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163430/Fire-Pits-and-Marshmallows_ke3nk5.jpg",
     alt: "Outdoor fire pit hire for wedding venues",
   },
 ];
@@ -86,7 +86,7 @@ export default function ServicesClient() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <img
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw"
             alt="Enchanting fairy light tunnel at Babington House showcasing our professional wedding services"
             className="w-full h-full object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}

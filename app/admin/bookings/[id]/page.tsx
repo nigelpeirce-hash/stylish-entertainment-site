@@ -1188,6 +1188,19 @@ export default function BookingDetail() {
                       <p className="text-champagne-gold font-medium">{booking.preferredDJ.trim()}</p>
                     </div>
                   )}
+                  {(typeof (booking as any).clientLoginCount === "number" || (booking as any).clientLastLoginAt) && (
+                    <div className="pt-2 border-t border-gray-700">
+                      <p className="text-xs text-gray-400 mb-1">Portal Activity</p>
+                      <p className="text-white text-sm">
+                        Portal logins: {(booking as any).clientLoginCount ?? 0}
+                        {(booking as any).clientLastLoginAt && (
+                          <span className="block text-gray-400 text-xs mt-1">
+                            Last login: {new Date((booking as any).clientLastLoginAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })} {new Date((booking as any).clientLastLoginAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 

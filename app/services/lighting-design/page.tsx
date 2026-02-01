@@ -18,25 +18,25 @@ import { ServiceQuoteGenerator } from "@/components/ServiceQuoteGenerator";
 
 const lightingPhotos: ImagePhoto[] = [
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg",
     width: 1200,
     height: 900,
     alt: "Wedding reception for Camilla and Richard with professional lighting design, elegant table settings and ambient lighting at a West Country venue",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163679/IMG_3094-1_aiyu5i.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163679/IMG_3094-1_aiyu5i.jpg",
     width: 1200,
     height: 900,
     alt: "Elegant wedding reception with sophisticated lighting design creating a warm and romantic atmosphere with ambient mood lighting",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg",
     width: 1200,
     height: 900,
     alt: "Babington House wedding venue exterior with beautiful green LED mood lighting, showcasing luxury wedding lighting design in Somerset",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg",
     width: 1200,
     height: 900,
     alt: "Professional DJ setup by DJ Nige at Babington House with custom lighting, professional sound equipment and atmospheric wedding entertainment",
@@ -48,13 +48,13 @@ const lightingPhotos: ImagePhoto[] = [
     alt: "Emily and Tom's wedding reception with stunning atmospheric lighting design, captured by Jonny Barratt Photography, creating a magical evening ambiance",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768734499/Jade-and-Emma-0059-1_wddnet.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768734499/Jade-and-Emma-0059-1_wddnet.jpg",
     width: 1200,
     height: 900,
     alt: "Jade and Emma's wedding with elegant dance floor lighting design and romantic ambient lighting creating a beautiful celebration atmosphere",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162978/ITALLIAN-VILLA-02_jgy3tx.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162978/ITALLIAN-VILLA-02_jgy3tx.jpg",
     width: 1200,
     height: 900,
     alt: "Italian Villa wedding venue with stunning exterior LED mood lighting and professional wedding lighting design creating an elegant evening atmosphere",
@@ -78,7 +78,7 @@ export default function LightingDesignService() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <img
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162978/ITALLIAN-VILLA-02_jgy3tx.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162978/ITALLIAN-VILLA-02_jgy3tx.jpg"
             alt="Italian Villa wedding venue with stunning exterior LED mood lighting and professional wedding lighting design creating an elegant evening atmosphere"
             className="w-full h-full object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}
@@ -149,7 +149,7 @@ export default function LightingDesignService() {
                 </p>
                 
                 <p className="text-base sm:text-lg">
-                  Take the first step towards an unforgettable event by reaching out to <span className="text-champagne-gold font-medium">Nigel or Ali</span> at STYLISH Entertainment. Call <a href="tel:07970793177" className="text-champagne-gold hover:text-gold-light font-medium underline">07970793177</a> to discuss your party and specific requirements, or simply complete the form below.
+                  Take the first step towards an unforgettable event by reaching out to <span className="text-champagne-gold font-medium">Nigel or Ali</span> at STYLISH Entertainment. Call <a href="tel:+447970793177" className="text-champagne-gold hover:text-gold-light font-medium underline">07970793177</a> to discuss your party and specific requirements, or simply complete the form below.
                 </p>
                 
                 <p className="text-lg sm:text-xl text-champagne-gold font-semibold italic text-center pt-4">

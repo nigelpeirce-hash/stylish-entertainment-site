@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { getStaffPushKeys, sendPushoverNotification } from "@/lib/pushover-notifications";
 import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
+import { tryAutoDispatch } from "@/lib/auto-dispatch-on-final-details";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -204,6 +205,7 @@ export async function PATCH(
       await notifyAdminSignificantEvent({
         type: "final_details_confirmed",
         bookingId,
+        actor: "client",
         title: "Final details confirmed",
         description: `${booking.name} confirmed final details – ready to dispatch`,
         bookingName: booking.name ?? undefined,
@@ -212,6 +214,16 @@ export async function PATCH(
       });
     } catch (e) {
       console.warn("Admin notification (final_details_confirmed) failed:", e);
+    }
+
+    // Auto-dispatch full brief to assigned staff (status "held") if enabled
+    try {
+      const result = await tryAutoDispatch(bookingId);
+      if (result.sent > 0) {
+        console.log(`[final-details] Auto-dispatched to ${result.sent} staff:`, result.recipients);
+      }
+    } catch (e) {
+      console.warn("[final-details] Auto-dispatch failed (non-blocking):", e);
     }
 
     return NextResponse.json({ success: true });

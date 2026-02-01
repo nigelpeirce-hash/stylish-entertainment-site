@@ -109,6 +109,7 @@ export async function PATCH(
     try {
       const assignLabel = updatedBooking.assignedTo === "ali" ? "Ali" : updatedBooking.assignedTo === "husband" ? "Nigel" : updatedBooking.assignedTo;
       await notifyAdminSignificantEvent({
+        actor: "admin",
         type: "handoff",
         bookingId,
         title: "Handoff",
