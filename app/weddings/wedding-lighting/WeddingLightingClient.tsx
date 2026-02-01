@@ -173,7 +173,7 @@ export default function WeddingLightingClient() {
             <Card className="bg-white/5 border-champagne-gold/20 backdrop-blur-xl p-8">
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-xs uppercase tracking-widest text-champagne-gold mb-4">Serving the West Country</h4>
+                  <h4 className="text-xs uppercase tracking-widest text-champagne-gold mb-4">Serving the South West</h4>
                   <div className="flex flex-wrap gap-2">
                     {["Somerset", "Wiltshire", "Dorset", "Gloucestershire", "Bath", "Bristol", "Exeter"].map((area) => (
                       <span key={area} className="px-3 py-1 bg-white/10 rounded-full text-xs text-gray-200">

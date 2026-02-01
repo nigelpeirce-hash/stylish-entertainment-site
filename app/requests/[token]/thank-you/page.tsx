@@ -204,7 +204,7 @@ export default function ThankYouPage() {
             Professional Wedding DJs, Lighting Design & Venue Styling
           </p>
           <p className="text-gray-500 text-xs">
-            West Country • London • Nationwide
+            South West • London • UK-wide
           </p>
           <div className="mt-4 flex justify-center gap-4 text-xs text-gray-600">
             <Link href="/privacy-policy" className="hover:text-gray-400">

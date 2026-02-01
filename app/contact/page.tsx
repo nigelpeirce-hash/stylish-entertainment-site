@@ -55,7 +55,7 @@ export default function Contact() {
   const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
   useEffect(() => {
-    document.title = "Contact Us | West Country Event Entertainment Booking";
+    document.title = "Contact Us | Wedding & Event Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute("content", "Get in touch to discuss your wedding, party or event entertainment requirements. Professional DJs, lighting design and venue styling across the UK.");

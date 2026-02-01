@@ -251,7 +251,7 @@ export default function DemoGuestRequestPage() {
               Professional Wedding DJs, Lighting Design & Venue Styling
             </p>
             <p className="text-gray-500 text-xs">
-              West Country • London • Nationwide
+              South West • London • UK-wide
             </p>
           </div>
         </footer>
@@ -470,7 +470,7 @@ export default function DemoGuestRequestPage() {
             Professional Wedding DJs & Lighting Design
           </h3>
           <p className="text-champagne-gold text-lg font-medium mb-6">
-            West Country • London • Nationwide
+            South West • London • UK-wide
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link

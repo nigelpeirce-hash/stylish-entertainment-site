@@ -507,7 +507,7 @@ export default function Videos() {
             </h2>
             <p className="text-lg md:text-xl text-gray-300 mb-8">
               Subscribe to our YouTube channel to see the latest videos and behind-the-scenes content 
-              from our events across the West Country.
+              from our events in the South West and beyond.
             </p>
             <a
               href="https://www.youtube.com/@stylishentertainment937"

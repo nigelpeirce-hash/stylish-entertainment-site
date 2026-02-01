@@ -204,7 +204,7 @@ export default function PartyPlanningClient() {
             Professional Party Planning & Event Organization
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md">
-            Bespoke celebrations in Somerset, Wiltshire, and the West Country
+            Bespoke celebrations in Somerset, Wiltshire, and beyond
           </p>
         </motion.div>
         <div className="absolute bottom-0 left-0 right-0 z-20">

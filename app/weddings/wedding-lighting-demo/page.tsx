@@ -4,7 +4,7 @@ import { createMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = createMetadata({
   title: "Wedding Lighting Demo | Atmosphere-First Design",
-  description: "Demo: Editorial wedding lighting page—room vs vibe, lighting personas, and Choose Your Mood table. West Country only.",
+  description: "Demo: Editorial wedding lighting page—room vs vibe, lighting personas, and Choose Your Mood table.",
   pathname: "weddings/wedding-lighting-demo",
 });
 

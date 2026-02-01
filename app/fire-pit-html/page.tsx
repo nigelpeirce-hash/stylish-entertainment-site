@@ -65,7 +65,7 @@ export default function FirePitHire() {
     document.title = "Fire Pit Hire | Outdoor Wedding Fire Pits | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Fire pit hire for weddings, parties, and events. Large 80cm fire pits with delivery, setup, and collection service. Prices from £80+VAT for 3-day hire across the West Country.");
+      metaDescription.setAttribute("content", "Fire pit hire for weddings, parties, and events. Large 80cm fire pits with delivery, setup, and collection service. Prices from £80+VAT for 3-day hire in the South West and beyond.");
     }
   }, []);
 

@@ -13,7 +13,7 @@ const lightingPhotos: ImagePhoto[] = [
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg",
     width: 1200,
     height: 900,
-    alt: "Wedding reception for Camilla and Richard with professional lighting design, elegant table settings, and ambient lighting at a West Country venue",
+    alt: "Wedding reception for Camilla and Richard with professional lighting design, elegant table settings, and ambient lighting at a South West venue",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163679/IMG_3094-1_aiyu5i.jpg",
@@ -58,7 +58,7 @@ export default function LightingHire2() {
     document.title = "Lighting Design | Professional Wedding Lighting | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Transform your wedding venue with bespoke lighting design. LED uplighting, intelligent moving lights, atmospheric mood lighting, and dance floor packages across the West Country.");
+      metaDescription.setAttribute("content", "Transform your wedding venue with bespoke lighting design. LED uplighting, intelligent moving lights, atmospheric mood lighting, and dance floor packages in the South West and beyond.");
     }
   }, []);
 

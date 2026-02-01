@@ -433,7 +433,7 @@ export default function GuestRequestPage() {
             Professional Wedding DJs & Lighting Design
           </h3>
           <p className="text-champagne-gold text-lg font-medium mb-6">
-            West Country • London • Nationwide
+            South West • London • UK-wide
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link

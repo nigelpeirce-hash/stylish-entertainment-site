@@ -104,7 +104,7 @@ export async function POST(
       <p>If you have any questions, please check in with the office.</p>
       ${SIGNATURE_BLOCK_HTML}
     `;
-    const text = `Final payment received – ${booking.name} @ ${venue}\n\nEvent: ${booking.eventType || "Event"} at ${venue}\nDate: ${dateStr}\n\nThe client has confirmed they have sent the final payment.\n\nKind Regards,\nAli & Nige\n\n07970 793177  |  info@stylishentertainment.co.uk  |  stylishentertainment.co.uk\nFacebook · Instagram · YouTube\nEvery gathering deserves to be extraordinary\nStylish Entertainment Ltd | West Country · London · Nationwide`;
+    const text = `Final payment received – ${booking.name} @ ${venue}\n\nEvent: ${booking.eventType || "Event"} at ${venue}\nDate: ${dateStr}\n\nThe client has confirmed they have sent the final payment.\n\nKind Regards,\nAli & Nige\n\n07970 793177  |  info@stylishentertainment.co.uk  |  stylishentertainment.co.uk\nFacebook · Instagram · YouTube\nEvery gathering deserves to be extraordinary\nStylish Entertainment Ltd | South West · London · UK-wide`;
 
     for (const a of assignments) {
       const email = a.staff.email;

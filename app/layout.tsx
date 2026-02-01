@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     template: "%s | STYLISH Entertainment"
   },
   description: "Premium entertainment for weddings, parties and events across the UK. Professional DJs, lighting design and venue styling.",
-  keywords: ["West Country DJs", "London Event DJs", "Somerset Wedding DJs", "Party DJs Bath", "Bristol Event Entertainment", "Dorset Wedding DJs", "Devon Party DJs", "DJs Cornwall", "Stylish Entertainment", "Luxury Event Lighting Hire", "Wedding Entertainment", "Party Entertainment", "Corporate Event DJs", "Private Party DJs", "Event Lighting Design", "Venue Styling", "Event Musicians", "Babington House DJ", "Professional DJs", "Event Sound Systems", "LED Event Lighting", "Celebration Entertainment"],
+  keywords: ["Wedding DJs UK", "London Event DJs", "Somerset Wedding DJs", "Party DJs Bath", "Bristol Event Entertainment", "Dorset Wedding DJs", "Devon Party DJs", "DJs Cornwall", "Stylish Entertainment", "Luxury Event Lighting Hire", "Wedding Entertainment", "Party Entertainment", "Corporate Event DJs", "Private Party DJs", "Event Lighting Design", "Venue Styling", "Event Musicians", "Babington House DJ", "Professional DJs", "Event Sound Systems", "LED Event Lighting", "Celebration Entertainment"],
   authors: [{ name: "Stylish Entertainment" }],
   creator: "Stylish Entertainment",
   publisher: "Stylish Entertainment",

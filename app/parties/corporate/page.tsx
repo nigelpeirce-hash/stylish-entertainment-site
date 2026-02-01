@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     "Product Launch Entertainment",
     "Corporate Party Planning",
     "Corporate Event Management",
-    "West Country Corporate Events",
+    "Corporate Events South West",
   ],
 };
 

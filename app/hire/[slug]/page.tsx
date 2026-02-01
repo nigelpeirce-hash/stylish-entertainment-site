@@ -133,7 +133,7 @@ export default function HireItemPage() {
   }
 
   const seoDescription = item.seoDescription || 
-    `${item.description || item.name} hire available in ${LOCATIONS}. Professional wedding and event hire services across the West Country.`;
+    `${item.description || item.name} hire available in ${LOCATIONS}. Professional wedding and event hire services in the South West and beyond.`;
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
@@ -212,7 +212,7 @@ export default function HireItemPage() {
 
               {/* Service Area - Hidden for SEO only */}
               <div className="sr-only">
-                <p>Available for hire in {LOCATIONS}. Professional wedding and event hire services across the West Country.</p>
+                <p>Available for hire in {LOCATIONS}. Professional wedding and event hire services in the South West and beyond.</p>
               </div>
 
               <div className="mb-6">
@@ -250,14 +250,14 @@ export default function HireItemPage() {
           <Card className="bg-gray-800 border-champagne-gold/30">
             <CardContent className="p-6">
               <h2 className="text-2xl font-bold mb-4">
-                {item.name} Hire across the West Country
+                {item.name} Hire in the South West and beyond
               </h2>
               <div className="prose prose-invert max-w-none">
                 <p className="text-gray-300 leading-relaxed mb-4">
                   {item.description || `${item.name} for ambient lighting. Perfect for creating a warm, romantic atmosphere at your event.`}
                 </p>
                 <p className="text-gray-300 leading-relaxed">
-                  Professional wedding and event hire services across the West Country. Perfect for weddings, parties, and events. Contact us to discuss your requirements and book your items today.
+                  Professional wedding and event hire services in the South West and beyond. Perfect for weddings, parties, and events. Contact us to discuss your requirements and book your items today.
                 </p>
               </div>
             </CardContent>

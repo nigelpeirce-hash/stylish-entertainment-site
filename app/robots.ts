@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin/', '/api/', '/client/', '/demo-', '/login', '/register'],
+        disallow: ['/admin/', '/api/', '/client/', '/demo-', '/demo/', '/login', '/register'],
       },
     ],
     sitemap: 'https://www.stylishentertainment.co.uk/sitemap.xml',

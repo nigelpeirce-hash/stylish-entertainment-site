@@ -3,8 +3,8 @@ import ContactUsClient from "./ContactUsClient";
 import { createMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = createMetadata({
-  title: "Contact Us | West Country Wedding Entertainment Booking",
-  description: "Get in touch to discuss your wedding entertainment requirements. Professional DJs, lighting design and venue styling across the UK.",
+  title: "Contact Us | Wedding & Event Entertainment",
+  description: "Get in touch to discuss your wedding entertainment. DJs and musicians UK-wide; lighting design and venue styling in the South West and beyond.",
   pathname: "contact-us",
 });
 

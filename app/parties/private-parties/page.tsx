@@ -24,7 +24,7 @@ const serviceAreaKeywords = [
   "Exeter party planning", "Honiton party planning", "Crediton party planning", "Tiverton party planning",
   "Devon party planning", "Devon event production",
   // General
-  "West Country party planning", "West Country event production", "Private party planning", "Bespoke party planning",
+  "Party planning South West", "Event production South West", "Private party planning", "Bespoke party planning",
   "Party production services", "Event planning Somerset", "Event planning Wiltshire"
 ];
 
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     "Private party planning",
     "Bespoke party planning",
     "Party production services",
-    "West Country party planning",
+    "Party planning South West",
     "Event planning Somerset",
     "Event planning Wiltshire",
     "Event planning Gloucestershire",
@@ -149,7 +149,7 @@ export default function PrivateParties() {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "name": "STYLISH Entertainment",
-    "description": "Bespoke party planning and technical production services across the West Country",
+    "description": "Bespoke party planning and technical production services in the South West and beyond",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "88 Weymouth Road",
@@ -224,7 +224,7 @@ export default function PrivateParties() {
       <div className="sr-only" aria-hidden="true">
         <h2>Service Areas - Party Planning & Event Production</h2>
         <p>
-          STYLISH Entertainment provides bespoke party planning and technical production services across the West Country. 
+          STYLISH Entertainment provides bespoke party planning and technical production services in the South West and beyond. 
           We serve over 200 towns and locations including:
         </p>
         {serviceAreasForSEO.map((area, idx) => (

@@ -59,7 +59,7 @@ const lightingPhotos = [
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg",
     width: 1200,
     height: 900,
-    alt: "Wedding reception with professional lighting design, elegant table settings, and ambient lighting at a West Country venue",
+    alt: "Wedding reception with professional lighting design, elegant table settings, and ambient lighting at a South West venue",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163679/IMG_3094-1_aiyu5i.jpg",

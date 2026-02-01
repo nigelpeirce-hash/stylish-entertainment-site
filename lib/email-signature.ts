@@ -19,7 +19,7 @@ const FACEBOOK_URL = "https://www.facebook.com/StylishEntertainment";
 const INSTAGRAM_URL = "https://www.instagram.com/stylishentertainment/";
 const YOUTUBE_URL = "https://www.youtube.com/@stylishentertainment937/playlists";
 
-const COMPANY_LINE = "Stylish Entertainment Ltd | West Country · London · Nationwide";
+const COMPANY_LINE = "Stylish Entertainment Ltd | South West · London · UK-wide";
 
 /** Plain-text footer for .text email bodies (same hierarchy). */
 export const CLIENT_SIGNOFF_TEXT = `Kind Regards,

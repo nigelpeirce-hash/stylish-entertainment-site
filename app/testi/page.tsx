@@ -23,7 +23,7 @@ export default function TestimonialsPage() {
     "@context": "https://schema.org",
     "@type": "Service",
     "name": "STYLISH Entertainment",
-    "description": "Premium wedding and event entertainment across Somerset, Wiltshire, and the West Country.",
+    "description": "Premium wedding and event entertainment. DJs and musicians UK-wide; lighting and styling in the South West and beyond.",
     "provider": {
       "@type": "LocalBusiness",
       "name": "STYLISH Entertainment",

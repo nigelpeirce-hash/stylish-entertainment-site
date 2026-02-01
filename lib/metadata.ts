@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-const baseUrl = "https://stylishentertainment.co.uk";
+const baseUrl = "https://www.stylishentertainment.co.uk";
 
 /**
  * Generate canonical URL for a page based on pathname

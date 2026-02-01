@@ -47,6 +47,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url('/artists/party-djs', 'monthly', 0.9),
     url('/contact-us', 'monthly', 0.9),
     url('/contact', 'monthly', 0.8),
+    url('/request-quote', 'monthly', 0.9),
     url('/galleries', 'monthly', 0.8),
     url('/galleries/instagram', 'monthly', 0.7),
     url('/galleries/videos', 'monthly', 0.7),

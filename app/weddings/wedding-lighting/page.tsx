@@ -4,7 +4,7 @@ import { createMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = createMetadata({
   title: "Wedding Lighting | Bespoke Wedding Lighting Design",
-  description: "Transform your wedding venue with bespoke lighting installations. Fairy lights, festoon lighting, LED uplighting, and custom wedding lighting design across Somerset, Wiltshire, Dorset, and the West Country.",
+  description: "Transform your wedding venue with bespoke lighting installations. Fairy lights, festoon lighting, LED uplighting, and custom wedding lighting design in the South West and beyond.",
   pathname: "weddings/wedding-lighting",
 });
 

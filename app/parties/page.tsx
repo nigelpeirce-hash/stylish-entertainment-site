@@ -73,7 +73,7 @@ export default function Parties() {
         >
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">Parties</h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md">
-            Exceptional party entertainment and production across the West Country
+            Exceptional party entertainment and production in the South West and beyond
           </p>
         </motion.div>
       </section>

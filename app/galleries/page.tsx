@@ -280,7 +280,7 @@ export default function Galleries() {
             </div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans mb-3 text-white font-bold">Before and After</h2>
             <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto">
-              See the dramatic transformations we create at venues across the West Country
+              See the dramatic transformations we create at venues in the South West and beyond
             </p>
           </motion.div>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 max-w-6xl mx-auto mb-8 md:mb-10">

@@ -71,7 +71,7 @@ const faqs = [
   },
   {
     question: "Do you work at venues like Babington House?",
-    answer: "Yes, we have been a trusted supplier at Babington House since 2003 and work regularly with premium venues across the West Country. Our fully insured and PAT tested equipment meets all venue requirements.",
+    answer: "Yes, we have been a trusted supplier at Babington House since 2003 and work regularly with premium venues in the South West and beyond. Our fully insured and PAT tested equipment meets all venue requirements.",
   },
 ];
 

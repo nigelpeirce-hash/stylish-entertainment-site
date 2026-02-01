@@ -20,7 +20,7 @@ export interface EditorialServiceRegion {
 /** Canonical editorial regions in display order. Nationwide Reach. Local Expertise. */
 export const EDITORIAL_SERVICE_REGIONS: EditorialServiceRegion[] = [
   {
-    region: "The West Country & Cotswolds",
+    region: "The South West & Cotswolds",
     description: "Our heartland. From the rolling hills of Somerset to the manor houses of Gloucestershire and the wilds of Devon.",
   },
   {
@@ -121,7 +121,7 @@ export function getServiceAreasByRegion(): ServiceRegion[] {
 
 function getRegionDescription(region: string): string | undefined {
   const desc: Record<string, string> = {
-    "West Country": "Our home base. Somerset, Wiltshire, Devon and beyond.",
+    "West Country": "Our home base. Somerset, Wiltshire, Devon and the South West.",
     "London & South East": "From Mayfair to Surrey, we play London and the Home Counties.",
     "South & Thames Valley": "Hampshire, Oxfordshire and the Thames Valley.",
     Midlands: "Warwickshire, Leicestershire and the heart of England.",

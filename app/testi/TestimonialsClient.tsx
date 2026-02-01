@@ -69,7 +69,7 @@ export default function TestimonialsClient() {
         <div className="absolute inset-0 opacity-40 flex items-center justify-center">
           <img
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg"
-            alt="Wedding reception with professional lighting design showcasing elegant table settings and ambient lighting at a West Country venue"
+            alt="Wedding reception with professional lighting design showcasing elegant table settings and ambient lighting at a South West venue"
             className="w-full h-full object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}
             loading="eager"

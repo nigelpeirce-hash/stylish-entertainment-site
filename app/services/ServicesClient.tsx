@@ -19,7 +19,7 @@ const services = [
       "MC services available",
     ],
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/v1768163779/Dj-Sax-Bongos_zlozkq.jpg",
-    alt: "Professional wedding DJ services across the West Country",
+    alt: "Professional wedding DJ services UK-wide",
   },
   {
     title: "Lighting Design",
@@ -33,7 +33,7 @@ const services = [
       "Dance floor lighting packages",
     ],
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162978/ITALLIAN-VILLA-02_jgy3tx.jpg",
-    alt: "Professional wedding lighting design at luxury West Country venue",
+    alt: "Professional wedding lighting design at luxury South West venue",
   },
   {
     title: "Venue Styling",
@@ -47,7 +47,7 @@ const services = [
       "Cohesive design theme throughout",
     ],
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163723/IMG_6321_xu8q8j.jpg",
-    alt: "Elegant wedding venue styling across the West Country",
+    alt: "Elegant wedding venue styling in the South West and beyond",
   },
   {
     title: "Kit Hire",
@@ -61,7 +61,7 @@ const services = [
       "Cables and technical accessories",
     ],
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162508/Kin-House-Stage-Lighting-and-Sound-supply_j8yln4.jpg",
-    alt: "Professional wedding equipment hire at Kin House across the West Country",
+    alt: "Professional wedding equipment hire at Kin House in the South West",
   },
   {
     title: "Fire Pit Hire",

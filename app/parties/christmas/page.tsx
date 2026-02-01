@@ -3,7 +3,7 @@ import ChristmasClient from "./ChristmasClient";
 
 export const metadata: Metadata = {
   title: "Winter Celebrations & Christmas Galas | Luxury Corporate Christmas Party Production",
-  description: "High-end luxury entertainment for unforgettable seasonal celebrations. Corporate Christmas party production, luxury winter ball entertainment, DJs, lighting, and full event planning across Somerset, Wiltshire, Dorset, and the West Country.",
+  description: "High-end luxury entertainment for unforgettable seasonal celebrations. Corporate Christmas party production, luxury winter ball entertainment, DJs, lighting, and full event planning in the South West and beyond.",
   keywords: [
     "Corporate Christmas Party Production",
     "Luxury Winter Ball Entertainment",
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     "Festive Entertainment",
     "Christmas Lighting Design",
     "Party Planning Somerset",
-    "Event Production West Country",
+    "Event Production South West",
   ],
 };
 

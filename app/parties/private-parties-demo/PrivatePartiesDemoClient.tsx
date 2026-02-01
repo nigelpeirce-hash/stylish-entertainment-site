@@ -304,7 +304,7 @@ export default function PrivatePartiesDemoClient() {
       <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
         <div className="max-w-6xl mx-auto mb-12 text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">Atmospheric Venue Transformations</h2>
-          <p className="text-gray-400 text-lg">Serving the West Country&apos;s most prestigious venues.</p>
+          <p className="text-gray-400 text-lg">Serving the South West&apos;s most prestigious venues.</p>
         </div>
         <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {galleryPhotos.map((photo, i) => (
@@ -435,7 +435,7 @@ export default function PrivatePartiesDemoClient() {
           </Accordion>
           <div className="sr-only mt-8" aria-hidden="true">
             <h3>Where We Serve – Party Planning Service Areas</h3>
-            <p>STYLISH Entertainment provides bespoke event production across the West Country. We serve 200+ towns including:</p>
+            <p>STYLISH Entertainment provides bespoke event production in the South West and beyond. We serve 200+ towns including:</p>
             {serviceAreas.map((area) => (
               <div key={area.region}>
                 <h4>Party Planning in {area.region}</h4>

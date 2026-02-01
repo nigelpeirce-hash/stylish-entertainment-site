@@ -14,7 +14,7 @@ export default function SoundEquipment() {
     if (metaDescription) {
       metaDescription.setAttribute(
         "content",
-        "Professional sound equipment hire for DJs and bands. High-quality sound systems, microphones, speakers, and complete audio packages for weddings and events across the West Country."
+        "Professional sound equipment hire for DJs and bands. High-quality sound systems, microphones, speakers, and complete audio packages for weddings and events in the South West and beyond."
       );
     }
   }, []);

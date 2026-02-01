@@ -213,7 +213,7 @@ export default function WeddingLightingDemoClient() {
       <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
         <div className="max-w-6xl mx-auto mb-12 text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">The Atmosphere</h2>
-          <p className="text-gray-400 text-lg">West Country weddings, legendary evenings.</p>
+          <p className="text-gray-400 text-lg">South West weddings, legendary evenings.</p>
         </div>
         <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {galleryPhotos.map((photo, i) => (
@@ -252,7 +252,7 @@ export default function WeddingLightingDemoClient() {
                 <div className="flex items-start gap-4 mb-8">
                   <MapPin className="w-10 h-10 text-champagne-gold flex-shrink-0 mt-1" />
                   <div>
-                    <h3 className="text-2xl font-bold mb-2">Serving the West Country</h3>
+                    <h3 className="text-2xl font-bold mb-2">Serving the South West</h3>
                     <p className="text-gray-300 leading-relaxed mb-6">
                       Based in Somerset and the Cotswolds. We illuminate weddings across Somerset, Wiltshire, Dorset, Gloucestershire, Bath, Bristol, and Devon.
                     </p>

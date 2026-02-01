@@ -28,7 +28,8 @@ function isAnalyticsDisabled(): boolean {
 
 /**
  * Track a GA4 event
- * Only fires if gtag is loaded and not disabled
+ * Uses gtag when available; otherwise pushes to dataLayer so the event is queued
+ * for when gtag loads (important for thank-you page where gtag may load after useEffect)
  */
 export function trackEvent(
   eventName: string,
@@ -38,8 +39,17 @@ export function trackEvent(
     return;
   }
   
-  if (typeof window !== 'undefined' && window.gtag) {
+  if (typeof window === 'undefined') return;
+  
+  if (window.gtag) {
     window.gtag('event', eventName, params);
+  } else {
+    // Queue for gtag – GA4 processes dataLayer when gtag loads
+    (window as any).dataLayer = (window as any).dataLayer || [];
+    (window as any).dataLayer.push({
+      event: eventName,
+      ...params,
+    });
   }
 }
 

@@ -107,7 +107,7 @@ export default function VenueDecoration() {
     document.title = "Venue Decoration | Professional Wedding Styling | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Complete venue transformation with elegant styling. Table centerpieces, drapery, custom backdrops, and cohesive design themes across the West Country.");
+      metaDescription.setAttribute("content", "Complete venue transformation with elegant styling. Table centerpieces, drapery, custom backdrops, and cohesive design themes in the South West and beyond.");
     }
   }, []);
 
