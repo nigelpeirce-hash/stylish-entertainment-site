@@ -270,7 +270,7 @@ export default function WeddingLandingClient() {
               <p>Loading DJs...</p>
             </div>
           ) : djs.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
               {djs.map((dj, index) => (
                 <motion.div
                   key={dj.name}
@@ -279,7 +279,7 @@ export default function WeddingLandingClient() {
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
                 >
-                  <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:border-champagne-gold/60 group h-full flex flex-col">
+                  <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:border-champagne-gold/60 group flex flex-col">
                     <div className="relative aspect-[4/3] overflow-hidden bg-gray-900">
                       {dj.image ? (
                         <Image
@@ -304,9 +304,9 @@ export default function WeddingLandingClient() {
                         </span>
                       </div>
                     </div>
-                    <CardContent className="p-4 flex flex-col flex-1">
+                    <CardContent className="p-4 flex flex-col">
                       {dj.bio && (
-                        <p className="text-sm text-gray-300 leading-relaxed line-clamp-3 mb-4 flex-1">{dj.bio}</p>
+                        <p className="text-sm text-gray-300 leading-relaxed line-clamp-3 mb-4">{dj.bio}</p>
                       )}
                       <Dialog>
                         <DialogTrigger asChild>

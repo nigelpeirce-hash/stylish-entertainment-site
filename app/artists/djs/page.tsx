@@ -440,7 +440,7 @@ export default function DJs() {
                 <p>No DJs available at the moment.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-start">
                 {djs.map((dj, index) => (
                 <motion.div
                   key={dj.name}
@@ -449,7 +449,7 @@ export default function DJs() {
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: Math.min(index * 0.1, 0.3) }}
                 >
-                  <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:border-champagne-gold/60 group h-full flex flex-col">
+                  <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:border-champagne-gold/60 group flex flex-col">
                     <div className="relative aspect-[4/3] overflow-hidden bg-gray-900">
                       {dj.image ? (
                         <Image
@@ -473,8 +473,8 @@ export default function DJs() {
                         </span>
                       </div>
                     </div>
-                    <CardContent className="p-4 sm:p-5 flex flex-col flex-1">
-                      <p className="text-sm text-gray-300 leading-relaxed line-clamp-3 mb-4 flex-1">{dj.bio}</p>
+                    <CardContent className="p-4 sm:p-5 flex flex-col">
+                      <p className="text-sm text-gray-300 leading-relaxed line-clamp-3 mb-4">{dj.bio}</p>
 
                       {/* Watch & Listen – visible on tile */}
                       {(dj.youtubeEmbed || (dj.mixcloudEmbeds && dj.mixcloudEmbeds.length > 0)) && (
