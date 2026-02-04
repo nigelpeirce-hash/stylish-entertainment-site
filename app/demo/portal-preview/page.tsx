@@ -68,7 +68,7 @@ function createMockBooking() {
       },
     },
   ],
-  guestRequestToken: null,
+  guestRequestToken: "demo-gr-preview", // Enables invite panel (share link + CSV) for demo
   guestRequestsEnabled: true,
   guestRequests: [
     { id: "g1", trackName: "Dancing Queen", artistName: "ABBA", guestName: "Aunt Sue", status: "approved" },

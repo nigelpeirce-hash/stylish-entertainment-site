@@ -100,7 +100,7 @@ export default function DemoClientDashboardPage() {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
         >
-          <Link href="/dj-booking-confirmation">
+          <Link href="/book-dj">
             <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
               <CardContent className="p-6 flex items-center gap-4">
                 <div className="p-3 bg-champagne-gold/20 rounded-lg">

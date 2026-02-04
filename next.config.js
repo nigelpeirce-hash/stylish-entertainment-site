@@ -154,6 +154,18 @@ const nextConfig = {
         permanent: true,
       },
 
+      // Old DJ booking form (legacy) → current booking form
+      {
+        source: '/dj-booking-confirmation',
+        destination: '/book-dj',
+        permanent: true,
+      },
+      {
+        source: '/dj-booking-confirmation/',
+        destination: '/book-dj',
+        permanent: true,
+      },
+
       // --- EXISTING REDIRECTS ---
       {
         source: '/wedding-djs',

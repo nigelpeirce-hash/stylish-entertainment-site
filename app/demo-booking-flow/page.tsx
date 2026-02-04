@@ -34,7 +34,7 @@ export default function DemoBookingFlowPage() {
       number: 1,
       title: "Initial Booking Form",
       description: "Complete the DJ booking confirmation form with your event details",
-      url: "/dj-booking-confirmation",
+      url: "/book-dj",
       icon: FileText,
       details: [
         "Full names (happy couple for weddings)",
@@ -134,7 +134,7 @@ export default function DemoBookingFlowPage() {
                     Go to Dashboard
                   </Button>
                   <Button
-                    onClick={() => router.push("/dj-booking-confirmation")}
+                    onClick={() => router.push("/book-dj")}
                     variant="outline"
                     className="border-gray-700 text-white"
                   >
@@ -163,7 +163,7 @@ export default function DemoBookingFlowPage() {
                     Register
                   </Button>
                   <Button
-                    onClick={() => router.push("/dj-booking-confirmation")}
+                    onClick={() => router.push("/book-dj")}
                     variant="outline"
                     className="border-gray-700 text-white"
                   >
@@ -260,7 +260,7 @@ export default function DemoBookingFlowPage() {
                 variant="outline"
                 className="border-gray-700 text-white"
               >
-                <Link href="/dj-booking-confirmation">
+                <Link href="/book-dj">
                   Booking Form
                 </Link>
               </Button>
