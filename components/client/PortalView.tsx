@@ -13,6 +13,7 @@ import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 import confetti from "canvas-confetti";
 import GuestRequestsView from "@/components/client/GuestRequestsView";
 import { AcceptTermsModule } from "@/components/AcceptTermsModule";
+import { toSafeDisplayString, toSafeReactChild } from "@/lib/transformers/booking-transformer";
 import { ContractFooter } from "@/components/client/ContractFooter";
 import PortalCountdownClock from "@/components/client/PortalCountdownClock";
 import HeroPhotoSection from "@/components/client/HeroPhotoSection";
@@ -1540,6 +1541,19 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
                   onAcceptChange={setPortalTermsAccepted}
                   disabled={acceptingTerms}
                   variant="dark"
+                  bookingSummary={{
+                    venueName: booking.venueName ?? undefined,
+                    eventDate: booking.eventDate ?? undefined,
+                    fee: (() => {
+                      const raw = (booking as { bookingFee?: unknown }).bookingFee ?? (booking as { finalBalance?: unknown }).finalBalance;
+                      if (raw == null) return undefined;
+                      const s = toSafeDisplayString(raw);
+                      return s || undefined;
+                    })(),
+                    talent: (booking.staffAssignments ?? [])
+                      .filter((a) => a?.staff?.name != null)
+                      .map((a) => ({ name: toSafeReactChild(a.staff!.name), role: a.role != null && a.role !== "" ? toSafeReactChild(a.role) : undefined })),
+                  }}
                 />
                 <Button
                   onClick={handleAcceptTerms}

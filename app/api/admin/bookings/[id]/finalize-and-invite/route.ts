@@ -2,6 +2,7 @@ import { randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activity-log";
 import { sendEmail } from "@/lib/email";
 import { PORTAL_INVITATION } from "@/lib/email/templates";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
@@ -103,6 +104,14 @@ export async function POST(
         emailsSent,
         updatedAt: now,
       },
+    });
+
+    await logActivity({
+      bookingId,
+      action: "portal_invite_sent",
+      description: `Portal invite sent to ${booking.email}`,
+      actor: "admin",
+      performedBy: admin?.name ?? admin?.email ?? undefined,
     });
 
     return NextResponse.json({

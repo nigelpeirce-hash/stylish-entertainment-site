@@ -34,7 +34,7 @@ import {
   Circle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { toDisplayFee } from "@/lib/transformers/booking-transformer";
+import { toDisplayFee, toSafeDisplayString, toSafeReactChild } from "@/lib/transformers/booking-transformer";
 
 interface FeeLineItem {
   id: string;
@@ -593,7 +593,7 @@ export function FlexibleOperatorSidebar({
                   id="bookingFee"
                   type="text"
                   placeholder="e.g. £150"
-                  value={typeof bookingFee === "string" ? bookingFee : String(bookingFee ?? "")}
+                  value={toSafeReactChild(bookingFee ?? "")}
                   onChange={(e) => setBookingFee(e.target.value)}
                   className="bg-gray-800 border-gray-700 text-white"
                 />

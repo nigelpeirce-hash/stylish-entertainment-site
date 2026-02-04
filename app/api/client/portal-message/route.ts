@@ -193,9 +193,10 @@ export async function POST(request: NextRequest) {
       </div>
     `;
 
+    const recipientEmail = process.env.CONTACT_FORM_EMAIL || process.env.NOTIFICATION_EMAIL || "info@stylishentertainment.co.uk";
     try {
       await sendEmail({
-        to: "info@stylishentertainment.co.uk",
+        to: recipientEmail,
         subject: notificationSubject,
         html: notificationHtml,
         text: `New Message from ${user.name || user.email} via Portal\n\n${message}`,

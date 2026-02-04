@@ -178,6 +178,95 @@ export function toDisplayFee(val: unknown): number {
   return sanitizeFeeValue(val);
 }
 
+/** Safe string for React children - never renders objects (e.g. { fee }, { amount }). Use for any value that might come from API. */
+export function toSafeDisplayString(val: unknown): string {
+  if (val == null) return "";
+  if (typeof val === "string") return val;
+  if (typeof val === "number") return String(val);
+  if (typeof val === "object") {
+    const o = val as Record<string, unknown>;
+    if ("fee" in o && o.fee != null) return toSafeDisplayString(o.fee);
+    if ("amount" in o && o.amount != null) return toSafeDisplayString(o.amount);
+    if ("value" in o && o.value != null) return toSafeDisplayString(o.value);
+    // Object with fee/amount/value keys but all null/empty – avoid "[object Object]"
+    return "";
+  }
+  return String(val);
+}
+
+/** Venue display string from flat schema (venueName, venueAddress, venuePostcode). */
+export function toVenueDisplay(
+  venueName?: string | null,
+  venueAddress?: string | null,
+  venuePostcode?: string | null
+): string {
+  const parts: string[] = [];
+  if (venueName && String(venueName).trim()) parts.push(String(venueName).trim());
+  if (venueAddress && String(venueAddress).trim()) parts.push(String(venueAddress).trim());
+  if (venuePostcode && String(venuePostcode).trim()) parts.push(String(venuePostcode).trim());
+  return parts.length > 0 ? parts.join(", ") : "";
+}
+
+/**
+ * Guaranteed safe for React children - NEVER returns or renders an object.
+ * Use when you need to display any value that might be an object (e.g. { fee }).
+ * Falls back to toFeeDisplay, then toSafeDisplayString, then JSON.stringify for unknown objects.
+ * Call this for EVERY value that might come from booking/API before rendering in JSX.
+ */
+export function toSafeReactChild(val: unknown): string {
+  if (val == null) return "";
+  if (typeof val === "string") return val;
+  if (typeof val === "number") return String(val);
+  if (typeof val === "boolean") return String(val);
+  // Handle { fee }, { amount }, { value } and nested variants first
+  const feeStr = toFeeDisplay(val);
+  if (feeStr) return feeStr;
+  const safeStr = toSafeDisplayString(val);
+  if (safeStr) return safeStr;
+  // Nuclear fallback: any remaining object gets stringified
+  if (typeof val === "object") return JSON.stringify(val);
+  return String(val);
+}
+
+/** Fee display string - handles string | number | { amount?, fee?, currency? }. */
+export function toFeeDisplay(val: unknown): string {
+  if (val == null) return "";
+  if (typeof val === "number" && !isNaN(val)) return String(val);
+  if (typeof val === "string" && val.trim()) return val.trim();
+  if (typeof val === "object") {
+    const o = val as Record<string, unknown>;
+    const num = sanitizeFeeValue(val);
+    if (num > 0) {
+      const currency = (o.currency as string) || "GBP";
+      return `${num} ${currency}`;
+    }
+  }
+  return "";
+}
+
+/** Deposit status display - paid boolean + optional amount. */
+export function toDepositDisplay(paid?: boolean | null, amount?: unknown): string {
+  const paidVal = paid === true;
+  const num = sanitizeFeeValue(amount);
+  if (paidVal && num > 0) return `Paid: £${num}`;
+  if (paidVal) return "Paid";
+  return "Pending";
+}
+
+/** Safely map staffAssignments to display-safe list. Never render raw objects. */
+export function toTalentDisplayList(
+  assignments?: Array<{ id?: string; staff?: { name?: string }; role?: string }> | null
+): Array<{ id: string; name: string; role: string }> {
+  if (!Array.isArray(assignments) || assignments.length === 0) return [];
+  return assignments
+    .filter((a) => a != null)
+    .map((a, i) => ({
+      id: String(a.id ?? `talent-${i}`),
+      name: String(a.staff?.name ?? "Unknown"),
+      role: String(a.role ?? ""),
+    }));
+}
+
 /**
  * Sanitize a service/item value to ensure it's a string
  */
@@ -345,8 +434,8 @@ export function transformBooking(
     assignedTo: booking?.assignedTo ? String(booking.assignedTo) : null,
     handoffStatus: booking?.handoffStatus ? String(booking.handoffStatus) : null,
     handoffNote: booking?.handoffNote ? String(booking.handoffNote) : null,
-    finalBalance: booking?.finalBalance ? String(booking.finalBalance) : null,
-    bookingFee: booking?.bookingFee ? String(booking.bookingFee) : null,
+    finalBalance: toSafeDisplayString(booking?.finalBalance) || null,
+    bookingFee: toSafeDisplayString(booking?.bookingFee) || null,
     adminNotes: booking?.adminNotes ? String(booking.adminNotes) : null,
     feeBreakdown,
     taxInclusive: booking?.taxInclusive ?? null,

@@ -20,6 +20,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { SafeText } from "@/components/SafeText";
 
 interface FreelanceCrew {
   id: string;
@@ -309,13 +310,13 @@ export function TeamAssignment({
                       {assignment.role?.toLowerCase().includes("dj") ? "🎧" : "💡"}
                     </span>
                     <span className="text-white font-medium">
-                      {assignment.staff.name}
+                      <SafeText>{assignment.staff?.name ?? "Unknown"}</SafeText>
                     </span>
-                    <span className="text-gray-400 text-xs">({assignment.role})</span>
+                    <span className="text-gray-400 text-xs">({typeof assignment.role === "string" ? assignment.role : ""})</span>
                   </div>
                   <button
                     onClick={async () => {
-                      if (confirm(`Remove ${assignment.staff.name} from this booking?`)) {
+                      if (confirm(`Remove ${assignment.staff?.name ?? "this staff member"} from this booking?`)) {
                         try {
                           const response = await fetch(
                             `/api/admin/bookings/staff/${assignment.id}/`,
@@ -330,7 +331,7 @@ export function TeamAssignment({
                             throw new Error(data.error || "Failed to remove staff");
                           }
 
-                          setSuccess(`${assignment.staff.name} removed successfully`);
+                          setSuccess(`${assignment.staff?.name ?? "Staff"} removed successfully`);
                           setTimeout(() => {
                             onUpdate();
                             setSuccess("");

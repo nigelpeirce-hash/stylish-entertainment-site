@@ -76,6 +76,8 @@ Agent familiarisation for the Stylish Entertainment website project.
 - `/admin/sandbox/terms-portal-demo` – Link to T&C portal flow demo
 - `/admin/sandbox/book-from-quote` – Book-from-quote token
 - `/admin/sandbox/client-portal` – Client portal magic link
+- `/admin/sandbox/client-portal-hero-demo` – Client portal hero image demo
+- `/admin/sandbox/client-portal-sarah-tim` – Client portal demo (Sarah/Tim)
 
 ## Key Features
 
@@ -99,6 +101,7 @@ Agent familiarisation for the Stylish Entertainment website project.
 - **Cloudinary:** `NEXT_PUBLIC_CLOUDINARY_*`, `CLOUDINARY_*`
 - **Google:** `NEXT_PUBLIC_GA_MEASUREMENT_ID` / `NEXT_PUBLIC_GOOGLE_ANALYTICS_ID`, reCAPTCHA keys
 - **YouTube:** `NEXT_PUBLIC_YOUTUBE_API_KEY`, optional `NEXT_PUBLIC_YOUTUBE_CHANNEL_ID`
+- **Email journey:** `NEXT_PUBLIC_GOOGLE_REVIEW_URL` (optional) – Google Maps review link for post-wedding thank-you email "Leave a Google Review" button; if unset, button is hidden
 
 See `.env.local.example` and `DISASTER_RECOVERY_GUIDE.md` for full list.
 
@@ -106,12 +109,14 @@ See `.env.local.example` and `DISASTER_RECOVERY_GUIDE.md` for full list.
 
 ## Recent Work (Jan 2026)
 
+- **API security (Jan 29):** Client portal routes now enforce `portalToken` or session auth: `/api/client/bookings/[id]/items` (GET/POST), `/api/client/bookings/[id]/payment-details` (GET), `/api/client/bookings/[id]/confirm-hire-request` (POST). `PATCH /api/client/bookings/[id]/tasks` supports portal token (magic-link users). See `API_ROUTES_AUDIT.md`.
+- **Link audit (Jan 29):** Internal `<a>` → `<Link>` on client portal access-denied pages; `tel:` standardised to `+44`; `rel="noopener noreferrer"` on external links; `NEXT_PUBLIC_GOOGLE_REVIEW_URL` for post-wedding email. See `LINK_AUDIT.md`.
 - **Page layouts (Jan 29):** Venue decoration – featured before/after (2 sliders). Galleries – before/after moved up, wider YouTube for HD, `vq=hd1080`. Lighting – gallery moved up after hero. New `/room-transformation` page.
 - **YouTube embeds:** Add `?vq=hd1080` to embed URLs; use wider containers (max-w-6xl / max-w-7xl) for HD on desktop.
 - **Prisma:** No startup connection test; pool max 1 dev / 2 prod. Transaction mode (6543) recommended for MaxClientsInSessionMode.
 - **Middleware:** `x-pathname` passed on request headers so layout reads pathname. Fixes admin 500; Footer and SiteWideCTA hidden on `/admin`.
 - **Sitemap:** Dynamic Prisma import – build succeeds when `DATABASE_URL` missing/invalid (returns static-only sitemap). Vercel env vars are per project.
-- **Page CTA:** `SiteWideCTA` at bottom of every page (non-sticky). Hidden on `/admin`, `/contact`, `/thank-you`. Demo: `public/page-cta-demo.html`.
+- **Page CTA:** `SiteWideCTA` at bottom of every page (non-sticky). Hidden on `/admin`, `/contact`, `/thank-you`, `/wedding-dj`, `/demo/client-portal`. Demo: `public/page-cta-demo.html`.
 - **Kin House:** Removed 404 Cloudinary image from gallery.
 - **T&C Portal:** Planned, not implemented. `TERMS_PORTAL_MODULE_PLAN.md` – personalised T&Cs in client portal, e-sign, deposit non-refundable, gating. Demo: Admin → Sandbox → Terms portal demo.
 - **Terms content:** `lib/terms-content.ts` – `TERMS_ABRIDGED`, `DEPOSIT_CLAUSE`, `COMPANY_*`. Full terms: `TERMS_SECTIONS`.
@@ -124,6 +129,8 @@ See `.env.local.example` and `DISASTER_RECOVERY_GUIDE.md` for full list.
 
 | File                        | Purpose                                      |
 |----------------------------|----------------------------------------------|
+| **API_ROUTES_AUDIT.md**    | Full API route inventory, auth status, security fixes |
+| **LINK_AUDIT.md**          | Link audit: internal/external hrefs, tel/mailto, rel, recommended fixes |
 | **DISASTER_RECOVERY_GUIDE.md** | Full rebuild, env vars, DB, deployments     |
 | **TERMS_PORTAL_MODULE_PLAN.md** | T&C portal (planned): personalised T&Cs, e-sign |
 | **GTM_CONTAINER_QUALITY_FIX.md** | GTM setup, Google tag, thank-you trigger   |

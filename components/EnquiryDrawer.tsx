@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { X, MapPin, Mail, Clock, Users, Calendar, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { X, MapPin, Mail, Clock, Users, Calendar, AlertTriangle, CheckCircle2, Reply } from "lucide-react";
 import { format } from "date-fns";
+import { ReplyToEnquiryModal } from "@/components/admin/ReplyToEnquiryModal";
 
 interface EnquiryDrawerProps {
   enquiry: {
@@ -38,6 +39,7 @@ export function EnquiryDrawer({ enquiry, isOpen, onClose, onUpdate }: EnquiryDra
   const [loading, setLoading] = useState(true);
   const [mapUrl, setMapUrl] = useState("");
   const [mapsSearchUrl, setMapsSearchUrl] = useState<string | null>(null);
+  const [replyModalOpen, setReplyModalOpen] = useState(false);
 
   useEffect(() => {
     if (isOpen && enquiry) {
@@ -138,13 +140,44 @@ export function EnquiryDrawer({ enquiry, isOpen, onClose, onUpdate }: EnquiryDra
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-full sm:max-w-2xl lg:max-w-3xl overflow-y-auto bg-gray-900 border-champagne-gold/30">
         <SheetHeader>
-          <SheetTitle className="text-2xl font-bold text-white font-serif">
-            {enquiry.name}
-          </SheetTitle>
-          <SheetDescription className="text-gray-400">
-            {enquiry.email} • {formatDate(enquiry.eventDate)}
-          </SheetDescription>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <SheetTitle className="text-2xl font-bold text-white font-serif">
+                {enquiry.name}
+              </SheetTitle>
+              <SheetDescription className="text-gray-400">
+                {enquiry.email} • {formatDate(enquiry.eventDate)}
+              </SheetDescription>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setReplyModalOpen(true)}
+              className="shrink-0 border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10"
+            >
+              <Reply className="w-4 h-4 mr-2" />
+              Reply to Enquiry
+            </Button>
+          </div>
         </SheetHeader>
+
+        <ReplyToEnquiryModal
+          enquiry={{
+            id: enquiry.id,
+            name: enquiry.name,
+            email: enquiry.email,
+            eventDate: enquiry.eventDate,
+            venueName: enquiry.venueName,
+            venuePostcode: enquiry.venuePostcode,
+            source: enquiry.source,
+          }}
+          open={replyModalOpen}
+          onClose={() => setReplyModalOpen(false)}
+          onSent={() => {
+            fetchEmailHistory();
+            onUpdate();
+          }}
+        />
 
         <div className="mt-6 space-y-6">
           <Tabs defaultValue="overview" className="w-full">

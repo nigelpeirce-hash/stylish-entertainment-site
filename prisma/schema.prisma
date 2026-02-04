@@ -87,6 +87,7 @@ model Booking {
   paymentPayerName            String?
   termsAccepted               Boolean                  @default(false)
   termsAcceptedAt             DateTime?
+  termsAcceptedByUserId       String?
   completedTasks              String[]
   emailsSent                  Json?
   lastEmailSentAt             DateTime?
@@ -510,6 +511,7 @@ model HireOrder {
   notes                              String?
   termsAccepted                      Boolean         @default(false)
   termsAcceptedAt                    DateTime?
+  termsAcceptedByUserId              String?
   userId                             String?
   bookingId                          String?
   createdAt                          DateTime        @default(now())
@@ -607,11 +609,14 @@ model NewEnquiry {
   reviewedBy            String?
   firstTouchEmailSent   Boolean   @default(false)
   firstTouchEmailSentAt DateTime?
+  enquiryRepliedAt      DateTime?
+  enquiryRepliedByUserId String?
   notificationSent      Boolean   @default(false)
   notificationSentAt    DateTime?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime
   Booking               Booking?  @relation(fields: [originalBookingId], references: [id])
+  User_EnquiryRepliedBy User?     @relation("NewEnquiry_EnquiryRepliedBy", fields: [enquiryRepliedByUserId], references: [id])
 
   @@index([createdAt])
   @@index([email])
@@ -716,6 +721,7 @@ model User {
   Session                                 Session[]
   Task_Task_assignedToIdToUser            Task[]           @relation("Task_assignedToIdToUser")
   Task_Task_createdByIdToUser             Task[]           @relation("Task_createdByIdToUser")
+  NewEnquiry_EnquiryRepliedBy             NewEnquiry[]     @relation("NewEnquiry_EnquiryRepliedBy")
 
   @@index([email])
 }

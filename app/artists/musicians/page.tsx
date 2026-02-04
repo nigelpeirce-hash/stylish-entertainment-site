@@ -114,11 +114,11 @@ export default function Musicians() {
         </div>
         <div className="absolute inset-0 opacity-50 flex items-center justify-center overflow-hidden">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,c_fill,w_1920,h_1080,g_center/v1768163730/Cuban-Brothers-at-Private-Party_iuletb.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto,c_fill,w_1920,h_1080,g_center/v1768163730/Cuban-Brothers-at-Private-Party_iuletb.jpg"
             alt="The Cuban Brothers performing at a private party, showcasing energetic live wedding entertainment"
             fill
             className="object-cover brightness-110 scale-90"
-            style={{ objectPosition: 'center center' }}
+            style={{ objectPosition: "center center" }}
             priority
             sizes="100vw"
           />

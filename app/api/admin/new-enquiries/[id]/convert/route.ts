@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activity-log";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -153,6 +155,35 @@ export async function POST(
 
       return newBooking;
     });
+
+    try {
+      const eventDateLabel = new Date(enquiry.eventDate).toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      await logActivity({
+        bookingId: booking.id,
+        action: "enquiry_converted",
+        description: `Enquiry converted to new booking – ${enquiry.name}`,
+        actor: "admin",
+        performedBy: admin?.name ?? admin?.email ?? undefined,
+        metadata: { enquiryId },
+      });
+      await notifyAdminSignificantEvent({
+        type: "enquiry_converted",
+        bookingId: booking.id,
+        title: "Enquiry converted",
+        description: `New booking created from enquiry for ${enquiry.name}`,
+        actor: "admin",
+        performedBy: admin?.name ?? admin?.email ?? undefined,
+        bookingName: enquiry.name ?? undefined,
+        venueName: enquiry.venueName ?? undefined,
+        eventDate: eventDateLabel,
+      });
+    } catch (e) {
+      console.warn("[new-enquiries/convert] Admin notification failed:", e);
+    }
 
     return NextResponse.json({ 
       bookingId: booking.id,

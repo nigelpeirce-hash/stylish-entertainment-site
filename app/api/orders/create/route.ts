@@ -82,6 +82,7 @@ export async function POST(request: NextRequest) {
         notes: validatedData.notes || undefined,
         termsAccepted: true,
         termsAcceptedAt: new Date(),
+        termsAcceptedByUserId: (token?.id as string) || undefined,
         totalAmount,
         status: "pending",
         userId: (token?.id as string) || undefined,

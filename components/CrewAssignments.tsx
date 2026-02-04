@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { UserPlus, CheckCircle2, XCircle, Clock, Mail } from "lucide-react";
 import { toDisplayFee } from "@/lib/transformers/booking-transformer";
+import { SafeText } from "@/components/SafeText";
 
 interface FreelanceCrew {
   id: string;
@@ -213,11 +214,11 @@ export function CrewAssignments({
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <p className="text-white font-semibold mb-1">{assignment.staff.name}</p>
-                    <p className="text-gray-400 text-sm">Role: {assignment.role}</p>
+                    <p className="text-white font-semibold mb-1"><SafeText>{assignment.staff?.name ?? "Unknown"}</SafeText></p>
+                    <p className="text-gray-400 text-sm">Role: <SafeText>{assignment.role}</SafeText></p>
                     {toDisplayFee(assignment.agreedFee) > 0 && (
                       <p className="text-gray-400 text-sm">
-                        Fee: £{toDisplayFee(assignment.agreedFee).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        Fee: £<SafeText>{toDisplayFee(assignment.agreedFee).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</SafeText>
                       </p>
                     )}
                   </div>
@@ -240,7 +241,7 @@ export function CrewAssignments({
                   {assignment.status !== "cancelled" && (
                     <CancelCrewDialog
                       assignmentId={assignment.id}
-                      crewName={assignment.staff.name}
+                      crewName={assignment.staff?.name ?? "Unknown"}
                       onSuccess={onUpdate}
                     />
                   )}

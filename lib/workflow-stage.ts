@@ -22,12 +22,13 @@ export function getWorkflowStage(booking: BookingForStage): WorkflowStage {
 export function getWorkflowLabel(stage: WorkflowStage): string {
   switch (stage) {
     case "deposit_received":
-      return "Deposit received";
+      return "Booking Confirmed";
     case "new_enquiry":
+      return "New Enquiry";
     case "booking_form_received":
-      return "Booking Request Received";
+      return "Booking Form Received";
     default:
-      return "Booking Request Received";
+      return "New Enquiry";
   }
 }
 
@@ -58,9 +59,9 @@ export function getWorkflowBadgeClass(stage: WorkflowStage): string {
   }
 }
 
-/** Phase Tracker: 6 steps for Command Center detail page */
+/** Phase Tracker: enquiry-first timeline (New Enquiry → Deposit Paid → Dispatched) */
 export const PHASE_STEPS = [
-  "Booking Request Received",
+  "New Enquiry",
   "Quote Sent",
   "Deposit Paid",
   "Artist Assigned",

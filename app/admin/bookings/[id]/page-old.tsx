@@ -42,7 +42,7 @@ import { AddBasicStaff } from "@/components/AddBasicStaff";
 import { DJInquiryReply } from "@/components/DJInquiryReply";
 import { FlexibleOperatorSidebar } from "@/components/FlexibleOperatorSidebar";
 import { WhatsAppThread } from "@/components/WhatsAppThread";
-import { toDisplayFee } from "@/lib/transformers/booking-transformer";
+import { toDisplayFee, toSafeReactChild } from "@/lib/transformers/booking-transformer";
 
 interface Booking {
   id: string;
@@ -579,7 +579,13 @@ export default function BookingDetail() {
               <div>
                 <p className="text-xs text-gray-400 mb-1 uppercase">Total Fee</p>
                 <p className="text-white font-semibold">
-                  {(booking as any).finalBalance ? `£${(booking as any).finalBalance}` : "Not set"}
+                  {(() => {
+                    const v = (booking as any).finalBalance;
+                    if (v == null || v === "") return "Not set";
+                    if (typeof v === "object" && "fee" in v) return `£${(v as { fee?: unknown }).fee ?? "—"}`;
+                    if (typeof v === "object" && "amount" in v) return `£${(v as { amount?: unknown }).amount ?? "—"}`;
+                    return `£${v}`;
+                  })()}
                 </p>
               </div>
               <div>
@@ -966,7 +972,7 @@ export default function BookingDetail() {
                         className="p-3 bg-gray-900/50 rounded-lg border border-gray-700"
                       >
                         <div className="flex items-start justify-between mb-2">
-                          <p className="text-white font-semibold">{assignment.staff.name}</p>
+                          <p className="text-white font-semibold">{toSafeReactChild(assignment.staff?.name)}</p>
                           <span
                             className={`px-2 py-1 text-xs rounded ${
                               assignment.status === "held"
@@ -979,7 +985,7 @@ export default function BookingDetail() {
                             {assignment.status === "held" ? "Date Held" : assignment.status === "dispatched" ? "Dispatched" : assignment.status}
                           </span>
                         </div>
-                        <p className="text-gray-400 text-xs mb-1">Role: {assignment.role}</p>
+                        <p className="text-gray-400 text-xs mb-1">Role: {toSafeReactChild(assignment.role)}</p>
                         <p className="text-gray-400 text-xs">
                           Fee: £{toDisplayFee(assignment.agreedFee).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </p>

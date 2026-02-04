@@ -49,7 +49,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { toDisplayFee } from "@/lib/transformers/booking-transformer";
+import { toDisplayFee, toSafeReactChild } from "@/lib/transformers/booking-transformer";
 
 interface Booking {
   id: string;
@@ -710,7 +710,7 @@ export default function BookingDetail() {
                               {assignment.status === "held" ? "Date Held" : assignment.status === "dispatched" ? "Dispatched" : assignment.status}
                             </span>
                           </div>
-                          <p className="text-gray-600 text-xs mb-1">Role: {assignment.role}</p>
+                          <p className="text-gray-600 text-xs mb-1">Role: {toSafeReactChild(assignment.role)}</p>
                           <p className="text-gray-600 text-xs">
                             Fee: £{toDisplayFee(assignment.agreedFee).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                           </p>

@@ -392,6 +392,12 @@ export default function CheckoutPage() {
                       clientName: formData.customerName,
                       fee: `£${total.toFixed(2)}`,
                     }}
+                    bookingSummary={{
+                      venueName: formData.venueName || undefined,
+                      eventDate: formData.eventDate || undefined,
+                      fee: `£${total.toFixed(2)}`,
+                      talent: cart.items.length > 0 ? cart.items.map((i) => ({ name: i.hireItem.name, role: "Hire item" })) : undefined,
+                    }}
                   />
 
                   <Button

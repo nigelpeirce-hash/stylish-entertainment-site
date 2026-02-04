@@ -6,6 +6,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { createBookDJQuoteToken } from "@/lib/book-dj-quote-token";
 import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
 // Lazy initialization
 const getResend = () => {
@@ -329,6 +330,22 @@ export async function POST(request: NextRequest) {
       }
     } catch (dbError) {
       console.error("Error logging DJ reply to database:", dbError);
+    }
+
+    try {
+      await notifyAdminSignificantEvent({
+        type: "quote_sent",
+        bookingId,
+        title: "DJ enquiry reply sent",
+        description: `DJ quote sent to ${clientEmail} for ${venueName} – ${djName || "TBC"} (£${djFee})`,
+        actor: "admin",
+        performedBy: admin?.name ?? admin?.email ?? undefined,
+        bookingName: clientName,
+        venueName: venueName ?? undefined,
+        eventDate: formattedDate,
+      });
+    } catch (e) {
+      console.warn("[send-dj-inquiry-reply] Admin notification failed:", e);
     }
 
     return NextResponse.json({

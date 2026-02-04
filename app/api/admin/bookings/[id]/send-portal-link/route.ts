@@ -43,6 +43,7 @@ export async function POST(
         eventType: true,
         djFinishTime: true,
         portalToken: true,
+        emailsSent: true,
       },
     });
 
@@ -261,6 +262,17 @@ ${CLIENT_SIGNOFF_TEXT}
         { status: 500 }
       );
     }
+
+    const now = new Date();
+    const existingEmailsSent = (booking.emailsSent as Record<string, unknown>) || {};
+    await prisma.booking.update({
+      where: { id: bookingId },
+      data: {
+        emailsSent: { ...existingEmailsSent, portalInvite: { sentAt: now.toISOString() } },
+        lastEmailSentAt: now,
+        updatedAt: now,
+      },
+    });
 
     await logActivity({
       bookingId,

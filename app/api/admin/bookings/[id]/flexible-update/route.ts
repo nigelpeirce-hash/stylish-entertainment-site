@@ -2,6 +2,8 @@ import { randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activity-log";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 import { sendEmail } from "@/lib/email";
 import { DEPOSIT_CONFIRMED } from "@/lib/email-templates";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
@@ -230,6 +232,28 @@ export async function PATCH(
         });
 
         console.log(`✅ Deposit confirmation email sent to ${currentBooking.email} for booking ${bookingId}`);
+
+        const eventDateStr = updatedBooking.eventDate
+          ? new Date(updatedBooking.eventDate).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+          : undefined;
+        await logActivity({
+          bookingId,
+          action: "deposit_confirmation_sent",
+          description: `Deposit confirmation email sent to ${currentBooking.email}`,
+          actor: "admin",
+          performedBy: admin?.name ?? admin?.email ?? undefined,
+        });
+        await notifyAdminSignificantEvent({
+          type: "deposit_confirmation_sent",
+          bookingId,
+          title: "Deposit confirmation sent",
+          description: `Deposit confirmation sent to ${currentBooking.name ?? "client"}`,
+          actor: "admin",
+          performedBy: admin?.name ?? admin?.email ?? undefined,
+          bookingName: currentBooking.name ?? undefined,
+          venueName: updatedBooking.venueName ?? currentBooking.venueName ?? undefined,
+          eventDate: eventDateStr,
+        });
       } catch (emailError) {
         // Log error but don't fail the request
         console.error("Error sending deposit confirmation email:", emailError);

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/get-session";
 import { getToken } from "next-auth/jwt";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activity-log";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -40,7 +42,7 @@ export async function POST(request: NextRequest) {
 
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      select: { id: true, userId: true, archivedAt: true },
+      select: { id: true, userId: true, archivedAt: true, name: true, venueName: true, eventDate: true },
     });
 
     if (!booking) {
@@ -64,9 +66,41 @@ export async function POST(request: NextRequest) {
       data: {
         termsAccepted: true,
         termsAcceptedAt: new Date(),
+        termsAcceptedByUserId: userId,
         updatedAt: new Date(),
       },
     });
+
+    try {
+      await logActivity({
+        bookingId,
+        action: "terms_accepted",
+        description: "Client accepted T&Cs (secure booking)",
+        actor: "client",
+        performedBy: booking.name ?? undefined,
+        metadata: booking.venueName ? { venueName: booking.venueName } : undefined,
+      });
+      const eventDateLabel = booking.eventDate
+        ? new Date(booking.eventDate).toLocaleDateString("en-GB", {
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })
+        : undefined;
+      await notifyAdminSignificantEvent({
+        type: "terms_accepted",
+        bookingId,
+        title: "Terms accepted",
+        description: `${booking.name ?? "Client"} accepted T&Cs (secure booking)`,
+        actor: "client",
+        performedBy: booking.name ?? undefined,
+        bookingName: booking.name ?? undefined,
+        venueName: booking.venueName ?? undefined,
+        eventDate: eventDateLabel,
+      });
+    } catch (e) {
+      console.warn("[bookings/accept-terms] Admin notification failed:", e);
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

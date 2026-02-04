@@ -21,6 +21,7 @@
     "test:prisma": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/test-prisma-connection.ts",
     "test:dispatch-setup": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/test-dispatch-setup.ts",
     "test:recaptcha-env": "tsx scripts/check-recaptcha-env.ts",
+    "test:enquiry-reply": "tsx scripts/test-enquiry-reply-template.ts",
     "audit:db": "tsx scripts/audit-database-supabase.ts"
   },
   "dependencies": {

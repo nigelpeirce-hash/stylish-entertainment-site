@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,6 +9,15 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Send, Loader2, Eye, Mail } from "lucide-react";
+import {
+  toVenueDisplay,
+  toFeeDisplay,
+  toDepositDisplay,
+  toTalentDisplayList,
+  toSafeDisplayString,
+  toSafeReactChild,
+} from "@/lib/transformers/booking-transformer";
+import { SafeText } from "@/components/SafeText";
 
 interface EmailCompositionCenterProps {
   bookingId: string;
@@ -19,6 +28,11 @@ interface EmailCompositionCenterProps {
   venuePostcode?: string;
   eventDate: string;
   onSend?: () => void;
+  bookingFee?: unknown;
+  finalBalance?: unknown;
+  depositReceived?: boolean | null;
+  depositReceivedManual?: boolean | null;
+  staffAssignments?: Array<{ id?: string; staff?: { name?: string }; role?: string }>;
 }
 
 interface DJ {
@@ -44,6 +58,11 @@ export function EmailCompositionCenter({
   venuePostcode,
   eventDate,
   onSend,
+  bookingFee,
+  finalBalance,
+  depositReceived,
+  depositReceivedManual,
+  staffAssignments,
 }: EmailCompositionCenterProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [djs, setDjs] = useState<DJ[]>([]);
@@ -58,9 +77,18 @@ export function EmailCompositionCenter({
   const [includeLighting, setIncludeLighting] = useState(false);
   const [includeStyling, setIncludeStyling] = useState(false);
 
-  // Template blocks
+  // Safe date formatter - never render objects (avoids "Objects are not valid as React child")
+  const formatEventDateSafe = (d: unknown): string => {
+    if (d == null) return "";
+    const date = typeof d === "string" || typeof d === "number" ? new Date(d) : new Date(String(d));
+    return isNaN(date.getTime())
+      ? ""
+      : date.toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  };
+
+  // Template blocks - use {{event_date}} placeholder (replaced at render via replaceVariables)
   const [templateBlocks, setTemplateBlocks] = useState<TemplateBlocks>({
-    intro: `Dear {{client_name}},\n\nThank you for your enquiry for your event at {{venue}} on ${new Date(eventDate).toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}.`,
+    intro: `Dear {{client_name}},\n\nThank you for your enquiry for your event at {{venue}} on {{event_date}}.`,
     djSection: `**DJ Services**\n\nWe're delighted to offer our DJ services for your event. {{dj_name}} will be providing the music and entertainment, ensuring your guests have an unforgettable experience.\n\nDJ Fee: £{{fee}}`,
     lightingSection: `**Lighting Design**\n\nOur lighting design service will transform your venue with elegant, sophisticated lighting that complements your event's atmosphere. We'll work with you to create the perfect ambiance.\n\nLighting Fee: £{{fee}}`,
     stylingSection: `**Venue Styling**\n\nOur venue styling service includes elegant table settings, decorative elements and overall venue transformation to match your vision.\n\nStyling Fee: £{{fee}}`,
@@ -85,26 +113,27 @@ export function EmailCompositionCenter({
     }
   }, [isOpen, djs.length]);
 
+  // Sync fee state from bookingFee when dialog opens (always use safe string – never store objects)
+  useEffect(() => {
+    if (isOpen) {
+      const safe = toFeeDisplay(bookingFee) || toSafeDisplayString(bookingFee) || "";
+      setFee((prev) => (prev === "" ? safe : prev));
+    }
+  }, [isOpen, bookingFee]);
+
   // Ensure we never render objects as React children (avoids "Objects are not valid as React child")
-  const safeStr = (v: unknown): string => {
-    if (v == null) return "";
-    if (typeof v === "string") return v;
-    if (typeof v === "number") return String(v);
-    if (typeof v === "object" && "fee" in (v as object)) return String((v as { fee?: unknown }).fee ?? "");
-    if (typeof v === "object" && "amount" in (v as object)) return String((v as { amount?: unknown }).amount ?? "");
-    return String(v);
-  };
+  const safeStr = (v: unknown): string => toSafeDisplayString(v);
   // Never render an object as React child (e.g. booking.bookingFee as { fee } from API)
   const feeStr: string = typeof fee === "string" ? fee : (typeof fee === "number" ? String(fee) : safeStr(fee));
 
-  // Replace variables in text
+  // Replace variables in text - always use safeStr/safe formatters to avoid rendering objects
   const replaceVariables = (text: string): string => {
     return text
       .replace(/\{\{client_name\}\}/g, safeStr(clientName))
       .replace(/\{\{venue\}\}/g, safeStr(venueName))
-      .replace(/\{\{dj_name\}\}/g, selectedDJ ? djs.find((d) => d.id === selectedDJ)?.name || "TBC" : "TBC")
+      .replace(/\{\{dj_name\}\}/g, selectedDJ ? (djs.find((d) => d.id === selectedDJ)?.name || "TBC") : "TBC")
       .replace(/\{\{fee\}\}/g, feeStr || "0.00")
-      .replace(/\{\{event_date\}\}/g, new Date(String(eventDate)).toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" }));
+      .replace(/\{\{event_date\}\}/g, formatEventDateSafe(eventDate) || "your event date");
   };
 
   // Build the final email content
@@ -259,6 +288,7 @@ export function EmailCompositionCenter({
     }
   };
 
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -270,11 +300,14 @@ export function EmailCompositionCenter({
           Email Composition Center
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-gray-900 text-white border-champagne-gold/30">
+      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-gray-900 text-white border-champagne-gold/30" aria-describedby="email-compose-desc">
         <DialogHeader>
           <DialogTitle className="text-2xl font-serif text-champagne-gold">
             Email Composition Center
           </DialogTitle>
+          <DialogDescription id="email-compose-desc" className="sr-only">
+            Compose and send a quoted email to the client with DJ, lighting, or styling options.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-4">
@@ -284,9 +317,23 @@ export function EmailCompositionCenter({
               <Card className="bg-gray-800 border-gray-700 p-4">
                 <h3 className="text-lg font-semibold mb-4">Booking Details</h3>
                 <div className="space-y-2 text-sm">
-                  <p><strong>Client:</strong> {safeStr(clientName)}</p>
-                  <p><strong>Venue:</strong> {safeStr(venueName)}</p>
-                  <p><strong>Date:</strong> {new Date(String(eventDate)).toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</p>
+                  <p><strong>Client:</strong> <SafeText>{clientName ?? "N/A"}</SafeText></p>
+                  <p><strong>Venue:</strong> <SafeText>{toVenueDisplay(venueName, venueAddress, venuePostcode) || "N/A"}</SafeText></p>
+                  <p><strong>Date:</strong> <SafeText>{formatEventDateSafe(eventDate) || "—"}</SafeText></p>
+                  <p><strong>Fee:</strong> {toSafeReactChild(bookingFee ?? fee ?? "N/A") || "—"}</p>
+                  <p><strong>Deposit:</strong> {toDepositDisplay(depositReceived || depositReceivedManual, bookingFee ?? fee)}</p>
+                  <div>
+                    <strong>Talent Assigned:</strong>
+                    {staffAssignments && staffAssignments.length > 0 ? (
+                      <ul className="list-disc pl-4 mt-1">
+                        {toTalentDisplayList(staffAssignments).map((t) => (
+                          <li key={t.id}><SafeText>{t.name}</SafeText> (<SafeText>{t.role}</SafeText>)</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-gray-400">No talent assigned</p>
+                    )}
+                  </div>
                 </div>
               </Card>
             </Card>
@@ -348,10 +395,10 @@ export function EmailCompositionCenter({
               </Label>
               <Input
                 id="fee"
-                type="number"
-                step="0.01"
-                value={feeStr ?? ""}
-                onChange={(e) => setFee(e.target.value)}
+                type="text"
+                inputMode="decimal"
+                value={toSafeReactChild(feeStr)}
+                onChange={(e) => setFee(String(e.target.value ?? ""))}
                 placeholder="0.00"
                 className="bg-gray-900 text-white border-gray-700"
               />

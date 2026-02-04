@@ -33,7 +33,7 @@ const services = [
   {
     title: "Musicians",
     href: "/artists/musicians",
-    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163656/IMG_3148_owtb69.jpg",
+    image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163688/Nigel-DJ-Babs-House-0008-1_ol2gkr.jpg",
     alt: "Live Musicians for weddings, parties and events UK-wide",
   },
   {
@@ -251,7 +251,7 @@ export default function HomeClient() {
                 <Link href={service.href}>
                   <Card className="h-full bg-gray-800 border-champagne-gold/30 hover:shadow-xl transition-all duration-300 hover:border-champagne-gold/60 group cursor-pointer">
                     <div className="relative h-48 overflow-hidden bg-gray-100">
-                      <Image src={smallerCloudinaryUrl(service.image)} alt={service.alt} width={400} height={192} className="w-full h-full object-cover object-center group-hover:scale-110 transition-transform duration-500" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 384px" quality={65} />
+                      <Image src={smallerCloudinaryUrl(service.image)} alt={service.alt} fill className="object-cover object-center group-hover:scale-110 transition-transform duration-500" sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 384px" quality={65} />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                     </div>
                     <CardContent className="p-6">

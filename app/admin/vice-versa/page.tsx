@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
+import { toSafeReactChild } from "@/lib/transformers/booking-transformer";
 
 interface Booking {
   id: string;
@@ -433,7 +434,7 @@ function ViceVersaContent() {
                                       <span className="text-[20px]">
                                         {assignment.role?.toLowerCase().includes('dj') ? '🎧' : '💡'}
                                       </span>
-                                      {assignment.staff?.name}
+                                      {toSafeReactChild(assignment.staff?.name)}
                                     </span>
                                   ))}
                                 </div>

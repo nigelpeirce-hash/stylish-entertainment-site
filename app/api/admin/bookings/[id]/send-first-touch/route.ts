@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activity-log";
 import { FIRST_TOUCH } from "@/lib/email/templates";
 import sendEmail from "@/lib/email/send-email";
 
@@ -89,6 +90,14 @@ export async function POST(
     await prisma.booking.update({
       where: { id: bookingId },
       data: { lastEmailSentAt: now, updatedAt: now },
+    });
+
+    await logActivity({
+      bookingId,
+      action: "first_touch_sent",
+      description: `First Touch email sent to ${booking.email}`,
+      actor: "admin",
+      performedBy: admin?.name ?? admin?.email ?? undefined,
     });
 
     return NextResponse.json({

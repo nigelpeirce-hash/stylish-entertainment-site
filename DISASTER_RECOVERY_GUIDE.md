@@ -2,7 +2,7 @@
 ## Stylish Entertainment Website
 
 **Last Updated:** January 29, 2026  
-**Version:** 1.9  
+**Version:** 1.10  
 **Purpose:** Complete technical documentation for rebuilding the system from scratch in case of catastrophic failure
 
 ---
@@ -661,6 +661,10 @@ RECAPTCHA_SECRET_KEY="[From recaptcha.admin.google.com]"
 # YouTube (video gallery /galleries/videos)
 NEXT_PUBLIC_YOUTUBE_API_KEY="[From Google Cloud Console]"
 # Optional: NEXT_PUBLIC_YOUTUBE_CHANNEL_ID="@stylishentertainment937"
+
+# Post-wedding thank-you email (optional – "Leave a Google Review" button)
+# If set, shows Google review CTA; if unset, button is hidden
+# NEXT_PUBLIC_GOOGLE_REVIEW_URL="https://g.page/r/your-google-review-link"
 ```
 
 **GTM:** Google Tag Manager container GTM-WB3F6V7 is loaded via `components/GoogleTagManager.tsx`. GA4 events (e.g. form_submission on thank-you page) are configured in GTM. See `GTM_CONTAINER_QUALITY_FIX.md`.
@@ -747,6 +751,12 @@ RECAPTCHA_SECRET_KEY=6Lc...
 # ============================================
 
 RESEND_API_KEY=re_xxxxx
+
+# ============================================
+# EMAIL JOURNEY (Optional – post-wedding thank-you)
+# ============================================
+# Google review button in post-wedding email; if unset, button is hidden
+# NEXT_PUBLIC_GOOGLE_REVIEW_URL=https://g.page/r/your-google-review-link
 ```
 
 **Important Notes:**
@@ -1672,6 +1682,8 @@ git push origin main           # Deploy to Vercel (auto)
 
 ### Related Documentation
 
+- **API_ROUTES_AUDIT.md** – API route inventory, auth status, security fixes (client portal token auth)
+- **LINK_AUDIT.md** – Link audit (internal/external hrefs, tel format, rel noreferrer, recommended fixes)
 - **CURSOR_CONTEXT.md** – Agent familiarisation, tech stack, conventions
 - **TERMS_PORTAL_MODULE_PLAN.md** – T&C portal (planned): personalised T&Cs, e-sign, deposit clause, gating
 - **BREADCRUMB_AUDIT.md** – Breadcrumb refactor notes
@@ -1684,6 +1696,10 @@ git push origin main           # Deploy to Vercel (auto)
 
 ### Version History
 
+- **v1.10** (January 29, 2026) - API security, link audit, env vars:
+  - **API security:** Client portal routes enforce `portalToken` or session auth: `/api/client/bookings/[id]/items` (GET/POST), `/api/client/bookings/[id]/payment-details` (GET), `/api/client/bookings/[id]/confirm-hire-request` (POST). `PATCH /api/client/bookings/[id]/tasks` supports portal token for magic-link users. See `API_ROUTES_AUDIT.md`.
+  - **Link audit:** Internal `<a>` → `<Link>` on client portal access-denied; `tel:` standardised to `+44`; `rel="noopener noreferrer"` on external links; placeholder Google review URL replaced with `NEXT_PUBLIC_GOOGLE_REVIEW_URL`. See `LINK_AUDIT.md`.
+  - **Env var:** `NEXT_PUBLIC_GOOGLE_REVIEW_URL` – optional; post-wedding thank-you email "Leave a Google Review" button; if unset, button is hidden.
 - **v1.9** (January 29, 2026) - Page layouts, Prisma, deploy:
   - **Deploy:** Clean build sequence (`rm -rf .next node_modules/.cache`); quoted commit messages for spaces/commas.
   - **Prisma:** Removed startup connection test to reduce MaxClientsInSessionMode; pool max 1 dev / 2 prod. See `SUPABASE_MAX_CLIENTS_FIX.md` for Transaction mode (6543).

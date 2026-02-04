@@ -447,6 +447,12 @@ function BookFromQuoteContent() {
                       clientName: watch("name") || prefill.name,
                       fee: prefill.fee != null ? `£${prefill.fee.toLocaleString("en-GB")}` : undefined,
                     }}
+                    bookingSummary={{
+                      venueName: watch("venueName") || prefill.venueName || undefined,
+                      eventDate: watch("eventDate") || prefill.eventDate || undefined,
+                      fee: prefill.fee != null ? `£${prefill.fee.toLocaleString("en-GB")}` : undefined,
+                      talent: prefill.artistName ? [{ name: prefill.artistName, role: prefill.artistType === "dj" ? "DJ" : "Musician" }] : undefined,
+                    }}
                   />
                   <Button
                     type="submit"

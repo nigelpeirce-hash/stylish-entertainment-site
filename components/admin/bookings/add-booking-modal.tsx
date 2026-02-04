@@ -23,6 +23,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Toast } from "@/components/ui/toast";
 import Image from "next/image";
 import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
+import { toSafeReactChild } from "@/lib/transformers/booking-transformer";
 
 interface TeamMember {
   id: string;
@@ -850,7 +851,7 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
                             <Input
                               type="number"
                               placeholder="Fee £"
-                              value={typeof member.fee === "number" ? member.fee : (typeof member.fee === "string" ? member.fee : (member.fee && typeof member.fee === "object" && "fee" in member.fee ? String((member.fee as { fee?: unknown }).fee ?? "") : ""))}
+                              value={toSafeReactChild(member.fee ?? "")}
                               onChange={(e) => updateMemberFee(member.id, e.target.value)}
                               className="w-24 bg-white/10 border-none text-white text-sm p-2 h-8"
                               disabled={loading}

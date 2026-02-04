@@ -543,6 +543,12 @@ export default function DJBookingConfirmationPage() {
                     onAcceptChange={(accepted) => setValue("termsAccepted", accepted, { shouldValidate: true })}
                     disabled={isSubmitting}
                     error={errors.termsAccepted?.message}
+                    bookingSummary={{
+                      venueName: watch("venueNamePostcode") || undefined,
+                      eventDate: watch("eventDate") || undefined,
+                      fee: watch("agreedFee") || undefined,
+                      talent: watch("chosenDJ") ? [{ name: watch("chosenDJ"), role: "DJ" }] : undefined,
+                    }}
                   />
                 </div>
 

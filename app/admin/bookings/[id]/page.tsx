@@ -32,7 +32,6 @@ import {
   Trash2,
   PoundSterling,
   Package,
-  HelpCircle,
   MessageSquare,
   Sparkles,
 } from "lucide-react";
@@ -49,7 +48,7 @@ import { FlexibleOperatorSidebar } from "@/components/FlexibleOperatorSidebar";
 // import { WhatsAppThread } from "@/components/WhatsAppThread"; // TEMPORARILY HIDDEN
 import { CrewAssignments } from "@/components/CrewAssignments";
 import { SafetyDeleteButton } from "@/components/SafetyDeleteButton";
-import { getWorkflowBadgeClass, PHASE_STEPS, getPhaseStepIndex } from "@/lib/workflow-stage";
+import { PHASE_STEPS, getPhaseStepIndex } from "@/lib/workflow-stage";
 import { AdminFooter } from "@/components/admin/AdminFooter";
 import { TeamAssignment } from "@/components/admin/TeamAssignment";
 import { TechnicalEquipment } from "@/components/admin/TechnicalEquipment";
@@ -67,14 +66,14 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
 import { useToast } from "@/hooks/use-toast";
 import { Toast } from "@/components/ui/toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { debug } from "@/lib/debug";
-import { SanitizedBooking, toDisplayFee } from "@/lib/transformers/booking-transformer";
+import { SanitizedBooking, toDisplayFee, toFeeDisplay, toSafeDisplayString, toTalentDisplayList } from "@/lib/transformers/booking-transformer";
+import { SafeText } from "@/components/SafeText";
 import { useBookingUpdates } from "@/lib/hooks/useBookingUpdates";
 
 // Use the sanitized booking interface from transformer
@@ -306,11 +305,25 @@ export default function BookingDetail() {
     return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(parts.join(", "))}`;
   };
 
+  /** Digits only, for tel: href */
   const getPhoneNumber = () => {
     if (!booking) return "";
     const areaCode = booking.phoneAreaCode || "";
     const number = booking.phoneNumber || "";
     return `${areaCode}${number}`.replace(/\s/g, "");
+  };
+
+  /** Formatted for display (e.g. 0794 6560824) – single field, space for readability */
+  const getPhoneDisplay = () => {
+    if (!booking) return "";
+    const areaCode = (booking.phoneAreaCode || "").trim();
+    const number = (booking.phoneNumber || "").trim();
+    if (areaCode && number) return `${areaCode} ${number}`;
+    const raw = getPhoneNumber();
+    if (!raw) return "";
+    if (/^07\d{8}$/.test(raw)) return `${raw.slice(0, 4)} ${raw.slice(4)}`;
+    if (/^0[123]\d{8,9}$/.test(raw)) return `${raw.slice(0, 3)} ${raw.slice(3)}`;
+    return raw;
   };
 
   const handleHandoff = async (assignTo: "ali" | "husband") => {
@@ -472,6 +485,7 @@ export default function BookingDetail() {
   }));
 
   const phoneNumber = getPhoneNumber();
+  const phoneDisplay = getPhoneDisplay();
   const googleMapsUrl = getGoogleMapsUrl();
 
   // Phase-based Command Center: Enquiry vs Confirmed/Paid
@@ -515,155 +529,25 @@ export default function BookingDetail() {
               </Button>
             </Link>
 
-            <div className="flex-1 text-center">
-              <div className="flex items-center justify-center gap-3 mb-2 flex-wrap">
-                <h1 className="text-2xl font-bold text-white">
-                  {isEnquiry ? `Enquiry: ${deduplicateName(getDisplayName(booking.name) || booking.name)}` : deduplicateName(getDisplayName(booking.name) || booking.name)}
-                </h1>
-                {isNewEnquiry && (
-                  <span className="inline-flex h-3 w-3 rounded-full bg-amber-500 animate-pulse" title="Booking Request Received" aria-hidden />
-                )}
-                {booking.eventType && (
-                  <span className="border border-amber-400/60 text-amber-200 text-xs uppercase tracking-widest px-2 py-1 rounded bg-amber-500/20">
-                    {booking.eventType}
-                  </span>
-                )}
-                {booking.confirmedViaBookFromQuote && (
-                  <span className="border border-emerald-400 bg-emerald-500/20 text-emerald-200 text-xs uppercase tracking-widest px-2 py-1 rounded font-semibold">
-                    Confirmed via Book-from-Quote
-                  </span>
-                )}
-              </div>
-              <div className="flex flex-col items-center gap-3">
-                <div className="flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-gray-400" />
-                  <span className="font-bold text-gray-200 text-lg">
-                    {formatEventDate(booking.eventDate)}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 pt-2 border-t border-gray-600 px-4">
-                  <span className="text-lg">📍</span>
-                  <span className="font-semibold text-gray-400">{booking.venueName || "TBD"}</span>
-                  {booking.venuePostcode && (
-                    <span className="font-bold text-amber-400 ml-2">{booking.venuePostcode}</span>
-                  )}
-                </div>
-              </div>
-              {/* Quick Actions bar */}
-              <div className="flex flex-wrap items-center justify-center gap-2 mt-3 pt-3 border-t border-gray-600">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="border-amber-400 text-amber-200 hover:bg-amber-500/20"
-                  onClick={scrollToQuoteBuilder}
-                >
-                  Send Quote
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="border-amber-400 text-amber-200 hover:bg-amber-500/20"
-                  onClick={async () => {
-                    if (!booking?.email) return;
-                    setSendingDepositInvoice(true);
-                    try {
-                      const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice/`, { method: "POST" });
-                      const data = await res.json();
-                      if (res.ok) {
-                        await handleBookingUpdate();
-                        toast({ title: "Deposit invoice sent", description: `Email sent to ${deduplicateName(getDisplayName(booking.name) || booking.name)}` });
-                      } else throw new Error(data?.error ?? "Failed to send");
-                    } catch (e: unknown) {
-                      toast({ title: "Error", description: (e as Error)?.message ?? "Failed to send", variant: "destructive" });
-                    } finally {
-                      setSendingDepositInvoice(false);
-                    }
-                  }}
-                  disabled={sendingDepositInvoice || !booking?.email}
-                >
-                  {sendingDepositInvoice ? "Sending…" : "Send Deposit Invoice"}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="border-emerald-400 text-emerald-200 hover:bg-emerald-500/20"
-                  onClick={async () => {
-                    if (!booking?.email) return;
-                    setSendingFinalizeInvite(true);
-                    try {
-                      const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite/`, { method: "POST" });
-                      const data = await res.json();
-                      if (res.ok) {
-                        await handleBookingUpdate();
-                        if (data.skipped) toast({ title: "Portal invite not sent", description: data.message || "Deposit already confirmed." });
-                        else toast({ title: "Portal invite sent", description: `Sign-in link sent to ${deduplicateName(getDisplayName(booking.name) || booking.name)}.` });
-                      } else throw new Error(data?.error || "Failed to send");
-                    } catch (e: unknown) {
-                      toast({ title: "Error", description: (e as Error)?.message ?? "Failed to send", variant: "destructive" });
-                    } finally {
-                      setSendingFinalizeInvite(false);
-                    }
-                  }}
-                  disabled={sendingFinalizeInvite || !booking?.email}
-                >
-                  {sendingFinalizeInvite ? "Sending…" : "Portal Link"}
-                </Button>
-              </div>
+            <div className="flex-1 text-center min-w-0">
+              <h1 className="text-2xl font-bold text-white truncate">
+                {deduplicateName(getDisplayName(booking.name) || booking.name)}
+              </h1>
+              <p className="text-gray-400 text-sm mt-0.5">
+                {booking.eventType ? `${booking.eventType.charAt(0).toUpperCase() + booking.eventType.slice(1)} · ` : ""}
+                {formatEventDate(booking.eventDate)}
+              </p>
+              <p className="text-gray-500 text-sm mt-1 flex items-center justify-center gap-1">
+                <MapPin className="w-3.5 h-3.5 shrink-0" />
+                {booking.venueName || "TBD"}
+                {booking.venuePostcode && <span className="text-amber-400/90">{booking.venuePostcode}</span>}
+              </p>
+              <p className="text-gray-600 text-xs mt-2">
+                {depositReceived ? "Booking" : "Enquiry"} ID: {booking.id.slice(0, 8)}…
+              </p>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                onClick={() => setShowEditModal(true)}
-                variant="outline"
-                size="sm"
-                className="border-gray-600 text-gray-300 hover:bg-gray-700 font-semibold"
-              >
-                <Edit className="w-4 h-4 mr-2" />
-                Edit booking
-              </Button>
-              <Button
-                onClick={() => router.push(`/admin/bookings/${booking.id}/brief`)}
-                variant="outline"
-                size="sm"
-                className="border-amber-400 text-amber-700 hover:bg-amber-50 font-semibold"
-              >
-                <FileText className="w-4 h-4 mr-2" />
-                Generate Master Brief
-              </Button>
-              <Button
-                onClick={() => handleHandoff("ali")}
-                variant={booking.assignedTo === "ali" || booking.assignedTo === "wife" ? "default" : "outline"}
-                size="sm"
-                className={booking.assignedTo === "ali" || booking.assignedTo === "wife" ? "bg-blue-600 hover:bg-blue-700 text-white" : "border-blue-400 text-blue-700 hover:bg-blue-50"}
-              >
-                🙋‍♀️ {wifeName}
-              </Button>
-              <Button
-                onClick={() => handleHandoff("husband")}
-                variant={booking.assignedTo === "husband" ? "default" : "outline"}
-                size="sm"
-                className={booking.assignedTo === "husband" ? "bg-purple-600 hover:bg-purple-700 text-white" : "border-purple-400 text-purple-700 hover:bg-purple-50"}
-              >
-                🛠️ {yourName}
-              </Button>
-              <Button
-                onClick={() => setIsSidebarOpen(true)}
-                variant="outline"
-                size="sm"
-                className="border-gray-600 text-gray-300 hover:bg-gray-700"
-              >
-                <Settings className="w-4 h-4" />
-              </Button>
-            </div>
-            {staffAssignments.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-2 border-t border-gray-200 pt-2">
-                {staffAssignments.map((assignment) => (
-                  <span key={assignment.id} className="text-xs font-bold text-amber-700">
-                    {assignment.role?.toLowerCase().includes("dj") ? "🎧" : "💡"} {assignment.staff.name}
-                  </span>
-                ))}
-              </div>
-            )}
+            <div className="w-16 shrink-0" aria-hidden />
           </div>
         </div>
         {/* Phase Tracker: hairline, current step muted gold/charcoal */}
@@ -693,11 +577,106 @@ export default function BookingDetail() {
         </div>
       </div>
 
-      {/* 2-Column Layout: Left = Booking/Production, Right = Sticky sidebar (What they want + Client Details + Emails) */}
+      {/* 2-Column Layout: Left = Actions + Content, Right = Context & History */}
       <div className="container mx-auto max-w-[1920px] px-4 sm:px-6 lg:px-8 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Left Column: Booking & Production Details */}
+          {/* Left Column: Actions + Client Message + Quote Builder + Production */}
           <div className="lg:col-span-8 space-y-4">
+            {/* Actions – primary & secondary, state-dependent */}
+            <Card className="bg-gray-800 border-champagne-gold/30">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-semibold text-white">Actions</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex flex-wrap gap-2">
+                  {!booking.artistQuoteSentAt && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-amber-400 text-amber-200 hover:bg-amber-500/20"
+                      onClick={scrollToQuoteBuilder}
+                    >
+                      <FileText className="w-4 h-4 mr-2" />
+                      Send Quote
+                    </Button>
+                  )}
+                  {!depositReceived && booking?.email && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-amber-400 text-amber-200 hover:bg-amber-500/20"
+                      onClick={async () => {
+                        if (!booking?.email) return;
+                        setSendingDepositInvoice(true);
+                        try {
+                          const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice/`, { method: "POST" });
+                          const data = await res.json();
+                          if (res.ok) {
+                            await handleBookingUpdate();
+                            toast({ title: "Deposit invoice sent", description: `Email sent to ${deduplicateName(getDisplayName(booking.name) || booking.name)}` });
+                          } else throw new Error(data?.error ?? "Failed to send");
+                        } catch (e: unknown) {
+                          toast({ title: "Error", description: (e as Error)?.message ?? "Failed to send", variant: "destructive" });
+                        } finally {
+                          setSendingDepositInvoice(false);
+                        }
+                      }}
+                      disabled={sendingDepositInvoice}
+                    >
+                      {sendingDepositInvoice ? "Sending…" : "Send Deposit Invoice"}
+                    </Button>
+                  )}
+                  {booking?.email && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="border-emerald-400 text-emerald-200 hover:bg-emerald-500/20"
+                      onClick={async () => {
+                        if (!booking?.email) return;
+                        setSendingFinalizeInvite(true);
+                        try {
+                          const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite/`, { method: "POST" });
+                          const data = await res.json();
+                          if (res.ok) {
+                            await handleBookingUpdate();
+                            if (data.skipped) toast({ title: "Portal invite not sent", description: data.message || "Deposit already confirmed." });
+                            else toast({ title: "Portal invite sent", description: `Sign-in link sent to ${deduplicateName(getDisplayName(booking.name) || booking.name)}.` });
+                          } else throw new Error(data?.error ?? "Failed to send");
+                        } catch (e: unknown) {
+                          toast({ title: "Error", description: (e as Error)?.message ?? "Failed to send", variant: "destructive" });
+                        } finally {
+                          setSendingFinalizeInvite(false);
+                        }
+                      }}
+                      disabled={sendingFinalizeInvite}
+                    >
+                      {sendingFinalizeInvite ? "Sending…" : "Send Portal Invite"}
+                    </Button>
+                  )}
+                </div>
+                <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-700">
+                  <Button onClick={() => setShowEditModal(true)} variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+                    <Edit className="w-4 h-4 mr-2" />
+                    Edit Booking
+                  </Button>
+                  <Button onClick={() => router.push(`/admin/bookings/${booking.id}/brief`)} variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+                    <FileText className="w-4 h-4 mr-2" />
+                    Generate Master Brief
+                  </Button>
+                  <Button onClick={() => setIsSidebarOpen(true)} variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+                    <Settings className="w-4 h-4 mr-2" />
+                    More Resources
+                  </Button>
+                  <Button onClick={() => handleHandoff("ali")} variant={booking.assignedTo === "ali" || booking.assignedTo === "wife" ? "default" : "outline"} size="sm" className={booking.assignedTo === "ali" || booking.assignedTo === "wife" ? "bg-blue-600 hover:bg-blue-700" : "border-blue-400 text-blue-300 hover:bg-blue-500/20"}>
+                    🙋‍♀️ {wifeName}
+                  </Button>
+                  <Button onClick={() => handleHandoff("husband")} variant={booking.assignedTo === "husband" ? "default" : "outline"} size="sm" className={booking.assignedTo === "husband" ? "bg-purple-600 hover:bg-purple-700" : "border-purple-400 text-purple-300 hover:bg-purple-500/20"}>
+                    🛠️ {yourName}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Confirmed/Paid: Team Assignment & Artist Worksheet at top */}
             {isConfirmedOrPaid && (
               <>
@@ -723,39 +702,35 @@ export default function BookingDetail() {
               </>
             )}
 
-            {/* Lead Insight – highlighted when Enquiry */}
+            {/* Client Enquiry Message – prominent callout, always visible when present */}
             {(booking.message?.trim() || (booking.preferredDJ && booking.preferredDJ.trim()) || (Array.isArray(booking.services) && booking.services.length > 0) || (Array.isArray(booking.upsellItems) && booking.upsellItems.length > 0)) && (
               <Card className={`bg-slate-800/40 border-slate-600/50 shadow-sm ${isEnquiry ? "ring-2 ring-champagne-gold/50" : ""}`}>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base font-semibold text-white flex items-center gap-2">
-                    <Sparkles className="w-4 h-4 text-champagne-gold" />
-                    Lead Insight
+                    <MessageSquare className="w-4 h-4 text-champagne-gold" />
+                    Client Enquiry Message
                   </CardTitle>
-                  <p className="text-xs text-gray-400">Add these to the quote below</p>
+                  <p className="text-xs text-gray-400">Use this when building the quote below</p>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  {/* Preferred DJ / Artist – prominent (applies to DJs and musicians) */}
+                  {/* Message – prominent, large readable (primary content from client) */}
+                  <div>
+                    <div className="p-5 rounded-lg bg-slate-900/60 border-l-4 border-champagne-gold/60 text-white whitespace-pre-wrap text-base leading-relaxed">
+                      {booking.message?.trim() ? booking.message.trim() : "—"}
+                    </div>
+                  </div>
+                  {/* Preferred DJ / Artist */}
                   {booking.preferredDJ && booking.preferredDJ.trim() && (
                     <div>
                       <p className="text-xs font-semibold text-champagne-gold uppercase tracking-wider mb-2 flex items-center gap-1">
                         <Radio className="w-3.5 h-3.5" />
                         Preferred DJ / Artist
                       </p>
-                      <div className="p-4 rounded-lg bg-champagne-gold/15 border-2 border-champagne-gold/50 text-white text-lg font-medium">
+                      <div className="p-4 rounded-lg bg-champagne-gold/15 border border-champagne-gold/50 text-white font-medium">
                         {booking.preferredDJ.trim()}
                       </div>
                     </div>
                   )}
-                  {/* Message – always shown so you see what they asked for */}
-                  <div>
-                    <p className="text-xs font-semibold text-champagne-gold uppercase tracking-wider mb-2 flex items-center gap-1">
-                      <MessageSquare className="w-3.5 h-3.5" />
-                      Message
-                    </p>
-                    <div className="p-4 rounded-lg bg-slate-900/50 border border-slate-600/50 text-white whitespace-pre-wrap text-sm leading-relaxed">
-                      {booking.message?.trim() ? booking.message.trim() : "—"}
-                    </div>
-                  </div>
                   {((Array.isArray(booking.services) && booking.services.length > 0) || (Array.isArray(booking.upsellItems) && booking.upsellItems.length > 0)) && (
                     <div>
                       <p className="text-xs font-semibold text-champagne-gold uppercase tracking-wider mb-2 flex items-center gap-1">
@@ -849,33 +824,7 @@ export default function BookingDetail() {
                     <Mail className="w-5 h-5 text-amber-500" />
                     Send booking deposit
                   </CardTitle>
-                  {booking.workflowStage && booking.workflowLabel && (
-                    <span
-                      className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${getWorkflowBadgeClass(booking.workflowStage)}`}
-                      title="Workflow stage"
-                    >
-                      {booking.workflowLabel}
-                    </span>
-                  )}
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-gray-400 hover:text-amber-500 rounded-full"
-                        aria-label="Workflow help"
-                      >
-                        <HelpCircle className="h-4 w-4" />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80 p-4 text-sm text-gray-200 border-amber-500/30" align="start">
-                      <p className="font-medium text-amber-200/90 mb-2">Workflow</p>
-                      <p>
-                        Send deposit invoice → Mark deposit received (sends confirmation) → Invite to portal (sends sign-in link). Reminder sent if they don&apos;t open within 3 days.
-                      </p>
-                    </PopoverContent>
-                  </Popover>
-                </div>
+</div>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Send Deposit Invoice (before payment) */}
@@ -1142,18 +1091,7 @@ export default function BookingDetail() {
               {/* Client Info – name, email, phone, contact pref */}
               <Card className="bg-gray-800 border-champagne-gold/30">
                 <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg font-semibold text-white">Client Info</CardTitle>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowEditModal(true)}
-                      className="text-gray-400 hover:text-champagne-gold"
-                      title="Edit client & venue"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                  </div>
+                  <CardTitle className="text-lg font-semibold text-white">Client Info</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div>
@@ -1167,11 +1105,11 @@ export default function BookingDetail() {
                       <Mail className="w-4 h-4" />
                     </a>
                   </div>
-                  {phoneNumber && (
+                  {phoneDisplay && (
                     <div>
                       <p className="text-xs text-gray-400 mb-1">Phone</p>
                       <a href={`tel:${phoneNumber}`} className="text-champagne-gold hover:text-champagne-gold/80 flex items-center gap-2">
-                        {phoneNumber}
+                        {phoneDisplay}
                         <Phone className="w-4 h-4" />
                       </a>
                     </div>
@@ -1212,10 +1150,11 @@ export default function BookingDetail() {
                 getSectionBgColor={getSectionBgColor}
               />
 
-              {/* Email Composition Center */}
+              {/* Compose Email – explicit action (opens dialog) */}
               <Card className={`bg-gray-800 border-champagne-gold/30 ${getSectionBgColor()} transition-colors`}>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-semibold text-white">Email Composition Center</CardTitle>
+                  <CardTitle className="text-lg font-semibold text-white">Compose Email</CardTitle>
+                  <p className="text-xs text-gray-400">Quote-style email with DJ, lighting, or styling options</p>
                 </CardHeader>
                 <CardContent>
                   <EmailCompositionCenter
@@ -1227,6 +1166,11 @@ export default function BookingDetail() {
                     venuePostcode={booking.venuePostcode || undefined}
                     eventDate={booking.eventDate}
                     onSend={handleBookingUpdate}
+                    bookingFee={toFeeDisplay(booking.bookingFee) || toSafeDisplayString(booking.bookingFee) || ""}
+                    finalBalance={toSafeDisplayString(booking.finalBalance) || ""}
+                    depositReceived={booking.depositReceived}
+                    depositReceivedManual={booking.depositReceivedManual}
+                    staffAssignments={toTalentDisplayList(booking.staffAssignments).map((t) => ({ id: t.id, staff: { name: t.name }, role: t.role }))}
                   />
               </CardContent>
             </Card>
@@ -1314,8 +1258,8 @@ export default function BookingDetail() {
                             <div className="space-y-2">
                               {staffAssignments.map((a) => (
                                 <div key={a.id} className="flex items-center gap-2 text-sm text-white">
-                                  <span>{a.role?.toLowerCase().includes("dj") ? "🎧" : "💡"}</span>
-                                  {a.staff.name}
+                                  <span>{String(a.role ?? "").toLowerCase().includes("dj") ? "🎧" : "💡"}</span>
+                                  <SafeText>{a.staff?.name ?? "Unknown"}</SafeText>
                                 </div>
                               ))}
                             </div>
@@ -1386,7 +1330,7 @@ export default function BookingDetail() {
                               <span className="text-[20px]">
                                 {assignment.role?.toLowerCase().includes('dj') ? '🎧' : '💡'}
                               </span>
-                              <p className="text-white font-semibold">{assignment.staff.name}</p>
+                              <p className="text-white font-semibold"><SafeText>{assignment.staff?.name ?? "Unknown"}</SafeText></p>
                             </div>
                             <span
                               className={`px-2 py-1 text-xs rounded ${
@@ -1400,22 +1344,22 @@ export default function BookingDetail() {
                               {assignment.status === "held" ? "Date Held" : assignment.status === "dispatched" ? "Dispatched" : assignment.status}
                             </span>
                           </div>
-                          <p className="text-gray-400 text-xs mb-1">Role: {assignment.role}</p>
+                          <p className="text-gray-400 text-xs mb-1">Role: <SafeText>{assignment.role}</SafeText></p>
                           {assignment.staff.email && (
                             <p className="text-gray-400 text-xs">
-                              Email: <span className="text-champagne-gold">{assignment.staff.email}</span>
+                              Email: <span className="text-champagne-gold"><SafeText>{assignment.staff.email}</SafeText></span>
                             </p>
                           )}
                           {assignment.staff.phone && (
                             <p className="text-gray-400 text-xs">
-                              Phone: <span className="text-champagne-gold">{assignment.staff.phone}</span>
+                              Phone: <span className="text-champagne-gold"><SafeText>{assignment.staff.phone}</SafeText></span>
                             </p>
                           )}
                           {!assignment.staff.email && !assignment.staff.phone && (
                             <p className="text-xs text-yellow-400 mt-1">⚠️ No contact info available</p>
                           )}
                           <p className="text-gray-400 text-xs">
-                            Fee: £{toDisplayFee(assignment.agreedFee).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            Fee: £<SafeText>{toDisplayFee(assignment.agreedFee).toLocaleString("en-GB", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</SafeText>
                           </p>
                           {assignment.confirmationEmailSent && (
                             <p className="text-xs text-green-400 mt-1">✓ Confirmation sent</p>
@@ -1840,7 +1784,13 @@ export default function BookingDetail() {
             priority: booking.priority || "medium",
             conflictStatus: booking.conflictStatus || null,
             finalBalance: (booking as any).finalBalance || null,
-            bookingFee: (booking as any).bookingFee ?? null,
+            bookingFee: (() => {
+              const v = (booking as any).bookingFee;
+              if (v == null) return null;
+              if (typeof v === "string") return v;
+              if (typeof v === "object" && v !== null && "fee" in v) return String((v as { fee?: unknown }).fee ?? "");
+              return String(v);
+            })(),
             services: Array.isArray(booking.services) 
               ? booking.services.map((s: any) => typeof s === 'string' ? s : String(s?.name || s?.type || 'Service'))
               : [],

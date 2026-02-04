@@ -500,7 +500,7 @@ export default function WeddingLandingClient() {
       </section>
 
       {/* Client Portal Section */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950" aria-labelledby="portal-features-heading">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -508,18 +508,25 @@ export default function WeddingLandingClient() {
             viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <h2 className="text-3xl md:text-5xl font-bold mb-4">Your Music, Planned Without the Stress</h2>
+            <h2 id="portal-features-heading" className="text-3xl md:text-5xl font-bold mb-4">Your Music, Planned Without the Stress</h2>
             <p className="text-gray-400 text-lg max-w-2xl mx-auto">
               Wedding planning is overwhelming enough. We include a free online planning space where you can curate your music at your own pace—no pressure, no rushed phone calls.
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          {/* Mobile: horizontal scroll with snap. Desktop: 2-column grid */}
+          <div
+            className="flex md:grid md:grid-cols-2 overflow-x-auto md:overflow-visible gap-6 pb-4 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 snap-x snap-mandatory md:snap-none"
+            style={{ WebkitOverflowScrolling: "touch" }}
+            role="list"
+          >
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
+              className="flex-shrink-0 w-[85vw] min-w-[280px] max-w-[340px] md:w-auto md:min-w-0 md:max-w-none snap-center snap-always md:snap-align-none"
+              role="listitem"
             >
               <Card className="bg-white/5 border-champagne-gold/30 h-full">
                 <CardContent className="p-6">
@@ -536,6 +543,8 @@ export default function WeddingLandingClient() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.15 }}
+              className="flex-shrink-0 w-[85vw] min-w-[280px] max-w-[340px] md:w-auto md:min-w-0 md:max-w-none snap-center snap-always md:snap-align-none"
+              role="listitem"
             >
               <Card className="bg-white/5 border-champagne-gold/30 h-full">
                 <CardContent className="p-6">
@@ -552,6 +561,8 @@ export default function WeddingLandingClient() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
+              className="flex-shrink-0 w-[85vw] min-w-[280px] max-w-[340px] md:w-auto md:min-w-0 md:max-w-none snap-center snap-always md:snap-align-none"
+              role="listitem"
             >
               <Card className="bg-white/5 border-champagne-gold/30 h-full">
                 <CardContent className="p-6">
@@ -568,6 +579,8 @@ export default function WeddingLandingClient() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.25 }}
+              className="flex-shrink-0 w-[85vw] min-w-[280px] max-w-[340px] md:w-auto md:min-w-0 md:max-w-none snap-center snap-always md:snap-align-none"
+              role="listitem"
             >
               <Card className="bg-white/5 border-champagne-gold/30 h-full">
                 <CardContent className="p-6">
@@ -579,6 +592,11 @@ export default function WeddingLandingClient() {
               </Card>
             </motion.div>
           </div>
+
+          {/* Mobile: scroll hint */}
+          <p className="md:sr-only text-center text-gray-500 text-sm mt-3 mb-4" aria-hidden="true">
+            Swipe to see all features
+          </p>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}

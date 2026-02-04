@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { logActivity } from "@/lib/activity-log";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
 
 export const dynamic = "force-dynamic";
@@ -11,6 +13,7 @@ const WINDOW_DAYS = 21;
 
 /**
  * Client confirms "I have sent the final payment". Updates booking and notifies DJ(s).
+ * Auth: ?token= (portalToken) OR session (user owns booking or admin).
  * Only allowed within 3-week window.
  */
 export async function POST(
@@ -24,19 +27,40 @@ export async function POST(
       return NextResponse.json({ error: "Booking ID required" }, { status: 400 });
     }
 
+    const token = request.nextUrl.searchParams.get("token");
+    const session = await auth();
+
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       select: {
         id: true,
         name: true,
         email: true,
+        userId: true,
         eventDate: true,
         venueName: true,
         eventType: true,
+        portalToken: true,
       },
     });
     if (!booking) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+    }
+
+    let allowed = false;
+    if (token && booking.portalToken && booking.portalToken === token) {
+      allowed = true;
+    } else if (session?.user) {
+      const u = session.user as { id?: string; role?: string; email?: string };
+      if (u.role === "admin" || (!!u.id && booking.userId === u.id)) allowed = true;
+      if (!allowed && u.email && booking.email) {
+        if (u.email.toString().toLowerCase().trim() === booking.email.toLowerCase().trim()) {
+          allowed = true;
+        }
+      }
+    }
+    if (!allowed) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const now = new Date();
@@ -66,6 +90,27 @@ export async function POST(
       performedBy: booking.name ?? undefined,
       metadata: { venueName: booking.venueName ?? undefined },
     });
+
+    try {
+      const eventDateLabel = new Date(booking.eventDate).toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      await notifyAdminSignificantEvent({
+        type: "final_payment_sent",
+        bookingId,
+        title: "Final payment sent",
+        description: `${booking.name} confirmed they have sent the final payment.`,
+        actor: "client",
+        performedBy: booking.name ?? undefined,
+        bookingName: booking.name ?? undefined,
+        venueName: booking.venueName ?? undefined,
+        eventDate: eventDateLabel,
+      });
+    } catch (e) {
+      console.warn("[final-payment-sent] Admin notification failed:", e);
+    }
 
     const assignments = await prisma.bookingStaffAssignment.findMany({
       where: {

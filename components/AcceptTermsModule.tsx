@@ -22,6 +22,7 @@ import {
   generateQuoteSummaryPdf,
   type QuoteSummaryData,
 } from "@/lib/quote-summary-pdf";
+import { SafeText } from "@/components/SafeText";
 
 export interface AcceptTermsModuleProps {
   /** Whether the user has accepted T&Cs */
@@ -40,6 +41,33 @@ export interface AcceptTermsModuleProps {
   className?: string;
   /** Checkbox/label variant: dark (default) or light */
   variant?: "dark" | "light";
+  /** Optional client-specific booking summary to display in T&C dialog (venue, date, fee, talent) */
+  bookingSummary?: {
+    venueName?: string | null;
+    eventDate?: string | Date | null;
+    fee?: string | number | null;
+    talent?: Array<{ name: string; role?: string }>;
+  };
+}
+
+function formatDateSafe(d: string | Date | null | undefined): string {
+  if (d == null) return "";
+  const date = typeof d === "string" ? new Date(d) : d;
+  return isNaN(date.getTime()) ? "" : date.toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+}
+
+function formatFeeSafe(f: string | number | object | null | undefined): string {
+  if (f == null) return "";
+  if (typeof f === "number") return `£${f}`;
+  if (typeof f === "object") {
+    const o = f as Record<string, unknown>;
+    if ("fee" in o && o.fee != null) return formatFeeSafe(o.fee);
+    if ("amount" in o && o.amount != null) return formatFeeSafe(o.amount);
+    if ("value" in o && o.value != null) return formatFeeSafe(o.value);
+    return "";
+  }
+  const s = String(f).trim();
+  return s ? (s.startsWith("£") ? s : `£${s}`) : "";
 }
 
 export function AcceptTermsModule({
@@ -51,6 +79,7 @@ export function AcceptTermsModule({
   error,
   className,
   variant = "dark",
+  bookingSummary,
 }: AcceptTermsModuleProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [downloading, setDownloading] = useState(false);
@@ -135,6 +164,26 @@ export function AcceptTermsModule({
                     })}
                   </p>
                 </DialogHeader>
+                {bookingSummary && (bookingSummary.venueName || bookingSummary.eventDate || bookingSummary.fee != null || (bookingSummary.talent?.length ?? 0) > 0) && (
+                  <div className="mt-4 p-4 rounded-lg bg-gray-800/80 border border-gray-700">
+                    <p className="text-sm font-semibold text-champagne-gold mb-3">Your booking summary</p>
+                    <div className="space-y-1 text-sm text-gray-300">
+                      {bookingSummary.venueName && <p><strong>Venue:</strong> <SafeText>{bookingSummary.venueName}</SafeText></p>}
+                      {bookingSummary.eventDate && <p><strong>Date:</strong> {formatDateSafe(bookingSummary.eventDate)}</p>}
+                      {(bookingSummary.fee != null && bookingSummary.fee !== "") && <p><strong>Fee:</strong> <SafeText>{bookingSummary.fee}</SafeText></p>}
+                      {bookingSummary.talent && bookingSummary.talent.length > 0 && (
+                        <div>
+                          <strong>Talent:</strong>
+                          <ul className="list-disc pl-5 mt-1">
+                            {bookingSummary.talent.map((t, i) => (
+                              <li key={i}><SafeText>{t.name}</SafeText>{t.role != null && t.role !== "" ? <> (<SafeText>{t.role}</SafeText>)</> : ""}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
                 <div className="mt-4 space-y-6 text-gray-300">
                   {TERMS_SECTIONS.map((section) => (
                     <div key={section.id}>

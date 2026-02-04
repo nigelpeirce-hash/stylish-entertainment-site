@@ -11,6 +11,7 @@ import { Send, Loader2, Plus, X, Star, Music, Mic2, CheckCircle } from "lucide-r
 import Image from "next/image";
 import { ResponsiveImage } from "@/components/cloudinary";
 import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
+import { toSafeReactChild } from "@/lib/transformers/booking-transformer";
 
 interface Artist {
   id: string;
@@ -458,7 +459,7 @@ export function MultiArtistReply({
                             type="number"
                             step="0.01"
                             min="0"
-                            value={typeof artist.fee === "string" ? artist.fee : String(artist.fee ?? "")}
+                            value={toSafeReactChild(artist.fee ?? "")}
                             onChange={(e) => updateArtist(artist.id, "fee", e.target.value)}
                             placeholder="0.00"
                             className="mt-1 bg-gray-700 border-gray-600 text-white text-sm"

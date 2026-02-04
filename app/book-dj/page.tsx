@@ -640,6 +640,11 @@ function BookDJPageContent() {
                     onAcceptChange={setTermsAccepted}
                     disabled={isSubmitting}
                     variant="dark"
+                    bookingSummary={{
+                      venueName: watch("venueName") || undefined,
+                      eventDate: watch("eventDate") || undefined,
+                      talent: selectedDJ ? [{ name: typeof selectedDJ === "string" ? selectedDJ : (selectedDJ as { name?: string })?.name ?? "DJ", role: "DJ" }] : undefined,
+                    }}
                   />
                 </div>
 

@@ -26,6 +26,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
+import { toSafeReactChild } from "@/lib/transformers/booking-transformer";
 import { getWorkflowStage, getWorkflowLabel, getTrafficLightStyles } from "@/lib/workflow-stage";
 
 interface Booking {
@@ -767,7 +768,7 @@ function AdminBookingsContent() {
                               className="text-xs font-semibold text-champagne-gold flex items-center gap-1"
                             >
                               <span>{assignment.role?.toLowerCase().includes("dj") ? "🎧" : "💡"}</span>
-                              {assignment.staff?.name}
+                              {toSafeReactChild(assignment.staff?.name)}
                             </span>
                           ))}
                         </div>

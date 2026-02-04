@@ -29,6 +29,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/radix-select";
+import { SafeText } from "@/components/SafeText";
 
 interface EmailTemplate {
   id: string;
@@ -568,12 +569,7 @@ export default function EmailTemplateEditor() {
                             </Button>
                           </div>
                           <p className="text-xs text-gray-500 mt-1">
-                            {(() => {
-                              const f = lockedEventData.contractData.fee;
-                              if (f == null || f === "") return "Not set";
-                              if (typeof f === "object" && "fee" in f) return String((f as { fee?: unknown }).fee ?? "Not set");
-                              return String(f);
-                            })()}
+                            <SafeText>{lockedEventData.contractData.fee ?? "Not set"}</SafeText>
                           </p>
                         </div>
 
@@ -661,25 +657,25 @@ export default function EmailTemplateEditor() {
                           { token: "{{djFee}}", value: lockedEventData.contractData.fee },
                           { token: "{{djName}}", value: lockedEventData.contractData.talentType },
                         ].map(({ token, value }) => (
-                          <div key={token}>
-                            <div className="flex items-center gap-2">
-                              <code className="flex-1 bg-gray-900 px-2 py-1 rounded text-xs text-champagne-gold">
-                                {token}
-                              </code>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() => copyToken(token)}
-                                className="h-6 w-6 p-0"
-                              >
-                                <Copy className="w-3 h-3" />
-                              </Button>
+                            <div key={token}>
+                              <div className="flex items-center gap-2">
+                                <code className="flex-1 bg-gray-900 px-2 py-1 rounded text-xs text-champagne-gold">
+                                  {token}
+                                </code>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => copyToken(token)}
+                                  className="h-6 w-6 p-0"
+                                >
+                                  <Copy className="w-3 h-3" />
+                                </Button>
+                              </div>
+                              <p className="text-xs text-gray-500 mt-1 line-clamp-1">
+                                <SafeText>{value ?? "Not set"}</SafeText>
+                              </p>
                             </div>
-                            <p className="text-xs text-gray-500 mt-1 line-clamp-1">
-                              {value || "Not set"}
-                            </p>
-                          </div>
-                        ))}
+                          ))}
                       </div>
                     </div>
                   </div>

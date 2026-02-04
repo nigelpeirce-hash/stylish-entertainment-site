@@ -17,7 +17,15 @@ export type SignificantEventType =
   | "dispatched"
   | "portal_message"
   | "final_details_confirmed"
-  | "brief_sent";
+  | "brief_sent"
+  | "terms_accepted"
+  | "composed_email_sent"
+  | "deposit_confirmation_sent"
+  | "hire_request_confirmed"
+  | "enquiry_reply_sent"
+  | "enquiry_converted"
+  | "quote_confirmed"
+  | "final_payment_sent";
 
 export interface NotifyAdminOptions {
   type: SignificantEventType;

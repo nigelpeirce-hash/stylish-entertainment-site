@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { logActivity } from "@/lib/activity-log";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -125,6 +126,17 @@ export async function POST(
       actor: "client",
       performedBy: booking.name ?? undefined,
       metadata: { amount: `£${total.toFixed(2)}`, itemCount: items.length },
+    });
+    await notifyAdminSignificantEvent({
+      type: "hire_request_confirmed",
+      bookingId,
+      title: "Hire request confirmed",
+      description: `Client confirmed hire request: £${total.toFixed(2)}`,
+      actor: "client",
+      performedBy: booking.name ?? undefined,
+      bookingName: booking.name ?? undefined,
+      venueName: venue !== "TBC" ? venue : undefined,
+      eventDate: eventDate !== "TBC" ? eventDate : undefined,
     });
 
     return NextResponse.json({

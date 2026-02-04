@@ -1,18 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { Resend } from "resend";
+import { FIRST_TOUCH } from "@/lib/email/templates";
+import sendEmail from "@/lib/email/send-email";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
-
-// Lazy initialization to prevent build-time errors
-const getResend = () => {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    throw new Error("RESEND_API_KEY environment variable is not set");
-  }
-  return new Resend(apiKey);
-};
 
 export async function POST(request: NextRequest) {
   try {
@@ -82,52 +74,20 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Send Automated First Touch Email
+    // Send Automated First Touch Email (shared template for consistency)
     try {
-      const emailHtml = `
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <meta charset="utf-8">
-            <style>
-              body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-              .header { background: #d4af37; color: #000; padding: 20px; text-align: center; }
-              .content { background: #f5f5f0; padding: 30px; }
-              .footer { background: #1a1a1a; color: #fff; padding: 20px; text-align: center; font-size: 12px; }
-            </style>
-          </head>
-          <body>
-            <div class="container">
-              <div class="header">
-                <h1>STYLISH Entertainment</h1>
-              </div>
-              <div class="content">
-                <h2>Hi ${name},</h2>
-                <p>Thanks for reaching out about ${parsedEventDate.toLocaleDateString("en-GB", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })}!</p>
-                <p>We are currently checking our talent availability and will get back to you shortly.</p>
-                <p>We're excited to help make your event unforgettable.</p>
-                <p>Best regards,<br>STYLISH Entertainment Team</p>
-              </div>
-              <div class="footer">
-                <p>STYLISH Entertainment | Premium DJs, Lighting & Events</p>
-              </div>
-            </div>
-          </body>
-        </html>
-      `;
+      const { subject, html, text } = FIRST_TOUCH({
+        name,
+        email,
+        venueName: venuePostcode || "your venue",
+        eventDate: parsedEventDate,
+      });
 
-      const resend = getResend();
-      await resend.emails.send({
-        from: process.env.RESEND_FROM_EMAIL || "noreply@stylishentertainment.co.uk",
+      await sendEmail({
         to: email,
-        subject: `Thank you for your enquiry - ${parsedEventDate.toLocaleDateString("en-GB")}`,
-        html: emailHtml,
+        subject,
+        html,
+        text,
       });
 
       // Update enquiry with email sent status

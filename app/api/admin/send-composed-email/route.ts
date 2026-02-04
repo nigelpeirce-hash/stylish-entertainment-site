@@ -3,6 +3,8 @@ import { Resend } from "resend";
 import { getResendConfig } from "@/lib/email-config";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin-auth";
+import { logActivity } from "@/lib/activity-log";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
 // Lazy initialization
 const getResend = () => {
@@ -127,6 +129,30 @@ export async function POST(request: NextRequest) {
     } catch (dbError) {
       console.error("Error updating booking with quoted fee:", dbError);
       // Don't fail the request if database update fails
+    }
+
+    try {
+      await logActivity({
+        bookingId,
+        action: "composed_email_sent",
+        description: `Quote email sent to ${clientEmail} (fee: £${fee})`,
+        actor: "admin",
+        performedBy: admin?.name ?? admin?.email ?? undefined,
+        metadata: { venueName, fee },
+      });
+      await notifyAdminSignificantEvent({
+        type: "composed_email_sent",
+        bookingId,
+        title: "Composed email sent",
+        description: `Quote sent to ${clientName} for ${venueName} – £${fee}`,
+        actor: "admin",
+        performedBy: admin?.name ?? admin?.email ?? undefined,
+        bookingName: clientName,
+        venueName: venueName ?? undefined,
+        eventDate: formattedDate,
+      });
+    } catch (e) {
+      console.warn("[send-composed-email] Admin notification failed:", e);
     }
 
     return NextResponse.json({
