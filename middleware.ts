@@ -14,21 +14,48 @@ function hasSessionCookie(request: NextRequest): boolean {
   return !!cookie?.value;
 }
 
+const CANONICAL_HOST = "www.stylishentertainment.co.uk";
+const LEGACY_QUERY_PARAMS = ["attachment_id", "wordfence_lh", "hid", "wc-ajax"];
+const SEARCH_PARAM = "s";
+
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  const url = request.nextUrl.clone();
+  const hostname = request.headers.get("host") || "";
 
-  // Force HTTPS redirect in production
-  if (process.env.NODE_ENV === "production") {
-    const url = request.nextUrl.clone();
-    const hostname = request.headers.get("host") || "";
-    if (
-      request.headers.get("x-forwarded-proto") !== "https" &&
-      !hostname.includes("localhost") &&
-      !hostname.includes("127.0.0.1")
-    ) {
+  // Production-only: HTTPS and non-www → www
+  if (process.env.NODE_ENV === "production" && !hostname.includes("localhost") && !hostname.includes("127.0.0.1")) {
+    // Force HTTPS
+    if (request.headers.get("x-forwarded-proto") !== "https") {
       url.protocol = "https:";
       return NextResponse.redirect(url, 301);
     }
+    // Non-www → www (stylishentertainment.co.uk → www.stylishentertainment.co.uk)
+    if (hostname === "stylishentertainment.co.uk") {
+      url.host = CANONICAL_HOST;
+      url.protocol = "https:";
+      return NextResponse.redirect(url, 301);
+    }
+  }
+
+  // Strip legacy/plugin query params and redirect to same path (GSC: discovered/crawled-not-indexed)
+  const searchParams = url.searchParams;
+  let hasLegacyParam = false;
+  if (searchParams.has(SEARCH_PARAM)) {
+    // WordPress search ?s=... → /about/blog/
+    url.pathname = "/about/blog/";
+    url.search = "";
+    return NextResponse.redirect(url, 301);
+  }
+  for (const param of LEGACY_QUERY_PARAMS) {
+    if (searchParams.has(param)) {
+      searchParams.delete(param);
+      hasLegacyParam = true;
+    }
+  }
+  if (hasLegacyParam) {
+    url.search = searchParams.toString();
+    return NextResponse.redirect(url, 301);
   }
 
   // Protect /client routes (no getToken – Edge-safe cookie check)

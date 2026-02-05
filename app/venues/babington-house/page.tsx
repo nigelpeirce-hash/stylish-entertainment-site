@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Babington House Wedding Info",
   description: "Comprehensive guide to planning your Babington House wedding. DJ Nige shares insights on the bar, terrace, orangery, and other areas of this stunning venue.",
   alternates: {
-    canonical: "https://stylishentertainment.co.uk/babington-wedding-info",
+    canonical: "https://www.stylishentertainment.co.uk/venues/babington-house/",
   },
 };
 

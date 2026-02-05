@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "UK-wide Wedding Services | Lighting Design & Venue Styling",
   description: "Professional wedding lighting design and venue styling services across the UK. Transform your wedding venue with our expert team.",
   alternates: {
-    canonical: "https://stylishentertainment.co.uk/services",
+    canonical: "https://www.stylishentertainment.co.uk/services/",
   },
 };
 
