@@ -108,7 +108,6 @@ const nextConfig = {
       // --- STATIC DEMO PAGES ---
       { source: '/phone-demo.html', destination: '/iphone-demo.html', permanent: false },
       { source: '/terms-portal-flow-demo.html', destination: '/terms-portal-flow-demo', permanent: false },
-
       // --- GSC: Legacy / index / .html / -html ---
       { source: '/index.php', destination: '/', permanent: true },
       { source: '/index.php/', destination: '/', permanent: true },

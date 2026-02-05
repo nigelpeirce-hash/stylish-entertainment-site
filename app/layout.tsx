@@ -14,7 +14,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
 };
-import Navigation from "@/components/Navigation";
+import HeaderNew from "@/components/HeaderNew";
 import FooterRefactored from "@/components/FooterRefactored";
 import SiteWideCTA from "@/components/SiteWideCTA";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
@@ -115,9 +115,9 @@ export const metadata: Metadata = {
     canonical: "./",
   },
   icons: {
-    icon: "/favicon.svg",
-    shortcut: "/favicon.svg",
-    apple: "/favicon.svg",
+    icon: "/se-icon.png",
+    shortcut: "/se-icon.png",
+    apple: "/se-icon.png",
   },
 };
 
@@ -216,7 +216,7 @@ export default async function RootLayout({
             <WelcomeBackBanner />
           </Suspense>
           <Suspense fallback={<nav className="h-20 bg-gray-900" />}>
-            <Navigation />
+            <HeaderNew />
           </Suspense>
           <Breadcrumbs />
           <ErrorBoundaryWrapper>

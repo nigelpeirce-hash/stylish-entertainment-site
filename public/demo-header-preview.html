@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Header Preview – Stylish Entertainment</title>
+  <link rel="icon" href="/se-icon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #0b0b0d; font-family: "Playfair Display", serif; color: #fff; }
+    .menu-component {
+      display: flex; width: 100%; min-height: 6rem; padding: 0 2rem;
+      justify-content: center; align-items: center;
+      border-bottom: 1px solid rgb(255, 217, 0);
+      background: #0b0b0d;
+      box-shadow: rgba(0,0,0,0.2) 0 2px 5px;
+      backdrop-filter: blur(5px);
+    }
+    .mega-menu-container {
+      display: flex; width: 100%; max-width: 80rem; margin: 0 auto; padding: 16px 0;
+      justify-content: space-between; align-items: center;
+    }
+    .wordmark-link { display: flex; height: 45px; padding-right: 18px; align-items: center;
+      border-right: 0.5px solid rgba(255,255,255,0.35); text-decoration: none; color: inherit; }
+    .wordmark-wrapper { display: flex; flex-direction: column; gap: 0; }
+    .stylish-text { font-size: 1.75rem; font-weight: 700; color: rgb(255, 217, 0); font-family: "Playfair Display", serif; }
+    .logo-sub { color: rgba(255,255,255,0.85); font-size: 16px; font-family: system-ui, sans-serif; margin-top: 2px; margin-left: 12px; }
+    .centre-strapline {
+      font-size: 1.125rem; color: #fff;
+      transform: translate(34px, 0);
+    }
+    .centre-strapline .extra { font-weight: 600; color: rgb(255, 217, 0); }
+    .cta-right { display: flex; align-items: center; gap: 8px; }
+    .button-group { display: flex; padding-right: 1rem; gap: 8px; border-right: 1px solid #fff; }
+    .enquire-btn { color: #000; background: rgb(255,217,0); padding: 10px 12px; border-radius: 10px;
+      text-decoration: none; font-weight: 600; }
+    .enquire-btn:hover { background: rgb(255,230,50); }
+    .burger { display: flex; width: 40px; margin-left: 1rem; background: none; border: none;
+      cursor: pointer; color: rgb(255,217,0); padding: 0; }
+    .burger svg { width: 2em; height: 2em; }
+    @media (max-width: 991px) { .centre-strapline { display: none; } }
+    @media (max-width: 767px) { .enquire-btn { transform: scale(0.85); transform-origin: center; } }
+    @media (max-width: 479px) { .menu-component { min-height: 4.5rem; padding: 0 1rem; } }
+    .banner { position: absolute; top: 0; left: 0; right: 0; z-index: 60;
+      py: 2; px: 4; padding: 8px 16px; background: rgba(245,158,11,0.2);
+      border-bottom: 1px solid rgba(245,158,11,0.4); text-align: center; }
+    .content { padding: 80px 16px 48px; max-width: 56rem; margin: 0 auto; }
+    .card { background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; padding: 2rem; margin-bottom: 2rem; }
+    .card h1 { font-size: 1.5rem; margin: 0 0 1rem; }
+    .card p { color: rgba(255,255,255,0.8); margin: 0; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="banner" style="background:rgba(245,158,11,0.2);border-bottom:1px solid rgba(245,158,11,0.4);padding:8px 16px;text-align:center;">
+    <span style="color:#fde68a;font-size:14px;">Static preview – header design</span>
+  </div>
+
+  <header class="menu-component" role="banner">
+    <div class="mega-menu-container">
+      <a href="/" class="wordmark-link">
+        <div class="wordmark-wrapper">
+          <span class="stylish-text">Stylish</span>
+          <span class="logo-sub">Entertainment</span>
+        </div>
+      </a>
+
+      <div class="centre-strapline">
+        Every Gathering Deserves To Be <span class="extra">Extraordinary</span>
+      </div>
+
+      <div class="cta-right">
+        <div class="button-group">
+          <a href="/request-quote/" class="enquire-btn">Enquire</a>
+        </div>
+        <button class="burger" aria-label="Menu">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+    <div class="card">
+      <h1>Sample hero section</h1>
+      <p>This is a static HTML preview of the new header. It loads without React/Next.js, so you can see the design immediately. The React version is at <code>/demo/header-preview/</code>.</p>
+    </div>
+    <div class="card">
+      <h2 style="font-size:1.25rem;margin:0 0 0.75rem;">Responsive behaviour</h2>
+      <ul style="color:rgba(255,255,255,0.8);margin:0;padding-left:1.25rem;">
+        <li>Strapline hides on tablet and mobile</li>
+        <li>Enquire next to burger when not logged in</li>
+        <li>Burger opens the full nav (in React version)</li>
+      </ul>
+    </div>
+  </div>
+
+</body>
+</html>

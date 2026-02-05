@@ -1,0 +1,259 @@
+/* HeaderNew – styles from menu.css mock */
+
+/* Design-token fallbacks */
+.header {
+  --_primitives---colors--neutral-darkest: #0b0b0d;
+  --_primitives---colors--neutral-lighter: rgba(255, 255, 255, 0.35);
+  --_primitives---colors--white: #ffffff;
+  --_primitives---purple-1: #7c3aed;
+  --_primitives---orange-1: #f97316;
+}
+
+.menuComponent {
+  position: relative;
+  top: 0;
+  display: flex;
+  overflow: hidden;
+  width: 100%;
+  min-height: 6rem;
+  padding: 0 2rem;
+  justify-content: center;
+  align-items: center;
+  border-bottom: 1px solid rgb(255, 217, 0);
+  background-color: var(--_primitives---colors--neutral-darkest);
+  box-shadow: rgba(0, 0, 0, 0.2) 0 2px 5px 0,
+    rgba(0, 0, 0, 0.2) 0 2px 5px -3px;
+  backdrop-filter: blur(5px);
+}
+
+.menuComponent.withBanner {
+  top: 0;
+}
+
+.megaMenuContainer {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 16px 0;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0;
+}
+
+/* Wordmark / Brand */
+.wordmarkContainer {
+  display: flex;
+  align-items: center;
+}
+
+.wordmarkLinkBlock {
+  display: flex;
+  height: 45px;
+  padding-right: 18px;
+  justify-content: flex-start;
+  align-items: center;
+  border-right: 0.5px solid var(--_primitives---colors--neutral-lighter);
+  text-decoration: none;
+  color: inherit;
+}
+
+.wordmarkWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.approvalsLogoText {
+  font-family: var(--font-serif), "Playfair Display", serif;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: rgb(255, 217, 0) !important; /* gold – override globals.css p,span,div,a,li */
+}
+
+.logoSubTxt {
+  font-family: var(--font-sans), system-ui, sans-serif;
+  color: rgba(255, 255, 255, 0.85) !important; /* light gray – override globals */
+  font-size: 16px;
+  font-weight: 400;
+  margin-top: 2px;
+  margin-left: 12px;
+}
+
+/* Centre strapline */
+.centreStraplineTxt {
+  position: absolute;
+  z-index: 10;
+  font-family: var(--font-serif), "Playfair Display", serif;
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 1.25rem;
+}
+
+.centreStraplineTxt.visible {
+  position: relative;
+  transform: translate(34px, 0);
+  font-size: 1.125rem;
+}
+
+.textSpanExtraordinary {
+  font-weight: 600;
+  color: rgb(255, 217, 0) !important; /* gold – override globals.css */
+}
+
+/* Right side controls */
+.ctaMenuRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.buttonGroup {
+  display: flex;
+  padding-right: 1rem;
+  gap: 8px;
+  border-right: 1px solid var(--_primitives---colors--white);
+}
+
+.enquireButton {
+  color: #000;
+  background: rgb(255, 217, 0);
+  padding: 10px 12px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.enquireButton:hover {
+  background: rgb(255, 230, 50);
+}
+
+/* Dropdown */
+.menuDropDown {
+  position: relative;
+}
+
+.menuDropdownToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  padding: 8px 10px;
+  border-radius: 10px;
+  color: #fff;
+  background: transparent;
+  border: none;
+  font-size: 1rem;
+}
+
+.menuDropdownToggle:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.menuDropdownToggle:focus-visible {
+  outline: 2px solid rgba(255, 217, 0, 0.8);
+  outline-offset: 2px;
+}
+
+.menuDropdownList {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 220px;
+  background: rgba(12, 12, 14, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 14px;
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  padding: 10px;
+  text-align: left;
+}
+
+.menuDropdownLink {
+  display: block;
+  padding: 10px;
+  border-radius: 10px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.menuDropdownLink:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Burger icon wrapper */
+.burgerMenuPlaceholder {
+  display: flex;
+  width: 40px;
+  margin-left: 1rem;
+  justify-content: flex-start;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: rgb(255, 217, 0);
+}
+
+.burgerMenuPlaceholder:hover {
+  opacity: 0.9;
+}
+
+.burgerMenuPlaceholder svg {
+  width: 3em;
+  height: 3em;
+}
+
+/* Inner glow */
+.innerGlow {
+  position: fixed;
+  inset: 0;
+  width: 60%;
+  margin-top: 90px;
+  margin-right: auto;
+  margin-left: auto;
+  border-radius: 50%;
+  background-color: rgb(255, 217, 0);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+/* Responsive */
+@media screen and (max-width: 991px) {
+  .ctaMenuRight {
+    align-items: stretch;
+  }
+
+  .innerGlow {
+    margin-top: 99px;
+  }
+
+  .hideTablet {
+    display: none !important;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .menuComponent {
+    min-height: 4.5rem;
+    padding: 0 1rem;
+  }
+
+  .enquireButton {
+    transform: scale(0.85);
+    transform-origin: center;
+  }
+}
+
+@media screen and (max-width: 479px) {
+  .hideMobilePortrait {
+    display: none !important;
+  }
+
+  .burgerMenuPlaceholder {
+    height: 60px;
+    color: rgb(255, 174, 0);
+  }
+}

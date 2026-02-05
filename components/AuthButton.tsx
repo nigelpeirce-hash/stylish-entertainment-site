@@ -8,6 +8,73 @@ import { useClientStatus } from "@/hooks/useClientStatus";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
+/**
+ * AuthButton without useClientStatus – avoids useSearchParams suspend.
+ * Use in HeaderNew / demo routes where useSearchParams causes infinite loading.
+ * Skips "Secure My Date" for returning clients; shows Enquire/Dashboard/Sign Out.
+ */
+export function AuthButtonSimple() {
+  const { data: session, status } = useSession();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (status === "loading" || !mounted) {
+    return (
+      <Link href="/contact-us">
+        <Button
+          variant="outline"
+          size="sm"
+          className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
+        >
+          Enquire
+        </Button>
+      </Link>
+    );
+  }
+
+  if (session) {
+    const isAdmin = (session.user as any)?.role === "admin";
+    return (
+      <div className="flex items-center gap-2">
+        <Link href={isAdmin ? "/admin" : "/client/dashboard"}>
+          <Button
+            variant="outline"
+            size="sm"
+            className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
+          >
+            <User className="w-4 h-4 mr-2" />
+            {isAdmin ? "Admin" : "Dashboard"}
+          </Button>
+        </Link>
+        <Button
+          onClick={() => signOut({ callbackUrl: "/" })}
+          variant="outline"
+          size="sm"
+          className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          Sign Out
+        </Button>
+      </div>
+    );
+  }
+
+  return (
+    <Link href="/contact-us">
+      <Button
+        variant="outline"
+        size="sm"
+        className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
+      >
+        Enquire
+      </Button>
+    </Link>
+  );
+}
+
 export function AuthButton() {
   const { data: session, status } = useSession();
   const { isReturning } = useClientStatus();

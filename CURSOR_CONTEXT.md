@@ -2,7 +2,7 @@
 
 Agent familiarisation for the Stylish Entertainment website project.
 
-**Last updated:** January 29, 2026
+**Last updated:** February 5, 2026
 
 ---
 
@@ -48,6 +48,7 @@ Agent familiarisation for the Stylish Entertainment website project.
 
 ### Components (`/components`)
 - Shared UI, forms, admin components
+- **HeaderNew.tsx** – Main site header (dark, gold accents, wordmark, strapline, Enquire, burger nav). Reference: `/demo/header-preview`.
 - **CookieYes.tsx** – consent banner (delayed 2.5s for LCP); injects contrast-override `<style>` after load for WCAG AA. Contrast rules also in `app/globals.css`.
 - **GoogleTagManager.tsx**, **GoogleAnalytics.tsx** – analytics
 - **ui/slider.tsx** – hero slider; dot buttons use 48×48px min touch target for accessibility
