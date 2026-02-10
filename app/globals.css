@@ -107,6 +107,31 @@ p[data-cky-tag="title"],
   }
 }
 
+/* Testimonials: true CSS columns masonry – no orphans, even gaps */
+.testimonials-masonry {
+  column-count: 1;
+  column-gap: 1.5rem;
+  column-fill: balance;
+}
+@media (min-width: 768px) {
+  .testimonials-masonry {
+    column-count: 2;
+  }
+}
+@media (min-width: 1024px) {
+  .testimonials-masonry {
+    column-count: 3;
+  }
+}
+.testimonials-masonry-item {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 1.5rem;
+  box-sizing: border-box;
+}
+
 /* Site-wide CTA: always in document flow, never sticky or fixed. Must scroll with page. */
 .site-wide-cta {
   position: static !important;

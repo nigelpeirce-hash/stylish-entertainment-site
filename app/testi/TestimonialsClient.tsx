@@ -262,10 +262,10 @@ export default function TestimonialsClient() {
             </motion.div>
           )}
 
-          {/* Masonry Grid for Regular Testimonials */}
+          {/* True Masonry: CSS columns – no orphans, even column gaps */}
           <motion.div
             key={`masonry-${activeFilter}`}
-            className="columns-1 md:columns-2 lg:columns-3 gap-6"
+            className="testimonials-masonry"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
@@ -286,7 +286,7 @@ export default function TestimonialsClient() {
                   visible: { opacity: 1, y: 0, scale: 1 },
                 }}
                 transition={{ duration: 0.3 }}
-                className="break-inside-avoid inline-block w-full mb-6"
+                className="testimonials-masonry-item"
               >
                 <Card className="bg-gray-900/50 backdrop-blur-sm border border-champagne-gold/20 hover:border-champagne-gold/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all duration-300 h-full">
                   <CardContent className="p-6 sm:p-8">

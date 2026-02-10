@@ -14,19 +14,19 @@ interface PortalPageProps {
 
 export default async function PortalPage({ params, searchParams }: PortalPageProps) {
   const isDev = process.env.NODE_ENV === 'development';
-  
-  // Resolve params (Next.js 15 compatibility)
-  const resolvedParams = params instanceof Promise ? await params : params;
-  const resolvedSearchParams = searchParams instanceof Promise ? await searchParams : searchParams;
-  
+
+  // Parallel: resolve params, searchParams, and auth (no dependency between them)
+  const [resolvedParams, resolvedSearchParams, session] = await Promise.all([
+    params instanceof Promise ? params : Promise.resolve(params),
+    searchParams instanceof Promise ? searchParams : Promise.resolve(searchParams),
+    auth(),
+  ]);
+
   const bookingId = resolvedParams.id;
   const token = resolvedSearchParams.token;
-
-  // Check if user is admin (allow admins to preview client portal)
-  const session = await auth();
   const isAdmin = session?.user && (session.user as any).role === "admin";
 
-  // 1. Fetch the booking (include portalToken for magic-link validation)
+  // Fetch the booking (depends on bookingId from params)
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     select: {
