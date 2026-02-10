@@ -156,7 +156,7 @@ export default function LeadRescuePage() {
 
                 <div className="pt-6 space-y-3">
                   <Link
-                    href="/contact-us"
+                    href="/contact-us/"
                     className="inline-block px-6 py-3 bg-champagne-gold text-black font-semibold rounded-lg hover:bg-champagne-gold/90 transition-colors"
                   >
                     Contact Us
@@ -196,7 +196,7 @@ export default function LeadRescuePage() {
 
                 <div className="pt-4 space-y-3">
                   <Link
-                    href="/contact-us"
+                    href="/contact-us/"
                     className="inline-block px-6 py-3 bg-champagne-gold text-black font-semibold rounded-lg hover:bg-champagne-gold/90 transition-colors"
                   >
                     Contact Us Instead

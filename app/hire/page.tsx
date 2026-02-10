@@ -235,7 +235,7 @@ export default function HirePage() {
           </div>
           <p className="mt-12 text-gray-500 text-sm max-w-sm text-center px-4">
             We&apos;re getting our hire catalogue ready. Check back soon or{" "}
-            <Link href="/contact-us" className="text-champagne-gold hover:underline">
+            <Link href="/contact-us/" className="text-champagne-gold hover:underline">
               get in touch
             </Link>{" "}
             for equipment enquiries.

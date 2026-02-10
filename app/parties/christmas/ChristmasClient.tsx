@@ -398,7 +398,7 @@ export default function ChristmasClient() {
                     size="lg"
                     className="bg-champagne-gold text-black hover:bg-gold-light hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(212,175,55,0.5)]"
                   >
-                    <Link href="/contact-us">Request a Proposal</Link>
+                    <Link href="/contact-us/">Request a Proposal</Link>
                   </Button>
                   <Button
                     asChild

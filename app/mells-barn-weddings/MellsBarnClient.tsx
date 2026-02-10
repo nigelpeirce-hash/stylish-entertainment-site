@@ -411,7 +411,7 @@ export default function MellsBarnClient() {
                     Planning from afar? Our local Frome-based team is here to make your Mells Barn wedding seamless and stress-free. Contact us today to discuss your vision.
                   </p>
                   <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-gold-light hover:scale-105 transition-all duration-300 shadow-[0_0_15px_rgba(212,175,55,0.4)]">
-                    <Link href="/contact-us">Get in Touch</Link>
+                    <Link href="/contact-us/">Get in Touch</Link>
                   </Button>
                 </CardContent>
               </Card>

@@ -45,7 +45,7 @@ export default function BeforeAfter({ before, after, aspectRatio = "4/3", fullWi
 
     const handleTouchMove = (e: TouchEvent) => {
       if (!containerRef.current || !isDragging) return;
-      
+      e.preventDefault();
       const rect = containerRef.current.getBoundingClientRect();
       const touch = e.touches[0];
       const x = touch.clientX - rect.left;
@@ -60,9 +60,9 @@ export default function BeforeAfter({ before, after, aspectRatio = "4/3", fullWi
     if (isDragging) {
       window.addEventListener("mousemove", handleMouseMove);
       window.addEventListener("mouseup", handleMouseUp);
-      window.addEventListener("touchmove", handleTouchMove);
+      window.addEventListener("touchmove", handleTouchMove, { passive: false });
       window.addEventListener("touchend", handleTouchEnd);
-      
+
       return () => {
         window.removeEventListener("mousemove", handleMouseMove);
         window.removeEventListener("mouseup", handleMouseUp);
@@ -73,10 +73,10 @@ export default function BeforeAfter({ before, after, aspectRatio = "4/3", fullWi
   }, [isDragging]);
 
   return (
-    <div className={fullWidth ? "w-full" : "w-full max-w-5xl mx-auto"}>
+    <div className={`overflow-hidden px-4 md:px-0 ${fullWidth ? "w-full" : "w-full max-w-5xl mx-auto"}`}>
       <div
         ref={containerRef}
-        className={`relative w-full ${aspectMap[aspectRatio]} rounded-lg overflow-hidden shadow-2xl cursor-col-resize select-none`}
+        className={`relative w-full ${aspectMap[aspectRatio]} rounded-lg overflow-hidden shadow-2xl cursor-col-resize select-none touch-pan-y`}
         onMouseDown={(e) => {
           setIsDragging(true);
           if (containerRef.current) {
@@ -87,6 +87,7 @@ export default function BeforeAfter({ before, after, aspectRatio = "4/3", fullWi
           }
         }}
         onTouchStart={(e) => {
+          e.stopPropagation();
           setIsDragging(true);
           if (containerRef.current && e.touches[0]) {
             const rect = containerRef.current.getBoundingClientRect();

@@ -79,7 +79,7 @@ The Google Reviews component is already integrated into the testimonials page. I
 - **Responsive:** Works on all device sizes
 - **Error Handling:** Gracefully handles API errors and missing data
 
-## Customization
+## Customisation
 
 You can customise the component by:
 

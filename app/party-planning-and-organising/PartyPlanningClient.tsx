@@ -231,9 +231,9 @@ const partyPlanningPhotos: ImagePhoto[] = [
 
 export default function PartyPlanningClient() {
   return (
-    <div>
+    <div className="max-w-full overflow-x-hidden">
       {/* Hero – LCP: w_1200 + fetchPriority high, preloaded in layout */}
-      <section className="relative min-h-[60vh] flex items-center justify-center text-white overflow-hidden">
+      <section className="relative min-h-[60vh] flex items-center justify-center text-white overflow-hidden max-w-full">
         <div className="absolute inset-0 z-0">
           <Image
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768754478/IMG_2866_zhs5sz.jpg"
@@ -265,7 +265,7 @@ export default function PartyPlanningClient() {
       </section>
 
       {/* Before and After – 2-row layout (matches galleries) */}
-      <section className="py-16 md:py-20 px-4 sm:px-6 bg-gray-900">
+      <section className="py-16 md:py-20 px-4 sm:px-6 bg-gray-900 max-w-full overflow-x-hidden">
         <div className="w-full max-w-[1700px] mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -316,7 +316,7 @@ export default function PartyPlanningClient() {
         }}
       >
         {/* Introduction */}
-        <section className="py-20 px-4">
+        <section className="py-20 px-4 max-w-full overflow-x-hidden">
           <div className="container mx-auto max-w-6xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -358,7 +358,7 @@ export default function PartyPlanningClient() {
         </section>
 
         {/* Planning Pillars Grid */}
-        <section className="py-20 px-4">
+        <section className="py-20 px-4 max-w-full overflow-x-hidden">
           <div className="container mx-auto max-w-6xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -411,7 +411,7 @@ export default function PartyPlanningClient() {
         </section>
 
         {/* Gallery - Horizontal Carousel */}
-        <section className="py-16 px-4 bg-gray-950/50">
+        <section className="py-16 px-4 bg-gray-950/50 max-w-full overflow-x-hidden">
           <div className="container mx-auto max-w-7xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -431,7 +431,7 @@ export default function PartyPlanningClient() {
         </section>
 
         {/* The Process - Compact Carousel */}
-        <section className="py-20 px-4">
+        <section className="py-20 px-4 max-w-full overflow-x-hidden">
           <div className="container mx-auto max-w-6xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -450,7 +450,7 @@ export default function PartyPlanningClient() {
         </section>
 
         {/* Call to Action */}
-        <section className="py-20 px-4">
+        <section className="py-20 px-4 max-w-full overflow-x-hidden">
           <div className="container mx-auto max-w-4xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -469,9 +469,9 @@ export default function PartyPlanningClient() {
                   <Button
                     asChild
                     size="lg"
-                    className="bg-champagne-gold text-black hover:bg-gold-light hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(212,175,55,0.5)] mb-4"
+                    className="min-h-[48px] h-[48px] sm:h-auto sm:min-h-[48px] bg-champagne-gold text-black hover:bg-gold-light hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(212,175,55,0.5)] mb-4"
                   >
-                    <Link href="/contact-us/">Request an Event Proposal</Link>
+                    <Link href="/contact-us/" className="flex items-center justify-center min-h-[48px] py-3">Request an Event Proposal</Link>
                   </Button>
                   <p className="text-gray-300 text-sm mt-6">
                     Not sure where to start?{" "}

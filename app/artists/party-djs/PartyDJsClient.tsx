@@ -178,7 +178,7 @@ export default function PartyDJsClient() {
                   <Link href="/artists/djs" aria-label="Meet our DJs and view their profiles">Meet Our DJs</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10">
-                  <Link href="/contact-us" aria-label="Check availability and send an enquiry">Check Availability</Link>
+                  <Link href="/contact-us/" aria-label="Check availability and send an enquiry">Check Availability</Link>
                 </Button>
               </div>
             </CardContent>
@@ -217,7 +217,7 @@ export default function PartyDJsClient() {
               Ready to book your perfect DJ?
             </h3>
             <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-gold-light hover:scale-105 transition-all duration-300 shadow-[0_0_15px_rgba(212,175,55,0.4)]">
-              <Link href="/contact-us" aria-label="Get in touch to book your DJ">Get in Touch</Link>
+              <Link href="/contact-us/" aria-label="Get in touch to book your DJ">Get in Touch</Link>
             </Button>
           </motion.div>
         </div>

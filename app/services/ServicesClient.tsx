@@ -27,7 +27,7 @@ const services = [
     description: "Transform your venue with bespoke lighting design that creates the perfect atmosphere for your special day.",
     features: [
       "Custom lighting schemes tailored to your venue",
-      "LED uplighting and color washes",
+      "LED uplighting and colour washes",
       "Intelligent moving lights and effects",
       "Atmospheric mood lighting",
       "Dance floor lighting packages",
@@ -191,7 +191,7 @@ export default function ServicesClient() {
               to make your day truly exceptional.
             </p>
             <Button asChild size="lg">
-              <Link href="/contact-us">Discuss Your Requirements</Link>
+              <Link href="/contact-us/">Discuss Your Requirements</Link>
             </Button>
           </motion.div>
         </div>

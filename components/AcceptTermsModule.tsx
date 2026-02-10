@@ -224,7 +224,7 @@ export function AcceptTermsModule({
                     </a>{" "}
                     or{" "}
                     <Link
-                      href="/contact-us"
+                      href="/contact-us/"
                       className="text-champagne-gold hover:underline"
                     >
                       use our contact form

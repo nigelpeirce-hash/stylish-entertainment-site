@@ -79,7 +79,7 @@ export default function TermsAndConditionsPage() {
                     </a>{" "}
                     or{" "}
                     <Link
-                      href="/contact-us"
+                      href="/contact-us/"
                       className="text-champagne-gold hover:text-gold-light underline"
                     >
                       use our contact form

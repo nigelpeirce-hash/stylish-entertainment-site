@@ -139,7 +139,7 @@ export default function BristolBlogContent() {
                   <div className="mt-12 pt-8 border-t border-gray-700">
                     <p className="text-lg">
                       For any queries on event lighting and sound design, feel free to{" "}
-                      <Link href="/contact-us" className="text-champagne-gold hover:text-gold-light underline">
+                      <Link href="/contact-us/" className="text-champagne-gold hover:text-gold-light underline">
                         contact us
                       </Link>
                     </p>

@@ -237,7 +237,7 @@ export function gentleReminder(data: JourneyEmailData) {
     <h2>We're Here to Help</h2>
     <p>Whether you're still exploring your options, have questions about our packages, or want to discuss your vision, we'd love to chat. Every event is unique, and we're passionate about creating something truly special for you.</p>
     <p style="text-align: center;">
-      <a href="https://stylishentertainment.co.uk/contact-us" class="button">Get in Touch</a>
+      <a href="https://stylishentertainment.co.uk/contact-us/" class="button">Get in Touch</a>
     </p>
     <p>If you've already found another solution, no problem at all – we're just pleased you're getting everything sorted for your special day.</p>
     <p>Best of luck with your planning, and please don't hesitate to reach out if you'd like to chat.</p>

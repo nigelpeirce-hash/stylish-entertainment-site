@@ -595,7 +595,7 @@ function SecureBookingPageContent() {
                   className="w-full border-champagne-gold/50 text-gray-900 hover:bg-champagne-gold/10 font-medium"
                   asChild
                 >
-                  <Link href="/contact-us" className="flex items-center justify-center gap-2">
+                  <Link href="/contact-us/" className="flex items-center justify-center gap-2">
                     <MessageCircle className="w-5 h-5" />
                     Message Ali or Nigel
                   </Link>

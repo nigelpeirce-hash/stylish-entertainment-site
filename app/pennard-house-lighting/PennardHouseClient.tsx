@@ -139,7 +139,7 @@ export default function PennardHouseClient() {
 
                     <p>
                       Please contact us with your ideas and requirements – we love talking wedding lighting. We can offer any of the designs below or if you would like us to create something bespoke, please{" "}
-                      <Link href="/contact-us" className="text-champagne-gold hover:text-gold-light underline">
+                      <Link href="/contact-us/" className="text-champagne-gold hover:text-gold-light underline">
                         contact us
                       </Link>
                       {" "}with your ideas.
@@ -274,7 +274,7 @@ export default function PennardHouseClient() {
                           size="lg"
                           className="bg-champagne-gold text-black hover:bg-gold-light hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(212,175,55,0.5)] mb-4"
                         >
-                          <Link href="/contact-us">Request a Pennard House Lighting Quote</Link>
+                          <Link href="/contact-us/">Request a Pennard House Lighting Quote</Link>
                         </Button>
                         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6 text-gray-300">
                           <div className="flex items-center gap-2">

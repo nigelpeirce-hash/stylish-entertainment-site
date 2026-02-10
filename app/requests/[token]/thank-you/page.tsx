@@ -164,7 +164,7 @@ export default function ThankYouPage() {
           transition={{ delay: 0.9 }}
           className="mt-8 text-center"
         >
-          <Link href="/contact-us">
+          <Link href="/contact-us/">
             <Button className="bg-champagne-gold text-black hover:bg-gold-light font-semibold px-8 py-6 text-lg">
               Get a Free Quote
               <ArrowRight className="w-5 h-5 ml-2" />

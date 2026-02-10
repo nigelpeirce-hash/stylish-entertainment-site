@@ -131,7 +131,7 @@ export default async function RootLayout({
   const isHome = pathname === "/" || pathname === "";
 
   return (
-    <html lang="en" className={`${raleway.variable} ${bebasNeue.variable} ${dancingScript.variable} ${playfairDisplay.variable}`}>
+    <html lang="en-GB" className={`${raleway.variable} ${bebasNeue.variable} ${dancingScript.variable} ${playfairDisplay.variable}`}>
       <head>
         {/* Preconnect to critical origins for faster LCP */}
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />

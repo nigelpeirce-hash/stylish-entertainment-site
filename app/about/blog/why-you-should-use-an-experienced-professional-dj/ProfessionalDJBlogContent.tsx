@@ -220,7 +220,7 @@ export default function ProfessionalDJBlogContent() {
                     </p>
                     <p className="text-lg">
                       Ready to discuss your event?{" "}
-                      <Link href="/contact-us" className="text-champagne-gold hover:text-gold-light underline">
+                      <Link href="/contact-us/" className="text-champagne-gold hover:text-gold-light underline">
                         Contact us
                       </Link>
                       {" "}to learn more about our professional DJ services, or{" "}

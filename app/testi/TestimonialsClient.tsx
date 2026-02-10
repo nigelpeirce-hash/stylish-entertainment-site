@@ -64,9 +64,9 @@ export default function TestimonialsClient() {
 
 
   return (
-    <div>
+    <div className="max-w-full overflow-x-hidden">
       {/* Hero */}
-      <section className="relative min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
+      <section className="relative min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden max-w-full">
         <div className="absolute inset-0 opacity-40 flex items-center justify-center">
           <img
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg"
@@ -93,7 +93,7 @@ export default function TestimonialsClient() {
       </section>
 
       {/* Trust Bar */}
-      <section className="py-8 px-4 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-y border-champagne-gold/20">
+      <section className="py-8 px-4 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border-y border-champagne-gold/20 max-w-full overflow-x-hidden">
         <div className="container mx-auto max-w-6xl">
           <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
             {/* 5.0 Google Star Rating */}
@@ -126,7 +126,7 @@ export default function TestimonialsClient() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-20 px-4 bg-gray-800">
+      <section className="py-20 px-4 bg-gray-800 max-w-full overflow-x-hidden">
         <div className="container mx-auto max-w-6xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -187,13 +187,13 @@ export default function TestimonialsClient() {
             </div>
           </motion.div>
 
-          {/* Venue Filter Chips */}
+          {/* Venue Filter Chips – min 40px height on mobile for tap targets */}
           <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
             {venueFilters.map((filter) => (
               <button
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
-                className={`px-4 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
+                className={`min-h-[40px] md:min-h-0 px-4 py-2 md:py-2 rounded-full text-sm font-semibold transition-all duration-300 flex items-center justify-center ${
                   activeFilter === filter
                     ? "bg-champagne-gold/20 border-2 border-champagne-gold text-champagne-gold shadow-[0_0_15px_rgba(212,175,55,0.3)]"
                     : "bg-white/5 border border-champagne-gold/30 text-gray-300 hover:bg-white/10 hover:border-champagne-gold/50"
@@ -234,12 +234,12 @@ export default function TestimonialsClient() {
                       <p className="text-gray-200 mb-4 leading-relaxed italic text-xl">
                         &quot;{testimonial.quote}&quot;
                       </p>
-                      <div className="border-t border-white/10 pt-4">
-                        <p className="text-champagne-gold font-bold text-base sm:text-lg">
+                      <div className="mt-4 pt-4 border-t border-white/10 md:mt-0 md:pt-4 md:border-t md:border-white/10">
+                        <p className="text-champagne-gold font-bold text-[15px] sm:text-lg">
                           {testimonial.author}
                         </p>
                         <div className="border-t border-white/10 pt-4 mt-4">
-                          <p className="text-champagne-gold text-sm sm:text-base flex items-center gap-2">
+                          <p className="text-champagne-gold text-[15px] sm:text-base flex items-center gap-2">
                             <MapPin className="w-3.5 h-3.5 text-champagne-gold shrink-0" aria-hidden />
                             {testimonial.venueUrl ? (
                               <Link
@@ -256,7 +256,7 @@ export default function TestimonialsClient() {
                             )}
                           </p>
                           {location && (
-                            <p className="text-gray-400 text-xs sm:text-sm mt-1">
+                            <p className="text-gray-400 text-[14px] sm:text-sm mt-1">
                               {location}
                             </p>
                           )}
@@ -317,7 +317,7 @@ export default function TestimonialsClient() {
                             <button
                               type="button"
                               onClick={() => toggleExpanded(cardKey)}
-                              className="text-champagne-gold/90 hover:text-champagne-gold text-sm font-medium underline underline-offset-2"
+                              className="min-h-[48px] flex items-center justify-center px-4 py-3 text-champagne-gold/90 hover:text-champagne-gold text-sm font-medium underline underline-offset-2"
                             >
                               Read Full Story
                             </button>
@@ -329,18 +329,18 @@ export default function TestimonialsClient() {
                       <button
                         type="button"
                         onClick={() => toggleExpanded(cardKey)}
-                        className="text-champagne-gold/90 hover:text-champagne-gold text-sm font-medium mb-4 underline underline-offset-2"
+                        className="min-h-[48px] flex items-center justify-center px-4 py-3 text-champagne-gold/90 hover:text-champagne-gold text-sm font-medium mb-4 underline underline-offset-2"
                       >
                         Show less
                       </button>
                     )}
-                    {/* Venue block always visible below client name */}
-                    <div className="border-t border-white/10 pt-4 mt-auto">
-                      <p className="text-champagne-gold font-bold text-base sm:text-lg">
+                    {/* Venue block always visible below client name – mobile: mt-4 pt-4 border for separation */}
+                    <div className="mt-4 pt-4 border-t border-white/10 mt-auto">
+                      <p className="text-champagne-gold font-bold text-[15px] sm:text-lg">
                         {testimonial.author}
                       </p>
                       <div className="border-t border-white/10 pt-4 mt-4">
-                        <p className="text-champagne-gold text-sm sm:text-base flex items-center gap-2">
+                        <p className="text-champagne-gold text-[15px] sm:text-base flex items-center gap-2">
                           <MapPin className="w-3.5 h-3.5 text-champagne-gold shrink-0" aria-hidden />
                           {testimonial.venueUrl ? (
                             <Link
@@ -357,7 +357,7 @@ export default function TestimonialsClient() {
                           )}
                         </p>
                         {location && (
-                          <p className="text-gray-400 text-xs sm:text-sm mt-1">
+                          <p className="text-gray-400 text-[14px] sm:text-sm mt-1">
                             {location}
                           </p>
                         )}

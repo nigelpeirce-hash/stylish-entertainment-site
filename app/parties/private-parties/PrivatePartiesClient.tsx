@@ -140,9 +140,9 @@ export default function PrivatePartiesClient() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white">
+    <div className="min-h-screen bg-gray-950 text-white max-w-full overflow-x-hidden">
       {/* 1. Babington Standard Hero – rotating gallery */}
-      <section className="relative h-[75vh] min-h-[450px] w-full overflow-hidden">
+      <section className="relative h-[75vh] min-h-[450px] w-full overflow-hidden max-w-full">
         <AnimatePresence mode="wait">
           <motion.div
             key={heroIndex}
@@ -213,7 +213,7 @@ export default function PrivatePartiesClient() {
       </section>
 
       {/* Before and After – 2-row layout (matches galleries) */}
-      <section className="py-16 md:py-20 px-4 md:px-8 bg-gray-900">
+      <section className="py-16 md:py-20 px-4 md:px-8 bg-gray-900 max-w-full overflow-x-hidden">
         <div className="w-full max-w-[1700px] mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -258,7 +258,7 @@ export default function PrivatePartiesClient() {
       </section>
 
       {/* 2. Transformation Three-Column Grid */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50 max-w-full overflow-x-hidden">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -295,7 +295,7 @@ export default function PrivatePartiesClient() {
       </section>
 
       {/* 3. Planning Journey – horizontal timeline */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950 max-w-full overflow-x-hidden">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -363,7 +363,7 @@ export default function PrivatePartiesClient() {
       </section>
 
       {/* 4. Gallery */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50 max-w-full overflow-x-hidden">
         <div className="max-w-6xl mx-auto mb-12 text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">Atmospheric Venue Transformations</h2>
           <p className="text-gray-400 text-lg">Serving the South West&apos;s most prestigious venues.</p>
@@ -384,7 +384,7 @@ export default function PrivatePartiesClient() {
                 alt={photo.alt}
                 fill
                 className="object-cover transition-transform duration-500 group-hover:scale-105"
-                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                sizes="(max-width: 768px) 100vw, 50vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             </motion.div>
@@ -393,7 +393,7 @@ export default function PrivatePartiesClient() {
       </section>
 
       {/* 5. Babington Social Proof */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950 max-w-full overflow-x-hidden">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -430,7 +430,7 @@ export default function PrivatePartiesClient() {
       </section>
 
       {/* 6. CTA */}
-      <section className="py-16 px-4 bg-gray-900/50 border-t border-white/5">
+      <section className="py-16 px-4 bg-gray-900/50 border-t border-white/5 max-w-full overflow-x-hidden">
         <div className="max-w-3xl mx-auto text-center">
           <p className="text-gray-200 text-lg mb-6">
             Contact us about your party plans on{" "}
@@ -438,14 +438,14 @@ export default function PrivatePartiesClient() {
               07970793177
             </a>
           </p>
-          <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-gold-light">
-            <Link href="/contact-us/">Get in Touch</Link>
+          <Button asChild size="lg" className="min-h-[48px] h-[48px] sm:h-auto sm:min-h-[48px] bg-champagne-gold text-black hover:bg-gold-light">
+            <Link href="/contact-us/" className="flex items-center justify-center min-h-[48px] py-3">Get in Touch</Link>
           </Button>
         </div>
       </section>
 
       {/* 7. Editorial Service Areas + Town Accordion */}
-      <section className="py-16 px-4 bg-gray-950 border-t border-white/5">
+      <section className="py-16 px-4 bg-gray-950 border-t border-white/5 max-w-full overflow-x-hidden">
         <div className="max-w-6xl mx-auto">
           {/* Editorial tiles – cohesive with artists/djs */}
           <div className="text-center mb-12">

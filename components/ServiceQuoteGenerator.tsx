@@ -134,7 +134,7 @@ export function ServiceQuoteGenerator({
     }
   };
 
-  const contactUrl = "/contact-us?" + new URLSearchParams({
+  const contactUrl = "/contact-us/?" + new URLSearchParams({
     subject: category === "lighting" ? "Lighting quote request" : "Venue styling quote request",
     message: summaryText.replace(/\n/g, "%0A"),
   }).toString();
@@ -158,7 +158,7 @@ export function ServiceQuoteGenerator({
           <p>No quote items are set up for this service yet.</p>
           <p className="text-sm mt-2">Please contact us and we’ll put together a quote for you.</p>
           <Button asChild className="mt-4 bg-champagne-gold text-black hover:bg-champagne-gold/90">
-            <Link href="/contact-us">Get in touch</Link>
+            <Link href="/contact-us/">Get in touch</Link>
           </Button>
         </CardContent>
       </Card>

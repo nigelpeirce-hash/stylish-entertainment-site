@@ -154,7 +154,7 @@ export default function LightingDesignService() {
                 <ul className="space-y-3">
                   {[
                     "Custom lighting schemes tailored to your venue",
-                    "LED uplighting and color washes",
+                    "LED uplighting and colour washes",
                     "Intelligent moving lights and effects",
                     "Atmospheric mood lighting",
                     "Dance floor lighting packages",

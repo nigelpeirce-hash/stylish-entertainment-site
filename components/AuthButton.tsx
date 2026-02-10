@@ -23,7 +23,7 @@ export function AuthButtonSimple() {
 
   if (status === "loading" || !mounted) {
     return (
-      <Link href="/contact-us">
+      <Link href="/contact-us/">
         <Button
           variant="outline"
           size="sm"
@@ -63,7 +63,7 @@ export function AuthButtonSimple() {
   }
 
   return (
-    <Link href="/contact-us">
+    <Link href="/contact-us/">
       <Button
         variant="outline"
         size="sm"
@@ -89,7 +89,7 @@ export function AuthButton() {
   if (status === "loading" || !mounted) {
     // Return consistent UI during SSR and initial client render
     return (
-      <Link href="/contact-us">
+      <Link href="/contact-us/">
         <Button
           variant="outline"
           size="sm"
@@ -170,7 +170,7 @@ export function AuthButton() {
   }
 
   return (
-    <Link href="/contact-us">
+    <Link href="/contact-us/">
       <Button
         variant="outline"
         size="sm"

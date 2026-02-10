@@ -460,7 +460,7 @@ export default function DJs() {
                   Please Contact us for a free quote based on your location and timings.
                 </p>
                 <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
-                  <Link href="/contact-us" aria-label="Get your free quote for DJ services">Get Your Free Quote</Link>
+                  <Link href="/contact-us/" aria-label="Get your free quote for DJ services">Get Your Free Quote</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -481,7 +481,7 @@ export default function DJs() {
               Ready to book your perfect match?
             </h2>
             <Button asChild size="lg">
-              <Link href="/contact-us" aria-label="Get in touch to book your DJ">Get in Touch</Link>
+              <Link href="/contact-us/" aria-label="Get in touch to book your DJ">Get in Touch</Link>
             </Button>
           </motion.div>
         </div>

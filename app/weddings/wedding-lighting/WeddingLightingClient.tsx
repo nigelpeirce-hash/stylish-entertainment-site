@@ -204,7 +204,7 @@ export default function WeddingLightingClient() {
                       07970 793177
                     </a>
                     <Button variant="outline" asChild className="border-white/20 text-white hover:bg-white/10">
-                      <Link href="/contact-us">Inquire Online</Link>
+                      <Link href="/contact-us/">Enquire Online</Link>
                     </Button>
                   </div>
                 </div>

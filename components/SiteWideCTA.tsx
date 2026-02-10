@@ -19,6 +19,7 @@ const EXACT_HIDE = [
   "/wedding-dj",
   "/demo/client-portal",
   "/party-planning-and-organising",
+  "/party-planning-and-organising/",
   "/what-we-do",
   "/what-we-do/lighting",
   "/what-we-do/equipment-dj-band-sound-kit",

@@ -255,7 +255,7 @@ export default function KinHouseClient() {
                         Contact Ali or Nigel at Stylish Entertainment about your wedding, party or event at Kin House where we are a trusted local supplier and know the team at Kin well.
                       </p>
                       <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-gold-light hover:scale-105 transition-all duration-300 shadow-[0_0_15px_rgba(212,175,55,0.4)]">
-                        <Link href="/contact-us">Get in Touch</Link>
+                        <Link href="/contact-us/">Get in Touch</Link>
                       </Button>
                       <p className="text-gray-300 text-sm mt-4">
                         Discuss your Kin House lighting and production requirements

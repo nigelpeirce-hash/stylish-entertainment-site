@@ -149,7 +149,7 @@ function NewEnquiriesContent() {
               New Enquiries
             </h1>
             <p className="text-gray-400 mt-1">
-              Review and manage new inquiries
+              Review and manage new enquiries
             </p>
           </div>
           <Button
@@ -364,7 +364,7 @@ function NewEnquiriesContent() {
                 <CheckCircle2 className="w-16 h-16 text-gray-600 mx-auto mb-4" />
                 <p className="text-gray-400 text-lg">No new enquiries</p>
                 <p className="text-gray-500 text-sm mt-2">
-                  All caught up! Check back later for new inquiries.
+                  All caught up! Check back later for new enquiries.
                 </p>
               </CardContent>
             </Card>

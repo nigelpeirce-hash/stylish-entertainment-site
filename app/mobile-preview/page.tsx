@@ -131,7 +131,7 @@ export default function MobilePreview() {
                   { href: "/services/lighting-design", label: "Lighting Design" },
                   { href: "/services/venue-styling", label: "Venue Styling" },
                   { href: "/hire", label: "Hire Shop" },
-                  { href: "/contact-us", label: "Contact Us" },
+                  { href: "/contact-us/", label: "Contact Us" },
                   { href: "/about/blog", label: "Blog" },
                   { href: "/babington-wedding-info", label: "Babington House" },
                   { href: "/kin-house-wiltshire", label: "Kin House" },

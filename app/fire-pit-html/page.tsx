@@ -280,7 +280,7 @@ export default function FirePitHire() {
                 Call 07970793177
               </a>
               <Link
-                href="/contact-us"
+                href="/contact-us/"
                 className="inline-block px-8 py-3 bg-transparent border-2 border-champagne-gold text-champagne-gold font-semibold rounded-lg hover:bg-champagne-gold hover:text-black transition-all duration-300 hover:scale-105"
               >
                 Get in Touch

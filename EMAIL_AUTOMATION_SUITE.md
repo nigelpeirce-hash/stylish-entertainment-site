@@ -166,7 +166,7 @@ All templates use:
 - ✅ Responsive HTML design
 - ✅ Centralized email config (`office@stylishentertainment.co.uk`)
 
-## 📝 Customization
+## 📝 Customisation
 
 To modify email timing:
 - Edit `app/api/cron/email-journey/route.ts`

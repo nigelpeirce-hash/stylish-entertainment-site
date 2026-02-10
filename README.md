@@ -84,7 +84,7 @@ This builds the Next.js application ready for deployment to Vercel or other Node
     └── utils.ts          # Utility functions
 ```
 
-## Customization
+## Customisation
 
 ### Images
 

@@ -23,7 +23,9 @@
     rgba(0, 0, 0, 0.2) 0 2px 5px -3px;
   backdrop-filter: blur(5px);
   padding-top: env(safe-area-inset-top);
-  padding-right: env(safe-area-inset-right);
+  padding-left: max(48px, env(safe-area-inset-left));
+  padding-right: max(48px, env(safe-area-inset-right));
+  min-height: 112px;
 }
 
 .menuComponent.withBanner {
@@ -41,10 +43,11 @@
   gap: 0;
 }
 
-/* Wordmark / Brand */
+/* Wordmark / Brand – desktop: margin-right auto pushes Enquire + Burger right */
 .wordmarkContainer {
   display: flex;
   align-items: center;
+  margin-right: auto;
 }
 
 .wordmarkLinkBlock {
@@ -111,6 +114,13 @@
   display: flex;
   align-items: center;
   gap: 2rem; /* gap-x-8 */
+}
+
+/* Center column wrapper (Enquire) – used for mobile grid column 2 */
+.headerCenterColumn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .buttonGroup {
@@ -228,6 +238,12 @@
   height: 3em;
 }
 
+.burgerIcon {
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+}
+
 /* Responsive */
 @media screen and (max-width: 991px) {
   .ctaMenuRight {
@@ -240,14 +256,87 @@
 }
 
 @media screen and (max-width: 767px) {
+  /* Sticky: header height locked to h-16 (64px), px-4 */
   .menuComponent {
-    min-height: 4.5rem;
-    padding: 0 1rem;
+    min-height: 4rem;
+    height: 4rem;
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
   }
 
-  .enquireButton {
-    transform: scale(0.85);
-    transform-origin: center;
+  /* Three-column grid: [Logo | Enquire (center) | Burger] */
+  .megaMenuContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    align-items: center;
+    width: 100%;
+    gap: 0;
+  }
+
+  .wordmarkContainer {
+    min-width: 0;
+    margin-right: 0; /* grid controls layout */
+  }
+
+  .wordmarkLinkBlock {
+    min-height: 40px;
+    padding-right: 8px;
+  }
+
+  /* Logo: Stylish text-lg, Entertainment text-[10px] – left column doesn't bleed */
+  .approvalsLogoTextMobile {
+    font-size: 1.125rem !important; /* text-lg */
+  }
+
+  .logoSubTxtMobile {
+    font-size: 10px !important; /* text-[10px] */
+  }
+
+  /* Column 2: Enquire dead-center */
+  .headerCenterColumn {
+    justify-self: center;
+  }
+
+  /* Remove vertical divider between button and burger – clean, high-end */
+  .buttonGroup {
+    border-right: none !important;
+    padding-right: 0 !important;
+  }
+
+  /* Enquire: h-[38px], px-3, text-xs for more visual air */
+  .enquireButtonMobile {
+    height: 38px !important;
+    min-height: 38px !important;
+    padding: 0 0.75rem !important; /* px-3 */
+    font-size: 0.75rem !important; /* text-xs */
+    font-weight: 600 !important;
+  }
+
+  /* Column 3: Burger pinned right, 44×44px hitbox */
+  .burgerMenuMobile {
+    display: flex !important;
+    visibility: visible !important;
+    color: #ffffff !important;
+    margin-left: 0;
+    min-width: 44px;
+    min-height: 44px;
+    width: 44px;
+    height: 44px;
+    padding: 0 !important;
+    justify-content: center;
+    align-items: center;
+    justify-self: end;
+    position: relative;
+    z-index: 50;
+  }
+
+  .burgerMenuMobile:hover {
+    color: rgb(255, 217, 0) !important;
+  }
+
+  .burgerMenuMobile .burgerIcon {
+    width: 1.25rem;
+    height: 1.25rem;
   }
 }
 

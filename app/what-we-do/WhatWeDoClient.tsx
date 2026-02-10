@@ -76,7 +76,7 @@ const services = [
     title: "Party Planning",
     description: "Complete event planning and coordination services handling every detail from concept to execution.",
     icon: Calendar,
-    href: "/party-planning-and-organising",
+    href: "/party-planning-and-organising/",
     color: "from-amber-400/20 to-yellow-500/20",
     borderColor: "border-amber-400/30",
     hoverBorderColor: "hover:border-amber-400/50",
@@ -206,7 +206,7 @@ export default function WhatWeDoClient() {
                   size="lg"
                   className="bg-champagne-gold text-black hover:bg-gold-light hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(212,175,55,0.5)]"
                 >
-                  <Link href="/contact-us">Check Availability</Link>
+                  <Link href="/contact-us/">Check Availability</Link>
                 </Button>
               </CardContent>
             </Card>

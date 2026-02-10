@@ -14,7 +14,7 @@ function hasSessionCookie(request: NextRequest): boolean {
   return !!cookie?.value;
 }
 
-const CANONICAL_HOST = "www.stylishentertainment.co.uk";
+const CANONICAL_HOST = "stylishentertainment.co.uk";
 const LEGACY_QUERY_PARAMS = ["attachment_id", "wordfence_lh", "hid", "wc-ajax"];
 const SEARCH_PARAM = "s";
 
@@ -23,15 +23,15 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const hostname = request.headers.get("host") || "";
 
-  // Production-only: HTTPS and non-www → www
+  // Production-only: HTTPS and www → non-www (canonical)
   if (process.env.NODE_ENV === "production" && !hostname.includes("localhost") && !hostname.includes("127.0.0.1")) {
     // Force HTTPS
     if (request.headers.get("x-forwarded-proto") !== "https") {
       url.protocol = "https:";
       return NextResponse.redirect(url, 301);
     }
-    // Non-www → www (stylishentertainment.co.uk → www.stylishentertainment.co.uk)
-    if (hostname === "stylishentertainment.co.uk") {
+    // WWW to non-WWW: permanently redirect www.stylishentertainment.co.uk → https://stylishentertainment.co.uk/
+    if (hostname === "www.stylishentertainment.co.uk") {
       url.host = CANONICAL_HOST;
       url.protocol = "https:";
       return NextResponse.redirect(url, 301);

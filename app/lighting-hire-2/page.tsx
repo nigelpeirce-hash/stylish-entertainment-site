@@ -102,7 +102,7 @@ export default function LightingHire2() {
                 <ul className="space-y-3">
                   {[
                     "Custom lighting schemes tailored to your venue",
-                    "LED uplighting and color washes",
+                    "LED uplighting and colour washes",
                     "Intelligent moving lights and effects",
                     "Atmospheric mood lighting",
                     "Dance floor lighting packages",
@@ -154,7 +154,7 @@ export default function LightingHire2() {
               Ready to transform your venue?
             </h2>
             <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
-              <Link href="/contact-us">Get in Touch</Link>
+              <Link href="/contact-us/">Get in Touch</Link>
             </Button>
           </motion.div>
         </div>

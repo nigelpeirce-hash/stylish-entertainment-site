@@ -196,7 +196,7 @@ function BookFromQuoteContent() {
             </CardHeader>
             <CardContent>
               <Link
-                href="/contact-us"
+                href="/contact-us/"
                 className="inline-block text-champagne-gold hover:underline"
               >
                 Contact us

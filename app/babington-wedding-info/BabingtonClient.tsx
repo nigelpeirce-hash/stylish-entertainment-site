@@ -908,7 +908,7 @@ export default function BabingtonClient() {
             </h2>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-gold-light hover:scale-105 transition-all duration-300 shadow-[0_0_15px_rgba(212,175,55,0.4)]">
-                <Link href="/contact-us">Get in Touch</Link>
+                <Link href="/contact-us/">Get in Touch</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10 transition-all duration-300">
                 <Link href="/artists/djs">Visit DJ Nige&apos;s Page</Link>

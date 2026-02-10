@@ -79,7 +79,7 @@ export default function HorizontalImageCarousel({
             alt={images[0].alt}
             fill
             className="object-cover transition-transform duration-500 group-hover:scale-105"
-            sizes="(max-width: 768px) 100vw, 90vw"
+            sizes="(max-width: 768px) 100vw, 50vw"
             priority
           />
         </div>
@@ -123,7 +123,7 @@ export default function HorizontalImageCarousel({
                   alt={image.alt}
                   fill
                   className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 90vw"
+                  sizes="(max-width: 768px) 100vw, 50vw"
                   loading={index <= 1 ? "eager" : "lazy"}
                   priority={index === 0}
                 />

@@ -41,10 +41,12 @@ export const BREADCRUMB_ROUTE_LABELS: Record<string, string> = {
   "/galleries": "Galleries",
   "/contact": "Contact",
   "/contact-us": "Contact Us",
+  "/contact-us/": "Contact Us",
   "/venues": "Venues",
   "/testi": "Testimonials",
   "/faq": "FAQ",
   "/party-planning-and-organising": "Party Planning",
+  "/party-planning-and-organising/": "Party Planning",
   
   // Blog posts (examples)
   "/five-ways-to-totally-transform-a-venue-1-lighting": "Five Ways to Transform a Venue #1 Lighting",

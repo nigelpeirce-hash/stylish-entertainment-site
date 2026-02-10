@@ -183,7 +183,7 @@ export default function Parties() {
               and let&apos;s create something extraordinary together.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/contact-us">
+              <Link href="/contact-us/">
                 <Button className="bg-champagne-gold hover:bg-champagne-gold/80 text-gray-900 font-semibold px-8 py-6 text-lg">
                   Get in Touch
                 </Button>

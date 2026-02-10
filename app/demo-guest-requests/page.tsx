@@ -217,7 +217,7 @@ export default function DemoGuestRequestPage() {
               </Card>
             </Link>
 
-            <Link href="/contact-us">
+            <Link href="/contact-us/">
               <Button className="w-full bg-champagne-gold text-black hover:bg-gold-light font-semibold py-6 text-lg mt-4">
                 Get a Free Quote
                 <ArrowRight className="w-5 h-5 ml-2" />
@@ -474,7 +474,7 @@ export default function DemoGuestRequestPage() {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
-              href="/contact-us"
+              href="/contact-us/"
               className="bg-champagne-gold text-black px-6 py-3 rounded-full text-base font-semibold hover:bg-gold-light transition-colors"
             >
               Planning your own event?

@@ -31,7 +31,7 @@ const nextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1360, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
-  trailingSlash: true, // Global: canonical URLs use trailing slashes; redirects still list both /path and /path/ to catch incoming links
+  trailingSlash: true, // Canonical URL standard: /contact-us → /contact-us/, per SEO audit; matches internal links
   // Force HTTPS in production
   async headers() {
     return [
@@ -109,6 +109,20 @@ const nextConfig = {
   // Redirects run top-to-bottom: put specific/wildcard rules before broader ones.
   async redirects() {
     return [
+      // --- Legacy WordPress .php / category (GSC 404/Redirect reports) → relevant canonical pages ---
+      { source: '/party-planning.php', destination: '/party-planning-and-organising/', permanent: true },
+      { source: '/party-planning.php/', destination: '/party-planning-and-organising/', permanent: true },
+      { source: '/contact.php', destination: '/contact-us/', permanent: true },
+      { source: '/contact.php/', destination: '/contact-us/', permanent: true },
+      { source: '/category/party-planning', destination: '/party-planning-and-organising/', permanent: true },
+      { source: '/category/party-planning/', destination: '/party-planning-and-organising/', permanent: true },
+      { source: '/category/events', destination: '/party-planning-and-organising/', permanent: true },
+      { source: '/category/events/', destination: '/party-planning-and-organising/', permanent: true },
+      { source: '/category/lighting', destination: '/services/lighting-design/', permanent: true },
+      { source: '/category/lighting/', destination: '/services/lighting-design/', permanent: true },
+      { source: '/category/contact', destination: '/contact-us/', permanent: true },
+      { source: '/category/contact/', destination: '/contact-us/', permanent: true },
+
       // --- STATIC DEMO PAGES ---
       { source: '/phone-demo.html', destination: '/iphone-demo.html', permanent: false },
       { source: '/terms-portal-flow-demo.html', destination: '/terms-portal-flow-demo', permanent: false },

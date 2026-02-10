@@ -194,7 +194,7 @@ export default function KitHireClient() {
                     size="lg"
                     className="bg-champagne-gold text-black hover:bg-gold-light hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(212,175,55,0.5)] mb-4"
                   >
-                    <Link href="/contact-us">Get in Touch</Link>
+                    <Link href="/contact-us/">Get in Touch</Link>
                   </Button>
                   <p className="text-sm text-gray-300 italic mt-4">
                     Not sure what you need? Tell us your venue and guest count, and we will recommend the perfect kit package.

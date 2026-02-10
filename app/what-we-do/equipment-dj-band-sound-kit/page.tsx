@@ -131,7 +131,7 @@ export default function SoundEquipment() {
               Need professional sound equipment for your event?
             </h2>
             <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
-              <Link href="/contact-us">Check Availability</Link>
+              <Link href="/contact-us/">Check Availability</Link>
             </Button>
           </motion.div>
         </div>

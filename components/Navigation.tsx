@@ -24,7 +24,7 @@ export default function Navigation() {
 
   const navLinks = [
     { href: "/request-quote", label: "Request a quote" },
-    { href: "/contact-us", label: "Contact" },
+    { href: "/contact-us/", label: "Contact" },
   ];
 
   const galleriesLinks = [
@@ -41,7 +41,7 @@ export default function Navigation() {
   ];
 
   const whatWeOfferLinks = [
-    { href: "/party-planning-and-organising", label: "Party Planning" },
+    { href: "/party-planning-and-organising/", label: "Party Planning" },
     { href: "/what-we-do/venue-decoration", label: "Venue Styling" },
     { href: "/what-we-do/lighting", label: "Lighting" },
     { href: "/what-we-do/equipment-dj-band-sound-kit", label: "Sound" },
@@ -414,7 +414,7 @@ export default function Navigation() {
 
                   {/* Contact Link */}
                   <Link
-                    href="/contact-us"
+                    href="/contact-us/"
                     className="block text-white hover:text-[#d4af37] hover:translate-x-2 transition-all duration-300 font-semibold py-2 sm:py-3 px-3 rounded-lg hover:bg-white/10 relative group"
                     onClick={() => setIsOpen(false)}
                   >

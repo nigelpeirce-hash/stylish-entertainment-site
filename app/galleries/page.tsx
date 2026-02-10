@@ -23,12 +23,6 @@ const lightingPhotos: Photo[] = [
     alt: "Emily and Tom's wedding reception with stunning atmospheric lighting design, captured by Jonny Barratt Photography, creating a magical evening ambiance",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768753000/IMG_2530_njx41m.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Professional lighting design transformation creating a stunning venue atmosphere with elegant lighting effects",
-  },
-  {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768742320/IMG_1871_161201_n88x5z.jpg",
     width: 1200,
     height: 900,
@@ -163,16 +157,6 @@ const beforeAfterTransforms = [
     after: {
       src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163716/IMG_1098_hqiw3d.jpg",
       alt: "Venue after transformation - elegant outdoor terrace with professional venue styling, festoon lighting and beautiful decorations",
-    },
-  },
-  {
-    before: {
-      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768753000/IMG_2530_njx41m.jpg",
-      alt: "Venue before transformation - empty space ready for fun and creative styling",
-    },
-    after: {
-      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768751155/IMG_3188_zviff5.jpg",
-      alt: "Venue after transformation - fun and creative party styling with vibrant decorations and lighting design",
     },
   },
 ];

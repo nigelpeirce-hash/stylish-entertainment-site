@@ -150,7 +150,7 @@ If not using Vercel, you can set up an external cron service (e.g., cron-job.org
 1. **Check NEXT_PUBLIC_SITE_URL**: Must be set correctly for email links
 2. **Check Base URL**: Ensure it includes protocol (https://)
 
-## Customization
+## Customisation
 
 ### Change Recipient
 

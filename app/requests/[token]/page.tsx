@@ -437,7 +437,7 @@ export default function GuestRequestPage() {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link
-              href="/contact-us"
+              href="/contact-us/"
               className="bg-champagne-gold text-black px-6 py-3 rounded-full text-base font-semibold hover:bg-gold-light transition-colors"
             >
               Planning your own event?

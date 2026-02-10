@@ -384,7 +384,7 @@ export default function Musicians() {
               Ready to add live music to your celebration?
             </h2>
             <Link
-              href="/contact-us"
+              href="/contact-us/"
               className="inline-block px-8 py-3 bg-champagne-gold text-black font-semibold rounded-lg hover:bg-gold-light transition-all duration-300 hover:scale-105 shadow-lg"
             >
               Get in Touch

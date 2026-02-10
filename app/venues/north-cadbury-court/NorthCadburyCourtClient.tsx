@@ -47,7 +47,7 @@ export default function NorthCadburyCourtClient() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90">
-                    <Link href="/contact-us">Get in Touch</Link>
+                    <Link href="/contact-us/">Get in Touch</Link>
                   </Button>
                   <Button asChild size="lg" variant="outline" className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10">
                     <Link href="https://www.northcadburycourt.co.uk/" target="_blank" rel="noopener noreferrer">

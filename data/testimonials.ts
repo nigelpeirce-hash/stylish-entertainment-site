@@ -717,7 +717,7 @@ export const testimonials: Testimonial[] = [
     venueFilter: "Babington House",
   },
   {
-    quote: "Dear Nigel, A quick note to say thank you for all of your help in organizing Woodfield to play at our wedding on 3 September at North Cadbury Court. They were exceptional and without question, their performance was a personal highlight of the evening. I've attached some photos, please feel free to pass them on. Special thanks to them for accommodating our special requests. They are brilliant musicians (and really nice, down to earth people) and I wish them nothing but a bright future and hope to check them out again at a forthcoming gig. I am one happy customer and I highly recommend the services of Stylish Entertainment. I hope our paths cross again soon.",
+    quote: "Dear Nigel, A quick note to say thank you for all of your help in organising Woodfield to play at our wedding on 3 September at North Cadbury Court. They were exceptional and without question, their performance was a personal highlight of the evening. I've attached some photos, please feel free to pass them on. Special thanks to them for accommodating our special requests. They are brilliant musicians (and really nice, down to earth people) and I wish them nothing but a bright future and hope to check them out again at a forthcoming gig. I am one happy customer and I highly recommend the services of Stylish Entertainment. I hope our paths cross again soon.",
     author: "Katie Donaldson",
     venue: "North Cadbury Court, Somerset",
     venueUrl: "https://www.northcadburycourt.com/",

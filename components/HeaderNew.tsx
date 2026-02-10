@@ -83,30 +83,24 @@ export default function HeaderNew() {
   return (
     <header
       className={`${styles.header} ${styles.menuComponent} fixed left-0 right-0 z-50 top-0`}
-      style={{
-          paddingLeft: "max(48px, env(safe-area-inset-left))",
-          paddingRight: "max(48px, env(safe-area-inset-right))",
-          paddingTop: "env(safe-area-inset-top)",
-          minHeight: "112px",
-        }}
       role="banner"
     >
       <div className={styles.megaMenuContainer}>
-        {/* Logo – locked to 48px left padding, marginRight: auto pushes rest right */}
-        <div className={styles.wordmarkContainer} style={{ marginRight: "auto" }}>
+        {/* Column 1 (Left): Logo */}
+        <div className={styles.wordmarkContainer}>
           <Link href="/" className={styles.wordmarkLinkBlock} prefetch={false}>
             <div className={styles.wordmarkWrapper}>
-              <span className={styles.approvalsLogoText}>Stylish</span>
-              <span className={styles.logoSubTxt}>Entertainment</span>
+              <span className={`${styles.approvalsLogoText} ${styles.approvalsLogoTextMobile}`}>Stylish</span>
+              <span className={`${styles.logoSubTxt} ${styles.logoSubTxtMobile}`}>Entertainment</span>
             </div>
           </Link>
         </div>
 
-        {/* Right: Enquire/Admin/Sign Out + Burger, gap-x-8, anchored right within px-12 */}
-        <div className={styles.ctaMenuRight}>
+        {/* Column 2 (Center): Enquire – dead-center via justify-self-center */}
+        <div className={styles.headerCenterColumn}>
           {!isLoggedIn ? (
             <div className={styles.buttonGroup}>
-              <Link href="/request-quote/" className={styles.enquireButton} prefetch={false}>
+              <Link href="/request-quote/" className={`${styles.enquireButton} ${styles.enquireButtonMobile}`} prefetch={false}>
                 Enquire
               </Link>
             </div>
@@ -115,21 +109,21 @@ export default function HeaderNew() {
               <AuthButtonSimple />
             </div>
           )}
-
-          {/* Burger menu button */}
-          <button
-            type="button"
-            className={styles.burgerMenuPlaceholder}
-            onClick={() => setIsBurgerOpen(!isBurgerOpen)}
-            aria-label="Toggle menu"
-          >
-            {isBurgerOpen ? (
-              <X className="w-8 h-8" aria-hidden />
-            ) : (
-              <Menu className="w-8 h-8" aria-hidden />
-            )}
-          </button>
         </div>
+
+        {/* Column 3 (Right): Burger – justify-self-end, 44px hitbox */}
+        <button
+          type="button"
+          className={`${styles.burgerMenuPlaceholder} ${styles.burgerMenuMobile}`}
+          onClick={() => setIsBurgerOpen(!isBurgerOpen)}
+          aria-label="Toggle menu"
+        >
+          {isBurgerOpen ? (
+            <X className={styles.burgerIcon} aria-hidden />
+          ) : (
+            <Menu className={styles.burgerIcon} aria-hidden />
+          )}
+        </button>
       </div>
 
       {/* Strapline – direct child of header, absolute center via inline styles */}
@@ -217,7 +211,7 @@ export default function HeaderNew() {
               />
               <Link
                 href="/contact-us/"
-                className="text-2xl text-white hover:text-[#d4af37] transition-all duration-300 font-semibold py-3 px-3 rounded-lg hover:bg-white/10 whitespace-nowrap tracking-wide"
+                className="text-base text-white hover:text-[#d4af37] transition-all duration-300 font-medium py-4 px-3 rounded-lg hover:bg-white/10 whitespace-nowrap tracking-widest min-h-[48px] flex items-center"
                 onClick={closeBurger}
                 prefetch={false}
               >
@@ -250,7 +244,7 @@ function BurgerDropdown({
     <div className="relative">
       <button
         onClick={onToggle}
-        className="text-left text-2xl text-white hover:text-[#d4af37] transition-all duration-300 font-semibold py-3 px-3 rounded-lg hover:bg-white/10 flex items-center gap-1 whitespace-nowrap tracking-wide min-h-[48px]"
+        className="text-left text-base text-white hover:text-[#d4af37] transition-all duration-300 font-medium py-4 px-3 rounded-lg hover:bg-white/10 flex items-center gap-1 whitespace-nowrap tracking-widest min-h-[48px]"
       >
         {label}
         <ChevronDown
@@ -269,7 +263,7 @@ function BurgerDropdown({
               <Link
                 key={item.href}
                 href={item.href}
-                className="block text-lg text-white hover:text-[#d4af37] hover:translate-x-2 transition-all duration-300 font-medium py-3 px-2 rounded hover:bg-white/10 whitespace-nowrap tracking-wide min-h-[48px] flex items-center"
+                className="block text-sm text-white hover:text-[#d4af37] hover:translate-x-2 transition-all duration-300 font-normal py-4 px-2 rounded hover:bg-white/10 whitespace-nowrap tracking-wide min-h-[48px] flex items-center"
                 onClick={() => {
                   onLinkClick();
                   onCloseSub();

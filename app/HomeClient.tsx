@@ -68,7 +68,7 @@ const services = [
   },
   {
     title: "Party Planning",
-    href: "/party-planning-and-organising",
+    href: "/party-planning-and-organising/",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163810/image2_l1hxxx.jpg",
     alt: "Professional party planning and event production in the South West and beyond",
   },
@@ -301,7 +301,7 @@ export default function HomeClient() {
                     </div>
                     <h3 className="text-2xl md:text-3xl font-serif font-bold text-champagne-gold mb-2">Ali</h3>
                     <p className="text-sm text-gray-400 mb-3 uppercase tracking-wider">Creative Strategist</p>
-                    <p className="text-gray-300 leading-relaxed mb-4">Ali combines creative vision with meticulous attention to detail. Specializing in venue styling and artist liaison, Ali transforms spaces into stunning celebration environments where every detail matters.</p>
+                    <p className="text-gray-300 leading-relaxed mb-4">Ali combines creative vision with meticulous attention to detail. Specialising in venue styling and artist liaison, Ali transforms spaces into stunning celebration environments where every detail matters.</p>
                     <p className="text-champagne-gold text-sm font-medium group-hover:underline">Read Full Bio →</p>
                   </CardContent>
                 </Card>
