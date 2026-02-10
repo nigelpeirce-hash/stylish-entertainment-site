@@ -156,6 +156,36 @@ export default function TestimonialsClient() {
             <GoogleReviews maxReviews={5} className="luxury-theme" />
           </motion.div>
 
+          {/* Google Summary Card – directly above venue filter buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="flex justify-center mb-8"
+          >
+            <div className="inline-flex items-center gap-4 px-4 py-3 sm:px-6 sm:py-4 bg-gray-900/60 backdrop-blur-sm border border-champagne-gold/30 rounded-xl shadow-[0_0_24px_rgba(212,175,55,0.12)]">
+              <img
+                src="https://www.google.com/favicon.ico"
+                alt="Google"
+                className="w-6 h-6 shrink-0"
+                aria-hidden
+              />
+              <div className="flex gap-0.5 shrink-0">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <RefinedStar
+                    key={star}
+                    filled={true}
+                    className="w-[18px] h-[18px] text-champagne-gold"
+                  />
+                ))}
+              </div>
+              <span className="text-sm sm:text-base font-semibold text-white whitespace-nowrap">
+                159+ Five-Star Reviews on Google
+              </span>
+            </div>
+          </motion.div>
+
           {/* Venue Filter Chips */}
           <div className="flex flex-wrap items-center justify-center gap-3 mb-12">
             {venueFilters.map((filter) => (
@@ -233,30 +263,9 @@ export default function TestimonialsClient() {
           )}
 
           {/* Masonry Grid for Regular Testimonials */}
-          <style dangerouslySetInnerHTML={{__html: `
-            .testimonials-masonry {
-              column-count: 1;
-              column-gap: 1.5rem;
-            }
-            @media (min-width: 768px) {
-              .testimonials-masonry {
-                column-count: 2;
-              }
-            }
-            @media (min-width: 1024px) {
-              .testimonials-masonry {
-                column-count: 3;
-              }
-            }
-            .testimonials-masonry-item {
-              break-inside: avoid;
-              page-break-inside: avoid;
-              margin-bottom: 1.5rem;
-            }
-          `}} />
-          <motion.div 
+          <motion.div
             key={`masonry-${activeFilter}`}
-            className="testimonials-masonry"
+            className="columns-1 md:columns-2 lg:columns-3 gap-6"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
@@ -277,37 +286,37 @@ export default function TestimonialsClient() {
                   visible: { opacity: 1, y: 0, scale: 1 },
                 }}
                 transition={{ duration: 0.3 }}
-                className="testimonials-masonry-item"
+                className="break-inside-avoid inline-block w-full mb-6"
               >
-                    <Card className="bg-gray-900/50 backdrop-blur-sm border-champagne-gold/20 hover:border-champagne-gold/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all duration-300 h-full">
-                      <CardContent className="p-6 sm:p-8">
-                        <p className="text-gray-200 mb-4 leading-relaxed italic text-base sm:text-lg">
-                          &quot;{testimonial.quote}&quot;
-                        </p>
-                        <div className="border-t border-champagne-gold/20 pt-4">
-                          <p className="text-champagne-gold font-semibold text-sm sm:text-base">
-                            {testimonial.author}
-                          </p>
-                          <p className="text-gray-400 text-xs sm:text-sm mt-1 flex items-center gap-2">
-                            {testimonial.venueUrl ? (
-                              <Link
-                                href={testimonial.venueUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="hover:text-champagne-gold transition-colors underline flex items-center gap-1"
-                              >
-                                {testimonial.venue}
-                                <ExternalLink className="w-3 h-3" />
-                              </Link>
-                            ) : (
-                              testimonial.venue
-                            )}
-                          </p>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
+                <Card className="bg-gray-900/50 backdrop-blur-sm border border-champagne-gold/20 hover:border-champagne-gold/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all duration-300 h-full">
+                  <CardContent className="p-6 sm:p-8">
+                    <p className="text-gray-200 mb-4 leading-relaxed italic text-base sm:text-lg">
+                      &quot;{testimonial.quote}&quot;
+                    </p>
+                    <div className="border-t border-champagne-gold/20 pt-4">
+                      <p className="text-champagne-gold font-semibold text-sm sm:text-base">
+                        {testimonial.author}
+                      </p>
+                      <p className="text-gray-400 text-xs sm:text-sm mt-1 flex items-center gap-2">
+                        {testimonial.venueUrl ? (
+                          <Link
+                            href={testimonial.venueUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="hover:text-champagne-gold transition-colors underline flex items-center gap-1"
+                          >
+                            {testimonial.venue}
+                            <ExternalLink className="w-3 h-3" />
+                          </Link>
+                        ) : (
+                          testimonial.venue
+                        )}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
           </motion.div>
         </div>
       </section>

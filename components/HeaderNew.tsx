@@ -94,7 +94,7 @@ export default function HeaderNew() {
       <div className={styles.megaMenuContainer}>
         {/* Logo – locked to 48px left padding, marginRight: auto pushes rest right */}
         <div className={styles.wordmarkContainer} style={{ marginRight: "auto" }}>
-          <Link href="/" className={styles.wordmarkLinkBlock}>
+          <Link href="/" className={styles.wordmarkLinkBlock} prefetch={false}>
             <div className={styles.wordmarkWrapper}>
               <span className={styles.approvalsLogoText}>Stylish</span>
               <span className={styles.logoSubTxt}>Entertainment</span>
@@ -106,7 +106,7 @@ export default function HeaderNew() {
         <div className={styles.ctaMenuRight}>
           {!isLoggedIn ? (
             <div className={styles.buttonGroup}>
-              <Link href="/request-quote/" className={styles.enquireButton}>
+              <Link href="/request-quote/" className={styles.enquireButton} prefetch={false}>
                 Enquire
               </Link>
             </div>
@@ -219,6 +219,7 @@ export default function HeaderNew() {
                 href="/contact-us/"
                 className="text-2xl text-white hover:text-[#d4af37] transition-all duration-300 font-semibold py-3 px-3 rounded-lg hover:bg-white/10 whitespace-nowrap tracking-wide"
                 onClick={closeBurger}
+                prefetch={false}
               >
                 Contact
               </Link>
@@ -273,6 +274,7 @@ function BurgerDropdown({
                   onLinkClick();
                   onCloseSub();
                 }}
+                prefetch={false}
               >
                 {item.label}
               </Link>

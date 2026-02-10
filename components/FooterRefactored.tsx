@@ -38,15 +38,15 @@ export default function FooterRefactored() {
             </h3>
             <p className={`text-sm sm:text-base leading-relaxed ${footerText}`}>
               Professional DJs, live musicians, lighting design and venue styling for weddings, parties and corporate events. Trusted by prestigious venues across the UK.{" "}
-              <Link href="/artists/djs/" className={`${linkStyles} underline`}>DJs</Link>
+              <Link href="/artists/djs/" className={`${linkStyles} underline`} prefetch={false}>DJs</Link>
               {" · "}
-              <Link href="/artists/musicians/" className={`${linkStyles} underline`}>Musicians</Link>
+              <Link href="/artists/musicians/" className={`${linkStyles} underline`} prefetch={false}>Musicians</Link>
               {" · "}
-              <Link href="/services/lighting-design/" className={`${linkStyles} underline`}>Lighting</Link>
+              <Link href="/services/lighting-design/" className={`${linkStyles} underline`} prefetch={false}>Lighting</Link>
               {" · "}
-              <Link href="/services/venue-styling/" className={`${linkStyles} underline`}>Venue styling</Link>
+              <Link href="/services/venue-styling/" className={`${linkStyles} underline`} prefetch={false}>Venue styling</Link>
               {" · "}
-              <Link href="/hire/" className={`${linkStyles} underline`}>Hire shop</Link>
+              <Link href="/hire/" className={`${linkStyles} underline`} prefetch={false}>Hire shop</Link>
             </p>
           </div>
 
@@ -63,7 +63,7 @@ export default function FooterRefactored() {
                 { href: "/contact-us/", label: "Contact" },
               ].map((item) => (
                 <li key={item.href}>
-                  <Link href={item.href} className={`text-sm sm:text-base ${linkStyles} ${footerText}`}>
+                  <Link href={item.href} className={`text-sm sm:text-base ${linkStyles} ${footerText}`} prefetch={false}>
                     {item.label}
                   </Link>
                 </li>
@@ -77,7 +77,7 @@ export default function FooterRefactored() {
               Contact
             </h4>
             <p className={`text-sm sm:text-base mb-4 ${footerText}`}>
-              <Link href="/contact-us/" className={`${linkStyles} underline`}>
+              <Link href="/contact-us/" className={`${linkStyles} underline`} prefetch={false}>
                 Get in touch →
               </Link>
             </p>
@@ -111,10 +111,10 @@ export default function FooterRefactored() {
           </p>
           <span className="hidden sm:inline text-black/50">·</span>
           <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
-            <Link href="/privacy-policy/" className={`${linkStyles} underline`}>
+            <Link href="/privacy-policy/" className={`${linkStyles} underline`} prefetch={false}>
               Privacy Policy
             </Link>
-            <Link href="/terms-and-conditions/" className={`${linkStyles} underline`}>
+            <Link href="/terms-and-conditions/" className={`${linkStyles} underline`} prefetch={false}>
               Terms and Conditions
             </Link>
           </div>

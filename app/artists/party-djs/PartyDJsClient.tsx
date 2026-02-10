@@ -1,13 +1,21 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import Link from "next/link";
 import Image from "next/image";
 import { Music, Speaker, Mic, Disc, Music2, Shield, CheckCircle } from "lucide-react";
 import WaveDivider from "@/components/WaveDivider";
+
+/** FAQ section loaded below the fold to reduce initial JS/CSS and improve LCP */
+const PartyDJsFAQ = dynamic(() => import("./PartyDJsFAQ"), {
+  ssr: true,
+  loading: () => (
+    <div className="min-h-[320px] flex items-center justify-center text-gray-400">Loading…</div>
+  ),
+});
 
 const features = [
   {
@@ -49,29 +57,6 @@ const features = [
     icon: Shield,
     title: "Fully Insured",
     description: "Fully insured and PAT tested equipment for peace of mind",
-  },
-];
-
-const faqs = [
-  {
-    question: "Do you take requests?",
-    answer: "Yes, absolutely! We encourage requests and work with you to create a playlist that reflects your musical taste. We also have the ability to read the crowd and adjust the music accordingly to keep everyone dancing.",
-  },
-  {
-    question: "When do you set up?",
-    answer: "We typically arrive 2-3 hours before your event start time to set up all equipment. This ensures everything is tested and ready to go, minimizing any disruption to your celebration. Early setup can be arranged if needed.",
-  },
-  {
-    question: "What equipment do you provide?",
-    answer: "We provide premium sound systems, professional DJ equipment, wireless microphones, and all necessary cables and accessories. All equipment is PAT tested and fully insured with £10m public liability insurance.",
-  },
-  {
-    question: "Can you provide MC services?",
-    answer: "Yes, our DJs can provide professional MC services including announcements, introductions, and coordinating key moments throughout your event.",
-  },
-  {
-    question: "Do you work at venues like Babington House?",
-    answer: "Yes, we have been a trusted supplier at Babington House since 2003 and work regularly with premium venues in the South West and beyond. Our fully insured and PAT tested equipment meets all venue requirements.",
   },
 ];
 
@@ -201,40 +186,16 @@ export default function PartyDJsClient() {
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section 
+      {/* FAQ Section – dynamic to reduce initial JS/CSS and improve LCP */}
+      <section
         className="py-20 px-4"
         style={{
-          background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
+          background:
+            "radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)",
         }}
       >
         <div className="container mx-auto max-w-4xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h3 className="text-3xl md:text-4xl font-bold text-white mb-8 text-center">
-              Frequently Asked Questions
-            </h3>
-            <Card className="bg-gray-800/50 backdrop-blur-md border-champagne-gold/50">
-              <CardContent className="p-6">
-                <Accordion type="single" className="w-full">
-                  {faqs.map((faq, idx) => (
-                    <AccordionItem key={idx} value={`item-${idx}`}>
-                      <AccordionTrigger className="text-left">
-                        {faq.question}
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        {faq.answer}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </CardContent>
-            </Card>
-          </motion.div>
+          <PartyDJsFAQ />
         </div>
       </section>
 

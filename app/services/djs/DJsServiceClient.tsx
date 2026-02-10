@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Music } from "lucide-react";
+import DJRosterSection from "@/components/DJRosterSection";
 
 export default function DJsServiceClient() {
   return (
@@ -68,13 +69,15 @@ export default function DJsServiceClient() {
                   ))}
                 </ul>
               </div>
-              <div className="pt-6 border-t border-champagne-gold/20">
-                <Button asChild size="lg" className="w-full sm:w-auto">
-                  <Link href="/artists">Meet Our DJs</Link>
-                </Button>
-              </div>
             </CardContent>
           </Card>
+        </div>
+      </section>
+
+      {/* DJ Roster */}
+      <section className="py-16 px-3 sm:px-4 bg-gray-900">
+        <div className="container mx-auto">
+          <DJRosterSection />
         </div>
       </section>
 
@@ -91,7 +94,7 @@ export default function DJsServiceClient() {
               Ready to book your perfect DJ?
             </h2>
             <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
-              <Link href="/contact">Get in Touch</Link>
+              <Link href="/contact-us/">Get in Touch</Link>
             </Button>
           </motion.div>
         </div>

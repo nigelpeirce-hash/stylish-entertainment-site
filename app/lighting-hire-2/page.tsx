@@ -22,12 +22,6 @@ const lightingPhotos: ImagePhoto[] = [
     alt: "Elegant wedding reception with sophisticated lighting design creating a warm and romantic atmosphere with ambient mood lighting",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Babington House wedding venue exterior with beautiful green LED mood lighting, showcasing luxury wedding lighting design in Somerset",
-  },
-  {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg",
     width: 1200,
     height: 900,

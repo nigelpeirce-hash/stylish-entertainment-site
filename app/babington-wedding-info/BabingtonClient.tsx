@@ -12,7 +12,6 @@ import { Lightbulb, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const allImages = [
-  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg", alt: "Babington House wedding venue exterior" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg", alt: "Professional DJ setup by DJ Nige at Babington House" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw", alt: "Fairy light tunnel at Babington House" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768733634/Babington-Bar-with-DJ-and-Band-Setup-Summer_cs7dyw.jpg", alt: "Babington House bar with DJ and band setup in summer" },

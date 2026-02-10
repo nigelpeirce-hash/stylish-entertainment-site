@@ -150,7 +150,6 @@ function sliderCloudinaryUrl(url: string): string {
 
 const gallerySliderImages = [
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg", alt: "Professional wedding lighting and entertainment at Saltburn venue, showcasing elegant atmospheric lighting design and event styling" },
-  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg", alt: "Babington House wedding venue with beautiful exterior LED mood lighting in green tones, showcasing luxury wedding lighting design" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768742204/Saltburn_231005__0050_1558_y6diu8.jpg", alt: "Professional wedding lighting and entertainment at Saltburn venue, showcasing elegant atmospheric lighting design and event styling" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto,c_auto,g_auto,h_667,w_1000/EmilyTomWedding-JonnyBarrattPhotography605-scaled-e1640779326843_ozksuz.jpg", alt: "Emily and Tom's wedding reception with stunning atmospheric lighting design creating a magical evening ambiance" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw", alt: "Fairy light tunnel at Babington House creating a magical entrance with professional wedding lighting design and venue styling" },

@@ -52,8 +52,7 @@ export default function GoogleReviews({
       setLoading(true);
       setError(null);
       const response = await fetch(`/api/google-reviews?maxReviews=${maxReviews}`);
-      const data = await response.json();
-      
+      const data = await response.json().catch(() => ({}));
       if (data.success && data.reviews && data.reviews.length > 0) {
         setReviews(data.reviews);
         setShowFallback(false);
@@ -62,7 +61,6 @@ export default function GoogleReviews({
         setError(data.error || "No reviews available");
       }
     } catch (err) {
-      console.error("Error fetching Google reviews:", err);
       setShowFallback(true);
       setError("Failed to load reviews");
     } finally {

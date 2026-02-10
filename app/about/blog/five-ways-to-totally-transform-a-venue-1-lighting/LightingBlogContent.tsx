@@ -37,7 +37,6 @@ export default function LightingBlogContent() {
     { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163392/Mells_Barn_LED_lighting-transformed-e1698060379974_geh36y.jpg", alt: "Mells Barn transformed with LED lighting" },
     { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162636/IMG_8030_b5un4j.jpg", alt: "LED up-lighting creating dramatic mood lighting for events" },
     { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163677/Babington-Bar-Violet_xc3jsd.jpg", alt: "Violet LED up-lighting in the bar at Babington House Hotel" },
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg", alt: "Babington House transformed with green LED mood lighting" },
   ], []);
 
   return (

@@ -11,7 +11,7 @@ const VIBE_TILES = [
     headline: "The Anti-Cheesy DJ",
     vibe: "No cringey banter, no \"Macarena,\" just incredible mixing and a packed floor. Career DJs who have held residencies at places like Babington House for 20+ years.",
     buttonText: "Meet the DJs",
-    href: "/wedding-dj/",
+    href: "/artists/djs/",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163661/Hedsor-House-with-DJ-and-Sax_zv7pnl.jpg",
     imageAlt: "Hedsor House dance floor with DJ and sax – sophisticated wedding entertainment",
   },

@@ -48,18 +48,20 @@ export async function GET(request: NextRequest) {
     const maxReviews = parseInt(searchParams.get("maxReviews") || "5");
 
     if (!placeId) {
-      return NextResponse.json(
-        { error: "Place ID is required. Provide it as a query parameter or set GOOGLE_PLACE_ID in environment variables." },
-        { status: 400 }
-      );
+      return NextResponse.json({
+        success: false,
+        reviews: [],
+        error: "Place ID is required. Set GOOGLE_PLACE_ID in .env.local (see GOOGLE_REVIEWS_SETUP.md).",
+      });
     }
 
     const apiKey = process.env.GOOGLE_PLACES_API_KEY;
     if (!apiKey) {
-      return NextResponse.json(
-        { error: "Google Places API key is not configured. Set GOOGLE_PLACES_API_KEY in environment variables." },
-        { status: 500 }
-      );
+      return NextResponse.json({
+        success: false,
+        reviews: [],
+        error: "Google Places API key is not configured. Set GOOGLE_PLACES_API_KEY in .env.local (see GOOGLE_REVIEWS_SETUP.md).",
+      });
     }
 
     // Use Google Places API (New) to fetch place details including reviews
@@ -76,10 +78,12 @@ export async function GET(request: NextRequest) {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       console.error("Google Places API error:", errorData);
-      return NextResponse.json(
-        { error: "Failed to fetch reviews from Google Places API", details: errorData },
-        { status: response.status }
-      );
+      return NextResponse.json({
+        success: false,
+        reviews: [],
+        error: "Failed to fetch reviews from Google Places API",
+        details: errorData,
+      });
     }
 
     const data = await response.json();

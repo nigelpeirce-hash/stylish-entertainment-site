@@ -8,6 +8,8 @@ const nextConfig = {
   experimental: {
     // Disable server source maps to prevent minification crashes
     serverSourceMaps: false,
+    // Tree-shake barrel imports (e.g. lucide-react) to reduce JS bundle
+    optimizePackageImports: ['lucide-react'],
   },
   eslint: {
     ignoreDuringBuilds: true,
