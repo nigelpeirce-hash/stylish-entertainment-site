@@ -23,17 +23,21 @@ export async function middleware(request: NextRequest) {
   const url = request.nextUrl.clone();
   const hostname = request.headers.get("host") || "";
 
-  // Production-only: HTTPS and www → non-www (canonical)
+  // Production-only: HTTPS and www → non-www (canonical). Avoid circular redirects.
   if (process.env.NODE_ENV === "production" && !hostname.includes("localhost") && !hostname.includes("127.0.0.1")) {
-    // Force HTTPS
+    // Force HTTPS (only redirect if not already https)
     if (request.headers.get("x-forwarded-proto") !== "https") {
       url.protocol = "https:";
       return NextResponse.redirect(url, 301);
     }
-    // WWW to non-WWW: permanently redirect www.stylishentertainment.co.uk → https://stylishentertainment.co.uk/
-    if (hostname === "www.stylishentertainment.co.uk") {
+    // Only redirect when host specifically starts with www (prevents accidental redirects)
+    if (hostname.startsWith("www.")) {
       url.host = CANONICAL_HOST;
       url.protocol = "https:";
+      // Preserve trailing slash so Next.js (trailingSlash: true) doesn't trigger a second redirect
+      if (pathname !== "/" && !pathname.endsWith("/")) {
+        url.pathname = pathname + "/";
+      }
       return NextResponse.redirect(url, 301);
     }
   }
@@ -74,11 +78,12 @@ export async function middleware(request: NextRequest) {
   return nextWithPathname(pathname, request);
 }
 
+// Exclude static files and Next internals to prevent redirect loops (images, favicon, _next/static)
 export const config = {
   matcher: [
     "/client/:path*",
     "/admin/:path*",
     "/",
-    "/((?!_next/static|_next/image|api|favicon\\.ico).*)",
+    "/((?!_next/static|_next/image|api|favicon\\.ico|.*\\.(ico|svg|png|jpe?g|gif|webp|css|js)$).*)",
   ],
 };
