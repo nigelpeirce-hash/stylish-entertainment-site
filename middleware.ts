@@ -26,8 +26,13 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const url = request.nextUrl.clone();
   const hostname = request.headers.get("host") || "";
+  // If URL is already canonical (non-www, trailing slash, HTTPS), skip redirects to prevent loops
+  if (hostname === "stylishentertainment.co.uk" && pathname.endsWith("/") && request.nextUrl.protocol === "https:") {
+    return NextResponse.next();
+  }
+
+  const url = request.nextUrl.clone();
 
   // Production-only: HTTPS and www → non-www (canonical). Avoid circular redirects.
   if (process.env.NODE_ENV === "production" && !hostname.includes("localhost") && !hostname.includes("127.0.0.1")) {
@@ -36,7 +41,7 @@ export async function middleware(request: NextRequest) {
       url.protocol = "https:";
       return NextResponse.redirect(url, 301);
     }
-    // Only redirect when host specifically starts with www (prevents accidental redirects)
+    // Only redirect when host actually starts with www
     if (hostname.startsWith("www.")) {
       url.host = CANONICAL_HOST;
       url.protocol = "https:";
