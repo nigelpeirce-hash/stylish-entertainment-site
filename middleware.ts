@@ -20,6 +20,12 @@ const SEARCH_PARAM = "s";
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+
+  // Bail out early if the path is a static asset (handled in logic layer; matcher stays simple)
+  if (pathname.match(/\.(?:ico|svg|png|jpe?g|gif|webp|css|js)$/)) {
+    return NextResponse.next();
+  }
+
   const url = request.nextUrl.clone();
   const hostname = request.headers.get("host") || "";
 
@@ -78,12 +84,19 @@ export async function middleware(request: NextRequest) {
   return nextWithPathname(pathname, request);
 }
 
-// Exclude static files and Next internals to prevent redirect loops (images, favicon, _next/static)
+/*
+ * Match all request paths except for the ones starting with:
+ * - api (API routes)
+ * - _next/static (static files)
+ * - _next/image (image optimization files)
+ * - favicon.ico (favicon file)
+ * File extensions (.png, .jpg, etc.) are excluded in middleware logic above.
+ */
 export const config = {
   matcher: [
     "/client/:path*",
     "/admin/:path*",
     "/",
-    "/((?!_next/static|_next/image|api|favicon\\.ico|.*\\.(ico|svg|png|jpe?g|gif|webp|css|js)$).*)",
+    "/((?!api|_next/static|_next/image|favicon\\.ico).*)",
   ],
 };
