@@ -23,7 +23,7 @@ const lightingPhotos: Photo[] = [
     alt: "Emily and Tom's wedding reception with stunning atmospheric lighting design, captured by Jonny Barratt Photography, creating a magical evening ambiance",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768751155/IMG_3188_zviff5.jpg",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768753000/IMG_2530_njx41m.jpg",
     width: 1200,
     height: 900,
     alt: "Professional lighting design transformation creating a stunning venue atmosphere with elegant lighting effects",

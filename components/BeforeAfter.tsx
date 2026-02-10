@@ -3,6 +3,12 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 
+const aspectMap = {
+  "4/3": "aspect-[4/3]",
+  "16/9": "aspect-[16/9]",
+  "21/9": "aspect-[21/9]",
+} as const;
+
 interface BeforeAfterProps {
   before: {
     src: string;
@@ -12,9 +18,13 @@ interface BeforeAfterProps {
     src: string;
     alt: string;
   };
+  /** Cinematic wide (16/9 or 21/9) or default 4/3 */
+  aspectRatio?: keyof typeof aspectMap;
+  /** If true, wrapper is w-full; otherwise max-w-5xl mx-auto */
+  fullWidth?: boolean;
 }
 
-export default function BeforeAfter({ before, after }: BeforeAfterProps) {
+export default function BeforeAfter({ before, after, aspectRatio = "4/3", fullWidth }: BeforeAfterProps) {
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -63,10 +73,10 @@ export default function BeforeAfter({ before, after }: BeforeAfterProps) {
   }, [isDragging]);
 
   return (
-    <div className="w-full max-w-5xl mx-auto">
+    <div className={fullWidth ? "w-full" : "w-full max-w-5xl mx-auto"}>
       <div
         ref={containerRef}
-        className="relative w-full aspect-[4/3] rounded-lg overflow-hidden shadow-2xl cursor-col-resize select-none"
+        className={`relative w-full ${aspectMap[aspectRatio]} rounded-lg overflow-hidden shadow-2xl cursor-col-resize select-none`}
         onMouseDown={(e) => {
           setIsDragging(true);
           if (containerRef.current) {

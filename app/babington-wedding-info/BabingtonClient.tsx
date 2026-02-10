@@ -634,6 +634,10 @@ export default function BabingtonClient() {
                   src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768738377/Amber-LED-Mood-lighting_jvwdbr.jpg",
                   alt: "Amber LED mood lighting at Babington House bar",
                 },
+                {
+                  src: "https://res.cloudinary.com/drtwveoqo/image/upload/v1768163647/Orangery-violet_c95cvu.jpg",
+                  alt: "Orangery with violet lighting at Babington House",
+                },
               ]}
             />
           </motion.div>
@@ -723,10 +727,10 @@ export default function BabingtonClient() {
             <div className="space-y-4">
               <div className="relative w-full h-96 md:h-full min-h-[400px] rounded-lg overflow-hidden bg-gray-900 shadow-lg">
                 <BlogImage
-                  src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768749164/MartinBeddallPhotography02-e1530632660291_pabjzl.jpg"
+                  src="https://res.cloudinary.com/drtwveoqo/image/upload/v1768163448/Entrance-Lighting-02_rojobv.jpg"
                   alt="Babington House front of house wedding celebration with fairy light bushes"
                   images={[
-                    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768749164/MartinBeddallPhotography02-e1530632660291_pabjzl.jpg", alt: "Babington House front of house with fairy lights in bushes, captured by Martin Beddall Photography" },
+                    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/v1768163448/Entrance-Lighting-02_rojobv.jpg", alt: "Babington House front of house with fairy lights in bushes, captured by Martin Beddall Photography" },
                     { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768749211/MartinBeddallPhotography03-e1530632777146_eqctxf.jpg", alt: "Babington House front of house with elegant lighting, captured by Martin Beddall Photography" },
                     { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768740393/Albert-Palmer-Photography-002_rpgfzf.jpg", alt: "Albert Palmer Photography at Babington House" },
                     { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768740556/Albert-Palmer-Photography-001-2-e1642519560978_yjkunf.jpg", alt: "Albert Palmer Photography at Babington House" },
@@ -813,10 +817,6 @@ export default function BabingtonClient() {
             <BarGalleryCarousel
               images={[
                 {
-                  src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768738816/Fairy-light-Canopy_vc1rkd.gif",
-                  alt: "Animated fairy light canopy at Babington House Orangery",
-                },
-                {
                   src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg",
                   alt: "Babington House Orangery with elegant lighting design and venue styling",
                 },
@@ -829,12 +829,12 @@ export default function BabingtonClient() {
                   alt: "Babington House Orangery with elegant lighting design",
                 },
                 {
-                  src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768742204/Saltburn_231005__0050_1558_y6diu8.jpg",
-                  alt: "Babington House Orangery with atmospheric lighting and venue styling",
+                  src: "https://res.cloudinary.com/drtwveoqo/image/upload/v1768163170/Orangery-Canopy-Day_llzwge.jpg",
+                  alt: "Orangery canopy by day at Babington House",
                 },
                 {
-                  src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768741069/_Q1D3959w_1_cybtce.jpg",
-                  alt: "Babington House Orangery with elegant lighting design",
+                  src: "https://res.cloudinary.com/drtwveoqo/image/upload/v1768163647/Orangery-violet_c95cvu.jpg",
+                  alt: "Orangery with violet lighting at Babington House",
                 },
               ]}
             />
@@ -861,10 +861,11 @@ export default function BabingtonClient() {
             </p>
             <div className="relative w-full h-96 md:h-[500px] rounded-lg overflow-hidden bg-gray-900 shadow-lg mt-6">
               <BlogImage
-                src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768742527/Church-Exterior-Lighting_a8rzbd.jpg"
-                alt="Walled Garden exterior lighting at Babington House"
+                src="https://res.cloudinary.com/drtwveoqo/image/upload/v1768163336/Fairy-canopy-6_iv1ig2.jpg"
+                alt="Walled Garden fairy light canopy at Babington House"
                 images={[
-                  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768742527/Church-Exterior-Lighting_a8rzbd.jpg", alt: "Walled Garden exterior lighting at Babington House" },
+                  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/v1768163336/Fairy-canopy-6_iv1ig2.jpg", alt: "Walled Garden fairy light canopy at Babington House" },
+                  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/v1768163204/IMG_2362_zfncoc.jpg", alt: "Walled Garden at Babington House" },
                   ...allImages,
                 ]}
                 index={0}

@@ -31,8 +31,8 @@ const mellsBarnPhotos = [
     height: 1600,
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162233/Mells-Barn-Mirrorball_yzes4e.jpg",
-    alt: "Mirror-balls anywhere, inside or outside they make a lovely decorative lighting feature at Mells Barn",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/v1768163250/Mells-Barn-Mirrorball_qwxxhi.jpg",
+    alt: "Mirrorball at Mells Barn creating a stunning decorative lighting feature",
     width: 1200,
     height: 900,
   },

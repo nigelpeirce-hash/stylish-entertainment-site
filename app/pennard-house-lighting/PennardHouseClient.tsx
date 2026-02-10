@@ -85,8 +85,8 @@ export default function PennardHouseClient() {
       <section className="relative min-h-[60vh] flex items-center justify-center text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162614/Pennard-House-Coach-House-with-Festoon-Lighting-Canopy_swzbdx.jpg"
-            alt="Pennard House wedding venue with stunning festoon lighting canopy - professional wedding lighting design"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162671/Pennard-House_skxuop.jpg"
+            alt="Pennard House wedding venue - professional wedding lighting design"
             fill
             className="object-cover object-center"
             priority

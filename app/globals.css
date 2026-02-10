@@ -123,6 +123,10 @@ p[data-cky-tag="title"],
     column-count: 3;
   }
 }
+/* Tidy grid: more breathing room (gap-8) */
+.testimonials-masonry-tidy {
+  column-gap: 2rem;
+}
 .testimonials-masonry-item {
   break-inside: avoid;
   page-break-inside: avoid;
@@ -130,6 +134,9 @@ p[data-cky-tag="title"],
   width: 100%;
   margin-bottom: 1.5rem;
   box-sizing: border-box;
+}
+.testimonials-masonry-tidy .testimonials-masonry-item {
+  margin-bottom: 2rem;
 }
 
 /* Site-wide CTA: always in document flow, never sticky or fixed. Must scroll with page. */

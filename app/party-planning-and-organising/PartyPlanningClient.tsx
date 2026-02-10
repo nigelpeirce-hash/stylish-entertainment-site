@@ -7,6 +7,7 @@ import Link from "next/link";
 import { ImagePhoto } from "@/components/ImageCarousel";
 import HorizontalImageCarousel from "@/components/HorizontalImageCarousel";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import BeforeAfter from "@/components/BeforeAfter";
 import { Button } from "@/components/ui/button";
 import WaveDivider from "@/components/WaveDivider";
 import { Calendar, Users, Sparkles, CheckCircle2, Video, Lightbulb, Music2, ChevronLeft, ChevronRight } from "lucide-react";
@@ -50,6 +51,32 @@ const processSteps = [
       "Supplier liaison and coordination",
       "Problem-solving and on-the-day support",
     ],
+  },
+];
+
+// Before and After – 2-row layout: Barn transformation + Party room transformation (matches galleries)
+const beforeAfterTransforms = [
+  {
+    title: "Barn Transformation",
+    before: {
+      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163654/IMG_1070_pelq7j.jpg",
+      alt: "Barn before transformation - empty space ready for styling and lighting design",
+    },
+    after: {
+      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163716/IMG_1098_hqiw3d.jpg",
+      alt: "Barn after transformation - elegant outdoor terrace with professional venue styling and festoon lighting",
+    },
+  },
+  {
+    title: "Party Room Transformation",
+    before: {
+      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768753000/IMG_2530_njx41m.jpg",
+      alt: "Party room before transformation - empty space ready for styling and lighting design",
+    },
+    after: {
+      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768751155/IMG_3188_zviff5.jpg",
+      alt: "Party room after transformation - fun and creative party styling with vibrant decorations and lighting design",
+    },
   },
 ];
 
@@ -147,12 +174,6 @@ function ProcessCarousel() {
 
 const partyPlanningPhotos: ImagePhoto[] = [
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162649/Kin-House-Mirrorball-Clusters_fi5n50.jpg",
-    width: 1200,
-    height: 900,
-    alt: "Professional party planning and event organization at Kin House with elegant mirrorball clusters and sophisticated lighting",
-  },
-  {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163371/Lighting-Design-at-Kings-Weston-House_qxzunv.jpg",
     width: 1200,
     height: 900,
@@ -175,6 +196,36 @@ const partyPlanningPhotos: ImagePhoto[] = [
     width: 1200,
     height: 900,
     alt: "Marquee party planning with professional lighting installation and complete event styling",
+  },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768754478/IMG_2866_zhs5sz.jpg",
+    width: 1200,
+    height: 900,
+    alt: "Professional party planning and event styling creating an extraordinary celebration",
+  },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768742320/IMG_1871_161201_n88x5z.jpg",
+    width: 1200,
+    height: 900,
+    alt: "Bespoke event organization with lighting design and venue styling",
+  },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768741619/IMG_0487_aoaxho.jpg",
+    width: 1200,
+    height: 900,
+    alt: "Complete party planning from concept to execution in the South West",
+  },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768729861/798D06F8-3A1A-464B-B222-219CFFB7888D_1_105_c_leivu1.jpg",
+    width: 1200,
+    height: 900,
+    alt: "Event coordination and styling for memorable celebrations",
+  },
+  {
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768649763/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw.jpg",
+    width: 1200,
+    height: 900,
+    alt: "Party planning and organization delivering extraordinary events",
   },
 ];
 
@@ -210,6 +261,51 @@ export default function PartyPlanningClient() {
         </motion.div>
         <div className="absolute bottom-0 left-0 right-0 z-20">
           <WaveDivider />
+        </div>
+      </section>
+
+      {/* Before and After – 2-row layout (matches galleries) */}
+      <section className="py-16 md:py-20 px-4 sm:px-6 bg-gray-900">
+        <div className="w-full max-w-[1700px] mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mb-10 md:mb-14 text-center"
+          >
+            <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
+              <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Featured</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans mb-3 text-white font-bold">
+              Before and After
+            </h2>
+            <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto">
+              Drag the slider or click anywhere to compare
+            </p>
+          </motion.div>
+          <div className="grid grid-cols-1 gap-16">
+            {beforeAfterTransforms.map((transform, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <Card className="bg-gray-800/50 backdrop-blur-sm border-2 border-champagne-gold/30 shadow-xl overflow-hidden hover:border-champagne-gold/60 transition-all duration-300">
+                  <CardContent className="p-4 sm:p-6">
+                    <BeforeAfter
+                      before={transform.before}
+                      after={transform.after}
+                      aspectRatio="16/9"
+                      fullWidth
+                    />
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -326,7 +422,7 @@ export default function PartyPlanningClient() {
             >
               <HorizontalImageCarousel
                 images={partyPlanningPhotos}
-                aspectRatio="wide"
+                aspectRatio="standard"
                 autoplayMs={5000}
                 showDots
               />
@@ -375,12 +471,12 @@ export default function PartyPlanningClient() {
                     size="lg"
                     className="bg-champagne-gold text-black hover:bg-gold-light hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(212,175,55,0.5)] mb-4"
                   >
-                    <Link href="/contact-us">Request an Event Proposal</Link>
+                    <Link href="/contact-us/">Request an Event Proposal</Link>
                   </Button>
                   <p className="text-gray-300 text-sm mt-6">
                     Not sure where to start?{" "}
                     <Link
-                      href="/babington-wedding-info"
+                      href="/babington-wedding-info/"
                       className="text-champagne-gold hover:text-gold-light underline"
                     >
                       View our Venue Guides

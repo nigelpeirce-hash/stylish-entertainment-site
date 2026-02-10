@@ -277,7 +277,7 @@ export default async function RootLayout({
             <div className="relative z-10 block safe-area-x">
               <main className="min-h-screen">{children}</main>
               {/* Page CTA – hidden on admin, client portal, and demo (demo ends on T&C/Privacy; peace of mind follows) */}
-              {!pathname.startsWith("/admin") && !pathname.startsWith("/client") && !pathname.startsWith("/demo") && <SiteWideCTA />}
+              {!pathname.startsWith("/admin") && !pathname.startsWith("/client") && !pathname.startsWith("/demo") && !pathname.startsWith("/mells-barn-weddings") && !pathname.startsWith("/venues/mells-barn") && !pathname.startsWith("/venues/pennard-house") && <SiteWideCTA />}
               {/* No marketing footer on admin, client portal, or demo – portal has Terms/Privacy in content */}
               {!pathname.startsWith("/admin") && !pathname.startsWith("/client") && !pathname.startsWith("/demo") && <FooterRefactored />}
             </div>

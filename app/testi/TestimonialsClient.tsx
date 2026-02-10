@@ -1,43 +1,48 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
 import GoogleReviews from "@/components/GoogleReviews";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, MapPin } from "lucide-react";
 import { RefinedStar } from "@/components/RefinedStar";
 import { testimonials, type Testimonial, getVenueFiltersFromTestimonials } from "@/data/testimonials";
 
-// Helper function to shuffle array
-function shuffleArray<T>(array: T[]): T[] {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
+const LONG_QUOTE_LENGTH = 220; // character threshold for "Read Full Story"
+const SPOTLIGHT_COUNT = 3;
+
+/** Derive display venue name and location from testimonial (venue always shown; location from venueFilter or after first comma). */
+function getVenueAndLocation(t: Testimonial): { venueName: string; location: string } {
+  const venueName = t.venue;
+  const location = t.venueFilter ?? (t.venue.includes(", ") ? t.venue.split(", ").slice(1).join(", ") : "");
+  return { venueName, location };
 }
 
 export default function TestimonialsClient() {
   const [activeFilter, setActiveFilter] = useState<string>("All");
-  const [shuffledTestimonials, setShuffledTestimonials] = useState(testimonials);
-  const [featuredTestimonials, setFeaturedTestimonials] = useState<Testimonial[]>([]);
+  const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
 
-  // Select 3 random featured testimonials only on client after hydration
-  useEffect(() => {
-    const shuffled = shuffleArray([...testimonials]);
-    setFeaturedTestimonials(shuffled.slice(0, 3));
-  }, []);
+  const toggleExpanded = (key: string) => {
+    setExpandedCards((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  };
 
-  // Get regular testimonials (excluding featured)
-  const regularTestimonials = useMemo(() => {
-    if (featuredTestimonials.length === 0) {
-      // On initial render (server), return all testimonials to avoid hydration mismatch
-      return testimonials;
-    }
-    return testimonials.filter((t) => !featuredTestimonials.includes(t));
-  }, [featuredTestimonials]);
+  // Hand-picked spotlight reviews (first 3 for a consistent hero section)
+  const spotlightTestimonials = useMemo(
+    () => testimonials.slice(0, SPOTLIGHT_COUNT),
+    []
+  );
+
+  // Archive = all testimonials except spotlight when filter is "All"
+  const regularTestimonials = useMemo(
+    () => testimonials.slice(SPOTLIGHT_COUNT),
+    []
+  );
 
   // Venue filter options: "All" plus unique filters from testimonials
   const venueFilters = useMemo(
@@ -57,10 +62,6 @@ export default function TestimonialsClient() {
     }
   }, [activeFilter, regularTestimonials, testimonials]);
 
-  useEffect(() => {
-    // Shuffle regular testimonials after component mounts on client
-    setShuffledTestimonials(shuffleArray(regularTestimonials));
-  }, [regularTestimonials]);
 
   return (
     <div>
@@ -203,69 +204,76 @@ export default function TestimonialsClient() {
             ))}
           </div>
 
-          {/* Featured Testimonials (2 columns on desktop) - Only show after hydration and when filter is "All" */}
-          {featuredTestimonials.length > 0 && activeFilter === "All" && (
-            <motion.div 
-              className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-12"
+          {/* Spotlight: 3 hand-picked reviews – only when filter is "All" */}
+          {activeFilter === "All" && (
+            <motion.div
+              className="flex flex-col md:flex-row gap-6 md:gap-8 mb-20"
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
               variants={{
                 visible: {
-                  transition: {
-                    staggerChildren: 0.1,
-                  },
+                  transition: { staggerChildren: 0.1 },
                 },
               }}
             >
-              {featuredTestimonials.map((testimonial, index) => (
-              <motion.div
-                key={`featured-${index}`}
-                variants={{
-                  hidden: { opacity: 0, y: 20 },
-                  visible: { opacity: 1, y: 0 },
-                }}
-                transition={{ duration: 0.5 }}
-                className="md:col-span-1"
-              >
-                <Card className="bg-gray-900/50 backdrop-blur-sm border-champagne-gold/20 hover:border-champagne-gold/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all duration-300 h-full">
-                  <CardContent className="p-6 sm:p-8">
-                    <p className="text-gray-200 mb-4 leading-relaxed italic text-base sm:text-lg">
-                      &quot;{testimonial.quote}&quot;
-                    </p>
-                    <div className="border-t border-champagne-gold/20 pt-4">
-                      <p className="text-champagne-gold font-semibold text-sm sm:text-base">
-                        {testimonial.author}
+              {spotlightTestimonials.map((testimonial, index) => {
+                const { venueName, location } = getVenueAndLocation(testimonial);
+                return (
+                <motion.div
+                  key={`spotlight-${index}-${testimonial.author}-${testimonial.venue}`}
+                  variants={{
+                    hidden: { opacity: 0, y: 20 },
+                    visible: { opacity: 1, y: 0 },
+                  }}
+                  transition={{ duration: 0.5 }}
+                  className="flex-1 min-w-0"
+                >
+                  <Card className="h-full bg-white/[0.03] backdrop-blur-xl border border-champagne-gold/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.2)] transition-all duration-300">
+                    <CardContent className="p-8">
+                      <p className="text-gray-200 mb-4 leading-relaxed italic text-xl">
+                        &quot;{testimonial.quote}&quot;
                       </p>
-                      <p className="text-gray-400 text-xs sm:text-sm mt-1 flex items-center gap-2">
-                        {testimonial.venueUrl ? (
-                          <>
-                            <Link
-                              href={testimonial.venueUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="hover:text-champagne-gold transition-colors underline flex items-center gap-1"
-                            >
-                              {testimonial.venue}
-                              <ExternalLink className="w-3 h-3" />
-                            </Link>
-                          </>
-                        ) : (
-                          testimonial.venue
-                        )}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-              ))}
+                      <div className="border-t border-white/10 pt-4">
+                        <p className="text-champagne-gold font-bold text-base sm:text-lg">
+                          {testimonial.author}
+                        </p>
+                        <div className="border-t border-white/10 pt-4 mt-4">
+                          <p className="text-champagne-gold text-sm sm:text-base flex items-center gap-2">
+                            <MapPin className="w-3.5 h-3.5 text-champagne-gold shrink-0" aria-hidden />
+                            {testimonial.venueUrl ? (
+                              <Link
+                                href={testimonial.venueUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="hover:opacity-90 transition-opacity underline flex items-center gap-1"
+                              >
+                                {venueName}
+                                <ExternalLink className="w-3 h-3" />
+                              </Link>
+                            ) : (
+                              venueName
+                            )}
+                          </p>
+                          {location && (
+                            <p className="text-gray-400 text-xs sm:text-sm mt-1">
+                              {location}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+                );
+              })}
             </motion.div>
           )}
 
-          {/* True Masonry: CSS columns – no orphans, even column gaps */}
+          {/* Archive: Tidy masonry grid – uniform cards, fade + Read Full Story */}
           <motion.div
             key={`masonry-${activeFilter}`}
-            className="testimonials-masonry"
+            className="testimonials-masonry testimonials-masonry-tidy"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
@@ -278,9 +286,14 @@ export default function TestimonialsClient() {
               },
             }}
           >
-            {filteredTestimonials.map((testimonial, index) => (
+            {filteredTestimonials.map((testimonial, index) => {
+              const cardKey = `masonry-${index}-${testimonial.author}-${testimonial.venue}`;
+              const isLong = testimonial.quote.length > LONG_QUOTE_LENGTH;
+              const isExpanded = expandedCards.has(cardKey);
+              const { venueName, location } = getVenueAndLocation(testimonial);
+              return (
               <motion.div
-                key={`${testimonial.author}-${testimonial.venue}-${index}`}
+                key={cardKey}
                 variants={{
                   hidden: { opacity: 0, y: 20, scale: 0.95 },
                   visible: { opacity: 1, y: 0, scale: 1 },
@@ -288,35 +301,73 @@ export default function TestimonialsClient() {
                 transition={{ duration: 0.3 }}
                 className="testimonials-masonry-item"
               >
-                <Card className="bg-gray-900/50 backdrop-blur-sm border border-champagne-gold/20 hover:border-champagne-gold/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all duration-300 h-full">
-                  <CardContent className="p-6 sm:p-8">
-                    <p className="text-gray-200 mb-4 leading-relaxed italic text-base sm:text-lg">
-                      &quot;{testimonial.quote}&quot;
-                    </p>
-                    <div className="border-t border-champagne-gold/20 pt-4">
-                      <p className="text-champagne-gold font-semibold text-sm sm:text-base">
+                <Card className={`bg-white/[0.03] backdrop-blur-md border border-champagne-gold/20 hover:border-champagne-gold/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.3)] transition-all duration-300 h-full max-h-[350px] overflow-hidden ${isExpanded ? "!max-h-none" : ""}`}>
+                  <CardContent className="p-8 relative flex flex-col">
+                    {/* Only the quote is collapsible; venue block stays visible */}
+                    <div className={!isExpanded && isLong ? "min-h-[140px] relative flex-shrink-0" : ""}>
+                      <div className={!isExpanded && isLong ? "max-h-[100px] overflow-hidden" : ""}>
+                        <p className="text-gray-200 mb-4 leading-relaxed italic text-base sm:text-lg">
+                          &quot;{testimonial.quote}&quot;
+                        </p>
+                      </div>
+                      {isLong && !isExpanded && (
+                        <>
+                          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-gray-800 to-transparent pointer-events-none" aria-hidden />
+                          <div className="absolute bottom-0 left-0 right-0 flex justify-center pb-1 pt-10">
+                            <button
+                              type="button"
+                              onClick={() => toggleExpanded(cardKey)}
+                              className="text-champagne-gold/90 hover:text-champagne-gold text-sm font-medium underline underline-offset-2"
+                            >
+                              Read Full Story
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                    {isLong && isExpanded && (
+                      <button
+                        type="button"
+                        onClick={() => toggleExpanded(cardKey)}
+                        className="text-champagne-gold/90 hover:text-champagne-gold text-sm font-medium mb-4 underline underline-offset-2"
+                      >
+                        Show less
+                      </button>
+                    )}
+                    {/* Venue block always visible below client name */}
+                    <div className="border-t border-white/10 pt-4 mt-auto">
+                      <p className="text-champagne-gold font-bold text-base sm:text-lg">
                         {testimonial.author}
                       </p>
-                      <p className="text-gray-400 text-xs sm:text-sm mt-1 flex items-center gap-2">
-                        {testimonial.venueUrl ? (
-                          <Link
-                            href={testimonial.venueUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:text-champagne-gold transition-colors underline flex items-center gap-1"
-                          >
-                            {testimonial.venue}
-                            <ExternalLink className="w-3 h-3" />
-                          </Link>
-                        ) : (
-                          testimonial.venue
+                      <div className="border-t border-white/10 pt-4 mt-4">
+                        <p className="text-champagne-gold text-sm sm:text-base flex items-center gap-2">
+                          <MapPin className="w-3.5 h-3.5 text-champagne-gold shrink-0" aria-hidden />
+                          {testimonial.venueUrl ? (
+                            <Link
+                              href={testimonial.venueUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="hover:opacity-90 transition-opacity underline flex items-center gap-1"
+                            >
+                              {venueName}
+                              <ExternalLink className="w-3 h-3" />
+                            </Link>
+                          ) : (
+                            venueName
+                          )}
+                        </p>
+                        {location && (
+                          <p className="text-gray-400 text-xs sm:text-sm mt-1">
+                            {location}
+                          </p>
                         )}
-                      </p>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
               </motion.div>
-            ))}
+              );
+            })}
           </motion.div>
         </div>
       </section>

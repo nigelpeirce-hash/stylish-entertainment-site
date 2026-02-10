@@ -13,17 +13,18 @@ const Lightbox = dynamic(
 
 interface HorizontalImageCarouselProps {
   images: ImagePhoto[];
-  aspectRatio?: "video" | "square" | "wide" | "tall";
+  aspectRatio?: "video" | "square" | "wide" | "tall" | "standard";
   showDots?: boolean;
   autoplayMs?: number;
   className?: string;
 }
 
-const aspectClasses = {
+const aspectClasses: Record<string, string> = {
   video: "aspect-video",
   square: "aspect-square",
   wide: "aspect-[21/9]",
   tall: "aspect-[3/4]",
+  standard: "aspect-[4/3]",
 };
 
 export default function HorizontalImageCarousel({

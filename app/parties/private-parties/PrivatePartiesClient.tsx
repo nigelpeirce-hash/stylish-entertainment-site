@@ -9,6 +9,7 @@ import { ChevronLeft, ChevronRight, Map, Sparkles, Music, MapPin } from "lucide-
 import "yet-another-react-lightbox/styles.css";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
+import BeforeAfter from "@/components/BeforeAfter";
 import { getEditorialServiceRegions, EDITORIAL_SERVICE_HEADLINE } from "@/lib/service-areas";
 import { Button } from "@/components/ui/button";
 
@@ -44,6 +45,32 @@ const galleryPhotos = [
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163299/Nigel-DJ-Babs-House-0009-1_hmbsn3.jpg", alt: "DJ performing at Babington House with professional entertainment" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163181/IMG_6095_fo6lhk.jpg", alt: "Private party with atmospheric lighting and elegant decor" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768731384/Pennard-House-Lighting-with-Amber-Up-lighting_sljvaa.jpg", alt: "Pennard House with amber uplighting for elegant evening events" },
+];
+
+// Before and After – 2-row layout: Barn transformation + Party room transformation (matches galleries)
+const beforeAfterTransforms = [
+  {
+    title: "Barn Transformation",
+    before: {
+      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163654/IMG_1070_pelq7j.jpg",
+      alt: "Barn before transformation - empty space ready for styling and lighting design",
+    },
+    after: {
+      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163716/IMG_1098_hqiw3d.jpg",
+      alt: "Barn after transformation - elegant outdoor terrace with professional venue styling and festoon lighting",
+    },
+  },
+  {
+    title: "Party Room Transformation",
+    before: {
+      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768753000/IMG_2530_njx41m.jpg",
+      alt: "Party room before transformation - empty space ready for styling and lighting design",
+    },
+    after: {
+      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768751155/IMG_3188_zviff5.jpg",
+      alt: "Party room after transformation - fun and creative party styling with vibrant decorations and lighting design",
+    },
+  },
 ];
 
 // Transformation pillars – impact-focused copy
@@ -183,6 +210,51 @@ export default function PrivatePartiesClient() {
         >
           <ChevronRight className="w-6 h-6" />
         </button>
+      </section>
+
+      {/* Before and After – 2-row layout (matches galleries) */}
+      <section className="py-16 md:py-20 px-4 md:px-8 bg-gray-900">
+        <div className="w-full max-w-[1700px] mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mb-10 md:mb-14 text-center"
+          >
+            <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
+              <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Featured</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans font-bold mb-3 text-white">
+              Before and After
+            </h2>
+            <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto">
+              Drag the slider or click anywhere to compare
+            </p>
+          </motion.div>
+          <div className="grid grid-cols-1 gap-16">
+            {beforeAfterTransforms.map((transform, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <Card className="bg-gray-800/50 backdrop-blur-sm border-2 border-champagne-gold/30 shadow-xl overflow-hidden hover:border-champagne-gold/60 transition-all duration-300">
+                  <CardContent className="p-4 sm:p-6">
+                    <BeforeAfter
+                      before={transform.before}
+                      after={transform.after}
+                      aspectRatio="16/9"
+                      fullWidth
+                    />
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* 2. Transformation Three-Column Grid */}
