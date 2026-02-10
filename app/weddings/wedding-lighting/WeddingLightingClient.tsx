@@ -2,91 +2,98 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Phone } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Gallery, { Photo } from "@/components/Gallery";
 
+// Cloudinary w_1200 for display-sized delivery (~1152px), saves ~1.5MB vs full res
+const CLOUDINARY_OPT = "f_auto,q_85,dpr_auto,w_1200";
+
 const galleryPhotos: Photo[] = [
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163840/Fairy-Light-Canopy-with-Shades-e1510835685909_wgdrd3.jpg",
+    src: `https://res.cloudinary.com/drtwveoqo/image/upload/${CLOUDINARY_OPT}/v1768163840/Fairy-Light-Canopy-with-Shades-e1510835685909_wgdrd3.jpg`,
     width: 1200,
     height: 900,
     alt: "Fairy light canopy with shades creating a romantic wedding atmosphere with elegant lighting design",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163736/ChloeStu2-e1434724653198_n5lhsf.jpg",
+    src: `https://res.cloudinary.com/drtwveoqo/image/upload/${CLOUDINARY_OPT}/v1768163736/ChloeStu2-e1434724653198_n5lhsf.jpg`,
     width: 1200,
     height: 900,
     alt: "Chloe and Stu's wedding with beautiful fairy light installations and atmospheric wedding lighting design",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163739/170504_matthew-pei-san_ria-mishaal-photography_0957_im3era.jpg",
+    src: `https://res.cloudinary.com/drtwveoqo/image/upload/${CLOUDINARY_OPT}/v1768163739/170504_matthew-pei-san_ria-mishaal-photography_0957_im3era.jpg`,
     width: 1200,
     height: 900,
     alt: "Matthew and Pei San's wedding reception with stunning fairy light tunnel and professional wedding lighting, captured by Ria Mishaal Photography",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163700/Pennard-House_koaxfj.jpg",
+    src: `https://res.cloudinary.com/drtwveoqo/image/upload/${CLOUDINARY_OPT}/v1768163700/Pennard-House_koaxfj.jpg`,
     width: 1200,
     height: 900,
     alt: "Pennard House wedding venue with elegant exterior lighting design and atmospheric wedding lighting installations",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163694/Jade-and-Emma-1081-1_bmnwh0.jpg",
+    src: `https://res.cloudinary.com/drtwveoqo/image/upload/${CLOUDINARY_OPT}/v1768163694/Jade-and-Emma-1081-1_bmnwh0.jpg`,
     width: 1200,
     height: 900,
     alt: "Jade and Emma's wedding with beautiful fairy light installations and romantic wedding lighting design creating a magical atmosphere",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163641/Pennard-House-Festoon-Pizzarova_rpdwep.jpg",
+    src: `https://res.cloudinary.com/drtwveoqo/image/upload/${CLOUDINARY_OPT}/v1768163641/Pennard-House-Festoon-Pizzarova_rpdwep.jpg`,
     width: 1200,
     height: 900,
     alt: "Pennard House wedding venue with festoon lighting and elegant outdoor wedding lighting design for alfresco dining",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg",
+    src: `https://res.cloudinary.com/drtwveoqo/image/upload/${CLOUDINARY_OPT}/v1768731827/Camilla-Richard-0063_ngmblz.jpg`,
     width: 1200,
     height: 900,
     alt: "Camilla and Richard's wedding reception with elegant lighting design, beautiful table settings, and atmospheric wedding lighting",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163596/STYLISH-babs-july2016_ria-mishaal-photography_006_qmds40.jpg",
+    src: `https://res.cloudinary.com/drtwveoqo/image/upload/${CLOUDINARY_OPT}/v1768163596/STYLISH-babs-july2016_ria-mishaal-photography_006_qmds40.jpg`,
     width: 1200,
     height: 900,
     alt: "Babington House wedding with professional lighting design and elegant wedding lighting installations, captured by Ria Mishaal Photography",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768741340/_F4R3275_tukoww.jpg",
+    src: `https://res.cloudinary.com/drtwveoqo/image/upload/${CLOUDINARY_OPT}/v1768741340/_F4R3275_tukoww.jpg`,
     width: 1200,
     height: 900,
     alt: "Chill Out Camp with vintage Edison festoon lighting and fairy lights creating a magical wedding atmosphere",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768741619/IMG_0487_aoaxho.jpg",
+    src: `https://res.cloudinary.com/drtwveoqo/image/upload/${CLOUDINARY_OPT}/v1768741619/IMG_0487_aoaxho.jpg`,
     width: 1200,
     height: 900,
     alt: "Bar terrace with elegant wedding lighting design creating a romantic atmosphere",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768742034/IMG_1348_161201_zwmdh2.jpg",
+    src: `https://res.cloudinary.com/drtwveoqo/image/upload/${CLOUDINARY_OPT}/v1768742034/IMG_1348_161201_zwmdh2.jpg`,
     width: 1200,
     height: 900,
     alt: "Wedding venue with beautiful lighting and elegant styling",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768742094/IMG_4162_h3h0bb.jpg",
+    src: `https://res.cloudinary.com/drtwveoqo/image/upload/${CLOUDINARY_OPT}/v1768742094/IMG_4162_h3h0bb.jpg`,
     width: 1200,
     height: 900,
     alt: "Sophisticated wedding lighting design creating an atmospheric celebration",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163734/F4R3490_dyrug0.jpg",
+    src: `https://res.cloudinary.com/drtwveoqo/image/upload/${CLOUDINARY_OPT}/v1768163734/F4R3490_dyrug0.jpg`,
     width: 1200,
     height: 900,
     alt: "Professional wedding and party lighting creating an atmospheric celebration",
   },
 ];
+
+// LCP hero image – w_1200 for fast load (preloaded in layout when on this page)
+const HERO_IMAGE_URL = `https://res.cloudinary.com/drtwveoqo/image/upload/${CLOUDINARY_OPT}/v1768163797/150730_sami-tammy_ria-mishaal-photography_775_bbo9bb.jpg`;
 
 export default function WeddingLightingClient() {
   return (
@@ -94,13 +101,15 @@ export default function WeddingLightingClient() {
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-50 flex items-center justify-center">
-          <img
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163797/150730_sami-tammy_ria-mishaal-photography_775_bbo9bb.jpg"
+          <Image
+            src={HERO_IMAGE_URL}
             alt="Sami and Tammy's wedding with beautiful lighting design creating an elegant and romantic atmosphere, captured by Ria Mishaal Photography"
-            className="w-full h-full object-cover object-center brightness-110"
-            style={{ objectPosition: 'center center' }}
-            loading="eager"
+            fill
+            className="object-cover object-center brightness-110"
+            style={{ objectPosition: "center center" }}
+            priority
             fetchPriority="high"
+            sizes="100vw"
           />
         </div>
         <motion.div
@@ -173,7 +182,7 @@ export default function WeddingLightingClient() {
             <Card className="bg-white/5 border-champagne-gold/20 backdrop-blur-xl p-8">
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-xs uppercase tracking-widest text-champagne-gold mb-4">Serving the South West</h4>
+                  <h3 className="text-xs uppercase tracking-widest text-champagne-gold mb-4">Serving the South West</h3>
                   <div className="flex flex-wrap gap-2">
                     {["Somerset", "Wiltshire", "Dorset", "Gloucestershire", "Bath", "Bristol", "Exeter"].map((area) => (
                       <span key={area} className="px-3 py-1 bg-white/10 rounded-full text-xs text-gray-200">
@@ -188,9 +197,10 @@ export default function WeddingLightingClient() {
                   <div className="flex flex-col sm:flex-row gap-4">
                     <a 
                       href="tel:+447970793177" 
-                      className="flex items-center justify-center gap-3 bg-champagne-gold text-black font-bold py-3 px-6 rounded-lg hover:bg-white transition-all shadow-lg"
+                      className="flex items-center justify-center gap-3 bg-champagne-gold text-black font-bold py-3 px-6 rounded-lg hover:bg-white transition-all shadow-lg min-h-[44px]"
+                      aria-label="Call 07970 793177"
                     >
-                      <Phone className="w-5 h-5" />
+                      <Phone className="w-5 h-5" aria-hidden />
                       07970 793177
                     </a>
                     <Button variant="outline" asChild className="border-white/20 text-white hover:bg-white/10">

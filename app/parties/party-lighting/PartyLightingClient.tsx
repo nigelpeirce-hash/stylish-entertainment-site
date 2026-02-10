@@ -3,10 +3,11 @@
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
-import Lightbox from "yet-another-react-lightbox";
 import { ChevronLeft, ChevronRight, Sparkles, Sun, Lightbulb, ExternalLink } from "lucide-react";
-import "yet-another-react-lightbox/styles.css";
+
+const Lightbox = dynamic(() => import("./PartyLightingLightbox"), { ssr: false });
 
 type EventFilter = "all" | "weddings" | "corporate" | "outdoor";
 
@@ -19,6 +20,10 @@ interface Photo {
   venue?: string;
   serviceType?: "dance-floor" | "festoon" | "atmospheric";
 }
+
+// LCP-optimized URL for first hero image (preloaded in layout, w_1200 for mobile)
+const LCP_HERO_URL =
+  "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768162258/Fairy-light-Tunnel_sc40ed.jpg";
 
 // Hero mood images – high-impact, spaced for premium feel
 const heroMoodImages: Photo[] = [
@@ -203,12 +208,13 @@ export default function PartyLightingClient() {
             className="absolute inset-0"
           >
             <Image
-              src={heroMoodImages[heroIndex].src}
+              src={heroIndex === 0 ? LCP_HERO_URL : heroMoodImages[heroIndex].src}
               alt={heroMoodImages[heroIndex].alt}
               fill
               className="object-cover"
               sizes="100vw"
               priority
+              fetchPriority="high"
               quality={85}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
@@ -233,32 +239,37 @@ export default function PartyLightingClient() {
           </motion.div>
         </AnimatePresence>
 
-        {/* Hero nav dots */}
+        {/* Hero nav dots – 44px min touch targets for accessibility */}
         <div className="absolute bottom-8 right-8 md:bottom-12 md:right-12 flex gap-2 z-10">
           {heroMoodImages.map((_, i) => (
             <button
               key={i}
               onClick={() => setHeroIndex(i)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                i === heroIndex ? "bg-champagne-gold w-6" : "bg-white/50 hover:bg-white/80"
-              }`}
+              className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-full transition-colors hover:bg-white/10"
               aria-label={`Go to slide ${i + 1}`}
-            />
+              aria-current={i === heroIndex ? "true" : undefined}
+            >
+              <span
+                className={`block w-2 h-2 rounded-full transition-all ${
+                  i === heroIndex ? "bg-champagne-gold w-6" : "bg-white/50"
+                }`}
+              />
+            </button>
           ))}
         </div>
         <button
           onClick={() => setHeroIndex((i) => (i - 1 + heroMoodImages.length) % heroMoodImages.length)}
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-10"
-          aria-label="Previous"
+          className="absolute left-4 top-1/2 -translate-y-1/2 min-w-[48px] min-h-[48px] rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-10"
+          aria-label="Previous slide"
         >
-          <ChevronLeft className="w-6 h-6" />
+          <ChevronLeft className="w-6 h-6" aria-hidden />
         </button>
         <button
           onClick={() => setHeroIndex((i) => (i + 1) % heroMoodImages.length)}
-          className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-10"
-          aria-label="Next"
+          className="absolute right-4 top-1/2 -translate-y-1/2 min-w-[48px] min-h-[48px] rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-10"
+          aria-label="Next slide"
         >
-          <ChevronRight className="w-6 h-6" />
+          <ChevronRight className="w-6 h-6" aria-hidden />
         </button>
       </section>
 
@@ -294,11 +305,12 @@ export default function PartyLightingClient() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
                     <Link
-                      href={`#gallery?cat=${service.galleryCategory}`}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-champagne-gold text-black font-medium rounded-lg hover:bg-gold-light transition-colors"
+                      href="#gallery"
+                      className="inline-flex items-center gap-2 min-h-[44px] px-4 py-3 bg-champagne-gold text-black font-medium rounded-lg hover:bg-gold-light transition-colors"
+                      aria-label={`View ${service.title} gallery`}
                     >
                       View Gallery
-                      <ExternalLink className="w-4 h-4" />
+                      <ExternalLink className="w-4 h-4" aria-hidden />
                     </Link>
                   </div>
                 </div>
@@ -362,7 +374,7 @@ export default function PartyLightingClient() {
       </section>
 
       {/* 4. Interactive Filtering – Weddings / Corporate / Outdoor */}
-      <section id="gallery" className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
+      <section id="gallery" className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50 scroll-mt-28">
         <div className="max-w-6xl mx-auto mb-12">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">Browse by Event</h2>
           <p className="text-gray-400 text-lg mb-8">
@@ -374,11 +386,13 @@ export default function PartyLightingClient() {
               <button
                 key={f}
                 onClick={() => setFilter(f)}
-                className={`px-5 py-2.5 rounded-full font-medium transition-all ${
+                className={`min-h-[44px] px-5 py-3 rounded-full font-medium transition-all ${
                   filter === f
                     ? "bg-champagne-gold text-black"
                     : "bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10"
                 }`}
+                aria-pressed={filter === f}
+                aria-label={f === "all" ? "Show all events" : `Filter by ${f}`}
               >
                 {f === "all" ? "All" : f.charAt(0).toUpperCase() + f.slice(1)}
               </button>
@@ -418,16 +432,26 @@ export default function PartyLightingClient() {
         </motion.div>
       </section>
 
-      <Lightbox
-        open={lightboxOpen}
-        close={() => setLightboxOpen(false)}
-        index={lightboxIndex}
-        slides={filteredPhotos.map((p) => ({ src: p.src, alt: p.alt }))}
-        render={{
-          buttonPrev: () => <ChevronLeft className="w-8 h-8 text-white" />,
-          buttonNext: () => <ChevronRight className="w-8 h-8 text-white" />,
-        }}
-      />
+      {lightboxOpen && (
+        <Lightbox
+          open={lightboxOpen}
+          close={() => setLightboxOpen(false)}
+          index={lightboxIndex}
+          slides={filteredPhotos.map((p) => ({ src: p.src, alt: p.alt }))}
+          render={{
+            buttonPrev: (props) => (
+              <button {...props} type="button" aria-label="Previous image">
+                <ChevronLeft className="w-8 h-8 text-white" aria-hidden />
+              </button>
+            ),
+            buttonNext: (props) => (
+              <button {...props} type="button" aria-label="Next image">
+                <ChevronRight className="w-8 h-8 text-white" aria-hidden />
+              </button>
+            ),
+          }}
+        />
+      )}
     </div>
   );
 }

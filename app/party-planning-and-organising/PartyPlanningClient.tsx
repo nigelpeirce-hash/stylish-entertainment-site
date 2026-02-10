@@ -181,15 +181,16 @@ const partyPlanningPhotos: ImagePhoto[] = [
 export default function PartyPlanningClient() {
   return (
     <div>
-      {/* Hero */}
+      {/* Hero – LCP: w_1200 + fetchPriority high, preloaded in layout */}
       <section className="relative min-h-[60vh] flex items-center justify-center text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768754478/IMG_2866_zhs5sz.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768754478/IMG_2866_zhs5sz.jpg"
             alt="Professional party planning and event organization services"
             fill
             className="object-cover object-center"
             priority
+            fetchPriority="high"
             sizes="100vw"
           />
         </div>

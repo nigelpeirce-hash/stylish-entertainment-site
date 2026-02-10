@@ -28,7 +28,7 @@ const nextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1360, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
-  trailingSlash: true,
+  trailingSlash: true, // Global: canonical URLs use trailing slashes; redirects still list both /path and /path/ to catch incoming links
   // Force HTTPS in production
   async headers() {
     return [
@@ -103,6 +103,7 @@ const nextConfig = {
       },
     ];
   },
+  // Redirects run top-to-bottom: put specific/wildcard rules before broader ones.
   async redirects() {
     return [
       // --- STATIC DEMO PAGES ---
@@ -127,12 +128,29 @@ const nextConfig = {
       { source: '/what-we-do/fire-pit-hire/', destination: '/services/fire-pit-hire/', permanent: true },
 
       // --- Parties / weddings / zoom-dj ---
+      { source: '/party-lighting', destination: '/parties/party-lighting/', permanent: true },
+      { source: '/party-lighting/', destination: '/parties/party-lighting/', permanent: true },
       { source: '/parties/private', destination: '/parties/private-parties/', permanent: true },
       { source: '/parties/private/', destination: '/parties/private-parties/', permanent: true },
       { source: '/parties/weddings', destination: '/weddings/wedding-entertainment/', permanent: true },
       { source: '/parties/weddings/', destination: '/weddings/wedding-entertainment/', permanent: true },
       { source: '/zoom-dj', destination: '/artists/djs/', permanent: true },
       { source: '/zoom-dj/', destination: '/artists/djs/', permanent: true },
+
+      // --- Analytics legacy: wildcards first (before any broader rules below) ---
+      { source: '/team-view/:path*', destination: '/about/', permanent: true },
+      { source: '/blog/venue-decoration-styling/:path*', destination: '/about/blog/', permanent: true },
+      { source: '/spring-ball/:path*', destination: '/about/blog/bristol-university-spring-ball/', permanent: true },
+      { source: '/category/babington-house', destination: '/venues/babington-house/', permanent: true },
+      { source: '/category/babington-house/', destination: '/venues/babington-house/', permanent: true },
+      { source: '/category/babington-house/page/:path*', destination: '/venues/babington-house/', permanent: true },
+      { source: '/2014/:path*', destination: '/about/blog/', permanent: true },
+
+      // --- Consistency: plural→singular, singular→plural (avoids "did I type it right?" 404s) ---
+      { source: '/faqs', destination: '/about/faq/', permanent: true },
+      { source: '/faqs/', destination: '/about/faq/', permanent: true },
+      { source: '/video', destination: '/galleries/videos/', permanent: true },
+      { source: '/video/', destination: '/galleries/videos/', permanent: true },
 
       // --- Venues / babington ---
       { source: '/babington-house', destination: '/venues/babington-house/', permanent: true },
@@ -152,7 +170,11 @@ const nextConfig = {
       { source: '/galleries/venue-decoration/nggallery/:path*', destination: '/services/venue-styling/', permanent: true },
       { source: '/galleries/images.html', destination: '/galleries/', permanent: true },
       { source: '/galleries/images.html/', destination: '/galleries/', permanent: true },
+      { source: '/galleries/images-html', destination: '/galleries/', permanent: true },
+      { source: '/galleries/images-html/', destination: '/galleries/', permanent: true },
       { source: '/galleries/images/html/nggallery/:path*', destination: '/galleries/', permanent: true },
+      { source: '/galleries/video', destination: '/galleries/videos/', permanent: true },
+      { source: '/galleries/video/', destination: '/galleries/videos/', permanent: true },
       { source: '/category/:path*/feed', destination: '/about/blog/', permanent: true },
       { source: '/category/:path*/feed/', destination: '/about/blog/', permanent: true },
       { source: '/category/blog', destination: '/about/blog/', permanent: true },
@@ -218,6 +240,22 @@ const nextConfig = {
       { source: '/blogs/:path*', destination: '/about/blog/', permanent: true },
       { source: '/wedding-lighting-design', destination: '/services/lighting-design/', permanent: true },
       { source: '/what-we-do/venue-styling', destination: '/services/venue-styling/', permanent: true },
+
+      // --- Analytics legacy (old site paths) – non-wildcard; wildcards moved to top ---
+      { source: '/about/faqs', destination: '/about/faq/', permanent: true },
+      { source: '/about/faqs/', destination: '/about/faq/', permanent: true },
+      { source: '/what-we-do/djs-discos', destination: '/artists/djs/', permanent: true },
+      { source: '/what-we-do/djs-discos/', destination: '/artists/djs/', permanent: true },
+      { source: '/babington-house/the-orangery-at-babington-house', destination: '/venues/babington-house/', permanent: true },
+      { source: '/babington-house/the-orangery-at-babington-house/', destination: '/venues/babington-house/', permanent: true },
+      { source: '/babington-dj-final-details', destination: '/venues/babington-house/', permanent: true },
+      { source: '/babington-dj-final-details/', destination: '/venues/babington-house/', permanent: true },
+      { source: '/work-for-us', destination: '/contact-us/', permanent: true },
+      { source: '/work-for-us/', destination: '/contact-us/', permanent: true },
+      { source: '/fire-pit-html/fire-pit-html', destination: '/services/fire-pit-hire/', permanent: true },
+      { source: '/fire-pit-html/fire-pit-html/', destination: '/services/fire-pit-hire/', permanent: true },
+      { source: '/my-account', destination: '/login/', permanent: true },
+      { source: '/my-account/', destination: '/login/', permanent: true },
     ]
   },
 }

@@ -78,7 +78,7 @@ export default function SiteWideCTA() {
               asChild
               className="bg-champagne-gold hover:bg-champagne-gold/80 text-gray-900 font-semibold px-6 py-5 text-base"
             >
-              <Link href="/contact-us">Get in Touch</Link>
+              <Link href="/contact-us/">Get in Touch</Link>
             </Button>
             <Button
               variant="outline"

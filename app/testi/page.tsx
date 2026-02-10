@@ -18,23 +18,22 @@ export const metadata: Metadata = {
 export default function TestimonialsPage() {
   const ratingValue = "5";
   const reviewCount = testimonials.length;
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk";
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Service",
+    "@type": "LocalBusiness",
+    "@id": `${baseUrl}/testi/#localbusiness`,
     "name": "STYLISH Entertainment",
+    "url": baseUrl,
     "description": "Premium wedding and event entertainment. DJs and musicians UK-wide; lighting and styling in the South West and beyond.",
-    "provider": {
-      "@type": "LocalBusiness",
-      "name": "STYLISH Entertainment",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "88 Weymouth Road",
-        "addressLocality": "Frome",
-        "addressRegion": "Somerset",
-        "postalCode": "BA11 1HJ",
-        "addressCountry": "GB"
-      }
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "88 Weymouth Road",
+      "addressLocality": "Frome",
+      "addressRegion": "Somerset",
+      "postalCode": "BA11 1HJ",
+      "addressCountry": "GB"
     },
     "aggregateRating": {
       "@type": "AggregateRating",

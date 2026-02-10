@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Lock, Loader2, Music } from "lucide-react";
 import { RefinedCheckmark } from "@/components/RefinedCheckmark";
 import { formSchema, type FormData, eventTypeOptions, djOptions, upsellOptions } from "@/lib/contact-schema";
@@ -230,10 +230,8 @@ export default function ContactForm() {
           >
             <Card className="bg-white/5 backdrop-blur-xl border-champagne-gold/30">
               <CardHeader>
-                <CardTitle className="text-3xl md:text-4xl text-white">Contact Us</CardTitle>
-                <CardDescription className="text-gray-200 text-sm sm:text-base">
-                  Fill out the form below and we&apos;ll get back to you as soon as possible
-                </CardDescription>
+                <h2 className="text-3xl md:text-4xl text-white font-semibold leading-none tracking-tight">Contact Us</h2>
+                <p className="text-gray-200 text-sm sm:text-base mt-1.5">Fill out the form below and we&apos;ll get back to you as soon as possible</p>
               </CardHeader>
               <CardContent className="px-4 sm:px-6">
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -459,13 +457,15 @@ export default function ContactForm() {
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 px-4">
                   <a
                     href="tel:+447970793177"
-                    className="inline-flex items-center justify-center gap-2 sm:gap-3 px-5 sm:px-6 py-2.5 sm:py-3 bg-champagne-gold text-black font-bold rounded-lg hover:bg-champagne-gold/90 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl text-base sm:text-lg w-full sm:w-auto"
+                    className="inline-flex items-center justify-center gap-2 sm:gap-3 px-5 sm:px-6 py-2.5 sm:py-3 bg-champagne-gold text-black font-bold rounded-lg hover:bg-champagne-gold/90 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl text-base sm:text-lg w-full sm:w-auto min-h-[44px]"
+                    aria-label="Call 07970 793177"
                   >
                     <svg
                       className="w-5 h-5 flex-shrink-0"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
+                      aria-hidden
                     >
                       <path
                         strokeLinecap="round"

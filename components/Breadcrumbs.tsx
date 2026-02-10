@@ -93,9 +93,10 @@ export default function Breadcrumbs() {
                   // Show home icon for first breadcrumb on public routes
                   <Link
                     href={crumb.href}
-                    className={`${BREADCRUMB_STYLES.colors.inactive} ${BREADCRUMB_STYLES.colors.hover} flex items-center`}
+                    className={`${BREADCRUMB_STYLES.colors.inactive} ${BREADCRUMB_STYLES.colors.hover} flex items-center min-h-[44px] min-w-[44px] items-center justify-center`}
+                    aria-label="Home"
                   >
-                    <Home className="w-4 h-4" />
+                    <Home className="w-4 h-4" aria-hidden />
                   </Link>
                 ) : (
                   <>

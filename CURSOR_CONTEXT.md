@@ -48,7 +48,7 @@ Agent familiarisation for the Stylish Entertainment website project.
 
 ### Components (`/components`)
 - Shared UI, forms, admin components
-- **HeaderNew.tsx** – Main site header (dark, gold accents, wordmark, strapline, Enquire, burger nav). Reference: `/demo/header-preview`.
+- **HeaderNew.tsx** – Main site header (CRITICAL). Layout imports it directly; no HeaderSwitcher. Dark bg, gold accents, wordmark "Stylish"/"Entertainment", strapline (hidden ≤991px), Enquire (mobile visible, 15% smaller), burger nav. Uses AuthButtonSimple. Styles: `HeaderNew.module.css` with `!important` on colours (overrides globals.css base). Demo: `/demo/header-preview`. Legacy `Navigation.tsx` unused.
 - **CookieYes.tsx** – consent banner (delayed 2.5s for LCP); injects contrast-override `<style>` after load for WCAG AA. Contrast rules also in `app/globals.css`.
 - **GoogleTagManager.tsx**, **GoogleAnalytics.tsx** – analytics
 - **ui/slider.tsx** – hero slider; dot buttons use 48×48px min touch target for accessibility
@@ -73,6 +73,7 @@ Agent familiarisation for the Stylish Entertainment website project.
 
 ## Sandbox Demos (Admin)
 
+- `/demo/header-preview` – Header design reference (same as production header)
 - `/admin/sandbox/footer-demo` – Footer original vs refactored
 - `/admin/sandbox/terms-portal-demo` – Link to T&C portal flow demo
 - `/admin/sandbox/book-from-quote` – Book-from-quote token
@@ -108,8 +109,9 @@ See `.env.local.example` and `DISASTER_RECOVERY_GUIDE.md` for full list.
 
 ---
 
-## Recent Work (Jan 2026)
+## Recent Work
 
+- **HeaderNew production (Feb 5, 2026):** Main header is HeaderNew; layout imports it directly. HeaderSwitcher removed. Gold/light-gray colours require `!important` in `HeaderNew.module.css` to override `globals.css` base (`p, span, div, a, li`). Enquire visible on mobile. Cache clear: `rm -rf .next node_modules/.cache` then rebuild if MODULE_NOT_FOUND.
 - **API security (Jan 29):** Client portal routes now enforce `portalToken` or session auth: `/api/client/bookings/[id]/items` (GET/POST), `/api/client/bookings/[id]/payment-details` (GET), `/api/client/bookings/[id]/confirm-hire-request` (POST). `PATCH /api/client/bookings/[id]/tasks` supports portal token (magic-link users). See `API_ROUTES_AUDIT.md`.
 - **Link audit (Jan 29):** Internal `<a>` → `<Link>` on client portal access-denied pages; `tel:` standardised to `+44`; `rel="noopener noreferrer"` on external links; `NEXT_PUBLIC_GOOGLE_REVIEW_URL` for post-wedding email. See `LINK_AUDIT.md`.
 - **Page layouts (Jan 29):** Venue decoration – featured before/after (2 sliders). Galleries – before/after moved up, wider YouTube for HD, `vq=hd1080`. Lighting – gallery moved up after hero. New `/room-transformation` page.

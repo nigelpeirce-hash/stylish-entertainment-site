@@ -137,12 +137,66 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-        {/* Homepage-only LCP preload (avoids "preloaded but not used" on admin/other pages) */}
+        {/* Homepage LCP preload */}
         {isHome && (
           <link
             rel="preload"
             as="image"
             href="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_60,dpr_auto,w_1080/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg"
+            fetchPriority="high"
+          />
+        )}
+        {/* /artists/djs and /dj-nige (redirects to djs) LCP preload – hero image for mobile PageSpeed */}
+        {(pathname === "/artists/djs" || pathname === "/artists/djs/" || pathname === "/dj-nige" || pathname === "/dj-nige/") && (
+          <link
+            rel="preload"
+            as="image"
+            href="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768163785/Nigel-DJ-Babs-House-0002-1_ktgbaf.jpg"
+            fetchPriority="high"
+          />
+        )}
+        {/* /parties/party-lighting LCP preload – first hero image for mobile PageSpeed */}
+        {(pathname === "/parties/party-lighting" || pathname === "/parties/party-lighting/") && (
+          <link
+            rel="preload"
+            as="image"
+            href="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768162258/Fairy-light-Tunnel_sc40ed.jpg"
+            fetchPriority="high"
+          />
+        )}
+        {/* /weddings/wedding-lighting LCP preload – hero image for PageSpeed */}
+        {(pathname === "/weddings/wedding-lighting" || pathname === "/weddings/wedding-lighting/") && (
+          <link
+            rel="preload"
+            as="image"
+            href="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768163797/150730_sami-tammy_ria-mishaal-photography_775_bbo9bb.jpg"
+            fetchPriority="high"
+          />
+        )}
+        {/* /party-planning-and-organising LCP preload – hero image for mobile PageSpeed */}
+        {(pathname === "/party-planning-and-organising" || pathname === "/party-planning-and-organising/") && (
+          <link
+            rel="preload"
+            as="image"
+            href="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768754478/IMG_2866_zhs5sz.jpg"
+            fetchPriority="high"
+          />
+        )}
+        {/* /contact-us LCP preload – hero image for mobile PageSpeed */}
+        {(pathname === "/contact-us" || pathname === "/contact-us/") && (
+          <link
+            rel="preload"
+            as="image"
+            href="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768754478/IMG_2866_zhs5sz.jpg"
+            fetchPriority="high"
+          />
+        )}
+        {/* /artists/party-djs LCP preload – hero image for mobile PageSpeed */}
+        {(pathname === "/artists/party-djs" || pathname === "/artists/party-djs/") && (
+          <link
+            rel="preload"
+            as="image"
+            href="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768163790/Party-dj-with-lazer_wnhreb.jpg"
             fetchPriority="high"
           />
         )}

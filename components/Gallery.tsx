@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 const LIGHTBOX_BTN_STYLE: React.CSSProperties = {
   backgroundColor: "rgba(212, 175, 55, 0.9)",
@@ -53,14 +54,12 @@ export default function Gallery({ photos, columns = 1 }: GalleryProps) {
               className="relative w-full overflow-hidden rounded-lg bg-gray-900 shadow-lg hover:shadow-2xl transition-shadow duration-300 group cursor-pointer aspect-[4/3]"
               onClick={() => setIndex(photoIndex)}
             >
-              <img
+              <Image
                 src={photo.src}
                 alt={photo.alt}
-                width={1200}
-                height={900}
-                className="w-full h-full object-contain hover:opacity-90 transition-opacity duration-300"
-                loading="lazy"
-                decoding="async"
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-contain hover:opacity-90 transition-opacity duration-300"
               />
               {/* Hover overlay hint */}
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 pointer-events-none" />

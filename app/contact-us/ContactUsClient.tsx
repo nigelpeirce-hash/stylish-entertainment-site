@@ -11,11 +11,12 @@ export default function ContactUsClient() {
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/w_1200,h_600,f_auto,q_auto/IMG_2866_zhs5sz.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768754478/IMG_2866_zhs5sz.jpg"
             alt="Contact Us Hero"
             fill
             className="object-cover object-center opacity-50 brightness-110"
             priority
+            fetchPriority="high"
             sizes="100vw"
           />
         </div>

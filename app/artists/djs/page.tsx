@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -15,6 +16,23 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import LazyIframe from "@/components/LazyIframe";
 import { Target, Clock, Sparkles, Wrench, Music, Shield, Play, Search, Quote } from "lucide-react";
+
+/** Below-the-fold video gallery – loaded after initial paint to improve LCP/TBT on mobile */
+const DJsVideoGallery = dynamic(() => import("./DJsVideoGallery"), {
+  ssr: true,
+  loading: () => (
+    <section className="py-20 px-3 sm:px-4 bg-gray-900">
+      <div className="container mx-auto max-w-7xl">
+        <div className="text-center mb-12 h-32 animate-pulse rounded-lg bg-gray-800/50" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="aspect-[9/16] rounded-lg bg-gray-800/50 animate-pulse" />
+          ))}
+        </div>
+      </div>
+    </section>
+  ),
+});
 import YMCACheck from "@/components/YMCACheck";
 import { Input } from "@/components/ui/input";
 import { reviews } from "@/data/reviews";
@@ -186,13 +204,14 @@ export default function DJs() {
         </div>
         <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163785/Nigel-DJ-Babs-House-0002-1_ktgbaf.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768163785/Nigel-DJ-Babs-House-0002-1_ktgbaf.jpg"
             alt="DJ Nige performing at Babington House, showcasing professional wedding DJ services with elegant lighting"
             fill
             className="object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}
             priority
-            sizes="100vw"
+            fetchPriority="high"
+            sizes="(max-width: 768px) 100vw, 1200px"
           />
         </div>
         <motion.div
@@ -635,6 +654,7 @@ export default function DJs() {
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="text-gray-400 hover:text-champagne-gold text-xs transition-colors"
+                                                        aria-label={`View ${testimonial.venue} venue`}
                                                       >
                                                         {testimonial.venue}
                                                       </Link>
@@ -715,81 +735,7 @@ export default function DJs() {
         </div>
       </section>
 
-      {/* Fun Video Gallery - Portrait Style */}
-      <section className="py-20 px-3 sm:px-4 bg-gray-900">
-        <div className="container mx-auto max-w-7xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
-          >
-            <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
-              <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">The Fun We Create</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-sans mb-3 sm:mb-4 text-white font-bold px-4">
-              See The <span className="text-gradient">Party In Action</span>
-            </h2>
-            <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto px-4">
-              Watch how our DJs create unforgettable moments and get everyone dancing
-            </p>
-          </motion.div>
-
-          {/* Portrait Video Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {[
-              { id: "5VChJyJMIfs", title: "DJ performance and crowd energy" },
-              { id: "EPq35ZF1Awc", title: "Wedding party dance floor excitement" },
-              { id: "3TnzdP0IhTU", title: "Celebration moments and guest reactions" },
-              { id: "iGCx-ZzMMtw", title: "Fun party atmosphere and music mixing" },
-            ].map((video, index) => (
-              <motion.div
-                key={video.id}
-                initial={{ opacity: 0, y: 30, scale: 0.95 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="relative group"
-              >
-                <Card className="bg-gray-800/50 backdrop-blur-sm border-2 border-champagne-gold/30 shadow-xl overflow-hidden hover:border-champagne-gold/60 transition-all duration-300 hover:shadow-2xl h-full">
-                  <CardContent className="p-0">
-                    <div className="relative w-full aspect-[9/16] rounded-t-lg overflow-hidden bg-gray-900">
-                      <LazyIframe
-                        src={`https://www.youtube.com/embed/${video.id}`}
-                        title={`${video.title} - Stylish Entertainment DJ Services`}
-                        className="absolute inset-0 w-full h-full"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                        referrerPolicy="strict-origin-when-cross-origin"
-                      />
-                      {/* Refined Play Icon Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none flex items-center justify-center">
-                        <div className="relative">
-                          {/* Outer glow ring */}
-                          <div className="absolute inset-0 bg-champagne-gold/20 rounded-full blur-xl scale-150 group-hover:scale-175 transition-transform duration-300"></div>
-                          {/* Play button circle */}
-                          <div className="relative bg-champagne-gold/95 backdrop-blur-sm rounded-full p-4 md:p-5 shadow-2xl border-2 border-white/30 group-hover:scale-110 transition-transform duration-300">
-                            <Play 
-                              className="w-8 h-8 md:w-10 md:h-10 text-black ml-1" 
-                              fill="currentColor"
-                              strokeWidth={2}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                      {/* Subtle corner indicator */}
-                      <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-                        <Play className="w-4 h-4 text-champagne-gold" fill="currentColor" />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <DJsVideoGallery />
 
       {/* How Does It Work */}
       <section className="py-20 px-3 sm:px-4 bg-gray-900">
@@ -929,6 +875,7 @@ export default function DJs() {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-champagne-gold hover:text-champagne-gold/80 text-sm font-medium ml-4 transition-colors"
+                            aria-label={`View ${venue.name} website`}
                           >
                             View →
                           </Link>
@@ -965,7 +912,7 @@ export default function DJs() {
                   Please Contact us for a free quote based on your location and timings.
                 </p>
                 <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
-                  <Link href="/contact-us">Get Your Free Quote</Link>
+                  <Link href="/contact-us" aria-label="Get your free quote for DJ services">Get Your Free Quote</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -986,7 +933,7 @@ export default function DJs() {
               Ready to book your perfect match?
             </h2>
             <Button asChild size="lg">
-              <Link href="/contact-us">Get in Touch</Link>
+              <Link href="/contact-us" aria-label="Get in touch to book your DJ">Get in Touch</Link>
             </Button>
           </motion.div>
         </div>

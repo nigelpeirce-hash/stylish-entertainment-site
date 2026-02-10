@@ -1,8 +1,8 @@
 # Disaster Recovery & Complete Rebuild Guide
 ## Stylish Entertainment Website
 
-**Last Updated:** January 29, 2026  
-**Version:** 1.10  
+**Last Updated:** February 5, 2026  
+**Version:** 1.11  
 **Purpose:** Complete technical documentation for rebuilding the system from scratch in case of catastrophic failure
 
 ---
@@ -100,6 +100,8 @@ Vercel auto-deploys on push to main. Redeploy after env var changes. Use quoted 
 ├── app/                    # Next.js App Router pages and API routes
 │   └── about/blog/        # Blog pages (use wrapper pattern)
 ├── components/             # React components
+│   ├── HeaderNew.tsx      # Main site header (CRITICAL: used in layout)
+│   ├── HeaderNew.module.css
 │   └── blog/              # Blog page client wrappers
 ├── lib/                    # Utility functions and configurations
 │   ├── auth.ts            # NextAuth configuration
@@ -117,6 +119,16 @@ Vercel auto-deploys on push to main. Redeploy after env var changes. Use quoted 
 ├── package.json           # Dependencies and scripts
 └── vercel.json            # Vercel deployment configuration
 ```
+
+### Critical UI: Site Header
+
+The main site header is **HeaderNew** (`components/HeaderNew.tsx`). It is imported directly in `app/layout.tsx` – there is no HeaderSwitcher. Layout renders `<HeaderNew />` inside Suspense.
+
+- **Styles:** `HeaderNew.module.css` – wordmark (gold "Stylish", light-gray "Entertainment"), strapline ("Every Gathering Deserves To Be Extraordinary" – "Extraordinary" in gold), Enquire button, burger menu. Uses `!important` on colour rules to override `globals.css` base layer (`p, span, div, a, li`).
+- **Auth:** Uses `AuthButtonSimple` from `components/AuthButton.tsx` (no useSearchParams; avoids suspense issues).
+- **Demo/reference:** `/demo/header-preview` – same header, design reference page.
+- **Legacy:** `Navigation.tsx` exists but is unused; can be removed or kept for rollback reference.
+- **Favicon:** `public/se-icon.png`.
 
 ---
 
@@ -1696,6 +1708,13 @@ git push origin main           # Deploy to Vercel (auto)
 
 ### Version History
 
+- **v1.11** (February 5, 2026) - HeaderNew production, layout change:
+  - **Header:** HeaderNew is the main site header. Layout imports `HeaderNew` directly (no HeaderSwitcher). HeaderSwitcher removed.
+  - **HeaderNew:** Dark background, gold accents, wordmark "Stylish" + "Entertainment", centre strapline (hidden on mobile/tablet ≤991px), Enquire button (visible on mobile, 15% smaller), burger menu with full nav drawer.
+  - **Colours:** `globals.css` base layer overrides `p, span, div, a, li` with `color: rgb(241 245 249) !important`. HeaderNew module uses `!important` on wordmark/strapline colours so gold and light-gray render correctly.
+  - **Auth:** AuthButtonSimple used in header (no useSearchParams). Admin/Sign Out on desktop; auth in burger drawer on mobile.
+  - **Demo:** `/demo/header-preview` – design reference; static preview at `public/demo-header-preview.html`.
+  - **Cache:** If MODULE_NOT_FOUND after header changes, run `rm -rf .next node_modules/.cache` then `npm run build`.
 - **v1.10** (January 29, 2026) - API security, link audit, env vars:
   - **API security:** Client portal routes enforce `portalToken` or session auth: `/api/client/bookings/[id]/items` (GET/POST), `/api/client/bookings/[id]/payment-details` (GET), `/api/client/bookings/[id]/confirm-hire-request` (POST). `PATCH /api/client/bookings/[id]/tasks` supports portal token for magic-link users. See `API_ROUTES_AUDIT.md`.
   - **Link audit:** Internal `<a>` → `<Link>` on client portal access-denied; `tel:` standardised to `+44`; `rel="noopener noreferrer"` on external links; placeholder Google review URL replaced with `NEXT_PUBLIC_GOOGLE_REVIEW_URL`. See `LINK_AUDIT.md`.

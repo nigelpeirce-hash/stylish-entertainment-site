@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import Link from "next/link";
@@ -83,11 +83,12 @@ export default function PartyDJsClient() {
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163790/Party-dj-with-lazer_wnhreb.jpg"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768163790/Party-dj-with-lazer_wnhreb.jpg"
             alt="Party DJ with laser lighting effects creating a vibrant and energetic dance floor atmosphere"
             fill
             className="object-cover object-center"
             priority
+            fetchPriority="high"
             sizes="100vw"
           />
         </div>
@@ -127,12 +128,12 @@ export default function PartyDJsClient() {
           <Card className="bg-gray-800/50 backdrop-blur-md border-champagne-gold/50">
             <CardHeader>
               <div className="flex items-center gap-3 mb-4">
-                <Music className="h-8 w-8 text-champagne-gold" />
-                <CardTitle className="text-3xl md:text-4xl text-white">Professional DJ Services</CardTitle>
+                <Music className="h-8 w-8 text-champagne-gold" aria-hidden />
+                <h2 className="text-3xl md:text-4xl text-white font-semibold leading-none tracking-tight">Professional DJ Services</h2>
               </div>
-              <CardDescription className="text-lg text-gray-200">
+              <p className="text-lg text-gray-200">
                 Transform your wedding reception with our professional DJ services. We bring state-of-the-art equipment, seamless mixing, and an unparalleled ability to read the crowd and keep your guests dancing all night long.
-              </CardDescription>
+              </p>
             </CardHeader>
             <CardContent className="space-y-8">
               {/* Feature Grid */}
@@ -189,10 +190,10 @@ export default function PartyDJsClient() {
               {/* CTA Buttons */}
               <div className="pt-6 border-t border-champagne-gold/20 flex flex-col sm:flex-row gap-4">
                 <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-gold-light shadow-[0_0_15px_rgba(212,175,55,0.3)]">
-                  <Link href="/artists/djs">Meet Our DJs</Link>
+                  <Link href="/artists/djs" aria-label="Meet our DJs and view their profiles">Meet Our DJs</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10">
-                  <Link href="/contact-us">Check Availability</Link>
+                  <Link href="/contact-us" aria-label="Check availability and send an enquiry">Check Availability</Link>
                 </Button>
               </div>
             </CardContent>
@@ -214,9 +215,9 @@ export default function PartyDJsClient() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold text-white mb-8 text-center">
+            <h3 className="text-3xl md:text-4xl font-bold text-white mb-8 text-center">
               Frequently Asked Questions
-            </h2>
+            </h3>
             <Card className="bg-gray-800/50 backdrop-blur-md border-champagne-gold/50">
               <CardContent className="p-6">
                 <Accordion type="single" className="w-full">
@@ -251,11 +252,11 @@ export default function PartyDJsClient() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans mb-4 sm:mb-6 text-white font-bold px-4">
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-sans mb-4 sm:mb-6 text-white font-bold px-4">
               Ready to book your perfect DJ?
-            </h2>
+            </h3>
             <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-gold-light hover:scale-105 transition-all duration-300 shadow-[0_0_15px_rgba(212,175,55,0.4)]">
-              <Link href="/contact-us">Get in Touch</Link>
+              <Link href="/contact-us" aria-label="Get in touch to book your DJ">Get in Touch</Link>
             </Button>
           </motion.div>
         </div>
