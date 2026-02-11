@@ -107,16 +107,9 @@ const nextConfig = {
     ];
   },
   // Redirects run top-to-bottom: put specific/wildcard rules before broader ones.
-  // SEO/host redirects ONLY here — no host or slash logic in middleware (prevents redirect loops).
+  // www → non-www: handled exclusively in Vercel Dashboard to avoid canonical loops.
   async redirects() {
     return [
-      // --- www → non-www (301, one hop; trailing slash handled by trailingSlash: true) ---
-      {
-        source: '/:path*',
-        has: [{ type: 'host', value: 'www.stylishentertainment.co.uk' }],
-        destination: 'https://stylishentertainment.co.uk/:path*',
-        permanent: true,
-      },
       // --- Legacy WordPress .php / category (GSC 404/Redirect reports) → relevant canonical pages ---
       { source: '/party-planning.php', destination: '/party-planning-and-organising/', permanent: true },
       { source: '/party-planning.php/', destination: '/party-planning-and-organising/', permanent: true },
@@ -369,8 +362,13 @@ const nextConfig = {
       { source: '/my-account', destination: '/login/', permanent: true },
       { source: '/my-account/', destination: '/login/', permanent: true },
 
-      // --- Attachment bloat (GSC): TEMPORARILY DISABLED — catch-all was too greedy and caused redirect loop ---
-      // { source: '/:path*/attachment/:rest*', destination: '/', permanent: true },
+      // --- Attachment bloat (GSC): surgical redirects only; explicitly exclude / to prevent recursion ---
+      { source: '/attachment', destination: '/', permanent: true },
+      { source: '/attachment/', destination: '/', permanent: true },
+      { source: '/attachment/:path*', destination: '/', permanent: true },
+      { source: '/:path+/attachment', destination: '/', permanent: true },
+      { source: '/:path+/attachment/', destination: '/', permanent: true },
+      { source: '/:path+/attachment/:rest*', destination: '/', permanent: true },
     ]
   },
 }
