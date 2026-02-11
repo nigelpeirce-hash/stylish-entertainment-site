@@ -1,0 +1,6 @@
+# Apache only (e.g. local or legacy host). Vercel uses next.config.js redirects and ignores this file.
+# Secondary safety: redirect any URL path containing /attachment/ to site root (301) for attachment bloat SEO cleanup.
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteRule .*/attachment/.* / [R=301,L]
+</IfModule>

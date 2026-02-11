@@ -107,8 +107,16 @@ const nextConfig = {
     ];
   },
   // Redirects run top-to-bottom: put specific/wildcard rules before broader ones.
+  // SEO/host redirects ONLY here — no host or slash logic in middleware (prevents redirect loops).
   async redirects() {
     return [
+      // --- www → non-www (301, one hop; trailing slash handled by trailingSlash: true) ---
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'www.stylishentertainment.co.uk' }],
+        destination: 'https://stylishentertainment.co.uk/:path*',
+        permanent: true,
+      },
       // --- Legacy WordPress .php / category (GSC 404/Redirect reports) → relevant canonical pages ---
       { source: '/party-planning.php', destination: '/party-planning-and-organising/', permanent: true },
       { source: '/party-planning.php/', destination: '/party-planning-and-organising/', permanent: true },
@@ -360,6 +368,9 @@ const nextConfig = {
       { source: '/fire-pit-html/fire-pit-html/', destination: '/services/fire-pit-hire/', permanent: true },
       { source: '/my-account', destination: '/login/', permanent: true },
       { source: '/my-account/', destination: '/login/', permanent: true },
+
+      // --- Attachment bloat (GSC): catch-all for any /attachment/ URL not matched above → 301 to homepage ---
+      { source: '/:path*/attachment/:rest*', destination: '/', permanent: true },
     ]
   },
 }

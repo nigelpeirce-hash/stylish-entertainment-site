@@ -6,7 +6,8 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/admin/', '/api/', '/client/', '/demo-', '/demo/', '/login', '/register'],
+        // Disallow attachment URLs (GSC attachment bloat); redirects in next.config.js send them to /
+        disallow: ['/admin/', '/api/', '/client/', '/demo-', '/demo/', '/login', '/register', '/attachment/'],
       },
     ],
     sitemap: 'https://www.stylishentertainment.co.uk/sitemap.xml',
