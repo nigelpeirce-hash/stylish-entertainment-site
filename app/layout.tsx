@@ -128,7 +128,8 @@ export default async function RootLayout({
 }>) {
   const headersList = await headers();
   const pathname = headersList.get("x-pathname") ?? "";
-  const isHome = pathname === "/" || pathname === "";
+  // Only preload homepage LCP when we know we're on home (pathname set by middleware). When pathname is "" (e.g. middleware disabled), skip to avoid "preloaded but not used" on other pages.
+  const isHome = pathname === "/" || pathname === "/";
 
   return (
     <html lang="en-GB" className={`${raleway.variable} ${bebasNeue.variable} ${dancingScript.variable} ${playfairDisplay.variable}`}>

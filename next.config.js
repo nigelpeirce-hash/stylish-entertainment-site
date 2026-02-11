@@ -71,7 +71,7 @@ const nextConfig = {
           },
           {
             key: 'Permissions-Policy',
-            value: 'encrypted-media=(self "https://player-widget.mixcloud.com" "https://www.youtube.com" "https://youtube.com")',
+            value: 'encrypted-media=(self "https://player-widget.mixcloud.com" "https://www.youtube.com" "https://youtube.com"), unload=(self)',
           },
         ],
       },
