@@ -369,8 +369,8 @@ const nextConfig = {
       { source: '/my-account', destination: '/login/', permanent: true },
       { source: '/my-account/', destination: '/login/', permanent: true },
 
-      // --- Attachment bloat (GSC): catch-all for any /attachment/ URL not matched above → 301 to homepage ---
-      { source: '/:path*/attachment/:rest*', destination: '/', permanent: true },
+      // --- Attachment bloat (GSC): TEMPORARILY DISABLED — catch-all was too greedy and caused redirect loop ---
+      // { source: '/:path*/attachment/:rest*', destination: '/', permanent: true },
     ]
   },
 }
