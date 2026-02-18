@@ -31,7 +31,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.warn('Sitemap: skipping DB (missing/invalid DATABASE_URL or connection failed):', (error as Error)?.message);
   }
 
-  // --- Static: all public pages ---
+  // --- Static: canonical URLs only (no legacy redirect sources; those live in next.config.js) ---
   const staticPages: MetadataRoute.Sitemap = [
     url('/', 'weekly', 1),
     url('/about', 'monthly', 0.9),
@@ -46,7 +46,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url('/artists/musicians', 'monthly', 0.9),
     url('/artists/party-djs', 'monthly', 0.9),
     url('/contact-us/', 'monthly', 0.9),
-    url('/contact', 'monthly', 0.8),
     url('/request-quote', 'monthly', 0.9),
     url('/galleries', 'monthly', 0.8),
     url('/galleries/instagram', 'monthly', 0.7),
