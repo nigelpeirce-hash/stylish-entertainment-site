@@ -167,6 +167,18 @@ export default function BookingDetail() {
   const [deleting, setDeleting] = useState(false);
   const [sendingDepositInvoice, setSendingDepositInvoice] = useState(false);
   const [sendingFinalizeInvite, setSendingFinalizeInvite] = useState(false);
+  const [depositInvoiceModalOpen, setDepositInvoiceModalOpen] = useState(false);
+  const [depositInvoiceDraft, setDepositInvoiceDraft] = useState<{
+    clientName: string;
+    recipient: string;
+    eventDate: string;
+    venueName: string | null;
+    eventType: string | null;
+    amount: number | null;
+    reference: string;
+    subject: string;
+  } | null>(null);
+  const [depositOverrideAmount, setDepositOverrideAmount] = useState("");
   const [venues, setVenues] = useState<{ id: string; venueName: string; venuePostcode?: string | null; defaultCeremonyTime?: string | null; defaultFinishTime?: string | null; venueNotes?: string | null }[]>([]);
   const quoteBuilderSectionRef = useRef<HTMLDivElement>(null);
   const { toast, toastState } = useToast();
@@ -242,6 +254,23 @@ export default function BookingDetail() {
     // Trigger SWR revalidation to get latest data from server
     await mutate();
   }, [mutate]);
+
+  const openDepositInvoiceModal = useCallback(async () => {
+    if (!booking?.id || !booking?.email) return;
+    setDepositInvoiceModalOpen(true);
+    setDepositInvoiceDraft(null);
+    setDepositOverrideAmount("");
+    try {
+      const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice/`);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error ?? "Failed to load draft");
+      setDepositInvoiceDraft(data);
+      setDepositOverrideAmount(data.amount != null ? String(data.amount) : "");
+    } catch (e) {
+      toast({ title: "Error", description: (e as Error)?.message ?? "Failed to load draft", variant: "destructive" });
+      setDepositInvoiceModalOpen(false);
+    }
+  }, [booking?.id, booking?.email, toast]);
 
   // Handle authentication and redirects
   useEffect(() => {
@@ -615,25 +644,9 @@ export default function BookingDetail() {
                       size="sm"
                       variant="outline"
                       className="border-amber-400 text-amber-200 hover:bg-amber-500/20"
-                      onClick={async () => {
-                        if (!booking?.email) return;
-                        setSendingDepositInvoice(true);
-                        try {
-                          const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice/`, { method: "POST" });
-                          const data = await res.json();
-                          if (res.ok) {
-                            await handleBookingUpdate();
-                            toast({ title: "Deposit invoice sent", description: `Email sent to ${deduplicateName(getDisplayName(booking.name) || booking.name)}` });
-                          } else throw new Error(data?.error ?? "Failed to send");
-                        } catch (e: unknown) {
-                          toast({ title: "Error", description: (e as Error)?.message ?? "Failed to send", variant: "destructive" });
-                        } finally {
-                          setSendingDepositInvoice(false);
-                        }
-                      }}
-                      disabled={sendingDepositInvoice}
+                      onClick={openDepositInvoiceModal}
                     >
-                      {sendingDepositInvoice ? "Sending…" : "Send Deposit Invoice"}
+                      Send Deposit Invoice
                     </Button>
                   )}
                   {booking?.email && (
@@ -846,42 +859,14 @@ export default function BookingDetail() {
                 {/* Send Deposit Invoice (before payment) */}
                 <div className="p-4 bg-gray-900/70 rounded-lg border border-amber-500/30">
                   <p className="text-sm text-gray-300 mb-2">
-                    Send &quot;please pay&quot; deposit invoice. Use before client pays.
+                    Send &quot;please pay&quot; deposit invoice. Use before client pays. Review and adjust the deposit amount before sending.
                   </p>
                   <Button
-                    onClick={async () => {
-                      if (!booking?.email) return;
-                      setSendingDepositInvoice(true);
-                      try {
-                        const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice/`, { method: "POST" });
-                        const data = await res.json();
-                        if (res.ok) {
-                          await handleBookingUpdate();
-                          toast({
-                            title: "Deposit invoice sent",
-                            description: `Email sent to ${deduplicateName(getDisplayName(booking.name) || booking.name)}`,
-                          });
-                        } else {
-                          throw new Error(data?.error ?? "Failed to send");
-                        }
-                      } catch (e: unknown) {
-                        toast({
-                          title: "Error",
-                          description: (e as Error)?.message ?? "Failed to send deposit invoice",
-                          variant: "destructive",
-                        });
-                      } finally {
-                        setSendingDepositInvoice(false);
-                      }
-                    }}
-                    disabled={sendingDepositInvoice || !booking?.email}
+                    onClick={openDepositInvoiceModal}
+                    disabled={!booking?.email}
                     className="w-full bg-amber-600 hover:bg-amber-700 text-black font-semibold disabled:opacity-50"
                   >
-                    {sendingDepositInvoice ? (
-                      <><span className="animate-spin mr-2">⏳</span> Sending…</>
-                    ) : (
-                      <><PoundSterling className="w-4 h-4 mr-2" /> Send Deposit Invoice</>
-                    )}
+                    <PoundSterling className="w-4 h-4 mr-2" /> Review &amp; Send Deposit Invoice
                   </Button>
                   {booking.depositInvoiceSentAt && (
                     <p className="text-xs text-gray-400 italic mt-2">
@@ -1421,6 +1406,97 @@ export default function BookingDetail() {
 
       {/* Admin footer: thin line + Last updated from booking */}
       <AdminFooter updatedAt={booking.updatedAt ?? undefined} />
+
+      {/* Deposit invoice review modal – check fees before send */}
+      <Dialog open={depositInvoiceModalOpen} onOpenChange={(open) => { setDepositInvoiceModalOpen(open); if (!open) setDepositInvoiceDraft(null); }}>
+        <DialogContent className="max-w-lg bg-gray-800 border-amber-500/40" aria-describedby="deposit-invoice-desc">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-white flex items-center gap-2">
+              <PoundSterling className="w-5 h-5 text-amber-400" />
+              Review deposit invoice
+            </DialogTitle>
+            <DialogDescription id="deposit-invoice-desc" className="text-gray-400">
+              Check the amount and details below. You can change the deposit amount if it varies from the default. Then send to the client.
+            </DialogDescription>
+          </DialogHeader>
+          {depositInvoiceDraft ? (
+            <div className="space-y-4 py-2">
+              <div>
+                <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">To</span>
+                <p className="text-white font-medium">{depositInvoiceDraft.recipient}</p>
+              </div>
+              <div>
+                <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Event</span>
+                <p className="text-gray-200">{depositInvoiceDraft.eventDate}{depositInvoiceDraft.venueName ? ` at ${depositInvoiceDraft.venueName}` : ""}</p>
+              </div>
+              <div>
+                <label htmlFor="deposit-amount" className="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Deposit amount (£)</label>
+                <input
+                  id="deposit-amount"
+                  type="text"
+                  inputMode="decimal"
+                  value={depositOverrideAmount}
+                  onChange={(e) => setDepositOverrideAmount(e.target.value)}
+                  placeholder={depositInvoiceDraft.amount != null ? String(depositInvoiceDraft.amount) : "As per quote (leave blank)"}
+                  className="w-full px-3 py-2 bg-gray-900 border border-gray-600 rounded-md text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">Leave blank to use &quot;as per your quote&quot; in the email. Enter a number to set a specific amount.</p>
+              </div>
+              <div>
+                <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Reference</span>
+                <p className="text-gray-200 font-mono text-sm">{depositInvoiceDraft.reference}</p>
+              </div>
+              <div>
+                <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Subject</span>
+                <p className="text-gray-300 text-sm truncate" title={depositInvoiceDraft.subject}>{depositInvoiceDraft.subject}</p>
+              </div>
+              <div className="flex gap-3 pt-2">
+                <Button variant="outline" onClick={() => setDepositInvoiceModalOpen(false)} className="border-gray-600 text-gray-300 hover:bg-gray-700">
+                  Cancel
+                </Button>
+                <Button
+                  className="bg-amber-600 hover:bg-amber-700 text-black font-semibold"
+                  disabled={sendingDepositInvoice}
+                  onClick={async () => {
+                    if (!booking?.id || !depositInvoiceDraft) return;
+                    setSendingDepositInvoice(true);
+                    try {
+                      const amountStr = depositOverrideAmount.trim();
+                      const body: { amount?: number | null } = {};
+                      if (amountStr === "") {
+                        body.amount = null;
+                      } else {
+                        const n = parseFloat(amountStr);
+                        if (!Number.isNaN(n)) body.amount = n;
+                        else body.amount = depositInvoiceDraft.amount;
+                      }
+                      const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice/`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(body),
+                      });
+                      const data = await res.json();
+                      if (!res.ok) throw new Error(data?.error ?? "Failed to send");
+                      await handleBookingUpdate();
+                      setDepositInvoiceModalOpen(false);
+                      setDepositInvoiceDraft(null);
+                      toast({ title: "Deposit invoice sent", description: `Email sent to ${depositInvoiceDraft.recipient}` });
+                    } catch (e: unknown) {
+                      toast({ title: "Error", description: (e as Error)?.message ?? "Failed to send deposit invoice", variant: "destructive" });
+                    } finally {
+                      setSendingDepositInvoice(false);
+                    }
+                  }}
+                >
+                  {sendingDepositInvoice ? "Sending…" : "Send deposit invoice"}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="py-8 text-center text-gray-400">Loading draft…</div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Edit Modal */}
       <Dialog open={showEditModal} onOpenChange={setShowEditModal}>

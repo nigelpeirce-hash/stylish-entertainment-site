@@ -38,7 +38,27 @@ export interface SendDepositInvoiceResult {
   lastSentAt?: string;
 }
 
-export async function sendDepositInvoiceForBooking(bookingId: string): Promise<SendDepositInvoiceResult> {
+/** Overrides for deposit amount and/or reference when sending (admin review step). */
+export interface SendDepositInvoiceOverrides {
+  amount?: number | null;
+  reference?: string;
+}
+
+/** Draft data for admin to review before sending. Does not send. */
+export interface DepositInvoiceDraft {
+  clientName: string;
+  recipient: string;
+  eventDate: string;
+  venueName: string | null;
+  eventType: string | null;
+  amount: number | null;
+  reference: string;
+  subject: string;
+  html: string;
+  text: string;
+}
+
+async function getBookingAndPayload(bookingId: string, overrides?: SendDepositInvoiceOverrides) {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     select: {
@@ -58,17 +78,20 @@ export async function sendDepositInvoiceForBooking(bookingId: string): Promise<S
     },
   });
 
-  if (!booking) return { success: false, error: "Booking not found" };
-  if (!booking.email) return { success: false, error: "Booking has no email address" };
+  if (!booking) return { booking: null, payload: null, emailContent: null };
+  if (!booking.email) return { booking, payload: null, emailContent: null };
 
   const clientName = deduplicateName(getDisplayName(booking.name) || booking.name) || "there";
-  const amount =
+  const defaultAmount =
     booking.staffAssignments[0] != null && typeof booking.staffAssignments[0].agreedFee === "number"
       ? Number(booking.staffAssignments[0].agreedFee)
       : null;
-  const reference =
+  const defaultReference =
     booking.bookingReference?.trim() ||
     `SE-${bookingId.slice(-8)}`;
+
+  const amount = overrides?.amount !== undefined ? overrides.amount : defaultAmount;
+  const reference = (overrides?.reference?.trim() || defaultReference).trim();
   const bankDetails = bankDetailsFromEnv();
 
   const payload = {
@@ -86,6 +109,52 @@ export async function sendDepositInvoiceForBooking(bookingId: string): Promise<S
   };
 
   const emailContent = depositInvoiceEmail(payload);
+  const eventDateStr = booking.eventDate
+    ? new Date(booking.eventDate).toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
+    : "";
+
+  return {
+    booking,
+    payload,
+    emailContent,
+    clientName,
+    eventDateStr,
+    venueName: booking.venueName,
+    eventType: booking.eventType,
+  };
+}
+
+/**
+ * Get draft deposit invoice for admin review (no send).
+ * Use before showing modal so admin can check fees and optionally override amount.
+ */
+export async function getDepositInvoiceDraft(bookingId: string): Promise<DepositInvoiceDraft | null> {
+  const result = await getBookingAndPayload(bookingId);
+  if (!result?.booking?.email || !result.emailContent || !result.payload) return null;
+
+  return {
+    clientName: result.clientName,
+    recipient: result.booking.email,
+    eventDate: result.eventDateStr,
+    venueName: result.venueName,
+    eventType: result.eventType,
+    amount: result.payload.amount,
+    reference: result.payload.reference,
+    subject: result.emailContent.subject,
+    html: result.emailContent.html,
+    text: result.emailContent.text,
+  };
+}
+
+export async function sendDepositInvoiceForBooking(
+  bookingId: string,
+  overrides?: SendDepositInvoiceOverrides
+): Promise<SendDepositInvoiceResult> {
+  const result = await getBookingAndPayload(bookingId, overrides);
+  if (!result?.booking) return { success: false, error: "Booking not found" };
+  if (!result.booking.email) return { success: false, error: "Booking has no email address" };
+  if (!result.payload || !result.emailContent) return { success: false, error: "Could not build invoice" };
+
   const resend = getResend();
   if (!resend) {
     console.error("[send-deposit-invoice] Resend not configured");
@@ -93,18 +162,18 @@ export async function sendDepositInvoiceForBooking(bookingId: string): Promise<S
   }
 
   const config = getResendConfig("booking");
-  const result = await resend.emails.send({
+  const sendResult = await resend.emails.send({
     from: config.from,
-    to: booking.email,
+    to: result.booking.email,
     replyTo: config.replyTo,
-    subject: emailContent.subject,
-    html: emailContent.html,
-    text: emailContent.text,
+    subject: result.emailContent.subject,
+    html: result.emailContent.html,
+    text: result.emailContent.text,
   });
 
-  if (result.error) {
-    console.error("[send-deposit-invoice] Resend error:", result.error);
-    return { success: false, error: result.error.message };
+  if (sendResult.error) {
+    console.error("[send-deposit-invoice] Resend error:", sendResult.error);
+    return { success: false, error: sendResult.error.message };
   }
 
   const now = new Date();
