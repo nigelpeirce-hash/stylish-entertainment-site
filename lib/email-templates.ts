@@ -481,9 +481,9 @@ export function depositInvoiceEmail({ booking, amount, reference, bankDetails, m
   const amountBlock =
     amount != null && amount > 0
       ? `<p style="font-size: 20px; font-weight: 700; color: ${ACCENT}; margin: 24px 0;">Deposit amount: £${amount.toLocaleString("en-GB")}</p>`
-      : '<p style="font-size: 18px; color: #333; margin: 24px 0;">Deposit amount as per your quote.</p>';
+      : '<p style="font-size: 18px; color: #333; margin: 24px 0;">Deposit amount: As agreed with you.</p>';
 
-  const amountText = amount != null && amount > 0 ? `Deposit amount: £${amount.toLocaleString("en-GB")}` : "Deposit amount as per your quote.";
+  const amountText = amount != null && amount > 0 ? `Deposit amount: £${amount.toLocaleString("en-GB")}` : "Deposit amount: As agreed with you.";
 
   const bank = bankDetails?.name && bankDetails?.sortCode && bankDetails?.accountNumber
     ? bankDetails

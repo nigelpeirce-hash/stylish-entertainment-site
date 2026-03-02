@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guest Invite Email – Demo (Stylish Entertainment)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #eee; padding: 24px; margin: 0; }
+    .page-header { max-width: 680px; margin: 0 auto 16px; padding: 12px 16px; background: #1a1a1a; color: #e5e5e5; border-radius: 8px; }
+    .page-header h1 { margin: 0 0 4px 0; font-size: 18px; color: #D4AF37; }
+    .page-header p { margin: 0; font-size: 13px; color: #999; }
+    .email-frame { max-width: 680px; margin: 0 auto; box-shadow: 0 4px 20px rgba(0,0,0,0.15); border-radius: 8px; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <div class="page-header">
+    <h1>Guest invite email (portal)</h1>
+    <p>Sent to guests when the client uploads CSV/Excel and clicks “Send invites”. API: <code>POST /api/client/bookings/[id]/send-guest-invites/</code></p>
+  </div>
+
+  <!-- This is the actual email HTML (sample data) -->
+  <div class="email-frame">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8f8f8; padding: 40px 20px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+      <tr><td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+          <tr>
+            <td style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px 40px; text-align: center;">
+              <div style="text-align: center; margin-bottom: 8px;">
+                <span style="font-family: Georgia, 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: #D4AF37; letter-spacing: 0.02em;">Stylish</span>
+                <span style="display: block; font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; color: #e5e5e5; margin-top: 4px; letter-spacing: 0.05em;">Entertainment</span>
+              </div>
+            </td>
+          </tr>
+          <tr><td style="background: linear-gradient(90deg, #D4AF37 0%, #F4D03F 50%, #D4AF37 100%); height: 4px;"></td></tr>
+          <tr>
+            <td style="padding: 40px;">
+              <h1 style="font-size: 24px; font-weight: 700; color: #1a1a1a; margin: 0 0 24px 0; text-align: center;">
+                Add your song requests!
+              </h1>
+              <p style="font-size: 16px; color: #333333; line-height: 1.8; margin: 0 0 16px 0;">
+                Emma &amp; James would love your input on the music for their wedding.
+              </p>
+              <p style="font-size: 16px; color: #333333; line-height: 1.8; margin: 0 0 24px 0;">
+                Saturday, 15 June 2024 at Babington House
+              </p>
+              <p style="font-size: 16px; color: #333333; line-height: 1.8; margin: 0 0 24px 0;">
+                Add up to 3 song ideas — nothing plays without their approval.
+              </p>
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin: 32px 0;">
+                <tr><td align="center">
+                  <a href="#" style="display: inline-block; padding: 16px 40px; background: linear-gradient(135deg, #D4AF37 0%, #B8960C 100%); color: #1a1a1a; text-decoration: none; font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: 1.5px; border-radius: 4px;">
+                    Add your song requests
+                  </a>
+                </td></tr>
+              </table>
+              <p style="font-size: 12px; color: #888888; margin: 24px 0 0 0;">
+                This link closes automatically after the event.
+              </p>
+            </td>
+          </tr>
+        </table>
+      </td></tr>
+    </table>
+  </div>
+
+  <div class="page-header" style="margin-top: 24px;">
+    <h1>Related emails</h1>
+    <ul style="margin: 8px 0 0 0; padding-left: 20px; font-size: 13px; line-height: 1.8;">
+      <li><strong>Guest invite (above)</strong> — <code>app/api/client/bookings/[id]/send-guest-invites/route.ts</code> (to guests; CSV/Excel upload).</li>
+      <li><strong>Portal link</strong> — <code>app/api/admin/bookings/[id]/send-portal-link/route.ts</code> (to client; “Your Wedding Portal is Ready”, mentions music &amp; inviting guests).</li>
+      <li><strong>Deposit / booking confirmations</strong> — mention “link to our portal” and “send a link to your guests so they can request songs” (e.g. <code>lib/email-journey-templates.ts</code>, <code>public/email-demo.html</code>).</li>
+      <li><strong>Dispatch email</strong> — <code>lib/dispatch-email.ts</code> (to DJ/crew; includes “Guest Song Requests” section listing guest requests).</li>
+    </ul>
+  </div>
+</body>
+</html>

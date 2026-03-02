@@ -7,6 +7,7 @@ import { getResendConfig } from "@/lib/email-config";
 import { getDisplayName } from "@/lib/utils/name-helpers";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
 import { EMAIL_LOGO_HTML_DARK } from "@/lib/email-signature";
+import * as XLSX from "xlsx";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -55,9 +56,43 @@ function parseCsvEmails(text: string): { valid: string[]; invalid: string[] } {
   return { valid, invalid };
 }
 
+function parseExcelEmails(buffer: Buffer): { valid: string[]; invalid: string[] } {
+  const valid: string[] = [];
+  const invalid: string[] = [];
+  const seen = new Set<string>();
+  const wb = XLSX.read(buffer, { type: "buffer" });
+  const firstSheet = wb.SheetNames[0];
+  if (!firstSheet) return { valid, invalid };
+  const ws = wb.Sheets[firstSheet];
+  const rows = XLSX.utils.sheet_to_json<string[]>(ws, { header: 1, defval: "" }) as string[][];
+  if (rows.length === 0) return { valid, invalid };
+
+  const header = (rows[0] || []).map((c) => String(c || "").trim().toLowerCase());
+  const emailColNames = ["email", "e-mail", "guest_email", "guest email"];
+  let emailColIndex = header.findIndex((c) => emailColNames.includes(c));
+  if (emailColIndex < 0) emailColIndex = 0;
+
+  for (let i = emailColIndex >= 0 ? 1 : 0; i < rows.length && valid.length < MAX_EMAILS; i++) {
+    const row = rows[i] || [];
+    const cells = row.map((c) => String(c ?? "").trim());
+    const toCheck = emailColIndex >= 0 && cells[emailColIndex] ? [cells[emailColIndex]] : cells;
+    for (const e of toCheck) {
+      if (!e) continue;
+      const lower = e.toLowerCase();
+      if (EMAIL_REGEX.test(e) && !seen.has(lower)) {
+        seen.add(lower);
+        valid.push(e);
+      } else if (e && !EMAIL_REGEX.test(e)) {
+        invalid.push(e);
+      }
+    }
+  }
+  return { valid, invalid };
+}
+
 /**
- * POST: send guest invite emails from CSV upload.
- * Auth: ?token= (portalToken) or session. Parses CSV, validates emails, sends via Resend batch.
+ * POST: send guest invite emails from CSV or Excel upload.
+ * Auth: ?token= (portalToken) or session. Parses CSV/Excel, validates emails, sends via Resend batch.
  */
 export async function POST(
   request: NextRequest,
@@ -113,17 +148,29 @@ export async function POST(
     const formData = await request.formData();
     const file = formData.get("file");
     if (!file || !(file instanceof File)) {
-      return NextResponse.json({ error: "No CSV file provided" }, { status: 400 });
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
-    if (!file.name.toLowerCase().endsWith(".csv")) {
-      return NextResponse.json({ error: "File must be a CSV" }, { status: 400 });
+    const name = file.name.toLowerCase();
+    const isCsv = name.endsWith(".csv");
+    const isExcel = name.endsWith(".xlsx") || name.endsWith(".xls");
+    if (!isCsv && !isExcel) {
+      return NextResponse.json(
+        { error: "File must be a CSV or Excel (.xlsx, .xls)" },
+        { status: 400 }
+      );
     }
 
-    const text = await file.text();
-    const { valid } = parseCsvEmails(text);
+    let valid: string[];
+    if (isCsv) {
+      const text = await file.text();
+      valid = parseCsvEmails(text).valid;
+    } else {
+      const buf = Buffer.from(await file.arrayBuffer());
+      valid = parseExcelEmails(buf).valid;
+    }
     if (valid.length === 0) {
       return NextResponse.json(
-        { error: "No valid email addresses found in the CSV. Ensure there is an 'email' column or emails in the first column." },
+        { error: "No valid email addresses found. Use an 'email' column (or emails in the first column)." },
         { status: 400 }
       );
     }

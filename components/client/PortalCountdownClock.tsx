@@ -72,7 +72,7 @@ export default function PortalCountdownClock({ targetDate, className = "" }: Por
 
   // Milestone copy — playful, celebratory
   const getMilestoneCopy = () => {
-    if (totalDays >= 60) return { headline: "Your playlist is nearly ready 🎶", sub: "Plenty of time — enjoy planning" };
+    if (totalDays >= 60) return { headline: "Build your playlist 🎶", sub: "Plenty of time — enjoy planning" };
     if (totalDays >= 30) return { headline: "Your playlist is taking shape 🎶", sub: "Almost a month to go" };
     if (totalDays >= 7) return { headline: "1 week to go — let the dance floor prep begin 💃", sub: "Everything's on track" };
     if (totalDays >= 2) return { headline: "Just days away — almost time to dance! ✨", sub: "Final countdown" };
@@ -169,8 +169,11 @@ export default function PortalCountdownClock({ targetDate, className = "" }: Por
         {milestone?.headline ?? "Until you say I do"}
       </motion.p>
 
-      <p className="mt-3 text-sm text-white/40 font-light">
-        {time.hours}h {time.minutes}m to go
+      <p className="mt-3 text-sm text-white/40 font-light" aria-label="Full countdown to event">
+        {displayDays >= 1
+          ? `${displayDays} ${displayDays === 1 ? "day" : "days"}, ${time.hours}h ${time.minutes}m to go`
+          : `${time.hours}h ${time.minutes}m to go`
+        }
       </p>
 
       {milestone?.sub && (

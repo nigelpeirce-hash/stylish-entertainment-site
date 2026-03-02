@@ -1,3 +1,4 @@
+import { randomBytes } from "crypto";
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
@@ -115,6 +116,16 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
 
   if (!booking) {
     return notFound();
+  }
+
+  // Ensure guest request link exists so "What your guests want to hear" always shows link + email/Excel invite
+  if (!booking.guestRequestToken) {
+    const newToken = `gr_${randomBytes(12).toString("hex")}`;
+    await prisma.booking.update({
+      where: { id: bookingId },
+      data: { guestRequestToken: newToken, updatedAt: new Date() },
+    });
+    booking = { ...booking, guestRequestToken: newToken };
   }
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk";

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import * as XLSX from "xlsx";
 import { 
   Users, 
   Music, 
@@ -215,6 +216,39 @@ export default function GuestRequestsView({
     return { valid, invalid };
   };
 
+  const parseExcelForPreview = async (buffer: ArrayBuffer): Promise<{ valid: string[]; invalid: string[] }> => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const valid: string[] = [];
+    const invalid: string[] = [];
+    const seen = new Set<string>();
+    const wb = XLSX.read(buffer, { type: "array" });
+    const firstSheet = wb.SheetNames[0];
+    if (!firstSheet) return { valid, invalid };
+    const ws = wb.Sheets[firstSheet];
+    const rows = XLSX.utils.sheet_to_json<string[]>(ws, { header: 1, defval: "" }) as string[][];
+    if (rows.length === 0) return { valid, invalid };
+    const header = (rows[0] || []).map((c) => String(c || "").trim().toLowerCase());
+    const emailColNames = ["email", "e-mail", "guest_email", "guest email"];
+    let emailColIndex = header.findIndex((c) => emailColNames.includes(c));
+    if (emailColIndex < 0) emailColIndex = 0;
+    for (let i = 1; i < rows.length && valid.length < 200; i++) {
+      const row = rows[i] || [];
+      const cells = row.map((c) => String(c ?? "").trim());
+      const toCheck = emailColIndex >= 0 && cells[emailColIndex] ? [cells[emailColIndex]] : cells;
+      for (const e of toCheck) {
+        if (!e) continue;
+        const lower = e.toLowerCase();
+        if (emailRegex.test(e) && !seen.has(lower)) {
+          seen.add(lower);
+          valid.push(e);
+        } else if (e && !emailRegex.test(e)) {
+          invalid.push(e);
+        }
+      }
+    }
+    return { valid, invalid };
+  };
+
   const handleCsvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
@@ -222,18 +256,33 @@ export default function GuestRequestsView({
     setCsvPreview(null);
     setInviteResult(null);
     if (!file) return;
-    if (!file.name.toLowerCase().endsWith(".csv")) {
-      setInviteResult({ sent: 0, error: "Please upload a CSV file." });
+    const name = file.name.toLowerCase();
+    const isCsv = name.endsWith(".csv");
+    const isExcel = name.endsWith(".xlsx") || name.endsWith(".xls");
+    if (!isCsv && !isExcel) {
+      setInviteResult({ sent: 0, error: "Please upload a CSV or Excel file." });
+      return;
+    }
+    if (isCsv) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const text = String(reader.result || "");
+        const { valid, invalid } = parseCsvForPreview(text);
+        setCsvFile(file);
+        setCsvPreview({ valid, invalid });
+      };
+      reader.readAsText(file);
       return;
     }
     const reader = new FileReader();
-    reader.onload = () => {
-      const text = String(reader.result || "");
-      const { valid, invalid } = parseCsvForPreview(text);
+    reader.onload = async () => {
+      const buf = reader.result;
+      if (!buf || !(buf instanceof ArrayBuffer)) return;
+      const { valid, invalid } = await parseExcelForPreview(buf);
       setCsvFile(file);
       setCsvPreview({ valid, invalid });
     };
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
   };
 
   const toggleRequestStatus = async (requestId: string, currentStatus: string) => {
@@ -362,17 +411,17 @@ export default function GuestRequestsView({
               </div>
             </div>
 
-            {/* CSV bulk send */}
+            {/* CSV / Excel bulk send */}
             <div className="pt-4 border-t border-gray-700">
               <p className="text-sm font-medium text-gray-300 mb-2">Send invites by email</p>
               <p className="text-xs text-gray-500 mb-2">
-                Upload a CSV with an &quot;email&quot; column, or emails in the first column (up to 200).
+                Upload a CSV or Excel file with an &quot;email&quot; column, or emails in the first column (up to 200).
               </p>
               <div className="flex flex-wrap gap-2 items-center">
                 <input
                   ref={csvInputRef}
                   type="file"
-                  accept=".csv"
+                  accept=".csv,.xlsx,.xls"
                   className="hidden"
                   onChange={handleCsvChange}
                 />
@@ -383,7 +432,7 @@ export default function GuestRequestsView({
                   className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10"
                 >
                   <Upload className="w-4 h-4 mr-1.5" />
-                  Upload CSV
+                  Upload CSV or Excel
                 </Button>
                 {csvPreview && csvPreview.valid.length > 0 && (
                   <>

@@ -58,6 +58,14 @@ export interface DepositInvoiceDraft {
   text: string;
 }
 
+/** Parse bookingFee string (e.g. "£150", "150") to number for deposit amount. */
+function parseBookingFee(s: string | null | undefined): number | null {
+  if (s == null || typeof s !== "string") return null;
+  const cleaned = s.replace(/[£,\s]/g, "");
+  const n = parseFloat(cleaned);
+  return Number.isNaN(n) || n < 0 ? null : n;
+}
+
 async function getBookingAndPayload(bookingId: string, overrides?: SendDepositInvoiceOverrides) {
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
@@ -69,6 +77,7 @@ async function getBookingAndPayload(bookingId: string, overrides?: SendDepositIn
       eventType: true,
       venueName: true,
       bookingReference: true,
+      bookingFee: true,
       staffAssignments: {
         where: { status: "confirmed" },
         select: { agreedFee: true },
@@ -82,10 +91,11 @@ async function getBookingAndPayload(bookingId: string, overrides?: SendDepositIn
   if (!booking.email) return { booking, payload: null, emailContent: null };
 
   const clientName = deduplicateName(getDisplayName(booking.name) || booking.name) || "there";
-  const defaultAmount =
+  const staffFee =
     booking.staffAssignments[0] != null && typeof booking.staffAssignments[0].agreedFee === "number"
       ? Number(booking.staffAssignments[0].agreedFee)
       : null;
+  const defaultAmount = parseBookingFee(booking.bookingFee) ?? staffFee;
   const defaultReference =
     booking.bookingReference?.trim() ||
     `SE-${bookingId.slice(-8)}`;
@@ -177,9 +187,17 @@ export async function sendDepositInvoiceForBooking(
   }
 
   const now = new Date();
+  const updateData: { depositInvoiceSentAt: Date; lastEmailSentAt: Date; updatedAt: Date; bookingFee?: string } = {
+    depositInvoiceSentAt: now,
+    lastEmailSentAt: now,
+    updatedAt: now,
+  };
+  if (result.payload.amount != null && result.payload.amount > 0) {
+    updateData.bookingFee = `£${result.payload.amount.toLocaleString("en-GB")}`;
+  }
   await prisma.booking.update({
     where: { id: bookingId },
-    data: { depositInvoiceSentAt: now, lastEmailSentAt: now, updatedAt: now },
+    data: updateData,
   });
 
   return { success: true, lastSentAt: now.toISOString() };

@@ -1,3 +1,4 @@
+import { randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
@@ -56,8 +57,11 @@ export async function GET(
         musicFileUrl: true,
         termsAccepted: true,
         termsAcceptedAt: true,
+        preferredDJ: true,
+        guestRequestToken: true,
+        guestRequestsEnabled: true,
         staffAssignments: {
-          where: { cancelledAt: null },
+          where: { cancelledAt: null, status: "confirmed" },
           select: {
             id: true,
             role: true,
@@ -114,6 +118,16 @@ export async function GET(
 
     if (!allowed) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Ensure guest request link exists (marketing: clients always see share link + email invite)
+    if (!booking.guestRequestToken) {
+      const newToken = `gr_${randomBytes(12).toString("hex")}`;
+      await prisma.booking.update({
+        where: { id: bookingId },
+        data: { guestRequestToken: newToken, updatedAt: new Date() },
+      });
+      booking = { ...booking, guestRequestToken: newToken };
     }
 
     // Fetch venue notes if venueName exists

@@ -98,6 +98,7 @@ interface Booking {
   clientTown?: string | null;
   clientCounty?: string | null;
   clientPostcode?: string | null;
+  preferredDJ?: string | null;
   staffAssignments?: StaffAssignment[];
   guestRequestToken?: string | null;
   guestRequestsEnabled?: boolean;
@@ -1000,7 +1001,7 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
             </Card>
           )}
 
-          {/* No client-facing staff assigned yet (DJ/Musician/Band) */}
+          {/* No confirmed staff yet: show preferred DJ name if set, else empty state */}
           {teamMembers.length === 0 && (
             <Card className="portal-card bg-white/[0.02] backdrop-blur-md border border-white/10">
               <CardHeader>
@@ -1010,12 +1011,25 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-gray-400">
-                  Your DJ or musician will appear here once they&apos;re confirmed. We&apos;re matching you with the perfect fit.
-                </p>
-                <p className="text-sm text-gray-500">
-                  In the meantime, your music preferences and details from this portal are saved and ready to share with your artist when they&apos;re assigned.
-                </p>
+                {booking.preferredDJ?.trim() ? (
+                  <>
+                    <p className="text-gray-300">
+                      <span className="text-amber-400 font-medium">Your DJ / musician:</span> {booking.preferredDJ.trim()}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Formal assignment will appear here once confirmed. Your music preferences are saved and ready to share.
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-gray-400">
+                      Your DJ or musician will appear here once they&apos;re confirmed. We&apos;re matching you with the perfect fit.
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      In the meantime, your music preferences and details from this portal are saved and ready to share with your artist when they&apos;re assigned.
+                    </p>
+                  </>
+                )}
                 <Button
                   type="button"
                   variant="outline"
