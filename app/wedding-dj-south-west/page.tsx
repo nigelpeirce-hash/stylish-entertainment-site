@@ -134,6 +134,15 @@ export default function WeddingDJSouthWestPage() {
               </p>
 
               <h2 className="text-2xl sm:text-3xl font-bold text-white mt-12 mb-4">
+                Wedding DJ by Location in the South West
+              </h2>
+              <ul className="list-disc pl-6 space-y-1 text-gray-200">
+                <li><Link href="/wedding-dj-somerset/" className="text-champagne-gold hover:text-champagne-gold/80 underline">Wedding DJ Somerset</Link></li>
+                <li><Link href="/wedding-dj-bath/" className="text-champagne-gold hover:text-champagne-gold/80 underline">Wedding DJ Bath</Link></li>
+                <li><Link href="/wedding-dj-bristol/" className="text-champagne-gold hover:text-champagne-gold/80 underline">Wedding DJ Bristol</Link></li>
+              </ul>
+
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mt-12 mb-4">
                 Wedding DJs Across the South West: Where We Cover
               </h2>
               <p className="text-gray-200 leading-relaxed">

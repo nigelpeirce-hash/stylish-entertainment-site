@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Target, Clock, Sparkles, Wrench, Music, Shield, Search } from "lucide-react";
 import DJRosterSection from "@/components/DJRosterSection";
 
@@ -36,13 +36,6 @@ const allVenues = getVenuesWeveWorkedAt();
 export default function DJs() {
   const [venueSearch, setVenueSearch] = useState("");
 
-  useEffect(() => {
-    document.title = "DJs & Live DJ Acts UK-Wide | Stylish Entertainment";
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute("content", "Boutique wedding DJs and live DJ acts for weddings, private parties and corporate events across the UK. South West, Cotswolds and nationwide.");
-    }
-  }, []);
   return (
     <div>
       <YMCACheck />
@@ -339,6 +332,19 @@ export default function DJs() {
                 </ol>
               </CardContent>
             </Card>
+          </motion.div>
+
+          {/* Complete the experience */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.25 }}
+            className="mb-8 text-center"
+          >
+            <p className="text-gray-300 text-base sm:text-lg">
+              Complete the experience: <Link href="/weddings/wedding-lighting/" className="text-champagne-gold hover:text-champagne-gold/80 underline font-medium">Wedding Lighting</Link> · <Link href="/services/venue-styling/" className="text-champagne-gold hover:text-champagne-gold/80 underline font-medium">Venue Styling</Link> · <Link href="/what-we-do/" className="text-champagne-gold hover:text-champagne-gold/80 underline font-medium">Production &amp; Hire</Link>
+            </p>
           </motion.div>
 
           {/* Nationwide Reach – Editorial Region Tiles */}

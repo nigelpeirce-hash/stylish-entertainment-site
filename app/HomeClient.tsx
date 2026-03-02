@@ -203,13 +203,13 @@ export default function HomeClient() {
       <section className="relative py-12 md:py-20 flex items-center justify-center bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 text-white overflow-hidden">
         <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
           <div className="inline-block mb-6 px-6 py-2 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
-            <span className="text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase">Stylish Entertainment & Production</span>
+            <span className="text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase">Luxury Event Production</span>
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
-            Creative <span className="text-gradient">Entertainment</span> & Event Production
+            Entertainment & <span className="text-gradient">Production</span> Studio
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold leading-relaxed px-4 drop-shadow-md mb-8">
-            Artists—DJs and musicians—UK-wide; lighting design, venue styling and technical production across the South West and beyond. Weddings, parties, corporate. Strictly no YMCA.
+            DJs and musicians UK-wide. Lighting design, venue styling and technical production in the South West and beyond. Weddings, private parties, corporate. Confident, crafted—strictly no YMCA.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button asChild variant="outline" size="lg" className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 hover:scale-105 transition-all duration-300">
@@ -228,9 +228,12 @@ export default function HomeClient() {
             </div>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans font-bold text-white mb-6 md:mb-8 px-4">What sets us apart</h2>
             <div className="text-left space-y-5 text-base sm:text-lg md:text-xl text-gray-300 leading-relaxed">
-              <p>Our Artists—DJs, musicians and hybrid acts—read the room and build a bespoke soundtrack that fits your crowd, from the dance-floor regulars to Great Aunt Betty. Want a sleek solo set or the energy of our festival-style trio (DJ plus live sax and percussion)? We bring high-end atmosphere without the clichés.</p>
-              <p>Consider us a cheese-free zone: no Macarena, no YMCA. Just a fresh, signature soundscape tailored to your taste. Your night, done right.</p>
+              <p>We&apos;re a boutique production studio: DJs and musicians are the entry point; the identity is full event production. Our artists read the room and build a bespoke soundtrack—from solo DJ sets to our festival-style trio (DJ, sax and percussion). Add lighting design and venue styling in the South West and you get one team, one vision.</p>
+              <p>Cheese-free zone: no Macarena, no YMCA. Confident, crafted entertainment and production for weddings, private parties and corporate events. Your night, done right.</p>
             </div>
+            <p className="text-center text-gray-400 text-sm sm:text-base mt-8">
+              Explore by region: <Link href="/luxury-wedding-entertainment-south-west/" className="text-champagne-gold hover:text-champagne-gold/80 underline">Luxury Wedding Entertainment South West</Link> · <Link href="/wedding-production-london/" className="text-champagne-gold hover:text-champagne-gold/80 underline">Wedding Production London</Link>
+            </p>
           </motion.div>
         </div>
       </section>
