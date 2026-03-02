@@ -37,10 +37,10 @@ export default function DJs() {
   const [venueSearch, setVenueSearch] = useState("");
 
   useEffect(() => {
-    document.title = "DJs | Professional Wedding DJs | Stylish Entertainment";
+    document.title = "DJs & Live DJ Acts UK-Wide | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Meet our talented DJs. Professional entertainment for weddings, parties and corporate events across the UK. Mixing styles and genre specialties.");
+      metaDescription.setAttribute("content", "Boutique wedding DJs and live DJ acts for weddings, private parties and corporate events across the UK. South West, Cotswolds and nationwide.");
     }
   }, []);
   return (
@@ -55,7 +55,7 @@ export default function DJs() {
         <div className="absolute inset-0 opacity-50 flex items-center justify-center">
           <Image
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768163785/Nigel-DJ-Babs-House-0002-1_ktgbaf.jpg"
-            alt="DJ Nige performing at Babington House, showcasing professional wedding DJ services with elegant lighting"
+            alt="DJ performing at Babington House with elegant lighting—wedding and event entertainment"
             fill
             className="object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}
@@ -79,10 +79,10 @@ export default function DJs() {
             <span className="text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase">Meet The Team</span>
           </motion.div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
-            Our <span className="text-gradient drop-shadow-md">DJs</span>
+            DJs & Live DJ Acts <span className="text-gradient drop-shadow-md">Across the UK</span>
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold leading-relaxed px-4 drop-shadow-md">
-            Professional DJs with exceptional talent and expertise
+            Intelligent, high-energy entertainment for weddings, private parties and corporate events.
           </p>
         </motion.div>
       </section>
@@ -116,10 +116,10 @@ export default function DJs() {
             <Card className="bg-gray-800 border-2 border-champagne-gold/30 shadow-lg">
               <CardContent className="p-6 sm:p-8">
                 <p className="text-base sm:text-lg text-gray-200 leading-relaxed mb-4">
-                  Looking for a DJ to make your event unforgettable? Our experienced and reliable DJs know exactly how to get the crowd dancing with their perfect mix of music, sound and lighting. Choose from our brilliant solo mobile DJs or our festival trio of DJ, sax and percussion to truly wow and entertain your guests.
+                  Our DJs shape the atmosphere and flow of your event—reading the room, building energy and crafting bespoke sets that keep the dance floor full. Choose a solo DJ, our DJ-plus-sax duo, or the full festival lineup of DJ, sax and percussion. High-end sound and lighting, zero gimmicks.
                 </p>
                 <p className="text-base sm:text-lg text-gray-200 leading-relaxed">
-                  We pride ourselves on our ability to read the crowd and cater to everyone's musical tastes, from the music lovers to your Aunt Betty. And to ensure a unique experience, we have banned overplayed and cliché songs such as YMCA, "Come on Eileen," and "The Macarena."
+                  No clichés, no YMCA—just polished, crowd-led entertainment that feels right for your wedding, party or corporate celebration.
                 </p>
               </CardContent>
             </Card>
@@ -148,7 +148,7 @@ export default function DJs() {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3">Professional Standards</h3>
                   <p className="text-gray-300 leading-relaxed">
-                    Our DJs will not whoop at the crowd, wear orange wigs, or revolving bow ties.
+                    Polished presence, seamless mixing and clean setups—no mic-shouting or novelty antics.
                   </p>
                 </CardContent>
               </Card>
@@ -188,7 +188,7 @@ export default function DJs() {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3">Extended Performance</h3>
                   <p className="text-gray-300 leading-relaxed">
-                    They can play for five hours without a break, from 7pm to 12am or 8pm to 1am.
+                    Full five-hour sets when you need them—no break, no dip in energy, from first dance to last track.
                   </p>
                 </CardContent>
               </Card>
@@ -209,7 +209,7 @@ export default function DJs() {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3">Dedicated Service</h3>
                   <p className="text-gray-300 leading-relaxed">
-                    Our DJs are flexible, motivated and committed to making your party a great success.
+                    Flexible, attentive and committed to your brief—from first contact to last track.
                   </p>
                 </CardContent>
               </Card>
@@ -230,7 +230,7 @@ export default function DJs() {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3">Early Setup Available</h3>
                   <p className="text-gray-300 leading-relaxed">
-                    They can offer an early setup for your convenience.
+                    Early load-in available so everything is ready before your guests arrive.
                   </p>
                 </CardContent>
               </Card>
@@ -251,7 +251,7 @@ export default function DJs() {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3">Your Music, Your Way</h3>
                   <p className="text-gray-300 leading-relaxed">
-                    They will play your requests/playlist and work to your music brief. If you don&apos;t like Beyonce, they won&apos;t play her.
+                    Your playlist, your must-plays and must-not-plays—we work to your brief, not a generic formula.
                   </p>
                 </CardContent>
               </Card>
@@ -272,7 +272,7 @@ export default function DJs() {
                   </div>
                   <h3 className="text-xl font-bold text-white mb-3">Fully Insured Equipment</h3>
                   <p className="text-gray-300 leading-relaxed">
-                    All of our DJs use their own well-maintained sound and lighting equipment, which is PAT tested with public liability insurance.
+                    Well-maintained sound and lighting, PAT tested and covered by public liability insurance.
                   </p>
                 </CardContent>
               </Card>
@@ -311,17 +311,32 @@ export default function DJs() {
           >
             <Card className="border-champagne-gold/30 bg-gray-800 shadow-lg mb-8">
               <CardContent className="p-8 sm:p-10 md:p-12">
-                <div className="space-y-6 text-gray-100 leading-relaxed">
-                  <p className="text-lg sm:text-xl">
-                    Once you share your date, location, and timings, we&apos;ll tailor a bespoke quote based on our current availability. If you&apos;re ready to move forward, we&apos;ll send over your booking details. We want to ensure they&apos;re the perfect match for your vision, so you&apos;ll have the chance to connect either before you book or as your celebration draws near.
-                  </p>
-                  <p className="text-lg sm:text-xl">
-                    As soon as you share your date, location, and timings, we&apos;ll tailor a bespoke quote based on our current availability. To secure your date on our calendar, we&apos;ll begin by sending over a booking invoice for the initial commitment, with the remaining balance settled just two weeks before the big day.
-                  </p>
-                  <p className="text-lg sm:text-xl">
-                    Once your booking is confirmed, you&apos;ll gain exclusive access to our digital planning worksheet. This is truly where the magic happens: you can update it over the coming months with every essential detail and your curated playlist to ensure the evening flows flawlessly. You&apos;ll also have the chance to connect personally with your DJ as your celebration draws near to chat through those final, finer details.
-                  </p>
-                </div>
+                <ol className="space-y-6 text-gray-100 leading-relaxed list-none pl-0">
+                  <li className="flex gap-4">
+                    <span className="flex-shrink-0 w-10 h-10 rounded-full bg-champagne-gold/20 border border-champagne-gold/50 flex items-center justify-center text-champagne-gold font-bold text-lg">1</span>
+                    <div>
+                      <span className="font-semibold text-white">Enquire.</span> Share your date, venue and timings—we&apos;ll send a tailored quote and confirm availability.
+                    </div>
+                  </li>
+                  <li className="flex gap-4">
+                    <span className="flex-shrink-0 w-10 h-10 rounded-full bg-champagne-gold/20 border border-champagne-gold/50 flex items-center justify-center text-champagne-gold font-bold text-lg">2</span>
+                    <div>
+                      <span className="font-semibold text-white">Secure your date.</span> Pay the booking fee; balance due two weeks before the event.
+                    </div>
+                  </li>
+                  <li className="flex gap-4">
+                    <span className="flex-shrink-0 w-10 h-10 rounded-full bg-champagne-gold/20 border border-champagne-gold/50 flex items-center justify-center text-champagne-gold font-bold text-lg">3</span>
+                    <div>
+                      <span className="font-semibold text-white">Plan.</span> Use our digital worksheet to add your playlist, must-plays and run-of-show—and connect with your DJ as the date approaches.
+                    </div>
+                  </li>
+                  <li className="flex gap-4">
+                    <span className="flex-shrink-0 w-10 h-10 rounded-full bg-champagne-gold/20 border border-champagne-gold/50 flex items-center justify-center text-champagne-gold font-bold text-lg">4</span>
+                    <div>
+                      <span className="font-semibold text-white">Celebrate.</span> We handle setup, flow and the dance floor—you enjoy the night.
+                    </div>
+                  </li>
+                </ol>
               </CardContent>
             </Card>
           </motion.div>
@@ -377,10 +392,10 @@ export default function DJs() {
             <Card className="border-champagne-gold/30 bg-gray-800/80 backdrop-blur-sm shadow-lg">
               <CardContent className="p-8 sm:p-10 md:p-12">
                 <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4 text-center">
-                  Venues We've Played At
+                  Venues We&apos;ve Played At
                 </h3>
                 <p className="text-base sm:text-lg text-gray-300 leading-relaxed text-center mb-6">
-                  Check if we've performed at your venue. Search by venue name or location.
+                  We&apos;ve performed at hundreds of venues across the UK. Search below by venue name or location.
                 </p>
                 
                 {/* Search Input */}
@@ -457,10 +472,10 @@ export default function DJs() {
             <Card className="border-2 border-champagne-gold/50 bg-gray-800 shadow-xl">
               <CardContent className="p-8 sm:p-10">
                 <p className="text-xl sm:text-2xl font-bold text-white mb-6">
-                  Please Contact us for a free quote based on your location and timings.
+                  Enquire to secure your date—we&apos;ll tailor the right Artist and setup to your venue and timings.
                 </p>
                 <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
-                  <Link href="/contact-us/" aria-label="Get your free quote for DJ services">Get Your Free Quote</Link>
+                  <Link href="/contact-us/" aria-label="Enquire and check availability for your DJ or live act">Enquire &amp; Check Availability</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -468,24 +483,6 @@ export default function DJs() {
         </div>
       </section>
 
-      {/* CTA */}
-      <section className="pt-20 pb-8 px-4 bg-gray-900">
-        <div className="container mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans mb-4 sm:mb-6 text-white font-bold px-4">
-              Ready to book your perfect match?
-            </h2>
-            <Button asChild size="lg">
-              <Link href="/contact-us/" aria-label="Get in touch to book your DJ">Get in Touch</Link>
-            </Button>
-          </motion.div>
-        </div>
-      </section>
     </div>
   );
 }

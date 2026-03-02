@@ -68,6 +68,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url('/weddings/wedding-entertainment', 'monthly', 0.9),
     url('/weddings/wedding-lighting', 'monthly', 0.9),
     url('/wedding-dj', 'monthly', 0.9),
+    url('/wedding-dj-south-west', 'monthly', 0.85),
+    url('/wedding-dj-london-home-counties', 'monthly', 0.85),
     url('/what-we-do', 'monthly', 0.9),
     url('/what-we-do/lighting', 'monthly', 0.8),
     url('/what-we-do/equipment-dj-band-sound-kit', 'monthly', 0.8),

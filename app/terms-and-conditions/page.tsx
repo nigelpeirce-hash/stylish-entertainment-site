@@ -6,8 +6,9 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { FileText } from "lucide-react";
 import {
-  TERMS_SECTIONS,
   TERMS_LAST_UPDATED,
+  TERMS_INTRO,
+  getTermsSectionsForDisplay,
   PRIVACY_LINK_PLACEHOLDER,
 } from "@/lib/terms-content";
 
@@ -40,7 +41,10 @@ export default function TermsAndConditionsPage() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="prose prose-invert max-w-none">
-                {TERMS_SECTIONS.map((section) => (
+                <p className="text-gray-300 leading-relaxed mb-6">
+                  {TERMS_INTRO}
+                </p>
+                {getTermsSectionsForDisplay(true).map((section) => (
                   <div key={section.id}>
                     <h2 className="text-2xl font-bold text-champagne-gold mt-6 mb-4">
                       {section.heading}

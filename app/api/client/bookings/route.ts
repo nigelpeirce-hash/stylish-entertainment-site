@@ -62,6 +62,8 @@ export async function GET(request: NextRequest) {
         preferredDJ: true,
         finalBalance: true,
         bookingFee: true,
+        services: true,
+        upsellItems: true,
       },
       orderBy: {
         createdAt: "desc",

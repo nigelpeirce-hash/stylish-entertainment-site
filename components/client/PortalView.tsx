@@ -1532,7 +1532,7 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
             </CardContent>
           </Card>
 
-          {/* Terms acceptance – when not yet accepted. Hide for existing confirmed/deposit-received bookings (treat as already accepted). */}
+          {/* Terms acceptance – fallback only when not yet accepted and not confirmed/deposit received. Primary acceptance is at booking confirmation (book-from-quote / checkout). */}
           {!booking.termsAccepted &&
             !(
               booking.status === "confirmed" ||
@@ -1546,7 +1546,7 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
                   Accept terms to complete your booking
                 </CardTitle>
                 <p className="text-sm text-gray-400">
-                  Please read and accept our Terms & Conditions below. This forms part of your booking agreement.
+                  Please read and accept our Terms & Conditions below. This forms part of your booking agreement. You can also accept when confirming your booking (e.g. book-from-quote or checkout).
                 </p>
               </CardHeader>
               <CardContent className="space-y-4">

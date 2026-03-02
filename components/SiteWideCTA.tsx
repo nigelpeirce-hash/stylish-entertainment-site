@@ -72,8 +72,7 @@ export default function SiteWideCTA() {
             Ready to create something extraordinary?
           </h2>
           <p className="text-base md:text-lg text-gray-300 mb-6 max-w-2xl mx-auto">
-            Professional DJs, musicians, lighting design and venue styling across the UK.
-            Get in touch to discuss your wedding, party or event—we&apos;ll get back to you within 24 hours.
+            Artists, lighting, styling and production for weddings, parties and events. Tell us your vision—we&apos;ll reply within 24 hours.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button

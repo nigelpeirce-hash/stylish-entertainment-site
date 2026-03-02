@@ -4,6 +4,7 @@ import { getToken } from "next-auth/jwt";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity-log";
 import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
+import { TERMS_VERSION } from "@/lib/terms-content";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -67,6 +68,7 @@ export async function POST(request: NextRequest) {
         termsAccepted: true,
         termsAcceptedAt: new Date(),
         termsAcceptedByUserId: userId,
+        termsAcceptedVersion: TERMS_VERSION,
         updatedAt: new Date(),
       },
     });

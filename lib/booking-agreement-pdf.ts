@@ -6,8 +6,10 @@
 
 import { jsPDF } from "jspdf";
 import {
-  TERMS_SECTIONS,
   TERMS_LAST_UPDATED,
+  TERMS_INTRO,
+  getTermsSectionsForDisplay,
+  includesProductionServices,
   DEPOSIT_CLAUSE,
   COMPANY_NAME,
   PRIVACY_LINK_PLACEHOLDER,
@@ -35,6 +37,9 @@ export interface BookingAgreementData {
   terms_accepted?: boolean;
   acceptance_timestamp?: Date | string | null;
   acceptance_ip?: string | null;
+  /** Used to include Production clause 12 when booking includes lighting/styling/production */
+  services?: string[] | null;
+  upsellItems?: string[] | null;
 }
 
 /**
@@ -111,7 +116,31 @@ export function generateBookingAgreementPdf(booking: BookingAgreementData): void
   // ----- PDF title -----
   pdf.setFontSize(20);
   pdf.text("Booking Agreement", MARGIN, y);
-  y += 12;
+  y += 10;
+
+  const termsAcceptedPdf =
+    booking.termsAccepted === true || booking.terms_accepted === true;
+  const acceptanceTimestampPdf =
+    booking.termsAcceptedAt ?? booking.acceptance_timestamp ?? null;
+  if (!termsAcceptedPdf || !acceptanceTimestampPdf) {
+    pdf.setFontSize(11);
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(180, 80, 80);
+    pdf.text("DRAFT – NOT YET ACCEPTED", MARGIN, y);
+    y += 8;
+    pdf.setFont("helvetica", "normal");
+    pdf.setFontSize(9);
+    pdf.setTextColor(100, 100, 100);
+    pdf.text(
+      "This document is for reference only. Terms acceptance is required (e.g. when confirming your booking).",
+      MARGIN,
+      y
+    );
+    y += 10;
+    pdf.setTextColor(0, 0, 0);
+  }
+
+  y += 4;
 
   // ----- Booking details -----
   pdf.setFontSize(12);
@@ -159,8 +188,19 @@ export function generateBookingAgreementPdf(booking: BookingAgreementData): void
   );
   y += SECTION_SPACING;
 
+  pdf.setFontSize(10);
   pdf.setTextColor(0, 0, 0);
-  for (const section of TERMS_SECTIONS) {
+  y = addWrappedText(pdf, TERMS_INTRO, MARGIN, y, maxWidth, LINE_HEIGHT);
+  y += SECTION_SPACING;
+
+  pdf.setFontSize(9);
+  const sectionsForPdf = getTermsSectionsForDisplay(
+    includesProductionServices({
+      services: booking.services,
+      upsellItems: booking.upsellItems,
+    })
+  );
+  for (const section of sectionsForPdf) {
     const body = section.body.replace(
       PRIVACY_LINK_PLACEHOLDER,
       "Privacy Policy at stylishentertainment.co.uk/privacy-policy"
@@ -186,12 +226,6 @@ export function generateBookingAgreementPdf(booking: BookingAgreementData): void
   y += SECTION_SPACING;
 
   // ----- Digital signature block -----
-  const termsAccepted =
-    booking.termsAccepted === true || booking.terms_accepted === true;
-  const acceptanceTimestamp =
-    booking.termsAcceptedAt ??
-    booking.acceptance_timestamp ??
-    null;
   const acceptanceIp =
     booking.termsAcceptedIp ?? booking.acceptance_ip ?? null;
 
@@ -205,7 +239,7 @@ export function generateBookingAgreementPdf(booking: BookingAgreementData): void
   pdf.line(MARGIN, y, pageWidth - MARGIN, y);
   y += 10;
 
-  if (termsAccepted && acceptanceTimestamp) {
+  if (termsAcceptedPdf && acceptanceTimestampPdf) {
     pdf.setFontSize(14);
     pdf.setFont("helvetica", "bold");
     pdf.setTextColor(0, 0, 0);
@@ -213,7 +247,7 @@ export function generateBookingAgreementPdf(booking: BookingAgreementData): void
     y += 8;
     pdf.setFontSize(10);
     pdf.setFont("helvetica", "normal");
-    const acceptedAt = new Date(acceptanceTimestamp);
+    const acceptedAt = new Date(acceptanceTimestampPdf);
     const formattedDate = acceptedAt.toLocaleDateString("en-GB", {
       day: "numeric",
       month: "long",
@@ -225,7 +259,11 @@ export function generateBookingAgreementPdf(booking: BookingAgreementData): void
     });
     pdf.text("Status: Confirmed", MARGIN, y);
     y += 6;
-    pdf.text(`Terms accepted on ${formattedDate} at ${formattedTime}`, MARGIN, y);
+    pdf.text(
+      `Terms accepted on ${formattedDate} at ${formattedTime}`,
+      MARGIN,
+      y
+    );
     y += 6;
     if (acceptanceIp) {
       pdf.text(`IP Address: ${acceptanceIp}`, MARGIN, y);
@@ -240,7 +278,7 @@ export function generateBookingAgreementPdf(booking: BookingAgreementData): void
     pdf.setFontSize(12);
     pdf.setFont("helvetica", "italic");
     pdf.setTextColor(128, 128, 128);
-    pdf.text("Terms acceptance pending", MARGIN, y);
+    pdf.text("Terms acceptance pending – draft only", MARGIN, y);
   }
 
   // ----- Footer on each page -----

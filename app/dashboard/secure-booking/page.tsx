@@ -18,6 +18,12 @@ import { motion } from "framer-motion";
 import { Calendar, MapPin, Music, Lightbulb, Shield, MessageCircle, FileText, Lock, X, Copy } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import {
+  TERMS_LAST_UPDATED,
+  TERMS_INTRO,
+  getTermsSectionsForDisplay,
+  PRIVACY_LINK_PLACEHOLDER,
+} from "@/lib/terms-content";
 
 function SecureBookingPageContent() {
   const { data: session, status } = useSession();
@@ -476,88 +482,44 @@ function SecureBookingPageContent() {
                                 Terms and Conditions
                               </DialogTitle>
                               <p className="text-gray-600 text-sm mt-2">
-                                Last updated: {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                                Last updated:{" "}
+                                {TERMS_LAST_UPDATED.toLocaleDateString("en-GB", {
+                                  day: "numeric",
+                                  month: "long",
+                                  year: "numeric",
+                                })}
                               </p>
                             </DialogHeader>
+                            <p className="mt-4 text-gray-700 leading-relaxed">
+                              {TERMS_INTRO}
+                            </p>
                             <div className="mt-4 space-y-6 text-gray-700">
-                              <div>
-                                <h2 className="text-xl font-bold text-champagne-gold mt-6 mb-3">1. Booking Confirmation</h2>
-                                <p className="leading-relaxed">
-                                  This booking form serves as an invitation only. Submission of this form does not constitute a confirmation of artist performance. 
-                                  Once we have final confirmation from your chosen DJ, we will email a booking invoice with full terms and conditions.
-                                </p>
-                              </div>
-
-                              <div>
-                                <h2 className="text-xl font-bold text-champagne-gold mt-6 mb-3">2. Payment Terms</h2>
-                                <p className="leading-relaxed">
-                                  A deposit is required upon booking confirmation. The final balance is due in the weeks before your event, or on the night in cash 
-                                  once the artist has set up. If the DJ is not paid in full at the start of the evening, they may refuse to play.
-                                </p>
-                              </div>
-
-                              <div>
-                                <h2 className="text-xl font-bold text-champagne-gold mt-6 mb-3">3. Cancellation Policy</h2>
-                                <p className="leading-relaxed">
-                                  Cancellations must be made in writing. The deposit is non-refundable. Cancellations made within 30 days of the event date 
-                                  may incur additional charges as outlined in your booking confirmation.
-                                </p>
-                              </div>
-
-                              <div>
-                                <h2 className="text-xl font-bold text-champagne-gold mt-6 mb-3">4. Artist Availability</h2>
-                                <p className="leading-relaxed">
-                                  We will confirm artist availability before finalising your booking. In the unlikely event that your chosen artist becomes unavailable, 
-                                  we will offer a suitable replacement or provide a full refund of your deposit.
-                                </p>
-                              </div>
-
-                              <div>
-                                <h2 className="text-xl font-bold text-champagne-gold mt-6 mb-3">5. Setup and Access</h2>
-                                <p className="leading-relaxed">
-                                  Our artists require adequate setup time and access to the venue. Early setup may be available for an additional fee. 
-                                  Please ensure the venue provides suitable access and parking arrangements.
-                                </p>
-                              </div>
-
-                              <div>
-                                <h2 className="text-xl font-bold text-champagne-gold mt-6 mb-3">6. Venue Requirements</h2>
-                                <p className="leading-relaxed">
-                                  You must seek permission from your venue before booking our services. Some venues have specific requirements or restrictions. 
-                                  We are always respectful of venue policies and will work within their guidelines.
-                                </p>
-                              </div>
-
-                              <div>
-                                <h2 className="text-xl font-bold text-champagne-gold mt-6 mb-3">7. Equipment and Safety</h2>
-                                <p className="leading-relaxed">
-                                  All equipment is PAT tested and we have public liability insurance. Certificates can be provided to your venue upon request.
-                                </p>
-                              </div>
-
-                              <div>
-                                <h2 className="text-xl font-bold text-champagne-gold mt-6 mb-3">8. Music and Requests</h2>
-                                <p className="leading-relaxed">
-                                  We actively encourage music requests and will create a bespoke set for your event. Our DJs use their professional judgement 
-                                  to ensure the dance floor stays full. Please provide any must-play or do-not-play lists in advance.
-                                </p>
-                              </div>
-
-                              <div>
-                                <h2 className="text-xl font-bold text-champagne-gold mt-6 mb-3">9. Liability</h2>
-                                <p className="leading-relaxed">
-                                  While we take every care to provide an excellent service, Stylish Entertainment Ltd accepts no liability for delays or cancellations 
-                                  due to circumstances beyond our control, including but not limited to severe weather, venue closure, or government restrictions.
-                                </p>
-                              </div>
-
-                              <div>
-                                <h2 className="text-xl font-bold text-champagne-gold mt-6 mb-3">10. Data Protection</h2>
-                                <p className="leading-relaxed">
-                                  Your personal information will be stored securely and used only for the purposes of managing your booking. 
-                                  Please see our <Link href="/privacy-policy" className="text-champagne-gold hover:text-champagne-gold/80 underline">Privacy Policy</Link> for more details.
-                                </p>
-                              </div>
+                              {getTermsSectionsForDisplay(true).map((section) => (
+                                <div key={section.id}>
+                                  <h2 className="text-xl font-bold text-champagne-gold mt-6 mb-3">
+                                    {section.heading}
+                                  </h2>
+                                  {section.id === "data" &&
+                                  section.body.includes(PRIVACY_LINK_PLACEHOLDER) ? (
+                                    <p className="leading-relaxed">
+                                      {section.body
+                                        .split(PRIVACY_LINK_PLACEHOLDER)[0]
+                                        .trim()}{" "}
+                                      <Link
+                                        href="/privacy-policy/"
+                                        className="text-champagne-gold hover:text-champagne-gold/80 underline"
+                                      >
+                                        Privacy Policy
+                                      </Link>{" "}
+                                      for more details.
+                                    </p>
+                                  ) : (
+                                    <p className="leading-relaxed">
+                                      {section.body}
+                                    </p>
+                                  )}
+                                </div>
+                              ))}
                             </div>
                           </DialogContent>
                         </Dialog>

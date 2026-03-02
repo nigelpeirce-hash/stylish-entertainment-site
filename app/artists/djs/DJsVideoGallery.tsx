@@ -30,7 +30,7 @@ export default function DJsVideoGallery() {
             See The <span className="text-gradient">Party In Action</span>
           </h2>
           <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto px-4">
-            Watch how our DJs create unforgettable moments and get everyone dancing
+            Real sets from weddings, parties and events—see the energy we bring to the room.
           </p>
         </motion.div>
 
