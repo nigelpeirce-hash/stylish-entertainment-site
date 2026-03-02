@@ -25,8 +25,13 @@ const schema = z.object({
   clientPostcode: z.string().min(5, "Postcode is required"),
   eventType: z.string().min(1, "Event type required"),
   eventDate: z.string().min(1, "Date required"),
+  eventStartTime: z.string().optional(),
+  eventEndTime: z.string().optional(),
   venueName: z.string().min(2, "Venue required"),
   venueAddress: z.string().optional(),
+  venueAddress2: z.string().optional(),
+  venueTown: z.string().optional(),
+  venueCounty: z.string().optional(),
   venuePostcode: z.string().optional(),
 });
 
@@ -46,8 +51,13 @@ interface Prefill {
   clientPostcode: string;
   eventType: string;
   eventDate: string;
+  eventStartTime?: string;
+  eventEndTime?: string;
   venueName: string;
   venueAddress: string;
+  venueAddress2?: string;
+  venueTown?: string;
+  venueCounty?: string;
   venuePostcode: string;
   artistType: "dj" | "musician";
   staffId: string | null;
@@ -84,8 +94,13 @@ function BookFromQuoteContent() {
       clientPostcode: "",
       eventType: "Wedding",
       eventDate: "",
+      eventStartTime: "",
+      eventEndTime: "",
       venueName: "",
       venueAddress: "",
+      venueAddress2: "",
+      venueTown: "",
+      venueCounty: "",
       venuePostcode: "",
     },
   });
@@ -118,8 +133,13 @@ function BookFromQuoteContent() {
         setValue("clientPostcode", data.clientPostcode ?? "");
         setValue("eventType", data.eventType ?? "Wedding");
         setValue("eventDate", data.eventDate ?? "");
+        setValue("eventStartTime", data.eventStartTime ?? "");
+        setValue("eventEndTime", data.eventEndTime ?? "");
         setValue("venueName", data.venueName ?? "");
         setValue("venueAddress", data.venueAddress ?? "");
+        setValue("venueAddress2", data.venueAddress2 ?? "");
+        setValue("venueTown", data.venueTown ?? "");
+        setValue("venueCounty", data.venueCounty ?? "");
         setValue("venuePostcode", data.venuePostcode ?? "");
       } catch (e) {
         if (!cancelled) {
@@ -156,8 +176,13 @@ function BookFromQuoteContent() {
           clientPostcode: form.clientPostcode || undefined,
           eventType: form.eventType,
           eventDate: form.eventDate,
+          eventStartTime: form.eventStartTime?.trim() || undefined,
+          eventEndTime: form.eventEndTime?.trim() || undefined,
           venueName: form.venueName,
           venueAddress: form.venueAddress || undefined,
+          venueAddress2: form.venueAddress2?.trim() || undefined,
+          venueTown: form.venueTown?.trim() || undefined,
+          venueCounty: form.venueCounty?.trim() || undefined,
           venuePostcode: form.venuePostcode || undefined,
           selectedStaffId: prefill?.staffId ?? undefined,
           fee: prefill?.fee ?? undefined,
@@ -390,6 +415,26 @@ function BookFromQuoteContent() {
                       {errors.eventDate && <p className="text-sm text-red-400">{errors.eventDate.message}</p>}
                     </div>
                   </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="eventStartTime">Event start time</Label>
+                      <Input
+                        id="eventStartTime"
+                        {...register("eventStartTime")}
+                        placeholder="e.g. 7pm"
+                        className="bg-gray-900 border-gray-700 text-white"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="eventEndTime">Event end time</Label>
+                      <Input
+                        id="eventEndTime"
+                        {...register("eventEndTime")}
+                        placeholder="e.g. midnight"
+                        className="bg-gray-900 border-gray-700 text-white"
+                      />
+                    </div>
+                  </div>
                   {prefill.artistName && (
                     <p className="text-sm text-gray-400">
                       Artist: <span className="text-champagne-gold">{prefill.artistName}</span>
@@ -413,22 +458,51 @@ function BookFromQuoteContent() {
                     />
                     {errors.venueName && <p className="text-sm text-red-400">{errors.venueName.message}</p>}
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="venueAddress">Address</Label>
-                      <Input
-                        id="venueAddress"
-                        {...register("venueAddress")}
-                        className="bg-gray-900 border-gray-700 text-white"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="venuePostcode">Postcode</Label>
-                      <Input
-                        id="venuePostcode"
-                        {...register("venuePostcode")}
-                        className="bg-gray-900 border-gray-700 text-white"
-                      />
+                  <div className="space-y-2">
+                    <Label className="text-champagne-gold/90">Venue address</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="md:col-span-2">
+                        <Label htmlFor="venueAddress" className="text-gray-400 text-sm">Address line 1</Label>
+                        <Input
+                          id="venueAddress"
+                          {...register("venueAddress")}
+                          placeholder="Street, building name"
+                          className="bg-gray-900 border-gray-700 text-white mt-1"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <Label htmlFor="venueAddress2" className="text-gray-400 text-sm">Address line 2 (optional)</Label>
+                        <Input
+                          id="venueAddress2"
+                          {...register("venueAddress2")}
+                          placeholder="Area, landmark"
+                          className="bg-gray-900 border-gray-700 text-white mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="venueTown" className="text-gray-400 text-sm">Town</Label>
+                        <Input
+                          id="venueTown"
+                          {...register("venueTown")}
+                          className="bg-gray-900 border-gray-700 text-white mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="venueCounty" className="text-gray-400 text-sm">County (optional)</Label>
+                        <Input
+                          id="venueCounty"
+                          {...register("venueCounty")}
+                          className="bg-gray-900 border-gray-700 text-white mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="venuePostcode" className="text-gray-400 text-sm">Postcode</Label>
+                        <Input
+                          id="venuePostcode"
+                          {...register("venuePostcode")}
+                          className="bg-gray-900 border-gray-700 text-white mt-1"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

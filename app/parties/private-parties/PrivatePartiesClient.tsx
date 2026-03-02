@@ -52,7 +52,7 @@ const beforeAfterTransforms = [
   {
     title: "Private Party Space",
     before: {
-      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768649763/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw.jpg",
+      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1771490793/Log_room_10_tttjs7.jpg",
       alt: "Private party space before transformation",
     },
     after: {

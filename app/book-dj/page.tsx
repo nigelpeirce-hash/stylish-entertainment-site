@@ -24,21 +24,31 @@ const bookingSchema = z.object({
   name: z.string().min(2, "Name is required"),
   email: z.string().email("Please enter a valid email address"),
   phone: z.string().optional(),
-  
+  clientAddress: z.string().optional(),
+  clientAddress2: z.string().optional(),
+  clientTown: z.string().optional(),
+  clientPostcode: z.string().optional(),
+
   // Event Details
   eventType: z.string().min(1, "Please select an event type"),
   eventDate: z.string().min(1, "Event date is required"),
+  eventStartTime: z.string().optional(),
+  eventEndTime: z.string().optional(),
   numberOfGuests: z.string().optional(),
-  
+
   // Venue Information
   venueName: z.string().min(2, "Venue name is required"),
   venueAddress: z.string().optional(),
+  venueAddress2: z.string().optional(),
+  venueTown: z.string().optional(),
+  venueCounty: z.string().optional(),
   venuePostcode: z.string().optional(),
-  
+
   // Booking Details
   message: z.string().optional(),
+  agreedFee: z.string().optional(),
   services: z.array(z.string()).min(1, "Please select your preferred DJ"),
-  
+
   // Account Creation
   createAccount: z.boolean().optional(),
   password: z.string().optional(),
@@ -138,12 +148,22 @@ function BookDJPageContent() {
             name: prefill.name ?? current.name ?? "",
             email: prefill.email ?? current.email ?? "",
             phone: prefill.phone ?? current.phone ?? "",
+            clientAddress: prefill.clientAddress ?? current.clientAddress ?? "",
+            clientAddress2: prefill.clientAddress2 ?? current.clientAddress2 ?? "",
+            clientTown: prefill.clientTown ?? current.clientTown ?? "",
+            clientPostcode: prefill.clientPostcode ?? current.clientPostcode ?? "",
             eventType: prefill.eventType ?? current.eventType ?? "Wedding",
             eventDate: prefill.eventDate ?? current.eventDate ?? "",
+            eventStartTime: prefill.eventStartTime ?? current.eventStartTime ?? "",
+            eventEndTime: prefill.eventEndTime ?? current.eventEndTime ?? "",
             venueName: prefill.venueName ?? current.venueName ?? "",
             venueAddress: prefill.venueAddress ?? current.venueAddress ?? "",
+            venueAddress2: prefill.venueAddress2 ?? current.venueAddress2 ?? "",
+            venueTown: prefill.venueTown ?? current.venueTown ?? "",
+            venueCounty: prefill.venueCounty ?? current.venueCounty ?? "",
             venuePostcode: prefill.venuePostcode ?? current.venuePostcode ?? "",
             numberOfGuests: prefill.numberOfGuests ?? current.numberOfGuests ?? "",
+            agreedFee: prefill.agreedFee ?? current.agreedFee ?? "",
           };
           reset(merged);
           if (data.artistNames?.length > 0) {
@@ -205,14 +225,24 @@ function BookDJPageContent() {
           name: data.name,
           email: data.email,
           phone: data.phone,
+          clientAddress: data.clientAddress?.trim() || undefined,
+          clientAddress2: data.clientAddress2?.trim() || undefined,
+          clientTown: data.clientTown?.trim() || undefined,
+          clientPostcode: data.clientPostcode?.trim() || undefined,
           eventType: data.eventType,
           eventDate: data.eventDate,
+          eventStartTime: data.eventStartTime?.trim() || undefined,
+          eventEndTime: data.eventEndTime?.trim() || undefined,
           venueName: data.venueName,
-          venueAddress: data.venueAddress,
-          venuePostcode: data.venuePostcode,
+          venueAddress: data.venueAddress?.trim() || undefined,
+          venueAddress2: data.venueAddress2?.trim() || undefined,
+          venueTown: data.venueTown?.trim() || undefined,
+          venueCounty: data.venueCounty?.trim() || undefined,
+          venuePostcode: data.venuePostcode?.trim() || undefined,
           numberOfGuests: data.numberOfGuests ? parseInt(data.numberOfGuests) : null,
           services: ["DJs"], // Artist chosen = DJ service
           message: data.message,
+          agreedFee: data.agreedFee?.trim() || undefined,
           preferredDJ: selectedDJ,
           upsellItems: selectedUpsells,
           termsAccepted,
@@ -417,14 +447,54 @@ function BookDJPageContent() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-gray-200">Phone Number</Label>
+                    <Label htmlFor="phone" className="text-gray-200">Client telephone number</Label>
                     <Input
                       id="phone"
                       type="tel"
                       {...register("phone")}
                       className="bg-gray-900 border-gray-600 text-white placeholder:text-gray-400 focus-visible:ring-offset-gray-900"
-                      placeholder="01234567890"
+                      placeholder="e.g. 07xxx xxxxxx"
                     />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-champagne-gold/90">Client address</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="md:col-span-2">
+                        <Label htmlFor="clientAddress" className="text-gray-400 text-sm">Address line 1</Label>
+                        <Input
+                          id="clientAddress"
+                          {...register("clientAddress")}
+                          placeholder="Street, house name/number"
+                          className="bg-gray-900 border-gray-600 text-white mt-1"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <Label htmlFor="clientAddress2" className="text-gray-400 text-sm">Address line 2 (optional)</Label>
+                        <Input
+                          id="clientAddress2"
+                          {...register("clientAddress2")}
+                          placeholder="Flat, building, etc."
+                          className="bg-gray-900 border-gray-600 text-white mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="clientTown" className="text-gray-400 text-sm">Town</Label>
+                        <Input
+                          id="clientTown"
+                          {...register("clientTown")}
+                          className="bg-gray-900 border-gray-600 text-white mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="clientPostcode" className="text-gray-400 text-sm">Postcode</Label>
+                        <Input
+                          id="clientPostcode"
+                          {...register("clientPostcode")}
+                          className="bg-gray-900 border-gray-600 text-white mt-1"
+                        />
+                      </div>
+                    </div>
                   </div>
 
                   {/* Account Creation Option */}
@@ -513,6 +583,27 @@ function BookDJPageContent() {
                     </div>
                   </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="eventStartTime" className="text-gray-200">Event start time</Label>
+                      <Input
+                        id="eventStartTime"
+                        {...register("eventStartTime")}
+                        placeholder="e.g. 7pm"
+                        className="bg-gray-900 border-gray-600 text-white"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="eventEndTime" className="text-gray-200">Event end time</Label>
+                      <Input
+                        id="eventEndTime"
+                        {...register("eventEndTime")}
+                        placeholder="e.g. midnight"
+                        className="bg-gray-900 border-gray-600 text-white"
+                      />
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <Label htmlFor="numberOfGuests" className="text-gray-200">Number of Guests</Label>
                     <Input
@@ -545,27 +636,64 @@ function BookDJPageContent() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="venueAddress" className="text-gray-200">Venue Address</Label>
-                      <Input
-                        id="venueAddress"
-                        {...register("venueAddress")}
-                        className="bg-gray-900 border-gray-600 text-white placeholder:text-gray-400 focus-visible:ring-offset-gray-900"
-                        placeholder="Address"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="venuePostcode" className="text-gray-200">Postcode</Label>
-                      <Input
-                        id="venuePostcode"
-                        {...register("venuePostcode")}
-                        className="bg-gray-900 border-gray-600 text-white placeholder:text-gray-400 focus-visible:ring-offset-gray-900"
-                        placeholder="Postcode"
-                      />
+                  <div className="space-y-2">
+                    <Label className="text-champagne-gold/90">Venue address</Label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="md:col-span-2">
+                        <Label htmlFor="venueAddress" className="text-gray-400 text-sm">Address line 1</Label>
+                        <Input
+                          id="venueAddress"
+                          {...register("venueAddress")}
+                          placeholder="Street, building name"
+                          className="bg-gray-900 border-gray-600 text-white mt-1"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <Label htmlFor="venueAddress2" className="text-gray-400 text-sm">Address line 2 (optional)</Label>
+                        <Input
+                          id="venueAddress2"
+                          {...register("venueAddress2")}
+                          placeholder="Area, landmark"
+                          className="bg-gray-900 border-gray-600 text-white mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="venueTown" className="text-gray-400 text-sm">Town</Label>
+                        <Input
+                          id="venueTown"
+                          {...register("venueTown")}
+                          className="bg-gray-900 border-gray-600 text-white mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="venueCounty" className="text-gray-400 text-sm">County (optional)</Label>
+                        <Input
+                          id="venueCounty"
+                          {...register("venueCounty")}
+                          className="bg-gray-900 border-gray-600 text-white mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="venuePostcode" className="text-gray-400 text-sm">Postcode</Label>
+                        <Input
+                          id="venuePostcode"
+                          {...register("venuePostcode")}
+                          placeholder="Postcode"
+                          className="bg-gray-900 border-gray-600 text-white mt-1"
+                        />
+                      </div>
                     </div>
                   </div>
+                </div>
+
+                <div className="space-y-2 border-b border-gray-700 pb-6">
+                  <Label htmlFor="agreedFee" className="text-gray-200">Agreed fee</Label>
+                  <Input
+                    id="agreedFee"
+                    {...register("agreedFee")}
+                    placeholder="e.g. £1500"
+                    className="bg-gray-900 border-gray-600 text-white"
+                  />
                 </div>
 
                 {/* Your preferred DJ – artist choice = DJ service (only when not from quote) */}

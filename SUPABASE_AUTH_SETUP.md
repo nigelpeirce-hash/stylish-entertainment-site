@@ -6,7 +6,7 @@
 ```
 http://localhost:3001
 ```
-**Note:** Your dev server runs on port **4000** (not 3000), so use port 4000.
+**Note:** Your dev server runs on port **3001** (`npm run dev`).
 
 ### Redirect URLs (Development)
 Add these URLs to your Supabase **Redirect URLs** list:
@@ -113,7 +113,7 @@ https://stylishentertainment.co.uk/api/auth/callback/credentials
 
 - **Wildcards**: You can use `http://localhost:*` to match any port, but explicit URLs are safer
 - **HTTPS Required**: Production URLs must use `https://`
-- **Port Mismatch**: Your code defaults to port 3000, but your dev server uses 4000. Consider updating the code defaults or using environment variables.
+- **Port**: Dev server and code defaults use port **3001**; set `NEXTAUTH_URL` and `NEXT_PUBLIC_SITE_URL` to `http://localhost:3001` in `.env.local`.
 
 ---
 

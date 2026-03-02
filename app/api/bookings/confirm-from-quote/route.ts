@@ -34,8 +34,13 @@ export async function POST(request: NextRequest) {
       clientPostcode,
       eventType,
       eventDate,
+      eventStartTime,
+      eventEndTime,
       venueName,
       venueAddress,
+      venueAddress2,
+      venueTown,
+      venueCounty,
       venuePostcode,
       selectedStaffId,
       termsAccepted,
@@ -110,6 +115,7 @@ export async function POST(request: NextRequest) {
     }
     const { phoneAreaCode, phoneNumber } = parsePhone(phone);
 
+    const trim = (v: unknown) => (v != null ? String(v).trim() || null : null);
     const updateData: Record<string, unknown> = {
       name: String(name).trim(),
       email: String(email).trim().toLowerCase(),
@@ -118,8 +124,13 @@ export async function POST(request: NextRequest) {
       eventType: String(eventType).trim(),
       eventDate: eventDateObj,
       venueName: String(venueName).trim(),
-      venueAddress: venueAddress != null ? String(venueAddress).trim() || null : undefined,
-      venuePostcode: venuePostcode != null ? String(venuePostcode).trim() || null : undefined,
+      venueAddress: trim(venueAddress),
+      venueAddress2: trim(venueAddress2),
+      venueTown: trim(venueTown),
+      venueCounty: trim(venueCounty),
+      venuePostcode: trim(venuePostcode),
+      djStartTime: trim(eventStartTime),
+      djFinishTime: trim(eventEndTime),
       termsAccepted: true,
       termsAcceptedAt: new Date(),
       termsAcceptedByUserId: null,

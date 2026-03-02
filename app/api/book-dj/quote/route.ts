@@ -49,12 +49,22 @@ export async function GET(request: NextRequest) {
       name?: string;
       email?: string;
       phone?: string;
+      clientAddress?: string;
+      clientAddress2?: string;
+      clientTown?: string;
+      clientPostcode?: string;
       eventType?: string;
       eventDate?: string;
+      eventStartTime?: string;
+      eventEndTime?: string;
       venueName?: string;
       venueAddress?: string;
+      venueAddress2?: string;
+      venueTown?: string;
+      venueCounty?: string;
       venuePostcode?: string;
       numberOfGuests?: string;
+      agreedFee?: string;
     } | null = null;
 
     if (bookingId) {
@@ -65,12 +75,22 @@ export async function GET(request: NextRequest) {
           email: true,
           phoneAreaCode: true,
           phoneNumber: true,
+          clientAddress: true,
+          clientAddress2: true,
+          clientTown: true,
+          clientPostcode: true,
           eventType: true,
           eventDate: true,
+          djStartTime: true,
+          djFinishTime: true,
           venueName: true,
           venueAddress: true,
+          venueAddress2: true,
+          venueTown: true,
+          venueCounty: true,
           venuePostcode: true,
           numberOfGuests: true,
+          finalBalance: true,
         },
       });
 
@@ -81,14 +101,24 @@ export async function GET(request: NextRequest) {
           name: booking.name ?? undefined,
           email: booking.email ?? undefined,
           phone: phone || undefined,
+          clientAddress: booking.clientAddress ?? undefined,
+          clientAddress2: booking.clientAddress2 ?? undefined,
+          clientTown: booking.clientTown ?? undefined,
+          clientPostcode: booking.clientPostcode ?? undefined,
           eventType: eventTypeForForm(booking.eventType),
           eventDate: booking.eventDate
             ? new Date(booking.eventDate).toISOString().slice(0, 10)
             : undefined,
+          eventStartTime: booking.djStartTime ?? undefined,
+          eventEndTime: booking.djFinishTime ?? undefined,
           venueName: booking.venueName ?? undefined,
           venueAddress: booking.venueAddress ?? undefined,
+          venueAddress2: booking.venueAddress2 ?? undefined,
+          venueTown: booking.venueTown ?? undefined,
+          venueCounty: booking.venueCounty ?? undefined,
           venuePostcode: booking.venuePostcode ?? undefined,
           numberOfGuests: booking.numberOfGuests != null ? String(booking.numberOfGuests) : undefined,
+          agreedFee: booking.finalBalance ?? undefined,
         };
       }
     }
