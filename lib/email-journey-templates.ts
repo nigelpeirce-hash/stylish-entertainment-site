@@ -5,7 +5,7 @@
  * Updated: Luxury brand styling - Charcoal typography, black buttons, gold links
  */
 
-import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
+import { SIGNATURE_BLOCK_HTML, EMAIL_LOGO_HTML } from "@/lib/email-signature";
 
 export type JourneyStage =
   | "enquiry-autoresponder"
@@ -13,7 +13,6 @@ export type JourneyStage =
   | "booking-confirmation"
   | "4-week-checkin"
   | "week-of-excitement"
-  | "final-chase"
   | "post-wedding-magic";
 
 export interface JourneyEmailData {
@@ -188,8 +187,7 @@ function buildEmailTemplate(
       <body>
         <div class="email-container">
           <div class="header">
-            <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 200px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
-            <p style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 3px; color: #D4AF37; text-align: center; margin: 0; text-transform: uppercase;">Stylish Entertainment</p>
+            ${EMAIL_LOGO_HTML}
             <div class="divider"></div>
           </div>
           <div class="content">
@@ -204,21 +202,21 @@ function buildEmailTemplate(
 }
 
 /**
- * 1. Enquiry Auto-Responder
- * Immediate 'Thank you' – enquiry stage only (not a booking yet)
+ * 1. New Enquiry Auto-Responder
+ * Immediate thank you – enquiry stage only (not a booking yet)
  */
 export function enquiryAutoresponder(data: JourneyEmailData) {
   const contentHtml = `
     <h1>Thank You for Your Enquiry</h1>
     <p>Dear {{clientName}},</p>
-    <p>Thank you for reaching out to Stylish Entertainment Ltd. We're delighted you've enquired about {{eventType}} on {{eventDate}}.</p>
-    <p>We're excited to learn more about your vision and help bring it to life. We specialise in creating unforgettable celebrations with our expert DJ services, elegant lighting design, and sophisticated venue styling.</p>
-    <p>We'll be in touch within 24 hours to discuss your requirements in detail. In the meantime, if you have any questions, please don't hesitate to get in touch.</p>
+    <p>Thank you for getting in touch with Stylish Entertainment. We've received your enquiry and truly appreciate you considering us for your {{eventType}}.</p>
+    <p>We'd love to explore how we can support your plans and help create something special for your celebration.</p>
+    <p>A member of our team will be in touch shortly. In the meantime, if there's anything you'd like to share, please feel free to reach out.</p>
     {{signatureBlock}}
   `;
 
   return buildEmailTemplate(
-    "Thank You for Your Enquiry - Stylish Entertainment Ltd",
+    "Thank You for Your Enquiry - Stylish Entertainment",
     contentHtml,
     data
   );
@@ -272,11 +270,11 @@ const BOOKING_CONFIRMATION_BANK_BLOCK = `
     <p>Please pay the deposit of <strong>{{bookingFee}}</strong> by bank transfer. Use the reference below so we can match your payment.</p>
     <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; margin: 20px 0; border: 1px solid #eee; text-align: left;">
       <p style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #666; margin: 0 0 12px 0;">Bank details</p>
-      <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>STYLISH Ent</strong></p>
-      <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>Account Number</strong> 83312038</p>
-      <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>Sort Code</strong> 20-05-06</p>
+      <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>Account name</strong> Stylish Entertainment</p>
+      <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>Sort code</strong> 20-05-06</p>
+      <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>Account number</strong> 83312038</p>
       <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>IBAN</strong> GB39 BARC2005 0683312038</p>
-      <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>SWIFT BIC</strong> BARC GB22</p>
+      <p style="font-size: 15px; color: #1a1a1a; margin: 4px 0;"><strong>SWIFT / BIC</strong> BARCGB22</p>
       <p style="font-size: 15px; color: #1a1a1a; margin: 12px 0 0 0;"><strong>Reference</strong> {{invoiceReference}}</p>
       <p style="font-size: 13px; color: #666; margin: 16px 0 0 0;">STYLISH Entertainment Ltd: Registered in England 07848653</p>
     </div>
@@ -308,26 +306,28 @@ export function bookingConfirmation(data: JourneyEmailData) {
 
 /**
  * 3. The 4-Week Check-in
- * Automation to ask for final song choices/logistics
+ * Automation to ask for final song choices/logistics; link to portal for music preferences
  */
 export function fourWeekCheckin(data: JourneyEmailData) {
   const contentHtml = `
     <h1>Let's Finalise Your Details</h1>
     <p>Dear {{clientName}},</p>
-    <p>With your {{eventType}} at {{venueName}} just four weeks away ({{eventDate}}), we'd like to make sure everything is perfectly organised.</p>
+    <p>With your {{eventType}} at {{venueName}} now just four weeks away ({{eventDate}}), we'd love to take a moment to ensure everything is perfectly in place for your special day.</p>
     <h2>Music Preferences</h2>
-    <p>Now's the perfect time to share your music preferences, including:</p>
+    <p>Now is the ideal time to share your final music selections, including:</p>
     <ul style="margin: 20px 0; padding-left: 25px;">
       <li>Your must-play songs</li>
-      <li>Any songs you'd prefer to avoid</li>
-      <li>Special requests (first dance, ceremony music, etc.)</li>
+      <li>Any tracks you'd prefer not to hear</li>
+      <li>Special moments such as your first dance or any key songs for the day</li>
     </ul>
+    <p>You can update your music preferences at your convenience using the link below:</p>
     <p style="text-align: center;">
       <a href="{{clientAdminUrl}}" class="button">Update Your Music Preferences</a>
     </p>
     <h2>Final Logistics</h2>
-    <p>We also want to confirm a few final details to ensure everything runs smoothly on the day. Please review your booking in the Client Admin area and let us know if anything has changed.</p>
-    <p>If you have any questions or want to discuss anything, just reply to this email or give us a call. We're here to help!</p>
+    <p>We'll also be reviewing the final arrangements to make sure everything runs seamlessly on the day. If there have been any recent changes to timings or plans, please do let us know.</p>
+    <p>We're looking forward to bringing everything together for what promises to be a wonderful celebration.</p>
+    <p>Warm regards,<br>Stylish Entertainment</p>
     {{signatureBlock}}
   `;
 
@@ -362,33 +362,8 @@ export function weekOfExcitement(data: JourneyEmailData) {
 }
 
 /**
- * FINAL_CHASE – 3-day chase (event in 2–3 days)
- * Tokenized magic link: no login required. Use {{portalMagicUrl}} for the CTA.
- */
-export function finalChase(data: JourneyEmailData) {
-  const contentHtml = `
-    <h1>Final Details Needed – Your Event Is in 3 Days</h1>
-    <p>Dear {{clientName}},</p>
-    <p>Your {{eventType}} at {{venueName}} is almost here ({{eventDate}}). We need to lock in your final details so everything runs smoothly on the day.</p>
-    <h2>Update Your Final Details Now</h2>
-    <p>Please confirm any last-minute changes, dietary requirements, timings, or special requests. Use the link below to access your portal instantly – no login required.</p>
-    <p style="text-align: center; margin: 30px 0;">
-      <a href="{{portalMagicUrl}}" class="button-luxe">CLICK TO ACCESS PORTAL NOW (No Login Required)</a>
-    </p>
-    <p>If you have any questions, just reply to this email or give us a call. We're here to help.</p>
-    {{signatureBlock}}
-  `;
-
-  return buildEmailTemplate(
-    "Urgent: Final Details for Your {{eventType}} – {{eventDate}}",
-    contentHtml,
-    data
-  );
-}
-
-/**
  * 5. Post-Wedding Magic
- * Sent 3 days after the event, asking for feedback/testimonials
+ * Sent 3 days after the event, asking for feedback/testimonials. Google Review + Instagram wired via NEXT_PUBLIC_GOOGLE_REVIEW_URL.
  */
 export function postWeddingMagic(data: JourneyEmailData) {
   const googleReviewUrl = process.env.NEXT_PUBLIC_GOOGLE_REVIEW_URL || "";
@@ -433,8 +408,6 @@ export function getJourneyEmail(
       return fourWeekCheckin(data);
     case "week-of-excitement":
       return weekOfExcitement(data);
-    case "final-chase":
-      return finalChase(data);
     case "post-wedding-magic":
       return postWeddingMagic(data);
     default:

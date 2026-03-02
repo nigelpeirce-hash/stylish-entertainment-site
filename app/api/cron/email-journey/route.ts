@@ -44,7 +44,6 @@ interface EmailJourneyStatus {
   bookingConfirmation?: { sentAt: string; messageId?: string };
   fourWeekCheckin?: { sentAt: string; messageId?: string };
   weekOfExcitement?: { sentAt: string; messageId?: string };
-  finalChase?: { sentAt: string; messageId?: string };
   postWeddingMagic?: { sentAt: string; messageId?: string };
   portalInvite?: { sentAt: string };
   portalReminder?: { sentAt: string; messageId?: string };
@@ -134,32 +133,6 @@ export async function GET(request: NextRequest) {
     const bookingsNeedingWeekOf = bookingsNeedingWeekOfRaw.filter((booking) => {
       const emailsSent = booking.emailsSent as any;
       return !emailsSent?.weekOfExcitement;
-    });
-
-    // 3b. Find bookings needing FINAL_CHASE (event in 2–3 days; tokenized magic link)
-    const threeDaysFromNow = new Date(now);
-    threeDaysFromNow.setDate(threeDaysFromNow.getDate() + 3);
-    const twoDaysFromNow = new Date(now);
-    twoDaysFromNow.setDate(twoDaysFromNow.getDate() + 2);
-    const finalChaseStart = new Date(twoDaysFromNow);
-    finalChaseStart.setHours(0, 0, 0, 0);
-    const finalChaseEnd = new Date(threeDaysFromNow);
-    finalChaseEnd.setHours(23, 59, 59, 999);
-
-    const bookingsNeedingFinalChaseRaw = await prisma.booking.findMany({
-      where: {
-        status: { in: ["confirmed", "pending"] },
-        eventDate: {
-          gte: finalChaseStart,
-          lte: finalChaseEnd,
-        },
-      },
-      take: 100,
-    });
-
-    const bookingsNeedingFinalChase = bookingsNeedingFinalChaseRaw.filter((booking) => {
-      const emailsSent = booking.emailsSent as any;
-      return !emailsSent?.finalChase;
     });
 
     // 4. Find bookings needing post-wedding magic (event date was 3 days ago, status is completed or past)
@@ -372,71 +345,6 @@ export async function GET(request: NextRequest) {
 
     const baseUrl = getEmailBaseUrl();
 
-    // Process FINAL_CHASE (3-day chase; tokenized magic link)
-    for (const booking of bookingsNeedingFinalChase) {
-      results.processed++;
-      try {
-        const emailsSent = (booking.emailsSent as EmailJourneyStatus) || {};
-        let portalToken = (booking as any).portalToken as string | null | undefined;
-
-        if (!portalToken) {
-          portalToken = randomBytes(32).toString("hex");
-          await prisma.booking.update({
-            where: { id: booking.id },
-            data: { portalToken },
-          });
-        }
-
-        const portalMagicUrl = `${baseUrl}/client/bookings/${booking.id}?token=${encodeURIComponent(portalToken)}`;
-
-        const emailData = {
-          clientName: getGreetingName(deduplicateName(booking.name)) || booking.name,
-          eventType: booking.eventType || "your event",
-          eventDate: new Date(booking.eventDate).toLocaleDateString("en-GB", {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
-          venueName: booking.venueName,
-          clientAdminUrl: getClientPortalLoginUrl(baseUrl, booking.id),
-          portalMagicUrl,
-        };
-
-        const emailContent = getJourneyEmail("final-chase", emailData);
-        const emailConfig = getResendConfig("booking");
-
-        const emailResult = await getResend().emails.send({
-          from: emailConfig.from,
-          replyTo: emailConfig.replyTo,
-          to: [booking.email],
-          subject: emailContent.subject,
-          html: emailContent.html,
-        });
-
-        const messageId = "data" in emailResult ? (emailResult as any).data?.id : undefined;
-
-        await prisma.booking.update({
-          where: { id: booking.id },
-          data: {
-            emailsSent: {
-              ...emailsSent,
-              finalChase: {
-                sentAt: now.toISOString(),
-                messageId,
-              },
-            },
-            lastEmailSentAt: now,
-          },
-        });
-
-        results.sent++;
-      } catch (error: any) {
-        results.errors.push(`Booking ${booking.id}: ${error.message}`);
-        results.skipped++;
-      }
-    }
-
     // Process post-wedding magic
     for (const booking of bookingsNeedingPostWedding) {
       results.processed++;
@@ -549,7 +457,6 @@ export async function GET(request: NextRequest) {
         "3-day-reminders": bookingsNeedingReminder.length,
         "4-week-checkins": bookingsNeeding4WeekCheckin.length,
         "week-of-excitement": bookingsNeedingWeekOf.length,
-        "final-chase": bookingsNeedingFinalChase.length,
         "post-wedding": bookingsNeedingPostWedding.length,
         "portal-reminders": bookingsNeedingPortalReminder.length,
       },

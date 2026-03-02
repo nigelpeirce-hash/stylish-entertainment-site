@@ -103,16 +103,9 @@ export default function Navigation() {
       <div className="container mx-auto px-3 sm:px-4 lg:px-6 relative z-20">
         <div className="flex items-center justify-between h-32 md:h-36 relative">
           <div className="flex flex-col flex-shrink-0">
-            <Link href="/" className="relative group z-20 hover:opacity-90 transition-opacity duration-300">
-              <img
-                src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png"
-                alt="Stylish Entertainment Logo"
-                width={200}
-                height={80}
-                className="h-16 sm:h-20 md:h-24 lg:h-28 xl:h-32 w-auto object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)] brightness-[1.2]"
-                loading="eager"
-                fetchPriority="high"
-              />
+            <Link href="/" className="relative group z-20 hover:opacity-90 transition-opacity duration-300 flex flex-col items-start">
+              <span className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-[rgb(255,217,0)] tracking-tight drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]">Stylish</span>
+              <span className="font-sans text-lg sm:text-xl md:text-2xl font-medium text-white/90 mt-1 tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">Entertainment</span>
             </Link>
           </div>
 

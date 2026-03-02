@@ -6,7 +6,6 @@ import {
   getStaffPushKeys,
   sendPushoverNotification,
 } from "@/lib/pushover-notifications";
-import { logActivity } from "@/lib/activity-log";
 import { sendDepositInvoiceForBooking } from "@/lib/send-deposit-invoice";
 import { staffConfirmationEmail } from "@/lib/email-staff-confirmation";
 import { getResendConfig } from "@/lib/email-config";
@@ -243,16 +242,20 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      await logActivity({
+      await notifyAdminSignificantEvent({
+        type: "quote_confirmed",
         bookingId: payload.bookingId,
-        action: "quote_confirmed",
+        title: "Quote confirmed",
         description: `Client confirmed from quote – ${name} for ${formattedDate} at ${venueName}`,
         actor: "client",
         performedBy: name ?? undefined,
+        bookingName: name ?? undefined,
+        venueName: String(venueName).trim(),
+        eventDate: formattedDate,
         metadata: { venueName, staffId: staffId ?? undefined },
       });
     } catch (e) {
-      console.warn("[confirm-from-quote] logActivity failed:", e);
+      console.warn("[confirm-from-quote] notifyAdmin (activity) failed:", e);
     }
 
     try {

@@ -11,7 +11,7 @@ import {
   ensureBookingReference 
 } from "@/lib/booking-integrity";
 import { sendNewLeadNotification } from "@/lib/pushover-notifications";
-import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
+import { SIGNATURE_BLOCK_HTML, EMAIL_LOGO_HTML } from "@/lib/email-signature";
 import sendEmail from "@/lib/email/send-email";
 import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
@@ -334,15 +334,6 @@ export async function POST(request: NextRequest) {
     // TODO: Verify reCAPTCHA token on server side if needed
     // For now, we'll trust the client-side verification
 
-    // Get base URL for logo (use NEXTAUTH_URL if set, otherwise try Vercel URL, fallback to production domain)
-    let baseUrl = 'https://stylishentertainment.co.uk';
-    if (process.env.NEXTAUTH_URL) {
-      baseUrl = process.env.NEXTAUTH_URL;
-    } else if (process.env.VERCEL_URL) {
-      baseUrl = `https://${process.env.VERCEL_URL}`;
-    }
-    const logoUrl = "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png";
-
     // Format event date for admin email: day month year (e.g. 20 June 2026)
     const adminEventDateFormatted = eventDate
       ? new Date(eventDate).toLocaleDateString("en-GB", {
@@ -364,7 +355,6 @@ export async function POST(request: NextRequest) {
           body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
           .container { max-width: 600px; margin: 0 auto; padding: 20px; }
           .header { background: #d4af37; color: #000; padding: 30px 20px; text-align: center; }
-          .logo { max-width: 200px; height: auto; margin-bottom: 15px; }
           .content { background: #f9f9f9; padding: 30px; }
           .field { margin: 15px 0; padding: 10px; background: #fff; border-left: 4px solid #d4af37; }
           .field-label { font-weight: bold; color: #333; }
@@ -374,7 +364,7 @@ export async function POST(request: NextRequest) {
       <body>
         <div class="container">
           <div class="header">
-            <img src="${logoUrl}" alt="Stylish Entertainment" class="logo" style="max-width: 200px; height: auto; margin-bottom: 15px;" />
+            ${EMAIL_LOGO_HTML}
             <h1 style="margin: 0; font-size: 24px;">New Enquiry</h1>
           </div>
           <div class="content">

@@ -6,6 +6,7 @@ import { Resend } from "resend";
 import { getResendConfig } from "@/lib/email-config";
 import { getDisplayName } from "@/lib/utils/name-helpers";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
+import { EMAIL_LOGO_HTML_DARK } from "@/lib/email-signature";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -162,8 +163,7 @@ export async function POST(
             <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
               <tr>
                 <td style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px 40px; text-align: center;">
-                  <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" width="180" style="display: block; margin: 0 auto;">
-                  <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 8px 0 0 0;">Stylish Entertainment</p>
+                  ${EMAIL_LOGO_HTML_DARK}
                 </td>
               </tr>
               <tr><td style="background: linear-gradient(90deg, #D4AF37 0%, #F4D03F 50%, #D4AF37 100%); height: 4px;"></td></tr>

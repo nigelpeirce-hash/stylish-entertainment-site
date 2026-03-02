@@ -104,6 +104,8 @@ export interface SanitizedBooking {
     status: string;
     confirmationEmailSent: boolean;
     confirmationSentAt?: Date | string | null;
+    briefStatus?: string | null;
+    acknowledgedAt?: Date | string | null;
     staff: {
       id: string;
       name: string;
@@ -351,6 +353,8 @@ export function transformBooking(
           status: String(assignment?.status ?? ''),
           confirmationEmailSent: Boolean(assignment?.confirmationEmailSent),
           confirmationSentAt: assignment?.confirmationSentAt ?? null,
+          briefStatus: assignment?.briefStatus ? String(assignment.briefStatus) : null,
+          acknowledgedAt: assignment?.acknowledgedAt ?? null,
           // Ensure staff object is also clean
           staff: assignment?.staff
             ? {
@@ -449,11 +453,18 @@ export function transformBooking(
     updatedAt: convertDate(booking?.updatedAt) || undefined,
     lastEmailSentAt: convertDate(booking?.lastEmailSentAt),
     artistQuoteSentAt: (() => {
-      const emailsSent = booking?.emailsSent as { artistQuotes?: { sentAt: string }[] } | undefined;
-      const quotes = emailsSent?.artistQuotes;
-      if (!Array.isArray(quotes) || quotes.length === 0) return null;
-      const last = quotes[quotes.length - 1];
-      return last?.sentAt ?? null;
+      const emailsSent = booking?.emailsSent as {
+        artistQuotes?: { sentAt: string }[];
+        djReplies?: { sentAt: string }[];
+      } | undefined;
+      const quotes = emailsSent?.artistQuotes ?? [];
+      const djReplies = emailsSent?.djReplies ?? [];
+      const allSent = [
+        ...(Array.isArray(quotes) ? quotes.map((q) => q?.sentAt).filter(Boolean) : []),
+        ...(Array.isArray(djReplies) ? djReplies.map((r) => r?.sentAt).filter(Boolean) : []),
+      ] as string[];
+      if (allSent.length === 0) return null;
+      return allSent.sort().reverse()[0] ?? null;
     })(),
     ...((): { workflowStage: WorkflowStage; workflowLabel: string } => {
       const b = booking as { NewEnquiry?: { id: string }[] } | undefined;

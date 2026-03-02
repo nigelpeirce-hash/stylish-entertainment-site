@@ -21,6 +21,21 @@ const YOUTUBE_URL = "https://www.youtube.com/@stylishentertainment937/playlists"
 
 const COMPANY_LINE = "Stylish Entertainment Ltd | South West · London · UK-wide";
 
+/**
+ * Email header logo: text-only "Stylish" + "Entertainment" (no Cloudinary image).
+ * Matches HeaderNew wordmark styling for consistency.
+ */
+export const EMAIL_LOGO_HTML = `<div style="text-align: center; margin-bottom: 8px;">
+  <span style="font-family: Georgia, 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: #D4AF37; letter-spacing: 0.02em;">Stylish</span>
+  <span style="display: block; font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; color: #1a1a1a; margin-top: 4px; letter-spacing: 0.05em;">Entertainment</span>
+</div>`;
+
+/** Same as EMAIL_LOGO_HTML but "Entertainment" in light grey for dark headers. */
+export const EMAIL_LOGO_HTML_DARK = `<div style="text-align: center; margin-bottom: 8px;">
+  <span style="font-family: Georgia, 'Playfair Display', serif; font-size: 22px; font-weight: 700; color: #D4AF37; letter-spacing: 0.02em;">Stylish</span>
+  <span style="display: block; font-family: Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 500; color: #e5e5e5; margin-top: 4px; letter-spacing: 0.05em;">Entertainment</span>
+</div>`;
+
 /** Plain-text footer for .text email bodies (same hierarchy). */
 export const CLIENT_SIGNOFF_TEXT = `Kind Regards,
 Ali & Nige

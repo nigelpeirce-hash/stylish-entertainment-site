@@ -100,14 +100,19 @@ export async function GET(request: NextRequest) {
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
 
-    // Add artistQuoteSentAt for each booking (for "pulse until quote sent" UX)
+    // Add artistQuoteSentAt for each booking (Quote Sent touch point: artist quote or DJ reply)
     const bookingsWithQuoteSent = sortedBookings.map((b) => {
-      const emailsSent = b.emailsSent as { artistQuotes?: { sentAt: string }[] } | undefined;
-      const quotes = emailsSent?.artistQuotes;
-      const artistQuoteSentAt =
-        Array.isArray(quotes) && quotes.length > 0
-          ? (quotes[quotes.length - 1]?.sentAt ?? null)
-          : null;
+      const emailsSent = b.emailsSent as {
+        artistQuotes?: { sentAt: string }[];
+        djReplies?: { sentAt: string }[];
+      } | undefined;
+      const quotes = emailsSent?.artistQuotes ?? [];
+      const djReplies = emailsSent?.djReplies ?? [];
+      const allSent = [
+        ...(Array.isArray(quotes) ? quotes.map((q) => q?.sentAt).filter(Boolean) : []),
+        ...(Array.isArray(djReplies) ? djReplies.map((r) => r?.sentAt).filter(Boolean) : []),
+      ] as string[];
+      const artistQuoteSentAt = allSent.length > 0 ? allSent.sort().reverse()[0] ?? null : null;
       return { ...b, artistQuoteSentAt };
     });
 

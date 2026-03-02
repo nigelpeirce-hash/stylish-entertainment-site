@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
@@ -420,14 +419,9 @@ export default function GuestRequestPage() {
             Powered by
             <Sparkles className="w-4 h-4" />
           </p>
-          <Link href="/" className="inline-block mb-6">
-            <Image
-              src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png"
-              alt="Stylish Entertainment Ltd"
-              width={200}
-              height={62}
-              className="mx-auto brightness-[1.2]"
-            />
+          <Link href="/" className="inline-block mb-6 text-center">
+            <span className="block font-serif text-2xl font-bold text-champagne-gold">Stylish</span>
+            <span className="block font-sans text-lg font-medium text-white/90 mt-0.5 tracking-wide">Entertainment</span>
           </Link>
           <h3 className="text-white text-xl font-bold mb-3">
             Professional Wedding DJs & Lighting Design

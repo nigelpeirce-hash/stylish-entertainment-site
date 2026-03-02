@@ -3,7 +3,7 @@
  */
 
 import { deduplicateName, getDisplayName, getGreetingName } from "@/lib/utils/name-helpers";
-import { SIGNATURE_BLOCK_HTML, CLIENT_SIGNOFF_TEXT } from "@/lib/email-signature";
+import { SIGNATURE_BLOCK_HTML, CLIENT_SIGNOFF_TEXT, EMAIL_LOGO_HTML } from "@/lib/email-signature";
 import { yourEventLabel } from "@/lib/email-templates";
 
 const GOLD = "#D4AF37";
@@ -43,7 +43,7 @@ export function FIRST_TOUCH(input: FirstTouchInput): {
     <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%);">
       <div style="background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.25);">
         <div style="text-align: center; margin-bottom: 32px;">
-          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 220px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
+          ${EMAIL_LOGO_HTML}
           <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0;">Stylish Entertainment</p>
         </div>
         <p style="font-family: 'Georgia', serif; font-size: 18px; line-height: 1.6; color: #222222; margin: 20px 0;">Hi ${greetingName},</p>
@@ -104,7 +104,7 @@ export function PORTAL_INVITATION(input: PortalInvitationInput): {
     <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%);">
       <div style="background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.25);">
         <div style="text-align: center; margin-bottom: 32px;">
-          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 220px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
+          ${EMAIL_LOGO_HTML}
           <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0;">Stylish Entertainment</p>
         </div>
         <h1 style="font-size: 24px; font-weight: 600; color: #1A1A1A; margin: 20px 0;">Your ${venue} ${portalLabel}</h1>
@@ -151,7 +151,7 @@ export function PORTAL_REMINDER(input: PortalInvitationInput): {
     <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%);">
       <div style="background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.25);">
         <div style="text-align: center; margin-bottom: 32px;">
-          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 220px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
+          ${EMAIL_LOGO_HTML}
           <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0;">Stylish Entertainment</p>
         </div>
         <h1 style="font-size: 22px; font-weight: 600; color: #1A1A1A; margin: 20px 0;">Reminder: Your portal link</h1>

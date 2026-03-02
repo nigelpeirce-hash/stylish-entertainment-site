@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 import sendEmail from "@/lib/email/send-email";
 import { getDisplayName, getGreetingName } from "@/lib/utils/name-helpers";
 import { yourEventLabel } from "@/lib/email-templates";
-import { SIGNATURE_BLOCK_HTML_DARK, CLIENT_SIGNOFF_TEXT } from "@/lib/email-signature";
+import { SIGNATURE_BLOCK_HTML_DARK, CLIENT_SIGNOFF_TEXT, EMAIL_LOGO_HTML_DARK } from "@/lib/email-signature";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
 import { logActivity } from "@/lib/activity-log";
 
@@ -125,8 +125,7 @@ export async function POST(
                 <!-- Header with Logo -->
                 <tr>
                   <td style="background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); padding: 30px 40px; text-align: center;">
-                    <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" width="180" style="display: block; margin: 0 auto;">
-                    <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 8px 0 0 0; font-family: Arial, sans-serif;">Stylish Entertainment</p>
+                    ${EMAIL_LOGO_HTML_DARK}
                   </td>
                 </tr>
                 

@@ -10,6 +10,7 @@
  */
 
 import { getEventTypeEmailProfile } from "@/lib/utils/event-type-messaging";
+import { EMAIL_LOGO_HTML } from "@/lib/email-signature";
 
 const BG = "#0a0a0a";
 const TEXT = "#ffffff";
@@ -29,9 +30,6 @@ const ACCENT_HEX: Record<string, { cta: string; border: string }> = {
   "Amber Glow": { cta: AMBER_GLOW, border: "#78350f" },
 };
 
-const LOGO_URL =
-  "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png";
-
 const TAGLINE = "Every gathering deserves to be extraordinary";
 
 export type EventTypeVariant = "wedding" | "corporate" | "private";
@@ -45,8 +43,6 @@ export interface EmailRenderOptions {
   bodyHtml: string;
   /** Optional plain-text fallback for multipart emails */
   bodyText?: string;
-  /** Override logo URL (default: Stylish Entertainment gold logo) */
-  logoUrl?: string;
   /** Override header title; else derived from eventType */
   headerTitle?: string;
   /** [Name] in subject – e.g. "Sarah & Mike" */
@@ -112,7 +108,6 @@ export function renderEmail(options: EmailRenderOptions): string {
     eventType,
     portalUrl,
     bodyHtml,
-    logoUrl = LOGO_URL,
     headerTitle: overrideTitle,
   } = options;
 
@@ -136,7 +131,7 @@ export function renderEmail(options: EmailRenderOptions): string {
           <!-- Header -->
           <tr>
             <td align="center" style="padding-bottom: 24px; border-bottom: 1px solid ${accentHex.border};">
-              <img src="${logoUrl}" alt="Stylish Entertainment" style="${header.logoStyle}" />
+              ${EMAIL_LOGO_HTML}
               <h1 style="margin: 0; font-family: ${header.fontFamily}; font-size: 24px; font-weight: 600; color: ${header.titleColor}; letter-spacing: 0.02em;">
                 ${header.title}
               </h1>

@@ -55,6 +55,7 @@ function getActionLabel(action: string): string {
   const labels: Record<string, string> = {
     booking_request_received: "Booking request",
     quote_sent: "Quote sent",
+    quote_confirmed: "Quote confirmed",
     deposit_paid: "Deposit paid",
     artist_assigned: "Artist assigned",
     handoff: "Handoff",

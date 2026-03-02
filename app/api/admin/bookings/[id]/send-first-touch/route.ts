@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity-log";
-import { FIRST_TOUCH } from "@/lib/email/templates";
+import { getJourneyEmail } from "@/lib/email-journey-templates";
 import sendEmail from "@/lib/email/send-email";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +10,7 @@ export const runtime = "nodejs";
 
 /**
  * POST /api/admin/bookings/[id]/send-first-touch
- * Sends the First Touch thank-you email to the client and sets lastEmailSentAt
+ * Sends the New Enquiry Auto-Responder thank-you email to the client and sets lastEmailSentAt
  * so the booking no longer shows as "New Enquiry" / urgent on the dashboard.
  */
 export async function POST(
@@ -57,13 +57,20 @@ export async function POST(
     const eventDate = booking.eventDate instanceof Date
       ? booking.eventDate
       : new Date(booking.eventDate);
-
-    const { subject, html, text } = FIRST_TOUCH({
-      name: booking.name,
-      email: booking.email,
-      venueName: booking.venueName || "your venue",
-      eventDate,
+    const eventDateFormatted = eventDate.toLocaleDateString("en-GB", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
+
+    const { subject, html } = getJourneyEmail("enquiry-autoresponder", {
+      clientName: booking.name,
+      eventType: "event",
+      eventDate: eventDateFormatted,
+      venueName: booking.venueName ?? undefined,
+    });
+    const text = html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
 
     const sendResult = await sendEmail({
       to: booking.email,

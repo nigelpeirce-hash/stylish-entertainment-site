@@ -1401,6 +1401,9 @@ export default function BookingDetail() {
                           {assignment.confirmationEmailSent && (
                             <p className="text-xs text-green-400 mt-1">✓ Confirmation sent</p>
                           )}
+                          {assignment.acknowledgedAt && (
+                            <p className="text-xs text-emerald-400 mt-1">✓ Receipt confirmed</p>
+                          )}
                         </div>
                       ))}
                     </div>

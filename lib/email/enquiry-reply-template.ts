@@ -5,7 +5,7 @@
  */
 
 import { getGreetingName } from "@/lib/utils/name-helpers";
-import { SIGNATURE_BLOCK_HTML, CLIENT_SIGNOFF_TEXT } from "@/lib/email-signature";
+import { SIGNATURE_BLOCK_HTML, CLIENT_SIGNOFF_TEXT, EMAIL_LOGO_HTML } from "@/lib/email-signature";
 import { toSafeDisplayString } from "@/lib/transformers/booking-transformer";
 
 /** Minimal enquiry-like shape (NewEnquiry or booking-derived). */
@@ -83,7 +83,7 @@ export function buildEnquiryReplyEmail(params: {
 <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%);">
   <div style="background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.25);">
     <div style="text-align: center; margin-bottom: 32px;">
-      <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 220px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
+      ${EMAIL_LOGO_HTML}
       <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0;">Stylish Entertainment</p>
     </div>
     ${salutationHtml}

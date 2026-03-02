@@ -1,6 +1,6 @@
 import { Booking } from "@prisma/client";
 import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
-import { SIGNATURE_BLOCK_HTML, CLIENT_SIGNOFF_TEXT } from "@/lib/email-signature";
+import { SIGNATURE_BLOCK_HTML, CLIENT_SIGNOFF_TEXT, EMAIL_LOGO_HTML } from "@/lib/email-signature";
 
 /** Re-export for code that imports from email-templates. */
 export { CLIENT_SIGNOFF_TEXT } from "@/lib/email-signature";
@@ -263,7 +263,7 @@ export function depositEmailWeddingCelebration({
     <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%);">
       <div style="background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15); border: 1px solid ${GOLD}40;">
         <div style="text-align: center; margin-bottom: 32px;">
-          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 220px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
+          ${EMAIL_LOGO_HTML}
           <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 12px 0;">Stylish Entertainment</p>
           <p style="font-size: 14px; color: ${GOLD}; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; margin: 0;">Wedding Celebration</p>
         </div>
@@ -319,7 +319,7 @@ export function depositEmailEventConfirmed({
     <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%);">
       <div style="background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.25);">
         <div style="text-align: center; margin-bottom: 32px;">
-          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 220px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
+          ${EMAIL_LOGO_HTML}
           <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 12px 0;">Stylish Entertainment</p>
           <p style="font-size: 14px; color: ${GOLD}; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; margin: 0;">Event Confirmed</p>
         </div>
@@ -399,7 +399,7 @@ export function DEPOSIT_CONFIRMED({ booking, portalUrl }: { booking: DepositConf
     <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background: linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%);">
       <div style="background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(212, 175, 55, 0.15); border: 1px solid rgba(212, 175, 55, 0.25);">
         <div style="text-align: center; margin-bottom: 32px;">
-          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 220px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
+          ${EMAIL_LOGO_HTML}
           <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 12px 0;">Stylish Entertainment</p>
         </div>
         <div style="text-align: center; margin-bottom: 28px;">
@@ -487,7 +487,7 @@ export function depositInvoiceEmail({ booking, amount, reference, bankDetails, m
 
   const bank = bankDetails?.name && bankDetails?.sortCode && bankDetails?.accountNumber
     ? bankDetails
-    : { name: "Stylish Entertainment Ltd", sortCode: "12-34-56", accountNumber: "12345678", iban: "GB82WEST12345698765432", swift: "EXMPGB21" };
+    : { name: "Stylish Entertainment", sortCode: "20-05-06", accountNumber: "83312038", iban: "GB39 BARC2005 0683312038", swift: "BARCGB22" };
 
   const bankBlock = `
     <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: left; border: 1px solid #eee;">
@@ -522,7 +522,7 @@ export function depositInvoiceEmail({ booking, amount, reference, bankDetails, m
     <body style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto; padding: 20px; background: ${isWedding ? "linear-gradient(180deg, #fdf8f0 0%, #f5f0e8 100%)" : "#f8f9fa"};">
       <div style="background-color: #ffffff; border-radius: 12px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); border: 1px solid ${isWedding ? `${GOLD}40` : "#e5e7eb"};">
         <div style="text-align: center; margin-bottom: 28px;">
-          <img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 220px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
+          ${EMAIL_LOGO_HTML}
           <p style="font-size: 11px; color: #D4AF37; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; margin: 0 0 12px 0;">Stylish Entertainment</p>
           <p style="font-size: 14px; color: ${ACCENT}; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; margin: 0;">Deposit invoice</p>
         </div>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import confetti from "canvas-confetti";
@@ -238,14 +237,9 @@ export default function DemoGuestRequestPage() {
         {/* Brand Footer */}
         <footer className="border-t border-gray-800 py-8 px-4 mt-8">
           <div className="max-w-lg mx-auto text-center">
-            <Link href="/" className="inline-block mb-4">
-              <Image
-                src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png"
-                alt="Stylish Entertainment Ltd"
-                width={180}
-                height={56}
-                className="mx-auto brightness-[1.2]"
-              />
+            <Link href="/" className="inline-block mb-4 text-center">
+              <span className="block font-serif text-xl font-bold text-champagne-gold">Stylish</span>
+              <span className="block font-sans text-base font-medium text-gray-300 mt-0.5 tracking-wide">Entertainment</span>
             </Link>
             <p className="text-gray-400 text-sm mb-2">
               Professional Wedding DJs, Lighting Design & Venue Styling
@@ -457,14 +451,9 @@ export default function DemoGuestRequestPage() {
             Powered by
             <Sparkles className="w-4 h-4" />
           </p>
-          <Link href="/" className="inline-block mb-6">
-            <Image
-              src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png"
-              alt="Stylish Entertainment Ltd"
-              width={200}
-              height={62}
-              className="mx-auto brightness-[1.2]"
-            />
+          <Link href="/" className="inline-block mb-6 text-center">
+            <span className="block font-serif text-2xl font-bold text-champagne-gold">Stylish</span>
+            <span className="block font-sans text-lg font-medium text-white/90 mt-0.5 tracking-wide">Entertainment</span>
           </Link>
           <h3 className="text-white text-xl font-bold mb-3">
             Professional Wedding DJs & Lighting Design

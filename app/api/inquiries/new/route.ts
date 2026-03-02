@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
-import { FIRST_TOUCH } from "@/lib/email/templates";
+import { getJourneyEmail } from "@/lib/email-journey-templates";
 import sendEmail from "@/lib/email/send-email";
 import { getResendConfig } from "@/lib/email-config";
 import { Resend } from "resend";
@@ -78,14 +78,21 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Send Automated First Touch Email (shared template for consistency)
+    // Send New Enquiry Auto-Responder (same as contact form)
     try {
-      const { subject, html, text } = FIRST_TOUCH({
-        name,
-        email,
-        venueName: venuePostcode || "your venue",
-        eventDate: parsedEventDate,
+      const eventDateFormatted = parsedEventDate.toLocaleDateString("en-GB", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
       });
+      const { subject, html } = getJourneyEmail("enquiry-autoresponder", {
+        clientName: name,
+        eventType: eventType || "event",
+        eventDate: eventDateFormatted,
+        venueName: venuePostcode || undefined,
+      });
+      const text = html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
 
       await sendEmail({
         to: email,
