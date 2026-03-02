@@ -3,6 +3,8 @@ import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { FIRST_TOUCH } from "@/lib/email/templates";
 import sendEmail from "@/lib/email/send-email";
+import { getResendConfig } from "@/lib/email-config";
+import { Resend } from "resend";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -111,6 +113,57 @@ export async function POST(request: NextRequest) {
     } catch (notificationError) {
       console.error("Error sending mobile notification:", notificationError);
       // Don't fail the request if notification fails
+    }
+
+    // Send admin email notification (enquiry has no bookingId; link to new-enquiries)
+    try {
+      const recipientEmail = process.env.CONTACT_FORM_EMAIL || "info@stylishentertainment.co.uk";
+      const backupEmail = process.env.NOTIFICATION_EMAIL;
+      const recipients = [recipientEmail, ...(backupEmail && backupEmail !== recipientEmail ? [backupEmail] : [])];
+      const dateLabel = new Date(enquiry.eventDate).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+      const title = existingBooking ? "New enquiry (conflict flagged)" : "New enquiry";
+      const description = existingBooking
+        ? `${enquiry.name} – ${dateLabel} at ${enquiry.venuePostcode}. Potential conflict with existing booking.`
+        : `${enquiry.name} – ${dateLabel} at ${enquiry.venuePostcode}.`;
+      const baseUrl = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "https://stylishentertainment.co.uk";
+      const enquiryUrl = `${baseUrl}/admin/new-enquiries/${enquiry.id}`;
+      const subject = `[Stylish] ${title}`;
+      const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; padding: 20px;">
+          <h2 style="color: #1a1a1a; border-bottom: 2px solid #D4AF37; padding-bottom: 8px;">${title}</h2>
+          <p style="color: #333; line-height: 1.6;">${description.replace(/\n/g, "<br>")}</p>
+          <p><strong>Name:</strong> ${enquiry.name}</p>
+          <p><strong>Email:</strong> ${enquiry.email}</p>
+          <p><strong>Event date:</strong> ${dateLabel}</p>
+          <p><strong>Venue postcode:</strong> ${enquiry.venuePostcode}</p>
+          <p style="margin-top: 20px; font-size: 14px;">
+            <a href="${enquiryUrl}" style="color: #D4AF37; font-weight: bold;">View enquiry →</a>
+          </p>
+        </div>
+      `;
+      const apiKey = process.env.RESEND_API_KEY;
+      if (apiKey && apiKey !== "re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx" && apiKey.startsWith("re_") && apiKey.length >= 35) {
+        const resend = new Resend(apiKey);
+        const emailConfig = getResendConfig("general");
+        for (const to of recipients) {
+          const result = await resend.emails.send({
+            from: emailConfig.from,
+            replyTo: emailConfig.replyTo,
+            to: [to],
+            subject,
+            html,
+          });
+          if (result.data?.id && !result.error) {
+            console.log("[inquiries/new] Admin notification sent to", to);
+          }
+        }
+      } else {
+        await sendEmail({ to: recipientEmail, subject, html }).catch((err) =>
+          console.warn("[inquiries/new] Admin email fallback failed:", err)
+        );
+      }
+    } catch (adminEmailError) {
+      console.warn("Admin notification (new enquiry) failed:", adminEmailError);
     }
 
     return NextResponse.json({

@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
 import * as z from "zod";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
 // Force dynamic rendering to prevent database connection during build
 export const dynamic = 'force-dynamic';
@@ -152,7 +153,24 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // TODO: Send confirmation email here
+    try {
+      const eventDateLabel = booking.eventDate
+        ? new Date(booking.eventDate).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+        : undefined;
+      await notifyAdminSignificantEvent({
+        type: "booking_request_received",
+        bookingId: booking.id,
+        actor: "client",
+        title: "Book Your DJ – new booking",
+        description: `${validatedData.name} – ${(venueName || "Venue TBC").trim()}${eventDateLabel ? ` – ${eventDateLabel}` : ""}. From Book Your DJ form.`,
+        bookingName: validatedData.name ?? undefined,
+        venueName: (venueName && venueName !== "TBD") ? venueName : undefined,
+        eventDate: eventDateLabel,
+        linkText: "View booking",
+      });
+    } catch (e) {
+      console.warn("Admin notification (Book Your DJ) failed:", e);
+    }
 
     return NextResponse.json({ booking }, { status: 201 });
   } catch (error) {

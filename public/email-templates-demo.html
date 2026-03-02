@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Email Templates Demo – Stylish Entertainment</title>
+  <style>
+    :root {
+      --bg-page: #111827;
+      --bg-card: #1f2937;
+      --border: rgba(212, 175, 55, 0.3);
+      --gold: #d4af37;
+      --text: #fff;
+      --text-muted: #9ca3af;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg-page); font-family: system-ui, -apple-system, sans-serif; color: var(--text); line-height: 1.5; }
+    .banner {
+      background: rgba(212, 175, 55, 0.15);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      text-align: center;
+      font-size: 14px;
+      color: var(--gold);
+    }
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1rem 3rem; }
+    h1 { font-size: 1.75rem; margin: 0 0 0.5rem; color: var(--text); }
+    .subtitle { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; }
+    .nav { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2rem; }
+    .nav a {
+      display: inline-block;
+      padding: 0.4rem 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--gold);
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+    .nav a:hover { background: rgba(212, 175, 55, 0.15); }
+    section.template-section {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    section.template-section:last-child { border-bottom: 0; }
+    .template-header { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+    .template-header h2 { font-size: 1.25rem; margin: 0; color: var(--text); }
+    .badge { font-size: 0.7rem; padding: 0.2rem 0.5rem; border-radius: 4px; text-transform: uppercase; font-weight: 600; }
+    .badge.staff { background: rgba(168, 85, 247, 0.25); color: #c4b5fd; }
+    .badge.client { background: rgba(59, 130, 246, 0.25); color: #93c5fd; }
+    .trigger { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem; }
+    .email-preview {
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .email-preview iframe { display: block; width: 100%; min-height: 500px; height: 600px; border: 0; }
+  </style>
+</head>
+<body>
+  <div class="banner">Email Templates Demo – All client and staff email templates with mock data. Open locally or via dev server.</div>
+  <div class="container">
+    <h1>Email Templates</h1>
+    <p class="subtitle">Preview all CRM and journey email templates used by Stylish Entertainment.</p>
+    <nav class="nav" id="nav"></nav>
+    <main id="main"></main>
+  </div>
+  <script>
+(function() {
+  const SIGNATURE = '<div style="margin-top: 50px; padding-top: 30px; border-top: 1px solid #eeeeee; text-align: center; font-family: Helvetica, Arial, sans-serif; color: #444; line-height: 1.6;"><p style="font-family: Georgia, serif; font-size: 18px; font-style: italic; margin-bottom: 5px;">Kind Regards,</p><p style="font-family: Georgia, serif; font-size: 20px; margin: 0 0 20px;">Ali & Nige</p><p style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #888;">07970 793177 | info@stylishentertainment.co.uk | stylishentertainment.co.uk</p></div>';
+  const LOGO = '<img src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto/v1768162584/Rev-New-SE-Logo0_ow03mn.png" alt="STYLISH ENTERTAINMENT" style="max-width: 200px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />';
+  const HEADER = '<div style="text-align: center; padding-bottom: 20px;"><p style="font-size: 11px; font-weight: 600; letter-spacing: 3px; color: #D4AF37; margin: 0; text-transform: uppercase;">Stylish Entertainment</p><div style="height: 1px; background: #D4AF37; margin: 20px 0;"></div></div>';
+  const WRAP = (body) => `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>body{margin:0;padding:20px;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#1A1A1A;background:linear-gradient(180deg,#fdf8f0 0%,#f5f0e8 100%);}.c{max-width:600px;margin:0 auto;background:#fff;border-radius:12px;padding:40px;box-shadow:0 4px 20px rgba(212,175,55,0.15);border:1px solid rgba(212,175,55,0.25);}h1{font-size:28px;font-weight:600;color:#1A1A1A;margin:0 0 20px;}h2{font-size:22px;font-weight:600;margin:25px 0 15px;}p{margin:0 0 16px;color:#1A1A1A;}.btn{display:inline-block;padding:14px 28px;background:#D4AF37;color:#1A1A1A!important;text-decoration:none;border-radius:8px;font-weight:bold;font-size:16px;margin:20px 0;}</style></head><body><div class="c">${LOGO}${HEADER}<div class="content">${body}</div></div></body></html>`;
+
+  const templates = [
+    {
+      id: 'first-touch',
+      name: 'First Touch (Enquiry Thank You)',
+      category: 'client',
+      trigger: 'Sent when a new enquiry is received (venue and date from booking).',
+      html: WRAP(`<p style="font-family:Georgia,serif;font-size:18px;">Hi Emma,</p><p>Thanks for reaching out about <strong>Babington House</strong> on <strong>Saturday, 15 June 2024</strong>.</p><p>We're checking our talent availability and will get back to you shortly. We're excited to help make your event unforgettable.</p>${SIGNATURE}`)
+    },
+    {
+      id: 'enquiry-autoresponder',
+      name: 'New Enquiry Auto-Responder',
+      category: 'client',
+      trigger: 'Sent immediately when a new enquiry is submitted via contact or booking form.',
+      html: WRAP(`<h1>Thank You for Your Enquiry</h1><p>Dear Emma & James,</p><p>Thank you for getting in touch with Stylish Entertainment. We've received your enquiry and really appreciate you thinking of us for your wedding at Babington House.</p><p>We're excited to learn more about your vision and help bring it to life. We specialise in creating unforgettable celebrations with our expert DJ services, elegant lighting design, and sophisticated venue styling.</p><p>We'll be in touch within 24 hours to discuss your requirements in detail. In the meantime, if you have any questions, please don't hesitate to get in touch.</p>${SIGNATURE}`)
+    },
+    {
+      id: 'gentle-reminder',
+      name: 'Gentle Reminder (3-Day Follow-up)',
+      category: 'client',
+      trigger: 'Sent 3 days after initial enquiry if booking status is still pending.',
+      html: WRAP(`<h1>Just Following Up</h1><p>Dear Emma & James,</p><p>We hope you're well and enjoying planning your Wedding for Saturday, 15 June 2024 at Babington House.</p><p>We wanted to check in and see if you have any questions about our services or if there's anything we can help with. Planning an event can be overwhelming, and we're here to make it easier for you.</p><h2>We're Here to Help</h2><p>Whether you're still exploring your options, have questions about our packages, or want to discuss your vision, we'd love to chat.</p><p style="text-align:center;"><a href="https://stylishentertainment.co.uk/contact-us/" class="btn">Get in Touch</a></p>${SIGNATURE}`)
+    },
+    {
+      id: 'booking-confirmation',
+      name: 'Booking Confirmation',
+      category: 'client',
+      trigger: 'Sent when booking is confirmed (after deposit); includes bank details and "I\'ve paid" link.',
+      html: WRAP(`<h1>Booking Confirmed</h1><p>Dear Emma & James,</p><p>Lovely to hear from you again and many thanks for sending over your booking request.</p><p>I've spoken with James and he'd love to come and play for you.</p><p>Initially please pay the deposit of <strong>£150</strong> to secure James; the balance of <strong>£475</strong> is payable to James either in cash on the night or by BACS transfer two weeks before the wedding.</p><p>Once the payment has been made I will forward you a receipt along with a link to our portal. There you can add music requests and send a link to your guests so they can request songs too.</p><h2>Payment details</h2><p>Please pay the deposit of <strong>£150</strong> by bank transfer. Use the reference below so we can match your payment.</p><div style="background:#f9f9f9;border-radius:8px;padding:20px;margin:20px 0;border:1px solid #eee;"><p style="font-size:12px;text-transform:uppercase;letter-spacing:1px;color:#666;margin:0 0 12px;">Bank details</p><p style="margin:4px 0;"><strong>STYLISH Ent</strong></p><p style="margin:4px 0;"><strong>Account Number</strong> 83312038</p><p style="margin:4px 0;"><strong>Sort Code</strong> 20-05-06</p><p style="margin:12px 0 0 0;"><strong>Reference</strong> SE-12345678</p></div><p style="text-align:center;"><a href="#" class="btn">I've paid</a></p>${SIGNATURE}`)
+    },
+    {
+      id: 'deposit-received',
+      name: 'Deposit Received (Wedding Celebration)',
+      category: 'client',
+      trigger: 'Sent after client pays deposit; confirms date secured and portal access.',
+      html: WRAP(`<p style="font-size:14px;color:#D4AF37;font-weight:600;letter-spacing:0.15em;text-transform:uppercase;margin:0 0 12px;text-align:center;">Wedding Celebration</p><p style="font-size:22px;font-weight:500;color:#1A1A1A;text-align:center;margin:0 0 16px;">We've received your deposit — your date is secured.</p><p style="text-align:center;">Your wedding date, <strong style="color:#D4AF37;">Saturday, 15 June 2024</strong>, is confirmed. We'll be with you at <strong>Babington House</strong>.</p><p style="text-align:center;"><strong style="color:#D4AF37;">James</strong> is booked for your wedding.</p><div style="background:#faf8f5;border:1px solid rgba(212,175,55,0.3);border-radius:8px;padding:16px 20px;margin:24px 0;text-align:left;"><p style="font-size:14px;color:#666;margin:0 0 8px;">Amount paid: <strong>£150</strong></p><p style="font-size:14px;color:#666;margin:0;">Balance due: <strong>£475</strong></p></div><p style="text-align:center;">We can't wait for your big day.</p><p style="text-align:center;">Your personal wedding portal is ready — add your music must-plays, first dance song, and invite your guests to request songs.</p><p style="text-align:center;margin:36px 0;"><a href="#" class="btn">Access your portal</a></p>${SIGNATURE}`)
+    },
+    {
+      id: 'portal-invitation',
+      name: 'Portal Invitation',
+      category: 'client',
+      trigger: 'Sent when client is invited to the wedding/booking portal (magic link).',
+      html: WRAP(`<h1 style="font-size:24px;">Your Babington House Wedding Portal</h1><p>Hi Emma & James,</p><p>We've set up your personal planning portal for your wedding at <strong>Babington House</strong>. We've already added the key timings and venue details for you. This is where you can add music requests, dislikes, and your first dance song. Click below to access it.</p><p style="text-align:center;margin:36px 0;"><a href="#" class="btn">Access your portal</a></p><p style="font-size:14px;color:#666;">This link takes you straight to your portal. Save it for quick access anytime.</p>${SIGNATURE}`)
+    },
+    {
+      id: '4-week-checkin',
+      name: '4-Week Check-in',
+      category: 'client',
+      trigger: 'Sent automatically 4 weeks before event to request final music preferences.',
+      html: WRAP(`<h1>Let's Finalise Your Details</h1><p>Dear Emma & James,</p><p>With your Wedding at Babington House just four weeks away (Saturday, 15 June 2024), we'd like to make sure everything is perfectly organised.</p><h2>Music Preferences</h2><p>Now's the perfect time to share your music preferences, including:</p><ul style="margin:20px 0;padding-left:25px;"><li>Your must-play songs</li><li>Any songs you'd prefer to avoid</li><li>Special requests (first dance, ceremony music, etc.)</li></ul><p style="text-align:center;"><a href="#" class="btn">Update Your Music Preferences</a></p><h2>Final Logistics</h2><p>We also want to confirm a few final details to ensure everything runs smoothly on the day.</p>${SIGNATURE}`)
+    },
+    {
+      id: 'week-of-excitement',
+      name: "Week-of Excitement",
+      category: 'client',
+      trigger: 'Sent automatically 7 days before event as a "we\'re ready" message.',
+      html: WRAP(`<h1>We're Ready for You</h1><p>Dear Emma & James,</p><p>Your Wedding at Babington House is almost here! We can't wait to celebrate with you this coming weekend.</p><p>Everything is in place, and our team is ready to create a truly special atmosphere for you and your guests. We've reviewed all your preferences and are excited to bring your vision to life.</p><h2>See You Soon</h2><p>If you need to reach us in the days leading up to your event, we're always just an email or phone call away. Otherwise, we'll see you on Saturday, 15 June 2024!</p><p>Relax, enjoy, and let us take care of the entertainment.</p>${SIGNATURE}`)
+    },
+    {
+      id: 'final-chase',
+      name: 'Final Chase (3 Days Before)',
+      category: 'client',
+      trigger: 'Sent 3 days before event; magic link to portal (no login required).',
+      html: WRAP(`<h1>Final Details Needed – Your Event Is in 3 Days</h1><p>Dear Emma & James,</p><p>Your Wedding at Babington House is almost here (Saturday, 15 June 2024). We need to lock in your final details so everything runs smoothly on the day.</p><h2>Update Your Final Details Now</h2><p>Please confirm any last-minute changes, dietary requirements, timings, or special requests. Use the link below to access your portal instantly – no login required.</p><p style="text-align:center;margin:30px 0;"><a href="#" class="btn">CLICK TO ACCESS PORTAL NOW (No Login Required)</a></p>${SIGNATURE}`)
+    },
+    {
+      id: 'post-wedding-magic',
+      name: 'Post-Wedding Magic',
+      category: 'client',
+      trigger: 'Sent automatically 3 days after event to request feedback and reviews.',
+      html: WRAP(`<h1>Thank You for Choosing Us</h1><p>Dear Emma & James,</p><p>We hope your Wedding at Babington House was everything you dreamed of. It was an absolute pleasure to be part of your special day.</p><p>We'd love to hear about your experience. Your feedback helps us continue to create magical moments for couples like you.</p><h2>Share Your Experience</h2><p style="text-align:center;margin:30px 0;"><a href="#" class="btn">Leave a Google Review</a> &nbsp; <a href="https://www.instagram.com/stylishentertainment/" class="btn">Share on Instagram</a></p><p>We'd also love to see any photos from your day. Tag us @stylishentertainment on Instagram.</p>${SIGNATURE}`)
+    },
+    {
+      id: 'staff-confirmation',
+      name: 'Staff Confirmation (Hold Date)',
+      category: 'staff',
+      trigger: 'Sent when admin confirms a staff member for a booking via Confirm Job.',
+      html: `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>body{margin:0;padding:0;font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#1A1A1A;background:#fff}.ec{max-width:600px;margin:0 auto;background:#fff;border-top:2px solid #000}.hdr{padding:40px 30px 20px;text-align:center}.div{height:1px;background:#D4AF37;margin:20px 30px}.cnt{padding:30px}p{margin:0 0 16px;color:#1A1A1A}.hl{font-weight:500;color:#1A1A1A}.ft{padding:20px 30px;text-align:center;font-size:14px;border-top:1px solid #E5E5E5;margin-top:30px}a{color:#D4AF37;text-decoration:underline}</style></head><body><div class="ec"><div class="hdr">${LOGO}<p style="font-size:11px;color:#D4AF37;font-weight:600;letter-spacing:3px;text-transform:uppercase;margin:0;">Stylish Entertainment</p></div><div class="div"></div><div class="cnt"><p>Hi Sarah Johnson,</p><p>Nigel here from STYLISH Entertainment.</p><p>This is a formal confirmation to hold <span class="hl">Saturday, 15th June 2024</span> for <span class="hl">Babington House</span>.</p><p>We have you down for <span class="hl">Lighting Technician</span> at the agreed fee of <span class="hl">£350.00</span>.</p><p>Full production details and timings will follow closer to the date.</p><p>Please reply to this email to acknowledge.</p><p style="margin-top:30px;padding-top:20px;border-top:1px solid #e5e5e5;font-size:14px;color:#555;">Best regards,<br><strong>Nigel</strong><br>STYLISH Entertainment</p></div><div class="div"></div><div class="ft"><p style="margin-bottom:8px;">STYLISH Entertainment & Production</p><p style="margin-bottom:8px;">info@stylishentertainment.co.uk</p><p><a href="https://stylishentertainment.co.uk">stylishentertainment.co.uk</a></p></div></div></body></html>`
+    },
+    {
+      id: 'staff-cancellation',
+      name: 'Staff Cancellation',
+      category: 'staff',
+      trigger: 'Sent when admin cancels a staff assignment.',
+      html: `<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><style>body{margin:0;padding:0;font-family:Helvetica,Arial,sans-serif;font-size:16px;line-height:1.6;color:#1A1A1A;background:#fff}.ec{max-width:600px;margin:0 auto;background:#fff;border-top:2px solid #000}.hdr{padding:40px 30px 20px;text-align:center}.div{height:1px;background:#D4AF37;margin:20px 30px}.cnt{padding:30px}p{margin:0 0 16px;color:#1A1A1A}.reason{background:#f5f5f0;border-left:3px solid #D4AF37;padding:15px;margin:20px 0}.ft{padding:20px 30px;text-align:center;font-size:14px;border-top:1px solid #E5E5E5;margin-top:30px}a{color:#D4AF37;text-decoration:underline}</style></head><body><div class="ec"><div class="hdr">${LOGO}<p style="font-size:11px;color:#D4AF37;font-weight:600;letter-spacing:3px;text-transform:uppercase;margin:0;">Stylish Entertainment</p></div><div class="div"></div><div class="cnt"><p>Hi Sarah Johnson,</p><p>Nigel here from STYLISH Entertainment.</p><p>Unfortunately we need to cancel your assignment for <strong>Saturday, 15th June 2024</strong> at <strong>Babington House</strong> (<strong>Lighting Technician</strong>).</p><div class="reason"><p style="margin:0;"><strong>Reason:</strong> Client has changed their requirements and no longer requires lighting services.</p></div><p>We're sorry for any inconvenience. If you have any questions, please reply to this email.</p><p style="margin-top:30px;padding-top:20px;border-top:1px solid #e5e5e5;font-size:14px;color:#555;">Best regards,<br><strong>Nigel</strong><br>STYLISH Entertainment</p></div><div class="div"></div><div class="ft"><p style="margin-bottom:8px;">STYLISH Entertainment & Production</p><p><a href="https://stylishentertainment.co.uk">stylishentertainment.co.uk</a></p></div></div></body></html>`
+    },
+    {
+      id: 'final-brief',
+      name: 'Final Brief (Staff Dispatch)',
+      category: 'staff',
+      trigger: 'Sent when admin dispatches final details to staff (arrival, timings, setup, music).',
+      html: WRAP(`<h1>Final Brief – Babington House</h1><p>Hi James,</p><p>Please find your final details for <strong>Saturday, 15 June 2024</strong> below. If anything has changed, reply to this email.</p><h2>Event &amp; Venue</h2><p><strong>Venue:</strong> Babington House, Frome, Somerset BA11 3RW</p><p><strong>Arrival:</strong> 14:00 &nbsp; <strong>Start:</strong> 18:00 &nbsp; <strong>Finish:</strong> 00:00</p><p><strong>Setup location:</strong> Main marquee, near the dance floor</p><p><strong>Parking:</strong> Parking available at the rear of the venue</p><h2>Music</h2><p><strong>First dance:</strong> At Last – Etta James</p><p><strong>Last song:</strong> New York, New York – Frank Sinatra</p><p><strong>Requests:</strong> Jazz standards for cocktail hour, upbeat disco for reception</p><p><strong>Dislikes:</strong> No heavy metal or rap</p><p><strong>Notes:</strong> Please keep volume moderate during dinner service</p><p style="text-align:center;margin-top:30px;"><a href="#" class="btn">Confirm receipt</a></p>${SIGNATURE}`)
+    }
+  ];
+
+  const nav = document.getElementById('nav');
+  const main = document.getElementById('main');
+  templates.forEach(function(t) {
+    const a = document.createElement('a');
+    a.href = '#' + t.id;
+    a.textContent = t.name;
+    nav.appendChild(a);
+    const sec = document.createElement('section');
+    sec.className = 'template-section';
+    sec.id = t.id;
+    const badgeClass = t.category === 'staff' ? 'badge staff' : 'badge client';
+    sec.innerHTML = '<div class="template-header"><h2>' + t.name + '</h2><span class="' + badgeClass + '">' + t.category + '</span></div><p class="trigger">' + t.trigger + '</p><div class="email-preview"><iframe title="' + t.name + '"></iframe></div>';
+    const iframe = sec.querySelector('iframe');
+    iframe.srcdoc = t.html;
+    main.appendChild(sec);
+  });
+})();
+  </script>
+</body>
+</html>

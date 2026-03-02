@@ -10,6 +10,7 @@ import { logActivity } from "@/lib/activity-log";
 import { sendDepositInvoiceForBooking } from "@/lib/send-deposit-invoice";
 import { staffConfirmationEmail } from "@/lib/email-staff-confirmation";
 import { getResendConfig } from "@/lib/email-config";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -322,6 +323,27 @@ export async function POST(request: NextRequest) {
       } catch (e) {
         console.error("[confirm-from-quote] Artist confirmation email error:", e);
       }
+    }
+
+    try {
+      const eventDateLabel = eventDateObj.toLocaleDateString("en-GB", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      await notifyAdminSignificantEvent({
+        type: "quote_confirmed",
+        bookingId: payload.bookingId,
+        actor: "client",
+        title: "Quote confirmed (Book From Quote)",
+        description: `${name} confirmed their quote for ${eventDateLabel} at ${String(venueName).trim()}.`,
+        bookingName: name ?? undefined,
+        venueName: String(venueName).trim() || undefined,
+        eventDate: eventDateLabel,
+        linkText: "View booking",
+      });
+    } catch (e) {
+      console.warn("Admin notification (quote_confirmed) failed:", e);
     }
 
     return NextResponse.json({

@@ -25,7 +25,8 @@ export type SignificantEventType =
   | "enquiry_reply_sent"
   | "enquiry_converted"
   | "quote_confirmed"
-  | "final_payment_sent";
+  | "final_payment_sent"
+  | "guest_request_submitted";
 
 export interface NotifyAdminOptions {
   type: SignificantEventType;

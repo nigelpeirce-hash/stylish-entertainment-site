@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
 import { getToken } from "next-auth/jwt";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
 // Force dynamic rendering to prevent database connection during build
 export const dynamic = 'force-dynamic';
@@ -170,7 +171,24 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // TODO: Send email notification here
+    try {
+      const eventDateLabel = booking.eventDate
+        ? new Date(booking.eventDate).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+        : undefined;
+      await notifyAdminSignificantEvent({
+        type: "booking_request_received",
+        bookingId: booking.id,
+        actor: "client",
+        title: "Booking request received",
+        description: `${body.name} – ${(body.venueName || "Venue TBC").trim()}${eventDateLabel ? ` – ${eventDateLabel}` : ""}. From Booking Request Form (client portal).`,
+        bookingName: body.name ?? undefined,
+        venueName: (body.venueName && String(body.venueName).trim()) || undefined,
+        eventDate: eventDateLabel,
+        linkText: "View booking",
+      });
+    } catch (e) {
+      console.warn("Admin notification (booking_request_received) failed:", e);
+    }
 
     return NextResponse.json({ booking }, { status: 201 });
   } catch (error) {

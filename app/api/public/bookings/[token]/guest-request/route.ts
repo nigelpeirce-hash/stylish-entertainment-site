@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -27,13 +28,16 @@ export async function POST(
       return NextResponse.json({ error: "Song is required" }, { status: 400 });
     }
 
-    // Find booking by portalToken
+    // Find booking by portalToken (need name, venueName, eventDate for admin notification)
     const booking = await prisma.booking.findFirst({
       where: {
         portalToken: token,
       },
       select: {
         id: true,
+        name: true,
+        venueName: true,
+        eventDate: true,
       },
     });
 
@@ -80,6 +84,25 @@ export async function POST(
         status: "pending",
       },
     });
+
+    try {
+      const eventDateLabel = booking.eventDate
+        ? new Date(booking.eventDate).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+        : undefined;
+      await notifyAdminSignificantEvent({
+        type: "guest_request_submitted",
+        bookingId: booking.id,
+        actor: "client",
+        title: "Guest song request",
+        description: `"${songTitle}"${artist ? ` by ${artist}` : ""}${guestName?.trim() ? ` from ${guestName.trim()}` : ""}`,
+        bookingName: booking.name ?? undefined,
+        venueName: booking.venueName ?? undefined,
+        eventDate: eventDateLabel,
+        linkText: "View booking",
+      });
+    } catch (e) {
+      console.warn("Admin notification (guest_request_submitted) failed:", e);
+    }
 
     return NextResponse.json({ success: true, request: guestRequest }, { status: 201 });
   } catch (error) {
