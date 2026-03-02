@@ -4,10 +4,18 @@ import { prisma } from "@/lib/prisma";
 import { getJourneyEmail } from "@/lib/email-journey-templates";
 import sendEmail from "@/lib/email/send-email";
 import { getResendConfig } from "@/lib/email-config";
+import { getBrochureLink } from "@/lib/venue-assets";
 import { Resend } from "resend";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
+
+function getResend(): Resend | null {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey || apiKey === "re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx") return null;
+  if (!apiKey.startsWith("re_") || apiKey.length < 35) return null;
+  return new Resend(apiKey);
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -78,39 +86,69 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Send New Enquiry Auto-Responder (same as contact form)
+    // Send New Enquiry Auto-Responder (same path as contact form: Resend + booking config)
+    let autoresponderSent = false;
     try {
+      const resend = getResend();
+      const emailConfig = getResendConfig("booking");
       const eventDateFormatted = parsedEventDate.toLocaleDateString("en-GB", {
         weekday: "long",
         year: "numeric",
         month: "long",
         day: "numeric",
       });
+      let brochureUrl: string;
+      try {
+        brochureUrl = await getBrochureLink(null);
+      } catch {
+        brochureUrl = "https://res.cloudinary.com/stylish/brochures/general-stylish-brochure.pdf";
+      }
       const { subject, html } = getJourneyEmail("enquiry-autoresponder", {
         clientName: name,
         eventType: eventType || "event",
         eventDate: eventDateFormatted,
         venueName: venuePostcode || undefined,
-      });
-      const text = html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
-
-      await sendEmail({
-        to: email,
-        subject,
-        html,
-        text,
+        brochureUrl,
       });
 
-      // Update enquiry with email sent status
-      await prisma.newEnquiry.update({
-        where: { id: enquiry.id },
-        data: {
-          firstTouchEmailSent: true,
-          firstTouchEmailSentAt: new Date(),
-        },
-      });
+      if (!resend) {
+        console.error("❌ [inquiries/new] RESEND_API_KEY not set – client autoresponder not sent to:", email);
+      } else {
+        console.log("📧 [inquiries/new] Sending New Enquiry Auto-Responder to:", email);
+        const result = await resend.emails.send({
+          from: emailConfig.from,
+          replyTo: emailConfig.replyTo,
+          to: [email],
+          subject,
+          html,
+        });
+        const messageId = result.data?.id;
+        if (result.error || !messageId) {
+          console.error("❌ [inquiries/new] Autoresponder send failed:", {
+            to: email,
+            error: result.error,
+            response: JSON.stringify(result, null, 2),
+          });
+        } else {
+          console.log("✅ [inquiries/new] Autoresponder sent to:", email, "messageId:", messageId);
+          autoresponderSent = true;
+        }
+      }
+
+      if (autoresponderSent) {
+        await prisma.newEnquiry.update({
+          where: { id: enquiry.id },
+          data: {
+            firstTouchEmailSent: true,
+            firstTouchEmailSentAt: new Date(),
+          },
+        });
+      }
     } catch (emailError) {
-      console.error("Error sending first touch email:", emailError);
+      console.error("❌ [inquiries/new] Error sending client New Enquiry Auto-Responder:", {
+        to: email,
+        error: emailError instanceof Error ? emailError.message : String(emailError),
+      });
       // Don't fail the request if email fails
     }
 

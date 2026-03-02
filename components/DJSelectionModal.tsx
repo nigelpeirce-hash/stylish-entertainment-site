@@ -33,6 +33,10 @@ export default function DJSelectionModal({
   const [hoveredDJ, setHoveredDJ] = useState<string | null>(null);
   const artistsToShow =
     quoteArtistNames && quoteArtistNames.length > 0 ? quoteArtistNames : djList;
+  // Once a specific DJ/musician is selected, don't show "Not sure yet" – it's no longer an option
+  const hasSelectedSpecificDJ =
+    selectedDJ != null && selectedDJ !== "" && selectedDJ !== "Not sure yet";
+  const showNotSureYet = !hasSelectedSpecificDJ && !(quoteArtistNames && quoteArtistNames.length > 0);
 
   const handleSelect = (djName: string | null) => {
     onSelect(djName);
@@ -55,37 +59,41 @@ export default function DJSelectionModal({
           <DialogDescription className="text-gray-400">
             {quoteArtistNames?.length
               ? "Select the artist from your quote you'd like to book"
-              : "Choose a DJ or \"Not sure yet\" and we'll help you find the perfect match"}
+              : hasSelectedSpecificDJ
+                ? "Change your preferred DJ if needed"
+                : "Choose a DJ or \"Not sure yet\" and we'll help you find the perfect match"}
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
-          {/* "Not sure yet" - full-width tile */}
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            onClick={() => handleSelect("Not sure yet")}
-            onMouseEnter={() => setHoveredDJ("Not sure yet")}
-            onMouseLeave={() => setHoveredDJ(null)}
-            className={`rounded-xl border-2 cursor-pointer transition-all w-full min-h-[80px] p-4 flex items-center ${
-              selectedDJ === "Not sure yet" ? selectedStyles : hoveredDJ === "Not sure yet" ? hoverStyles : defaultStyles
-            }`}
-          >
-            <div className="flex items-center justify-between w-full gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gray-600/40 flex items-center justify-center shrink-0">
-                  <Music className="w-5 h-5 text-gray-400" />
+          {/* "Not sure yet" – only show when no specific DJ selected and not from quote */}
+          {showNotSureYet && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              onClick={() => handleSelect("Not sure yet")}
+              onMouseEnter={() => setHoveredDJ("Not sure yet")}
+              onMouseLeave={() => setHoveredDJ(null)}
+              className={`rounded-xl border-2 cursor-pointer transition-all w-full min-h-[80px] p-4 flex items-center ${
+                selectedDJ === "Not sure yet" ? selectedStyles : hoveredDJ === "Not sure yet" ? hoverStyles : defaultStyles
+              }`}
+            >
+              <div className="flex items-center justify-between w-full gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-gray-600/40 flex items-center justify-center shrink-0">
+                    <Music className="w-5 h-5 text-gray-400" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-white">Not sure yet</h3>
+                    <p className="text-xs text-gray-400">We&apos;ll help you choose</p>
+                  </div>
                 </div>
-                <div className="text-left">
-                  <h3 className="font-semibold text-white">Not sure yet</h3>
-                  <p className="text-xs text-gray-400">We&apos;ll help you choose</p>
-                </div>
+                {selectedDJ === "Not sure yet" && (
+                  <div className="w-5 h-5 rounded-full bg-champagne-gold border-2 border-champagne-gold shrink-0" />
+                )}
               </div>
-              {selectedDJ === "Not sure yet" && (
-                <div className="w-5 h-5 rounded-full bg-champagne-gold border-2 border-champagne-gold shrink-0" />
-              )}
-            </div>
-          </motion.div>
+            </motion.div>
+          )}
 
           {/* 2x2 grid: quote artists or full DJ list */}
           <h4 className="text-sm font-semibold text-gray-400 uppercase tracking-wide">

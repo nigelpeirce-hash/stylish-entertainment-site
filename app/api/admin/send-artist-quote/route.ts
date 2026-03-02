@@ -394,10 +394,10 @@ export async function POST(request: NextRequest) {
     const bookingFormUrl = `${baseUrl}/book-dj?quote=${encodeURIComponent(quoteToken)}`;
     const followUp =
       hasDJ && hasMusician
-        ? "<p>All our DJs and musicians are available on your date. If you'd like to discuss further or arrange a quick call, just let us know!</p>"
+        ? "<p>All our DJs and musicians are available on your date. If you'd like to discuss further or arrange a quick call, just let us know by replying to this email.</p>"
         : hasDJ
-          ? "<p>All our DJs are available on your date. If you'd like to discuss further or arrange a quick call, just let us know!</p>"
-          : "<p>All our musicians are available on your date. If you'd like to discuss further or arrange a quick call, just let us know!</p>";
+          ? "<p>All our DJs are available on your date. If you'd like to discuss further or arrange a quick call, just let us know by replying to this email.</p>"
+          : "<p>All our musicians are available on your date. If you'd like to discuss further or arrange a quick call, just let us know by replying to this email.</p>";
 
     const emailHtml = `
       <!DOCTYPE html>
@@ -450,7 +450,7 @@ export async function POST(request: NextRequest) {
       </html>
     `;
 
-    // Send email
+    // Send email (replyTo ensures client replies go to office inbox and thread in admin)
     const emailConfig = getResendConfig("booking");
     const resend = getResend();
     
@@ -460,7 +460,7 @@ export async function POST(request: NextRequest) {
     if (resend) {
       const sendResult = await resend.emails.send({
         from: emailConfig.from,
-        replyTo: emailConfig.replyTo,
+        replyTo: emailConfig.replyTo, // info@... so replies thread in admin inbox
         to: [clientEmail],
         subject: emailSubject,
         html: emailHtml,

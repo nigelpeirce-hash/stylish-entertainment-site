@@ -4,12 +4,12 @@ import { Resend } from "resend";
 // Validation happens at runtime when sendEmail is called
 let resend: Resend | null = null;
 
-// Check if we're in a build context (Next.js build process)
+// Check if we're in a build context (Next.js build process).
+// Only treat as build when NEXT_PHASE is set – never mock at runtime when key is missing.
 function isBuildTime(): boolean {
   return (
     process.env.NEXT_PHASE === 'phase-production-build' ||
-    process.env.NEXT_PHASE === 'phase-production-compile' ||
-    !process.env.RESEND_API_KEY // If env vars aren't set, assume build time
+    process.env.NEXT_PHASE === 'phase-production-compile'
   );
 }
 
