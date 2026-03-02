@@ -203,17 +203,17 @@ export default function HomeClient() {
       <section className="relative py-12 md:py-20 flex items-center justify-center bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 text-white overflow-hidden">
         <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
           <div className="inline-block mb-6 px-6 py-2 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
-            <span className="text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase">Stylish Entertainment & Production</span>
+            <span className="text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase">Luxury Event Production</span>
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
-            Exceptional <span className="text-gradient">Entertainment</span>
+            Entertainment & <span className="text-gradient">Production</span> Studio
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold leading-relaxed px-4 drop-shadow-md mb-8">
-            Professional DJs, musicians, lighting design and venue styling for weddings, parties and events. DJs and musicians UK-wide; lighting and styling in the South West and beyond. Strictly no YMCA.
+            DJs and musicians UK-wide. Lighting design, venue styling and technical production in the South West and beyond. Weddings, private parties, corporate. Confident, crafted—strictly no YMCA.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button asChild variant="outline" size="lg" className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 hover:scale-105 transition-all duration-300">
-              <Link href="/artists">Meet Our DJs</Link>
+              <Link href="/artists/djs/">Meet Our DJs</Link>
             </Button>
           </div>
         </div>
@@ -226,11 +226,14 @@ export default function HomeClient() {
             <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/20">
               <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">The Stylish Difference</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans font-bold text-white mb-6 md:mb-8 px-4">What sets our DJs apart</h2>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans font-bold text-white mb-6 md:mb-8 px-4">What sets us apart</h2>
             <div className="text-left space-y-5 text-base sm:text-lg md:text-xl text-gray-300 leading-relaxed">
-              <p>Let&apos;s be honest: the right vibe is everything. Whether you&apos;re dreaming of a sleek, high-energy solo DJ to anchor the night or the show-stopping magic of our festival trio—featuring live saxophone and percussion—we curate a high-end atmosphere that feels effortlessly vibrant.</p>
-              <p>We pride ourselves on our ability to read the crowd and cater to everyone&apos;s musical tastes, from the music lovers to your Great Aunt Betty. Best of all, we&apos;ve officially retired the &quot;wedding cheese.&quot; You can consider us a cliché-free zone: you won&apos;t hear The Macarena or YMCA on our watch; instead, we focus on a fresh, signature soundscape tailored specifically to your taste. It&apos;s your night—let&apos;s make it legendary.</p>
+              <p>We&apos;re a boutique production studio: DJs and musicians are the entry point; the identity is full event production. Our artists read the room and build a bespoke soundtrack—from solo DJ sets to our festival-style trio (DJ, sax and percussion). Add lighting design and venue styling in the South West and you get one team, one vision.</p>
+              <p>Cheese-free zone: no Macarena, no YMCA. Confident, crafted entertainment and production for weddings, private parties and corporate events. Your night, done right.</p>
             </div>
+            <p className="text-center text-gray-400 text-sm sm:text-base mt-8">
+              Explore by region: <Link href="/luxury-wedding-entertainment-south-west/" className="text-champagne-gold hover:text-champagne-gold/80 underline">Luxury Wedding Entertainment South West</Link> · <Link href="/wedding-production-london/" className="text-champagne-gold hover:text-champagne-gold/80 underline">Wedding Production London</Link>
+            </p>
           </motion.div>
         </div>
       </section>
@@ -242,7 +245,7 @@ export default function HomeClient() {
               <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Our Services</span>
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4">What We <span className="text-gradient">Do</span></h2>
-            <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">Comprehensive entertainment services for weddings, parties and events to make every celebration unforgettable</p>
+            <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">Artists, lighting design, venue styling, technical production and hire—everything you need to make every celebration unforgettable</p>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
             {services.map((service, index) => (
@@ -276,7 +279,7 @@ export default function HomeClient() {
           <TestimonialsSection />
           <div className="text-center mt-12">
             <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
-              <Link href="/testi">Read All Testimonials</Link>
+              <Link href="/testi/">Read All Testimonials</Link>
             </Button>
           </div>
         </div>
@@ -293,7 +296,7 @@ export default function HomeClient() {
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.1 }}>
-              <Link href="/about">
+              <Link href="/about/">
                 <Card className="bg-gray-900 border-champagne-gold/30 h-full hover:border-champagne-gold/60 transition-all duration-300 cursor-pointer group">
                   <CardContent className="p-6 sm:p-8">
                     <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700 group-hover:scale-105 transition-transform duration-300">
@@ -308,7 +311,7 @@ export default function HomeClient() {
               </Link>
             </motion.div>
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }}>
-              <Link href="/about">
+              <Link href="/about/">
                 <Card className="bg-gray-900 border-champagne-gold/30 h-full hover:border-champagne-gold/60 transition-all duration-300 cursor-pointer group">
                   <CardContent className="p-6 sm:p-8">
                     <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700 group-hover:scale-105 transition-transform duration-300">
@@ -325,7 +328,7 @@ export default function HomeClient() {
           </div>
           <div className="text-center mt-12">
             <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
-              <Link href="/about">Learn More About Us</Link>
+              <Link href="/about/">Learn More About Us</Link>
             </Button>
           </div>
         </div>

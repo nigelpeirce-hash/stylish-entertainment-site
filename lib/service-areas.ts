@@ -40,7 +40,7 @@ export const EDITORIAL_SERVICE_REGIONS: EditorialServiceRegion[] = [
 /** Headline and sub-headline for editorial service areas block. */
 export const EDITORIAL_SERVICE_HEADLINE = {
   headline: "Nationwide Reach. Local Expertise.",
-  subheadline: "Based in the West Country, our teams are on the road weekly, bringing the STYLISH vibe to prestigious venues across the UK and Europe.",
+  subheadline: "From the South West & Cotswolds we travel UK-wide for weddings, private parties and corporate events—bringing the Stylish vibe to prestigious venues across the UK and beyond.",
 };
 
 export function getEditorialServiceRegions(): EditorialServiceRegion[] {

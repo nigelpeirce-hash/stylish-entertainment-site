@@ -9,7 +9,7 @@ export default function Artists() {
   useEffect(() => {
     document.title = "Artists | Stylish Entertainment";
     // Redirect to DJs page as default
-    router.push("/artists/djs");
+    router.push("/artists/djs/");
   }, [router]);
 
   return (

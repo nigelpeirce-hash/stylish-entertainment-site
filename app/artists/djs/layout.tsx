@@ -3,18 +3,17 @@ import { createMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createMetadata({
-    title: "Professional Event & Wedding DJs",
+    title: "DJs & Live DJ Acts UK-Wide | Stylish Entertainment",
     description:
-      "Meet our world-class DJ roster. Professional wedding and event DJs with state-of-the-art equipment, seamless mixing and an unparalleled ability to read the room. Trusted by Babington House and premium venues across the UK.",
+      "Boutique wedding DJs and live DJ acts for weddings, private parties and corporate events across the UK. South West, Cotswolds and nationwide.",
     pathname: "artists/djs",
     keywords: [
       "Wedding DJs",
-      "Professional DJs UK",
-      "Event DJs",
-      "Babington House DJ",
-      "Wedding Entertainment",
+      "Event DJs UK",
       "Party DJs",
       "Corporate DJs",
+      "Wedding Entertainment",
+      "Live DJ acts",
     ],
   });
 }

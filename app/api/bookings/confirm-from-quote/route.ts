@@ -10,6 +10,7 @@ import { sendDepositInvoiceForBooking } from "@/lib/send-deposit-invoice";
 import { staffConfirmationEmail } from "@/lib/email-staff-confirmation";
 import { getResendConfig } from "@/lib/email-config";
 import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
+import { TERMS_VERSION } from "@/lib/terms-content";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -140,6 +141,7 @@ export async function POST(request: NextRequest) {
       termsAccepted: true,
       termsAcceptedAt: new Date(),
       termsAcceptedByUserId: null,
+      termsAcceptedVersion: TERMS_VERSION,
       confirmedViaBookFromQuote: true,
       status: booking.status === "pending" ? "confirmed" : undefined,
       updatedAt: new Date(),

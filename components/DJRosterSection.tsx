@@ -151,10 +151,10 @@ export default function DJRosterSection() {
           className="text-center mb-12"
         >
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4">
-            Our <span className="text-gradient">DJs</span>
+            Meet Our <span className="text-gradient">DJs</span>
           </h2>
           <p className="text-base sm:text-lg md:text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed px-4">
-            Each DJ brings their unique style and expertise to create the perfect atmosphere
+            Hand-picked for weddings, private parties and corporate events—each brings a distinct sound and the same premium standard.
           </p>
         </motion.div>
 

@@ -3,8 +3,8 @@ import { testimonials } from "@/data/testimonials";
 import HomeClient from "./HomeClient";
 
 export const metadata = createMetadata({
-  title: "Stylish Entertainment & Production | Professional DJs, Lighting Design & Venue Styling",
-  description: "Exceptional entertainment for weddings, parties and events. Professional DJs and musicians UK-wide; lighting design and venue styling in the South West and beyond. Strictly no YMCA.",
+  title: "Stylish Entertainment & Production | Luxury Event Production & Entertainment",
+  description: "Luxury event production studio: DJs and musicians UK-wide; lighting design, venue styling and technical production. Weddings, private parties, corporate. Confident, crafted, no YMCA.",
   pathname: "",
 });
 
@@ -17,7 +17,7 @@ export default function HomePage() {
     "@id": `${baseUrl}/#localbusiness`,
     name: "Stylish Entertainment",
     url: baseUrl,
-    description: "Exceptional entertainment for weddings, parties and events. Professional DJs and musicians UK-wide; lighting design and venue styling in the South West and beyond.",
+    description: "Creative entertainment and event production: Artists (DJs and musicians) UK-wide; lighting design, venue styling and technical production in the South West and beyond.",
     telephone: "+44 7970 793177",
     address: {
       "@type": "PostalAddress",

@@ -24,9 +24,7 @@ export function createMetadata(metadata: {
     images?: Array<{ url: string; width?: number; height?: number; alt: string }>;
   };
 }): Metadata {
-  const canonical = metadata.pathname 
-    ? generateCanonicalUrl(metadata.pathname)
-    : baseUrl;
+  const canonical = generateCanonicalUrl(metadata.pathname ?? "");
 
   return {
     title: metadata.title,

@@ -14,8 +14,9 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { FileText, Download } from "lucide-react";
 import {
-  TERMS_SECTIONS,
   TERMS_LAST_UPDATED,
+  TERMS_INTRO,
+  getTermsSectionsForDisplay,
   PRIVACY_LINK_PLACEHOLDER,
 } from "@/lib/terms-content";
 import {
@@ -33,7 +34,7 @@ export interface AcceptTermsModuleProps {
   disabled?: boolean;
   /** Show "Download quote summary PDF" button; requires quoteSummary */
   showDownloadPdf?: boolean;
-  /** Data for the quote summary PDF (date, event, venue, DJ) */
+  /** Data for the quote summary PDF (date, event, venue, Artist) */
   quoteSummary?: QuoteSummaryData;
   /** Validation error message (e.g. "You must accept the Terms & Conditions") */
   error?: string;
@@ -164,6 +165,7 @@ export function AcceptTermsModule({
                     })}
                   </p>
                 </DialogHeader>
+                <p className="mt-4 text-gray-300 leading-relaxed">{TERMS_INTRO}</p>
                 {bookingSummary && (bookingSummary.venueName || bookingSummary.eventDate || bookingSummary.fee != null || (bookingSummary.talent?.length ?? 0) > 0) && (
                   <div className="mt-4 p-4 rounded-lg bg-gray-800/80 border border-gray-700">
                     <p className="text-sm font-semibold text-champagne-gold mb-3">Your booking summary</p>
@@ -185,7 +187,7 @@ export function AcceptTermsModule({
                   </div>
                 )}
                 <div className="mt-4 space-y-6 text-gray-300">
-                  {TERMS_SECTIONS.map((section) => (
+                  {getTermsSectionsForDisplay(true).map((section) => (
                     <div key={section.id}>
                       <h2 className="text-lg font-bold text-champagne-gold mt-4 mb-2">
                         {section.heading}
@@ -232,7 +234,7 @@ export function AcceptTermsModule({
                     .
                   </p>
                   <Link
-                    href="/terms-and-conditions"
+                    href="/terms-and-conditions/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-block text-sm text-champagne-gold hover:underline"

@@ -3,8 +3,8 @@
 import { useCallback, useState, useEffect } from "react";
 import Link from "next/link";
 import {
-  TERMS_SECTIONS,
   TERMS_ABRIDGED,
+  getTermsSectionsForDisplay,
   DEPOSIT_CLAUSE,
   COMPANY_NAME,
   COMPANY_ADDRESS,
@@ -111,7 +111,7 @@ export default function TermsPortalFlowDemoPage() {
         </Link>
       </p>
       <div className="mb-4 space-y-4">
-        {TERMS_SECTIONS.map((section) => (
+        {getTermsSectionsForDisplay(true).map((section) => (
           <div key={section.id}>
             <strong>{section.heading}</strong>
             <p className="mt-1">{renderSectionBody(section)}</p>
