@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { motion } from "framer-motion";
 import { Calendar, User, Mail, Phone, MapPin, Home, Music, Mic2, CheckCircle2 } from "lucide-react";
 import { AcceptTermsModule } from "@/components/AcceptTermsModule";
@@ -33,11 +34,16 @@ const schema = z.object({
   venueTown: z.string().optional(),
   venueCounty: z.string().optional(),
   venuePostcode: z.string().optional(),
+  earlySetupRequired: z.boolean().optional(),
+  addMusicians: z.boolean().optional(),
 });
 
 type FormData = z.infer<typeof schema>;
 
 const eventTypes = ["Wedding", "Private Party", "Corporate Event", "Christmas Party", "Other"];
+
+/** Upsell label for early setup – stored in booking.upsellItems and shown in admin */
+const EARLY_SETUP_UPSELL_LABEL = "Early Setup (before event) – £120";
 
 interface Prefill {
   bookingId: string;
@@ -102,6 +108,8 @@ function BookFromQuoteContent() {
       venueTown: "",
       venueCounty: "",
       venuePostcode: "",
+      earlySetupRequired: false,
+      addMusicians: false,
     },
   });
 
@@ -184,6 +192,8 @@ function BookFromQuoteContent() {
           venueTown: form.venueTown?.trim() || undefined,
           venueCounty: form.venueCounty?.trim() || undefined,
           venuePostcode: form.venuePostcode || undefined,
+          earlySetupRequired: form.earlySetupRequired ?? false,
+          addMusicians: form.addMusicians ?? false,
           selectedStaffId: prefill?.staffId ?? undefined,
           fee: prefill?.fee ?? undefined,
           termsAccepted: true,
@@ -504,6 +514,29 @@ function BookFromQuoteContent() {
                         />
                       </div>
                     </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4 border-b border-gray-700 pb-6">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="addMusicians"
+                      checked={watch("addMusicians") ?? false}
+                      onCheckedChange={(checked) => setValue("addMusicians", checked === true)}
+                    />
+                    <Label htmlFor="addMusicians" className="cursor-pointer text-gray-200">
+                      Add musicians
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="earlySetupRequired"
+                      checked={watch("earlySetupRequired") ?? false}
+                      onCheckedChange={(checked) => setValue("earlySetupRequired", checked === true)}
+                    />
+                    <Label htmlFor="earlySetupRequired" className="cursor-pointer text-gray-200">
+                      Early setup required at £120
+                    </Label>
                   </div>
                 </div>
 

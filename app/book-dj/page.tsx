@@ -47,6 +47,8 @@ const bookingSchema = z.object({
   // Booking Details
   message: z.string().optional(),
   agreedFee: z.string().optional(),
+  earlySetupRequired: z.boolean().optional(),
+  musiciansRequired: z.boolean().optional(),
   services: z.array(z.string()).min(1, "Please select your preferred DJ"),
 
   // Account Creation
@@ -64,6 +66,9 @@ const bookingSchema = z.object({
 });
 
 type BookingFormData = z.infer<typeof bookingSchema>;
+
+/** Upsell label for early setup – stored in booking.upsellItems and shown in admin */
+const EARLY_SETUP_UPSELL_LABEL = "Early Setup (before event) – £120";
 
 const eventTypes = [
   "Wedding",
@@ -106,6 +111,8 @@ function BookDJPageContent() {
       email: session?.user?.email || "",
       eventType: searchParams?.get("type") || "wedding",
       createAccount: false,
+      earlySetupRequired: false,
+      musiciansRequired: false,
     },
   });
 
@@ -240,11 +247,14 @@ function BookDJPageContent() {
           venueCounty: data.venueCounty?.trim() || undefined,
           venuePostcode: data.venuePostcode?.trim() || undefined,
           numberOfGuests: data.numberOfGuests ? parseInt(data.numberOfGuests) : null,
-          services: ["DJs"], // Artist chosen = DJ service
+          services: data.musiciansRequired ? ["DJs", "Musicians"] : ["DJs"],
           message: data.message,
           agreedFee: data.agreedFee?.trim() || undefined,
           preferredDJ: selectedDJ,
-          upsellItems: selectedUpsells,
+          upsellItems: [
+            ...(data.earlySetupRequired ? [EARLY_SETUP_UPSELL_LABEL] : []),
+            ...selectedUpsells.filter((u) => u !== EARLY_SETUP_UPSELL_LABEL),
+          ],
           termsAccepted,
         }),
       });
@@ -696,6 +706,29 @@ function BookDJPageContent() {
                   />
                 </div>
 
+                <div className="space-y-4 border-b border-gray-700 pb-6">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="musiciansRequired"
+                      checked={watch("musiciansRequired") ?? false}
+                      onCheckedChange={(checked) => setValue("musiciansRequired", checked === true)}
+                    />
+                    <Label htmlFor="musiciansRequired" className="cursor-pointer text-gray-200">
+                      Add musicians
+                    </Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="earlySetupRequired"
+                      checked={watch("earlySetupRequired") ?? false}
+                      onCheckedChange={(checked) => setValue("earlySetupRequired", checked === true)}
+                    />
+                    <Label htmlFor="earlySetupRequired" className="cursor-pointer text-gray-200">
+                      Early setup required at £120
+                    </Label>
+                  </div>
+                </div>
+
                 {/* Your preferred DJ – artist choice = DJ service (only when not from quote) */}
                 {(!quoteArtistNames || quoteArtistNames.length === 0) && (
                   <div className="space-y-4 border-b border-gray-700 pb-6">
@@ -740,10 +773,10 @@ function BookDJPageContent() {
                   <p className="text-sm text-red-400">{errors.services.message}</p>
                 )}
 
-                {/* Upsell – shown when they&apos;ve chosen an artist (DJ service) */}
+                {/* Upsell – shown when they've chosen an artist (DJ service) */}
                 {selectedDJ && (
                   <UpsellSection
-                    selectedServices={["DJs"]}
+                    selectedServices={watch("musiciansRequired") ? ["DJs", "Musicians"] : ["DJs"]}
                     selectedUpsells={selectedUpsells}
                     onUpsellChange={setSelectedUpsells}
                   />

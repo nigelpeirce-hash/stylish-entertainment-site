@@ -42,6 +42,8 @@ export async function POST(request: NextRequest) {
       venueTown,
       venueCounty,
       venuePostcode,
+      earlySetupRequired,
+      addMusicians,
       selectedStaffId,
       termsAccepted,
       fee,
@@ -68,6 +70,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const EARLY_SETUP_UPSELL_LABEL = "Early Setup (before event) – £120";
+
     const booking = await prisma.booking.findUnique({
       where: { id: payload.bookingId },
       select: {
@@ -75,6 +79,8 @@ export async function POST(request: NextRequest) {
         email: true,
         archivedAt: true,
         status: true,
+        services: true,
+        upsellItems: true,
       },
     });
 
@@ -143,6 +149,15 @@ export async function POST(request: NextRequest) {
     if (clientTown != null) updateData.clientTown = String(clientTown).trim() || null;
     if (clientCounty != null) updateData.clientCounty = String(clientCounty).trim() || null;
     if (clientPostcode != null) updateData.clientPostcode = String(clientPostcode).trim() || null;
+
+    const currentServices = Array.isArray(booking.services) ? booking.services : [];
+    if (addMusicians === true && !currentServices.includes("Musicians")) {
+      updateData.services = [...currentServices, "Musicians"];
+    }
+    const currentUpsells = Array.isArray(booking.upsellItems) ? booking.upsellItems : [];
+    if (earlySetupRequired === true && !currentUpsells.some((u) => String(u).includes("Early Setup"))) {
+      updateData.upsellItems = [...currentUpsells, EARLY_SETUP_UPSELL_LABEL];
+    }
 
     await prisma.$transaction(async (tx) => {
       await tx.booking.update({
