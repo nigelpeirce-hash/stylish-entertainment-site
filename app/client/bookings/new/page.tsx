@@ -1,7 +1,7 @@
 "use client";
 
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,35 +14,37 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import DJSelectionModal from "@/components/DJSelectionModal";
 import UpsellSection from "@/components/UpsellSection";
 
 const bookingSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Please enter a valid email address"),
   phone: z.string().optional(),
+  clientAddress: z.string().optional(),
+  clientAddress2: z.string().optional(),
+  clientTown: z.string().optional(),
+  clientPostcode: z.string().optional(),
   eventType: z.string().min(1, "Please select an event type"),
   eventDate: z.string().min(1, "Please provide your event date"),
+  eventStartTime: z.string().optional(),
+  eventEndTime: z.string().optional(),
   venueName: z.string().min(2, "Venue name is required"),
   venuePostcode: z.string().optional(),
+  venueAddress: z.string().optional(),
+  venueAddress2: z.string().optional(),
+  venueTown: z.string().optional(),
+  venueCounty: z.string().optional(),
   numberOfGuests: z.string().optional(),
-  services: z.array(z.string()).min(1, "Please select at least one service"),
+  services: z.array(z.string()).optional(),
   message: z.string().optional(),
-  budget: z.string().optional(),
-  contactPreference: z.enum(["Phone", "Email"]).optional(),
+  agreedFee: z.string().optional(),
+  earlySetupRequired: z.boolean().optional(),
 });
 
 type BookingFormData = z.infer<typeof bookingSchema>;
 
-const serviceOptions = [
-  "DJs",
-  "Musicians",
-  "Lighting Design",
-  "Kit Hire",
-  "Fire-Pits",
-  "Venue Styling",
-  "Party Planning",
-];
+/** Upsell label for early setup – stored in booking.upsellItems and shown in admin */
+const EARLY_SETUP_UPSELL_LABEL = "Early Setup (before event) – £120";
 
 const eventTypes = [
   "Wedding",
@@ -52,21 +54,32 @@ const eventTypes = [
   "Other",
 ];
 
+/** Map enquiry eventType to form option value (e.g. "wedding" -> "Wedding") */
+function normalizeEventType(value: string | undefined): string {
+  if (!value || !value.trim()) return "";
+  const v = value.trim().toLowerCase();
+  const map: Record<string, string> = {
+    wedding: "Wedding",
+    "private party": "Private Party",
+    "corporate event": "Corporate Event",
+    "christmas party": "Christmas Party",
+    other: "Other",
+    party: "Private Party",
+    corporate: "Corporate Event",
+  };
+  return map[v] || value.trim().charAt(0).toUpperCase() + value.trim().slice(1).toLowerCase();
+}
+
 export default function NewBookingPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const enquiryId = searchParams.get("enquiryId");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState(false);
-  const [showDJModal, setShowDJModal] = useState(false);
-  const [selectedDJ, setSelectedDJ] = useState<string | null>(null);
   const [selectedUpsells, setSelectedUpsells] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (status === "unauthenticated") {
-      router.push("/login");
-    }
-  }, [status, router]);
+  const [enquiryLoaded, setEnquiryLoaded] = useState(false);
 
   const {
     register,
@@ -79,27 +92,51 @@ export default function NewBookingPage() {
     defaultValues: {
       name: session?.user?.name || "",
       email: session?.user?.email || "",
+      services: [],
+      earlySetupRequired: false,
     },
   });
 
-  const selectedServices = watch("services") || [];
-
-  const toggleService = (service: string) => {
-    const current = selectedServices;
-    if (current.includes(service)) {
-      setValue("services", current.filter((s) => s !== service));
-      // If unchecking DJs, clear DJ selection
-      if (service === "DJs") {
-        setSelectedDJ(null);
-      }
-    } else {
-      setValue("services", [...current, service]);
-      // If checking DJs, show modal
-      if (service === "DJs") {
-        setShowDJModal(true);
-      }
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
     }
-  };
+  }, [status, router]);
+
+  // Pre-populate from initial enquiry when enquiryId is in the URL
+  useEffect(() => {
+    if (!enquiryId || enquiryLoaded) return;
+
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(`/api/public/enquiry-for-booking?enquiryId=${encodeURIComponent(enquiryId)}`);
+        if (!res.ok || cancelled) return;
+        const data = await res.json();
+
+        if (cancelled) return;
+        if (data.name) setValue("name", data.name);
+        if (data.email) setValue("email", data.email);
+        if (data.phone) setValue("phone", data.phone);
+        if (data.eventDate) setValue("eventDate", data.eventDate);
+        if (data.venueName) setValue("venueName", data.venueName);
+        if (data.venuePostcode) setValue("venuePostcode", data.venuePostcode ?? "");
+        if (data.eventType) setValue("eventType", normalizeEventType(data.eventType));
+        if (data.message) setValue("message", data.message);
+        if (Array.isArray(data.services) && data.services.includes("Musicians")) {
+          setValue("services", ["Musicians"]);
+        }
+        setEnquiryLoaded(true);
+      } catch {
+        if (!cancelled) setEnquiryLoaded(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [enquiryId, setValue, enquiryLoaded]);
+
+  const musiciansRequired = watch("services")?.includes("Musicians") ?? false;
 
   const onSubmit = async (data: BookingFormData) => {
     setIsSubmitting(true);
@@ -111,8 +148,15 @@ export default function NewBookingPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...data,
-          preferredDJ: selectedDJ,
-          upsellItems: selectedUpsells,
+          djStartTime: data.eventStartTime || null,
+          djFinishTime: data.eventEndTime || null,
+          finalBalance: data.agreedFee && String(data.agreedFee).trim() ? String(data.agreedFee).trim() : null,
+          services: musiciansRequired ? ["Musicians"] : [],
+          preferredDJ: null,
+          upsellItems: [
+            ...(data.earlySetupRequired ? [EARLY_SETUP_UPSELL_LABEL] : []),
+            ...selectedUpsells.filter((u) => u !== EARLY_SETUP_UPSELL_LABEL),
+          ],
         }),
       });
 
@@ -168,10 +212,15 @@ export default function NewBookingPage() {
         >
           <Card className="bg-gray-800 border-champagne-gold/30">
             <CardHeader>
-              <CardTitle className="text-2xl">New Booking Enquiry</CardTitle>
+              <CardTitle className="text-2xl">Booking Request Form</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                {enquiryId && enquiryLoaded && (
+                  <div className="p-3 text-sm text-champagne-gold/90 bg-champagne-gold/10 border border-champagne-gold/30 rounded-md">
+                    Details from your initial enquiry have been pre-filled. You can edit any field.
+                  </div>
+                )}
                 {error && (
                   <div className="p-3 text-sm text-red-400 bg-red-900/20 border border-red-800 rounded-md">
                     {error}
@@ -206,13 +255,54 @@ export default function NewBookingPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Phone</Label>
+                  <Label htmlFor="phone">Client telephone number</Label>
                   <Input
                     id="phone"
                     type="tel"
                     {...register("phone")}
+                    placeholder="e.g. 07xxx xxxxxx"
                     className="bg-gray-900 border-gray-700 text-white"
                   />
+                </div>
+
+                <div className="space-y-2">
+                  <Label className="text-champagne-gold/90">Client address</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <Label htmlFor="clientAddress" className="text-gray-400 text-sm">Address line 1</Label>
+                      <Input
+                        id="clientAddress"
+                        {...register("clientAddress")}
+                        placeholder="Street, house name/number"
+                        className="bg-gray-900 border-gray-700 text-white mt-1"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="clientAddress2" className="text-gray-400 text-sm">Address line 2 (optional)</Label>
+                      <Input
+                        id="clientAddress2"
+                        {...register("clientAddress2")}
+                        placeholder="Flat, building, etc."
+                        className="bg-gray-900 border-gray-700 text-white mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="clientTown" className="text-gray-400 text-sm">Town</Label>
+                      <Input
+                        id="clientTown"
+                        {...register("clientTown")}
+                        className="bg-gray-900 border-gray-700 text-white mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="clientPostcode" className="text-gray-400 text-sm">Postcode</Label>
+                      <Input
+                        id="clientPostcode"
+                        {...register("clientPostcode")}
+                        className="bg-gray-900 border-gray-700 text-white mt-1"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -251,6 +341,27 @@ export default function NewBookingPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
+                    <Label htmlFor="eventStartTime">Event start time</Label>
+                    <Input
+                      id="eventStartTime"
+                      {...register("eventStartTime")}
+                      placeholder="e.g. 7pm"
+                      className="bg-gray-900 border-gray-700 text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="eventEndTime">Event end time</Label>
+                    <Input
+                      id="eventEndTime"
+                      {...register("eventEndTime")}
+                      placeholder="e.g. midnight"
+                      className="bg-gray-900 border-gray-700 text-white"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
                     <Label htmlFor="venueName">Venue Name *</Label>
                     <Input
                       id="venueName"
@@ -273,85 +384,95 @@ export default function NewBookingPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="numberOfGuests">Number of Guests</Label>
-                  <Input
-                    id="numberOfGuests"
-                    type="number"
-                    {...register("numberOfGuests")}
-                    className="bg-gray-900 border-gray-700 text-white"
-                  />
+                  <Label className="text-champagne-gold/90">Venue address</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="md:col-span-2">
+                      <Label htmlFor="venueAddress" className="text-gray-400 text-sm">Address line 1</Label>
+                      <Input
+                        id="venueAddress"
+                        {...register("venueAddress")}
+                        placeholder="Street, building name"
+                        className="bg-gray-900 border-gray-700 text-white mt-1"
+                      />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label htmlFor="venueAddress2" className="text-gray-400 text-sm">Address line 2 (optional)</Label>
+                      <Input
+                        id="venueAddress2"
+                        {...register("venueAddress2")}
+                        placeholder="Area, landmark"
+                        className="bg-gray-900 border-gray-700 text-white mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="venueTown" className="text-gray-400 text-sm">Town</Label>
+                      <Input
+                        id="venueTown"
+                        {...register("venueTown")}
+                        className="bg-gray-900 border-gray-700 text-white mt-1"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="venueCounty" className="text-gray-400 text-sm">County (optional)</Label>
+                      <Input
+                        id="venueCounty"
+                        {...register("venueCounty")}
+                        className="bg-gray-900 border-gray-700 text-white mt-1"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="numberOfGuests">Number of Guests</Label>
+                    <Input
+                      id="numberOfGuests"
+                      type="number"
+                      {...register("numberOfGuests")}
+                      className="bg-gray-900 border-gray-700 text-white"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="agreedFee">Agreed fee</Label>
+                    <Input
+                      id="agreedFee"
+                      {...register("agreedFee")}
+                      placeholder="e.g. £1500"
+                      className="bg-gray-900 border-gray-700 text-white"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Services Required *</Label>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {serviceOptions.map((service) => (
-                      <div key={service} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={service}
-                          checked={selectedServices.includes(service)}
-                          onCheckedChange={() => toggleService(service)}
-                        />
-                        <Label htmlFor={service} className="cursor-pointer">
-                          {service}
-                          {service === "DJs" && selectedDJ && (
-                            <span className="ml-2 text-xs text-champagne-gold">
-                              ({selectedDJ})
-                            </span>
-                          )}
-                        </Label>
-                      </div>
-                    ))}
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="musicians"
+                      checked={musiciansRequired}
+                      onCheckedChange={(checked) => setValue("services", checked ? ["Musicians"] : [])}
+                    />
+                    <Label htmlFor="musicians" className="cursor-pointer">
+                      Musicians required
+                    </Label>
                   </div>
-                  {errors.services && (
-                    <p className="text-sm text-red-400">{errors.services.message}</p>
-                  )}
-                  {selectedServices.includes("DJs") && selectedDJ && (
-                    <p className="text-sm text-gray-400 mt-2">
-                      Selected: <span className="text-champagne-gold font-medium">
-                        {selectedDJ}
-                      </span>
-                      <Button
-                        type="button"
-                        variant="link"
-                        onClick={() => setShowDJModal(true)}
-                        className="text-champagne-gold hover:text-gold-light ml-2 p-0 h-auto"
-                      >
-                        Change
-                      </Button>
-                    </p>
-                  )}
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="earlySetupRequired"
+                      checked={watch("earlySetupRequired") ?? false}
+                      onCheckedChange={(checked) => setValue("earlySetupRequired", checked === true)}
+                    />
+                    <Label htmlFor="earlySetupRequired" className="cursor-pointer">
+                      Early setup required at £120
+                    </Label>
+                  </div>
                 </div>
 
                 {/* Upsell Section */}
                 <UpsellSection
-                  selectedServices={selectedServices}
+                  selectedServices={musiciansRequired ? ["Musicians"] : []}
                   selectedUpsells={selectedUpsells}
                   onUpsellChange={setSelectedUpsells}
                 />
-
-                <div className="space-y-2">
-                  <Label htmlFor="budget">Budget</Label>
-                  <Input
-                    id="budget"
-                    {...register("budget")}
-                    placeholder="e.g., £2000-3000"
-                    className="bg-gray-900 border-gray-700 text-white"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="contactPreference">Preferred Contact Method</Label>
-                  <select
-                    id="contactPreference"
-                    {...register("contactPreference")}
-                    className="w-full px-3 py-2 bg-gray-900 border border-gray-700 rounded-md text-white"
-                  >
-                    <option value="">No preference</option>
-                    <option value="Phone">Phone</option>
-                    <option value="Email">Email</option>
-                  </select>
-                </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="message">Additional Details</Label>
@@ -386,13 +507,6 @@ export default function NewBookingPage() {
           </Card>
         </motion.div>
 
-        {/* DJ Selection Modal */}
-        <DJSelectionModal
-          open={showDJModal}
-          onClose={() => setShowDJModal(false)}
-          onSelect={(dj) => setSelectedDJ(dj)}
-          selectedDJ={selectedDJ}
-        />
       </div>
     </div>
   );

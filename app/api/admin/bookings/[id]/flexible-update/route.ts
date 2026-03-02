@@ -76,6 +76,10 @@ export async function PATCH(
       eventDate,
       venueName,
       venuePostcode,
+      venueAddress,
+      venueAddress2,
+      venueTown,
+      venueCounty,
       ceremonyTime,
       djStartTime,
       djFinishTime,
@@ -144,12 +148,24 @@ export async function PATCH(
         }
       }
     }
-    // Venue Name and Venue Postcode: always allow updates (no override required)
+    // Venue Name, Postcode and Address: always allow updates (no override required)
     if (venueName !== undefined) {
       updateData.venueName = venueName;
     }
     if (venuePostcode !== undefined) {
-      updateData.venuePostcode = venuePostcode;
+      updateData.venuePostcode = venuePostcode === null || venuePostcode === "" ? null : String(venuePostcode);
+    }
+    if (venueAddress !== undefined) {
+      updateData.venueAddress = venueAddress === null || venueAddress === "" ? null : String(venueAddress);
+    }
+    if (venueAddress2 !== undefined) {
+      updateData.venueAddress2 = venueAddress2 === null || venueAddress2 === "" ? null : String(venueAddress2);
+    }
+    if (venueTown !== undefined) {
+      updateData.venueTown = venueTown === null || venueTown === "" ? null : String(venueTown);
+    }
+    if (venueCounty !== undefined) {
+      updateData.venueCounty = venueCounty === null || venueCounty === "" ? null : String(venueCounty);
     }
     if (message !== undefined) {
       updateData.message = message === null || message === "" ? null : String(message);

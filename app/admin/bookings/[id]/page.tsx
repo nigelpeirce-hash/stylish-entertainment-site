@@ -542,6 +542,16 @@ export default function BookingDetail() {
                 {booking.venueName || "TBD"}
                 {booking.venuePostcode && <span className="text-amber-400/90">{booking.venuePostcode}</span>}
               </p>
+              {((booking as any).venueAddress || (booking as any).venueTown) && (
+                <p className="text-gray-400 text-sm mt-1 text-center">
+                  {[(booking as any).venueAddress, (booking as any).venueAddress2, (booking as any).venueTown, (booking as any).venueCounty].filter(Boolean).join(", ")}
+                </p>
+              )}
+              {(booking.djStartTime || booking.djFinishTime) && (
+                <p className="text-gray-400 text-sm mt-1">
+                  {[booking.djStartTime, booking.djFinishTime].filter(Boolean).join(" – ")}
+                </p>
+              )}
               <p className="text-gray-600 text-xs mt-2">
                 {depositReceived ? "Booking" : "Enquiry"} ID: {booking.id.slice(0, 8)}…
               </p>
@@ -733,6 +743,12 @@ export default function BookingDetail() {
                   )}
                   {((Array.isArray(booking.services) && booking.services.length > 0) || (Array.isArray(booking.upsellItems) && booking.upsellItems.length > 0)) && (
                     <div>
+                      {Array.isArray(booking.upsellItems) && booking.upsellItems.some((u) => typeof u === "string" && u.toLowerCase().includes("early setup")) && (
+                        <div className="mb-3 p-3 rounded-lg bg-amber-500/15 border border-amber-500/40">
+                          <p className="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">Early setup</p>
+                          <p className="text-white font-medium">Yes – £120</p>
+                        </div>
+                      )}
                       <p className="text-xs font-semibold text-champagne-gold uppercase tracking-wider mb-2 flex items-center gap-1">
                         <Package className="w-3.5 h-3.5" />
                         Items they’re interested in
@@ -1124,6 +1140,27 @@ export default function BookingDetail() {
                     <div>
                       <p className="text-xs text-gray-400 mb-1">Preferred DJ / Artist</p>
                       <p className="text-champagne-gold font-medium">{booking.preferredDJ.trim()}</p>
+                    </div>
+                  )}
+                  {(booking.djStartTime || booking.djFinishTime) && (
+                    <div>
+                      <p className="text-xs text-gray-400 mb-1">Event timings</p>
+                      <p className="text-white text-sm">
+                        {[booking.djStartTime, booking.djFinishTime].filter(Boolean).join(" – ")}
+                      </p>
+                    </div>
+                  )}
+                  {((booking as any).clientAddress || (booking as any).clientTown || (booking as any).clientPostcode) && (
+                    <div>
+                      <p className="text-xs text-gray-400 mb-1">Client address</p>
+                      <p className="text-white text-sm whitespace-pre-line">
+                        {[
+                          (booking as any).clientAddress,
+                          (booking as any).clientAddress2,
+                          [(booking as any).clientTown, (booking as any).clientCounty].filter(Boolean).join(", "),
+                          (booking as any).clientPostcode,
+                        ].filter(Boolean).join("\n")}
+                      </p>
                     </div>
                   )}
                   {(typeof (booking as any).clientLoginCount === "number" || (booking as any).clientLastLoginAt) && (
@@ -1557,6 +1594,47 @@ export default function BookingDetail() {
                 />
               </div>
               <div className="col-span-2">
+                <h4 className="text-base font-semibold text-amber-500/90 mb-2">Venue address</h4>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="col-span-2">
+                    <label className="block text-sm text-gray-400 mb-1">Address line 1</label>
+                    <input
+                      id="edit-venueAddress"
+                      type="text"
+                      defaultValue={(booking as any).venueAddress ?? ""}
+                      className="w-full px-4 py-3 text-base bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                    />
+                  </div>
+                  <div className="col-span-2">
+                    <label className="block text-sm text-gray-400 mb-1">Address line 2</label>
+                    <input
+                      id="edit-venueAddress2"
+                      type="text"
+                      defaultValue={(booking as any).venueAddress2 ?? ""}
+                      className="w-full px-4 py-3 text-base bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">Town</label>
+                    <input
+                      id="edit-venueTown"
+                      type="text"
+                      defaultValue={(booking as any).venueTown ?? ""}
+                      className="w-full px-4 py-3 text-base bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm text-gray-400 mb-1">County</label>
+                    <input
+                      id="edit-venueCounty"
+                      type="text"
+                      defaultValue={(booking as any).venueCounty ?? ""}
+                      className="w-full px-4 py-3 text-base bg-gray-900 border border-gray-700 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-champagne-gold"
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="col-span-2">
                 <Button
                   type="button"
                   variant="outline"
@@ -1682,6 +1760,10 @@ export default function BookingDetail() {
                     const get = (id: string) => ((document.getElementById(id) as HTMLInputElement | HTMLTextAreaElement | null)?.value ?? "").trim();
                     const venueName = get("edit-venueName");
                     const venuePostcode = get("edit-venuePostcode") || null;
+                    const venueAddress = get("edit-venueAddress") || null;
+                    const venueAddress2 = get("edit-venueAddress2") || null;
+                    const venueTown = get("edit-venueTown") || null;
+                    const venueCounty = get("edit-venueCounty") || null;
                     const eventDateRaw = get("edit-eventDate");
                     const ceremonyTimeRaw = get("edit-ceremonyTime");
                     const djStartTimeRaw = get("edit-djStartTime") || null;
@@ -1705,6 +1787,10 @@ export default function BookingDetail() {
                       const flexPayload: Record<string, unknown> = {
                         venueName: venueName ?? booking.venueName,
                         venuePostcode: venuePostcode ?? booking.venuePostcode ?? null,
+                        venueAddress: venueAddress || null,
+                        venueAddress2: venueAddress2 || null,
+                        venueTown: venueTown || null,
+                        venueCounty: venueCounty || null,
                         ceremonyTime: ceremonyDateTime ? new Date(ceremonyDateTime).toISOString() : null,
                         djStartTime: djStartTimeRaw || null,
                         djFinishTime: djFinishTimeRaw || null,

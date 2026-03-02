@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion } from "framer-motion";
+import Image from "next/image";
 
 const aspectMap = {
   "4/3": "aspect-[4/3]",
@@ -107,10 +107,12 @@ export default function BeforeAfter({ before, after, aspectRatio = "4/3", fullWi
       >
         {/* Before Image (Background) */}
         <div className="absolute inset-0">
-          <img
+          <Image
             src={before.src}
             alt={before.alt}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 90vw"
             loading="lazy"
             draggable={false}
           />
@@ -121,10 +123,12 @@ export default function BeforeAfter({ before, after, aspectRatio = "4/3", fullWi
           className="absolute inset-0 overflow-hidden"
           style={{ clipPath: `inset(0 ${100 - sliderPosition}% 0 0)` }}
         >
-          <img
+          <Image
             src={after.src}
             alt={after.alt}
-            className="w-full h-full object-cover"
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 90vw"
             loading="lazy"
             draggable={false}
           />

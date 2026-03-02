@@ -50,6 +50,17 @@ const galleryPhotos = [
 // Before and After – 2-row layout: Barn transformation + Party room transformation (matches galleries)
 const beforeAfterTransforms = [
   {
+    title: "Private Party Space",
+    before: {
+      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768649763/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw.jpg",
+      alt: "Private party space before transformation",
+    },
+    after: {
+      src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768649763/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw.jpg",
+      alt: "Private party space after transformation",
+    },
+  },
+  {
     title: "Barn Transformation",
     before: {
       src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163654/IMG_1070_pelq7j.jpg",
@@ -243,6 +254,7 @@ export default function PrivatePartiesClient() {
               >
                 <Card className="bg-gray-800/50 backdrop-blur-sm border-2 border-champagne-gold/30 shadow-xl overflow-hidden hover:border-champagne-gold/60 transition-all duration-300">
                   <CardContent className="p-4 sm:p-6">
+                    <h3 className="text-lg font-semibold text-champagne-gold mb-4">{transform.title}</h3>
                     <BeforeAfter
                       before={transform.before}
                       after={transform.after}

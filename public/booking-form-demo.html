@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Booking Request Form – Stylish Entertainment</title>
+  <style>
+    :root {
+      --bg-page: #111827;
+      --bg-card: #1f2937;
+      --border: rgba(212, 175, 55, 0.3);
+      --gold: #d4af37;
+      --gold-muted: rgba(212, 175, 55, 0.9);
+      --text: #fff;
+      --text-muted: #9ca3af;
+      --input-bg: #111827;
+      --input-border: #374151;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg-page); font-family: system-ui, -apple-system, sans-serif; color: var(--text); line-height: 1.5; }
+    .banner {
+      background: rgba(245, 158, 11, 0.2);
+      border-bottom: 1px solid rgba(245, 158, 11, 0.4);
+      padding: 8px 16px;
+      text-align: center;
+      font-size: 14px;
+      color: #fde68a;
+    }
+    .container { max-width: 64rem; margin: 0 auto; padding: 2rem 1rem 3rem; }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .card-header { padding: 1.5rem 1.5rem 0; }
+    .card-title { font-size: 1.5rem; font-weight: 600; margin: 0; color: var(--text); }
+    .card-content { padding: 1.5rem; }
+    .form-section { margin-bottom: 1.5rem; }
+    .form-section:last-of-type { margin-bottom: 0; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .grid-2-full { grid-column: 1 / -1; }
+    @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+    label { display: block; font-size: 0.875rem; font-weight: 500; color: var(--text); margin-bottom: 0.25rem; }
+    label.sm { font-size: 0.8rem; color: var(--text-muted); }
+    input, select, textarea {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      font-size: 1rem;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 6px;
+      color: var(--text);
+    }
+    input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 0.8; }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+    }
+    select { cursor: pointer; }
+    .client-address-block .label-block { color: var(--gold-muted); margin-bottom: 0.5rem; }
+    .client-address-block .row { margin-bottom: 0.75rem; }
+    .client-address-block .row:last-child { margin-bottom: 0; }
+    .services-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+    @media (min-width: 768px) { .services-grid { grid-template-columns: repeat(3, 1fr); } }
+    .checkbox-row { display: flex; align-items: center; gap: 0.5rem; }
+    .checkbox-row input[type="checkbox"] { width: auto; margin: 0; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.5rem 1rem; font-size: 1rem; font-weight: 600; border-radius: 6px; cursor: pointer; border: none; }
+    .btn-primary { background: var(--gold); color: #000; }
+    .btn-primary:hover { background: #e5c04a; }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--input-border); }
+    .btn-outline:hover { border-color: var(--text-muted); }
+    .actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
+    textarea { min-height: 100px; resize: vertical; }
+  </style>
+</head>
+<body>
+  <div class="banner">Preview – Booking Request Form (client & venue address, timings, phone). Review before sending to git.</div>
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <h1 class="card-title">Booking Request Form</h1>
+      </div>
+      <div class="card-content">
+        <form action="#" method="get" id="demo-form">
+          <div class="form-section grid-2">
+            <div>
+              <label for="name">Full Name *</label>
+              <input type="text" id="name" name="name" placeholder="Your name" />
+            </div>
+            <div>
+              <label for="email">Email *</label>
+              <input type="email" id="email" name="email" placeholder="you@example.com" />
+            </div>
+          </div>
+
+          <div class="form-section">
+            <label for="phone">Client telephone number</label>
+            <input type="tel" id="phone" name="phone" placeholder="e.g. 07xxx xxxxxx" />
+          </div>
+
+          <div class="form-section client-address-block">
+            <div class="label-block">Client address</div>
+            <div class="grid-2">
+              <div class="row grid-2-full">
+                <label for="clientAddress" class="sm">Address line 1</label>
+                <input type="text" id="clientAddress" name="clientAddress" placeholder="Street, house name/number" />
+              </div>
+              <div class="row grid-2-full">
+                <label for="clientAddress2" class="sm">Address line 2 (optional)</label>
+                <input type="text" id="clientAddress2" name="clientAddress2" placeholder="Flat, building, etc." />
+              </div>
+              <div class="row">
+                <label for="clientTown" class="sm">Town</label>
+                <input type="text" id="clientTown" name="clientTown" />
+              </div>
+              <div class="row">
+                <label for="clientPostcode" class="sm">Postcode</label>
+                <input type="text" id="clientPostcode" name="clientPostcode" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section grid-2">
+            <div>
+              <label for="eventType">Event Type *</label>
+              <select id="eventType" name="eventType">
+                <option value="">Select event type</option>
+                <option value="Wedding">Wedding</option>
+                <option value="Private Party">Private Party</option>
+                <option value="Corporate Event">Corporate Event</option>
+                <option value="Christmas Party">Christmas Party</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div>
+              <label for="eventDate">Event Date *</label>
+              <input type="date" id="eventDate" name="eventDate" />
+            </div>
+          </div>
+
+          <div class="form-section grid-2">
+            <div>
+              <label for="eventStartTime">Event start time</label>
+              <input type="text" id="eventStartTime" name="eventStartTime" placeholder="e.g. 7pm" />
+            </div>
+            <div>
+              <label for="eventEndTime">Event end time</label>
+              <input type="text" id="eventEndTime" name="eventEndTime" placeholder="e.g. midnight" />
+            </div>
+          </div>
+
+          <div class="form-section grid-2">
+            <div>
+              <label for="venueName">Venue Name *</label>
+              <input type="text" id="venueName" name="venueName" placeholder="Venue name" />
+            </div>
+            <div>
+              <label for="venuePostcode">Venue Postcode</label>
+              <input type="text" id="venuePostcode" name="venuePostcode" placeholder="e.g. SW1A 1AA" />
+            </div>
+          </div>
+
+          <div class="form-section client-address-block">
+            <div class="label-block">Venue address</div>
+            <div class="grid-2">
+              <div class="row grid-2-full">
+                <label for="venueAddress" class="sm">Address line 1</label>
+                <input type="text" id="venueAddress" name="venueAddress" placeholder="Street, building name" />
+              </div>
+              <div class="row grid-2-full">
+                <label for="venueAddress2" class="sm">Address line 2 (optional)</label>
+                <input type="text" id="venueAddress2" name="venueAddress2" placeholder="Area, landmark" />
+              </div>
+              <div class="row">
+                <label for="venueTown" class="sm">Town</label>
+                <input type="text" id="venueTown" name="venueTown" />
+              </div>
+              <div class="row">
+                <label for="venueCounty" class="sm">County (optional)</label>
+                <input type="text" id="venueCounty" name="venueCounty" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section grid-2">
+            <div>
+              <label for="numberOfGuests">Number of Guests</label>
+              <input type="number" id="numberOfGuests" name="numberOfGuests" min="1" placeholder="Optional" />
+            </div>
+            <div>
+              <label for="agreedFee">Agreed fee</label>
+              <input type="text" id="agreedFee" name="agreedFee" placeholder="e.g. £1500" />
+            </div>
+          </div>
+
+          <div class="form-section">
+            <label class="checkbox-row">
+              <input type="checkbox" id="musicians" name="musicians" value="yes" />
+              Musicians required
+            </label>
+          </div>
+          <div class="form-section">
+            <label class="checkbox-row">
+              <input type="checkbox" id="earlySetupRequired" name="earlySetupRequired" value="yes" />
+              Early setup required at £120
+            </label>
+          </div>
+
+          <div class="form-section">
+            <label for="message">Additional Details</label>
+            <textarea id="message" name="message" rows="4" placeholder="Tell us more about your event..."></textarea>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn btn-primary" onclick="alert('Demo only – no submit.');">Submit Booking</button>
+            <button type="button" class="btn btn-outline" onclick="window.history.back();">Cancel</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <p style="text-align:center; color: var(--text-muted); font-size: 0.875rem; margin-top: 1rem;">
+      File: <code>public/booking-form-demo.html</code> · Open in browser to preview before git.
+    </p>
+  </div>
+</body>
+</html>

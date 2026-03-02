@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { FIRST_TOUCH } from "@/lib/email/templates";
 import sendEmail from "@/lib/email/send-email";
@@ -58,6 +59,7 @@ export async function POST(request: NextRequest) {
     // Create new enquiry
     const enquiry = await prisma.newEnquiry.create({
       data: {
+        id: randomUUID(),
         name,
         email,
         phoneAreaCode: phoneAreaCode || null,

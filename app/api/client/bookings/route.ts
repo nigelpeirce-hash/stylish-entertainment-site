@@ -104,6 +104,10 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
 
+    // Map single "phone" from form to phoneNumber (phoneAreaCode optional for UK split later)
+    const phoneNumber = body.phoneNumber ?? (body.phone && String(body.phone).trim() ? String(body.phone).trim() : null);
+    const phoneAreaCode = body.phoneAreaCode ?? null;
+
     const booking = await prisma.booking.create({
       data: {
         id: randomUUID(),
@@ -113,28 +117,33 @@ export async function POST(request: NextRequest) {
         // Client Information
         name: body.name,
         email: body.email,
-        phoneAreaCode: body.phoneAreaCode,
-        phoneNumber: body.phoneNumber,
+        phoneAreaCode: phoneAreaCode || null,
+        phoneNumber: phoneNumber || null,
+        clientAddress: body.clientAddress && String(body.clientAddress).trim() ? String(body.clientAddress).trim() : null,
+        clientAddress2: body.clientAddress2 && String(body.clientAddress2).trim() ? String(body.clientAddress2).trim() : null,
+        clientTown: body.clientTown && String(body.clientTown).trim() ? String(body.clientTown).trim() : null,
+        clientCounty: body.clientCounty && String(body.clientCounty).trim() ? String(body.clientCounty).trim() : null,
+        clientPostcode: body.clientPostcode && String(body.clientPostcode).trim() ? String(body.clientPostcode).trim() : null,
         
         // Event Details
         eventType: body.eventType || "wedding",
         eventDate: new Date(body.eventDate),
+        djStartTime: body.djStartTime && String(body.djStartTime).trim() ? String(body.djStartTime).trim() : null,
+        djFinishTime: body.djFinishTime && String(body.djFinishTime).trim() ? String(body.djFinishTime).trim() : null,
         
         // Venue Information
         venueName: body.venueName,
         venueContact: body.venueContact,
-        venueAddress: body.venueAddress,
-        venueAddress2: body.venueAddress2,
-        venueTown: body.venueTown,
-        venueCounty: body.venueCounty,
-        venuePostcode: body.venuePostcode,
+        venueAddress: body.venueAddress && String(body.venueAddress).trim() ? String(body.venueAddress).trim() : null,
+        venueAddress2: body.venueAddress2 && String(body.venueAddress2).trim() ? String(body.venueAddress2).trim() : null,
+        venueTown: body.venueTown && String(body.venueTown).trim() ? String(body.venueTown).trim() : null,
+        venueCounty: body.venueCounty && String(body.venueCounty).trim() ? String(body.venueCounty).trim() : null,
+        venuePostcode: body.venuePostcode && String(body.venuePostcode).trim() ? String(body.venuePostcode).trim() : null,
         venuePhoneAreaCode: body.venuePhoneAreaCode,
         venuePhoneNumber: body.venuePhoneNumber,
         
-        // DJ Details
+        // DJ Details (djStartTime/djFinishTime set above in Event Details)
         djArrivalTime: body.djArrivalTime,
-        djStartTime: body.djStartTime,
-        djFinishTime: body.djFinishTime,
         djSetupLocation: body.djSetupLocation,
         djParking: body.djParking,
         soundLimiter: body.soundLimiter === "Yes" ? true : body.soundLimiter === "No" ? false : null,
@@ -142,12 +151,12 @@ export async function POST(request: NextRequest) {
         services: body.services || [],
         upsellItems: body.upsellItems || [],
         message: body.message,
-        budget: body.budget,
-        contactPreference: body.contactPreference,
+        budget: null,
+        contactPreference: null,
         preferredDJ: body.preferredDJ || null,
 
-        // Payment
-        finalBalance: body.finalBalance,
+        // Payment (agreed fee from form as finalBalance)
+        finalBalance: body.finalBalance ?? (body.agreedFee && String(body.agreedFee).trim() ? String(body.agreedFee).trim() : null),
         paymentPayerName: body.paymentPayerName,
         
         // Music Details
