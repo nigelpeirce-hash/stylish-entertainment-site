@@ -68,18 +68,6 @@ export function TeamAssignment({
     fetchCrew();
   }, [selectedRole]);
 
-  useEffect(() => {
-    console.log("[TEAM_ASSIGN] crew state updated", {
-      selectedRole,
-      crewLen: crew.length,
-      crewIds: crew.map((c) => c.id),
-    });
-  }, [crew, selectedRole]);
-
-  useEffect(() => {
-    console.log("[TEAM_ASSIGN] selectedStaffId changed", selectedStaffId);
-  }, [selectedStaffId]);
-
   const fetchCrew = async () => {
     try {
       const res = await fetch(
@@ -88,11 +76,6 @@ export function TeamAssignment({
       );
       const data = await res.json().catch(() => ({}));
       setCrew(data.crew ?? []);
-      console.log("[TEAM_ASSIGN] setCrew", {
-        role: selectedRole,
-        count: Array.isArray((data as any)?.crew) ? (data as any).crew.length : null,
-        keys: Object.keys(data || {}),
-      });
     } catch (error) {
       console.error("Error fetching crew:", error);
       setCrew([]);
@@ -160,21 +143,6 @@ export function TeamAssignment({
     .filter((id): id is string => !!id);
   const assignedStaffIdsSet = new Set(assignedInThisRole);
 
-  console.log("[TEAM_ASSIGN]", {
-    selectedRole,
-    staffAssignmentsLen: staffAssignments?.length,
-    staffAssignmentsSample: (staffAssignments || []).slice(0, 5).map((a) => ({
-      id: a.id,
-      role: a.role,
-      cancelledAt: a.cancelledAt,
-      staffId: a.staff?.id,
-    })),
-    assignedInThisRole,
-    assignedSetSize: assignedStaffIdsSet.size,
-    crewLen: crew.length,
-    crewIds: crew.map((c) => c.id),
-  });
-
   const allGreyed = filteredCrew.length > 0 && filteredCrew.every((m) => assignedStaffIdsSet.has(m.id));
   const disableSelect = filteredCrew.length === 0;
 
@@ -187,23 +155,6 @@ export function TeamAssignment({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {typeof window !== "undefined" && new URLSearchParams(window.location.search).has("taDebug") && (
-          <pre className="text-xs text-gray-300 bg-black/30 p-2 rounded">
-            {JSON.stringify(
-              {
-                selectedRole,
-                crewLen: crew.length,
-                filteredCrewLen: filteredCrew.length,
-                staffAssignmentsLen: staffAssignments?.length ?? null,
-                assignedSetSize: assignedStaffIdsSet.size,
-                assignedInThisRoleFirst10: assignedInThisRole.slice(0, 10),
-                searchQuery,
-              },
-              null,
-              2
-            )}
-          </pre>
-        )}
         {/* Role Selection */}
         <div>
           <Label className="text-gray-300 mb-2 block">Filter by Role</Label>

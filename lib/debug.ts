@@ -4,6 +4,7 @@
  */
 
 const isDevelopment = process.env.NODE_ENV === 'development';
+const isProduction = process.env.NODE_ENV === 'production';
 const DEBUG_ENABLED = process.env.NEXT_PUBLIC_DEBUG === 'true' || isDevelopment;
 
 export const debug = {
@@ -11,7 +12,7 @@ export const debug = {
    * Log debug messages (only in development)
    */
   log: (...args: any[]) => {
-    if (DEBUG_ENABLED) {
+    if (!isProduction && DEBUG_ENABLED) {
       console.log('[DEBUG]', ...args);
     }
   },
@@ -32,7 +33,7 @@ export const debug = {
    * Log warnings
    */
   warn: (message: string, context?: Record<string, any>) => {
-    if (DEBUG_ENABLED) {
+    if (!isProduction && DEBUG_ENABLED) {
       console.warn('[WARN]', message, context);
     }
   },
@@ -41,7 +42,7 @@ export const debug = {
    * Log API calls
    */
   api: (method: string, url: string, data?: any) => {
-    if (DEBUG_ENABLED) {
+    if (!isProduction && DEBUG_ENABLED) {
       console.log('[API]', method, url, data ? { data } : '');
     }
   },
@@ -50,7 +51,7 @@ export const debug = {
    * Log component renders (use sparingly)
    */
   render: (componentName: string, props?: any) => {
-    if (DEBUG_ENABLED && process.env.NEXT_PUBLIC_DEBUG_RENDERS === 'true') {
+    if (!isProduction && DEBUG_ENABLED && process.env.NEXT_PUBLIC_DEBUG_RENDERS === 'true') {
       console.log('[RENDER]', componentName, props ? { props } : '');
     }
   },
@@ -59,11 +60,11 @@ export const debug = {
    * Measure performance
    */
   time: (label: string) => {
-    if (DEBUG_ENABLED) {
+    if (!isProduction && DEBUG_ENABLED) {
       console.time(`[PERF] ${label}`);
     }
     return () => {
-      if (DEBUG_ENABLED) {
+      if (!isProduction && DEBUG_ENABLED) {
         console.timeEnd(`[PERF] ${label}`);
       }
     };
@@ -73,7 +74,7 @@ export const debug = {
    * Track state changes
    */
   state: (componentName: string, stateName: string, value: any) => {
-    if (DEBUG_ENABLED && process.env.NEXT_PUBLIC_DEBUG_STATE === 'true') {
+    if (!isProduction && DEBUG_ENABLED && process.env.NEXT_PUBLIC_DEBUG_STATE === 'true') {
       console.log('[STATE]', componentName, stateName, value);
     }
   },
