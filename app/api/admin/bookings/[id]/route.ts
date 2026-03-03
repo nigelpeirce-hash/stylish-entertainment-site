@@ -21,7 +21,26 @@ const BOOKING_RELATIONS = {
     },
   },
   staffAssignments: {
-    include: { staff: true },
+    select: {
+      id: true,
+      role: true,
+      agreedFee: true,
+      status: true,
+      confirmationEmailSent: true,
+      confirmationSentAt: true,
+      briefStatus: true,
+      acknowledgedAt: true,
+      cancelledAt: true,
+      staff: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          phone: true,
+          roles: true,
+        },
+      },
+    },
   },
   bookingItems: {
     where: { status: "pending_approval" as const },

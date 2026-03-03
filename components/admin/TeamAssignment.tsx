@@ -36,6 +36,7 @@ interface TeamAssignmentProps {
   staffAssignments?: Array<{
     id: string;
     role: string;
+    cancelledAt?: string | null;
     staff: {
       id: string;
       name: string;
@@ -131,9 +132,13 @@ export function TeamAssignment({
     member.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Grey only staff already assigned *for this role* (not other roles)
+  // Grey only staff already assigned *for this role* (not other roles). Exclude cancelled assignments.
   const assignedInThisRole = staffAssignments
-    .filter((a) => (a.role || "").toLowerCase() === selectedRole.toLowerCase())
+    .filter(
+      (a) =>
+        (a.role || "").toLowerCase() === selectedRole.toLowerCase() &&
+        !a.cancelledAt
+    )
     .map((a) => a.staff?.id)
     .filter((id): id is string => !!id);
   const assignedStaffIdsSet = new Set(assignedInThisRole);
@@ -215,6 +220,7 @@ export function TeamAssignment({
                   <CommandGroup>
                     {filteredCrew.map((member) => {
                       const isAssigned = assignedStaffIdsSet.has(member.id);
+                      const hasNoEmail = !member.email;
                       return (
                         <CommandItem
                           key={member.id}
@@ -226,6 +232,13 @@ export function TeamAssignment({
                             }
                           }}
                           disabled={isAssigned}
+                          title={
+                            isAssigned
+                              ? "Already assigned for this role"
+                              : hasNoEmail
+                                ? "No email – confirmation email will not be sent"
+                                : undefined
+                          }
                           className={`${
                             isAssigned
                               ? "opacity-50 cursor-not-allowed"
@@ -239,6 +252,9 @@ export function TeamAssignment({
                                 <span className="text-xs text-gray-400">
                                   ({member.email})
                                 </span>
+                              )}
+                              {hasNoEmail && !isAssigned && (
+                                <span className="text-xs text-amber-400/90">(no email)</span>
                               )}
                             </div>
                             {isAssigned && (
@@ -297,13 +313,15 @@ export function TeamAssignment({
         {staffAssignments.length > 0 && (
           <div className="pt-4 border-t border-gray-700">
             <p className="text-sm text-gray-400 mb-2">
-              Currently Assigned ({staffAssignments.length})
+              Currently Assigned ({staffAssignments.filter((a) => !a.cancelledAt).length} active)
             </p>
             <div className="space-y-1">
-              {staffAssignments.map((assignment) => (
+              {staffAssignments.map((assignment) => {
+                const isCancelled = !!assignment.cancelledAt;
+                return (
                 <div
                   key={assignment.id}
-                  className="flex items-center justify-between p-2 bg-gray-900/50 rounded text-sm group"
+                  className={`flex items-center justify-between p-2 rounded text-sm group ${isCancelled ? "bg-gray-900/30 opacity-75" : "bg-gray-900/50"}`}
                 >
                   <div className="flex items-center gap-2">
                     <span className="text-[16px]">
@@ -313,42 +331,47 @@ export function TeamAssignment({
                       <SafeText>{assignment.staff?.name ?? "Unknown"}</SafeText>
                     </span>
                     <span className="text-gray-400 text-xs">({typeof assignment.role === "string" ? assignment.role : ""})</span>
+                    {isCancelled && (
+                      <Badge variant="outline" className="text-xs border-amber-500/50 text-amber-400/90">Cancelled</Badge>
+                    )}
                   </div>
-                  <button
-                    onClick={async () => {
-                      if (confirm(`Remove ${assignment.staff?.name ?? "this staff member"} from this booking?`)) {
-                        try {
-                          const response = await fetch(
-                            `/api/admin/bookings/staff/${assignment.id}/`,
-                            {
-                              method: "DELETE",
-                              headers: { "Content-Type": "application/json" },
+                  {!isCancelled && (
+                    <button
+                      onClick={async () => {
+                        if (confirm(`Remove ${assignment.staff?.name ?? "this staff member"} from this booking?`)) {
+                          try {
+                            const response = await fetch(
+                              `/api/admin/bookings/staff/${assignment.id}/`,
+                              {
+                                method: "DELETE",
+                                headers: { "Content-Type": "application/json" },
+                              }
+                            );
+
+                            if (!response.ok) {
+                              const data = await response.json();
+                              throw new Error(data.error || "Failed to remove staff");
                             }
-                          );
 
-                          if (!response.ok) {
-                            const data = await response.json();
-                            throw new Error(data.error || "Failed to remove staff");
+                            setSuccess(`${assignment.staff?.name ?? "Staff"} removed successfully`);
+                            setTimeout(() => {
+                              onUpdate();
+                              setSuccess("");
+                            }, 2000);
+                          } catch (err: any) {
+                            setError(err.message || "Failed to remove staff");
+                            setTimeout(() => setError(""), 5000);
                           }
-
-                          setSuccess(`${assignment.staff?.name ?? "Staff"} removed successfully`);
-                          setTimeout(() => {
-                            onUpdate();
-                            setSuccess("");
-                          }, 2000);
-                        } catch (err: any) {
-                          setError(err.message || "Failed to remove staff");
-                          setTimeout(() => setError(""), 5000);
                         }
-                      }
-                    }}
-                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-900/30 rounded text-red-400 hover:text-red-300"
-                    title="Remove staff member"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                      }}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-900/30 rounded text-red-400 hover:text-red-300"
+                      title="Remove staff member"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
-              ))}
+              );})}
             </div>
           </div>
         )}
