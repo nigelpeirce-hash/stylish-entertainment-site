@@ -205,7 +205,7 @@ export default function BookingDetail() {
 
   // Use SWR for data fetching with caching and background refresh
   const { data, error, isLoading, mutate } = useSWR<BookingFetcherResult>(
-    shouldFetch ? `/api/admin/bookings/${bookingId}/` : null,
+    shouldFetch ? `/api/admin/bookings/${bookingId}` : null,
     bookingFetcher,
     {
       refreshInterval: 0, // Don't auto-refresh (user can manually refresh)
@@ -261,7 +261,7 @@ export default function BookingDetail() {
     setDepositInvoiceDraft(null);
     setDepositOverrideAmount("");
     try {
-      const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice/`);
+      const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice`);
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error ?? "Failed to load draft");
       setDepositInvoiceDraft(data);
@@ -358,7 +358,7 @@ export default function BookingDetail() {
   const handleHandoff = async (assignTo: "ali" | "husband") => {
     if (!booking) return;
     try {
-      const response = await fetch(`/api/admin/bookings/${booking.id}/handoff/`, {
+      const response = await fetch(`/api/admin/bookings/${booking.id}/handoff`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -407,7 +407,7 @@ export default function BookingDetail() {
     if (!booking) return;
     setDeleting(true);
     try {
-      const response = await fetch(`/api/admin/bookings/${booking.id}/`, {
+      const response = await fetch(`/api/admin/bookings/${booking.id}`, {
         method: "DELETE",
       });
       if (!response.ok) {
@@ -658,7 +658,7 @@ export default function BookingDetail() {
                         if (!booking?.email) return;
                         setSendingFinalizeInvite(true);
                         try {
-                          const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite/`, { method: "POST" });
+                          const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite`, { method: "POST" });
                           const data = await res.json();
                           if (res.ok) {
                             await handleBookingUpdate();
@@ -909,7 +909,7 @@ export default function BookingDetail() {
                           checked={booking.depositReceivedManual || false}
                           onCheckedChange={async (checked) => {
                             try {
-                              const response = await fetch(`/api/admin/bookings/${booking.id}/flexible-update/`, {
+                              const response = await fetch(`/api/admin/bookings/${booking.id}/flexible-update`, {
                                 method: "PATCH",
                                 headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify({ depositReceivedManual: checked }),
@@ -991,7 +991,7 @@ export default function BookingDetail() {
                       if (!booking?.email) return;
                       setSendingFinalizeInvite(true);
                       try {
-                        const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite/`, { method: "POST" });
+                        const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite`, { method: "POST" });
                         const data = await res.json();
                         if (res.ok) {
                           await handleBookingUpdate();
@@ -1470,7 +1470,7 @@ export default function BookingDetail() {
                         if (!Number.isNaN(n)) body.amount = n;
                         else body.amount = depositInvoiceDraft.amount;
                       }
-                      const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice/`, {
+                      const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(body),
@@ -1880,7 +1880,7 @@ export default function BookingDetail() {
                         flexPayload.overrideReason = "Updated via Edit booking details";
                         flexPayload.eventDate = new Date(eventDateRaw).toISOString();
                       }
-                      const flexRes = await fetch(`/api/admin/bookings/${booking.id}/flexible-update/`, {
+                      const flexRes = await fetch(`/api/admin/bookings/${booking.id}/flexible-update`, {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(flexPayload),
@@ -1901,7 +1901,7 @@ export default function BookingDetail() {
                       if (clientPostcode !== null) clientPayload.clientPostcode = clientPostcode || null;
                       if (numberOfGuests !== null && !isNaN(numberOfGuests)) clientPayload.numberOfGuests = numberOfGuests;
                       if (Object.keys(clientPayload).length > 0) {
-                        const clientRes = await fetch(`/api/admin/bookings/${booking.id}/`, {
+                        const clientRes = await fetch(`/api/admin/bookings/${booking.id}`, {
                           method: "PATCH",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify(clientPayload),

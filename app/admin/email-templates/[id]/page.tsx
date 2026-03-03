@@ -156,7 +156,7 @@ export default function EmailTemplateEditor() {
 
   const fetchLockedData = async (bookingId: string) => {
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}/locked-event-data/`);
+      const response = await fetch(`/api/admin/bookings/${bookingId}/locked-event-data`);
       if (response.ok) {
         const data = await response.json();
         setLockedEventData(data);

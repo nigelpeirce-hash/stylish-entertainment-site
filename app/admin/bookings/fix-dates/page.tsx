@@ -49,7 +49,7 @@ export default function FixDatesPage() {
 
   const fetchSuspiciousBookings = async () => {
     try {
-      const response = await fetch("/api/admin/bookings/check-dates/");
+      const response = await fetch("/api/admin/bookings/check-dates");
       if (response.ok) {
         const data = await response.json();
         setSuspiciousBookings(data.suspiciousBookings || []);
@@ -70,7 +70,7 @@ export default function FixDatesPage() {
 
     setUpdating(bookingId);
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}/`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ eventDate: dateValue }),

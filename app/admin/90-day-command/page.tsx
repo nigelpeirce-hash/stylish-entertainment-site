@@ -423,7 +423,7 @@ export default function NinetyDayCommandCentre() {
   }, []);
 
   const { data, error, isLoading, mutate } = useSWR<{ bookings: Booking[] }>(
-    shouldFetch && mounted ? "/api/admin/bookings/90-day-command/" : null, // null key prevents fetch until mounted
+    shouldFetch && mounted ? "/api/admin/bookings/90-day-command" : null, // null key prevents fetch until mounted
     async (url: string) => {
       try {
         setFetchError(null);
@@ -570,7 +570,7 @@ export default function NinetyDayCommandCentre() {
 
     setUpdating(bookingId);
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}/manual-override/`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/manual-override`, {
         method: "PATCH",
         headers: { 
           "Content-Type": "application/json",
@@ -717,7 +717,7 @@ export default function NinetyDayCommandCentre() {
     }
 
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}/`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",

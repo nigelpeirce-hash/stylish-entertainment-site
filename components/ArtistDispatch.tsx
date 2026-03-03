@@ -277,7 +277,7 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
         const v = payload[k];
         if (v === undefined || v === "" || (typeof v === "number" && Number.isNaN(v))) delete payload[k];
       });
-      const res = await fetch(`/api/admin/bookings/${bookingId}/`, {
+      const res = await fetch(`/api/admin/bookings/${bookingId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -310,7 +310,7 @@ export function ArtistDispatch({ bookingId, booking, onUpdate }: ArtistDispatchP
 
     setIsDispatching(true);
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}/dispatch/`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/dispatch`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

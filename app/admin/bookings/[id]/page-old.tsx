@@ -198,7 +198,7 @@ export default function BookingDetail() {
   const fetchBooking = async () => {
     try {
       setLoading(true); // Show loading state when refreshing
-      const response = await fetch(`/api/admin/bookings/${bookingId}/?t=${Date.now()}`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}?t=${Date.now()}`, {
         cache: 'no-store', // Prevent caching to ensure fresh data
       });
       if (response.ok) {
@@ -301,7 +301,7 @@ export default function BookingDetail() {
       } else if (action === "cancel") {
         const confirmed = window.confirm(`Are you sure you want to mark "${booking.name}" booking as cancelled?`);
         if (!confirmed) return;
-        const response = await fetch(`/api/admin/bookings/${booking.id}/`, {
+        const response = await fetch(`/api/admin/bookings/${booking.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: "cancelled" }),
@@ -322,7 +322,7 @@ export default function BookingDetail() {
     if (!booking) return;
     
     try {
-      const response = await fetch(`/api/admin/bookings/${booking.id}/`, {
+      const response = await fetch(`/api/admin/bookings/${booking.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ eventDate: newDate }),
@@ -357,7 +357,7 @@ export default function BookingDetail() {
         updateData.isTechReady = true;
       }
 
-      const response = await fetch(`/api/admin/bookings/${booking.id}/`, {
+      const response = await fetch(`/api/admin/bookings/${booking.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updateData),

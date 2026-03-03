@@ -98,3 +98,5 @@ export const POST = async (req: Request) => {
     );
   }
 };
+
+export const HEAD = GET;

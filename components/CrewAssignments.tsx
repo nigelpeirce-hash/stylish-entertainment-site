@@ -89,7 +89,7 @@ export function CrewAssignments({
     setSuccess("");
 
     try {
-      const response = await fetch("/api/admin/bookings/staff/confirm/", {
+      const response = await fetch("/api/admin/bookings/staff/confirm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -284,7 +284,7 @@ function CancelCrewDialog({
     setError("");
 
     try {
-      const response = await fetch(`/api/admin/bookings/staff/${assignmentId}/cancel/`, {
+      const response = await fetch(`/api/admin/bookings/staff/${assignmentId}/cancel`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ reason: reason.trim() }),

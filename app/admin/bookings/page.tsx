@@ -319,7 +319,7 @@ function AdminBookingsContent() {
         newFlag = null;
       }
 
-      const response = await fetch(`/api/admin/bookings/${bookingId}/flag/`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/flag`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ flaggedFor: newFlag }),
@@ -337,7 +337,7 @@ function AdminBookingsContent() {
     try {
       // Map "ali" to the correct value and track who assigned
       const assignValue = assignedTo === "ali" ? "ali" : assignedTo;
-      const response = await fetch(`/api/admin/bookings/${bookingId}/handoff/`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/handoff`, {
         method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -358,7 +358,7 @@ function AdminBookingsContent() {
 
   const handleRestore = async (bookingId: string) => {
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}/restore/`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/restore`, {
         method: "POST",
         credentials: "include",
       });
@@ -397,7 +397,7 @@ function AdminBookingsContent() {
     if (typeof window !== "undefined" && !window.confirm(msg)) return;
     setDeleting(true);
     try {
-      const res = await fetch("/api/admin/bookings/bulk-delete/", {
+      const res = await fetch("/api/admin/bookings/bulk-delete", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -419,7 +419,7 @@ function AdminBookingsContent() {
     setShowDeleteAllModal(false);
     setDeleting(true);
     try {
-      const res = await fetch("/api/admin/bookings/bulk-delete/", {
+      const res = await fetch("/api/admin/bookings/bulk-delete", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

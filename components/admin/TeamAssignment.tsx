@@ -68,17 +68,34 @@ export function TeamAssignment({
     fetchCrew();
   }, [selectedRole]);
 
+  useEffect(() => {
+    console.log("[TEAM_ASSIGN] crew state updated", {
+      selectedRole,
+      crewLen: crew.length,
+      crewIds: crew.map((c) => c.id),
+    });
+  }, [crew, selectedRole]);
+
+  useEffect(() => {
+    console.log("[TEAM_ASSIGN] selectedStaffId changed", selectedStaffId);
+  }, [selectedStaffId]);
+
   const fetchCrew = async () => {
     try {
-      const response = await fetch(
-        `/api/admin/freelance-crew?activeOnly=true&role=${selectedRole}`
+      const res = await fetch(
+        `/api/admin/freelance-crew?activeOnly=true&role=${selectedRole}`,
+        { credentials: "include" }
       );
-      if (response.ok) {
-        const data = await response.json();
-        setCrew(data.crew || []);
-      }
+      const data = await res.json().catch(() => ({}));
+      setCrew(data.crew ?? []);
+      console.log("[TEAM_ASSIGN] setCrew", {
+        role: selectedRole,
+        count: Array.isArray((data as any)?.crew) ? (data as any).crew.length : null,
+        keys: Object.keys(data || {}),
+      });
     } catch (error) {
       console.error("Error fetching crew:", error);
+      setCrew([]);
     }
   };
 
@@ -93,7 +110,7 @@ export function TeamAssignment({
     setSuccess("");
 
     try {
-      const response = await fetch("/api/admin/bookings/staff/confirm/", {
+      const response = await fetch("/api/admin/bookings/staff/confirm", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -143,7 +160,23 @@ export function TeamAssignment({
     .filter((id): id is string => !!id);
   const assignedStaffIdsSet = new Set(assignedInThisRole);
 
+  console.log("[TEAM_ASSIGN]", {
+    selectedRole,
+    staffAssignmentsLen: staffAssignments?.length,
+    staffAssignmentsSample: (staffAssignments || []).slice(0, 5).map((a) => ({
+      id: a.id,
+      role: a.role,
+      cancelledAt: a.cancelledAt,
+      staffId: a.staff?.id,
+    })),
+    assignedInThisRole,
+    assignedSetSize: assignedStaffIdsSet.size,
+    crewLen: crew.length,
+    crewIds: crew.map((c) => c.id),
+  });
+
   const allGreyed = filteredCrew.length > 0 && filteredCrew.every((m) => assignedStaffIdsSet.has(m.id));
+  const disableSelect = filteredCrew.length === 0;
 
   return (
     <Card className="bg-gray-800 border-champagne-gold/30">
@@ -154,6 +187,23 @@ export function TeamAssignment({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {typeof window !== "undefined" && new URLSearchParams(window.location.search).has("taDebug") && (
+          <pre className="text-xs text-gray-300 bg-black/30 p-2 rounded">
+            {JSON.stringify(
+              {
+                selectedRole,
+                crewLen: crew.length,
+                filteredCrewLen: filteredCrew.length,
+                staffAssignmentsLen: staffAssignments?.length ?? null,
+                assignedSetSize: assignedStaffIdsSet.size,
+                assignedInThisRoleFirst10: assignedInThisRole.slice(0, 10),
+                searchQuery,
+              },
+              null,
+              2
+            )}
+          </pre>
+        )}
         {/* Role Selection */}
         <div>
           <Label className="text-gray-300 mb-2 block">Filter by Role</Label>
@@ -183,94 +233,25 @@ export function TeamAssignment({
         {/* Staff Searchable Dropdown */}
         <div className="space-y-2">
           <Label className="text-gray-300">Select Staff Member</Label>
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={open}
-                className="w-full justify-between bg-gray-900 border-gray-700 text-white hover:bg-gray-800"
-                type="button"
+          <select
+            value={selectedStaffId || ""}
+            onChange={(e) => {
+              const id = e.target.value;
+              setSelectedStaffId(id);
+            }}
+            className="w-full bg-gray-900 border border-gray-700 text-white p-2 rounded"
+          >
+            <option value="">Select staff...</option>
+            {filteredCrew.map((member) => (
+              <option
+                key={member.id}
+                value={member.id}
+                disabled={assignedStaffIdsSet.has(member.id)}
               >
-                {selectedStaffId
-                  ? crew.find((member) => member.id === selectedStaffId)?.name ||
-                    "Select staff..."
-                  : "Select staff..."}
-                <Search className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-full p-0" align="start">
-              <Command
-                className="bg-gray-900 border-gray-700"
-                shouldFilter={false}
-              >
-                <CommandInput
-                  placeholder="Search staff..."
-                  value={searchQuery}
-                  onValueChange={setSearchQuery}
-                  className="text-white"
-                />
-                <CommandList>
-                  <CommandEmpty>No staff found for {selectedRole}.</CommandEmpty>
-                  {allGreyed && (
-                    <div className="px-2 py-3 text-sm text-amber-400/90 border-b border-gray-700">
-                      All {selectedRole} crew are already assigned. Choose another role or add more in Staff Management.
-                    </div>
-                  )}
-                  <CommandGroup>
-                    {filteredCrew.map((member) => {
-                      const isAssigned = assignedStaffIdsSet.has(member.id);
-                      const hasNoEmail = !member.email;
-                      return (
-                        <CommandItem
-                          key={member.id}
-                          value={member.id}
-                          onSelect={() => {
-                            if (!isAssigned) {
-                              setSelectedStaffId(member.id);
-                              setOpen(false);
-                            }
-                          }}
-                          disabled={isAssigned}
-                          title={
-                            isAssigned
-                              ? "Already assigned for this role"
-                              : hasNoEmail
-                                ? "No email – confirmation email will not be sent"
-                                : undefined
-                          }
-                          className={`${
-                            isAssigned
-                              ? "opacity-50 cursor-not-allowed"
-                              : "cursor-pointer"
-                          } text-white hover:bg-gray-800`}
-                        >
-                          <div className="flex items-center justify-between w-full">
-                            <div className="flex items-center gap-2">
-                              <span>{member.name}</span>
-                              {member.email && (
-                                <span className="text-xs text-gray-400">
-                                  ({member.email})
-                                </span>
-                              )}
-                              {hasNoEmail && !isAssigned && (
-                                <span className="text-xs text-amber-400/90">(no email)</span>
-                              )}
-                            </div>
-                            {isAssigned && (
-                              <Badge className="bg-green-900/30 text-green-400 border-green-500/30 text-xs">
-                                Assigned
-                              </Badge>
-                            )}
-                          </div>
-                        </CommandItem>
-                      );
-                    })}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
+                {member.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         {/* Send confirmation email toggle */}
@@ -341,7 +322,7 @@ export function TeamAssignment({
                         if (confirm(`Remove ${assignment.staff?.name ?? "this staff member"} from this booking?`)) {
                           try {
                             const response = await fetch(
-                              `/api/admin/bookings/staff/${assignment.id}/`,
+                              `/api/admin/bookings/staff/${assignment.id}`,
                               {
                                 method: "DELETE",
                                 headers: { "Content-Type": "application/json" },

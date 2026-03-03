@@ -64,7 +64,7 @@ export function BookingIntegrityWarning({
               }
 
               const checkResponse = await fetch(
-                `/api/admin/bookings/check-conflicts/?email=${encodeURIComponent(
+                `/api/admin/bookings/check-conflicts?email=${encodeURIComponent(
                   booking.email
                 )}&eventDate=${encodeURIComponent(booking.eventDate)}&venuePostcode=${encodeURIComponent(
                   booking.venuePostcode || ""
