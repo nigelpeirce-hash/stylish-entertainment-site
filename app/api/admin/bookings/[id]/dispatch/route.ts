@@ -11,6 +11,7 @@ import {
 import { generateBriefToken } from "@/lib/brief-token";
 import { buildDispatchEmailHtml } from "@/lib/dispatch-email";
 import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
+import { SAFE_BOOKING_SCALARS } from "@/lib/safe-booking-query";
 
 // Force dynamic rendering to prevent build-time errors
 export const dynamic = 'force-dynamic';
@@ -101,31 +102,24 @@ export async function POST(
       );
     }
 
-    // Fetch booking data
+    // Fetch booking data (safe select: omit columns that may not exist in DB)
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      include: {
+      select: {
+        ...SAFE_BOOKING_SCALARS,
         staffAssignments: {
-          include: {
-            staff: true
-          }
+          include: { staff: true },
         },
         warehouseItems: {
-          include: {
-            WarehouseItem: true,
-          },
+          include: { WarehouseItem: true },
           orderBy: [
             { WarehouseItem: { category: "asc" } },
             { WarehouseItem: { name: "asc" } },
           ],
         },
         guestRequests: {
-          where: {
-            status: { in: ["pending", "approved", "moved_to_official"] },
-          },
-          orderBy: {
-            createdAt: "desc",
-          },
+          where: { status: { in: ["pending", "approved", "moved_to_official"] } },
+          orderBy: { createdAt: "desc" },
         },
       },
     });

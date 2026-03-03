@@ -29,9 +29,10 @@ export async function POST(
       );
     }
 
-    // Verify new booking exists
+    // Verify new booking exists (minimal select to avoid missing DB columns)
     const newBooking = await prisma.booking.findUnique({
       where: { id: newBookingId },
+      select: { id: true },
     });
 
     if (!newBooking) {

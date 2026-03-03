@@ -72,9 +72,10 @@ export async function PATCH(
       );
     }
 
-    // Fetch current talent status
+    // Fetch current talent status (safe select: omit columns that may not exist in DB)
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
+      select: { id: true, talentStatus: true },
     });
 
     // Store talent status in metadata or separate field

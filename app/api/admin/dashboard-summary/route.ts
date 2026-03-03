@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { getUnresolvedConflictsCount } from "@/lib/booking-integrity";
+import { SAFE_BOOKING_SCALARS, addBookingFallbacks } from "@/lib/safe-booking-query";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -45,7 +46,9 @@ const THREAD_INCLUDE_WITHOUT_FOLDER = {
   _count: { select: { Email: true } },
 };
 
-const BOOKING_INCLUDE = {
+/** Safe select: omits services, upsellItems, termsAcceptedVersion (columns may not exist in DB). */
+const PENDING_BOOKINGS_SELECT = {
+  ...SAFE_BOOKING_SCALARS,
   staffAssignments: {
     include: {
       staff: {
@@ -139,7 +142,7 @@ export async function GET(request: NextRequest) {
         : Promise.resolve([]),
       prisma.booking.findMany({
         where: bookingsWhere,
-        include: BOOKING_INCLUDE,
+        select: PENDING_BOOKINGS_SELECT,
         orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
         take: 100,
       }),
@@ -158,7 +161,7 @@ export async function GET(request: NextRequest) {
     recentThreads = Array.isArray(recentRaw) ? recentRaw : [];
 
     const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
-    const pendingBookings = (pendingBookingsRaw as any[]).sort((a, b) => {
+    const pendingBookings = (pendingBookingsRaw as any[]).map(addBookingFallbacks).sort((a, b) => {
       const aIsNew = !a.lastEmailSentAt;
       const bIsNew = !b.lastEmailSentAt;
       if (aIsNew && !bIsNew) return -1;

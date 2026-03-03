@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { SAFE_BOOKING_SCALARS, addBookingFallbacks } from "@/lib/safe-booking-query";
 
 // Force module re-resolution
 
@@ -55,66 +56,45 @@ export async function GET(request: NextRequest) {
     // Split into two queries if needed for better performance
     let bookings;
     try {
-      bookings = await prisma.booking.findMany({
-        where: {
-          eventDate: {
-            gte: now, // Greater than or equal to today
-            lte: ninetyDaysFromNow, // Less than or equal to 90 days from now
-          },
-        },
-        include: {
-          staffAssignments: {
-            include: {
-              staff: true
-            }
-          },
-          // Simplified emailThreads query - just check for unread portal messages
-          emailThreads: {
-            where: {
-              source: "portal",
-              isRead: false,
-            },
-            select: {
-              id: true,
-            },
-            take: 1, // Only need to know if any exist, not all of them
-          },
-          NewEnquiry: { select: { id: true } },
-        },
-        orderBy: {
-          eventDate: 'asc'
-        },
-        // Add timeout protection
-        take: 500, // Limit results to prevent huge queries
-      });
-    } catch (dbError: any) {
-      console.error("[90-Day Command] Database query error:", dbError);
-      // If the complex query fails, try a simpler version without emailThreads
-      console.log("[90-Day Command] Retrying with simplified query...");
-      bookings = await prisma.booking.findMany({
+      const raw = await prisma.booking.findMany({
         where: {
           eventDate: {
             gte: now,
             lte: ninetyDaysFromNow,
           },
         },
-        include: {
+        select: {
+          ...SAFE_BOOKING_SCALARS,
           staffAssignments: {
-            include: {
-              staff: true
-            }
+            include: { staff: true },
+          },
+          emailThreads: {
+            where: { source: "portal", isRead: false },
+            select: { id: true },
+            take: 1,
           },
           NewEnquiry: { select: { id: true } },
         },
-        orderBy: {
-          eventDate: 'asc'
-        },
+        orderBy: { eventDate: "asc" },
         take: 500,
       });
-      
-      // Manually set unreadPortalMessages to false for all bookings
-      // (we'll skip the emailThreads check if the query fails)
-      bookings = bookings.map(b => ({ ...b, emailThreads: [] }));
+      bookings = raw.map(addBookingFallbacks);
+    } catch (dbError: any) {
+      console.error("[90-Day Command] Database query error:", dbError);
+      console.log("[90-Day Command] Retrying with simplified query...");
+      const raw = await prisma.booking.findMany({
+        where: {
+          eventDate: { gte: now, lte: ninetyDaysFromNow },
+        },
+        select: {
+          ...SAFE_BOOKING_SCALARS,
+          staffAssignments: { include: { staff: true } },
+          NewEnquiry: { select: { id: true } },
+        },
+        orderBy: { eventDate: "asc" },
+        take: 500,
+      });
+      bookings = raw.map(addBookingFallbacks).map((b) => ({ ...b, emailThreads: [] }));
     }
 
     console.log(`[90-Day Command] Found ${bookings.length} bookings`);

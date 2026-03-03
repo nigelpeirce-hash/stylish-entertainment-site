@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { SAFE_BOOKING_SCALARS, addBookingFallbacks } from "@/lib/safe-booking-query";
 
 // Force dynamic rendering to prevent database connection during build
 export const dynamic = 'force-dynamic';
@@ -50,10 +51,10 @@ export async function GET(request: NextRequest) {
       ];
     }
 
-    const bookings = await prisma.booking.findMany({
+    const bookingsRaw = await prisma.booking.findMany({
       where,
-      include: {
-        // Include all staff assignments (no role filtering for admin - they need to see everything)
+      select: {
+        ...SAFE_BOOKING_SCALARS,
         staffAssignments: {
           include: {
             staff: {
@@ -68,17 +69,16 @@ export async function GET(request: NextRequest) {
             },
           },
         },
-        User: {
-          select: { id: true, name: true, email: true },
-        },
+        User: { select: { id: true, name: true, email: true } },
         NewEnquiry: { select: { id: true } },
       },
       orderBy: [
-        { priority: "desc" }, // Urgent first (alphabetically "urgent" > "medium" > "low")
+        { priority: "desc" },
         { createdAt: "desc" },
       ],
       take: 100,
     });
+    const bookings = bookingsRaw.map(addBookingFallbacks);
 
     // Sort bookings: New enquiries first (no lastEmailSentAt), then by priority, then by date
     const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };

@@ -97,15 +97,16 @@ export async function POST(request: NextRequest) {
     // Default event date
     const bookingEventDate = eventDate ? new Date(eventDate) : new Date("2099-12-31");
 
-    // Check if booking already exists (by email and event date)
+    // Check if booking already exists (safe select: omit columns that may not exist in DB)
     const existingBooking = await prisma.booking.findFirst({
       where: {
         email: email,
         eventDate: {
-          gte: new Date(bookingEventDate.getTime() - 24 * 60 * 60 * 1000), // Start of day
-          lte: new Date(bookingEventDate.getTime() + 24 * 60 * 60 * 1000), // End of day
+          gte: new Date(bookingEventDate.getTime() - 24 * 60 * 60 * 1000),
+          lte: new Date(bookingEventDate.getTime() + 24 * 60 * 60 * 1000),
         },
       },
+      select: { id: true, name: true, email: true, status: true, createdAt: true },
     });
 
     if (existingBooking) {

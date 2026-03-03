@@ -44,8 +44,9 @@ export async function generateMondayBrief(baseUrl?: string): Promise<MondayBrief
     day: "numeric" 
   });
 
-  // Fetch all bookings within next 90 days
-  const bookings = await prisma.booking.findMany({
+  // Fetch all bookings within next 90 days (safe select: omit services/upsellItems/termsAcceptedVersion)
+  const { addBookingFallbacks } = await import("@/lib/safe-booking-query");
+  const bookingsRaw = await prisma.booking.findMany({
     where: {
       eventDate: {
         gte: now,
@@ -63,7 +64,6 @@ export async function generateMondayBrief(baseUrl?: string): Promise<MondayBrief
       depositReceived: true,
       djWorksheetApproved: true,
       finalDetailsConfirmed: true,
-      services: true,
       staffAssignments: {
         select: {
           id: true,
@@ -91,6 +91,7 @@ export async function generateMondayBrief(baseUrl?: string): Promise<MondayBrief
       eventDate: "asc",
     },
   });
+  const bookings = bookingsRaw.map(addBookingFallbacks);
 
   const redActions: BriefAction[] = [];
   const goldActions: BriefAction[] = [];

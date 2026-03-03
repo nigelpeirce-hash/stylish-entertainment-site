@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/admin-auth";
+import { SAFE_BOOKING_SCALARS } from "@/lib/safe-booking-query";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -30,19 +31,12 @@ export async function GET(request: NextRequest) {
     yesterday.setDate(yesterday.getDate() - 1);
 
     const recentBookings = await prisma.booking.findMany({
-      where: {
-        createdAt: {
-          gte: yesterday,
-        },
+      where: { createdAt: { gte: yesterday } },
+      select: {
+        ...SAFE_BOOKING_SCALARS,
+        User: { select: { id: true, name: true, email: true } },
       },
-      include: {
-        User: {
-          select: { id: true, name: true, email: true },
-        },
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
       take: 50,
     });
 
@@ -55,14 +49,11 @@ export async function GET(request: NextRequest) {
           { email: { contains: "alison", mode: "insensitive" } },
         ],
       },
-      include: {
-        User: {
-          select: { id: true, name: true, email: true },
-        },
+      select: {
+        ...SAFE_BOOKING_SCALARS,
+        User: { select: { id: true, name: true, email: true } },
       },
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: { createdAt: "desc" },
     });
 
     // Also check ALL bookings to see if database is working

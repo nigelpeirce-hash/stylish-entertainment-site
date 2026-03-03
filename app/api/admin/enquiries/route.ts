@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { SAFE_BOOKING_SCALARS, addBookingFallbacks } from "@/lib/safe-booking-query";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -15,26 +16,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Fetch all bookings
-    const bookings = await prisma.booking.findMany({
+    const bookingsRaw = await prisma.booking.findMany({
       where: {
-        status: {
-          not: "cancelled", // Exclude cancelled
-        },
+        status: { not: "cancelled" },
       },
-      orderBy: {
-        createdAt: "desc",
-      },
-      include: {
+      orderBy: { createdAt: "desc" },
+      select: {
+        ...SAFE_BOOKING_SCALARS,
         User: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
+          select: { id: true, name: true, email: true },
         },
       },
     });
+    const bookings = bookingsRaw.map(addBookingFallbacks);
 
     // Map bookings to enquiries with new status structure
     const bookingEnquiries = bookings.map((booking) => {

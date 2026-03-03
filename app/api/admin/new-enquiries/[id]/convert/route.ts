@@ -39,8 +39,11 @@ export async function POST(
 
     // Prevent converting an already-converted enquiry
     if (enquiry.status === "converted") {
-      const existingBooking = enquiry.originalBookingId 
-        ? await prisma.booking.findUnique({ where: { id: enquiry.originalBookingId } })
+      const existingBooking = enquiry.originalBookingId
+        ? await prisma.booking.findUnique({
+            where: { id: enquiry.originalBookingId },
+            select: { id: true },
+          })
         : null;
       
       return NextResponse.json({ 
@@ -71,15 +74,16 @@ export async function POST(
       });
     }
 
-    // Check if booking already exists (by email and event date)
+    // Check if booking already exists (safe select: omit columns that may not exist in DB)
     const existingBooking = await prisma.booking.findFirst({
       where: {
         email: enquiry.email,
         eventDate: {
-          gte: new Date(new Date(enquiry.eventDate).getTime() - 24 * 60 * 60 * 1000), // Start of day
-          lte: new Date(new Date(enquiry.eventDate).getTime() + 24 * 60 * 60 * 1000), // End of day
+          gte: new Date(new Date(enquiry.eventDate).getTime() - 24 * 60 * 60 * 1000),
+          lte: new Date(new Date(enquiry.eventDate).getTime() + 24 * 60 * 60 * 1000),
         },
       },
+      select: { id: true },
     });
 
     if (existingBooking) {

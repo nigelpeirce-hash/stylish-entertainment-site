@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { SAFE_BOOKING_SCALARS } from "@/lib/safe-booking-query";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -24,11 +25,10 @@ export async function GET(
 
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      include: {
+      select: {
+        ...SAFE_BOOKING_SCALARS,
         warehouseItems: {
-          include: {
-            WarehouseItem: true,
-          },
+          include: { WarehouseItem: true },
           orderBy: [
             { WarehouseItem: { category: "asc" } },
             { WarehouseItem: { name: "asc" } },
@@ -37,23 +37,14 @@ export async function GET(
         staffAssignments: {
           include: {
             staff: {
-              select: {
-                id: true,
-                name: true,
-                email: true,
-                phone: true,
-              },
+              select: { id: true, name: true, email: true, phone: true },
             },
           },
         },
         guestRequests: {
-          where: {
-            status: { in: ["pending", "approved", "moved_to_official"] },
-          },
-          orderBy: {
-            createdAt: "desc",
-          },
-          take: 10, // Top 10 requests
+          where: { status: { in: ["pending", "approved", "moved_to_official"] } },
+          orderBy: { createdAt: "desc" },
+          take: 10,
         },
       },
     });

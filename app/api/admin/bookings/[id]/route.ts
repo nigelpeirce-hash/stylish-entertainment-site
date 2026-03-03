@@ -3,20 +3,14 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { deduplicateName } from "@/lib/utils/name-helpers";
 import { transformBooking } from "@/lib/transformers/booking-transformer";
+import { SAFE_BOOKING_SCALARS, addBookingFallbacks } from "@/lib/safe-booking-query";
 
 // Force dynamic rendering to prevent database connection during build
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
-/**
- * Include config aligned with schema to avoid P2022.
- * - Booking has no direct `staff` relation; it's many-to-many via staffAssignments.
- * - staffAssignments -> BookingStaffAssignment; staff -> FreelanceCrew (staff: true, no select).
- * - Booking.User (User.id, name, email).
- * - Booking.bookingItems -> BookingItem (status); HireItem (id, name, price, category).
- * No role filtering: admin sees all talent + crew.
- */
-const BOOKING_INCLUDE = {
+/** Relations for booking detail (used with SAFE_BOOKING_SCALARS to avoid selecting missing DB columns). */
+const BOOKING_RELATIONS = {
   User: {
     select: {
       id: true,
@@ -27,9 +21,7 @@ const BOOKING_INCLUDE = {
     },
   },
   staffAssignments: {
-    include: {
-      staff: true,
-    },
+    include: { staff: true },
   },
   bookingItems: {
     where: { status: "pending_approval" as const },
@@ -40,9 +32,7 @@ const BOOKING_INCLUDE = {
     },
   },
   warehouseItems: {
-    include: {
-      WarehouseItem: true,
-    },
+    include: { WarehouseItem: true },
     orderBy: [
       { WarehouseItem: { category: "asc" } },
       { WarehouseItem: { name: "asc" } },
@@ -50,6 +40,11 @@ const BOOKING_INCLUDE = {
   },
   NewEnquiry: { select: { id: true } },
 } as const;
+
+const BOOKING_SELECT_SAFE = {
+  ...SAFE_BOOKING_SCALARS,
+  ...BOOKING_RELATIONS,
+};
 
 function prismaErrorPayload(error: unknown): { error: string; prismaCode?: string; prismaMessage?: string; prismaMeta?: unknown } {
   const e = error as { code?: string; message?: string; meta?: unknown };
@@ -84,12 +79,12 @@ export async function GET(
       return NextResponse.json({ error: "Booking ID is required" }, { status: 400 });
     }
 
-    let booking: Awaited<ReturnType<typeof prisma.booking.findUnique<{ include: typeof BOOKING_INCLUDE }>>> | null = null;
+    let booking: Awaited<ReturnType<typeof prisma.booking.findUnique<{ select: typeof BOOKING_SELECT_SAFE }>>> | null = null;
 
     try {
       booking = await prisma.booking.findUnique({
         where: { id: bookingId },
-        include: BOOKING_INCLUDE,
+        select: BOOKING_SELECT_SAFE,
       });
     } catch (dbError) {
       console.error("Booking GET Prisma error (full query):", dbError);
@@ -148,10 +143,10 @@ export async function GET(
       console.log("Note: Email threads not available.", threadError);
     }
 
-    // Transform booking data to sanitized format
+    const withFallbacks = addBookingFallbacks(booking);
     const bookingWithDeduplicatedName = {
-      ...booking,
-      name: deduplicateName(booking.name),
+      ...withFallbacks,
+      name: deduplicateName(withFallbacks.name),
     };
     const sanitized = transformBooking(bookingWithDeduplicatedName, emailThreads);
     return NextResponse.json({ booking: sanitized }, { status: 200 });
@@ -165,7 +160,7 @@ export async function GET(
   }
 }
 
-/** Whitelist of Booking scalar fields allowed in PATCH. Excludes relations (User, staffAssignments, etc.) to avoid P2022. */
+/** Whitelist of Booking scalar fields allowed in PATCH. Omits services, upsellItems, termsAcceptedVersion (columns may not exist in DB). */
 const PATCH_ALLOWED_KEYS = new Set([
   "userId", "name", "displayName", "email", "phoneAreaCode", "phoneNumber",
   "clientAddress", "clientAddress2", "clientTown", "clientCounty", "clientPostcode",
@@ -173,10 +168,10 @@ const PATCH_ALLOWED_KEYS = new Set([
   "venueName", "venueContact", "venueAddress", "venueAddress2", "venueTown", "venueCounty", "venuePostcode",
   "venuePhoneAreaCode", "venuePhoneNumber", "ceremonyTime", "djArrivalTime", "djStartTime", "djFinishTime",
   "djSetupLocation", "djParking", "soundLimiter", "venueIsPrivateHouse", "venueWhat3Words", "venueLoadInNotes",
-  "numberOfGuests", "services", "message", "budget", "status",
+  "numberOfGuests", "message", "budget", "status",
   "contactPreference", "finalBalance", "paymentMethod", "paymentPayerName", "termsAccepted", "termsAcceptedAt",
   "completedTasks", "emailsSent", "lastEmailSentAt", "musicNotesToDJ", "musicNotesToStylish", "firstDance",
-  "lastSong", "musicDislikes", "musicRequests", "musicFileUrl", "preferredDJ", "upsellItems", "priority",
+  "lastSong", "musicDislikes", "musicRequests", "musicFileUrl", "preferredDJ", "priority",
   "adminNotes", "authorizedSenders", "bookingReference", "conflictResolvedAt", "conflictStatus",
   "depositReceived", "depositReceivedManual", "bookingFee", "djWorksheetApproved", "djWorksheetApprovedManual",
   "feeBreakdown", "finalDetailsConfirmed", "finalDetailsConfirmedManual", "flaggedFor", "handoffNote",
@@ -230,7 +225,7 @@ export async function PATCH(
       updatedBooking = await prisma.booking.update({
         where: { id: bookingId },
         data,
-        include: BOOKING_INCLUDE,
+        select: BOOKING_SELECT_SAFE,
       });
     } catch (dbError) {
       console.error("Booking PATCH Prisma error:", dbError);
@@ -240,10 +235,10 @@ export async function PATCH(
       );
     }
 
-    // Transform updated booking data to sanitized format
+    const withFallbacks = addBookingFallbacks(updatedBooking);
     const updatedBookingWithDeduplicatedName = {
-      ...updatedBooking,
-      name: deduplicateName(updatedBooking.name),
+      ...withFallbacks,
+      name: deduplicateName(withFallbacks.name),
     };
     const sanitized = transformBooking(updatedBookingWithDeduplicatedName);
     return NextResponse.json({ booking: sanitized });
@@ -311,6 +306,7 @@ export async function DELETE(
             archivedBy: admin?.id || "system",
             status: "archived",
           },
+          select: { id: true, name: true, archivedAt: true },
         });
         
         return NextResponse.json({ 

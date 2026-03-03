@@ -15,77 +15,77 @@ export type SeoPageImageSet = {
 export const seoPageImages: Record<string, SeoPageImageSet> = {
   "luxury-wedding-entertainment-south-west": {
     hero: {
-      src: `${C}/v1768736010/The-Newt-Somerset-with-our-Fairy-Light-Tunnel-installed-for-their-first-wedding_xwmaca.jpg`,
-      alt: "Fairy light tunnel at The Newt in Somerset—luxury wedding production and lighting design in the South West.",
+      src: `${C}/v1768163371/Lighting-Design-at-Kings-Weston-House_qxzunv.jpg`,
+      alt: "Dramatic production lighting at a South West venue—luxury wedding production and lighting design.",
     },
     imageStrip: [
-      { src: `${C}/v1768162531/Mells-Barn-Fairy-lights-in-ceiling_t8xe8k.jpg`, alt: "Mells Barn Somerset with fairy light ceiling—wedding venue lighting." },
-      { src: `${C}/v1768734676/RosedewFarmWeddingPhotography-EmmaSam-562_aqtw3u.jpg`, alt: "Rosedew Farm wedding with elegant lighting and atmosphere—South West wedding." },
-      { src: `${C}/v1768163641/Pennard-House-Festoon-Pizzarova_rpdwep.jpg`, alt: "Pennard House festoon lighting—South West wedding venue styling." },
+      { src: `${C}/v1768163779/Dj-Sax-Bongos_zlozkq.jpg`, alt: "DJ with sax and percussion—live wedding entertainment in the South West." },
+      { src: `${C}/v1768731827/Camilla-Richard-0063_ngmblz.jpg`, alt: "Styled reception with elegant lighting—luxury South West wedding." },
+      { src: `${C}/v1768162258/Fairy-light-Tunnel_sc40ed.jpg`, alt: "Dramatic fairy light tunnel—wedding production and venue styling in the South West." },
     ],
     featureImage: {
-      src: `${C}/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw`,
-      alt: "Fairy light tunnel entrance—luxury wedding production and venue styling in the South West.",
+      src: `${C}/v1768163661/Hedsor-House-with-DJ-and-Sax_zv7pnl.jpg`,
+      alt: "DJ and sax performance—luxury wedding production and live entertainment in the South West.",
     },
   },
   "wedding-production-london": {
     hero: {
-      src: `${C}/v1768163768/MartinBeddallPhotography02-e1530632660291_pabjzl.jpg`,
-      alt: "Elegant wedding reception with atmospheric lighting—London and Home Counties wedding production.",
+      src: `${C}/v1768163661/Hedsor-House-with-DJ-and-Sax_zv7pnl.jpg`,
+      alt: "Sophisticated dance floor with DJ and sax—London and Home Counties wedding production.",
     },
     imageStrip: [
-      { src: `${C}/v1768163371/Lighting-Design-at-Kings-Weston-House_qxzunv.jpg`, alt: "Lighting design at Kings Weston House—premium wedding venue." },
-      { src: `${C}/v1768163633/EmilyTomWedding-JonnyBarrattPhotography605-scaled-e1640779326843_ozksuz.jpg`, alt: "Wedding reception with stunning atmospheric lighting—London wedding entertainment." },
-      { src: `${C}/v1768163790/Party-dj-with-lazer_wnhreb.jpg`, alt: "Wedding DJ with professional lighting—high-end event production." },
+      { src: `${C}/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg`, alt: "Elegant venue with refined lighting—London wedding production." },
+      { src: `${C}/v1768163768/MartinBeddallPhotography02-e1530632660291_pabjzl.jpg`, alt: "Black tie wedding reception with atmospheric lighting—London wedding entertainment." },
+      { src: `${C}/v1768163633/EmilyTomWedding-JonnyBarrattPhotography605-scaled-e1640779326843_ozksuz.jpg`, alt: "Sophisticated wedding reception—London and Home Counties." },
     ],
     featureImage: {
       src: `${C}/v1768731827/Camilla-Richard-0063_ngmblz.jpg`,
-      alt: "Wedding celebration with elegant lighting and dance floor—London wedding production.",
+      alt: "Elegant wedding celebration and dance floor—London wedding production.",
     },
   },
   "wedding-dj-somerset": {
     hero: {
-      src: `${C}/v1768163392/Mells_Barn_LED_lighting-transformed-e1698060379974_geh36y.jpg`,
-      alt: "Mells Barn Somerset with LED lighting—wedding DJ and production in Somerset.",
+      src: `${C}/v1768734676/RosedewFarmWeddingPhotography-EmmaSam-562_aqtw3u.jpg`,
+      alt: "Barn wedding at dusk with warm atmosphere—Somerset wedding DJ and production.",
     },
     imageStrip: [
-      { src: `${C}/v1768163679/IMG_3094-1_aiyu5i.jpg`, alt: "Somerset wedding venue with fairy lights and styling." },
-      { src: `${C}/v1768734676/RosedewFarmWeddingPhotography-EmmaSam-562_aqtw3u.jpg`, alt: "Rosedew Farm wedding—Somerset wedding DJ and entertainment." },
-      { src: `${C}/v1768163641/Pennard-House-Festoon-Pizzarova_rpdwep.jpg`, alt: "Pennard House Somerset—wedding venue and lighting." },
+      { src: `${C}/v1768163700/Pennard-House_koaxfj.jpg`, alt: "Countryside estate lighting—Somerset wedding venue." },
+      { src: `${C}/v1768162531/Mells-Barn-Fairy-lights-in-ceiling_t8xe8k.jpg`, alt: "Warm fairy light atmosphere at Mells Barn—Somerset wedding." },
+      { src: `${C}/v1768163785/Nigel-DJ-Babs-House-0002-1_ktgbaf.jpg`, alt: "Fairy lights and festoon—Somerset wedding venue styling." },
     ],
     featureImage: {
-      src: `${C}/v1768163785/Nigel-DJ-Babs-House-0002-1_ktgbaf.jpg`,
-      alt: "Wedding DJ performing with elegant lighting—Somerset wedding entertainment.",
+      src: `${C}/v1768163783/Jade-and-Emma-0048_y2uzdn.jpg`,
+      alt: "Warm fairy light tunnel at The Newt in Somerset—wedding DJ and production.",
     },
   },
   "wedding-dj-bath": {
     hero: {
-      src: `${C}/v1768163641/Pennard-House-Festoon-Pizzarova_rpdwep.jpg`,
-      alt: "Pennard House festoon lighting—Bath area wedding DJ and venue styling.",
+      src: `${C}/v1768162651/Party-DJ-with-hands-in-the-air_usg7yx.jpg`,
+      alt: "Elegant ballroom interior—Bath area wedding DJ and refined venue styling.",
     },
     imageStrip: [
-      { src: `${C}/v1768163679/IMG_3094-1_aiyu5i.jpg`, alt: "Elegant wedding styling—Bath wedding entertainment." },
-      { src: `${C}/v1768163734/F4R3490_dyrug0.jpg`, alt: "Wedding reception with atmospheric lighting—Bath area wedding." },
-      { src: `${C}/v1768162531/Mells-Barn-Fairy-lights-in-ceiling_t8xe8k.jpg`, alt: "Fairy light ceiling—Bath and South West wedding venue." },
+      { src: `${C}/v1768163549/Dj-Sax-Bongos0_uufzvk.jpg`, alt: "Elegant Orangery venue with refined lighting—Bath wedding entertainment." },
+      { src: `${C}/v1768733441/Babington-House-Bar-with-DJ-Niges-setup_zdgqtq.jpg`, alt: "Refined candlelit reception styling—Bath wedding." },
+      { src: `${C}/v1768163223/Nigel-DJ-Babs-House-0019_y4rjks.jpg`, alt: "Elegant reception with atmospheric lighting—Bath area wedding." },
     ],
     featureImage: {
       src: `${C}/v1768731827/Camilla-Richard-0063_ngmblz.jpg`,
-      alt: "Wedding celebration with refined lighting—Bath wedding DJ and production.",
+      alt: "Refined wedding celebration—Bath wedding DJ and production.",
     },
   },
   "wedding-dj-bristol": {
     hero: {
-      src: `${C}/v1768163371/Lighting-Design-at-Kings-Weston-House_qxzunv.jpg`,
+      src: `${C}/v1768163649/Alice-Prakyat-517-2_gf5mno.jpg`,
       alt: "Lighting design at Kings Weston House—Bristol area wedding DJ and production.",
     },
     imageStrip: [
-      { src: `${C}/v1768163790/Party-dj-with-lazer_wnhreb.jpg`, alt: "Wedding DJ with professional lighting—Bristol wedding entertainment." },
-      { src: `${C}/v1768163679/IMG_3094-1_aiyu5i.jpg`, alt: "Wedding venue with elegant styling—Bristol and South West." },
-      { src: `${C}/v1768163768/MartinBeddallPhotography02-e1530632660291_pabjzl.jpg`, alt: "Wedding reception atmosphere—Bristol wedding DJ." },
+      { src: `${C}/v1768163790/Party-dj-with-lazer_wnhreb.jpg`, alt: "Modern reception with DJ and lighting—Bristol wedding entertainment." },
+      { src: `${C}/v1768163587/Party-DJ-Lighting-at-a-UNiversity-Spring-Ball_anblbj.jpg`, alt: "City venue dance floor energy—Bristol wedding DJ." },
+      { src: `${C}/v1768749211/MartinBeddallPhotography03-e1530632777146_eqctxf.jpg`, alt: "Dance floor and reception atmosphere—Bristol wedding DJ." },
     ],
     featureImage: {
-      src: `${C}/v1768163633/Stretch-Marquee-Lighting-e1483614284289_lmsqwr.jpg`,
-      alt: "Marquee lighting and wedding production—Bristol and South West events.",
+      src: `${C}/v1768163661/Hedsor-House-with-DJ-and-Sax_zv7pnl.jpg`,
+      alt: "Dance floor with DJ and sax—Bristol wedding entertainment.",
     },
   },
 };

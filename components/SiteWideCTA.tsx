@@ -17,6 +17,11 @@ import { Button } from "@/components/ui/button";
 const PREFIX_HIDE = ["/admin", "/contact", "/contact-us", "/thank-you"];
 const EXACT_HIDE = [
   "/wedding-dj",
+  "/wedding-dj-somerset",
+  "/wedding-dj-bath",
+  "/wedding-dj-bristol",
+  "/wedding-production-london",
+  "/luxury-wedding-entertainment-south-west",
   "/demo/client-portal",
   "/party-planning-and-organising",
   "/party-planning-and-organising/",

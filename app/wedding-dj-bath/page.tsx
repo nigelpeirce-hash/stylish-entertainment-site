@@ -115,6 +115,9 @@ export default function WeddingDJBathPage() {
                 <p className="text-sm text-gray-400 mt-4 max-w-xl">
                   Regularly performing in Bath city venues, Limpley Stoke, the Avon Valley and surrounding Somerset countryside.
                 </p>
+                <p className="text-sm text-gray-400 mt-1 max-w-xl">
+                  Resident at Babington House for 20 years — a benchmark venue for South West weddings.
+                </p>
               </div>
               {IMAGES?.hero && (
                 <div className="flex-1 order-2 mt-10 md:mt-0 w-full max-w-lg mx-auto md:max-w-none">

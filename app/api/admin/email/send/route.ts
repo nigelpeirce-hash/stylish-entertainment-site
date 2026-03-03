@@ -54,11 +54,21 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Get booking if provided
+      // Get booking if provided (safe select: omit services, upsellItems, termsAcceptedVersion)
       let booking = null;
       if (validatedData.bookingId) {
         booking = await prisma.booking.findUnique({
           where: { id: validatedData.bookingId },
+          select: {
+            name: true,
+            venueName: true,
+            eventType: true,
+            eventDate: true,
+            djStartTime: true,
+            djFinishTime: true,
+            preferredDJ: true,
+            numberOfGuests: true,
+          },
         });
       }
 

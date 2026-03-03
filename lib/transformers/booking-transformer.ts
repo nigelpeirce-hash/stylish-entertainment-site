@@ -298,12 +298,12 @@ export function transformBooking(
     isRead: boolean;
   }>
 ): SanitizedBooking {
-  // Ensure services is array of strings, not objects
+  // Ensure services is array of strings (resilient when column missing in DB or from safe select)
   const services = Array.isArray(booking?.services)
     ? booking.services.map(sanitizeStringArrayItem)
     : [];
 
-  // Ensure upsellItems is array of strings, not objects
+  // Ensure upsellItems is array of strings (resilient when column missing in DB or from safe select)
   const upsellItems = Array.isArray(booking?.upsellItems)
     ? booking.upsellItems.map(sanitizeStringArrayItem)
     : [];
