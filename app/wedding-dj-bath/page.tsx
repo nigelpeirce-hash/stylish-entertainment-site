@@ -7,7 +7,7 @@ import { getSeoPageImages } from "@/lib/seo-page-images";
 const baseUrl = "https://www.stylishentertainment.co.uk";
 
 export const metadata: Metadata = createMetadata({
-  title: "Wedding DJ Bath | Stylish Entertainment",
+  title: "Wedding DJ Bath",
   description: "Boutique wedding DJ and live acts in Bath and the surrounding area. Georgian elegance, city and country venues. Bespoke sets, no cheese.",
   pathname: "wedding-dj-bath",
   keywords: ["wedding DJ Bath", "Bath wedding DJ", "Bath wedding entertainment", "wedding DJ Bath area"],

@@ -3,9 +3,20 @@ import AboutClient from "./AboutClient";
 
 export const dynamic = "force-dynamic";
 
+const baseUrl = "https://www.stylishentertainment.co.uk";
+
 export const metadata: Metadata = {
-  title: "About Us | Wedding & Event Entertainment",
-  description: "Learn about Stylish Entertainment. We are an entertainment business based in Frome, Somerset, with 20+ years of experience providing entertainment for weddings, parties and events in the music and advertising industries. Trusted supplier at Babington House since 2003.",
+  title: "About Us",
+  description:
+    "STYLISH Entertainment: Frome-based event entertainment with 20+ years' experience. Weddings, parties and events. Trusted at Babington House since 2003.",
+  alternates: { canonical: `${baseUrl}/about/` },
+  openGraph: {
+    title: "About Us",
+    description:
+      "STYLISH Entertainment: Frome-based event entertainment with 20+ years' experience. Weddings, parties and events. Trusted at Babington House since 2003.",
+    type: "website",
+    url: `${baseUrl}/about/`,
+  },
 };
 
 const professionalServiceSchema = {

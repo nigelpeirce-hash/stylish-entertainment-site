@@ -3,36 +3,40 @@ import { Metadata } from "next";
 const baseUrl = "https://www.stylishentertainment.co.uk";
 
 /**
- * Generate canonical URL for a page based on pathname
+ * Generate absolute canonical URL from path (relative path, no leading slash or with).
  */
 export function generateCanonicalUrl(pathname: string): string {
-  // Remove leading/trailing slashes and normalize
   const cleanPath = pathname.replace(/^\/+|\/+$/g, "");
-  // Always include trailing slash for consistency
   return cleanPath ? `${baseUrl}/${cleanPath}/` : `${baseUrl}/`;
 }
 
-/**
- * Create metadata object with automatic canonical URL
- */
-export function createMetadata(metadata: {
+export type CreateMetadataOptions = {
   title: string;
   description: string;
+  /** Path for canonical and openGraph url (e.g. "contact-us" or "/private-parties"). pathname still supported for backward compat. */
+  path?: string;
+  /** @deprecated Use path. Kept for backward compatibility. */
   pathname?: string;
+  noindex?: boolean;
   keywords?: string[];
   openGraph?: {
     images?: Array<{ url: string; width?: number; height?: number; alt: string }>;
   };
-}): Metadata {
-  const canonical = generateCanonicalUrl(metadata.pathname ?? "");
+};
 
-  return {
+/**
+ * Create metadata with canonical, openGraph, twitter. Supports noindex for non-public pages.
+ */
+export function createMetadata(metadata: CreateMetadataOptions): Metadata {
+  const path = metadata.path ?? metadata.pathname ?? "";
+  const canonical =
+    path !== undefined && path !== null ? generateCanonicalUrl(path) : undefined;
+
+  const base: Metadata = {
     title: metadata.title,
     description: metadata.description,
     keywords: metadata.keywords,
-    alternates: {
-      canonical,
-    },
+    alternates: canonical ? { canonical } : undefined,
     openGraph: {
       type: "website",
       locale: "en_GB",
@@ -56,4 +60,10 @@ export function createMetadata(metadata: {
       images: metadata.openGraph?.images?.[0]?.url || "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw",
     },
   };
+
+  if (metadata.noindex) {
+    base.robots = { index: false, follow: false };
+  }
+
+  return base;
 }

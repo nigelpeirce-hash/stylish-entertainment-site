@@ -7,8 +7,6 @@ export default function Artists() {
   const router = useRouter();
 
   useEffect(() => {
-    document.title = "Artists | Stylish Entertainment";
-    // Redirect to DJs page as default
     router.push("/artists/djs/");
   }, [router]);
 

@@ -3,8 +3,9 @@ import { testimonials } from "@/data/testimonials";
 import HomeClient from "./HomeClient";
 
 export const metadata = createMetadata({
-  title: "Stylish Entertainment & Production | Luxury Event Production & Entertainment",
-  description: "Luxury event production studio: DJs and musicians UK-wide; lighting design, venue styling and technical production. Weddings, private parties, corporate. Confident, crafted, no YMCA.",
+  title: "Luxury DJs & Event Production",
+  description:
+    "Creative DJs, lighting and production for weddings and private parties across the UK.",
   pathname: "",
 });
 

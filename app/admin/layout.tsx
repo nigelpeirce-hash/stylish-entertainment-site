@@ -1,20 +1,14 @@
-"use client";
+import type { Metadata } from "next";
+import AdminLayoutClient from "./AdminLayoutClient";
 
-import { useEffect } from "react";
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+};
 
 export default function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  useEffect(() => {
-    // Add admin class to body for CSS targeting
-    document.body.classList.add("admin-page");
-
-    return () => {
-      document.body.classList.remove("admin-page");
-    };
-  }, []);
-
-  return <>{children}</>;
+  return <AdminLayoutClient>{children}</AdminLayoutClient>;
 }

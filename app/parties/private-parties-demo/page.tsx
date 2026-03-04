@@ -6,6 +6,7 @@ export const metadata: Metadata = createMetadata({
   title: "Private Parties Refactor Demo | Babington Standard",
   description: "Demo: High-end private parties page—Babington hero, transformation copy, planning timeline, and SEO location drawer.",
   pathname: "parties/private-parties-demo",
+  noindex: true,
 });
 
 export default function PrivatePartiesDemoPage() {

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -13,10 +12,6 @@ import {
 } from "@/lib/terms-content";
 
 export default function TermsAndConditionsPage() {
-  useEffect(() => {
-    document.title = "Terms and Conditions | Stylish Entertainment";
-  }, []);
-
   return (
     <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
       <div className="container mx-auto max-w-4xl">

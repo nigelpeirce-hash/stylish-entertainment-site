@@ -1,14 +1,13 @@
 import type { Metadata } from "next";
-import ClientLayoutInner from "./ClientLayoutInner";
 
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function ClientLayout({
+export default function RequestsLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <ClientLayoutInner>{children}</ClientLayoutInner>;
+  return <>{children}</>;
 }

@@ -61,10 +61,11 @@ const playfairDisplay = Playfair_Display({
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.stylishentertainment.co.uk"),
   title: {
-    default: "STYLISH Entertainment | DJs, Lighting & Events for Weddings, Parties & Celebrations",
-    template: "%s | STYLISH Entertainment"
+    default: "Luxury DJs & Event Production | STYLISH Entertainment",
+    template: "%s | STYLISH Entertainment",
   },
-  description: "Premium entertainment for weddings, parties and events across the UK. Professional DJs, lighting design and venue styling.",
+  description:
+    "Creative DJs, lighting and production for weddings and private parties across the UK.",
   keywords: ["Wedding DJs UK", "London Event DJs", "Somerset Wedding DJs", "Party DJs Bath", "Bristol Event Entertainment", "Dorset Wedding DJs", "Devon Party DJs", "DJs Cornwall", "Stylish Entertainment", "Luxury Event Lighting Hire", "Wedding Entertainment", "Party Entertainment", "Corporate Event DJs", "Private Party DJs", "Event Lighting Design", "Venue Styling", "Event Musicians", "Babington House DJ", "Professional DJs", "Event Sound Systems", "LED Event Lighting", "Celebration Entertainment"],
   authors: [{ name: "Stylish Entertainment" }],
   creator: "Stylish Entertainment",
@@ -79,8 +80,9 @@ export const metadata: Metadata = {
     locale: "en_GB",
     url: "https://www.stylishentertainment.co.uk",
     siteName: "STYLISH Entertainment",
-    title: "STYLISH Entertainment | DJs, Lighting & Events for Weddings, Parties & Celebrations",
-    description: "Premium entertainment for weddings, parties and events across the UK. Professional DJs, lighting design and venue styling.",
+    title: "Luxury DJs & Event Production | STYLISH Entertainment",
+    description:
+      "Creative DJs, lighting and production for weddings and private parties across the UK.",
     images: [
       {
         url: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw",
@@ -92,8 +94,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "STYLISH Entertainment | DJs, Lighting & Events for Weddings, Parties & Celebrations",
-    description: "Premium entertainment for weddings, parties and events across the UK. Professional DJs, lighting design and venue styling.",
+    title: "Luxury DJs & Event Production | STYLISH Entertainment",
+    description:
+      "Creative DJs, lighting and production for weddings and private parties across the UK.",
     images: ["https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw"],
     creator: "@stylishentertainment",
   },

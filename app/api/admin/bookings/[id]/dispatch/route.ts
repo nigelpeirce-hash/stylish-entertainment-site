@@ -12,6 +12,7 @@ import { generateBriefToken } from "@/lib/brief-token";
 import { buildDispatchEmailHtml } from "@/lib/dispatch-email";
 import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 import { SAFE_BOOKING_SCALARS } from "@/lib/safe-booking-query";
+import { logActivity } from "@/lib/activity-log";
 
 // Force dynamic rendering to prevent build-time errors
 export const dynamic = 'force-dynamic';
@@ -77,24 +78,20 @@ export async function POST(
         );
       }
 
+      // Enforce booking ownership: assignment must belong to this booking
+      if (staffAssignment.bookingId !== bookingId) {
+        return NextResponse.json(
+          { error: "Staff assignment does not belong to this booking" },
+          { status: 403 }
+        );
+      }
+
       recipientEmail = staffAssignment.staff.email;
       recipientName = staffAssignment.staff.name;
       staffRole = staffAssignment.role || '';
 
-      // Generate token for brief confirmation
+      // Generate token for brief confirmation (assignment update happens after successful email send)
       briefToken = generateBriefToken();
-
-      // Update assignment with token and set status to dispatched
-      await prisma.bookingStaffAssignment.update({
-        where: { id: staffAssignmentId },
-        data: {
-          briefToken,
-          status: "dispatched",
-          briefStatus: "pending",
-          confirmationEmailSent: true,
-          confirmationSentAt: new Date(),
-        },
-      });
     } else if (!assignedDJName || !assignedDJEmail) {
       return NextResponse.json(
         { error: "DJ/Agent name and email are required, or provide staffAssignmentId" },
@@ -182,6 +179,29 @@ export async function POST(
       html: finalHtml, // Include Thread-ID footer
       headers: threadingHeaders, // Add In-Reply-To and References headers
     });
+
+    // After successful email send: update assignment state (per-assignment dispatch)
+    if (staffAssignmentId && briefToken) {
+      await prisma.bookingStaffAssignment.update({
+        where: { id: staffAssignmentId },
+        data: {
+          briefToken,
+          status: "dispatched",
+          briefStatus: "pending",
+          confirmationEmailSent: true,
+          confirmationSentAt: new Date(),
+          dispatchedAt: new Date(),
+        },
+      });
+      await logActivity({
+        bookingId,
+        action: "ASSIGNMENT_DISPATCH_SENT",
+        description: `Brief dispatched to ${recipientName}`,
+        actor: "admin",
+        performedBy: admin.name || admin.email ?? undefined,
+        metadata: { bookingId, staffAssignmentId },
+      });
+    }
 
     // Update booking with dispatch metadata
     // Store dispatch info in emailsSent JSON field (temporary until schema fields are added)

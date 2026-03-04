@@ -104,6 +104,7 @@ export interface SanitizedBooking {
     status: string;
     confirmationEmailSent: boolean;
     confirmationSentAt?: Date | string | null;
+    dispatchedAt?: string | null;
     briefStatus?: string | null;
     acknowledgedAt?: Date | string | null;
     cancelledAt?: string | null; // When set, assignment is cancelled; do not grey out staff in Team Assignment
@@ -354,6 +355,11 @@ export function transformBooking(
           status: String(assignment?.status ?? ''),
           confirmationEmailSent: Boolean(assignment?.confirmationEmailSent),
           confirmationSentAt: assignment?.confirmationSentAt ?? null,
+          dispatchedAt: assignment?.dispatchedAt
+            ? (assignment.dispatchedAt instanceof Date
+                ? assignment.dispatchedAt.toISOString()
+                : String(assignment.dispatchedAt))
+            : null,
           briefStatus: assignment?.briefStatus ? String(assignment.briefStatus) : null,
           acknowledgedAt: assignment?.acknowledgedAt ?? null,
           cancelledAt: assignment?.cancelledAt

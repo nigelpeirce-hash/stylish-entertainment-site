@@ -6,6 +6,7 @@ export const metadata: Metadata = createMetadata({
   title: "Wedding Lighting Demo | Atmosphere-First Design",
   description: "Demo: Editorial wedding lighting page—room vs vibe, lighting personas, and Choose Your Mood table.",
   pathname: "weddings/wedding-lighting-demo",
+  noindex: true,
 });
 
 export default function WeddingLightingDemoPage() {

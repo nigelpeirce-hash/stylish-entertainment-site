@@ -7,7 +7,7 @@ import { getSeoPageImages } from "@/lib/seo-page-images";
 const baseUrl = "https://www.stylishentertainment.co.uk";
 
 export const metadata: Metadata = createMetadata({
-  title: "Wedding DJ Bristol | Stylish Entertainment",
+  title: "Wedding DJ Bristol",
   description: "Boutique wedding DJ and live acts in Bristol and the surrounding area. City and country venues, from Clifton to the Chew Valley. Bespoke sets, no cheese.",
   pathname: "wedding-dj-bristol",
   keywords: ["wedding DJ Bristol", "Bristol wedding DJ", "Bristol wedding entertainment", "Clifton wedding DJ"],

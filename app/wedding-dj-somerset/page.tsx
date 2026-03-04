@@ -7,7 +7,7 @@ import { getSeoPageImages } from "@/lib/seo-page-images";
 const baseUrl = "https://www.stylishentertainment.co.uk";
 
 export const metadata: Metadata = createMetadata({
-  title: "Wedding DJ Somerset | Stylish Entertainment",
+  title: "Wedding DJ Somerset",
   description: "Boutique wedding DJ and live acts across Somerset—Frome, Bruton, Wells, Glastonbury, Taunton and beyond. Bespoke sets, no cheese. We're based here.",
   pathname: "wedding-dj-somerset",
   keywords: ["wedding DJ Somerset", "Somerset wedding DJ", "Frome wedding DJ", "Wells wedding DJ", "wedding entertainment Somerset"],
