@@ -198,7 +198,7 @@ export async function POST(
         action: "ASSIGNMENT_DISPATCH_SENT",
         description: `Brief dispatched to ${recipientName}`,
         actor: "admin",
-        performedBy: admin.name || admin.email ?? undefined,
+        performedBy: admin.name || admin.email,
         metadata: { bookingId, staffAssignmentId },
       });
     }
