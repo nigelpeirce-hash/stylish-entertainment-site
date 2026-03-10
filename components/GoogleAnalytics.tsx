@@ -4,7 +4,7 @@ import Script from "next/script";
 
 export default function GoogleAnalytics() {
   // Use env var only – no hardcoded fallback (prevents wrong/test property in production)
-  const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+  const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
 
   if (!GA_MEASUREMENT_ID) {
     return null; // Don't load if not configured

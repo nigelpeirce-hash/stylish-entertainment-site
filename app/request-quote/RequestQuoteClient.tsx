@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -63,6 +64,7 @@ function saveBasket(items: BasketEntry[]) {
 }
 
 export default function RequestQuoteClient() {
+  const router = useRouter();
   const [services, setServices] = useState<string[]>([]);
   const [form, setForm] = useState({
     name: "",
@@ -183,14 +185,13 @@ export default function RequestQuoteClient() {
         setError(d?.error || "Something went wrong");
         return;
       }
-      trackEnquiryComplete({
-        eventType: "quote_request",
-        eventDate: form.eventDate,
-        source: "request_quote_page",
-      });
-      setSuccessDate(d.dateLabel || form.eventDate);
-      setSuccess(true);
+      // Store enquiry data for thank-you page conversion tracking
+      sessionStorage.setItem("recentBookingTimestamp", Date.now().toString());
+      sessionStorage.setItem("recentEventType", "quote_request");
+      sessionStorage.removeItem("thank_you_conversion_fired");
+
       persistBasket([]);
+      router.push("/thank-you/");
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Failed to submit");
     } finally {

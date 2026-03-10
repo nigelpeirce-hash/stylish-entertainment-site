@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -60,6 +61,7 @@ function saveBasket(items: BasketEntry[]) {
 }
 
 export default function HirePage() {
+  const router = useRouter();
   const [items, setItems] = useState<HireItem[]>([]);
   const [basket, setBasket] = useState<BasketEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -183,18 +185,13 @@ export default function HirePage() {
         return;
       }
       
-      // Track conversion in Google Analytics
-      trackEnquiryComplete({
-        eventType: 'hire',
-        eventDate: form.eventDate,
-        source: 'hire_enquiry_form',
-      });
-      
-      setSuccessDate(d.dateLabel || form.eventDate);
+      // Store enquiry data for thank-you page conversion tracking
+      sessionStorage.setItem("recentBookingTimestamp", Date.now().toString());
+      sessionStorage.setItem("recentEventType", "hire");
+      sessionStorage.removeItem("thank_you_conversion_fired");
+
       persistBasket([]);
-      setShowCart(false);
-      setShowForm(false);
-      setShowSuccess(true);
+      router.push("/thank-you/");
     } catch (e: any) {
       setFormError(e?.message || "Failed to submit");
     } finally {
