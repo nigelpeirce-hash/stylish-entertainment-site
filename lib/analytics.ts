@@ -40,11 +40,12 @@ export function trackEvent(
   }
   
   if (typeof window === 'undefined') return;
-  
+
   if (window.gtag) {
+    console.log("[Analytics] gtag event fired:", eventName, params);
     window.gtag('event', eventName, params);
   } else {
-    // Queue for gtag – GA4 processes dataLayer when gtag loads
+    console.warn("[Analytics] gtag not available, pushing to dataLayer:", eventName);
     (window as any).dataLayer = (window as any).dataLayer || [];
     (window as any).dataLayer.push({
       event: eventName,

@@ -20,16 +20,32 @@ export default function ThankYouClient() {
     const storedTimestamp = sessionStorage.getItem("recentBookingTimestamp");
     const storedEventType = sessionStorage.getItem("recentEventType");
 
-    // Fire conversion once when landing from form submit (gtag is loaded by then; avoids missing event on fast submit)
+    // Debug: log state so we can diagnose conversion issues
+    console.log("[ThankYou] sessionStorage state:", {
+      hasTimestamp: !!storedTimestamp,
+      hasBookingId: !!storedBookingId,
+      eventType: storedEventType,
+      conversionFired: sessionStorage.getItem("thank_you_conversion_fired"),
+      analyticsDisabled: localStorage.getItem("disable_analytics"),
+      gtagAvailable: typeof window !== "undefined" && !!window.gtag,
+    });
+
+    // Fire conversion once when landing from form submit
     const conversionFired = sessionStorage.getItem("thank_you_conversion_fired");
     const justSubmitted = storedTimestamp && !conversionFired;
     if (justSubmitted) {
       const timestamp = parseInt(storedTimestamp, 10);
       const secondsAgo = (Date.now() - timestamp) / 1000;
-      if (secondsAgo < 60) {
+      console.log("[ThankYou] Seconds since form submit:", secondsAgo);
+      if (secondsAgo < 300) {
+        console.log("[ThankYou] Firing conversion event:", storedEventType || "general");
         trackEnquiryComplete({ eventType: storedEventType || "general", source: "contact_form" });
         sessionStorage.setItem("thank_you_conversion_fired", "1");
+      } else {
+        console.warn("[ThankYou] Conversion NOT fired – too long since submit:", secondsAgo, "seconds");
       }
+    } else {
+      console.log("[ThankYou] No conversion to fire:", { justSubmitted, hasTimestamp: !!storedTimestamp, conversionFired });
     }
 
     // Only show update form if booking was submitted within last 24 hours
