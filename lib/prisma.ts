@@ -98,6 +98,14 @@ if (process.env.NODE_ENV === 'development' && isSessionModePooler && !_gw.__sess
   console.warn('⚠️  Using Supabase Session mode (port 5432) – limited connections. To fix "max clients reached", use Transaction mode: change port to 6543 and add ?pgbouncer=true');
 }
 
+// Supabase (and most managed Postgres hosts) use SSL with a certificate chain that
+// Node.js's built-in trust store cannot verify, causing "self-signed certificate in
+// certificate chain" regardless of whether sslmode appears in the URL.
+// Always pass ssl: { rejectUnauthorized: false } for non-local connections so the
+// encrypted tunnel is kept while skipping unverifiable cert chain checks.
+const isLocalDb = /localhost|127\.0\.0\.1/.test(enhancedConnectionString);
+const sslOptions = isLocalDb ? undefined : { rejectUnauthorized: false };
+
 const pool = new pg.Pool({ 
   connectionString: enhancedConnectionString,
   connectionTimeoutMillis: 30000,
@@ -107,6 +115,7 @@ const pool = new pg.Pool({
   idleTimeoutMillis: 20000,
   keepAlive: true,
   keepAliveInitialDelayMillis: 10000,
+  ...(sslOptions && { ssl: sslOptions }),
 })
 
 const adapter = new PrismaPg(pool)
