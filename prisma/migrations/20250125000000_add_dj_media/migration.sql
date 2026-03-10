@@ -1,0 +1,9 @@
+-- Add media and bio fields to DJ
+ALTER TABLE "DJ" ADD COLUMN IF NOT EXISTS "youtubeEmbed" TEXT;
+ALTER TABLE "DJ" ADD COLUMN IF NOT EXISTS "mixcloudEmbeds" JSONB;
+ALTER TABLE "DJ" ADD COLUMN IF NOT EXISTS "strapLine" TEXT;
+ALTER TABLE "DJ" ADD COLUMN IF NOT EXISTS "fullBio" TEXT;
+
+-- Add bio fields to Musician
+ALTER TABLE "Musician" ADD COLUMN IF NOT EXISTS "strapLine" TEXT;
+ALTER TABLE "Musician" ADD COLUMN IF NOT EXISTS "fullBio" TEXT;
