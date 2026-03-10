@@ -100,14 +100,25 @@ if (process.env.NODE_ENV === 'development' && isSessionModePooler && !_gw.__sess
 
 // Supabase (and most managed Postgres hosts) use SSL with a certificate chain that
 // Node.js's built-in trust store cannot verify, causing "self-signed certificate in
-// certificate chain" regardless of whether sslmode appears in the URL.
-// Always pass ssl: { rejectUnauthorized: false } for non-local connections so the
-// encrypted tunnel is kept while skipping unverifiable cert chain checks.
+// certificate chain". pg-connection-string parses sslmode=require/verify-full from
+// the URL and sets rejectUnauthorized:true, overriding any ssl option on the Pool.
+// Fix: strip sslmode from the URL for non-local connections so our explicit
+// ssl: { rejectUnauthorized: false } pool option is the sole SSL authority.
 const isLocalDb = /localhost|127\.0\.0\.1/.test(enhancedConnectionString);
+
+let poolConnectionString = enhancedConnectionString;
+if (!isLocalDb) {
+  // Remove sslmode=<value> query param (handles both ?sslmode=x and &sslmode=x)
+  poolConnectionString = enhancedConnectionString
+    .replace(/([?&])sslmode=[^&]*/g, (_, sep) => sep === '?' ? '?' : '')
+    .replace(/\?&/g, '?')   // fix ?& artifact left by leading-param removal
+    .replace(/[?&]$/g, ''); // strip trailing ? or &
+}
+
 const sslOptions = isLocalDb ? undefined : { rejectUnauthorized: false };
 
 const pool = new pg.Pool({ 
-  connectionString: enhancedConnectionString,
+  connectionString: poolConnectionString,
   connectionTimeoutMillis: 30000,
   query_timeout: 25000,
   statement_timeout: 25000,
