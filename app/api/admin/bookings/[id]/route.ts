@@ -67,11 +67,12 @@ const BOOKING_SELECT_SAFE = {
 
 function prismaErrorPayload(error: unknown): { error: string; prismaCode?: string; prismaMessage?: string; prismaMeta?: unknown } {
   const e = error as { code?: string; message?: string; meta?: unknown };
+  const isDev = process.env.NODE_ENV !== "production";
   return {
     error: "Database error",
-    prismaCode: e?.code,
-    prismaMessage: e?.message,
-    prismaMeta: e?.meta,
+    prismaCode: isDev ? e?.code : undefined,
+    prismaMessage: isDev ? e?.message : undefined,
+    prismaMeta: isDev ? e?.meta : undefined,
   };
 }
 

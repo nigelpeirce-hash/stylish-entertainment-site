@@ -538,7 +538,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error("Error sending artist quote:", error);
     return NextResponse.json(
-      { error: error.message || "Failed to send artist quote" },
+      { error: process.env.NODE_ENV !== "production" ? error.message : "Failed to send artist quote" },
       { status: 500 }
     );
   }

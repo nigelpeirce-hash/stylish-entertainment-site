@@ -17,9 +17,12 @@ export const runtime = 'nodejs';
 // For other platforms, use their scheduled task feature (Azure Functions, Railway Cron, etc.)
 export async function GET(request: NextRequest) {
   try {
-    // Verify it's a cron request (in production, add authentication header check)
+    const cronSecret = process.env.CRON_SECRET;
+    if (!cronSecret) {
+      return NextResponse.json({ error: "Cron not configured" }, { status: 503 });
+    }
     const authHeader = request.headers.get("authorization");
-    if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    if (authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

@@ -29,6 +29,11 @@ export async function PATCH(
       );
     }
 
+    const ALLOWED_STATUSES = ["pending", "checking_availability", "quoted", "contract_sent", "new", "reviewed", "converted"] as const;
+    if (!(ALLOWED_STATUSES as readonly string[]).includes(status)) {
+      return NextResponse.json({ error: "Invalid status value" }, { status: 400 });
+    }
+
     // Map status values for NewEnquiry
     let newEnquiryStatus = "new";
     

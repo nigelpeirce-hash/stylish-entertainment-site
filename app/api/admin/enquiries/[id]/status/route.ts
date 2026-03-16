@@ -29,6 +29,11 @@ export async function PATCH(
       );
     }
 
+    const ALLOWED_STATUSES = ["pending", "checking_availability", "quoted", "contract_sent", "confirmed", "cancelled", "locked", "archived"] as const;
+    if (!(ALLOWED_STATUSES as readonly string[]).includes(status)) {
+      return NextResponse.json({ error: "Invalid status value" }, { status: 400 });
+    }
+
     // Map new status values to booking status
     let bookingStatus = "pending";
     let updateData: any = {};
