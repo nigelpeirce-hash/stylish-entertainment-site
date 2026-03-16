@@ -2,9 +2,19 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
+import { getJourneyEmail } from "@/lib/email-journey-templates";
+import { getResendConfig } from "@/lib/email-config";
+import { Resend } from "resend";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
+
+function getResend(): Resend | null {
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey || apiKey === "re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx") return null;
+  if (!apiKey.startsWith("re_") || apiKey.length < 35) return null;
+  return new Resend(apiKey);
+}
 
 const VALID_SERVICES = ["lighting", "dj_kit", "production", "hire_only", "combination"] as const;
 
@@ -123,6 +133,39 @@ export async function POST(request: NextRequest) {
       month: "long",
       day: "numeric",
     });
+
+    // Client autoresponder
+    try {
+      const resend = getResend();
+      const emailConfig = getResendConfig("booking");
+      const { subject: autoSubject, html: autoHtml } = getJourneyEmail("enquiry-autoresponder", {
+        clientName: name.trim(),
+        eventType: eventType || "event",
+        eventDate: dateLabel,
+        venueName: venueName !== "TBC" ? venueName : undefined,
+        brochureUrl: "https://res.cloudinary.com/stylish/brochures/general-stylish-brochure.pdf",
+      });
+      if (resend) {
+        const result = await resend.emails.send({
+          from: emailConfig.from,
+          replyTo: emailConfig.replyTo,
+          to: [email.trim().toLowerCase()],
+          subject: autoSubject,
+          html: autoHtml,
+        });
+        if (result.data?.id && !result.error) {
+          console.log("[quote-request] Autoresponder sent to:", email.trim());
+          await prisma.newEnquiry.update({
+            where: { id: enquiry.id },
+            data: { firstTouchEmailSent: true, firstTouchEmailSentAt: new Date() },
+          });
+        } else {
+          console.error("[quote-request] Autoresponder failed:", result.error);
+        }
+      }
+    } catch (autoErr) {
+      console.error("[quote-request] Autoresponder error:", autoErr);
+    }
 
     // Email to admin
     const recipientEmail = process.env.CONTACT_FORM_EMAIL || "info@stylishentertainment.co.uk";
