@@ -10,12 +10,8 @@ export const runtime = 'nodejs';
 // This endpoint creates a test booking for the logged-in user
 // Only works in development mode
 export async function POST(request: NextRequest) {
-  // Only allow in development
   if (process.env.NODE_ENV === "production") {
-    return NextResponse.json(
-      { error: "This endpoint is only available in development" },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
   try {

@@ -6,6 +6,10 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export async function GET() {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   try {
     const testEmail = process.env.CONTACT_FORM_EMAIL || "info@stylishentertainment.co.uk";
 

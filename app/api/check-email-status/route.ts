@@ -5,6 +5,10 @@ export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 export async function GET() {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   const info = {
     resendConfigured: !!process.env.RESEND_API_KEY,
     resendApiKeyLength: process.env.RESEND_API_KEY?.length || 0,

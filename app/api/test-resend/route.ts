@@ -11,6 +11,10 @@ export const runtime = 'nodejs';
  * POST /api/test-resend - Send a test email
  */
 export async function GET() {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   const resendApiKey = process.env.RESEND_API_KEY;
   const fromEmail = process.env.SMTP_FROM_EMAIL || "info@stylishentertainment.co.uk";
   const recipientEmail = process.env.CONTACT_FORM_EMAIL || "info@stylishentertainment.co.uk";
@@ -63,6 +67,10 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
+  }
+
   try {
     const resendApiKey = process.env.RESEND_API_KEY;
 
