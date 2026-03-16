@@ -6,7 +6,6 @@ import { sendEmail } from "@/lib/email";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const ADMIN_EMAIL = "hello@stylishambience.co.uk";
 
 /**
  * POST /api/public/hire-enquiry
@@ -112,6 +111,10 @@ export async function POST(request: NextRequest) {
     });
 
     // Email to admin (same shape as portal confirm-hire-request)
+    const recipientEmail = process.env.CONTACT_FORM_EMAIL || "info@stylishentertainment.co.uk";
+    const backupEmail = process.env.NOTIFICATION_EMAIL;
+    const recipients = [recipientEmail, ...(backupEmail && backupEmail !== recipientEmail ? [backupEmail] : [])];
+
     if (selectedHireItems.length > 0) {
       const rows = selectedHireItems
         .map(
@@ -138,7 +141,7 @@ export async function POST(request: NextRequest) {
       </div>
     `;
       const text = `Hire Quote Request (Public)\n\nClient: ${name.trim()}\nEmail: ${email.trim()}\nEvent: ${dateLabel}\nVenue: ${venueName}\n\nRequested items:\n${rows}\n\nTotal: £${total.toFixed(2)}\n\nEnquiry ID: ${enquiry.id}`;
-      await sendEmail({ to: ADMIN_EMAIL, subject, html, text }).catch((err) =>
+      await sendEmail({ to: recipients, subject, html, text }).catch((err) =>
         console.error("[hire-enquiry] Admin email failed:", err)
       );
     }
