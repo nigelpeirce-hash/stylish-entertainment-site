@@ -6,8 +6,6 @@ import { sendEmail } from "@/lib/email";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const ADMIN_EMAIL = "hello@stylishambience.co.uk";
-
 const VALID_SERVICES = ["lighting", "dj_kit", "production", "hire_only", "combination"] as const;
 
 /**
@@ -127,6 +125,10 @@ export async function POST(request: NextRequest) {
     });
 
     // Email to admin
+    const recipientEmail = process.env.CONTACT_FORM_EMAIL || "info@stylishentertainment.co.uk";
+    const backupEmail = process.env.NOTIFICATION_EMAIL;
+    const recipients = [recipientEmail, ...(backupEmail && backupEmail !== recipientEmail ? [backupEmail] : [])];
+
     const serviceLabels: Record<string, string> = {
       lighting: "Lighting",
       dj_kit: "DJ & kit",
@@ -169,7 +171,7 @@ export async function POST(request: NextRequest) {
       </div>
     `;
     const text = `Quote Request\n\nClient: ${name.trim()}\nEmail: ${email.trim()}\nEvent: ${dateLabel}\nVenue: ${venueName}\n\nServices requested: ${servicesLine}\n${typeof message === "string" && message.trim() ? `Message: ${message.trim()}\n` : ""}\nHire items:\n${rows}\n${total > 0 ? `Hire total: £${total.toFixed(2)}\n` : ""}\nEnquiry ID: ${enquiry.id}`;
-    await sendEmail({ to: ADMIN_EMAIL, subject, html, text }).catch((err) =>
+    await sendEmail({ to: recipients, subject, html, text }).catch((err) =>
       console.error("[quote-request] Admin email failed:", err)
     );
 
