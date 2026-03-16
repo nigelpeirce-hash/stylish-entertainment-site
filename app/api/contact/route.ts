@@ -98,6 +98,32 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // reCAPTCHA v3 server-side verification
+    const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
+    if (recaptchaSecret && recaptchaToken) {
+      try {
+        const recaptchaRes = await fetch("https://www.google.com/recaptcha/api/siteverify", {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `secret=${recaptchaSecret}&response=${recaptchaToken}`,
+        });
+        const recaptchaData = await recaptchaRes.json();
+        if (!recaptchaData.success || recaptchaData.score < 0.3) {
+          console.warn("⚠️ reCAPTCHA verification failed:", { success: recaptchaData.success, score: recaptchaData.score });
+          return NextResponse.json(
+            { error: "Request could not be verified. Please try again." },
+            { status: 400 }
+          );
+        }
+        console.log("✅ reCAPTCHA verified, score:", recaptchaData.score);
+      } catch (recaptchaError) {
+        // Don't block the submission if Google's API is unreachable
+        console.warn("⚠️ reCAPTCHA verification request failed (allowing submission):", recaptchaError);
+      }
+    } else if (!recaptchaSecret) {
+      console.warn("⚠️ RECAPTCHA_SECRET_KEY not configured — skipping verification");
+    }
+
     // Find or create user by email
     let user = await prisma.user.findUnique({
       where: { email },
@@ -321,9 +347,6 @@ export async function POST(request: NextRequest) {
       description: `${name} – ${clientVenueName || "Venue TBC"}${eventDateLabel ? ` – ${eventDateLabel}` : ""}`,
       actor: "client",
     });
-
-    // TODO: Verify reCAPTCHA token on server side if needed
-    // For now, we'll trust the client-side verification
 
     // Format event date for admin email: day month year (e.g. 20 June 2026)
     const adminEventDateFormatted = eventDate
