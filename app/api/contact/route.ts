@@ -13,7 +13,7 @@ import {
 import { sendNewLeadNotification } from "@/lib/pushover-notifications";
 import { SIGNATURE_BLOCK_HTML, EMAIL_LOGO_HTML } from "@/lib/email-signature";
 import sendEmail from "@/lib/email/send-email";
-import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
+import { logActivity } from "@/lib/activity-log";
 
 // Force dynamic rendering to prevent build-time errors
 export const dynamic = 'force-dynamic';
@@ -311,25 +311,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Dashboard + email notification for significant event (AuditLog + admin email)
+    // Write AuditLog entry for dashboard activity feed (email sent separately below)
     const eventDateLabel = eventDate
       ? new Date(eventDate).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
       : undefined;
-    try {
-      await notifyAdminSignificantEvent({
-        type: "booking_request_received",
-        bookingId: booking.id,
-        actor: "client",
-        title: "New Enquiry",
-        description: `${name} – ${clientVenueName || "Venue TBC"}${eventDateLabel ? ` – ${eventDateLabel}` : ""}`,
-        bookingName: name,
-        venueName: clientVenueName || undefined,
-        eventDate: eventDateLabel,
-        linkText: "View enquiry",
-      });
-    } catch (e) {
-      console.warn("Admin notification (booking_request_received) failed:", e);
-    }
+    await logActivity({
+      bookingId: booking.id,
+      action: "booking_request_received",
+      description: `${name} – ${clientVenueName || "Venue TBC"}${eventDateLabel ? ` – ${eventDateLabel}` : ""}`,
+      actor: "client",
+    });
 
     // TODO: Verify reCAPTCHA token on server side if needed
     // For now, we'll trust the client-side verification
