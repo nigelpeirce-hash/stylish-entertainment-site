@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
+import { isPortalTokenValid } from "@/lib/portal-token";
 
 /**
  * GET /api/client/bookings/[id]/guest-requests
@@ -24,6 +25,7 @@ export async function GET(
         userId: true,
         email: true,
         portalToken: true,
+        portalTokenExpiresAt: true,
         guestRequests: {
           select: {
             id: true,
@@ -47,7 +49,7 @@ export async function GET(
     }
 
     let allowed = false;
-    if (token && booking.portalToken && booking.portalToken === token) {
+    if (token && isPortalTokenValid(booking, token)) {
       allowed = true;
     } else if (session?.user) {
       const u = session.user as { id?: string; role?: string };
@@ -108,6 +110,7 @@ export async function PATCH(
         userId: true,
         email: true,
         portalToken: true,
+        portalTokenExpiresAt: true,
       },
     });
 
@@ -116,7 +119,7 @@ export async function PATCH(
     }
 
     let allowed = false;
-    if (token && booking.portalToken && booking.portalToken === token) {
+    if (token && isPortalTokenValid(booking, token)) {
       allowed = true;
     } else if (session?.user) {
       const u = session.user as { id?: string; role?: string };

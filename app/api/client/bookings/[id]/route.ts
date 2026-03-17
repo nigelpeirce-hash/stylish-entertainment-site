@@ -2,6 +2,7 @@ import { randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
+import { isPortalTokenValid } from "@/lib/portal-token";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -49,6 +50,7 @@ export async function GET(
         djStartTime: true,
         djFinishTime: true,
         portalToken: true,
+        portalTokenExpiresAt: true,
         musicRequests: true,
         musicDislikes: true,
         firstDance: true,
@@ -109,7 +111,7 @@ export async function GET(
     }
 
     let allowed = false;
-    if (token && booking.portalToken && booking.portalToken === token) {
+    if (token && isPortalTokenValid(booking, token)) {
       allowed = true;
     } else if (session?.user) {
       const u = session.user as { id?: string; role?: string };
@@ -151,7 +153,7 @@ export async function GET(
       }
     }
 
-    const { portalToken: _pt, userId: _uid, ...safe } = booking;
+    const { portalToken: _pt, portalTokenExpiresAt: _ptea, userId: _uid, ...safe } = booking;
     return NextResponse.json({ 
       booking: { 
         ...safe, 

@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { Resend } from "resend";
+import { isPortalTokenValid } from "@/lib/portal-token";
 import { getResendConfig } from "@/lib/email-config";
 import { getDisplayName } from "@/lib/utils/name-helpers";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
@@ -118,6 +119,7 @@ export async function POST(
         venueName: true,
         eventType: true,
         portalToken: true,
+        portalTokenExpiresAt: true,
         guestRequestToken: true,
       },
     });
@@ -127,7 +129,7 @@ export async function POST(
     }
 
     let allowed = false;
-    if (token && booking.portalToken && booking.portalToken === token) {
+    if (token && isPortalTokenValid(booking, token)) {
       allowed = true;
     } else if (session?.user) {
       const u = session.user as { id?: string; role?: string };

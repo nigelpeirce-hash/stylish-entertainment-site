@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { uploadToCloudinary } from "@/lib/cloudinary";
+import { isPortalTokenValid } from "@/lib/portal-token";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -48,6 +49,7 @@ export async function POST(
         userId: true,
         eventDate: true,
         portalToken: true,
+        portalTokenExpiresAt: true,
       },
     });
     if (!booking) {
@@ -58,7 +60,7 @@ export async function POST(
     }
 
     let allowed = false;
-    if (token && booking.portalToken && booking.portalToken === token) {
+    if (token && isPortalTokenValid(booking, token)) {
       allowed = true;
     } else if (session?.user) {
       const u = session.user as { id?: string; role?: string };
@@ -161,7 +163,7 @@ export async function DELETE(
 
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      select: { id: true, userId: true, portalToken: true },
+      select: { id: true, userId: true, portalToken: true, portalTokenExpiresAt: true },
     });
     if (!booking) {
       return NextResponse.json(
@@ -171,7 +173,7 @@ export async function DELETE(
     }
 
     let allowed = false;
-    if (token && booking.portalToken && booking.portalToken === token) {
+    if (token && isPortalTokenValid(booking, token)) {
       allowed = true;
     } else if (session?.user) {
       const u = session.user as { id?: string; role?: string };

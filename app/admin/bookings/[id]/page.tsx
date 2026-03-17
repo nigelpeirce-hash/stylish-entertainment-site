@@ -168,6 +168,7 @@ export default function BookingDetail() {
   const [deleting, setDeleting] = useState(false);
   const [sendingDepositInvoice, setSendingDepositInvoice] = useState(false);
   const [sendingFinalizeInvite, setSendingFinalizeInvite] = useState(false);
+  const [regeneratingPortalToken, setRegeneratingPortalToken] = useState(false);
   const [depositInvoiceModalOpen, setDepositInvoiceModalOpen] = useState(false);
   const [depositInvoiceDraft, setDepositInvoiceDraft] = useState<{
     clientName: string;
@@ -1039,6 +1040,40 @@ export default function BookingDetail() {
                   {(booking.depositReceivedManual || false) && (
                     <p className="text-xs text-amber-400/90 mt-2">Deposit already confirmed — client has portal link from that email. Use &quot;Send portal link&quot; below only to resend a sign-in link.</p>
                   )}
+                </div>
+
+                {/* Revoke / regenerate portal access link */}
+                <div className="p-4 bg-gray-900/70 rounded-lg border border-red-500/20 mt-2">
+                  <p className="text-xs text-gray-400 mb-2">
+                    Regenerate portal token — invalidates any existing portal link immediately. Use if a link was forwarded or needs to be revoked.
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="border-red-500/40 text-red-300 hover:bg-red-500/10 w-full"
+                    disabled={regeneratingPortalToken}
+                    onClick={async () => {
+                      if (!booking?.id) return;
+                      if (!confirm("This will invalidate the client's current portal link immediately. Continue?")) return;
+                      setRegeneratingPortalToken(true);
+                      try {
+                        const res = await fetch(`/api/admin/bookings/${booking.id}/regenerate-portal-token`, { method: "POST" });
+                        const data = await res.json();
+                        if (res.ok) {
+                          await handleBookingUpdate();
+                          toast({ title: "Portal token regenerated", description: "Previous link is now invalid. Send a new portal invite to give the client a fresh link." });
+                        } else {
+                          throw new Error(data?.error ?? "Failed to regenerate");
+                        }
+                      } catch (e: unknown) {
+                        toast({ title: "Error", description: (e as Error)?.message ?? "Failed to regenerate", variant: "destructive" });
+                      } finally {
+                        setRegeneratingPortalToken(false);
+                      }
+                    }}
+                  >
+                    {regeneratingPortalToken ? "Regenerating…" : "Regenerate Portal Token (Revoke Old Link)"}
+                  </Button>
                 </div>
               </CardContent>
             </Card>

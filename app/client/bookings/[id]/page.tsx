@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import PortalView from '@/components/client/PortalView';
 import { auth } from '@/auth';
+import { isPortalTokenValid } from '@/lib/portal-token';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -69,6 +70,7 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
       djStartTime: true,
       djFinishTime: true,
       portalToken: true,
+      portalTokenExpiresAt: true,
       staffAssignments: {
         where: { cancelledAt: null },
         select: {
@@ -155,20 +157,20 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
   // 2. Admin Preview Mode
   if (isAdmin) {
     console.log("👤 Admin Preview: Allowing admin to view client portal for preview");
-    const { portalToken: _pt, ...bookingSafe } = booking;
+    const { portalToken: _pt, portalTokenExpiresAt: _ptea, ...bookingSafe } = booking;
     return <PortalView booking={{ ...bookingSafe, venueNotes, googleMapsUrl }} isPreview={true} baseUrl={baseUrl} eventPassed={eventPassed} />;
   }
 
   // 3. Dev Bypass Logic
   if (isDev) {
     console.log("🛠️ Dev Mode: Bypassing strict portal authentication for testing");
-    const { portalToken: _pt, ...bookingSafe } = booking;
+    const { portalToken: _pt, portalTokenExpiresAt: _ptea, ...bookingSafe } = booking;
     return <PortalView booking={{ ...bookingSafe, venueNotes, googleMapsUrl }} isPreview={true} baseUrl={baseUrl} eventPassed={eventPassed} />;
   }
 
   // 4. Tokenized magic link: ?token=... grants immediate read/write access (no login)
   if (token) {
-    const isValid = !!booking.portalToken && booking.portalToken === token;
+    const isValid = isPortalTokenValid(booking, token);
     if (!isValid) {
       return (
         <div className="min-h-screen bg-gray-950 text-white flex flex-col items-center justify-center p-6">
@@ -180,7 +182,7 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
         </div>
       );
     }
-    const { portalToken: _pt, ...bookingSafe } = booking;
+    const { portalToken: _pt, portalTokenExpiresAt: _ptea, ...bookingSafe } = booking;
     return <PortalView booking={{ ...bookingSafe, venueNotes, googleMapsUrl }} isPreview={false} baseUrl={baseUrl} eventPassed={eventPassed} />;
   }
 
@@ -201,6 +203,6 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
       </div>
     );
   }
-  const { portalToken: _pt, ...bookingSafe } = booking;
+  const { portalToken: _pt, portalTokenExpiresAt: _ptea, ...bookingSafe } = booking;
   return <PortalView booking={{ ...bookingSafe, venueNotes, googleMapsUrl }} isPreview={false} baseUrl={baseUrl} eventPassed={eventPassed} />;
 }

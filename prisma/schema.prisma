@@ -139,6 +139,7 @@ model Booking {
   taxRate                     Float?                   @default(20)
   venueFingerprint            String?
   portalToken                 String?                  @unique
+  portalTokenExpiresAt        DateTime?
   guestRequestToken           String?                  @unique @default(cuid()) // Shareable link for guest song requests
   guestRequestsEnabled        Boolean                  @default(true) // Toggle to enable/disable guest requests
   assignedTo                  assigned_member?
@@ -712,6 +713,8 @@ model User {
   createdAt                               DateTime         @default(now())
   updatedAt                               DateTime
   invitedAt                               DateTime?
+  inviteToken                             String?
+  inviteTokenExpiresAt                    DateTime?
   Account                                 Account[]
   Booking                                 Booking[]
   Cart                                    Cart[]

@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
@@ -15,14 +16,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find user by email
     const user = await prisma.user.findUnique({
       where: { email },
       select: {
         id: true,
         email: true,
         emailVerified: true,
-        invitedAt: true,
+        inviteToken: true,
+        inviteTokenExpiresAt: true,
       },
     });
 
@@ -33,7 +34,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // If already verified, token is invalid (already used)
     if (user.emailVerified) {
       return NextResponse.json(
         { valid: false, error: "Account already set up. Please log in." },
@@ -41,25 +41,28 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Basic token validation - decode and check email matches
-    try {
-      const decoded = Buffer.from(token, "base64").toString("utf-8");
-      const [tokenEmail] = decoded.split(":");
-      
-      if (tokenEmail !== email) {
-        return NextResponse.json(
-          { valid: false, error: "Invalid token" },
-          { status: 400 }
-        );
-      }
-    } catch (decodeError) {
+    if (!user.inviteToken) {
       return NextResponse.json(
-        { valid: false, error: "Invalid token format" },
+        { valid: false, error: "No active invite found. Please request a new invite." },
         { status: 400 }
       );
     }
 
-    // Token is valid
+    if (user.inviteTokenExpiresAt && user.inviteTokenExpiresAt < new Date()) {
+      return NextResponse.json(
+        { valid: false, error: "This invite link has expired. Please ask to be re-invited." },
+        { status: 400 }
+      );
+    }
+
+    const hashedIncoming = createHash("sha256").update(token).digest("hex");
+    if (hashedIncoming !== user.inviteToken) {
+      return NextResponse.json(
+        { valid: false, error: "Invalid token" },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json({ valid: true });
   } catch (error: any) {
     console.error("Token validation error:", error);

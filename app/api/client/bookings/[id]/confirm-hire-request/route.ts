@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/email";
 import { logActivity } from "@/lib/activity-log";
 import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
+import { isPortalTokenValid } from "@/lib/portal-token";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -39,6 +40,7 @@ export async function POST(
         venueName: true,
         userId: true,
         portalToken: true,
+        portalTokenExpiresAt: true,
       },
     });
     if (!booking) {
@@ -46,7 +48,7 @@ export async function POST(
     }
 
     let allowed = false;
-    if (token && booking.portalToken && booking.portalToken === token) {
+    if (token && isPortalTokenValid(booking, token)) {
       allowed = true;
     } else if (session?.user) {
       const u = session.user as { id?: string; role?: string };

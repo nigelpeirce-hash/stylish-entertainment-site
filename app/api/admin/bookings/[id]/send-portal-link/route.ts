@@ -1,4 +1,3 @@
-import { randomBytes } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
@@ -8,6 +7,7 @@ import { yourEventLabel } from "@/lib/email-templates";
 import { SIGNATURE_BLOCK_HTML_DARK, CLIENT_SIGNOFF_TEXT, EMAIL_LOGO_HTML_DARK } from "@/lib/email-signature";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
 import { logActivity } from "@/lib/activity-log";
+import { generatePortalToken, newPortalTokenExpiry } from "@/lib/portal-token";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -58,16 +58,16 @@ export async function POST(
       );
     }
 
-    // Use magic link (works without password) — generate portalToken if not set
+    // Generate a new portal token with expiry every time this route is called.
+    // This acts as an implicit revocation of the previous token — the client
+    // always gets a fresh link with a 12-month expiry.
     const baseUrl = getEmailBaseUrl().replace(/\/$/, "");
-    let portalToken = (booking.portalToken as string | null) || null;
-    if (!portalToken) {
-      portalToken = randomBytes(32).toString("hex");
-      await prisma.booking.update({
-        where: { id: bookingId },
-        data: { portalToken, updatedAt: new Date() },
-      });
-    }
+    const portalToken = generatePortalToken();
+    const portalTokenExpiresAt = newPortalTokenExpiry();
+    await prisma.booking.update({
+      where: { id: bookingId },
+      data: { portalToken, portalTokenExpiresAt, updatedAt: new Date() },
+    });
     const portalUrl = `${baseUrl}/client/bookings/${bookingId}?token=${encodeURIComponent(portalToken)}`;
 
     // Get greeting name for email

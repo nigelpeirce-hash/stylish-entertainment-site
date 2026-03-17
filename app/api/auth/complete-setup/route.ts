@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
@@ -17,14 +18,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = setupSchema.parse(body);
 
-    // Find user by email
     const user = await prisma.user.findUnique({
       where: { email: validatedData.email },
       select: {
         id: true,
         email: true,
         emailVerified: true,
-        password: true,
+        inviteToken: true,
+        inviteTokenExpiresAt: true,
       },
     });
 
@@ -35,7 +36,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // If already verified, don't allow setup again
     if (user.emailVerified) {
       return NextResponse.json(
         { error: "Account already set up. Please log in." },
@@ -43,33 +43,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate token
-    try {
-      const decoded = Buffer.from(validatedData.token, "base64").toString("utf-8");
-      const [tokenEmail] = decoded.split(":");
-      
-      if (tokenEmail !== validatedData.email) {
-        return NextResponse.json(
-          { error: "Invalid token" },
-          { status: 400 }
-        );
-      }
-    } catch (decodeError) {
+    if (!user.inviteToken) {
       return NextResponse.json(
-        { error: "Invalid token format" },
+        { error: "No active invite found. Please request a new invite." },
         { status: 400 }
       );
     }
 
-    // Hash password
+    if (user.inviteTokenExpiresAt && user.inviteTokenExpiresAt < new Date()) {
+      return NextResponse.json(
+        { error: "This invite link has expired. Please ask to be re-invited." },
+        { status: 400 }
+      );
+    }
+
+    const hashedIncoming = createHash("sha256").update(validatedData.token).digest("hex");
+    if (hashedIncoming !== user.inviteToken) {
+      return NextResponse.json(
+        { error: "Invalid token" },
+        { status: 400 }
+      );
+    }
+
     const hashedPassword = await bcrypt.hash(validatedData.password, 12);
 
-    // Update user: set password and emailVerified
     await prisma.user.update({
       where: { id: user.id },
       data: {
         password: hashedPassword,
-        emailVerified: new Date(), // This changes status from "pending" to "accepted"
+        emailVerified: new Date(),
+        inviteToken: null,
+        inviteTokenExpiresAt: null,
       },
     });
 

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomBytes, createHash } from "crypto";
 import { requireAdmin } from "@/lib/admin-auth";
 import { inviteUserByEmail } from "@/lib/supabase-admin";
 import { prisma } from "@/lib/prisma";
@@ -7,6 +8,18 @@ import { Resend } from "resend";
 import { sendEmail } from "@/lib/email";
 import { SIGNATURE_BLOCK_HTML } from "@/lib/email-signature";
 import { getEmailUrl, getRelativePath } from "@/lib/get-base-url";
+
+/** Generate a cryptographically random invite token and its SHA-256 hash for DB storage. */
+function generateInviteToken(): { rawToken: string; hashedToken: string } {
+  const rawToken = randomBytes(32).toString("hex");
+  const hashedToken = createHash("sha256").update(rawToken).digest("hex");
+  return { rawToken, hashedToken };
+}
+
+/** Returns a Date 72 hours from now. */
+function inviteTokenExpiry(): Date {
+  return new Date(Date.now() + 72 * 60 * 60 * 1000);
+}
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -85,9 +98,18 @@ export async function POST(request: NextRequest) {
         }
       }
 
-      // Generate invite URL for existing user (full URL for email)
+      // Generate a secure invite token for existing user
+      const { rawToken: existingRawToken, hashedToken: existingHashedToken } = generateInviteToken();
+      await prisma.user.update({
+        where: { email },
+        data: {
+          inviteToken: existingHashedToken,
+          inviteTokenExpiresAt: inviteTokenExpiry(),
+          updatedAt: new Date(),
+        },
+      });
       const inviteUrl = getEmailUrl(
-        `/auth/setup?email=${encodeURIComponent(email)}&token=${Buffer.from(`${email}:${Date.now()}`).toString("base64")}`,
+        `/auth/setup?email=${encodeURIComponent(email)}&token=${existingRawToken}`,
         request
       );
 
@@ -269,11 +291,22 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    // Generate a secure invite token and store hash in DB
+    const { rawToken, hashedToken } = generateInviteToken();
+    await prisma.user.update({
+      where: { email: user.email },
+      data: {
+        inviteToken: hashedToken,
+        inviteTokenExpiresAt: inviteTokenExpiry(),
+        updatedAt: new Date(),
+      },
+    });
+
     // Send invite email via Resend
     const emailConfig = getResendConfig("general");
     const inviteUrl =
       supabaseInviteUrl ||
-      getEmailUrl(`/auth/setup?email=${encodeURIComponent(email)}&token=${Buffer.from(`${email}:${Date.now()}`).toString("base64")}`, request);
+      getEmailUrl(`/auth/setup?email=${encodeURIComponent(email)}&token=${rawToken}`, request);
 
     const emailHtml = `
       <!DOCTYPE html>

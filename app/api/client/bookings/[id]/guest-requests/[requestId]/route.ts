@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "@/lib/get-session";
 import { prisma } from "@/lib/prisma";
+import { isPortalTokenValid } from "@/lib/portal-token";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -27,7 +28,7 @@ export async function PATCH(
 
     const booking = await prisma.booking.findUnique({
       where: { id: bookingId },
-      select: { id: true, userId: true, email: true, portalToken: true },
+      select: { id: true, userId: true, email: true, portalToken: true, portalTokenExpiresAt: true },
     });
 
     if (!booking) {
@@ -35,7 +36,7 @@ export async function PATCH(
     }
 
     let allowed = false;
-    if (token && booking.portalToken && booking.portalToken === token) allowed = true;
+    if (token && isPortalTokenValid(booking, token)) allowed = true;
     else if (session?.user) {
       const u = session.user as { id?: string; role?: string };
       if (u.role === "admin") allowed = true;

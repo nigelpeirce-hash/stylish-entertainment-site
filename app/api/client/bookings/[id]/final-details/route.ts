@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { getStaffPushKeys, sendPushoverNotification } from "@/lib/pushover-notifications";
 import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 import { tryAutoDispatch } from "@/lib/auto-dispatch-on-final-details";
+import { isPortalTokenValid } from "@/lib/portal-token";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -39,6 +40,7 @@ export async function PATCH(
         userId: true,
         eventDate: true,
         portalToken: true,
+        portalTokenExpiresAt: true,
         name: true,
         venueName: true,
       },
@@ -48,7 +50,7 @@ export async function PATCH(
     }
 
     let allowed = false;
-    if (token && booking.portalToken && booking.portalToken === token) {
+    if (token && isPortalTokenValid(booking, token)) {
       allowed = true;
     } else if (session?.user) {
       const u = session.user as { id?: string; role?: string };
