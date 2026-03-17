@@ -9,6 +9,7 @@ import { deduplicateName, getGreetingName } from "@/lib/utils/name-helpers";
 import { PORTAL_REMINDER } from "@/lib/email/templates";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
 import { getClientPortalLoginUrl } from "@/lib/client-portal-url";
+import { logActivity } from "@/lib/activity-log";
 
 // Lazy initialization to prevent build-time errors
 const getResend = () => {
@@ -68,6 +69,8 @@ export async function GET(request: NextRequest) {
   };
 
   try {
+    const baseUrl = getEmailBaseUrl();
+
     // 1. Find bookings that need 3-day reminder (enquiry sent 3+ days ago, no booking confirmed)
     const threeDaysAgo = new Date(now);
     threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
@@ -231,6 +234,14 @@ export async function GET(request: NextRequest) {
           },
         });
 
+        await logActivity({
+          bookingId: booking.id,
+          action: "cron_email_sent",
+          description: "Automated 3-day reminder email sent to client",
+          actor: "system",
+          metadata: { stage: "threeDayReminder", messageId },
+        }).catch(() => {});
+
         results.sent++;
       } catch (error: any) {
         results.errors.push(`Booking ${booking.id}: ${error.message}`);
@@ -283,6 +294,14 @@ export async function GET(request: NextRequest) {
             lastEmailSentAt: now,
           },
         });
+
+        await logActivity({
+          bookingId: booking.id,
+          action: "cron_email_sent",
+          description: "Automated 4-week check-in email sent to client",
+          actor: "system",
+          metadata: { stage: "fourWeekCheckin", messageId },
+        }).catch(() => {});
 
         results.sent++;
       } catch (error: any) {
@@ -337,14 +356,20 @@ export async function GET(request: NextRequest) {
           },
         });
 
+        await logActivity({
+          bookingId: booking.id,
+          action: "cron_email_sent",
+          description: "Automated week-of-excitement email sent to client",
+          actor: "system",
+          metadata: { stage: "weekOfExcitement", messageId },
+        }).catch(() => {});
+
         results.sent++;
       } catch (error: any) {
         results.errors.push(`Booking ${booking.id}: ${error.message}`);
         results.skipped++;
       }
     }
-
-    const baseUrl = getEmailBaseUrl();
 
     // Process post-wedding magic
     for (const booking of bookingsNeedingPostWedding) {
@@ -391,6 +416,14 @@ export async function GET(request: NextRequest) {
             lastEmailSentAt: now,
           },
         });
+
+        await logActivity({
+          bookingId: booking.id,
+          action: "cron_email_sent",
+          description: "Automated post-event follow-up email sent to client",
+          actor: "system",
+          metadata: { stage: "postWeddingMagic", messageId },
+        }).catch(() => {});
 
         results.sent++;
       } catch (error: any) {
@@ -442,6 +475,14 @@ export async function GET(request: NextRequest) {
             lastEmailSentAt: now,
           },
         });
+
+        await logActivity({
+          bookingId: booking.id,
+          action: "cron_email_sent",
+          description: "Automated portal reminder email sent to client",
+          actor: "system",
+          metadata: { stage: "portalReminder", messageId },
+        }).catch(() => {});
 
         results.sent++;
       } catch (error: any) {
