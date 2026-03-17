@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activity-log";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -63,6 +64,14 @@ export async function PATCH(
     const updatedBooking = await prisma.booking.update({
       where: { id: bookingId },
       data: updateData,
+    });
+
+    await logActivity({
+      bookingId,
+      action: "status_changed",
+      description: `Status changed to: ${status}`,
+      actor: "admin",
+      performedBy: admin?.email || admin?.id || null,
     });
 
     return NextResponse.json({ booking: updatedBooking });

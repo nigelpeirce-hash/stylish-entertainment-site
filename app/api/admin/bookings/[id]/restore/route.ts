@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activity-log";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -63,6 +64,14 @@ export async function POST(
         email: true,
         status: true,
       },
+    });
+
+    await logActivity({
+      bookingId,
+      action: "booking_restored",
+      description: `Booking restored: ${booking.name}`,
+      actor: "admin",
+      performedBy: admin?.email || admin?.id || null,
     });
 
     return NextResponse.json({

@@ -63,6 +63,14 @@ export async function PATCH(
       },
     });
 
+    // Structured log — full AuditLog entry pending Step 9 schema migration (NewEnquiry FK)
+    console.log("[audit] new-enquiry status_changed", {
+      enquiryId,
+      status,
+      performedBy: admin?.email || admin?.id || null,
+      at: new Date().toISOString(),
+    });
+
     return NextResponse.json({ enquiry: updatedEnquiry });
   } catch (error) {
     console.error("Error updating enquiry status:", error);

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { deduplicateName } from "@/lib/utils/name-helpers";
 import { transformBooking } from "@/lib/transformers/booking-transformer";
 import { SAFE_BOOKING_SCALARS, addBookingFallbacks } from "@/lib/safe-booking-query";
+import { logActivity } from "@/lib/activity-log";
 
 // Force dynamic rendering to prevent database connection during build
 export const dynamic = 'force-dynamic';
@@ -255,6 +256,14 @@ export async function PATCH(
       );
     }
 
+    await logActivity({
+      bookingId,
+      action: "booking_updated",
+      description: `Fields updated: ${Object.keys(data).join(", ")}`,
+      actor: "admin",
+      performedBy: admin?.email || admin?.id || null,
+    });
+
     const withFallbacks = addBookingFallbacks(updatedBooking);
     const updatedBookingWithDeduplicatedName = {
       ...withFallbacks,
@@ -329,6 +338,14 @@ export async function DELETE(
           select: { id: true, name: true, archivedAt: true },
         });
         
+        await logActivity({
+          bookingId,
+          action: "booking_archived",
+          description: `Booking archived: ${booking.name}`,
+          actor: "admin",
+          performedBy: admin?.email || admin?.id || null,
+        });
+
         return NextResponse.json({ 
           success: true, 
           message: "Booking archived successfully",
@@ -346,6 +363,15 @@ export async function DELETE(
 
     // HARD DELETE - Only with ?permanent=true
     try {
+      // Log before deletion — AuditLog FK points to Booking, so must write first
+      await logActivity({
+        bookingId,
+        action: "booking_deleted",
+        description: `Booking permanently deleted: ${booking.name} (${booking.email})`,
+        actor: "admin",
+        performedBy: admin?.email || admin?.id || null,
+      });
+
       await prisma.emailThread.deleteMany({ where: { bookingId } });
       await prisma.bookingStaffAssignment.deleteMany({ where: { bookingId } });
       await prisma.booking.delete({ where: { id: bookingId } });

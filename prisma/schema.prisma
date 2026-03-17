@@ -589,7 +589,7 @@ model Musician {
 }
 
 model NewEnquiry {
-  id                    String    @id
+  id                    String    @id @default(uuid())
   name                  String
   email                 String
   phoneAreaCode         String?
@@ -616,7 +616,7 @@ model NewEnquiry {
   notificationSent      Boolean   @default(false)
   notificationSentAt    DateTime?
   createdAt             DateTime  @default(now())
-  updatedAt             DateTime
+  updatedAt             DateTime  @updatedAt
   Booking               Booking?  @relation(fields: [originalBookingId], references: [id])
   User_EnquiryRepliedBy User?     @relation("NewEnquiry_EnquiryRepliedBy", fields: [enquiryRepliedByUserId], references: [id])
 
