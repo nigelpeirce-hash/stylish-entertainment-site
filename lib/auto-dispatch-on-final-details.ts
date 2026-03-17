@@ -17,6 +17,7 @@ import {
 import { generateBriefToken } from "@/lib/brief-token";
 import { buildDispatchEmailHtml, type DispatchFinalDetails } from "@/lib/dispatch-email";
 import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
+import { logActivity } from "@/lib/activity-log";
 
 const getResend = () => {
   const apiKey = process.env.RESEND_API_KEY;
@@ -172,6 +173,14 @@ export async function tryAutoDispatch(bookingId: string): Promise<AutoDispatchRe
       html: finalHtml,
       headers: threadingHeaders,
     });
+
+    logActivity({
+      bookingId,
+      action: "AUTO_DISPATCH_SENT",
+      description: `Brief auto-dispatched to ${assignment.staff?.name ?? recipientEmail} (triggered by client final details)`,
+      actor: "system",
+      metadata: { staffAssignmentId: assignment.id, recipientEmail },
+    }).catch(() => {});
 
     recipients.push(`${assignment.staff?.name} <${recipientEmail}>`);
   }

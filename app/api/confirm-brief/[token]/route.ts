@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isValidTokenFormat } from "@/lib/brief-token";
+import { logActivity } from "@/lib/activity-log";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -477,6 +478,14 @@ export async function POST(
           acknowledgedAt: new Date(),
         },
       });
+      logActivity({
+        bookingId: assignment.booking.id,
+        action: "BRIEF_ACKNOWLEDGED",
+        description: `Brief acknowledged by ${assignment.staff?.name ?? "staff member"}`,
+        actor: "staff",
+        performedBy: assignment.staff?.name ?? undefined,
+        metadata: { staffAssignmentId: assignment.id },
+      }).catch(() => {});
     } else if (dc) {
       if (dc.acknowledgedAt) {
         return NextResponse.json(
@@ -488,6 +497,14 @@ export async function POST(
         where: { id: dc.id },
         data: { acknowledgedAt: new Date() },
       });
+      logActivity({
+        bookingId: dc.booking.id,
+        action: "BRIEF_ACKNOWLEDGED",
+        description: `Brief acknowledged by ${dc.recipientName ?? "artist"}`,
+        actor: "staff",
+        performedBy: dc.recipientName ?? undefined,
+        metadata: { dispatchConfirmationId: dc.id },
+      }).catch(() => {});
     }
 
     const displayName = assignment?.staff?.name ?? dc?.recipientName ?? "there";

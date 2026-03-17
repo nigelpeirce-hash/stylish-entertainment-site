@@ -31,6 +31,7 @@ const BOOKING_RELATIONS = {
       confirmationSentAt: true,
       briefStatus: true,
       acknowledgedAt: true,
+      dispatchedAt: true,
       cancelledAt: true,
       staff: {
         select: {
