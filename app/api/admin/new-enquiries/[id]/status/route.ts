@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activity-log";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -63,12 +64,12 @@ export async function PATCH(
       },
     });
 
-    // Structured log — full AuditLog entry pending Step 9 schema migration (NewEnquiry FK)
-    console.log("[audit] new-enquiry status_changed", {
+    await logActivity({
       enquiryId,
-      status,
+      action: "status_changed",
+      description: `Enquiry status changed to: ${status}`,
+      actor: "admin",
       performedBy: admin?.email || admin?.id || null,
-      at: new Date().toISOString(),
     });
 
     return NextResponse.json({ enquiry: updatedEnquiry });

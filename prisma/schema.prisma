@@ -28,17 +28,20 @@ model Account {
 }
 
 model AuditLog {
-  id          String   @id @default(dbgenerated("('audit_'::text || \"substring\"(md5((random())::text), 1, 12))"))
-  bookingId   String
+  id          String      @id @default(dbgenerated("('audit_'::text || \"substring\"(md5((random())::text), 1, 12))"))
+  bookingId   String?
+  enquiryId   String?
   action      String
   description String
   performedBy String?
-  actor       String?  // "client" | "guest" | "admin" | "system"
-  metadata    Json?    // { emailSubject, amount, songTitle, etc }
-  createdAt   DateTime @default(now())
-  Booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  actor       String?     // "client" | "guest" | "admin" | "system"
+  metadata    Json?       // { emailSubject, amount, songTitle, etc }
+  createdAt   DateTime    @default(now())
+  Booking     Booking?    @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  NewEnquiry  NewEnquiry? @relation(fields: [enquiryId], references: [id], onDelete: Cascade)
 
   @@index([bookingId])
+  @@index([enquiryId])
   @@index([createdAt])
 }
 
@@ -615,10 +618,11 @@ model NewEnquiry {
   enquiryRepliedByUserId String?
   notificationSent      Boolean   @default(false)
   notificationSentAt    DateTime?
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
-  Booking               Booking?  @relation(fields: [originalBookingId], references: [id])
-  User_EnquiryRepliedBy User?     @relation("NewEnquiry_EnquiryRepliedBy", fields: [enquiryRepliedByUserId], references: [id])
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+  Booking               Booking?    @relation(fields: [originalBookingId], references: [id])
+  User_EnquiryRepliedBy User?       @relation("NewEnquiry_EnquiryRepliedBy", fields: [enquiryRepliedByUserId], references: [id])
+  AuditLog              AuditLog[]
 
   @@index([createdAt])
   @@index([email])

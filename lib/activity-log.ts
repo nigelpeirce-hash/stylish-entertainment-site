@@ -17,7 +17,8 @@ export interface ActivityMetadata {
 }
 
 export interface LogActivityOptions {
-  bookingId: string;
+  bookingId?: string | null;
+  enquiryId?: string | null;
   action: string;
   description: string;
   actor?: ActivityActor;
@@ -30,11 +31,16 @@ export interface LogActivityOptions {
  * Use from API routes after successful mutations.
  */
 export async function logActivity(options: LogActivityOptions): Promise<void> {
-  const { bookingId, action, description, actor, performedBy, metadata } = options;
+  const { bookingId, enquiryId, action, description, actor, performedBy, metadata } = options;
+  if (!bookingId && !enquiryId) {
+    console.warn("[activity-log] logActivity called with neither bookingId nor enquiryId — skipping");
+    return;
+  }
   try {
     await prisma.auditLog.create({
       data: {
-        bookingId,
+        bookingId: bookingId ?? undefined,
+        enquiryId: enquiryId ?? undefined,
         action,
         description: description.slice(0, 1000),
         performedBy: performedBy ?? undefined,
