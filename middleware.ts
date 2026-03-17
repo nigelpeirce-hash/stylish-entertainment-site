@@ -13,10 +13,18 @@ export async function middleware(request: NextRequest) {
     host.startsWith('10.')
   if (isLocalhost) return NextResponse.next()
 
-  const token = await getToken({
-    req: request,
-    secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
-  })
+  const secret = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET
+
+  // NextAuth v5 renamed the session cookie — try both names so the check works
+  // regardless of which version's cookie is present.
+  const isSecure = request.nextUrl.protocol === 'https:'
+  const v5CookieName = isSecure ? '__Secure-authjs.session-token' : 'authjs.session-token'
+  const v4CookieName = isSecure ? '__Secure-next-auth.session-token' : 'next-auth.session-token'
+
+  let token = await getToken({ req: request, secret, cookieName: v5CookieName })
+  if (!token) {
+    token = await getToken({ req: request, secret, cookieName: v4CookieName })
+  }
 
   if (!token || (token as any).role !== 'admin') {
     const loginUrl = new URL('/login', request.url)

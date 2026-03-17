@@ -79,7 +79,10 @@ export default function LoginPage() {
         // Redirect based on role and optional callback
         setIsLoading(false);
         if (userRole === "admin") {
-          router.push("/admin");
+          // Honour callbackUrl for admin paths (e.g. /admin set by middleware); fall back to /admin
+          const safeAdminPath =
+            callbackUrl?.startsWith("/admin") && !callbackUrl.includes("..") ? callbackUrl : "/admin";
+          router.push(safeAdminPath);
         } else {
           // Client: if callbackUrl is a safe client path, go there (e.g. portal from deposit email)
           const safePath = callbackUrl?.startsWith("/client/") && !callbackUrl.includes("..") ? callbackUrl : null;
