@@ -353,8 +353,7 @@ const nextConfig = {
       { source: '/what-we-do/djs-discos/', destination: '/artists/djs/', permanent: true },
       { source: '/babington-house/the-orangery-at-babington-house', destination: '/venues/babington-house/', permanent: true },
       { source: '/babington-house/the-orangery-at-babington-house/', destination: '/venues/babington-house/', permanent: true },
-      { source: '/babington-dj-final-details', destination: '/venues/babington-house/', permanent: true },
-      { source: '/babington-dj-final-details/', destination: '/venues/babington-house/', permanent: true },
+      // /babington-dj-final-details is a real app route (client final-details form); do not redirect to venue.
       { source: '/work-for-us', destination: '/contact-us/', permanent: true },
       { source: '/work-for-us/', destination: '/contact-us/', permanent: true },
       { source: '/fire-pit-html/fire-pit-html', destination: '/services/fire-pit-hire/', permanent: true },

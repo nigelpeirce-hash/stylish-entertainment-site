@@ -99,19 +99,63 @@ export async function POST(request: NextRequest) {
     }
 
     // reCAPTCHA v3 server-side verification
-    const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
-    if (recaptchaSecret && recaptchaToken) {
+    const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY?.trim();
+    const recaptchaBypassDev =
+      process.env.NODE_ENV === "development" && process.env.RECAPTCHA_BYPASS_DEV === "1";
+
+    const minScoreRaw = process.env.RECAPTCHA_MIN_SCORE;
+    const minScoreParsed = minScoreRaw != null && minScoreRaw !== "" ? Number(minScoreRaw) : 0.3;
+    const recaptchaMinScore =
+      Number.isFinite(minScoreParsed) && minScoreParsed >= 0 && minScoreParsed <= 1
+        ? minScoreParsed
+        : 0.3;
+
+    if (recaptchaBypassDev && recaptchaSecret) {
+      console.warn("⚠️ RECAPTCHA_BYPASS_DEV=1 — skipping reCAPTCHA verification (development only)");
+    } else if (recaptchaSecret && recaptchaToken) {
       try {
+        const verifyBody = new URLSearchParams({
+          secret: recaptchaSecret,
+          response: String(recaptchaToken),
+        });
         const recaptchaRes = await fetch("https://www.google.com/recaptcha/api/siteverify", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: `secret=${recaptchaSecret}&response=${recaptchaToken}`,
+          body: verifyBody.toString(),
         });
-        const recaptchaData = await recaptchaRes.json();
-        if (!recaptchaData.success || recaptchaData.score < 0.3) {
-          console.warn("⚠️ reCAPTCHA verification failed:", { success: recaptchaData.success, score: recaptchaData.score });
+        const recaptchaData = (await recaptchaRes.json()) as {
+          success?: boolean;
+          score?: number;
+          "error-codes"?: string[];
+        };
+        const score =
+          typeof recaptchaData.score === "number" && Number.isFinite(recaptchaData.score)
+            ? recaptchaData.score
+            : Number(recaptchaData.score);
+        const scoreOk = Number.isFinite(score) && score >= recaptchaMinScore;
+
+        if (!recaptchaData.success || !scoreOk) {
+          console.warn("⚠️ reCAPTCHA verification failed:", {
+            success: recaptchaData.success,
+            score: recaptchaData.score,
+            minScore: recaptchaMinScore,
+            errorCodes: recaptchaData["error-codes"],
+          });
+          const devDetails =
+            process.env.NODE_ENV === "development"
+              ? {
+                  score: recaptchaData.score,
+                  minScore: recaptchaMinScore,
+                  errorCodes: recaptchaData["error-codes"],
+                  hint:
+                    "Local: add localhost to reCAPTCHA key domains, set RECAPTCHA_MIN_SCORE=0.1, or RECAPTCHA_BYPASS_DEV=1 in .env.local",
+                }
+              : undefined;
           return NextResponse.json(
-            { error: "Request could not be verified. Please try again." },
+            {
+              error: "Request could not be verified. Please try again.",
+              details: devDetails,
+            },
             { status: 400 }
           );
         }

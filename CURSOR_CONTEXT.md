@@ -2,7 +2,7 @@
 
 Agent familiarisation for the Stylish Entertainment website project.
 
-**Last updated:** February 5, 2026
+**Last updated:** March 31, 2026
 
 ---
 
@@ -91,6 +91,8 @@ Agent familiarisation for the Stylish Entertainment website project.
 - Video gallery – YouTube Data API v3 (`/galleries/videos`); embeds use `vq=hd1080`
 - Before/after transformations – `components/BeforeAfter.tsx`; featured on venue decoration, galleries; standalone `/room-transformation`
 - Contact forms – reCAPTCHA v3
+- **Babington DJ final details** – `/babington-dj-final-details` — public form (honeypot), `POST /api/public/babington-dj-final-details` → Resend to `CONTACT_FORM_EMAIL` (default info@), optional attachment (PDF/Word/txt, 10MB)
+- **DJ worksheet** – `/dj-worksheet` — public worksheet (light layout per legacy form): venue, DJ timings, payment, music, file upload; Save = localStorage draft, Print, Submit → `POST /api/public/dj-worksheet` (Resend, Excel/Word/PDF/txt up to 10MB)
 - Hire shop, venue styling, blog
 
 ---

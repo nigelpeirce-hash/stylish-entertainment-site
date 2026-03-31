@@ -48,6 +48,8 @@ const EXACT_HIDE = [
   "/kin-house-wiltshire",
   "/mells-barn-weddings",
   "/babington-wedding-info",
+  "/babington-dj-final-details",
+  "/dj-worksheet",
   "/pennard-house-lighting",
   "/venues/north-cadbury-court",
   "/venues/babington-house",
