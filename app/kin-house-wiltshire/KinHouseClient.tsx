@@ -37,8 +37,8 @@ const kinHousePhotos = [
     height: 1600,
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163147/Kin-House-Stage-Supply_rj6ipz.jpg",
-    alt: "Stage supply from Stylish Entertainment at Kin House",
+    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1777631930/kin-house-lighting-bar_phhueq.jpg",
+    alt: "Lighting bar, dancefloor and DJ setup at Kin House",
     width: 1200,
     height: 900,
   },
