@@ -28,10 +28,6 @@ const heroMoodImages = [
     alt: "Lit marquee at night with Edison festoon and fairy lights – alfresco party atmosphere",
   },
   {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163299/Nigel-DJ-Babs-House-0009-1_hmbsn3.jpg",
-    alt: "DJ performing at Babington House with professional party lighting and entertainment",
-  },
-  {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163745/Pool-Party01_qe5ro0.jpg",
     alt: "Pool party with colourful lighting reflecting on the water – stylish summer celebration",
   },
@@ -42,9 +38,12 @@ const galleryPhotos = [
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163371/Lighting-Design-at-Kings-Weston-House_qxzunv.jpg", alt: "Professional lighting design at Kings Weston House for a private party" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162844/Orangery1_dpfega.jpg", alt: "Orangery venue with stunning party lighting and elegant atmosphere" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163745/Pool-Party01_qe5ro0.jpg", alt: "Pool party with colourful lighting reflecting on the water" },
-  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163299/Nigel-DJ-Babs-House-0009-1_hmbsn3.jpg", alt: "DJ performing at Babington House with professional entertainment" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163181/IMG_6095_fo6lhk.jpg", alt: "Private party with atmospheric lighting and elegant decor" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768731384/Pennard-House-Lighting-with-Amber-Up-lighting_sljvaa.jpg", alt: "Pennard House with amber uplighting for elegant evening events" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1777634524/wild-west-party-04_g8pvop.jpg", alt: "Outdoor Wild West themed patio with fire pit, hay-bale seating and festoon lights at a private party" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1777634523/wild-west-party-03_rvh4xq.jpg", alt: "Wild West themed photo backdrop with cowboy props and rustic styling at a private party" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1777634523/wild-west-party-01_chyutk.jpg", alt: "Wild West themed banquet hall with long tables, bunting and Edison festoon lighting" },
+  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1777634522/wild-west-party-02_aqqa1c.jpg", alt: "Wild West themed venue entrance with saloon doors and festive lighting at night" },
 ];
 
 // Before and After – 2-row layout: Barn transformation + Party room transformation (matches galleries)
