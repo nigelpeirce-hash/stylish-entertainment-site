@@ -2,7 +2,7 @@
 
 Agent familiarisation for the Stylish Entertainment website project.
 
-**Last updated:** May 15, 2026 (hire item pages server-rendered)
+**Last updated:** May 15, 2026 (force-dynamic findings logged)
 
 ---
 
@@ -112,6 +112,20 @@ Agent familiarisation for the Stylish Entertainment website project.
 See `.env.local.example` and `DISASTER_RECOVERY_GUIDE.md` for full list.
 
 ---
+
+## Known Issues / Future Work
+
+- **Root `force-dynamic` blocking page caching (logged May 15, 2026 — DO NOT touch without dedicated effort):** `app/layout.tsx` exports `dynamic = "force-dynamic"` which cascades to every route. Experiment in May 2026 showed removing it lets ~100 of 134 routes prerender as static (big TTFB/cost win), BUT:
+  1. `/babington-dj-final-details/` crashes during prerender (react-hook-form + framer-motion on a noindex private form) — needs per-page `dynamic = "force-dynamic"` opt-out.
+  2. Next's auto-generated `/500` page crashes during prerender with `Cannot read properties of undefined (reading 'getCurrentStack')` from legacy pages-runtime — needs `app/global-error.tsx`.
+  3. **LCP regression risk:** root layout has 7 conditional `<link rel="preload">` blocks driven by `headers().get("x-pathname")` (home, `/artists/djs`, `/parties/party-lighting`, `/weddings/wedding-lighting`, `/party-planning-and-organising`, `/contact-us`, `/artists/party-djs`). When pages go static, `pathname = ""` at build time so **all 7 preloads vanish from cached HTML**. Direct Core Web Vitals hit.
+  - **Required work (do in a dedicated session, verify on Vercel after each step):**
+    1. Move each of the 7 per-route LCP preloads into per-route `layout.tsx` (e.g. `app/(home)/layout.tsx`, `app/artists/djs/layout.tsx`, etc.) or per-page `<head>` injection.
+    2. Add `app/global-error.tsx` to fix the `/500` prerender path.
+    3. Mark `/babington-dj-final-details/` (and audit any other private/form routes) as `dynamic = "force-dynamic"` individually.
+    4. Remove `force-dynamic` from `app/layout.tsx`.
+    5. Build, then verify on Vercel that previously-affected pages still hit their LCP targets via PageSpeed Insights before considering it done.
+  - Alternative: enable `experimental.ppr` (Partial Prerendering) in `next.config.js` — lets layout stay dynamic while pages cache, no LCP preload refactor needed, but PPR is experimental in Next 15.
 
 ## Recent Work
 
