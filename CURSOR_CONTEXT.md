@@ -2,7 +2,7 @@
 
 Agent familiarisation for the Stylish Entertainment website project.
 
-**Last updated:** May 15, 2026 (DJ profile pages)
+**Last updated:** May 15, 2026 (metadata layouts for client-rendered pages)
 
 ---
 
@@ -115,6 +115,8 @@ See `.env.local.example` and `DISASTER_RECOVERY_GUIDE.md` for full list.
 
 ## Recent Work
 
+- **Metadata layouts for client-rendered pages (May 15, 2026):** Four `"use client"` pages were setting `document.title` from `useEffect` — unreliable for SEO and they fell back to the homepage default at HTML response time. Added sibling `layout.tsx` files using `createMetadata` for `/room-transformation/`, `/lighting-hire-2/`, `/galleries/videos/`, `/galleries/instagram/` — each now ships unique server-rendered `<title>`, `<meta description>`, self-referencing canonical and OG tags. Stripped the redundant `useEffect`/`document.title` blocks from each page; fixed `/contact` → `/contact-us/` and `/galleries` → `/galleries/` links in `room-transformation`. Note: `/galleries/*` children don't inherit the root `title.template` (their `galleries/layout.tsx` uses a plain string title), so children render their own title without ` | STYLISH Entertainment` suffix. Acceptable for now. **Open question:** `/lighting-hire-2/` overlaps heavily with `/services/lighting-design/` (same H1); consolidation candidate.
+- **Corporate page consolidation (May 15, 2026):** Deleted client-rendered duplicate `app/parties/corporate-events/page.tsx`. Kept `app/parties/corporate/page.tsx` as canonical; added `createMetadata` so its self-canonical is `/parties/corporate/` (was inheriting `/parties/`). Updated nav links (`HeaderNew`, legacy `Navigation`, `app/parties/page.tsx`) to `/parties/corporate/`. Added 308 redirects (slash + no-slash) for `/parties/corporate-events` → `/parties/corporate/` in `next.config.js`. Removed `corporate-events` from sitemap.
 - **DJ profile pages (May 15, 2026):** New route `app/artists/djs/[slug]/page.tsx` — server component, DB-backed via Prisma (`DJ` model, `isActive: true`). `generateMetadata` falls back `seoTitle` → `${name} | Wedding & Event DJ`, `seoDescription` → `strapLine` → first 160 chars of `bio`. Person JSON-LD with `worksFor` Organization. Canonical/OG URL use trailing slash. DB error throws (5xx → Google retries) instead of `notFound()` (404 → de-index risk). Removed 8 redirect rules in `next.config.js` (`/artists/djs/{dj-nige,dj-james,james-h,rich-s}` ± slash) so the sitemap's DJ slug URLs now resolve 200 instead of 308 → listing.
 - **HeaderNew production (Feb 5, 2026):** Main header is HeaderNew; layout imports it directly. HeaderSwitcher removed. Gold/light-gray colours require `!important` in `HeaderNew.module.css` to override `globals.css` base (`p, span, div, a, li`). Enquire visible on mobile. Cache clear: `rm -rf .next node_modules/.cache` then rebuild if MODULE_NOT_FOUND.
 - **API security (Jan 29):** Client portal routes now enforce `portalToken` or session auth: `/api/client/bookings/[id]/items` (GET/POST), `/api/client/bookings/[id]/payment-details` (GET), `/api/client/bookings/[id]/confirm-hire-request` (POST). `PATCH /api/client/bookings/[id]/tasks` supports portal token (magic-link users). See `API_ROUTES_AUDIT.md`.

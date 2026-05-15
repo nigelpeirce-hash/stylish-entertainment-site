@@ -36,14 +36,6 @@ const INSTAGRAM_EMBEDS = [
 export default function InstagramFeed() {
   const embedContainerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    document.title = "Instagram Feed | Stylish Entertainment";
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute("content", "Follow our latest work on Instagram. See behind-the-scenes photos, event highlights and stunning venue transformations from Stylish Entertainment.");
-    }
-  }, []);
-
   // Load Instagram embed script so blockquotes are replaced with iframes
   useEffect(() => {
     if (typeof window === "undefined" || !embedContainerRef.current) return;

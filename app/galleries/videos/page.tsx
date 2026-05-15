@@ -60,12 +60,6 @@ export default function Videos() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "Video Gallery | Stylish Entertainment";
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute("content", "Watch our video gallery showcasing wedding lighting design, party entertainment, DJ sets and event production across the UK.");
-    }
-
     // Fetch videos from YouTube API if available
     const apiKey = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY;
     const channelId = process.env.NEXT_PUBLIC_YOUTUBE_CHANNEL_ID || "@stylishentertainment937";

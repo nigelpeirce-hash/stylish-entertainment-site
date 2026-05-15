@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Sparkles } from "lucide-react";
 import ImageCarousel, { ImagePhoto } from "@/components/ImageCarousel";
-import { useEffect } from "react";
 
 const lightingPhotos: ImagePhoto[] = [
   {
@@ -48,14 +47,6 @@ const lightingPhotos: ImagePhoto[] = [
 ];
 
 export default function LightingHire2() {
-  useEffect(() => {
-    document.title = "Lighting Design | Professional Wedding Lighting | Stylish Entertainment";
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute("content", "Transform your wedding venue with bespoke lighting design. LED uplighting, intelligent moving lights, atmospheric mood lighting, and dance floor packages in the South West and beyond.");
-    }
-  }, []);
-
   return (
     <div>
       {/* Hero */}

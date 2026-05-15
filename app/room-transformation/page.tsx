@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import BeforeAfter from "@/components/BeforeAfter";
 import Link from "next/link";
 
@@ -16,17 +15,6 @@ const roomTransformation = {
 };
 
 export default function RoomTransformationPage() {
-  useEffect(() => {
-    document.title = "Room Transformation | Stylish Entertainment - Before & After";
-    const meta = document.querySelector('meta[name="description"]');
-    if (meta) {
-      meta.setAttribute(
-        "content",
-        "See the dramatic before and after of our room transformation. Professional venue styling and decorations by Stylish Entertainment."
-      );
-    }
-  }, []);
-
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Hero */}
@@ -56,13 +44,13 @@ export default function RoomTransformationPage() {
             Want a transformation like this for your event?
           </p>
           <Link
-            href="/contact"
+            href="/contact-us/"
             className="inline-flex items-center justify-center px-8 py-3 rounded-lg bg-champagne-gold text-gray-900 font-semibold hover:bg-champagne-gold/90 transition-colors"
           >
             Get in touch
           </Link>
           <p className="mt-6">
-            <Link href="/galleries" className="text-champagne-gold hover:underline">
+            <Link href="/galleries/" className="text-champagne-gold hover:underline">
               View more before & after galleries →
             </Link>
           </p>
