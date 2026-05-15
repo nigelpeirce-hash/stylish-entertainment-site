@@ -342,14 +342,11 @@ const nextConfig = {
       { source: '/zoom-dj-booking-form/', destination: '/artists/djs/', permanent: true },
       { source: '/zoom-dj-final-details', destination: '/artists/djs/', permanent: true },
       { source: '/zoom-dj-final-details/', destination: '/artists/djs/', permanent: true },
-      { source: '/artists/djs/dj-james', destination: '/artists/djs/', permanent: true },
-      { source: '/artists/djs/dj-james/', destination: '/artists/djs/', permanent: true },
-      { source: '/artists/djs/dj-nige', destination: '/artists/djs/', permanent: true },
-      { source: '/artists/djs/dj-nige/', destination: '/artists/djs/', permanent: true },
-      { source: '/artists/djs/james-h', destination: '/artists/djs/', permanent: true },
-      { source: '/artists/djs/james-h/', destination: '/artists/djs/', permanent: true },
-      { source: '/artists/djs/rich-s', destination: '/artists/djs/', permanent: true },
-      { source: '/artists/djs/rich-s/', destination: '/artists/djs/', permanent: true },
+      // NOTE: individual DJ slug pages now exist at app/artists/djs/[slug]/page.tsx
+      // (dj-nige, dj-james, james-h, rich-s). Previous redirects to /artists/djs/
+      // have been removed so each DJ has an indexable canonical URL. Legacy
+      // /artists/djs/attachment/:path* and /dj-nige/attachment/:path* redirects
+      // (defined elsewhere in this file) are kept for old WordPress attachments.
 
       // --- Old DJ booking / wedding-djs / blogs ---
       { source: '/dj-booking-confirmation', destination: '/book-dj/', permanent: true },

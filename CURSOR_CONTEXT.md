@@ -2,7 +2,7 @@
 
 Agent familiarisation for the Stylish Entertainment website project.
 
-**Last updated:** May 15, 2026
+**Last updated:** May 15, 2026 (DJ profile pages)
 
 ---
 
@@ -115,6 +115,7 @@ See `.env.local.example` and `DISASTER_RECOVERY_GUIDE.md` for full list.
 
 ## Recent Work
 
+- **DJ profile pages (May 15, 2026):** New route `app/artists/djs/[slug]/page.tsx` — server component, DB-backed via Prisma (`DJ` model, `isActive: true`). `generateMetadata` falls back `seoTitle` → `${name} | Wedding & Event DJ`, `seoDescription` → `strapLine` → first 160 chars of `bio`. Person JSON-LD with `worksFor` Organization. Canonical/OG URL use trailing slash. DB error throws (5xx → Google retries) instead of `notFound()` (404 → de-index risk). Removed 8 redirect rules in `next.config.js` (`/artists/djs/{dj-nige,dj-james,james-h,rich-s}` ± slash) so the sitemap's DJ slug URLs now resolve 200 instead of 308 → listing.
 - **HeaderNew production (Feb 5, 2026):** Main header is HeaderNew; layout imports it directly. HeaderSwitcher removed. Gold/light-gray colours require `!important` in `HeaderNew.module.css` to override `globals.css` base (`p, span, div, a, li`). Enquire visible on mobile. Cache clear: `rm -rf .next node_modules/.cache` then rebuild if MODULE_NOT_FOUND.
 - **API security (Jan 29):** Client portal routes now enforce `portalToken` or session auth: `/api/client/bookings/[id]/items` (GET/POST), `/api/client/bookings/[id]/payment-details` (GET), `/api/client/bookings/[id]/confirm-hire-request` (POST). `PATCH /api/client/bookings/[id]/tasks` supports portal token (magic-link users). See `API_ROUTES_AUDIT.md`.
 - **Link audit (Jan 29):** Internal `<a>` → `<Link>` on client portal access-denied pages; `tel:` standardised to `+44`; `rel="noopener noreferrer"` on external links; `NEXT_PUBLIC_GOOGLE_REVIEW_URL` for post-wedding email. See `LINK_AUDIT.md`.
