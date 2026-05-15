@@ -2,7 +2,7 @@
 
 Agent familiarisation for the Stylish Entertainment website project.
 
-**Last updated:** May 15, 2026 (lighting-hire-2 retired)
+**Last updated:** May 15, 2026 (hire item pages server-rendered)
 
 ---
 
@@ -115,6 +115,7 @@ See `.env.local.example` and `DISASTER_RECOVERY_GUIDE.md` for full list.
 
 ## Recent Work
 
+- **Hire item pages server-rendered (May 15, 2026):** `app/hire/[slug]/page.tsx` was fully `"use client"` — `useEffect` set `document.title`, JSON-LD was only in the rendered JSX (post-JS), and the parent `/hire/layout.tsx`'s canonical `/hire/` was leaking into children. Converted to a server component that fetches by slug directly via Prisma, uses `generateMetadata` with `seoTitle`/`seoDescription` (fallbacks to `${name} Hire | Stylish Entertainment` and a locations-rich default), self-references `/hire/${slug}/` as canonical, and emits `Product` JSON-LD in the initial HTML. DB error throws (5xx → retry); slug not found → `notFound()` → 404. Interactive bits ("Add to Basket" button + framer-motion) moved into a small `HireItemDetails` client island; cart logic preserved verbatim. No items currently active in prod DB, so this is preparatory; no sitemap change.
 - **lighting-hire-2 retired (May 15, 2026):** Deleted `app/lighting-hire-2/` (page + layout) and removed `lighting-hire-2` from `app/sitemap.ts` and `lib/breadcrumb-config.ts`. Added 308 redirect (slash + no-slash) to `/services/lighting-design/` in `next.config.js` — duplicate of that page's H1 "Lighting Design" with overlapping content; the "-2" slug was legacy WordPress.
 - **Metadata layouts for client-rendered pages (May 15, 2026):** Three `"use client"` pages were setting `document.title` from `useEffect` — unreliable for SEO and they fell back to the homepage default at HTML response time. Added sibling `layout.tsx` files using `createMetadata` for `/room-transformation/`, `/galleries/videos/`, `/galleries/instagram/` — each now ships unique server-rendered `<title>`, `<meta description>`, self-referencing canonical and OG tags. Stripped the redundant `useEffect`/`document.title` blocks from each page; fixed `/contact` → `/contact-us/` and `/galleries` → `/galleries/` links in `room-transformation`. Note: `/galleries/*` children don't inherit the root `title.template` (their `galleries/layout.tsx` uses a plain string title), so children render their own title without ` | STYLISH Entertainment` suffix. Acceptable for now.
 - **Corporate page consolidation (May 15, 2026):** Deleted client-rendered duplicate `app/parties/corporate-events/page.tsx`. Kept `app/parties/corporate/page.tsx` as canonical; added `createMetadata` so its self-canonical is `/parties/corporate/` (was inheriting `/parties/`). Updated nav links (`HeaderNew`, legacy `Navigation`, `app/parties/page.tsx`) to `/parties/corporate/`. Added 308 redirects (slash + no-slash) for `/parties/corporate-events` → `/parties/corporate/` in `next.config.js`. Removed `corporate-events` from sitemap.

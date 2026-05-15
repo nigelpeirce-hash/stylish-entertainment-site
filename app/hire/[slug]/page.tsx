@@ -1,15 +1,19 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Package, Plus } from "lucide-react";
+import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ArrowLeft, Package } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { createMetadata, generateCanonicalUrl } from "@/lib/metadata";
 import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
+import HireItemDetails from "./HireItemDetails";
 
-interface HireItem {
+export const dynamic = "force-dynamic";
+export const dynamicParams = true;
+
+const LOCATIONS = "Somerset, Dorset, Wiltshire, Bristol, Bath, and Frome";
+
+interface HireItemData {
   id: string;
   name: string;
   slug: string | null;
@@ -20,165 +24,163 @@ interface HireItem {
   stockAvailable: number;
   imageUrl: string | null;
   category: string | null;
-  isActive: boolean;
 }
 
-const LOCATIONS = "Somerset, Dorset, Wiltshire, Bristol, Bath, and Frome";
+type FetchResult =
+  | { kind: "found"; item: HireItemData }
+  | { kind: "not-found" }
+  | { kind: "db-error"; error: Error };
 
-export default function HireItemPage() {
-  const params = useParams();
-  const router = useRouter();
-  const slug = params.slug as string;
-
-  const [item, setItem] = useState<HireItem | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchItem();
-  }, [slug]);
-
-  useEffect(() => {
-    if (item) {
-      // Set page title
-      const seoTitle = item.seoTitle || `${item.name} Hire | Stylish Entertainment`;
-      document.title = seoTitle;
-
-      // Set meta description
-      const metaDescription = document.querySelector('meta[name="description"]');
-      if (metaDescription) {
-        const seoDesc = item.seoDescription || 
-          `${item.description || item.name} hire available in ${LOCATIONS}. Professional wedding and event hire services.`;
-        metaDescription.setAttribute("content", seoDesc);
-      }
-
-      // Set Open Graph tags
-      const ogTitle = document.querySelector('meta[property="og:title"]');
-      if (ogTitle) ogTitle.setAttribute("content", seoTitle);
-
-      const ogDescription = document.querySelector('meta[property="og:description"]');
-      if (ogDescription) {
-        const seoDesc = item.seoDescription || 
-          `${item.description || item.name} hire available in ${LOCATIONS}. Professional wedding and event hire services.`;
-        ogDescription.setAttribute("content", seoDesc);
-      }
-
-      const ogImage = document.querySelector('meta[property="og:image"]');
-      if (ogImage && item.imageUrl) {
-        ogImage.setAttribute("content", item.imageUrl);
-      }
-    }
-  }, [item]);
-
-  const fetchItem = async () => {
-    try {
-      const response = await fetch(`/api/hire-items?slug=${slug}`);
-      if (response.ok) {
-        const data = await response.json();
-        const items = data.items || [];
-        const foundItem = items.find((i: HireItem) => i.slug === slug);
-        
-        if (foundItem && foundItem.isActive) {
-          setItem(foundItem);
-        } else {
-          router.push("/hire");
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching item:", error);
-      router.push("/hire");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const addToCart = async () => {
-    if (!item) return;
-    
-    try {
-      const sessionId = localStorage.getItem("cartSessionId") || 
-        `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      localStorage.setItem("cartSessionId", sessionId);
-
-      const response = await fetch("/api/cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          hireItemId: item.id,
-          quantity: 1,
-          sessionId,
-        }),
-      });
-
-      if (response.ok) {
-        router.push("/hire");
-      } else {
-        alert("Failed to add to cart");
-      }
-    } catch (error) {
-      console.error("Error adding to cart:", error);
-      alert("An error occurred");
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <div className="text-white">Loading...</div>
-      </div>
+async function fetchHireItemBySlug(slug: string): Promise<FetchResult> {
+  try {
+    const { prisma } = await import("@/lib/prisma");
+    const item = (await prisma.hireItem.findFirst({
+      where: { slug, isActive: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        seoTitle: true,
+        seoDescription: true,
+        price: true,
+        stockAvailable: true,
+        imageUrl: true,
+        category: true,
+      },
+    })) as HireItemData | null;
+    return item ? { kind: "found", item } : { kind: "not-found" };
+  } catch (error) {
+    // Surface DB outage as 5xx (Google retries) rather than 404 (de-index risk).
+    console.error(
+      `[Hire item] DB error for slug "${slug}":`,
+      (error as Error)?.message,
     );
+    return { kind: "db-error", error: error as Error };
+  }
+}
+
+function buildDescription(item: HireItemData): string {
+  return (
+    item.seoDescription?.trim() ||
+    `${item.description || item.name} hire available in ${LOCATIONS}. Professional wedding and event hire services in the South West and beyond.`
+  );
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const result = await fetchHireItemBySlug(slug);
+
+  if (result.kind === "db-error") {
+    return { title: "Hire" };
+  }
+  if (result.kind === "not-found") {
+    return {
+      title: "Item Not Found",
+      robots: { index: false, follow: false },
+    };
   }
 
-  if (!item) {
-    return null;
+  const item = result.item;
+  const title = item.seoTitle?.trim() || `${item.name} Hire | Stylish Entertainment`;
+  const description = buildDescription(item);
+
+  return createMetadata({
+    title,
+    description,
+    path: `hire/${slug}`,
+    openGraph: item.imageUrl
+      ? {
+          images: [
+            {
+              url: item.imageUrl,
+              width: 1200,
+              height: 630,
+              alt: `${item.name} \u2014 available for hire from Stylish Entertainment`,
+            },
+          ],
+        }
+      : undefined,
+  });
+}
+
+export default async function HireItemPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const result = await fetchHireItemBySlug(slug);
+
+  if (result.kind === "db-error") {
+    throw result.error;
+  }
+  if (result.kind === "not-found") {
+    notFound();
   }
 
-  const seoDescription = item.seoDescription || 
-    `${item.description || item.name} hire available in ${LOCATIONS}. Professional wedding and event hire services in the South West and beyond.`;
+  const item = result.item;
+  const canonical = generateCanonicalUrl(`hire/${slug}`);
+  const description = buildDescription(item);
+  const imageSrc = item.imageUrl
+    ? sanitizeCloudinaryUrl(item.imageUrl) || item.imageUrl
+    : null;
+
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: item.name,
+    description,
+    url: canonical,
+    ...(item.imageUrl ? { image: item.imageUrl } : {}),
+    ...(item.category ? { category: item.category } : {}),
+    offers: {
+      "@type": "Offer",
+      price: item.price,
+      priceCurrency: "GBP",
+      url: canonical,
+      availability:
+        item.stockAvailable > 0
+          ? "https://schema.org/InStock"
+          : "https://schema.org/OutOfStock",
+    },
+    brand: {
+      "@type": "Brand",
+      name: "Stylish Entertainment",
+    },
+  };
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
-      {/* SEO Structured Data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Product",
-            "name": item.name,
-            "description": seoDescription,
-            "image": item.imageUrl || undefined,
-            "offers": {
-              "@type": "Offer",
-              "price": item.price,
-              "priceCurrency": "GBP",
-              "availability": item.stockAvailable > 0 
-                ? "https://schema.org/InStock" 
-                : "https://schema.org/OutOfStock",
-            },
-            "brand": {
-              "@type": "Brand",
-              "name": "Stylish Entertainment",
-            },
-          }),
-        }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
       />
 
       <div className="container mx-auto px-4 py-12">
-        <Link href="/hire">
-          <Button variant="ghost" className="text-gray-300 hover:text-white mb-6">
+        <Link href="/hire/">
+          <Button
+            variant="ghost"
+            className="text-gray-300 hover:text-white mb-6"
+          >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Hire Shop
           </Button>
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Image */}
           <div>
-            {item.imageUrl ? (
+            {imageSrc ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img
-                src={sanitizeCloudinaryUrl(item.imageUrl) || item.imageUrl}
+                src={imageSrc}
                 alt={item.name}
                 className="w-full h-96 object-cover rounded-lg"
+                loading="eager"
               />
             ) : (
               <div className="w-full h-96 bg-gray-800 rounded-lg flex items-center justify-center">
@@ -187,65 +189,18 @@ export default function HireItemPage() {
             )}
           </div>
 
-          {/* Details */}
           <div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <h1 className="text-4xl font-bold mb-4">{item.name}</h1>
-              
-              <div className="mb-6">
-                <span className="text-3xl font-bold text-champagne-gold">
-                  £{item.price.toFixed(2)}
-                </span>
-                <span className="text-gray-400 ml-2">per hire</span>
-              </div>
-
-              {item.description && (
-                <div className="mb-6">
-                  <p className="text-lg text-gray-300 leading-relaxed">
-                    {item.description}
-                  </p>
-                </div>
-              )}
-
-              {/* Service Area - Hidden for SEO only */}
-              <div className="sr-only">
-                <p>Available for hire in {LOCATIONS}. Professional wedding and event hire services in the South West and beyond.</p>
-              </div>
-
-              <div className="mb-6">
-                <p className="text-gray-400 mb-2">
-                  <strong>Stock Available:</strong> {item.stockAvailable}
-                </p>
-                {item.category && (
-                  <p className="text-gray-400">
-                    <strong>Category:</strong> {item.category}
-                  </p>
-                )}
-              </div>
-
-              <Button
-                onClick={addToCart}
-                disabled={item.stockAvailable === 0}
-                size="lg"
-                className="w-full bg-champagne-gold text-black hover:bg-gold-light"
-              >
-                <Plus className="w-5 h-5 mr-2" />
-                Add to Basket
-              </Button>
-
-              {item.stockAvailable === 0 && (
-                <p className="text-red-400 mt-2 text-sm">
-                  Currently out of stock
-                </p>
-              )}
-            </motion.div>
+            <HireItemDetails
+              itemId={item.id}
+              itemName={item.name}
+              description={item.description}
+              price={item.price}
+              stockAvailable={item.stockAvailable}
+              category={item.category}
+            />
           </div>
         </div>
 
-        {/* Additional SEO Content */}
         <div className="mt-12 max-w-3xl">
           <Card className="bg-gray-800 border-champagne-gold/30">
             <CardContent className="p-6">
@@ -254,10 +209,19 @@ export default function HireItemPage() {
               </h2>
               <div className="prose prose-invert max-w-none">
                 <p className="text-gray-300 leading-relaxed mb-4">
-                  {item.description || `${item.name} for ambient lighting. Perfect for creating a warm, romantic atmosphere at your event.`}
+                  {item.description ||
+                    `${item.name} for ambient lighting. Perfect for creating a warm, romantic atmosphere at your event.`}
                 </p>
                 <p className="text-gray-300 leading-relaxed">
-                  Professional wedding and event hire services in the South West and beyond. Perfect for weddings, parties, and events. Contact us to discuss your requirements and book your items today.
+                  Professional wedding and event hire services in the South West
+                  and beyond. Perfect for weddings, parties, and events.{" "}
+                  <Link
+                    href="/contact-us/"
+                    className="text-champagne-gold underline hover:text-champagne-gold/80"
+                  >
+                    Contact us
+                  </Link>{" "}
+                  to discuss your requirements and book your items today.
                 </p>
               </div>
             </CardContent>
