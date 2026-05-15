@@ -2,7 +2,7 @@
 
 Agent familiarisation for the Stylish Entertainment website project.
 
-**Last updated:** March 31, 2026
+**Last updated:** May 15, 2026
 
 ---
 
@@ -33,6 +33,8 @@ Agent familiarisation for the Stylish Entertainment website project.
 - Admin: `/app/admin/*` with layout
 - Client portal: `/app/client/*` with layout
 - API: `/app/api/*`
+- **Trailing slash:** `trailingSlash: true` in `next.config.js`. All canonical URLs end with `/`. `/foo` issues a 308 to `/foo/`. Sitemap, redirect destinations, internal links, and canonical tags must all use trailing slash.
+- **Trailing slash applies to `/api/*` too.** External webhooks (e.g. WhatsApp Cloud API webhook → `/api/whatsapp/webhook`) MUST be configured with the trailing slash. NextAuth, Vercel cron, and browser `fetch` calls follow the 308 fine, but third-party webhook senders may not.
 
 ---
 

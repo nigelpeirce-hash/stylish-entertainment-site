@@ -31,7 +31,13 @@ const nextConfig = {
     deviceSizes: [640, 750, 828, 1080, 1200, 1360, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
-  trailingSlash: false,
+  // Canonical URLs end with `/`. Sitemap, redirect destinations, and SEO
+  // canonical tags all assume trailing slash. Changing this from false caused
+  // GSC "Page with redirect" issues because /about/ (sitemap) was being 308'd
+  // to /about. NOTE: this also normalises /api/* requests; external webhooks
+  // (e.g. WhatsApp Cloud API → /api/whatsapp/webhook) must be configured with
+  // the trailing slash to avoid a 308 they may not follow.
+  trailingSlash: true,
   // Force HTTPS in production
   async headers() {
     return [
@@ -110,6 +116,16 @@ const nextConfig = {
   // www → non-www: handled exclusively in Vercel Dashboard to avoid canonical loops.
   async redirects() {
     return [
+      // --- GSC 404 cleanup (May 2026) — bare prefixes Google still has indexed ---
+      { source: '/blog', destination: '/about/blog/', permanent: true },
+      { source: '/blog/', destination: '/about/blog/', permanent: true },
+      { source: '/weddings', destination: '/weddings/wedding-entertainment/', permanent: true },
+      { source: '/weddings/', destination: '/weddings/wedding-entertainment/', permanent: true },
+      { source: '/venues/kin-house', destination: '/kin-house-wiltshire/', permanent: true },
+      { source: '/venues/kin-house/', destination: '/kin-house-wiltshire/', permanent: true },
+      { source: '/hannah-ross', destination: '/', permanent: true },
+      { source: '/hannah-ross/', destination: '/', permanent: true },
+
       // --- Legacy WordPress .php / category (GSC 404/Redirect reports) → relevant canonical pages ---
       { source: '/party-planning.php', destination: '/party-planning-and-organising/', permanent: true },
       { source: '/party-planning.php/', destination: '/party-planning-and-organising/', permanent: true },
@@ -126,7 +142,7 @@ const nextConfig = {
 
       // --- STATIC DEMO PAGES ---
       { source: '/phone-demo.html', destination: '/iphone-demo.html', permanent: false },
-      { source: '/terms-portal-flow-demo.html', destination: '/terms-portal-flow-demo', permanent: false },
+      { source: '/terms-portal-flow-demo.html', destination: '/terms-portal-flow-demo/', permanent: false },
       // --- GSC: Legacy / index / .html / -html ---
       { source: '/index.php', destination: '/', permanent: true },
       { source: '/index.php/', destination: '/', permanent: true },
