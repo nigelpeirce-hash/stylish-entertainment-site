@@ -122,6 +122,11 @@ const nextConfig = {
       // self-canonical and a useEffect-set title which Google rarely sees).
       { source: '/parties/corporate-events', destination: '/parties/corporate/', permanent: true },
       { source: '/parties/corporate-events/', destination: '/parties/corporate/', permanent: true },
+      // /lighting-hire-2/ retired in favour of /services/lighting-design/
+      // (same H1 "Lighting Design", overlapping content; "-2" slug is legacy
+      // WordPress duplicate). Consolidated May 2026.
+      { source: '/lighting-hire-2', destination: '/services/lighting-design/', permanent: true },
+      { source: '/lighting-hire-2/', destination: '/services/lighting-design/', permanent: true },
 
       // --- GSC 404 cleanup (May 2026) — bare prefixes Google still has indexed ---
       { source: '/blog', destination: '/about/blog/', permanent: true },

@@ -83,7 +83,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url('/venues/north-cadbury-court', 'monthly', 0.8),
     url('/venues/pennard-house', 'monthly', 0.8),
     url('/kin-house-wiltshire', 'monthly', 0.7),
-    url('/lighting-hire-2', 'monthly', 0.6),
     url('/privacy-policy', 'yearly', 0.5),
     url('/terms-and-conditions', 'yearly', 0.5),
   ];
