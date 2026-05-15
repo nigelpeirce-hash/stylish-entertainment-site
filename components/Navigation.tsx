@@ -57,7 +57,7 @@ export default function Navigation() {
   const partiesLinks = [
     { href: "/parties/private-parties", label: "Private Parties" },
     { href: "/parties/party-lighting", label: "Party Lighting" },
-    { href: "/parties/corporate-events", label: "Corporate" },
+    { href: "/parties/corporate/", label: "Corporate" },
     { href: "/parties/christmas", label: "Christmas" },
   ];
 

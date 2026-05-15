@@ -55,7 +55,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url('/parties/party-lighting', 'monthly', 0.9),
     url('/parties/private-parties', 'monthly', 0.9),
     url('/parties/corporate', 'monthly', 0.8),
-    url('/parties/corporate-events', 'monthly', 0.8),
     url('/parties/christmas', 'monthly', 0.8),
     url('/party-planning-and-organising/', 'monthly', 0.9),
     url('/services', 'monthly', 0.9),

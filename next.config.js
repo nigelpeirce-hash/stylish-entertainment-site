@@ -116,6 +116,13 @@ const nextConfig = {
   // www → non-www: handled exclusively in Vercel Dashboard to avoid canonical loops.
   async redirects() {
     return [
+      // --- Duplicate-content consolidation (May 2026) ---
+      // /parties/corporate-events/ retired in favour of /parties/corporate/
+      // (richer content; was the page header/nav linked to, but had no
+      // self-canonical and a useEffect-set title which Google rarely sees).
+      { source: '/parties/corporate-events', destination: '/parties/corporate/', permanent: true },
+      { source: '/parties/corporate-events/', destination: '/parties/corporate/', permanent: true },
+
       // --- GSC 404 cleanup (May 2026) — bare prefixes Google still has indexed ---
       { source: '/blog', destination: '/about/blog/', permanent: true },
       { source: '/blog/', destination: '/about/blog/', permanent: true },

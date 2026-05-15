@@ -28,7 +28,7 @@ const partyServices = [
     title: "Corporate Events",
     icon: Building2,
     description: "Professional entertainment and production for corporate events, galas, conferences and product launches.",
-    href: "/parties/corporate-events",
+    href: "/parties/corporate/",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/e_enhance/ABS-Preview-50-percent0006_c51xsl.jpg",
     alt: "Corporate event entertainment and production services",
   },
