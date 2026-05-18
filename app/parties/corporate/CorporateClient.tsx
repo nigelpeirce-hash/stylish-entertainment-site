@@ -23,32 +23,59 @@ const corporatePhotos: ImagePhoto[] = [
   },
 ];
 
-// Logo Marquee Component
+// "Trusted By" Brand Marquee
+// Typography-based "wall of brands" (Stripe/Linear style). Avoids trademarked
+// logo assets and renders cleanly at any size. Pauses on hover, respects
+// prefers-reduced-motion, and uses an edge mask for a premium fade-in/out.
 const LogoMarquee = () => {
-  const logos = [
-    { name: "Aston Martin", placeholder: "AM" },
-    { name: "Red Bull", placeholder: "RB" },
-    { name: "Sony", placeholder: "Sony" },
-    { name: "Tesco", placeholder: "Tesco" },
-    { name: "Sotheby's", placeholder: "Sotheby's" },
-    { name: "Orange", placeholder: "Orange" },
-    { name: "T-Mobile", placeholder: "T-Mobile" },
+  const brands = [
+    "Aston Martin",
+    "Red Bull",
+    "Sony",
+    "Tesco",
+    "Sotheby's",
+    "Orange",
+    "T-Mobile",
+    "Direct Wines",
+    "Top Shop",
   ];
 
-  // Duplicate logos for seamless loop
-  const duplicatedLogos = [...logos, ...logos];
+  const duplicated = [...brands, ...brands];
 
   return (
-    <div className="relative overflow-hidden bg-gray-950/50 border-y border-champagne-gold/20 py-8">
-      <div className="flex animate-marquee whitespace-nowrap">
-        {duplicatedLogos.map((logo, index) => (
-          <div
-            key={index}
-            className="mx-12 flex items-center justify-center h-16 px-8 border border-champagne-gold/20 rounded-lg bg-white/5 backdrop-blur-sm"
-          >
-            <span className="text-gray-300 font-semibold text-lg tracking-wider">{logo.placeholder}</span>
-          </div>
-        ))}
+    <section
+      aria-label="Trusted by leading brands"
+      className="relative overflow-hidden bg-gray-950/60 border-y border-champagne-gold/20 py-10 sm:py-12"
+    >
+      <p className="text-center text-[11px] sm:text-xs uppercase tracking-[0.3em] text-champagne-gold/80 mb-6 sm:mb-8 px-4">
+        Trusted by Leading Brands
+      </p>
+      <div
+        className="marquee-mask"
+        style={{
+          maskImage:
+            "linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%)",
+          WebkitMaskImage:
+            "linear-gradient(to right, transparent 0%, #000 8%, #000 92%, transparent 100%)",
+        }}
+      >
+        <div className="flex animate-marquee items-center whitespace-nowrap">
+          {duplicated.map((brand, index) => (
+            <span
+              key={index}
+              aria-hidden={index >= brands.length}
+              className="inline-flex items-center px-6 sm:px-10 md:px-14 text-xl sm:text-2xl md:text-3xl font-semibold tracking-wide text-white/90"
+            >
+              {brand}
+              <span
+                aria-hidden="true"
+                className="ml-6 sm:ml-10 md:ml-14 text-champagne-gold/40 text-base sm:text-lg select-none"
+              >
+                •
+              </span>
+            </span>
+          ))}
+        </div>
       </div>
       <style jsx>{`
         @keyframes marquee {
@@ -60,10 +87,24 @@ const LogoMarquee = () => {
           }
         }
         .animate-marquee {
-          animation: marquee 30s linear infinite;
+          animation: marquee 18s linear infinite;
+          will-change: transform;
+        }
+        .marquee-mask:hover .animate-marquee {
+          animation-play-state: paused;
+        }
+        @media (max-width: 640px) {
+          .animate-marquee {
+            animation-duration: 14s;
+          }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-marquee {
+            animation-duration: 60s;
+          }
         }
       `}</style>
-    </div>
+    </section>
   );
 };
 
