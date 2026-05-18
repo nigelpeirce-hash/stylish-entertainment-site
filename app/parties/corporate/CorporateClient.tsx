@@ -29,6 +29,7 @@ const corporatePhotos: ImagePhoto[] = [
 // prefers-reduced-motion, and uses an edge mask for a premium fade-in/out.
 const LogoMarquee = () => {
   const brands = [
+    "Soho House & Co",
     "Aston Martin",
     "Red Bull",
     "Sony",
@@ -218,7 +219,7 @@ export default function CorporateClient() {
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-200 text-lg leading-relaxed mb-4">
-                    We supply entertainment to many corporate events, working with brands such as <span className="font-semibold text-champagne-gold">Aston Martin, Red Bull, Tesco, Orange, T-Mobile, Direct Wines, Top Shop, Sotheby&apos;s, Sony</span> and many more.
+                    We supply entertainment to many corporate events, working with brands such as <span className="font-semibold text-champagne-gold">Soho House &amp; Co, Aston Martin, Red Bull, Tesco, Orange, T-Mobile, Direct Wines, Top Shop, Sotheby&apos;s, Sony</span> and many more.
                   </p>
                   <p className="text-gray-200 text-lg leading-relaxed">
                     Our reputation for reliability, professionalism, and exceptional service means you can focus on your guests while we handle every detail of your corporate event production.
