@@ -1,8 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { createMetadata } from "@/lib/metadata";
-
-const baseUrl = "https://www.stylishentertainment.co.uk";
+import { buildWeddingDjServiceJsonLd } from "@/lib/service-jsonld";
 
 export const metadata: Metadata = createMetadata({
   title: "Wedding DJ London & Home Counties | Surrey, Berkshire, Buckinghamshire & Beyond",
@@ -70,26 +69,22 @@ const faqSchema = {
   ],
 };
 
-const serviceSchema = {
-  "@context": "https://schema.org",
-  "@type": "Service",
-  "name": "Wedding DJ London & Home Counties",
-  "description": "Premium wedding DJ and live DJ act services across London and the Home Counties: Surrey, Berkshire, Buckinghamshire, Hertfordshire, Essex, Kent and West Sussex. Bespoke sets, professional equipment, no cheesy requests.",
-  "provider": {
-    "@id": `${baseUrl}/#localbusiness`,
-  },
-  "areaServed": [
-    { "@type": "City", "name": "London" },
-    { "@type": "AdministrativeArea", "name": "Surrey" },
-    { "@type": "AdministrativeArea", "name": "Berkshire" },
-    { "@type": "AdministrativeArea", "name": "Buckinghamshire" },
-    { "@type": "AdministrativeArea", "name": "Hertfordshire" },
-    { "@type": "AdministrativeArea", "name": "Essex" },
-    { "@type": "AdministrativeArea", "name": "Kent" },
-    { "@type": "AdministrativeArea", "name": "West Sussex" },
+const serviceSchema = buildWeddingDjServiceJsonLd({
+  slug: "wedding-dj-london-home-counties",
+  name: "Wedding DJ London & Home Counties",
+  description:
+    "Premium wedding DJ and live DJ act services across London and the Home Counties: Surrey, Berkshire, Buckinghamshire, Hertfordshire, Essex, Kent and West Sussex. Bespoke sets, professional equipment, no cheesy requests.",
+  areaServed: [
+    { "@type": "City", name: "London" },
+    { "@type": "AdministrativeArea", name: "Surrey" },
+    { "@type": "AdministrativeArea", name: "Berkshire" },
+    { "@type": "AdministrativeArea", name: "Buckinghamshire" },
+    { "@type": "AdministrativeArea", name: "Hertfordshire" },
+    { "@type": "AdministrativeArea", name: "Essex" },
+    { "@type": "AdministrativeArea", name: "Kent" },
+    { "@type": "AdministrativeArea", name: "West Sussex" },
   ],
-  "serviceType": "Wedding DJ",
-};
+});
 
 export default function WeddingDJLondonHomeCountiesPage() {
   return (

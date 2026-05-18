@@ -1,8 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { createMetadata } from "@/lib/metadata";
-
-const baseUrl = "https://www.stylishentertainment.co.uk";
+import { buildWeddingDjServiceJsonLd } from "@/lib/service-jsonld";
 
 export const metadata: Metadata = createMetadata({
   title: "Wedding DJ South West | Somerset, Wiltshire, Devon, Dorset & Cotswolds",
@@ -71,25 +70,21 @@ const faqSchema = {
   ],
 };
 
-const serviceSchema = {
-  "@context": "https://schema.org",
-  "@type": "Service",
-  "name": "Wedding DJ South West",
-  "description": "Premium wedding DJ and live DJ act services across the South West: Somerset, Wiltshire, Devon, Dorset, Gloucestershire, Bath, Bristol and the Cotswolds. Bespoke sets, professional equipment, no cheesy requests.",
-  "provider": {
-    "@id": `${baseUrl}/#localbusiness`,
-  },
-  "areaServed": [
-    { "@type": "AdministrativeArea", "name": "Somerset" },
-    { "@type": "AdministrativeArea", "name": "Wiltshire" },
-    { "@type": "AdministrativeArea", "name": "Devon" },
-    { "@type": "AdministrativeArea", "name": "Dorset" },
-    { "@type": "AdministrativeArea", "name": "Gloucestershire" },
-    { "@type": "City", "name": "Bath" },
-    { "@type": "City", "name": "Bristol" },
+const serviceSchema = buildWeddingDjServiceJsonLd({
+  slug: "wedding-dj-south-west",
+  name: "Wedding DJ South West",
+  description:
+    "Premium wedding DJ and live DJ act services across the South West: Somerset, Wiltshire, Devon, Dorset, Gloucestershire, Bath, Bristol and the Cotswolds. Bespoke sets, professional equipment, no cheesy requests.",
+  areaServed: [
+    { "@type": "AdministrativeArea", name: "Somerset" },
+    { "@type": "AdministrativeArea", name: "Wiltshire" },
+    { "@type": "AdministrativeArea", name: "Devon" },
+    { "@type": "AdministrativeArea", name: "Dorset" },
+    { "@type": "AdministrativeArea", name: "Gloucestershire" },
+    { "@type": "City", name: "Bath" },
+    { "@type": "City", name: "Bristol" },
   ],
-  "serviceType": "Wedding DJ",
-};
+});
 
 export default function WeddingDJSouthWestPage() {
   return (

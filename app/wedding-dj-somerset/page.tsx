@@ -3,8 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createMetadata } from "@/lib/metadata";
 import { getSeoPageImages } from "@/lib/seo-page-images";
-
-const baseUrl = "https://www.stylishentertainment.co.uk";
+import { buildWeddingDjServiceJsonLd } from "@/lib/service-jsonld";
 
 export const metadata: Metadata = createMetadata({
   title: "Wedding DJ Somerset",
@@ -68,17 +67,20 @@ const faqSchema = {
   ],
 };
 
-const serviceSchema = {
-  "@context": "https://schema.org",
-  "@type": "Service",
-  "name": "Wedding DJ Somerset",
-  "description": "Boutique wedding DJ and live act services across Somerset. Based in Frome; covering Frome, Bruton, Wells, Glastonbury, Taunton and the whole county. Bespoke sets, no cheese.",
-  "provider": { "@id": `${baseUrl}/#localbusiness` },
-  "areaServed": { "@type": "AdministrativeArea", "name": "Somerset" },
-  "serviceType": "Wedding DJ Services",
-};
-
 const IMAGES = getSeoPageImages("wedding-dj-somerset");
+
+const serviceSchema = buildWeddingDjServiceJsonLd({
+  slug: "wedding-dj-somerset",
+  name: "Wedding DJ Somerset",
+  description:
+    "Boutique wedding DJ and live act services across Somerset. Based in Frome; covering Frome, Bruton, Wells, Glastonbury, Taunton and the whole county. Bespoke sets, no cheese.",
+  areaServed: {
+    "@type": "AdministrativeArea",
+    name: "Somerset",
+    containedInPlace: { "@type": "Country", name: "United Kingdom" },
+  },
+  image: IMAGES?.hero?.src,
+});
 
 export default function WeddingDJSomersetPage() {
   return (

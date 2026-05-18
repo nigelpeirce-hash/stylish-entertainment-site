@@ -3,8 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { createMetadata } from "@/lib/metadata";
 import { getSeoPageImages } from "@/lib/seo-page-images";
-
-const baseUrl = "https://www.stylishentertainment.co.uk";
+import { buildWeddingDjServiceJsonLd } from "@/lib/service-jsonld";
 
 export const metadata: Metadata = createMetadata({
   title: "Wedding DJ Bath",
@@ -68,17 +67,20 @@ const faqSchema = {
   ],
 };
 
-const serviceSchema = {
-  "@context": "https://schema.org",
-  "@type": "Service",
-  "name": "Wedding DJ Bath",
-  "description": "Boutique wedding DJ and live act services in Bath and the surrounding area. City and country venues. Bespoke sets, no cheese.",
-  "provider": { "@id": `${baseUrl}/#localbusiness` },
-  "areaServed": { "@type": "City", "name": "Bath" },
-  "serviceType": "Wedding DJ Services",
-};
-
 const IMAGES = getSeoPageImages("wedding-dj-bath");
+
+const serviceSchema = buildWeddingDjServiceJsonLd({
+  slug: "wedding-dj-bath",
+  name: "Wedding DJ Bath",
+  description:
+    "Boutique wedding DJ and live act services in Bath and the surrounding area. City and country venues. Bespoke sets, no cheese.",
+  areaServed: {
+    "@type": "City",
+    name: "Bath",
+    containedInPlace: { "@type": "AdministrativeArea", name: "Somerset" },
+  },
+  image: IMAGES?.hero?.src,
+});
 
 export default function WeddingDJBathPage() {
   return (
