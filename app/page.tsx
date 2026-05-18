@@ -1,5 +1,4 @@
 import { createMetadata } from "@/lib/metadata";
-import { testimonials } from "@/data/testimonials";
 import HomeClient from "./HomeClient";
 
 export const metadata = createMetadata({
@@ -31,13 +30,6 @@ export default function HomePage() {
     areaServed: {
       "@type": "Country",
       name: "United Kingdom",
-    },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: "5",
-      bestRating: "5",
-      worstRating: "1",
-      reviewCount: testimonials.length,
     },
   };
 

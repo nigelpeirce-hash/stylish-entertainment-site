@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -76,14 +76,6 @@ const stylingPhotos: Photo[] = [
 
 export default function VenueStylingService() {
   const [quoteOpen, setQuoteOpen] = useState(false);
-
-  useEffect(() => {
-    document.title = "Venue Styling | Professional Wedding Styling | Stylish Entertainment";
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute("content", "Complete venue transformation with elegant styling. Table centerpieces, drapery, custom backdrops and cohesive design themes across the UK.");
-    }
-  }, []);
 
   return (
     <div>

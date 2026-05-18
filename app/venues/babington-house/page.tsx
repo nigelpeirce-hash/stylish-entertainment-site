@@ -56,11 +56,11 @@ export default function BabingtonHousePage() {
         "url": "https://www.stylishentertainment.co.uk/logo-stylish-entertainment.png"
       }
     },
-    "datePublished": "2024-01-01",
-    "dateModified": "2024-01-01",
+    "datePublished": "2026-01-14T09:12:42Z",
+    "dateModified": "2026-03-02T17:19:04Z",
     "mainEntityOfPage": {
       "@type": "WebPage",
-      "@id": "https://www.stylishentertainment.co.uk/babington-wedding-info"
+      "@id": "https://www.stylishentertainment.co.uk/venues/babington-house/"
     },
     "about": {
       "@type": "Place",

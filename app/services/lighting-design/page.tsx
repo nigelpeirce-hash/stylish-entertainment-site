@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
@@ -99,14 +99,6 @@ const lightingPhotos: ImagePhoto[] = [
 
 export default function LightingDesignService() {
   const [quoteOpen, setQuoteOpen] = useState(false);
-
-  useEffect(() => {
-    document.title = "Lighting Design | Professional Wedding Lighting | Stylish Entertainment";
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute("content", "Transform your wedding venue with bespoke lighting design. LED uplighting, intelligent moving lights, atmospheric mood lighting and dance floor packages across the UK.");
-    }
-  }, []);
 
   return (
     <div>
