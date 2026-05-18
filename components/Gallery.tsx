@@ -72,6 +72,17 @@ export default function Gallery({ photos, columns = 1 }: GalleryProps) {
         open={index >= 0}
         index={index}
         close={() => setIndex(-1)}
+        carousel={{
+          // yarl defaults to padding "16px" + spacing "30%" between slides,
+          // which on mobile looks like a black margin on the right of every
+          // image (the preloaded next slide sits 30% of viewport away).
+          padding: 0,
+          spacing: 0,
+          imageFit: "contain",
+        }}
+        controller={{
+          closeOnBackdropClick: true,
+        }}
         render={{
           buttonPrev: () => (
             <button
