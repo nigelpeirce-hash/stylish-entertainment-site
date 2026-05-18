@@ -115,7 +115,138 @@ const nextConfig = {
   // Redirects run top-to-bottom: put specific/wildcard rules before broader ones.
   // www → non-www: handled exclusively in Vercel Dashboard to avoid canonical loops.
   async redirects() {
+    // ----------------------------------------------------------------
+    // CROSS-DOMAIN CONSOLIDATION (May 2026)
+    // stylishweddingdisco.co.uk (legacy WP Engine site) →
+    // stylishentertainment.co.uk (this Next.js site).
+    //
+    // Each rule has a `has: [{ type: "host", value: ... }]` guard so it
+    // ONLY fires for requests whose Host header matches the legacy
+    // domain (apex or www). Destinations are absolute URLs so the
+    // redirect crosses domains. Rules are DORMANT until DNS for
+    // stylishweddingdisco.co.uk is pointed at Vercel and the domain is
+    // added to this project — no impact on stylishentertainment.co.uk.
+    //
+    // Order within the legacy block: specific page maps → wildcard
+    // families → final catch-all to homepage so nothing 404s.
+    // ----------------------------------------------------------------
+    const LEGACY_HOST = "(www\\.)?stylishweddingdisco\\.co\\.uk";
+    const NEW = "https://www.stylishentertainment.co.uk";
+    const fromLegacy = [{ type: "host", value: LEGACY_HOST }];
+    const legacy = (source, dest) => ({
+      source,
+      has: fromLegacy,
+      destination: dest.startsWith("http") ? dest : `${NEW}${dest}`,
+      permanent: true,
+    });
+
     return [
+      // ============================================================
+      // BEGIN cross-domain consolidation (stylishweddingdisco.co.uk)
+      // ============================================================
+
+      // --- Top traffic: 1:1 specific page maps (from GA4 2025 export) ---
+      legacy("/wedding-djs", "/artists/djs/"),
+      legacy("/wedding-djs/", "/artists/djs/"),
+      legacy("/wedding-lighting-design", "/weddings/wedding-lighting/"),
+      legacy("/wedding-lighting-design/", "/weddings/wedding-lighting/"),
+      legacy("/what-we-do/venue-styling", "/services/venue-styling/"),
+      legacy("/what-we-do/venue-styling/", "/services/venue-styling/"),
+      legacy("/mells-barn-weddings", "/venues/mells-barn/"),
+      legacy("/mells-barn-weddings/", "/venues/mells-barn/"),
+      legacy("/contact-us", "/contact-us/"),
+      legacy("/contact-us/", "/contact-us/"),
+      legacy("/blogs/babington-house-weddings", "/venues/babington-house/"),
+      legacy("/blogs/babington-house-weddings/", "/venues/babington-house/"),
+      legacy("/blogs/mells-barn-wedding", "/venues/mells-barn/"),
+      legacy("/blogs/mells-barn-wedding/", "/venues/mells-barn/"),
+      legacy(
+        "/blogs/five-ways-to-totally-transform-a-venue-decor-and-venue-styling",
+        "/about/blog/five-ways-to-totally-transform-a-venue-2-decor/"
+      ),
+      legacy(
+        "/blogs/five-ways-to-totally-transform-a-venue-decor-and-venue-styling/",
+        "/about/blog/five-ways-to-totally-transform-a-venue-2-decor/"
+      ),
+      legacy("/what-we-do/fire-pit-hire", "/services/fire-pit-hire/"),
+      legacy("/what-we-do/fire-pit-hire/", "/services/fire-pit-hire/"),
+      legacy("/fire-pit-html", "/services/fire-pit-hire/"),
+      legacy("/fire-pit-html/", "/services/fire-pit-hire/"),
+      legacy("/artists/djs", "/artists/djs/"),
+      legacy("/artists/djs/", "/artists/djs/"),
+      legacy("/artists/musicians-html", "/artists/musicians/"),
+      legacy("/artists/musicians-html/", "/artists/musicians/"),
+      legacy("/about-stylish/faqs", "/about/faq/"),
+      legacy("/about-stylish/faqs/", "/about/faq/"),
+      legacy("/about-stylish/top-tips", "/about/blog/"),
+      legacy("/about-stylish/top-tips/", "/about/blog/"),
+      legacy("/about-stylish/who-are-we", "/about/"),
+      legacy("/about-stylish/who-are-we/", "/about/"),
+      legacy("/about-stylish", "/about/"),
+      legacy("/about-stylish/", "/about/"),
+      legacy("/what-we-do/hire", "/hire/"),
+      legacy("/what-we-do/hire/", "/hire/"),
+      legacy("/what-we-do/equipment-dj-band-sound-kit", "/services/kit-hire/"),
+      legacy("/what-we-do/equipment-dj-band-sound-kit/", "/services/kit-hire/"),
+      legacy("/what-we-do/led-lighting-php", "/services/lighting-design/"),
+      legacy("/what-we-do/led-lighting-php/", "/services/lighting-design/"),
+      legacy("/what-we-do", "/what-we-do/"),
+      legacy("/what-we-do/", "/what-we-do/"),
+      legacy("/galleries/venue-decoration", "/services/venue-styling/"),
+      legacy("/galleries/venue-decoration/", "/services/venue-styling/"),
+      legacy("/galleries/image-gallery-new", "/galleries/"),
+      legacy("/galleries/image-gallery-new/", "/galleries/"),
+      legacy("/galleries/video", "/galleries/videos/"),
+      legacy("/galleries/video/", "/galleries/videos/"),
+      legacy("/galleries", "/galleries/"),
+      legacy("/galleries/", "/galleries/"),
+      legacy("/pennard-house-somerset", "/venues/pennard-house/"),
+      legacy("/pennard-house-somerset/", "/venues/pennard-house/"),
+      legacy("/testi", "/testi/"),
+      legacy("/testi/", "/testi/"),
+      legacy("/privacy-policy", "/privacy-policy/"),
+      legacy("/privacy-policy/", "/privacy-policy/"),
+      legacy("/artists", "/artists/djs/"),
+      legacy("/artists/", "/artists/djs/"),
+
+      // --- Wildcard families ---
+      legacy("/testimonial-view/:path*", "/testi/"),
+      legacy("/testi/page/:path*", "/testi/"),
+      legacy("/team-view/:path*", "/about/"),
+      legacy("/category/babington-house", "/venues/babington-house/"),
+      legacy("/category/babington-house/", "/venues/babington-house/"),
+      legacy("/category/babington-house/:path*", "/venues/babington-house/"),
+      legacy(
+        "/category/venue-decoration-styling",
+        "/services/venue-styling/"
+      ),
+      legacy(
+        "/category/venue-decoration-styling/",
+        "/services/venue-styling/"
+      ),
+      legacy(
+        "/category/venue-decoration-styling/:path*",
+        "/services/venue-styling/"
+      ),
+      legacy("/category/:path*", "/about/blog/"),
+      legacy("/blogs/:path*", "/about/blog/"),
+      legacy("/ngg_tag/:path*", "/services/lighting-design/"),
+      legacy("/wp-content/:path*", "/"),
+      legacy("/wp-admin/:path*", "/"),
+      legacy("/wp-login.php", "/"),
+      legacy("/feed", "/about/blog/"),
+      legacy("/feed/", "/about/blog/"),
+      legacy("/about-stylish/:path*", "/about/"),
+      legacy("/what-we-do/:path*", "/what-we-do/"),
+
+      // --- Homepage + ultimate catch-all (anything unmapped lands on homepage) ---
+      legacy("/", "/"),
+      legacy("/:path*", "/"),
+
+      // ============================================================
+      // END cross-domain consolidation
+      // ============================================================
+
       // --- Duplicate-content consolidation (May 2026) ---
       // /parties/corporate-events/ retired in favour of /parties/corporate/
       // (richer content; was the page header/nav linked to, but had no
