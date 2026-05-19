@@ -14,9 +14,22 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import LazyIframe from "@/components/LazyIframe";
-import { Quote } from "lucide-react";
+import { ArrowRight, Quote } from "lucide-react";
 import { reviews } from "@/data/reviews";
 import { testimonials } from "@/data/testimonials";
+import type { DJCardData } from "@/lib/dj-data";
+
+interface DJRosterCard {
+  name: string;
+  slug: string;
+  image: string | null;
+  alt: string;
+  mixingStyle: string;
+  bio: string;
+  fullBio: string;
+  youtubeEmbed: string | null;
+  mixcloudEmbeds: string[];
+}
 
 // Helper function to filter testimonials/reviews by DJ name
 function getDJTestimonials(djName: string) {
@@ -88,46 +101,66 @@ function normalizeYouTubeUrl(url: string | null | undefined): string | null {
   return null;
 }
 
-export default function DJRosterSection() {
-  const [djs, setDjs] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+function mapDJ(raw: {
+  name: string;
+  slug?: string;
+  bio?: string | null;
+  fullBio?: string | null;
+  strapLine?: string | null;
+  imageUrl?: string | null;
+  youtubeEmbed?: string | null;
+  mixcloudEmbeds?: string[];
+  mixcloudUrl?: string | null;
+}): DJRosterCard {
+  const youtubeEmbed = normalizeYouTubeUrl(raw.youtubeEmbed ?? null);
+  const bio = raw.bio || "";
+  const fullBio = (raw.fullBio && raw.fullBio.trim()) ? raw.fullBio : bio;
+  const strapLine = (raw.strapLine && raw.strapLine.trim()) ? raw.strapLine : "Professional DJ Services";
+  const mixcloudEmbeds =
+    raw.mixcloudEmbeds && raw.mixcloudEmbeds.length > 0
+      ? raw.mixcloudEmbeds
+      : raw.mixcloudUrl
+      ? [raw.mixcloudUrl]
+      : [];
+  return {
+    name: raw.name,
+    slug: raw.slug ?? "",
+    image: raw.imageUrl ?? null,
+    alt: `${raw.name} performing at weddings and events, showcasing professional DJ services`,
+    mixingStyle: strapLine,
+    bio,
+    fullBio,
+    youtubeEmbed: youtubeEmbed ?? null,
+    mixcloudEmbeds,
+  };
+}
+
+interface DJRosterSectionProps {
+  /**
+   * Server-prefetched DJ data. When provided, the component renders the roster
+   * synchronously in the initial HTML (used by /artists/djs/). When omitted,
+   * the component falls back to its legacy client-side fetch from /api/djs
+   * (kept for back-compat with /services/djs/).
+   */
+  djs?: DJCardData[];
+}
+
+export default function DJRosterSection({ djs: initialDjs }: DJRosterSectionProps = {}) {
+  const hasInitial = Array.isArray(initialDjs);
+  const [djs, setDjs] = useState<DJRosterCard[]>(
+    hasInitial ? (initialDjs as DJCardData[]).map(mapDJ) : []
+  );
+  const [loading, setLoading] = useState(!hasInitial);
 
   useEffect(() => {
+    if (hasInitial) return; // Already hydrated from server props.
     const fetchDJs = async () => {
       try {
         const response = await fetch("/api/djs");
         if (response.ok) {
           const data = await response.json();
           const apiDjs = data.djs ?? [];
-          if (apiDjs.length === 0) {
-            setDjs([]);
-            setLoading(false);
-            return;
-          }
-
-          const mappedDJs = apiDjs.map((dj: any) => {
-            const youtubeEmbed = normalizeYouTubeUrl(dj.youtubeEmbed);
-            const bio = dj.bio || "";
-            const fullBio = (dj.fullBio && dj.fullBio.trim()) ? dj.fullBio : bio;
-            const strapLine = (dj.strapLine && dj.strapLine.trim()) ? dj.strapLine : "Professional DJ Services";
-            const mixcloudEmbeds =
-              dj.mixcloudEmbeds && dj.mixcloudEmbeds.length > 0
-                ? dj.mixcloudEmbeds
-                : dj.mixcloudUrl
-                  ? [dj.mixcloudUrl]
-                  : [];
-            return {
-              name: dj.name,
-              image: dj.imageUrl ?? null,
-              alt: `${dj.name} performing at weddings and events, showcasing professional DJ services`,
-              mixingStyle: strapLine,
-              bio,
-              fullBio,
-              youtubeEmbed: youtubeEmbed ?? null,
-              mixcloudEmbeds,
-            };
-          });
-          setDjs(mappedDJs);
+          setDjs(apiDjs.map(mapDJ));
         }
       } catch (error) {
         console.error("Error fetching DJs:", error);
@@ -138,7 +171,7 @@ export default function DJRosterSection() {
     };
 
     fetchDJs();
-  }, []);
+  }, [hasInitial]);
 
   return (
     <section className="pt-8 pb-20 px-4 bg-gray-900">
@@ -178,29 +211,61 @@ export default function DJRosterSection() {
                   transition={{ duration: 0.5, delay: Math.min(index * 0.1, 0.3) }}
                 >
                   <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:border-champagne-gold/60 group flex flex-col">
-                    <div className="relative aspect-[4/3] overflow-hidden bg-gray-900">
-                      {dj.image ? (
-                        <Image
-                          src={dj.image}
-                          alt={dj.alt}
-                          fill
-                          className="object-cover object-center group-hover:scale-110 transition-transform duration-500"
-                          style={{ objectPosition: "center center" }}
-                          sizes="(max-width: 640px) 100vw, 50vw"
-                        />
-                      ) : (
-                        <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-gray-400">
-                          <span>Image not available</span>
+                    {dj.slug ? (
+                      <Link
+                        href={`/artists/djs/${dj.slug}/`}
+                        aria-label={`View ${dj.name}'s full profile`}
+                        className="relative aspect-[4/3] overflow-hidden bg-gray-900 block focus:outline-none focus:ring-2 focus:ring-champagne-gold/60 focus:ring-offset-2 focus:ring-offset-gray-900"
+                      >
+                        {dj.image ? (
+                          <Image
+                            src={dj.image}
+                            alt={dj.alt}
+                            fill
+                            className="object-cover object-center group-hover:scale-110 transition-transform duration-500"
+                            style={{ objectPosition: "center center" }}
+                            sizes="(max-width: 640px) 100vw, 50vw"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-gray-400">
+                            <span>Image not available</span>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
+                        <div className="absolute bottom-0 left-0 right-0 p-4">
+                          <h3 className="text-xl font-bold text-white drop-shadow-lg group-hover:text-champagne-gold transition-colors">
+                            {dj.name}
+                          </h3>
+                          <span className="inline-block mt-1 px-2.5 py-1 bg-champagne-gold/20 text-champagne-gold rounded-full text-xs font-semibold border border-champagne-gold/40">
+                            {dj.mixingStyle}
+                          </span>
                         </div>
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
-                      <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <h3 className="text-xl font-bold text-white drop-shadow-lg">{dj.name}</h3>
-                        <span className="inline-block mt-1 px-2.5 py-1 bg-champagne-gold/20 text-champagne-gold rounded-full text-xs font-semibold border border-champagne-gold/40">
-                          {dj.mixingStyle}
-                        </span>
+                      </Link>
+                    ) : (
+                      <div className="relative aspect-[4/3] overflow-hidden bg-gray-900">
+                        {dj.image ? (
+                          <Image
+                            src={dj.image}
+                            alt={dj.alt}
+                            fill
+                            className="object-cover object-center group-hover:scale-110 transition-transform duration-500"
+                            style={{ objectPosition: "center center" }}
+                            sizes="(max-width: 640px) 100vw, 50vw"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-gray-400">
+                            <span>Image not available</span>
+                          </div>
+                        )}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-80" />
+                        <div className="absolute bottom-0 left-0 right-0 p-4">
+                          <h3 className="text-xl font-bold text-white drop-shadow-lg">{dj.name}</h3>
+                          <span className="inline-block mt-1 px-2.5 py-1 bg-champagne-gold/20 text-champagne-gold rounded-full text-xs font-semibold border border-champagne-gold/40">
+                            {dj.mixingStyle}
+                          </span>
+                        </div>
                       </div>
-                    </div>
+                    )}
                     <CardContent className="p-4 sm:p-5 flex flex-col">
                       <p className="text-sm text-gray-300 leading-relaxed line-clamp-3 mb-4">{dj.bio}</p>
 
@@ -249,14 +314,28 @@ export default function DJRosterSection() {
                         </div>
                       )}
 
-                      <div className="mt-auto">
+                      <div className="mt-auto space-y-2">
+                        {dj.slug ? (
+                          <Button
+                            asChild
+                            className="w-full bg-champagne-gold text-black hover:bg-champagne-gold/90 transition-colors font-semibold min-h-[48px] shadow-[0_0_16px_rgba(212,175,55,0.18)]"
+                          >
+                            <Link
+                              href={`/artists/djs/${dj.slug}/`}
+                              aria-label={`View ${dj.name}'s full profile`}
+                            >
+                              View {dj.name}&rsquo;s full profile
+                              <ArrowRight className="ml-2 h-4 w-4" />
+                            </Link>
+                          </Button>
+                        ) : null}
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button
                               variant="outline"
-                              className="w-full mt-auto border-champagne-gold text-champagne-gold hover:bg-champagne-gold hover:text-black transition-all duration-300 font-semibold min-h-[48px]"
+                              className="w-full border-champagne-gold/50 text-champagne-gold/90 hover:bg-champagne-gold/10 hover:text-champagne-gold transition-colors font-medium min-h-[44px] text-sm"
                             >
-                              Read more & expand
+                              Quick preview
                             </Button>
                           </DialogTrigger>
                           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 border-champagne-gold/30">
