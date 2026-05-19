@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import LazyIframe from "@/components/LazyIframe";
 import { ArrowRight, Quote } from "lucide-react";
-import { reviews } from "@/data/reviews";
 import { testimonials } from "@/data/testimonials";
 import type { DJCardData } from "@/lib/dj-data";
 
@@ -31,7 +30,16 @@ interface DJRosterCard {
   mixcloudEmbeds: string[];
 }
 
-// Helper function to filter testimonials/reviews by DJ name
+// Filter testimonials for the per-DJ "Client Testimonials" block in the modal.
+//
+// We source from testimonials.ts only (the long-form quotes). reviews.ts is
+// intentionally NOT included because every reviews.ts entry is a shortened
+// duplicate of a testimonials.ts entry — including both used to render the
+// same review twice in the modal (e.g. Camilla & Dan / Camilla & Dan Wilkins).
+//
+// For DJ Nige specifically, we also include every Babington House testimonial
+// regardless of whether the quote text mentions his name. He is the 22-year
+// resident DJ at Babington House, so all Babington testimonials belong to him.
 function getDJTestimonials(djName: string) {
   const djKeywords: { [key: string]: string[] } = {
     "DJ Nige": ["nige", "nigel"],
@@ -42,15 +50,25 @@ function getDJTestimonials(djName: string) {
   const keywords = djKeywords[djName] || [];
   if (keywords.length === 0) return [];
 
-  const allTestimonials = [
-    ...reviews.map((r) => ({ ...r, source: "reviews" as const })),
-    ...testimonials.map((t) => ({ ...t, source: "testimonials" as const })),
-  ];
-
-  return allTestimonials.filter((testimonial) => {
-    const quoteLower = testimonial.quote.toLowerCase();
-    return keywords.some((keyword) => quoteLower.includes(keyword));
+  const matched = testimonials.filter((t) => {
+    const quoteLower = t.quote.toLowerCase();
+    const mentionsDj = keywords.some((kw) => quoteLower.includes(kw));
+    const isNigeBabington =
+      djName === "DJ Nige" && t.venueFilter === "Babington House";
+    return mentionsDj || isNigeBabington;
   });
+
+  // Defensive dedupe by author (case-insensitive) in case of any future
+  // duplicates within testimonials.ts itself.
+  const seen = new Set<string>();
+  return matched
+    .filter((t) => {
+      const key = t.author.trim().toLowerCase();
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .map((t) => ({ ...t, source: "testimonials" as const }));
 }
 
 // Normalize YouTube URLs to embed format (YouTube only; Mixcloud is handled by API)

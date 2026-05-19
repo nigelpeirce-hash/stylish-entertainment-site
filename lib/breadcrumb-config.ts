@@ -135,7 +135,14 @@ export const PATH_SEGMENT_LABELS: Record<string, string> = {
   "five-ways-to-totally-transform-a-venue-1-lighting": "Five Ways to Transform a Venue #1 Lighting",
   "five-ways-to-totally-transform-a-venue-2-decor": "Five Ways to Transform a Venue #2 Decor",
   "bristol-university-spring-ball": "Bristol University Spring Ball",
-  
+
+  // DJ profile slugs — override the auto-titlecased fallback so "dj-nige"
+  // renders as "DJ Nige" rather than "Dj Nige".
+  "dj-nige": "DJ Nige",
+  "dj-james": "DJ James",
+  "james-h": "James H",
+  "rich-s": "Rich S",
+
   // Client area
   "client": "Client Portal",
   "dashboard": "Dashboard",

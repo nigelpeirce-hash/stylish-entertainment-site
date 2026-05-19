@@ -5,6 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createMetadata, generateCanonicalUrl } from "@/lib/metadata";
 import { normalizeMixcloudEmbeds } from "@/lib/mixcloud-utils";
+import { getDJExtras, type DJResidency } from "@/lib/dj-extras";
 
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
@@ -103,12 +104,21 @@ export async function generateMetadata({
     };
   }
   const dj = result.dj;
+  const extras = getDJExtras(slug);
   const title = dj.seoTitle?.trim() || `${dj.name} | Wedding & Event DJ`;
-  const description =
+  const baseDescription =
     dj.seoDescription?.trim() ||
     dj.strapLine?.trim() ||
     stripToLength(dj.bio) ||
     `Book ${dj.name} for weddings, private parties and corporate events across the UK with STYLISH Entertainment.`;
+  // Prepend long-term residency for trust signal + LLM-quotability. Strict
+  // 160-char target for meta descriptions.
+  const description = extras?.residency
+    ? stripToLength(
+        `Resident DJ at ${extras.residency.venue} since ${extras.residency.sinceYear} (${extras.residency.years}+ years). ${baseDescription}`,
+        160
+      )
+    : baseDescription;
 
   return createMetadata({
     title,
@@ -184,6 +194,7 @@ export default async function DJProfilePage({
     notFound();
   }
   const dj = result.dj;
+  const extras = getDJExtras(slug);
 
   const canonical = generateCanonicalUrl(`artists/djs/${slug}`);
   const youtubeEmbed = normalizeYouTubeEmbed(dj.youtubeEmbed);
@@ -194,7 +205,17 @@ export default async function DJProfilePage({
       ? [dj.mixcloudUrl]
       : [];
   const mixcloudEmbeds = normalizeMixcloudEmbeds(rawMixcloudInputs);
-  const bioSource = (dj.fullBio?.trim() ? dj.fullBio : dj.bio) || "";
+  // Profile bio precedence: extras.profileBio (code-managed long-form) > DB fullBio > DB bio.
+  // The listing modal continues to use DB fullBio so the modal is unaffected.
+  const bioSource =
+    extras?.profileBio?.trim() ||
+    (dj.fullBio?.trim() ? dj.fullBio : dj.bio) ||
+    "";
+
+  const personDescription = extras?.residency
+    ? `Resident DJ at ${extras.residency.venue} (Soho House Group) since ${extras.residency.sinceYear} — ${extras.residency.years}+ years of weddings, parties and events. ${stripToLength(dj.bio, 220)}`.trim()
+    : stripToLength(dj.bio, 320) ||
+      `Professional DJ with STYLISH Entertainment, performing for weddings and events across the UK.`;
 
   const personSchema = {
     "@context": "https://schema.org",
@@ -203,14 +224,21 @@ export default async function DJProfilePage({
     jobTitle: "DJ",
     url: canonical,
     ...(dj.imageUrl ? { image: dj.imageUrl } : {}),
-    description:
-      stripToLength(dj.bio, 320) ||
-      `Professional DJ with STYLISH Entertainment, performing for weddings and events across the UK.`,
+    description: personDescription,
     worksFor: {
       "@type": "Organization",
       name: "Stylish Entertainment",
       url: "https://www.stylishentertainment.co.uk",
     },
+    ...(extras?.residency
+      ? {
+          affiliation: {
+            "@type": "Organization",
+            name: extras.residency.venue,
+            url: `https://www.stylishentertainment.co.uk${extras.residency.venueUrl}`,
+          },
+        }
+      : {}),
   };
 
   return (
@@ -220,22 +248,31 @@ export default async function DJProfilePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(personSchema) }}
       />
 
-      <section className="relative min-h-[60vh] flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
-        {dj.imageUrl && (
-          <div className="absolute inset-0 opacity-30">
-            <Image
-              src={dj.imageUrl}
-              alt={`${dj.name} performing \u2014 professional DJ for weddings and events`}
-              fill
-              className="object-cover object-center"
-              priority
-              fetchPriority="high"
-              sizes="100vw"
-            />
-          </div>
+      <section className="relative min-h-[70vh] flex items-end justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
+        {/* Prefer the curated high-res hero image when set in dj-extras.ts.
+            Falls back to the DB imageUrl (which is the 400px face-cropped
+            thumbnail used by the listing card — blurry as a 1920px hero). */}
+        {(extras?.heroImageUrl ?? dj.imageUrl) && (
+          <>
+            <div className="absolute inset-0">
+              <Image
+                src={(extras?.heroImageUrl ?? dj.imageUrl) as string}
+                alt={`${dj.name} performing \u2014 professional DJ for weddings and events`}
+                fill
+                className="object-cover object-center brightness-110"
+                style={{ objectPosition: "center 25%" }}
+                priority
+                fetchPriority="high"
+                sizes="100vw"
+              />
+            </div>
+            {/* Bottom-up gradient so the text overlay sits over a darker base
+                without flattening the top half of the hero image. */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+          </>
         )}
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-40 pb-16">
-          <div className="inline-block mb-6 px-6 py-2 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
+        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-32 pb-16 sm:pb-20 md:pb-24">
+          <div className="inline-block mb-6 px-6 py-2 bg-champagne-gold/10 backdrop-blur-sm rounded-full border border-champagne-gold/30">
             <span className="text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase">
               Meet The DJ
             </span>
@@ -250,6 +287,10 @@ export default async function DJProfilePage({
           ) : null}
         </div>
       </section>
+
+      {extras?.residency ? (
+        <ResidencyStrip residency={extras.residency} />
+      ) : null}
 
       <section className="py-16 px-4 bg-gray-900">
         <div className="container mx-auto max-w-3xl">
@@ -325,6 +366,109 @@ export default async function DJProfilePage({
           </div>
         </div>
       </section>
+
+      {extras?.testimonials && extras.testimonials.length > 0 ? (
+        <TestimonialsSection
+          heading={extras.testimonialsHeading ?? "What Couples Are Saying"}
+          testimonials={extras.testimonials}
+        />
+      ) : null}
     </>
+  );
+}
+
+function ResidencyStrip({ residency }: { residency: DJResidency }) {
+  return (
+    <aside
+      aria-label={`Resident DJ at ${residency.venue}`}
+      className="bg-gray-950 border-y border-champagne-gold/20 py-4 sm:py-5 px-4"
+    >
+      <div className="container mx-auto max-w-4xl flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3 text-center">
+        <span
+          aria-hidden="true"
+          className="text-[10px] sm:text-xs uppercase tracking-[0.25em] text-champagne-gold/80"
+        >
+          Resident DJ
+        </span>
+        <span aria-hidden="true" className="hidden sm:inline text-champagne-gold/40">
+          •
+        </span>
+        <p className="text-sm sm:text-base text-gray-200">
+          <Link
+            href={residency.venueUrl}
+            className="text-champagne-gold font-semibold hover:text-champagne-gold/80"
+          >
+            {residency.venue}
+          </Link>{" "}
+          <span className="text-gray-400">
+            since {residency.sinceYear} — over {residency.years} years
+          </span>
+        </p>
+      </div>
+    </aside>
+  );
+}
+
+function TestimonialsSection({
+  heading,
+  testimonials,
+}: {
+  heading: string;
+  testimonials: Array<{
+    quote: string;
+    author: string;
+    venue: string;
+    venueUrl?: string;
+  }>;
+}) {
+  return (
+    <section
+      aria-label={heading}
+      className="py-16 px-4 bg-gray-800 border-t border-champagne-gold/10"
+    >
+      <div className="container mx-auto max-w-6xl">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-3">
+          {heading}
+        </h2>
+        <p className="text-center text-gray-400 mb-10 max-w-2xl mx-auto">
+          A small selection of recent wedding feedback. Every quote is real, unedited and used with the couples&apos; permission.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {testimonials.map((t, idx) => (
+            <figure
+              key={idx}
+              className="flex flex-col h-full bg-gray-900/70 backdrop-blur-sm border border-champagne-gold/20 rounded-2xl p-6 sm:p-7 shadow-[0_0_24px_rgba(212,175,55,0.06)]"
+            >
+              <span
+                aria-hidden="true"
+                className="text-5xl text-champagne-gold/40 leading-none mb-3"
+              >
+                &ldquo;
+              </span>
+              <blockquote className="text-base leading-relaxed text-gray-200 flex-1">
+                {t.quote}
+              </blockquote>
+              <figcaption className="mt-5 pt-5 border-t border-champagne-gold/10">
+                <p className="text-white font-semibold">{t.author}</p>
+                <p className="text-sm text-gray-400 mt-1">
+                  {t.venueUrl ? (
+                    <a
+                      href={t.venueUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-champagne-gold/80 hover:text-champagne-gold"
+                    >
+                      {t.venue}
+                    </a>
+                  ) : (
+                    t.venue
+                  )}
+                </p>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </section>
   );
 }
