@@ -52,11 +52,19 @@ const NIGE_PROFILE_TESTIMONIAL_AUTHORS: readonly string[] = [
   "Hollie & Lewis Corby",      // Penarth Pier Pavilion, Wales
 ];
 
-// High-resolution hero image for DJ Nige's profile page. Same source photo
-// as the DB imageUrl (Mirjam-and-Ben-0970-1) but transformed at 1920px wide
-// with no face-crop, so it doesn't blur when stretched across the hero.
+// High-resolution hero images per DJ slug. Each is the SAME source photo as
+// the DB imageUrl, but transformed at 1920px wide with no face-crop so it
+// doesn't blur when stretched across the profile-page hero. The DB image
+// keeps its `w_400,h_400,c_fill,g_face` thumbnail crop because that's the
+// right shape for the listing card.
 const DJ_NIGE_HERO_IMAGE =
   "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1920,c_limit/v1768163712/Mirjam-and-Ben-0970-1_mjs2ws.jpg";
+const DJ_JAMES_HERO_IMAGE =
+  "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1920,c_limit/v1768163128/James-F-DJ_wgijk1.jpg";
+const JAMES_H_HERO_IMAGE =
+  "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1920,c_limit/v1769625669/9747514b-c254-4782-a155-30c0ba513b94_ach2cd.jpg";
+const RICH_S_HERO_IMAGE =
+  "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1920,c_limit/v1768163359/Rich-S-DJ_qxsnht.jpg";
 
 /**
  * Per-DJ enrichment: long-term venue residencies and curated testimonials.
@@ -82,5 +90,19 @@ export function getDJExtras(slug: string): DJExtras | null {
         .filter((t): t is Testimonial => Boolean(t)),
     };
   }
+
+  // Hero-only overrides for the rest of the roster. The profile pages
+  // otherwise render entirely from DB fields (bio/fullBio/seoTitle etc.).
+  // Add residency / testimonials / profileBio later if/when curated.
+  if (slug === "dj-james") {
+    return { heroImageUrl: DJ_JAMES_HERO_IMAGE };
+  }
+  if (slug === "james-h") {
+    return { heroImageUrl: JAMES_H_HERO_IMAGE };
+  }
+  if (slug === "rich-s") {
+    return { heroImageUrl: RICH_S_HERO_IMAGE };
+  }
+
   return null;
 }
