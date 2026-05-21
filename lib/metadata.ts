@@ -19,6 +19,13 @@ export type CreateMetadataOptions = {
   pathname?: string;
   noindex?: boolean;
   keywords?: string[];
+  /**
+   * Skip the root title.template ("%s | STYLISH Entertainment") for this
+   * page by rendering the title as { absolute: ... }. Use when the title
+   * already includes branded or descriptive context and the appended brand
+   * suffix would push it over Google's ~60-char SERP truncation point.
+   */
+  titleAbsolute?: boolean;
   openGraph?: {
     images?: Array<{ url: string; width?: number; height?: number; alt: string }>;
   };
@@ -33,7 +40,9 @@ export function createMetadata(metadata: CreateMetadataOptions): Metadata {
     path !== undefined && path !== null ? generateCanonicalUrl(path) : undefined;
 
   const base: Metadata = {
-    title: metadata.title,
+    title: metadata.titleAbsolute
+      ? { absolute: metadata.title }
+      : metadata.title,
     description: metadata.description,
     keywords: metadata.keywords,
     alternates: canonical ? { canonical } : undefined,

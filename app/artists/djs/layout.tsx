@@ -3,17 +3,22 @@ import { createMetadata } from "@/lib/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
   return createMetadata({
-    title: "DJs & Live DJ Acts UK-Wide",
+    title: "Wedding DJs UK | Babington House Resident",
     description:
-      "Boutique wedding DJs and live DJ acts for weddings, private parties and corporate events across the UK. South West, Cotswolds and nationwide.",
-    pathname: "artists/djs",
+      "Boutique wedding DJs across Somerset, the South West, London and the Home Counties. Founder DJ Nige has been the resident DJ at Babington House since 2003.",
+    path: "artists/djs",
     keywords: [
-      "Wedding DJs",
-      "Event DJs UK",
-      "Party DJs",
-      "Corporate DJs",
-      "Wedding Entertainment",
-      "Live DJ acts",
+      "wedding DJs UK",
+      "wedding DJ Somerset",
+      "wedding DJ South West",
+      "wedding DJ London",
+      "Babington House DJ",
+      "boutique wedding DJ",
+      "luxury wedding DJ",
+      "event DJ UK",
+      "corporate DJ",
+      "private party DJ",
+      "live DJ acts",
     ],
   });
 }

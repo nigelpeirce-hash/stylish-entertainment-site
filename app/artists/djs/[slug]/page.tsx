@@ -120,15 +120,27 @@ export async function generateMetadata({
       )
     : baseDescription;
 
+  // The DB imageUrl is a 400x400 face-cropped Cloudinary thumbnail (correct
+  // for the listing card, too small for social cards). Re-derive a 1200x630
+  // OG-sized URL from the same source by swapping the transformation segment
+  // — works for every DJ without per-slug overrides. Uses `g_auto` instead of
+  // `g_face` so the social card is content-aware rather than zoomed to face.
+  const ogImageUrl = dj.imageUrl
+    ? dj.imageUrl.replace(
+        /\/upload\/[^/]+\//,
+        "/upload/f_auto,q_85,dpr_1,w_1200,h_630,c_fill,g_auto/"
+      )
+    : null;
+
   return createMetadata({
     title,
     description,
     path: `artists/djs/${slug}`,
-    openGraph: dj.imageUrl
+    openGraph: ogImageUrl
       ? {
           images: [
             {
-              url: dj.imageUrl,
+              url: ogImageUrl,
               width: 1200,
               height: 630,
               alt: `${dj.name} \u2014 professional DJ for weddings and events`,

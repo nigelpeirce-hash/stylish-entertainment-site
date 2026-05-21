@@ -22,16 +22,9 @@ export default function Musicians() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.title = "Musicians | Live Wedding Musicians | Stylish Entertainment";
-    const metaDescription = document.querySelector('meta[name="description"]');
-    if (metaDescription) {
-      metaDescription.setAttribute(
-        "content",
-        "Professional live musicians for weddings and events. Harpists, bands, duos, trios and performers across the UK."
-      );
-    }
-
-    // Fetch musicians from API
+    // Title + description are set server-side via app/artists/musicians/layout.tsx
+    // (see createMetadata call). Do NOT mutate document.title here — Google
+    // sees the initial HTML title before client JS runs.
     const fetchMusicians = async () => {
       try {
         const response = await fetch("/api/musicians");
