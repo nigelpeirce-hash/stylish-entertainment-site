@@ -192,11 +192,14 @@ function ResetPasswordContent() {
               <p className="text-red-400 text-lg mb-2">Invalid Reset Link</p>
               <p className="text-gray-300 text-sm mb-4">{error}</p>
             </div>
-            <Link href="/reset-password-workaround">
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white mb-2">
-                Try Workaround Page
-              </Button>
-            </Link>
+            {/* Internal-only diagnostic route: not exposed in production client UX. */}
+            {process.env.NODE_ENV !== "production" && (
+              <Link href="/reset-password-workaround">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white mb-2">
+                  Try Workaround Page
+                </Button>
+              </Link>
+            )}
             <Link href="/forgot-password">
               <Button variant="outline" className="w-full border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 mb-2">
                 Request New Reset Link

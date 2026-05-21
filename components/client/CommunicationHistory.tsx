@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, MessageSquare } from "lucide-react";
 import Link from "next/link";
+import { sanitizeEmailHtml } from "@/lib/sanitize-email-html";
 
 interface Email {
   id: string;
@@ -135,16 +136,25 @@ export default function CommunicationHistory({
                           })}
                         </p>
                       </div>
-                      {email.htmlContent ? (
-                        <div
-                          className="prose prose-invert prose-sm max-w-none text-gray-300 text-xs line-clamp-4"
-                          dangerouslySetInnerHTML={{ __html: email.htmlContent }}
-                        />
-                      ) : (
-                        <p className="text-sm text-gray-300 whitespace-pre-wrap line-clamp-4">
-                          {email.textContent || "—"}
-                        </p>
-                      )}
+                      {(() => {
+                        // Sanitize inbound email HTML; fall back to plain text on failure.
+                        const sanitized = email.htmlContent
+                          ? sanitizeEmailHtml(email.htmlContent)
+                          : { ok: true, html: "" };
+                        if (sanitized.ok && sanitized.html) {
+                          return (
+                            <div
+                              className="prose prose-invert prose-sm max-w-none text-gray-300 text-xs line-clamp-4"
+                              dangerouslySetInnerHTML={{ __html: sanitized.html }}
+                            />
+                          );
+                        }
+                        return (
+                          <p className="text-sm text-gray-300 whitespace-pre-wrap line-clamp-4">
+                            {email.textContent || "—"}
+                          </p>
+                        );
+                      })()}
                     </div>
                   ))}
                 </div>

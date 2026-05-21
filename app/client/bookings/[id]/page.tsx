@@ -28,8 +28,10 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
   const token = resolvedSearchParams.token;
   const isAdmin = session?.user && (session.user as any).role === "admin";
 
-  // Fetch the booking (depends on bookingId from params)
-  const booking = await prisma.booking.findUnique({
+  // Fetch the booking (depends on bookingId from params).
+  // `let` (not `const`) because we reassign below when we lazily generate
+  // a guestRequestToken for legacy bookings that don't have one yet.
+  let booking = await prisma.booking.findUnique({
     where: { id: bookingId },
     select: {
       id: true,

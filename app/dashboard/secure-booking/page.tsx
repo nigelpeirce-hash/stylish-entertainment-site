@@ -175,7 +175,11 @@ function SecureBookingPageContent() {
       })
     : 'Date to be confirmed';
 
-  const handlePayDeposit = async () => {
+  // Confirms the booking by recording terms acceptance against the booking.
+  // Deposit payment itself is handled via bank transfer (instructions are sent
+  // by email once terms are accepted) — there is intentionally no live card /
+  // online payment integration on this page.
+  const handleConfirmBooking = async () => {
     if (!termsAccepted) {
       alert("Please accept the Terms & Conditions to proceed.");
       return;
@@ -196,17 +200,20 @@ function SecureBookingPageContent() {
       if (response.ok) {
         const data = await response.json();
         if (data.success) {
-          alert("Terms accepted. Payment integration will follow.");
-          // NOTE: Payment gateway integration will be implemented here
+          alert(
+            "Thank you — your booking is confirmed and your terms acceptance has been recorded.\n\n" +
+              "We'll email you secure bank transfer instructions for your deposit shortly. " +
+              "Please use the payment reference shown on this page when sending the transfer."
+          );
         } else {
-          throw new Error("Failed to accept terms");
+          throw new Error("Failed to confirm booking");
         }
       } else {
         const err = await response.json().catch(() => ({}));
-        throw new Error(err.error || "Failed to accept terms");
+        throw new Error(err.error || "Failed to confirm booking");
       }
     } catch (error) {
-      console.error("Error submitting terms acceptance:", error);
+      console.error("Error confirming booking / accepting terms:", error);
       alert(error instanceof Error ? error.message : "An error occurred. Please try again.");
     } finally {
       setIsSubmitting(false);
@@ -281,7 +288,8 @@ function SecureBookingPageContent() {
               Your Celebration at {bookingData.venueName}
             </h1>
             <p className="text-gray-600 text-lg md:text-xl mt-4">
-              Secure your date with a deposit to confirm your booking
+              Review your details and accept our terms to confirm your booking. Deposit is paid by
+              bank transfer — we&rsquo;ll email you secure transfer instructions as soon as you confirm.
             </p>
           </motion.div>
         </div>
@@ -540,15 +548,19 @@ function SecureBookingPageContent() {
 
               {/* Action Buttons */}
               <div className="space-y-4">
-                {/* Pay Secure Deposit Button */}
+                {/* Confirm Booking Button — deposit is paid by bank transfer, not online. */}
                 <Button
                   size="lg"
-                  onClick={handlePayDeposit}
+                  onClick={handleConfirmBooking}
                   disabled={!termsAccepted || !booking?.id || isSubmitting}
                   className="w-full bg-champagne-gold text-black hover:bg-champagne-gold/90 font-bold text-lg py-6 shadow-lg hover:shadow-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? "Processing..." : "Pay Secure Deposit"}
+                  {isSubmitting ? "Confirming..." : "Confirm Booking & Accept Terms"}
                 </Button>
+                <p className="text-xs text-gray-600 text-center leading-relaxed -mt-1">
+                  No card payment is taken here. After you confirm, we&rsquo;ll email you secure bank
+                  transfer instructions for your deposit.
+                </p>
 
                 {/* Message Ali or Nigel Button */}
                 <Button

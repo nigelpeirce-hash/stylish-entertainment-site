@@ -27,7 +27,9 @@ export async function GET(
     const token = request.nextUrl.searchParams.get("token");
     const session = await auth();
 
-    const booking = await prisma.booking.findUnique({
+    // `let` (not `const`) because we reassign below when we lazily generate
+    // a guestRequestToken for legacy bookings that don't have one yet.
+    let booking = await prisma.booking.findUnique({
       where: { id: bookingId },
       select: {
         id: true,

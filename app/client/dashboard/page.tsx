@@ -214,18 +214,23 @@ export default function ClientDashboard() {
                         Create Your First Booking
                       </Button>
                     </Link>
-                    <Button
-                      onClick={createTestBooking}
-                      disabled={isCreatingTest}
-                      variant="outline"
-                      className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10"
-                    >
-                      {isCreatingTest ? "Creating..." : "Create Test Booking"}
-                    </Button>
+                    {/* Dev-only helper: hidden in production client UX. */}
+                    {process.env.NODE_ENV !== "production" && (
+                      <Button
+                        onClick={createTestBooking}
+                        disabled={isCreatingTest}
+                        variant="outline"
+                        className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10"
+                      >
+                        {isCreatingTest ? "Creating..." : "Create Test Booking"}
+                      </Button>
+                    )}
                   </div>
-                  <p className="text-xs text-gray-500 mt-3">
-                    Use "Create Test Booking" to quickly test dashboard features
-                  </p>
+                  {process.env.NODE_ENV !== "production" && (
+                    <p className="text-xs text-gray-500 mt-3">
+                      Use "Create Test Booking" to quickly test dashboard features
+                    </p>
+                  )}
                 </div>
               ) : bookings.length === 1 ? (
                 // Single Event Hero View

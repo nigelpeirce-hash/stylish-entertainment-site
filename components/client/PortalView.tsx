@@ -18,6 +18,7 @@ import { ContractFooter } from "@/components/client/ContractFooter";
 import PortalCountdownClock from "@/components/client/PortalCountdownClock";
 import HeroPhotoSection from "@/components/client/HeroPhotoSection";
 import ClientMusicModule from "@/components/client/ClientMusicModule";
+import { sanitizeEmailHtml } from "@/lib/sanitize-email-html";
 import {
   Dialog,
   DialogContent,
@@ -1487,16 +1488,26 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
                                 })}
                               </p>
                             </div>
-                            {email.htmlContent ? (
-                              <div
-                                className="prose prose-invert prose-sm max-w-none text-gray-300"
-                                dangerouslySetInnerHTML={{ __html: email.htmlContent }}
-                              />
-                            ) : (
-                              <p className="text-sm text-gray-300 whitespace-pre-wrap">
-                                {email.textContent || "—"}
-                              </p>
-                            )}
+                            {(() => {
+                              // Sanitize inbound email HTML before rendering.
+                              // If sanitization fails, fall back to plain text.
+                              const sanitized = email.htmlContent
+                                ? sanitizeEmailHtml(email.htmlContent)
+                                : { ok: true, html: "" };
+                              if (sanitized.ok && sanitized.html) {
+                                return (
+                                  <div
+                                    className="prose prose-invert prose-sm max-w-none text-gray-300"
+                                    dangerouslySetInnerHTML={{ __html: sanitized.html }}
+                                  />
+                                );
+                              }
+                              return (
+                                <p className="text-sm text-gray-300 whitespace-pre-wrap">
+                                  {email.textContent || "—"}
+                                </p>
+                              );
+                            })()}
                           </div>
                         ))}
                       </div>
