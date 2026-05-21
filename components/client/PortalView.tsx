@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, MapPin, Mail, Phone, Users, AlertCircle, Headphones, Sparkles, CheckCircle2, ShieldCheck, Mic, ChevronDown, Banknote, FileText, Music, HelpCircle } from "lucide-react";
+import { Calendar, Clock, MapPin, Mail, Phone, Users, AlertCircle, Headphones, Sparkles, CheckCircle2, ShieldCheck, Mic, ChevronDown, Banknote, FileText, Music, HelpCircle, MessageCircle } from "lucide-react";
 import { getGreetingName, deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
 import Image from "next/image";
 import Link from "next/link";
@@ -222,6 +222,12 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
     }>;
   }>>([]);
   const [loadingThreads, setLoadingThreads] = useState(true);
+  const [portalMessage, setPortalMessage] = useState("");
+  const [sendingPortalMessage, setSendingPortalMessage] = useState(false);
+  const [portalMessageFeedback, setPortalMessageFeedback] = useState<{
+    type: "success" | "error";
+    msg: string;
+  } | null>(null);
 
   // Sync from initial props when navigating to another booking or after refresh (e.g. staff assigned)
   useEffect(() => {
@@ -262,7 +268,7 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
   }, [booking.id, token]);
 
   // Fetch communication history (threads) for this booking
-  useEffect(() => {
+  const fetchThreads = () => {
     if (!booking.id) return;
     const url = token
       ? `/api/client/bookings/${booking.id}/threads?token=${encodeURIComponent(token)}`
@@ -273,6 +279,11 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
       .then((data) => setThreads(data.threads || []))
       .catch(() => setThreads([]))
       .finally(() => setLoadingThreads(false));
+  };
+
+  useEffect(() => {
+    fetchThreads();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [booking.id, token]);
 
   // Live sync: poll booking so Golden Countdown updates when admin edits venue/ceremony/finish
@@ -1409,7 +1420,10 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
                       setSubmittingPaymentSent(true);
                       setPaymentFeedback(null);
                       try {
-                        const res = await fetch(`/api/client/bookings/${booking.id}/final-payment-sent`, {
+                        const paymentUrl = token
+                          ? `/api/client/bookings/${booking.id}/final-payment-sent?token=${encodeURIComponent(token)}`
+                          : `/api/client/bookings/${booking.id}/final-payment-sent`;
+                        const res = await fetch(paymentUrl, {
                           method: "POST",
                         });
                         const data = await res.json();
@@ -1439,6 +1453,91 @@ export default function PortalView({ booking: initialBooking, isPreview = false,
               </Card>
             </>
           )}
+
+          {/* Message the team — works for magic-link and logged-in clients */}
+          <Card className="portal-card bg-white/[0.02] backdrop-blur-md border border-white/10">
+            <CardHeader>
+              <CardTitle className="text-xl text-white flex items-center gap-2">
+                <MessageCircle className="w-5 h-5 text-amber-500" />
+                Message the team
+              </CardTitle>
+              <p className="text-sm text-gray-400">
+                Send us a quick note about this booking. We&apos;ll respond as soon as we can.
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <textarea
+                value={portalMessage}
+                onChange={(e) => setPortalMessage(e.target.value)}
+                placeholder="Type your message here…"
+                rows={4}
+                disabled={sendingPortalMessage}
+                className="w-full rounded-lg bg-gray-900/50 border border-white/10 text-white placeholder:text-gray-500 px-3 py-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-amber-500/50 disabled:opacity-50"
+              />
+              <Button
+                onClick={async () => {
+                  const trimmed = portalMessage.trim();
+                  if (!trimmed) {
+                    setPortalMessageFeedback({
+                      type: "error",
+                      msg: "Please enter a message before sending.",
+                    });
+                    return;
+                  }
+                  setSendingPortalMessage(true);
+                  setPortalMessageFeedback(null);
+                  try {
+                    const payload: { message: string; bookingId: string; token?: string } = {
+                      message: trimmed,
+                      bookingId: booking.id,
+                    };
+                    if (token) payload.token = token;
+                    const res = await fetch("/api/client/portal-message", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify(payload),
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (res.ok) {
+                      setPortalMessage("");
+                      setPortalMessageFeedback({
+                        type: "success",
+                        msg: "Message sent — we'll get back to you soon.",
+                      });
+                      fetchThreads();
+                    } else {
+                      setPortalMessageFeedback({
+                        type: "error",
+                        msg: data?.error || "We couldn't send your message. Please try again.",
+                      });
+                    }
+                  } catch {
+                    setPortalMessageFeedback({
+                      type: "error",
+                      msg: "We couldn't send your message. Please try again.",
+                    });
+                  } finally {
+                    setSendingPortalMessage(false);
+                  }
+                }}
+                disabled={sendingPortalMessage || !portalMessage.trim()}
+                className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold disabled:opacity-50 disabled:pointer-events-none"
+              >
+                {sendingPortalMessage ? "Sending…" : "Send message"}
+              </Button>
+              {portalMessageFeedback && (
+                <p
+                  className={
+                    portalMessageFeedback.type === "success"
+                      ? "text-emerald-400 text-sm"
+                      : "text-red-400 text-sm"
+                  }
+                >
+                  {portalMessageFeedback.msg}
+                </p>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Communication history — record of all comms for this booking */}
           <Card className="portal-card bg-white/[0.02] backdrop-blur-md border border-white/10">
