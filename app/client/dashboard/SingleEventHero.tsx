@@ -1,17 +1,15 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Music, Banknote, ExternalLink, Sparkles } from "lucide-react";
+import { Music, ExternalLink, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import PortalCountdownClock from "@/components/client/PortalCountdownClock";
 import ClientMusicModule from "@/components/client/ClientMusicModule";
-import GuestCountTracker from "@/components/GuestCountTracker";
-import BudgetTracker from "@/components/BudgetTracker";
-import AddOnConcierge from "@/components/AddOnConcierge";
 import CommunicationHistory from "@/components/client/CommunicationHistory";
 import HeroPhotoSection from "@/components/client/HeroPhotoSection";
 import { ContractFooter } from "@/components/client/ContractFooter";
+import { DashboardPlanningWidgets } from "@/components/client/DashboardPlanningWidgets";
 
 interface SingleEventHeroProps {
   booking: any;
@@ -133,48 +131,9 @@ export function SingleEventHero({ booking, onHeroUploaded }: SingleEventHeroProp
         </div>
       </motion.div>
 
-      {/* 2. Budget */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-      >
-        <Card className="bg-gray-800/50 backdrop-blur-md border-champagne-gold/30">
-          <CardHeader>
-            <CardTitle className="text-xl text-white flex items-center gap-2">
-              <Banknote className="w-5 h-5 text-champagne-gold" />
-              Budget & payments
-            </CardTitle>
-            <p className="text-gray-400 text-sm">Deposit, balance and payment details</p>
-          </CardHeader>
-          <CardContent>
-            <BudgetTracker
-              bookingId={booking.id}
-              totalBudget={booking.budget}
-            />
-          </CardContent>
-        </Card>
-      </motion.div>
+      <DashboardPlanningWidgets booking={booking} layout="single" />
 
-      {/* 3. Guest count + add-ons */}
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.12 }}
-        className="grid gap-6 md:grid-cols-2"
-      >
-        <GuestCountTracker
-          bookingId={booking.id}
-          initialCount={booking.numberOfGuests || 0}
-        />
-        <AddOnConcierge
-          bookingId={booking.id}
-          eventType={booking.eventType}
-          eventDate={booking.eventDate}
-        />
-      </motion.div>
-
-      {/* 4. Messages – email thread */}
+      {/* Messages – email thread */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -183,7 +142,7 @@ export function SingleEventHero({ booking, onHeroUploaded }: SingleEventHeroProp
         <CommunicationHistory bookingId={booking.id} />
       </motion.div>
 
-      {/* 5. Contract – footer-style at bottom (ContractFooter: Booking Agreement PDF + T&Cs) */}
+      {/* Contract – footer-style at bottom (ContractFooter: Booking Agreement PDF + T&Cs) */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}

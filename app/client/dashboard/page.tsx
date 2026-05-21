@@ -13,9 +13,7 @@ import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { SingleEventHero } from "./SingleEventHero";
 import PortalCountdownClock from "@/components/client/PortalCountdownClock";
 import ClientMusicModule from "@/components/client/ClientMusicModule";
-import GuestCountTracker from "@/components/GuestCountTracker";
-import BudgetTracker from "@/components/BudgetTracker";
-import AddOnConcierge from "@/components/AddOnConcierge";
+import { DashboardPlanningWidgets } from "@/components/client/DashboardPlanningWidgets";
 import { getLabel } from "@/lib/eventLabels";
 
 // Wedding Planning Tips
@@ -303,13 +301,7 @@ export default function ClientDashboard() {
                         </Card>
                       )}
 
-                      {/* Budget Tracker */}
-                      <div className="min-w-0 overflow-x-auto">
-                        <BudgetTracker
-                          bookingId={booking.id}
-                          totalBudget={booking.budget}
-                        />
-                      </div>
+                      <DashboardPlanningWidgets booking={booking} layout="multi" section="budget" />
 
                       {/* Music preferences – must-plays, do-not-plays, Spotify, PDF/Word upload */}
                       <ClientMusicModule
@@ -326,18 +318,7 @@ export default function ClientDashboard() {
                         variant="card"
                       />
 
-                      {/* Guest Count Tracker */}
-                      <GuestCountTracker
-                        bookingId={booking.id}
-                        initialCount={booking.numberOfGuests || 0}
-                      />
-
-                      {/* Add-On Concierge */}
-                      <AddOnConcierge
-                        bookingId={booking.id}
-                        eventType={booking.eventType}
-                        eventDate={booking.eventDate}
-                      />
+                      <DashboardPlanningWidgets booking={booking} layout="multi" section="guests" />
                     </div>
                   ))}
                 </div>
