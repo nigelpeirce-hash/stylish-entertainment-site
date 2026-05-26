@@ -8,6 +8,16 @@ Setting up a domain-level 301 redirect from `stylishweddingdisco.co.uk` → `sty
 - Redirect visitors to the new domain at the DNS/hosting level
 - Work in combination with the Next.js redirects we've configured
 
+## Vercel (both domains on the same project)
+
+CDN trailing-slash normalization runs **before** `vercel.json` redirects and Next.js middleware. If deep paths on the legacy domain only redirect to `/path/` on the same host, configure **domain-level redirects** in the dashboard (runs first):
+
+1. Vercel Dashboard → your project → **Settings** → **Domains**
+2. For `stylishweddingdisco.co.uk` and `www.stylishweddingdisco.co.uk`, set **Redirect to** `www.stylishentertainment.co.uk` (308 permanent)
+3. Path and query string are preserved automatically
+
+Code fallbacks (`skipTrailingSlashRedirect`, middleware, `vercel.json` routes) are also in place, but the dashboard domain redirect is the most reliable fix.
+
 ## Setup Instructions by Provider
 
 ### Option 1: DNS/Hosting Provider (Most Common)

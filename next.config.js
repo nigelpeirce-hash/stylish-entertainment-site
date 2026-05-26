@@ -38,6 +38,9 @@ const nextConfig = {
   // (e.g. WhatsApp Cloud API → /api/whatsapp/webhook) must be configured with
   // the trailing slash to avoid a 308 they may not follow.
   trailingSlash: true,
+  // Let middleware handle trailing-slash redirects so legacy-domain cross-site
+  // redirects run first (Vercel CDN trailingSlash fires before middleware otherwise).
+  skipTrailingSlashRedirect: true,
   // Force HTTPS in production
   async headers() {
     return [

@@ -1,4 +1,19 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "routes": [
+    {
+      "src": "/(.*)",
+      "has": [{ "type": "host", "value": "stylishweddingdisco.co.uk" }],
+      "dest": "https://www.stylishentertainment.co.uk/$1",
+      "status": 308
+    },
+    {
+      "src": "/(.*)",
+      "has": [{ "type": "host", "value": "www.stylishweddingdisco.co.uk" }],
+      "dest": "https://www.stylishentertainment.co.uk/$1",
+      "status": 308
+    }
+  ],
   "redirects": [
     {
       "source": "/(.*)",

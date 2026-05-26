@@ -7,11 +7,25 @@ import { getToken } from 'next-auth/jwt'
 const LEGACY_DOMAIN = /^(www\.)?stylishweddingdisco\.co\.uk$/i
 const CANONICAL_ORIGIN = 'https://www.stylishentertainment.co.uk'
 
+/** Matches Next.js trailingSlash: true exceptions (static files, .well-known). */
+const HAS_FILE_EXTENSION = /\.[^/]+$/
+
 function legacyDomainRedirect(request: NextRequest): NextResponse | null {
   const host = (request.headers.get('host') || '').split(':')[0]
   if (!LEGACY_DOMAIN.test(host)) return null
   const { pathname, search } = request.nextUrl
   return NextResponse.redirect(`${CANONICAL_ORIGIN}${pathname}${search}`, 308)
+}
+
+function trailingSlashRedirect(request: NextRequest): NextResponse | null {
+  const { pathname } = request.nextUrl
+  if (pathname === '/' || pathname.endsWith('/')) return null
+  if (pathname.startsWith('/.well-known')) return null
+  if (HAS_FILE_EXTENSION.test(pathname)) return null
+
+  const url = request.nextUrl.clone()
+  url.pathname = `${pathname}/`
+  return NextResponse.redirect(url, 308)
 }
 
 /**
@@ -39,6 +53,9 @@ function isPublicClientPath(pathname: string): boolean {
 export async function middleware(request: NextRequest) {
   const legacyRedirect = legacyDomainRedirect(request)
   if (legacyRedirect) return legacyRedirect
+
+  const trailingRedirect = trailingSlashRedirect(request)
+  if (trailingRedirect) return trailingRedirect
 
   // Allow all localhost traffic through — matches the dev bypass in requireAdmin().
   const host = request.headers.get('host') || ''
@@ -103,9 +120,8 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // All page routes: legacy-domain redirect must run before trailingSlash.
-  // Static assets and Next internals are excluded to avoid unnecessary work.
+  // All page routes: legacy-domain + trailing-slash handling before auth.
   matcher: [
-    '/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)',
+    '/((?!_next/|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)',
   ],
 }
