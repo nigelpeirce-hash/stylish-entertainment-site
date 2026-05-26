@@ -1,15 +1,15 @@
 {
   "redirects": [
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "has": [{ "type": "host", "value": "stylishweddingdisco.co.uk" }],
-      "destination": "https://www.stylishentertainment.co.uk/:path*",
+      "destination": "https://www.stylishentertainment.co.uk/$1",
       "statusCode": 308
     },
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "has": [{ "type": "host", "value": "www.stylishweddingdisco.co.uk" }],
-      "destination": "https://www.stylishentertainment.co.uk/:path*",
+      "destination": "https://www.stylishentertainment.co.uk/$1",
       "statusCode": 308
     }
   ],

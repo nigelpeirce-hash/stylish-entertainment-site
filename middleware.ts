@@ -3,6 +3,17 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
 
+/** Legacy WP domain → canonical site (must run before trailingSlash normalization). */
+const LEGACY_DOMAIN = /^(www\.)?stylishweddingdisco\.co\.uk$/i
+const CANONICAL_ORIGIN = 'https://www.stylishentertainment.co.uk'
+
+function legacyDomainRedirect(request: NextRequest): NextResponse | null {
+  const host = (request.headers.get('host') || '').split(':')[0]
+  if (!LEGACY_DOMAIN.test(host)) return null
+  const { pathname, search } = request.nextUrl
+  return NextResponse.redirect(`${CANONICAL_ORIGIN}${pathname}${search}`, 308)
+}
+
 /**
  * Client-area paths that are intentionally public:
  *
@@ -26,6 +37,9 @@ function isPublicClientPath(pathname: string): boolean {
 }
 
 export async function middleware(request: NextRequest) {
+  const legacyRedirect = legacyDomainRedirect(request)
+  if (legacyRedirect) return legacyRedirect
+
   // Allow all localhost traffic through — matches the dev bypass in requireAdmin().
   const host = request.headers.get('host') || ''
   const isLocalhost =
@@ -36,6 +50,11 @@ export async function middleware(request: NextRequest) {
   if (isLocalhost) return NextResponse.next()
 
   const { pathname, searchParams } = request.nextUrl
+
+  // Auth middleware only applies to admin/client routes.
+  if (!pathname.startsWith('/admin') && !pathname.startsWith('/client')) {
+    return NextResponse.next()
+  }
 
   // --- Client area: early exits before JWT decode ---
   if (pathname.startsWith('/client')) {
@@ -84,7 +103,9 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Run middleware on admin and client routes only.
-  // /api/*, public pages, /login, /requests/*, /auth/* are all unaffected.
-  matcher: ['/admin/:path*', '/client/:path*'],
+  // All page routes: legacy-domain redirect must run before trailingSlash.
+  // Static assets and Next internals are excluded to avoid unnecessary work.
+  matcher: [
+    '/((?!_next/static|_next/image|favicon\\.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff2?)$).*)',
+  ],
 }
