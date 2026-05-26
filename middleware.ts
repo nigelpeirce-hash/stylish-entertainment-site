@@ -13,19 +13,31 @@ const HAS_FILE_EXTENSION = /\.[^/]+$/
 function legacyDomainRedirect(request: NextRequest): NextResponse | null {
   const host = (request.headers.get('host') || '').split(':')[0]
   if (!LEGACY_DOMAIN.test(host)) return null
-  const { pathname, search } = request.nextUrl
+
+  let { pathname, search } = request.nextUrl
+  // Canonical site uses trailingSlash — land on /path/ in one hop.
+  if (
+    pathname !== '/' &&
+    !pathname.endsWith('/') &&
+    !HAS_FILE_EXTENSION.test(pathname)
+  ) {
+    pathname = `${pathname}/`
+  }
+
   return NextResponse.redirect(`${CANONICAL_ORIGIN}${pathname}${search}`, 308)
 }
 
 function trailingSlashRedirect(request: NextRequest): NextResponse | null {
-  const { pathname } = request.nextUrl
+  const { pathname, search } = request.nextUrl
   if (pathname === '/' || pathname.endsWith('/')) return null
   if (pathname.startsWith('/.well-known')) return null
   if (HAS_FILE_EXTENSION.test(pathname)) return null
 
-  const url = request.nextUrl.clone()
-  url.pathname = `${pathname}/`
-  return NextResponse.redirect(url, 308)
+  // Absolute URL required when skipTrailingSlashRedirect is enabled.
+  return NextResponse.redirect(
+    `${request.nextUrl.origin}${pathname}/${search}`,
+    308
+  )
 }
 
 /**
