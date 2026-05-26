@@ -15,6 +15,12 @@ import PortalCountdownClock from "@/components/client/PortalCountdownClock";
 import ClientMusicModule from "@/components/client/ClientMusicModule";
 import { DashboardPlanningWidgets } from "@/components/client/DashboardPlanningWidgets";
 import { getLabel } from "@/lib/eventLabels";
+import {
+  clientBookingsNewPath,
+  clientDashboardPath,
+  clientMessagesPath,
+  clientProfilePath,
+} from "@/lib/portal-paths";
 
 // Wedding Planning Tips
 const WEDDING_TIPS = [
@@ -36,7 +42,7 @@ export default function ClientDashboard() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     }
   }, [status, router]);
 
@@ -146,7 +152,7 @@ export default function ClientDashboard() {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-3 md:grid-cols-3 gap-3 md:gap-6 mb-8"
         >
-          <Link href="/client/bookings/new" className="block">
+          <Link href={clientBookingsNewPath()} className="block">
             <Card className="bg-gray-800/50 backdrop-blur-md border-champagne-gold/50 hover:border-champagne-gold/80 transition-all cursor-pointer h-full">
               <CardContent className="p-3 md:p-6 flex flex-col md:flex-row items-center md:items-start justify-center md:justify-start gap-3 md:gap-4 text-center md:text-left">
                 <div className="p-2 md:p-3 bg-champagne-gold/20 rounded-lg">
@@ -160,7 +166,7 @@ export default function ClientDashboard() {
             </Card>
           </Link>
 
-          <Link href="/client/profile" className="block">
+          <Link href={clientProfilePath()} className="block">
             <Card className="bg-gray-800/50 backdrop-blur-md border-champagne-gold/50 hover:border-champagne-gold/80 transition-all cursor-pointer h-full">
               <CardContent className="p-3 md:p-6 flex flex-col md:flex-row items-center md:items-start justify-center md:justify-start gap-3 md:gap-4 text-center md:text-left">
                 <div className="p-2 md:p-3 bg-champagne-gold/20 rounded-lg">
@@ -174,7 +180,7 @@ export default function ClientDashboard() {
             </Card>
           </Link>
 
-          <Link href="/client/messages" className="block">
+          <Link href={clientMessagesPath()} className="block">
             <Card className="bg-gray-800/50 backdrop-blur-md border-champagne-gold/50 hover:border-champagne-gold/80 transition-all cursor-pointer h-full">
               <CardContent className="p-3 md:p-6 flex flex-col md:flex-row items-center md:items-start justify-center md:justify-start gap-3 md:gap-4 text-center md:text-left">
                 <div className="p-2 md:p-3 bg-champagne-gold/20 rounded-lg">
@@ -207,7 +213,7 @@ export default function ClientDashboard() {
                 <div className="text-center py-8">
                   <p className="text-gray-400 mb-4">No bookings yet</p>
                   <div className="flex gap-3 justify-center">
-                    <Link href="/client/bookings/new">
+                    <Link href={clientBookingsNewPath()}>
                       <Button className="bg-champagne-gold text-black hover:bg-gold-light">
                         Create Your First Booking
                       </Button>

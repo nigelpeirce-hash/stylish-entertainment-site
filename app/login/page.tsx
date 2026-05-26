@@ -12,6 +12,12 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import {
+  clientDashboardPath,
+  forgotPasswordPath,
+  registerPath,
+  withTrailingSlash,
+} from "@/lib/portal-paths";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -81,12 +87,17 @@ export default function LoginPage() {
         if (userRole === "admin") {
           // Honour callbackUrl for admin paths (e.g. /admin set by middleware); fall back to /admin
           const safeAdminPath =
-            callbackUrl?.startsWith("/admin") && !callbackUrl.includes("..") ? callbackUrl : "/admin";
+            callbackUrl?.startsWith("/admin") && !callbackUrl.includes("..")
+              ? withTrailingSlash(callbackUrl)
+              : "/admin/";
           router.push(safeAdminPath);
         } else {
           // Client: if callbackUrl is a safe client path, go there (e.g. portal from deposit email)
-          const safePath = callbackUrl?.startsWith("/client/") && !callbackUrl.includes("..") ? callbackUrl : null;
-          router.push(safePath ?? "/client/dashboard");
+          const safePath =
+            callbackUrl?.startsWith("/client/") && !callbackUrl.includes("..")
+              ? withTrailingSlash(callbackUrl)
+              : null;
+          router.push(safePath ?? clientDashboardPath());
         }
         router.refresh();
       } else {
@@ -171,14 +182,14 @@ export default function LoginPage() {
               <p className="text-sm text-gray-400">
                 Don't have an account?{" "}
                 <Link
-                  href="/register"
+                  href={registerPath()}
                   className="text-champagne-gold hover:text-gold-light underline"
                 >
                   Register here
                 </Link>
               </p>
               <Link
-                href="/forgot-password"
+                href={forgotPasswordPath()}
                 className="text-sm text-champagne-gold hover:text-gold-light underline block"
               >
                 Forgot password?

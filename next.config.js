@@ -239,9 +239,9 @@ const nextConfig = {
       legacy("/about-stylish/:path*", "/about/"),
       legacy("/what-we-do/:path*", "/what-we-do/"),
 
-      // --- Homepage + ultimate catch-all (anything unmapped lands on homepage) ---
+      // --- Homepage + ultimate catch-all (preserve path on new domain) ---
       legacy("/", "/"),
-      legacy("/:path*", "/"),
+      legacy("/:path*", "/:path*"),
 
       // ============================================================
       // END cross-domain consolidation

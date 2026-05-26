@@ -7,6 +7,7 @@ import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 import { sendEmail } from "@/lib/email";
 import { DEPOSIT_CONFIRMED } from "@/lib/email-templates";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
+import { clientBookingMagicUrl, clientPortalLoginUrl } from "@/lib/portal-paths";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -221,8 +222,8 @@ export async function PATCH(
         const baseUrl = getEmailBaseUrl().replace(/\/$/, "");
         const portalToken = updateData.portalToken ?? (currentBooking.portalToken as string | null);
         const portalUrl = portalToken
-          ? `${baseUrl}/client/bookings/${bookingId}?token=${encodeURIComponent(portalToken)}`
-          : `${baseUrl}/login?callbackUrl=${encodeURIComponent(`/client/bookings/${bookingId}`)}`;
+          ? clientBookingMagicUrl(baseUrl, bookingId, portalToken)
+          : clientPortalLoginUrl(baseUrl, bookingId);
 
         // Use updated booking data for email (eventDate/venueName may have changed this request; fee/balance from DB)
         const emailContent = DEPOSIT_CONFIRMED({

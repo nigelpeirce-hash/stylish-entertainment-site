@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Mail, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { loginPath } from "@/lib/portal-paths";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -80,7 +81,7 @@ export default function ForgotPasswordPage() {
                 <p className="text-gray-300 mb-6">
                   If an account exists with that email, we've sent you a password reset link.
                 </p>
-                <Link href="/login">
+                <Link href={loginPath()}>
                   <Button className="w-full bg-champagne-gold text-black hover:bg-gold-light">
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Back to Login
@@ -149,7 +150,7 @@ export default function ForgotPasswordPage() {
 
             <div className="mt-6 text-center">
               <Link
-                href="/login"
+                href={loginPath()}
                 className="text-sm text-champagne-gold hover:text-gold-light underline flex items-center justify-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />

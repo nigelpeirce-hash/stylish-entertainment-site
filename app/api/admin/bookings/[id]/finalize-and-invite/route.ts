@@ -5,6 +5,7 @@ import { logActivity } from "@/lib/activity-log";
 import { sendEmail } from "@/lib/email";
 import { PORTAL_INVITATION } from "@/lib/email/templates";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
+import { clientBookingMagicUrl } from "@/lib/portal-paths";
 import { generatePortalToken, newPortalTokenExpiry } from "@/lib/portal-token";
 
 export const dynamic = "force-dynamic";
@@ -73,7 +74,7 @@ export async function POST(
     const baseUrl = getEmailBaseUrl().replace(/\/$/, "");
     const portalToken = generatePortalToken();
     const portalTokenExpiresAt = newPortalTokenExpiry();
-    const portalUrl = `${baseUrl}/client/bookings/${bookingId}?token=${encodeURIComponent(portalToken)}`;
+    const portalUrl = clientBookingMagicUrl(baseUrl, bookingId, portalToken);
 
     const { subject, html, text } = PORTAL_INVITATION({
       name: booking.name,

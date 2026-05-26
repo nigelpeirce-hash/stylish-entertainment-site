@@ -1,6 +1,7 @@
 import { randomBytes } from "crypto";
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import { clientDashboardPath, loginPath } from '@/lib/portal-paths';
 import { prisma } from '@/lib/prisma';
 import PortalView from '@/components/client/PortalView';
 import { auth } from '@/auth';
@@ -180,7 +181,7 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
           <p className="text-gray-400 text-center max-w-md">
             This portal link is invalid or has expired. Please use the latest link from your email, or contact us for a new one.
           </p>
-          <Link href="/login" className="mt-6 text-amber-500 hover:underline">Go to login</Link>
+          <Link href={loginPath()} className="mt-6 text-amber-500 hover:underline">Go to login</Link>
         </div>
       );
     }
@@ -201,7 +202,7 @@ export default async function PortalPage({ params, searchParams }: PortalPagePro
         <p className="text-gray-400 text-center max-w-md">
           You don&apos;t have access to this booking. If you believe this is an error, please contact us.
         </p>
-        <Link href="/client/dashboard" className="mt-6 text-amber-500 hover:underline">Go to your dashboard</Link>
+        <Link href={clientDashboardPath()} className="mt-6 text-amber-500 hover:underline">Go to your dashboard</Link>
       </div>
     );
   }

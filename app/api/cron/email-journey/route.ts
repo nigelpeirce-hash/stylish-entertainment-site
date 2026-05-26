@@ -9,6 +9,7 @@ import { deduplicateName, getGreetingName } from "@/lib/utils/name-helpers";
 import { PORTAL_REMINDER } from "@/lib/email/templates";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
 import { getClientPortalLoginUrl } from "@/lib/client-portal-url";
+import { clientBookingMagicUrl } from "@/lib/portal-paths";
 import { logActivity } from "@/lib/activity-log";
 
 // Lazy initialization to prevent build-time errors
@@ -442,7 +443,7 @@ export async function GET(request: NextRequest) {
           results.skipped++;
           continue;
         }
-        const portalUrl = `${baseUrl}/client/bookings/${booking.id}?token=${encodeURIComponent(portalToken)}`;
+        const portalUrl = clientBookingMagicUrl(baseUrl, booking.id, portalToken);
         const emailContent = PORTAL_REMINDER({
           name: booking.name,
           venueName: booking.venueName || "your venue",

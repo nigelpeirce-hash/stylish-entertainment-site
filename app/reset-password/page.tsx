@@ -12,6 +12,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Lock, ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
+import {
+  forgotPasswordPath,
+  loginPath,
+  resetPasswordWorkaroundPath,
+} from "@/lib/portal-paths";
 
 const resetPasswordSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
@@ -131,7 +136,7 @@ function ResetPasswordContent() {
         setSuccess(true);
         setIsLoading(false);
         setTimeout(() => {
-          router.push("/login?passwordReset=success");
+          router.push(loginPath("passwordReset=success"));
         }, 2000);
       }
     } catch (error) {
@@ -194,18 +199,18 @@ function ResetPasswordContent() {
             </div>
             {/* Internal-only diagnostic route: not exposed in production client UX. */}
             {process.env.NODE_ENV !== "production" && (
-              <Link href="/reset-password-workaround">
+              <Link href={resetPasswordWorkaroundPath()}>
                 <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white mb-2">
                   Try Workaround Page
                 </Button>
               </Link>
             )}
-            <Link href="/forgot-password">
+            <Link href={forgotPasswordPath()}>
               <Button variant="outline" className="w-full border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 mb-2">
                 Request New Reset Link
               </Button>
             </Link>
-            <Link href="/login">
+            <Link href={loginPath()}>
               <Button variant="outline" className="w-full border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Login
@@ -292,7 +297,7 @@ function ResetPasswordContent() {
 
             <div className="mt-6 text-center">
               <Link
-                href="/login"
+                href={loginPath()}
                 className="text-sm text-champagne-gold hover:text-gold-light underline flex items-center justify-center gap-2"
               >
                 <ArrowLeft className="w-4 h-4" />

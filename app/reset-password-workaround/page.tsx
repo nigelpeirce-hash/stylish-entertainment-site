@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Lock, ArrowLeft, CheckCircle2, XCircle, AlertCircle, Copy } from "lucide-react";
+import { forgotPasswordPath, loginPath } from "@/lib/portal-paths";
 
 const resetPasswordSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -149,7 +150,7 @@ function ResetPasswordWorkaroundContent() {
         setSuccess(true);
         setIsLoading(false);
         setTimeout(() => {
-          router.push("/login?passwordReset=success");
+          router.push(loginPath("passwordReset=success"));
         }, 2000);
       }
     } catch (error) {
@@ -372,12 +373,12 @@ function ResetPasswordWorkaroundContent() {
             </form>
 
             <div className="mt-6 space-y-2">
-              <Link href="/forgot-password">
+              <Link href={forgotPasswordPath()}>
                 <Button variant="outline" className="w-full border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10">
                   Request New Reset Link
                 </Button>
               </Link>
-              <Link href="/login">
+              <Link href={loginPath()}>
                 <Button variant="ghost" className="w-full text-gray-400 hover:text-white">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Login

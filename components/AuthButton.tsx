@@ -7,6 +7,7 @@ import { User, LogOut } from "lucide-react";
 import { useClientStatus } from "@/hooks/useClientStatus";
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
+import { clientDashboardPath } from "@/lib/portal-paths";
 
 /**
  * AuthButton without useClientStatus – avoids useSearchParams suspend.
@@ -39,7 +40,7 @@ export function AuthButtonSimple() {
     const isAdmin = (session.user as any)?.role === "admin";
     return (
       <div className="flex items-center gap-2">
-        <Link href={isAdmin ? "/admin" : "/client/dashboard"}>
+        <Link href={isAdmin ? "/admin/" : clientDashboardPath()}>
           <Button
             variant="outline"
             size="sm"
@@ -105,7 +106,7 @@ export function AuthButton() {
     const isAdmin = (session.user as any)?.role === "admin";
     return (
       <div className="flex items-center gap-2">
-        <Link href={isAdmin ? "/admin" : "/client/dashboard"}>
+        <Link href={isAdmin ? "/admin/" : clientDashboardPath()}>
           <Button
             variant="outline"
             size="sm"

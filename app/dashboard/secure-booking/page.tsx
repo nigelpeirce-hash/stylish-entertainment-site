@@ -24,6 +24,7 @@ import {
   getTermsSectionsForDisplay,
   PRIVACY_LINK_PLACEHOLDER,
 } from "@/lib/terms-content";
+import { clientDashboardPath, loginPath } from "@/lib/portal-paths";
 
 function SecureBookingPageContent() {
   const { data: session, status } = useSession();
@@ -240,7 +241,7 @@ function SecureBookingPageContent() {
             <p className="text-gray-600 mb-4">
               Please log in to view your booking and accept terms.
             </p>
-            <Link href="/login">
+            <Link href={loginPath()}>
               <Button className="bg-champagne-gold text-black hover:bg-champagne-gold/90">
                 Log in
               </Button>
@@ -258,7 +259,7 @@ function SecureBookingPageContent() {
           <CardContent className="pt-6">
             <h2 className="text-xl font-semibold text-gray-900 mb-2">Booking not found</h2>
             <p className="text-gray-600 mb-4">{bookingError}</p>
-            <Link href="/client/dashboard">
+            <Link href={clientDashboardPath()}>
               <Button variant="outline" className="border-champagne-gold text-champagne-gold">
                 Back to dashboard
               </Button>

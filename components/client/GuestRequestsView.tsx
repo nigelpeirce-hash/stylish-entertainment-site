@@ -23,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { guestRequestPath, joinBaseUrl } from "@/lib/portal-paths";
 
 interface GuestRequest {
   id: string;
@@ -86,7 +87,7 @@ export default function GuestRequestsView({
 
   // Build shareable link (server-safe: use baseUrl prop, no window)
   const shareableLink = baseUrl && guestRequestToken
-    ? `${baseUrl.replace(/\/$/, "")}/requests/${guestRequestToken}`
+    ? joinBaseUrl(baseUrl, guestRequestPath(guestRequestToken))
     : null;
 
   // Fetch guest requests (supports portal token for magic-link access)

@@ -6,6 +6,7 @@ import { getDisplayName, getGreetingName } from "@/lib/utils/name-helpers";
 import { yourEventLabel } from "@/lib/email-templates";
 import { SIGNATURE_BLOCK_HTML_DARK, CLIENT_SIGNOFF_TEXT, EMAIL_LOGO_HTML_DARK } from "@/lib/email-signature";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
+import { clientBookingMagicUrl } from "@/lib/portal-paths";
 import { logActivity } from "@/lib/activity-log";
 import { generatePortalToken, newPortalTokenExpiry } from "@/lib/portal-token";
 
@@ -68,7 +69,7 @@ export async function POST(
       where: { id: bookingId },
       data: { portalToken, portalTokenExpiresAt, updatedAt: new Date() },
     });
-    const portalUrl = `${baseUrl}/client/bookings/${bookingId}?token=${encodeURIComponent(portalToken)}`;
+    const portalUrl = clientBookingMagicUrl(baseUrl, bookingId, portalToken);
 
     // Get greeting name for email
     const greetingName = getGreetingName(booking.name);

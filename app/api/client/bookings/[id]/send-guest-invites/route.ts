@@ -7,6 +7,7 @@ import { isPortalTokenValid } from "@/lib/portal-token";
 import { getResendConfig } from "@/lib/email-config";
 import { getDisplayName } from "@/lib/utils/name-helpers";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
+import { guestRequestPath, joinBaseUrl } from "@/lib/portal-paths";
 import { EMAIL_LOGO_HTML_DARK } from "@/lib/email-signature";
 import * as XLSX from "xlsx";
 
@@ -188,7 +189,7 @@ export async function POST(
     }
 
     const baseUrl = getEmailBaseUrl().replace(/\/$/, "");
-    const inviteUrl = `${baseUrl}/requests/${guestRequestToken}`;
+    const inviteUrl = joinBaseUrl(baseUrl, guestRequestPath(guestRequestToken));
     const displayName = getDisplayName(booking.name) || booking.name;
     const isWedding = (booking.eventType || "").toLowerCase() === "wedding";
     const formattedDate = new Date(booking.eventDate).toLocaleDateString("en-GB", {

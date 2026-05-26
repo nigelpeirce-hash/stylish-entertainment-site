@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import UpsellSection from "@/components/UpsellSection";
+import { clientDashboardPath, loginPath } from "@/lib/portal-paths";
 
 const bookingSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -99,7 +100,7 @@ export default function NewBookingPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push(loginPath());
     }
   }, [status, router]);
 
@@ -168,7 +169,7 @@ export default function NewBookingPage() {
       } else {
         setSuccess(true);
         setTimeout(() => {
-          router.push("/client/dashboard");
+          router.push(clientDashboardPath());
         }, 2000);
       }
     } catch (error) {

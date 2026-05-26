@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import { loginPath } from "@/lib/portal-paths";
 
 const registerSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -87,7 +88,7 @@ export default function RegisterPage() {
       } else {
         setSuccess(true);
         setTimeout(() => {
-          router.push("/login?registered=true");
+          router.push(loginPath("registered=true"));
         }, 2000);
       }
     } catch (error) {
@@ -215,7 +216,7 @@ export default function RegisterPage() {
               <p className="text-sm text-gray-400">
                 Already have an account?{" "}
                 <Link
-                  href="/login"
+                  href={loginPath()}
                   className="text-champagne-gold hover:text-gold-light underline"
                 >
                   Sign in here

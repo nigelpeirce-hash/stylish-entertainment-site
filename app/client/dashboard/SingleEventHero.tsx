@@ -10,6 +10,7 @@ import CommunicationHistory from "@/components/client/CommunicationHistory";
 import HeroPhotoSection from "@/components/client/HeroPhotoSection";
 import { ContractFooter } from "@/components/client/ContractFooter";
 import { DashboardPlanningWidgets } from "@/components/client/DashboardPlanningWidgets";
+import { clientBookingPath } from "@/lib/portal-paths";
 
 interface SingleEventHeroProps {
   booking: any;
@@ -82,7 +83,7 @@ export function SingleEventHero({ booking, onHeroUploaded }: SingleEventHeroProp
             </div>
           </div>
           <Link
-            href={`/client/bookings/${booking.id}`}
+            href={clientBookingPath(booking.id)}
             className="inline-flex items-center gap-2 mt-4 text-champagne-gold hover:text-champagne-gold/80 text-sm font-medium"
           >
             <ExternalLink className="w-4 h-4" />

@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mail, MessageSquare } from "lucide-react";
 import Link from "next/link";
+import { clientMessagesPath } from "@/lib/portal-paths";
 import { sanitizeEmailHtml } from "@/lib/sanitize-email-html";
 
 interface Email {
@@ -72,7 +73,7 @@ export default function CommunicationHistory({
         <CardContent>
           <p className="text-gray-400 text-sm mb-4">No messages yet. Emails we send about this booking will appear here.</p>
           <Link
-            href="/client/messages"
+            href={clientMessagesPath()}
             className="inline-flex items-center gap-2 text-champagne-gold hover:underline text-sm"
           >
             <Mail className="w-4 h-4" />
@@ -103,7 +104,7 @@ export default function CommunicationHistory({
               Emails we send about this booking (quotes, confirmations, reminders) will appear here.
             </p>
             <Link
-              href="/client/messages"
+              href={clientMessagesPath()}
               className="inline-flex items-center gap-2 mt-4 text-champagne-gold hover:underline text-sm"
             >
               <Mail className="w-4 h-4" />
@@ -161,7 +162,7 @@ export default function CommunicationHistory({
               </div>
             ))}
             <Link
-              href="/client/messages"
+              href={clientMessagesPath()}
               className="inline-flex items-center gap-2 text-champagne-gold hover:underline text-sm"
             >
               <Mail className="w-4 h-4" />

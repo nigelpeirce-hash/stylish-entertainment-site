@@ -7,6 +7,7 @@ import { getResendConfig } from "@/lib/email-config";
 import { getBrochureLink, getVenueAsset, getTrackingUrl } from "@/lib/venue-assets";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
 import { getClientPortalLoginUrl } from "@/lib/client-portal-url";
+import { clientDashboardLoginUrl } from "@/lib/portal-paths";
 import { buildMarkedPaidUrl } from "@/lib/deposit-paid-link";
 
 // Force dynamic rendering to prevent build-time errors
@@ -71,7 +72,7 @@ export async function POST(request: NextRequest) {
       eventType: clientData?.eventType,
       eventDate: clientData?.eventDate,
       venueName: clientData?.venueName,
-      clientAdminUrl: clientData?.clientAdminUrl || `${getEmailBaseUrl()}/login?callbackUrl=${encodeURIComponent("/client/dashboard")}`,
+      clientAdminUrl: clientData?.clientAdminUrl || clientDashboardLoginUrl(getEmailBaseUrl()),
       brochureUrl: clientData?.brochureUrl, // Will be set below if not provided
     };
 

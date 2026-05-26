@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendDepositPaidNotification } from "@/lib/pushover-notifications";
 import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
+import { clientDepositPaidThankYouPath } from "@/lib/portal-paths";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -36,13 +37,13 @@ export async function GET(
 
     if (!sig) {
       return NextResponse.redirect(
-        new URL("/client/deposit-paid-thank-you?error=missing", request.url)
+        new URL(clientDepositPaidThankYouPath("error=missing"), request.url)
       );
     }
 
     if (!verifySignature(bookingId, sig)) {
       return NextResponse.redirect(
-        new URL("/client/deposit-paid-thank-you?error=invalid", request.url)
+        new URL(clientDepositPaidThankYouPath("error=invalid"), request.url)
       );
     }
 
@@ -53,7 +54,7 @@ export async function GET(
 
     if (!booking) {
       return NextResponse.redirect(
-        new URL("/client/deposit-paid-thank-you?error=notfound", request.url)
+        new URL(clientDepositPaidThankYouPath("error=notfound"), request.url)
       );
     }
 
@@ -88,10 +89,10 @@ export async function GET(
     }
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk";
-    return NextResponse.redirect(new URL("/client/deposit-paid-thank-you", baseUrl));
+    return NextResponse.redirect(new URL(clientDepositPaidThankYouPath(), baseUrl));
   } catch (error) {
     console.error("[marked-deposit-paid]", error);
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://stylishentertainment.co.uk";
-    return NextResponse.redirect(new URL("/client/deposit-paid-thank-you?error=server", baseUrl));
+    return NextResponse.redirect(new URL(clientDepositPaidThankYouPath("error=server"), baseUrl));
   }
 }

@@ -1,4 +1,18 @@
 {
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "stylishweddingdisco.co.uk" }],
+      "destination": "https://www.stylishentertainment.co.uk/:path*",
+      "statusCode": 308
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.stylishweddingdisco.co.uk" }],
+      "destination": "https://www.stylishentertainment.co.uk/:path*",
+      "statusCode": 308
+    }
+  ],
   "crons": [
     {
       "path": "/api/cron/email-journey",

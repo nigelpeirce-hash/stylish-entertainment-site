@@ -12,6 +12,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { motion } from "framer-motion";
 import { User, Mail, Phone, MapPin, Calendar, ArrowLeft, Edit2, X, Check, Trash2, AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import {
+  clientAccountDeletedPath,
+  clientDashboardPath,
+  loginPath,
+} from "@/lib/portal-paths";
 
 interface UserProfile {
   id: string;
@@ -50,7 +55,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push(loginPath());
     }
   }, [status, router]);
 
@@ -206,7 +211,7 @@ export default function ProfilePage() {
 
       if (response.ok) {
         // Redirect to confirmation page
-        router.push("/client/account-deleted");
+        router.push(clientAccountDeletedPath());
       } else {
         const errorData = await response.json();
         alert(`Failed to delete account: ${errorData.message || "Unknown error"}`);
@@ -232,7 +237,7 @@ export default function ProfilePage() {
               <h1 className="text-4xl font-bold mb-2">Profile</h1>
               <p className="text-gray-400">Your account information and event details</p>
             </div>
-            <Link href="/client/dashboard">
+            <Link href={clientDashboardPath()}>
               <Button
                 variant="outline"
                 className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10"

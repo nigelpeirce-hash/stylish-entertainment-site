@@ -11,6 +11,11 @@ import { motion } from "framer-motion";
 import { Mail, ArrowLeft, Search, Calendar, Send, Paperclip, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
+import {
+  clientDashboardPath,
+  clientMessageThreadPath,
+  loginPath,
+} from "@/lib/portal-paths";
 
 interface EmailThread {
   id: string;
@@ -31,7 +36,7 @@ export default function ClientMessages() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push(loginPath());
     }
   }, [status, router]);
 
@@ -85,7 +90,7 @@ export default function ClientMessages() {
               <h1 className="text-4xl font-bold mb-2">Messages</h1>
               <p className="text-gray-400">Your email conversations with us</p>
             </div>
-            <Link href="/client/dashboard">
+            <Link href={clientDashboardPath()}>
               <Button variant="outline" className="border-champagne-gold text-champagne-gold">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Dashboard
@@ -128,7 +133,7 @@ export default function ClientMessages() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
               >
-                <Link href={`/client/messages/${thread.id}`}>
+                <Link href={clientMessageThreadPath(thread.id)}>
                   <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer">
                     <CardContent className="p-4">
                       <div className="flex items-start gap-4">

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { Mail, ArrowLeft, Calendar } from "lucide-react";
 import Link from "next/link";
+import { clientMessagesPath } from "@/lib/portal-paths";
 import { sanitizeEmailHtml } from "@/lib/sanitize-email-html";
 
 interface Email {
@@ -87,7 +88,7 @@ export default function ClientThreadDetail() {
     <div className="min-h-screen bg-gray-900 text-white py-12 px-4 sm:px-6 lg:px-8">
       <div className="container mx-auto max-w-6xl">
         <div className="mb-6">
-          <Link href="/client/messages">
+          <Link href={clientMessagesPath()}>
             <Button variant="outline" className="border-champagne-gold text-champagne-gold mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Messages
