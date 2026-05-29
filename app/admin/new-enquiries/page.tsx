@@ -6,7 +6,7 @@ import { useEffect, useState, Suspense } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, CheckCircle2, Clock, User, Mail, Phone, Calendar, MapPin, ExternalLink, RefreshCw, Package, FileText } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, User, Mail, Phone, Calendar, MapPin, ExternalLink, RefreshCw, Package, FileText, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -50,6 +50,67 @@ function NewEnquiriesContent() {
   const [quoteRequestEnquiries, setQuoteRequestEnquiries] = useState<NewEnquiry[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const removeEnquiryFromState = (id: string) => {
+    setEnquiries((prev) => prev.filter((e) => e.id !== id));
+    setHireEnquiries((prev) => prev.filter((e) => e.id !== id));
+    setQuoteRequestEnquiries((prev) => prev.filter((e) => e.id !== id));
+  };
+
+  const handleDelete = async (enquiry: NewEnquiry) => {
+    if (
+      !confirm(
+        `Delete enquiry from ${enquiry.name} (${enquiry.email})?\n\nThis cannot be undone.`
+      )
+    ) {
+      return;
+    }
+
+    setDeletingId(enquiry.id);
+    try {
+      const response = await fetch(`/api/admin/new-enquiries/${enquiry.id}/`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        alert(typeof data.error === "string" ? data.error : "Failed to delete enquiry");
+        return;
+      }
+      removeEnquiryFromState(enquiry.id);
+    } catch (error) {
+      console.error("Error deleting enquiry:", error);
+      alert("Failed to delete enquiry. Please try again.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const EnquiryActions = ({ enquiry, reviewClassName }: { enquiry: NewEnquiry; reviewClassName?: string }) => (
+    <div className="flex flex-col gap-2 flex-shrink-0">
+      <Link href={`/admin/new-enquiries/${enquiry.id}/`}>
+        <Button
+          variant="outline"
+          size="sm"
+          className={reviewClassName ?? "border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10 w-full"}
+        >
+          Review
+        </Button>
+      </Link>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        disabled={deletingId === enquiry.id}
+        onClick={() => handleDelete(enquiry)}
+        className="border-red-500/50 text-red-400 hover:bg-red-950/30 w-full"
+      >
+        <Trash2 className="w-3.5 h-3.5 mr-1" />
+        {deletingId === enquiry.id ? "Deleting…" : "Delete"}
+      </Button>
+    </div>
+  );
 
   useEffect(() => {
     // Auto-enable dev bypass on localhost
@@ -222,18 +283,10 @@ function NewEnquiriesContent() {
                             </div>
                           )}
                         </div>
-                        <Link
-                          href={`/admin/new-enquiries/${enquiry.id}`}
-                          className="ml-4"
-                        >
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-amber-500 text-amber-400 hover:bg-amber-900/30"
-                          >
-                            Review
-                          </Button>
-                        </Link>
+                        <EnquiryActions
+                          enquiry={enquiry}
+                          reviewClassName="border-amber-500 text-amber-400 hover:bg-amber-900/30 w-full"
+                        />
                       </div>
                     </div>
                   ))}
@@ -267,11 +320,7 @@ function NewEnquiriesContent() {
                           {formatDate(enquiry.eventDate)} · {enquiry.venueName || enquiry.venuePostcode}
                         </p>
                       </div>
-                      <Link href={`/admin/new-enquiries/${enquiry.id}`} className="flex-shrink-0">
-                        <Button variant="outline" size="sm" className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10">
-                          Review
-                        </Button>
-                      </Link>
+                      <EnquiryActions enquiry={enquiry} />
                     </div>
                   </CardContent>
                 </Card>
@@ -341,15 +390,7 @@ function NewEnquiriesContent() {
                             Received {format(new Date(enquiry.createdAt), "d MMM yyyy 'at' HH:mm")}
                           </p>
                         </div>
-                        <Link href={`/admin/new-enquiries/${enquiry.id}`} className="flex-shrink-0">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10"
-                          >
-                            Review
-                          </Button>
-                        </Link>
+                        <EnquiryActions enquiry={enquiry} />
                       </div>
                     </CardContent>
                   </Card>
@@ -414,15 +455,7 @@ function NewEnquiriesContent() {
                       Received {format(new Date(enquiry.createdAt), "d MMM yyyy 'at' HH:mm")}
                     </div>
                   </div>
-                  <Link href={`/admin/new-enquiries/${enquiry.id}`}>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10"
-                    >
-                      Review
-                    </Button>
-                  </Link>
+                  <EnquiryActions enquiry={enquiry} />
                 </div>
               </CardContent>
             </Card>
