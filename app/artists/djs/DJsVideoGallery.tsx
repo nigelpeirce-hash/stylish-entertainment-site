@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import { Card, CardContent } from "@/components/ui/card";
 import LazyIframe from "@/components/LazyIframe";
 import { Play } from "lucide-react";
@@ -17,7 +17,7 @@ export default function DJsVideoGallery() {
     <section className="py-20 px-3 sm:px-4 bg-gray-900">
       <div className="container mx-auto max-w-7xl">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
@@ -38,7 +38,7 @@ export default function DJsVideoGallery() {
           {VIDEOS.map((video, index) => (
             <motion.div
               key={video.id}
-              initial={{ opacity: 0, y: 30, scale: 0.95 }}
+              initial={false}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}

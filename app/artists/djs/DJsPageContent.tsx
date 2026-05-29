@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -58,27 +58,37 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
             sizes="(max-width: 768px) 100vw, 1200px"
           />
         </div>
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1 }}
-          className="relative z-10 text-center px-4 max-w-5xl mx-auto pt-48 md:pt-52"
-        >
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="inline-block mb-6 px-6 py-2 bg-champagne-gold/10 rounded-full border border-champagne-gold/30"
-          >
+        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto pt-40 pb-12 sm:pt-48 md:pt-52">
+          <div className="inline-block mb-6 px-6 py-2 bg-champagne-gold/10 rounded-full border border-champagne-gold/30 backdrop-blur-sm">
             <span className="text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase">Meet The Team</span>
-          </motion.div>
+          </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
             DJs & Live DJ Acts <span className="text-gradient drop-shadow-md">Across the UK</span>
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold leading-relaxed px-4 drop-shadow-md">
+          <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold leading-relaxed px-4 drop-shadow-md mb-8 max-w-3xl mx-auto">
             Intelligent, high-energy entertainment for weddings, private parties and corporate events.
           </p>
-        </motion.div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-4">
+            <Button
+              asChild
+              size="lg"
+              className="min-h-[48px] bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg"
+            >
+              <Link href="/contact-us/">Check Availability</Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="min-h-[48px] border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 hover:scale-105 transition-all duration-300 backdrop-blur-sm"
+            >
+              <Link href="/artists/djs/dj-nige/">Meet DJ Nige</Link>
+            </Button>
+          </div>
+          <p className="text-xs sm:text-sm text-gray-300 drop-shadow-md">
+            20+ years · Weddings, parties &amp; corporate · UK-wide
+          </p>
+        </div>
       </section>
 
       {/* Residency credential strip — anchors the team in the Babington House
@@ -116,7 +126,7 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
       <section className="py-16 px-3 sm:px-4 bg-gray-900">
         <div className="container mx-auto max-w-6xl">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
@@ -132,7 +142,7 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
 
           {/* Introduction Text Box */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.1 }}
@@ -155,7 +165,7 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={false}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
@@ -183,7 +193,7 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={false}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -223,7 +233,7 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={false}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.3 }}
@@ -244,7 +254,7 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={false}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.4 }}
@@ -265,7 +275,7 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={false}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.5 }}
@@ -286,7 +296,7 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
             </motion.div>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={false}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.6 }}
@@ -317,7 +327,7 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
       <section className="py-20 px-3 sm:px-4 bg-gray-900">
         <div className="container mx-auto max-w-5xl">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
@@ -332,7 +342,7 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
@@ -371,7 +381,7 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
 
           {/* Complete the experience */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.25 }}
@@ -384,7 +394,7 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
 
           {/* Nationwide Reach – Editorial Region Tiles */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.3 }}
@@ -402,7 +412,7 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
               {getEditorialServiceRegions().map((tile, index) => (
                 <motion.div
                   key={tile.region}
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={false}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: 0.1 * index }}
@@ -424,7 +434,7 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
 
           {/* Venues We've Played At */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.35 }}
@@ -461,7 +471,7 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
                     .map((venue, index) => (
                       <motion.div
                         key={`${venue.name}-${index}`}
-                        initial={{ opacity: 0, x: -20 }}
+                        initial={false}
                         whileInView={{ opacity: 1, x: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.3, delay: index * 0.01 }}
@@ -504,7 +514,7 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.4 }}

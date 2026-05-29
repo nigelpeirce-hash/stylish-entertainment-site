@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
@@ -195,7 +195,7 @@ export default function DJRosterSection({ djs: initialDjs }: DJRosterSectionProp
     <section className="pt-8 pb-20 px-4 bg-gray-900">
       <div className="container mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={false}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
@@ -223,7 +223,7 @@ export default function DJRosterSection({ djs: initialDjs }: DJRosterSectionProp
               {djs.map((dj, index) => (
                 <motion.div
                   key={dj.name}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={false}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: Math.min(index * 0.1, 0.3) }}
