@@ -105,7 +105,7 @@ export default function HeaderNew() {
         <div className={styles.headerCenterColumn}>
           {!isLoggedIn ? (
             <div className={styles.buttonGroup}>
-              <Link href="/request-quote/" className={`${styles.enquireButton} ${styles.enquireButtonMobile}`} prefetch={false}>
+              <Link href="/contact-us/" className={`${styles.enquireButton} ${styles.enquireButtonMobile}`} prefetch={false}>
                 Enquire
               </Link>
             </div>
