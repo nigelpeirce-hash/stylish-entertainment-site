@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "framer-motion";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import Lightbox from "yet-another-react-lightbox";
 import { ChevronLeft, ChevronRight, Phone, Mail, PenTool } from "lucide-react";
 import "yet-another-react-lightbox/styles.css";
 import { LIGHTBOX_CAROUSEL, LIGHTBOX_CONTROLLER, toLightboxSlides } from "@/components/lightbox-config";
@@ -12,6 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import WaveDivider from "@/components/WaveDivider";
+
+const Lightbox = dynamic(() => import("yet-another-react-lightbox"), { ssr: false });
 
 const outsidePhotos = [
   {
@@ -95,19 +96,14 @@ export default function PennardHouseClient() {
           />
         </div>
         <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/70 via-black/40 to-gray-900" />
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="relative z-20 text-center px-4 max-w-4xl mx-auto pt-48 md:pt-52"
-        >
+        <div className="relative z-20 text-center px-4 max-w-4xl mx-auto pt-48 md:pt-52">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
             Pennard House Lighting
           </h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md">
             Professional Wedding Lighting Design
           </p>
-        </motion.div>
+        </div>
         <div className="absolute bottom-0 left-0 right-0 z-20">
           <WaveDivider />
         </div>
@@ -121,12 +117,7 @@ export default function PennardHouseClient() {
       >
         <section className="py-20 px-4 sm:px-6 lg:px-8">
           <div className="container mx-auto max-w-6xl">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
+            <div>
               <Card className="bg-white/5 backdrop-blur-lg border-champagne-gold/30">
                 <CardContent className="p-6 sm:p-8 md:p-12">
                   <div className="text-gray-200 leading-relaxed space-y-6">
@@ -195,14 +186,9 @@ export default function PennardHouseClient() {
                         <TabsContent value="outside">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {outsidePhotos.map((photo, index) => (
-                              <motion.div
+                              <div
                                 key={index}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.4, delay: index * 0.1 }}
-                                whileHover={{ scale: 1.05 }}
-                                className="relative cursor-pointer overflow-hidden rounded-lg border-2 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all duration-300"
+                                className="relative cursor-pointer overflow-hidden rounded-lg border-2 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all duration-300 hover:scale-[1.02]"
                                 onClick={() => openLightbox(index, outsidePhotos)}
                               >
                                 <div className="relative aspect-[4/3]" style={{ minHeight: "300px" }}>
@@ -221,21 +207,16 @@ export default function PennardHouseClient() {
                                     <p className="text-white text-sm">{photo.description}</p>
                                   </div>
                                 )}
-                              </motion.div>
+                              </div>
                             ))}
                           </div>
                         </TabsContent>
                         <TabsContent value="inside">
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {insidePhotos.map((photo, index) => (
-                              <motion.div
+                              <div
                                 key={index}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.4, delay: index * 0.1 }}
-                                whileHover={{ scale: 1.05 }}
-                                className="relative cursor-pointer overflow-hidden rounded-lg border-2 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all duration-300"
+                                className="relative cursor-pointer overflow-hidden rounded-lg border-2 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all duration-300 hover:scale-[1.02]"
                                 onClick={() => openLightbox(index, insidePhotos)}
                               >
                                 <div className="relative aspect-[4/3]" style={{ minHeight: "300px" }}>
@@ -254,7 +235,7 @@ export default function PennardHouseClient() {
                                     <p className="text-white text-sm">{photo.description}</p>
                                   </div>
                                 )}
-                              </motion.div>
+                              </div>
                             ))}
                           </div>
                         </TabsContent>
@@ -273,7 +254,8 @@ export default function PennardHouseClient() {
                         <Button
                           asChild
                           size="lg"
-                          className="bg-champagne-gold text-black hover:bg-gold-light hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(212,175,55,0.5)] mb-4"
+                          variant="outline"
+                          className="w-full sm:w-auto max-w-xl bg-champagne-gold border-champagne-gold text-black hover:bg-gold-light hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(212,175,55,0.5)] mb-4 font-semibold"
                         >
                           <Link href="/contact-us/">Request a Pennard House Lighting Quote</Link>
                         </Button>
@@ -291,16 +273,16 @@ export default function PennardHouseClient() {
                             </a>
                           </div>
                         </div>
-                        <p className="text-champagne-gold font-semibold text-lg mt-6 flex items-center justify-center gap-2">
-                          <PenTool className="w-5 h-5" />
+                        <div className="text-champagne-gold font-semibold text-lg mt-6 flex items-center justify-center gap-2">
+                          <PenTool className="w-5 h-5" aria-hidden />
                           <span>Ali & Nige</span>
-                        </p>
+                        </div>
                       </CardContent>
                     </Card>
                   </div>
                 </CardContent>
               </Card>
-            </motion.div>
+            </div>
           </div>
         </section>
       </div>
