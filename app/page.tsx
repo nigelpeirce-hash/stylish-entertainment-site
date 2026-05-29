@@ -2,9 +2,9 @@ import { createMetadata } from "@/lib/metadata";
 import HomeClient from "./HomeClient";
 
 export const metadata = createMetadata({
-  title: "Luxury Wedding DJs & Event Production UK",
+  title: "Luxury Wedding Entertainment & Event Production UK",
   description:
-    "Luxury wedding DJs, lighting design and event production. Resident DJ at Babington House since 2003. Weddings, parties and corporate events across the UK.",
+    "Luxury wedding entertainment and event production. DJs, lighting, styling and production support from one experienced team. Trusted at Babington House since 2003. UK-wide.",
   path: "",
 });
 

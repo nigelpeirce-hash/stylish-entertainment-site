@@ -7,6 +7,7 @@ import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "@/lib/motion";
 import { ChevronLeft, ChevronRight, Sparkles, Sun, Lightbulb, ExternalLink } from "lucide-react";
 import { LIGHTBOX_CAROUSEL, LIGHTBOX_CONTROLLER, toLightboxSlides } from "@/components/lightbox-config";
+import { Button } from "@/components/ui/button";
 
 const Lightbox = dynamic(() => import("./PartyLightingLightbox"), { ssr: false });
 
@@ -197,51 +198,67 @@ export default function PartyLightingClient() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      {/* 1. Mood-Based Hero Gallery – full-width carousel */}
-      <section className="relative h-[70vh] min-h-[400px] w-full overflow-hidden">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={heroIndex}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-            className="absolute inset-0"
-          >
-            <Image
-              src={heroIndex === 0 ? LCP_HERO_URL : heroMoodImages[heroIndex].src}
-              alt={heroMoodImages[heroIndex].alt}
-              fill
-              className="object-cover"
-              sizes="100vw"
-              priority
-              fetchPriority="high"
-              quality={85}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30" />
-            <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3 }}
-                className="text-4xl md:text-6xl font-bold mb-2"
-              >
-                Party Lighting
-              </motion.h1>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-                className="text-lg md:text-xl text-white/90 max-w-xl"
-              >
-                Transform any space with creative lighting. Trusted by Babington House, The Newt & beyond.
-              </motion.p>
+      {/* 1. Hero – rotating gallery; copy overlay fixed for enquiry + SSR-safe rendering */}
+      <section className="relative h-[70vh] min-h-[520px] w-full overflow-hidden">
+        <div className="absolute inset-0">
+          {heroMoodImages.map((image, i) => (
+            <div
+              key={image.src}
+              className={`absolute inset-0 transition-opacity duration-700 ${
+                i === heroIndex ? "opacity-100 z-0" : "opacity-0 z-0 pointer-events-none"
+              }`}
+              aria-hidden={i !== heroIndex}
+            >
+              <Image
+                src={i === 0 ? LCP_HERO_URL : image.src}
+                alt={image.alt}
+                fill
+                className="object-cover"
+                sizes="100vw"
+                priority={i === 0}
+                fetchPriority={i === 0 ? "high" : "auto"}
+                quality={85}
+              />
             </div>
-          </motion.div>
-        </AnimatePresence>
+          ))}
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/25 pointer-events-none z-[1]" />
+        <div className="absolute inset-x-0 bottom-0 z-20 p-6 md:p-10 lg:p-12 max-w-4xl">
+          <div className="inline-block mb-4 px-4 py-1.5 bg-champagne-gold/10 rounded-full border border-champagne-gold/30 backdrop-blur-sm">
+            <span className="text-xs sm:text-sm font-semibold text-champagne-gold tracking-wider uppercase">
+              Trusted at Babington House since 2003
+            </span>
+          </div>
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-3 drop-shadow-lg">
+            Party Lighting
+          </h1>
+          <p className="text-base sm:text-lg md:text-xl text-white/95 max-w-xl mb-6 drop-shadow-md">
+            Atmospheric lighting design for weddings and events — trusted at Babington House, The Newt and beyond.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center mb-3">
+            <Button
+              asChild
+              size="lg"
+              className="min-h-[48px] bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg"
+            >
+              <Link href="/contact-us/">Check Availability</Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="min-h-[48px] border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 hover:scale-105 transition-all duration-300 backdrop-blur-sm"
+            >
+              <Link href="tel:+447970793177">Call 07970 793177</Link>
+            </Button>
+          </div>
+          <p className="text-xs sm:text-sm text-gray-300 drop-shadow-md">
+            20+ years · Babington House since 2003 · UK-wide
+          </p>
+        </div>
 
         {/* Hero nav dots – 44px min touch targets for accessibility */}
-        <div className="absolute bottom-8 right-8 md:bottom-12 md:right-12 flex gap-2 z-10">
+        <div className="absolute bottom-6 right-6 md:bottom-10 md:right-10 flex gap-2 z-20">
           {heroMoodImages.map((_, i) => (
             <button
               key={i}
@@ -260,14 +277,14 @@ export default function PartyLightingClient() {
         </div>
         <button
           onClick={() => setHeroIndex((i) => (i - 1 + heroMoodImages.length) % heroMoodImages.length)}
-          className="absolute left-4 top-1/2 -translate-y-1/2 min-w-[48px] min-h-[48px] rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-10"
+          className="absolute left-4 top-1/2 -translate-y-1/2 min-w-[48px] min-h-[48px] rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-20"
           aria-label="Previous slide"
         >
           <ChevronLeft className="w-6 h-6" aria-hidden />
         </button>
         <button
           onClick={() => setHeroIndex((i) => (i + 1) % heroMoodImages.length)}
-          className="absolute right-4 top-1/2 -translate-y-1/2 min-w-[48px] min-h-[48px] rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-10"
+          className="absolute right-4 top-1/2 -translate-y-1/2 min-w-[48px] min-h-[48px] rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-20"
           aria-label="Next slide"
         >
           <ChevronRight className="w-6 h-6" aria-hidden />
@@ -431,6 +448,24 @@ export default function PartyLightingClient() {
             ))}
           </AnimatePresence>
         </motion.div>
+      </section>
+
+      {/* Enquiry CTA – lighting-hire traffic needs a clear path beyond the gallery */}
+      <section className="py-16 px-4 bg-gray-900/50 border-t border-white/5">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Planning lighting for your event?</h2>
+          <p className="text-gray-300 text-lg mb-6">
+            Share your venue and date — we&apos;ll advise on design and availability.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <Button asChild size="lg" className="min-h-[48px] bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
+              <Link href="/contact-us/">Check Availability</Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="min-h-[48px] border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10">
+              <Link href="tel:+447970793177">Call 07970 793177</Link>
+            </Button>
+          </div>
+        </div>
       </section>
 
       {lightboxOpen && (

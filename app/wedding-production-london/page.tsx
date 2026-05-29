@@ -108,17 +108,18 @@ export default function WeddingProductionLondonPage() {
           <div className="relative z-10 container mx-auto max-w-6xl">
             <div className="flex flex-col md:flex-row md:items-center md:gap-12 lg:gap-16">
               <div className="flex-1 text-center md:text-left order-1">
-                <p className="text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase mb-4">Wedding Production</p>
+                <p className="text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase mb-4">Trusted at Babington House since 2003</p>
                 <h1 className="text-4xl sm:text-5xl md:text-6xl font-sans font-bold text-white mb-6">
                   Wedding Production <span className="text-champagne-gold">London</span>
                 </h1>
                 <p className="text-lg sm:text-xl text-gray-300 max-w-xl mb-8">
                   Boutique wedding entertainment and production across London and the Home Counties.
                 </p>
-                <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-                  <Link href="/contact-us/" className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-champagne-gold text-black font-semibold hover:bg-champagne-gold/90 transition-colors">Enquire &amp; Check Availability</Link>
+                <div className="flex flex-wrap gap-4 justify-center md:justify-start mb-4">
+                  <Link href="/contact-us/" className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-champagne-gold text-black font-semibold hover:bg-champagne-gold/90 transition-colors">Check Availability</Link>
                   <Link href="/artists/djs/" className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-champagne-gold/20 border border-champagne-gold/50 text-champagne-gold font-semibold hover:bg-champagne-gold/30 transition-colors">Meet Our DJs</Link>
                 </div>
+                <p className="text-sm text-gray-400">20+ years · Babington House since 2003 · UK &amp; Europe</p>
               </div>
               {IMAGES?.hero && (
                 <div className="flex-1 order-2 mt-10 md:mt-0 w-full max-w-lg mx-auto md:max-w-none">
@@ -262,7 +263,7 @@ export default function WeddingProductionLondonPage() {
             </p>
             <div className="flex flex-wrap gap-4 justify-center">
               <Link href="/artists/djs/" className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-champagne-gold/20 border border-champagne-gold/50 text-champagne-gold font-semibold hover:bg-champagne-gold/30 transition-colors">Meet Our DJs</Link>
-              <Link href="/contact-us/" className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-champagne-gold text-black font-semibold hover:bg-champagne-gold/90 transition-colors">Enquire &amp; Check Availability</Link>
+              <Link href="/contact-us/" className="inline-flex items-center justify-center px-6 py-3 rounded-md bg-champagne-gold text-black font-semibold hover:bg-champagne-gold/90 transition-colors">Check Availability</Link>
             </div>
           </div>
         </section>
