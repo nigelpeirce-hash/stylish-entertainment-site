@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Lightbox from "yet-another-react-lightbox";
 import { ChevronLeft, ChevronRight, Sparkles, Sun, Lightbulb, ExternalLink } from "lucide-react";
 import "yet-another-react-lightbox/styles.css";
+import { LIGHTBOX_CAROUSEL, LIGHTBOX_CONTROLLER, toLightboxSlides } from "@/components/lightbox-config";
 
 type EventFilter = "all" | "weddings" | "corporate" | "outdoor";
 
@@ -431,7 +432,9 @@ export default function PartyLightingDemoClient() {
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
         index={lightboxIndex}
-        slides={filteredPhotos.map((p) => ({ src: p.src, alt: p.alt }))}
+        slides={toLightboxSlides(filteredPhotos)}
+        carousel={LIGHTBOX_CAROUSEL}
+        controller={LIGHTBOX_CONTROLLER}
         render={{
           buttonPrev: () => <ChevronLeft className="w-8 h-8 text-white" />,
           buttonNext: () => <ChevronRight className="w-8 h-8 text-white" />,

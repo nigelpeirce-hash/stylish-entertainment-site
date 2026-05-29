@@ -19,6 +19,7 @@ const LIGHTBOX_BTN_STYLE: React.CSSProperties = {
 import Lightbox from "yet-another-react-lightbox";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import "yet-another-react-lightbox/styles.css";
+import { LIGHTBOX_CAROUSEL, LIGHTBOX_CONTROLLER } from "@/components/lightbox-config";
 
 export interface Photo {
   src: string;
@@ -72,17 +73,8 @@ export default function Gallery({ photos, columns = 1 }: GalleryProps) {
         open={index >= 0}
         index={index}
         close={() => setIndex(-1)}
-        carousel={{
-          // yarl defaults to padding "16px" + spacing "30%" between slides,
-          // which on mobile looks like a black margin on the right of every
-          // image (the preloaded next slide sits 30% of viewport away).
-          padding: 0,
-          spacing: 0,
-          imageFit: "contain",
-        }}
-        controller={{
-          closeOnBackdropClick: true,
-        }}
+        carousel={LIGHTBOX_CAROUSEL}
+        controller={LIGHTBOX_CONTROLLER}
         render={{
           buttonPrev: () => (
             <button

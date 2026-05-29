@@ -7,6 +7,7 @@ import Link from "next/link";
 import Lightbox from "yet-another-react-lightbox";
 import { ChevronLeft, ChevronRight, MapPin, Video, FileText, Zap, Map, Home, Camera, Sparkles, Flame, Music, Lightbulb } from "lucide-react";
 import "yet-another-react-lightbox/styles.css";
+import { LIGHTBOX_CAROUSEL, LIGHTBOX_CONTROLLER, toLightboxSlides } from "@/components/lightbox-config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -425,7 +426,9 @@ export default function MellsBarnClient() {
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
         index={lightboxIndex}
-        slides={mellsBarnPhotos.map((photo) => ({ src: photo.src }))}
+        slides={toLightboxSlides(mellsBarnPhotos)}
+        carousel={LIGHTBOX_CAROUSEL}
+        controller={LIGHTBOX_CONTROLLER}
         on={{ view: ({ index }) => setLightboxIndex(index) }}
         render={{
           buttonPrev: () => (

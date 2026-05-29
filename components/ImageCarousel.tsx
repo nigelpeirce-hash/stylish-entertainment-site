@@ -17,6 +17,7 @@ const LIGHTBOX_BTN_STYLE: React.CSSProperties = {
 };
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import dynamic from "next/dynamic";
+import { LIGHTBOX_CAROUSEL, LIGHTBOX_CONTROLLER } from "@/components/lightbox-config";
 
 // Dynamically import Lightbox to prevent SSR/build issues
 const Lightbox = dynamic(
@@ -82,6 +83,8 @@ export default function ImageCarousel({ images }: ImageCarouselProps) {
         close={() => setLightboxOpen(false)}
         index={lightboxIndex}
         slides={images}
+        carousel={LIGHTBOX_CAROUSEL}
+        controller={LIGHTBOX_CONTROLLER}
         on={{ view: ({ index }) => setLightboxIndex(index) }}
         render={{
           buttonPrev: () => (

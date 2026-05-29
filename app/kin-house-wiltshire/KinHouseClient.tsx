@@ -7,6 +7,7 @@ import Link from "next/link";
 import Lightbox from "yet-another-react-lightbox";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import "yet-another-react-lightbox/styles.css";
+import { LIGHTBOX_CAROUSEL, LIGHTBOX_CONTROLLER, toLightboxSlides } from "@/components/lightbox-config";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Mic, Disc, Music, Palette, Star } from "lucide-react";
@@ -274,7 +275,9 @@ export default function KinHouseClient() {
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
         index={lightboxIndex}
-        slides={kinHousePhotos.map((photo) => ({ src: photo.src }))}
+        slides={toLightboxSlides(kinHousePhotos)}
+        carousel={LIGHTBOX_CAROUSEL}
+        controller={LIGHTBOX_CONTROLLER}
         on={{ view: ({ index }) => setLightboxIndex(index) }}
         render={{
           buttonPrev: () => (

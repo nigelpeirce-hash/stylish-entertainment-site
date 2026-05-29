@@ -8,6 +8,7 @@ import Image from "next/image";
 import BlogImage from "@/components/BlogImage";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
+import { LIGHTBOX_CAROUSEL, LIGHTBOX_CONTROLLER, toLightboxSlides } from "@/components/lightbox-config";
 import { Lightbulb, Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
@@ -147,7 +148,9 @@ function MiniCardCarousel({ images }: { images: { src: string; alt: string }[] }
           open={lightboxOpen}
           close={() => setLightboxOpen(false)}
           index={lightboxIndex}
-          slides={images.map(img => ({ src: img.src }))}
+          slides={toLightboxSlides(images)}
+          carousel={LIGHTBOX_CAROUSEL}
+          controller={LIGHTBOX_CONTROLLER}
           render={{
             buttonPrev: () => (
               <button
@@ -263,7 +266,9 @@ function MiniCardCarousel({ images }: { images: { src: string; alt: string }[] }
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
         index={lightboxIndex}
-        slides={images.map(img => ({ src: img.src }))}
+        slides={toLightboxSlides(images)}
+        carousel={LIGHTBOX_CAROUSEL}
+        controller={LIGHTBOX_CONTROLLER}
         on={{ view: ({ index }) => setLightboxIndex(index) }}
         render={{
           buttonPrev: () => (

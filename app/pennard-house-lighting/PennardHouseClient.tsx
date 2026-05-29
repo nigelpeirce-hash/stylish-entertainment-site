@@ -7,6 +7,7 @@ import Link from "next/link";
 import Lightbox from "yet-another-react-lightbox";
 import { ChevronLeft, ChevronRight, Phone, Mail, PenTool } from "lucide-react";
 import "yet-another-react-lightbox/styles.css";
+import { LIGHTBOX_CAROUSEL, LIGHTBOX_CONTROLLER, toLightboxSlides } from "@/components/lightbox-config";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -309,7 +310,9 @@ export default function PennardHouseClient() {
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
         index={lightboxIndex}
-        slides={lightboxPhotos.map((photo) => ({ src: photo.src }))}
+        slides={toLightboxSlides(lightboxPhotos)}
+        carousel={LIGHTBOX_CAROUSEL}
+        controller={LIGHTBOX_CONTROLLER}
         on={{ view: ({ index }) => setLightboxIndex(index) }}
         render={{
           buttonPrev: () => (

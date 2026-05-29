@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import Lightbox from "yet-another-react-lightbox";
 import { ChevronLeft, ChevronRight, Heart, Sun, Music2, MapPin, Phone } from "lucide-react";
 import "yet-another-react-lightbox/styles.css";
+import { LIGHTBOX_CAROUSEL, LIGHTBOX_CONTROLLER, toLightboxSlides } from "@/components/lightbox-config";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -294,7 +295,9 @@ export default function WeddingLightingDemoClient() {
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
         index={lightboxIndex}
-        slides={galleryPhotos.map((p) => ({ src: p.src, alt: p.alt }))}
+        slides={toLightboxSlides(galleryPhotos)}
+        carousel={LIGHTBOX_CAROUSEL}
+        controller={LIGHTBOX_CONTROLLER}
         render={{
           buttonPrev: () => <ChevronLeft className="w-8 h-8 text-white" />,
           buttonNext: () => <ChevronRight className="w-8 h-8 text-white" />,

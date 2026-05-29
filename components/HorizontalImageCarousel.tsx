@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import dynamic from "next/dynamic";
 import type { ImagePhoto } from "@/components/ImageCarousel";
+import { LIGHTBOX_CAROUSEL, LIGHTBOX_CONTROLLER, toLightboxSlides } from "@/components/lightbox-config";
 
 const Lightbox = dynamic(
   () => import("yet-another-react-lightbox"),
@@ -87,7 +88,9 @@ export default function HorizontalImageCarousel({
           open={lightboxOpen}
           close={() => setLightboxOpen(false)}
           index={lightboxIndex}
-          slides={images.map((img) => ({ src: img.src }))}
+          slides={toLightboxSlides(images)}
+          carousel={LIGHTBOX_CAROUSEL}
+          controller={LIGHTBOX_CONTROLLER}
           render={{
             buttonPrev: () => (
               <button className="yarl__button yarl__button_prev" style={lightboxBtnStyle} aria-label="Previous">
@@ -173,7 +176,9 @@ export default function HorizontalImageCarousel({
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
         index={lightboxIndex}
-        slides={images.map((img) => ({ src: img.src }))}
+        slides={toLightboxSlides(images)}
+        carousel={LIGHTBOX_CAROUSEL}
+        controller={LIGHTBOX_CONTROLLER}
         on={{ view: ({ index }) => setLightboxIndex(index) }}
         render={{
           buttonPrev: () => (

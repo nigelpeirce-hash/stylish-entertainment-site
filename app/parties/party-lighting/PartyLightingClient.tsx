@@ -6,6 +6,7 @@ import Image from "next/image";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Sparkles, Sun, Lightbulb, ExternalLink } from "lucide-react";
+import { LIGHTBOX_CAROUSEL, LIGHTBOX_CONTROLLER, toLightboxSlides } from "@/components/lightbox-config";
 
 const Lightbox = dynamic(() => import("./PartyLightingLightbox"), { ssr: false });
 
@@ -437,7 +438,9 @@ export default function PartyLightingClient() {
           open={lightboxOpen}
           close={() => setLightboxOpen(false)}
           index={lightboxIndex}
-          slides={filteredPhotos.map((p) => ({ src: p.src, alt: p.alt }))}
+          slides={toLightboxSlides(filteredPhotos)}
+          carousel={LIGHTBOX_CAROUSEL}
+          controller={LIGHTBOX_CONTROLLER}
           render={{
             buttonPrev: (props) => (
               <button {...props} type="button" aria-label="Previous image">
