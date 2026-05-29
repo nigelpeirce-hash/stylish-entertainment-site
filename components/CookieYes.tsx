@@ -58,7 +58,19 @@ export default function CookieYes() {
     .cky-consent-bar a { color: #0d47a1 !important; text-decoration: underline; }
     .cky-consent-bar button.cky-btn-accept, .cky-consent-bar [data-cky-tag="accept-button"] { background-color: #1a1a1a !important; color: #ffffff !important; }
     .cky-consent-bar button.cky-btn-reject, .cky-consent-bar [data-cky-tag="reject-button"] { background-color: #424242 !important; color: #ffffff !important; border-color: #424242 !important; }
+    .cky-consent-bar button.cky-btn-customize, .cky-consent-bar [data-cky-tag="settings-button"] { background-color: #ffffff !important; color: #1a1a1a !important; border: 2px solid #1a1a1a !important; }
+    .cky-btn-revisit-wrapper, .cky-revisit-bottom-left, .cky-revisit-bottom-right { z-index: 9990 !important; bottom: max(1rem, env(safe-area-inset-bottom)) !important; }
+    .cky-btn-revisit-wrapper .cky-btn-revisit, button.cky-btn-revisit { background-color: #d4af37 !important; border: 1px solid rgba(255,255,255,0.35) !important; box-shadow: 0 2px 12px rgba(0,0,0,0.45) !important; }
+    .cky-modal, .cky-preference-center, div[data-cky-tag="detail"], .cky-overlay { z-index: 99999 !important; }
   `;
+
+  const injectContrastStyles = () => {
+    if (document.getElementById("cookieyes-contrast-override")) return;
+    const style = document.createElement("style");
+    style.id = "cookieyes-contrast-override";
+    style.textContent = contrastOverrides;
+    document.head.appendChild(style);
+  };
 
   return (
     <>
@@ -68,10 +80,15 @@ export default function CookieYes() {
         strategy="afterInteractive"
         src={`https://cdn-cookieyes.com/client_data/${cookieYesId}/script.js`}
         onLoad={() => {
-          const style = document.createElement("style");
-          style.id = "cookieyes-contrast-override";
-          style.textContent = contrastOverrides;
-          document.head.appendChild(style);
+          injectContrastStyles();
+          // CookieYes injects the revisit widget after the script loads – re-apply once it appears
+          const observer = new MutationObserver(() => {
+            if (document.querySelector(".cky-btn-revisit-wrapper, .cky-consent-bar")) {
+              injectContrastStyles();
+            }
+          });
+          observer.observe(document.body, { childList: true, subtree: true });
+          setTimeout(() => observer.disconnect(), 15000);
         }}
         onError={(e) => {
           // CookieYes may show URL configuration warnings, but banner usually still works

@@ -47,6 +47,7 @@ const EXACT_HIDE = [
   "/hire",
   "/kin-house-wiltshire",
   "/mells-barn-weddings",
+  "/venues/mells-barn",
   "/babington-wedding-info",
   "/babington-dj-final-details",
   "/dj-worksheet",

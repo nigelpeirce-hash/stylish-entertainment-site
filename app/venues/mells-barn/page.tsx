@@ -2,8 +2,8 @@ import { Metadata } from "next";
 import MellsBarnClient from "@/app/mells-barn-weddings/MellsBarnClient";
 
 export const metadata: Metadata = {
-  title: "The Ultimate Planning Guide for Mells Barn Weddings | Lighting & Production",
-  description: "Planning a destination wedding at Mells Barn? Our Frome-based team acts as your on-the-ground experts. Zoom consultations, detailed site maps, and years of venue experience. No travel fees within 10 miles. Contact STYLISH Entertainment.",
+  title: "Mells Barn Weddings — DJs, Sound, Lighting & Styling | STYLISH Entertainment",
+  description: "Mells Barn wedding DJs, professional sound, lighting and venue styling from STYLISH Entertainment. Frome-based specialists with years of experience at the venue. No travel fees within 10 miles.",
 };
 
 const faqSchema = {

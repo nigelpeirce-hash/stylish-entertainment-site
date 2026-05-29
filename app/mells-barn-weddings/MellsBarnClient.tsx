@@ -151,7 +151,7 @@ export default function MellsBarnClient() {
           className="relative z-20 text-center px-4 max-w-4xl mx-auto pt-48 md:pt-52"
         >
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
-            The Ultimate Planning Guide for Mells Barn Weddings | Lighting & Production
+            Mells Barn Weddings — DJs, Sound, Lighting & Styling
           </h1>
         </motion.div>
       </section>
@@ -163,7 +163,7 @@ export default function MellsBarnClient() {
         }}
       >
         {/* Introduction Section */}
-        <section className="py-20 px-4">
+        <section className="py-12 md:py-16 px-4">
           <div className="container mx-auto max-w-4xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -172,19 +172,60 @@ export default function MellsBarnClient() {
               transition={{ duration: 0.6 }}
             >
               <Card className="bg-gray-800/50 backdrop-blur-md border-champagne-gold/50">
-                <CardContent className="p-6 sm:p-8 md:p-12">
+                <CardContent className="p-6 sm:p-8">
                   <div className="text-gray-200 leading-relaxed">
-                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">A Venue We Know and Love</h2>
-                    <p className="text-lg mb-4">
-                      Located just a short distance from our base in Frome, Mells Barn is a venue we have worked with extensively over the years. From intimate weddings to lively celebrations, we transform this space with lighting, styling, and entertainment.
-                    </p>
+                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">A Venue We Know and Love</h2>
                     <p className="text-lg">
-                      Our local team acts as your on-the-ground experts for technical setup, so you don't need to worry about being miles away. We understand the venue's unique character and can bring your vision to life.
+                      Based in Frome, just minutes from Mells Barn, we supply wedding DJs, professional sound, lighting and venue styling for celebrations here year after year. We know the power, rigging and layout — so you get the look and atmosphere you want, without the technical stress.
                     </p>
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
+          </div>
+        </section>
+
+        {/* Masonry Gallery Grid */}
+        <section className="py-12 md:py-16 px-4">
+          <div className="container mx-auto max-w-6xl">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="mb-8"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-2">Gallery</h2>
+              <p className="text-gray-300 text-center max-w-2xl mx-auto">
+                Fairy-light canopies, festoon lighting, LED uplighting and dance floors — see what we&apos;ve created at Mells Barn.
+              </p>
+            </motion.div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {mellsBarnPhotos.map((photo, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.4, delay: index * 0.1 }}
+                  whileHover={{ scale: 1.05 }}
+                  className="relative cursor-pointer overflow-hidden rounded-lg border-2 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all duration-300"
+                  onClick={() => openLightbox(index)}
+                >
+                  <div className="relative aspect-[3/4] md:aspect-auto" style={{ minHeight: "300px" }}>
+                    <Image
+                      src={photo.src}
+                      alt={photo.alt}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 33vw, 33vw"
+                      loading={index < 3 ? "eager" : "lazy"}
+                    />
+                    <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-all duration-300" />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -277,50 +318,6 @@ export default function MellsBarnClient() {
                       </ul>
                     </CardContent>
                   </Card>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Masonry Gallery Grid */}
-        <section className="py-20 px-4">
-          <div className="container mx-auto max-w-6xl">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="mb-8"
-            >
-              <h2 className="text-3xl md:text-4xl font-bold text-white text-center mb-2">Gallery</h2>
-              <p className="text-gray-300 text-center max-w-2xl mx-auto">
-                See the magic we've created at Mells Barn. Each event is uniquely designed to bring our clients' dreams to life.
-              </p>
-            </motion.div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {mellsBarnPhotos.map((photo, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: index * 0.1 }}
-                  whileHover={{ scale: 1.05 }}
-                  className="relative cursor-pointer overflow-hidden rounded-lg border-2 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all duration-300"
-                  onClick={() => openLightbox(index)}
-                >
-                  <div className="relative aspect-[3/4] md:aspect-auto" style={{ minHeight: "300px" }}>
-                    <Image
-                      src={photo.src}
-                      alt={photo.alt}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 33vw, 33vw"
-                      loading={index < 3 ? "eager" : "lazy"}
-                    />
-                    <div className="absolute inset-0 bg-black/0 hover:bg-black/20 transition-all duration-300" />
-                  </div>
                 </motion.div>
               ))}
             </div>

@@ -59,6 +59,38 @@ p[data-cky-tag="title"],
   color: #ffffff !important;
   border-color: #424242 !important;
 }
+.cky-consent-bar button.cky-btn-customize,
+.cky-consent-bar [data-cky-tag="settings-button"] {
+  background-color: #ffffff !important;
+  color: #1a1a1a !important;
+  border: 2px solid #1a1a1a !important;
+}
+
+/* CookieYes floating "Revisit consent" widget – keep above footer/content, tappable on mobile */
+.cky-btn-revisit-wrapper,
+.cky-revisit-bottom-left,
+.cky-revisit-bottom-right {
+  z-index: 9990 !important;
+  bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+}
+.cky-btn-revisit-wrapper .cky-btn-revisit,
+button.cky-btn-revisit {
+  background-color: #d4af37 !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45) !important;
+}
+.cky-btn-revisit-wrapper .cky-btn-revisit img,
+button.cky-btn-revisit img {
+  filter: brightness(0) saturate(100%) !important;
+}
+
+/* Preference centre / modal above fixed header */
+.cky-modal,
+.cky-preference-center,
+div[data-cky-tag="detail"],
+.cky-overlay {
+  z-index: 99999 !important;
+}
 
 /* Mobile: slightly tighter horizontal padding and safe-area for iPhone (notch/home indicator).
    Use .content-px on sections for consistent padding; main gets safe-area only. */
