@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/radix-select";
 import { Mail, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/lib/motion";
 import { getDevBypassHeaders } from "@/lib/dev-bypass";
 
 interface InviteUserModalProps {

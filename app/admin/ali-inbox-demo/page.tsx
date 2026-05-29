@@ -18,7 +18,7 @@ import {
   Folder,
   AlertCircle,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 
 interface DemoEmailThread {
   id: string;

@@ -13,7 +13,7 @@
  */
 
 import { useState, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/lib/motion";
 import { X, CheckCircle2, Clock, Music, Users, Calendar, MapPin, FileText, Download } from "lucide-react";
 import Link from "next/link";
 import {

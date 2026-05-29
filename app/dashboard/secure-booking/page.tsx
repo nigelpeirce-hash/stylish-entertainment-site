@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import { Calendar, MapPin, Music, Lightbulb, Shield, MessageCircle, FileText, Lock, X, Copy } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";

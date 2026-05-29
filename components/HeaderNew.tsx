@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/lib/motion";
 import { useSession } from "next-auth/react";
 import { AuthButtonSimple } from "@/components/AuthButton";
 import styles from "./HeaderNew.module.css";

@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { AlertTriangle, ArrowLeft, User, Mail, Phone, Calendar, MapPin, CheckCircle2, Clock, Package, MessageSquare, FileText } from "lucide-react";
 import { format } from "date-fns";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 
 interface SelectedHireItem {
   hireItemId: string;

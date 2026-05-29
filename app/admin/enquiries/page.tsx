@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import { EnquiryDashboard } from "@/components/EnquiryDashboard";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 
 function EnquiriesContent() {
   const { data: session, status } = useSession();

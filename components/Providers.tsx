@@ -1,7 +1,8 @@
 "use client";
 
 import { SessionProvider } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { MotionConfig } from "@/lib/motion";
+import { useEffect } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   useEffect(() => {
@@ -110,7 +111,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       refetchOnWindowFocus={false}
       basePath="/api/auth"
     >
-      {children}
+      <MotionConfig initial={false}>
+        {children}
+      </MotionConfig>
     </SessionProvider>
   );
 }

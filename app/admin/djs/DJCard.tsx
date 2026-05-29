@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { User } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import { ResponsiveImage } from "@/components/cloudinary";
 import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 

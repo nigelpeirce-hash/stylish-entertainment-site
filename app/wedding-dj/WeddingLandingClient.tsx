@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import Lightbox from "yet-another-react-lightbox";
 import { ChevronLeft, ChevronRight, Mic, Music, Sparkles, CheckCircle2, X, ArrowRight } from "lucide-react";
 import "yet-another-react-lightbox/styles.css";

@@ -5,7 +5,7 @@ import Image from "next/image";
 import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import { Sparkles, CheckCircle2, Loader2, Plus, X } from "lucide-react";
 import { getLabel } from "@/lib/eventLabels";
 

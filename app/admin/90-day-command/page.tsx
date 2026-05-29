@@ -10,7 +10,7 @@ import useSWR from "swr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import { Calendar, Clock, AlertTriangle, RefreshCw, ArrowLeft, MessageSquare, UserCheck, Activity } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";

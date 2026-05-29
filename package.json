@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "check:hydration": "node scripts/check-hydration-risks.mjs",
     "check": "npm run lint && npm run build",
     "postinstall": "prisma generate",
     "seed:demo": "NODE_TLS_REJECT_UNAUTHORIZED=0 tsx scripts/seed-demo-data.ts",

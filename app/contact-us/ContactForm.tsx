@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +17,7 @@ import { Lock, Loader2, Music } from "lucide-react";
 import { RefinedCheckmark } from "@/components/RefinedCheckmark";
 import { formSchema, type FormData, eventTypeOptions, djOptions, upsellOptions } from "@/lib/contact-schema";
 import DJSelectionModal from "@/components/DJSelectionModal";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "@/lib/motion";
 import { VenueAutocomplete } from "@/components/VenueAutocomplete";
 
 // Load Google reCAPTCHA v3

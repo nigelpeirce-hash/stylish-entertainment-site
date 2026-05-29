@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import Link from "next/link";
 import { Calendar } from "lucide-react";
 import CountdownClock from "@/components/CountdownClock";

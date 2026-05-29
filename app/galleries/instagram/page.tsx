@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import { useEffect, useRef } from "react";
 import { Instagram } from "lucide-react";
 import Link from "next/link";

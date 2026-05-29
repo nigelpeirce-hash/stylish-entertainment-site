@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Music, ExternalLink, Sparkles } from "lucide-react";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import PortalCountdownClock from "@/components/client/PortalCountdownClock";
 import ClientMusicModule from "@/components/client/ClientMusicModule";
 import CommunicationHistory from "@/components/client/CommunicationHistory";

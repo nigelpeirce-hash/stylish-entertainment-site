@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import Lightbox from "yet-another-react-lightbox";
 import { ChevronLeft, ChevronRight, Heart, Sun, Music2, MapPin, Phone } from "lucide-react";
 import "yet-another-react-lightbox/styles.css";

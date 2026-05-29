@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { Bell, X, Clock, AlertTriangle, User, MapPin, ArrowRight, Zap } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/lib/motion";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";

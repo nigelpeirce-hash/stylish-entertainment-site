@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/lib/motion";
 import Gallery, { Photo } from "@/components/Gallery";
 import BeforeAfter from "@/components/BeforeAfter";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";

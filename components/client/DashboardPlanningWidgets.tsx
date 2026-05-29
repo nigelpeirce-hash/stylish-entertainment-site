@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Banknote } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import BudgetTracker from "@/components/BudgetTracker";
 import GuestCountTracker from "@/components/GuestCountTracker";
 import AddOnConcierge from "@/components/AddOnConcierge";

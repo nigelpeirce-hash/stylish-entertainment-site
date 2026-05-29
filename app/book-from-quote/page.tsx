@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import { Calendar, User, Mail, Phone, MapPin, Home, Music, Mic2, CheckCircle2 } from "lucide-react";
 import { AcceptTermsModule } from "@/components/AcceptTermsModule";
 

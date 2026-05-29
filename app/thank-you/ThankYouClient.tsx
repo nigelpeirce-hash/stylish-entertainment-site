@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import { useState, useEffect } from "react";
 import UpdateEnquiryForm from "./UpdateEnquiryForm";
 import { trackEnquiryComplete } from "@/lib/analytics";

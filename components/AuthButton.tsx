@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { User, LogOut } from "lucide-react";
 import { useClientStatus } from "@/hooks/useClientStatus";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import { useState, useEffect } from "react";
 import { clientDashboardPath } from "@/lib/portal-paths";
 

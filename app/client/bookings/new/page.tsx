@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import { useState } from "react";
 import UpsellSection from "@/components/UpsellSection";
 import { clientDashboardPath, loginPath } from "@/lib/portal-paths";

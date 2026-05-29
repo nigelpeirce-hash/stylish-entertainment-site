@@ -3,7 +3,7 @@
 import { useMemo } from 'react';
 import { testimonials } from '@/data/testimonials';
 import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import { RefinedStar } from "@/components/RefinedStar";
 
 interface VenueTestimonialsProps {

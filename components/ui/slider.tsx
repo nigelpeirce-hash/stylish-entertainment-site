@@ -10,24 +10,27 @@ interface SliderProps {
   className?: string
 }
 
+function slideFingerprint(children: React.ReactNode): string {
+  return React.Children.toArray(children)
+    .map((child) => (React.isValidElement(child) ? String(child.key ?? "") : String(child)))
+    .join("|")
+}
+
 export function Slider({ children, className }: SliderProps) {
   const [currentIndex, setCurrentIndex] = React.useState(0)
-  
-  // Use ref to store stable children array - only update when count actually changes
-  // This prevents infinite loops from children prop reference changes on every render
-  const childrenRef = React.useRef<React.ReactNode[]>([])
-  const countRef = React.useRef(0)
-  
-  const currentCount = React.Children.count(children)
-  
-  // Initialize or update children array if the count changed (actual content change)
-  if (currentCount !== countRef.current || childrenRef.current.length === 0) {
-    childrenRef.current = React.Children.toArray(children)
-    countRef.current = currentCount
-  }
-  
-  const childrenArray = childrenRef.current
+
+  // Re-sync when slide count or order changes (e.g. homepage hero shuffle after mount).
+  // Must not cache by count alone — that left stale DOM and mismatched slide keys.
+  const childFingerprint = slideFingerprint(children)
+  const childrenArray = React.useMemo(
+    () => React.Children.toArray(children),
+    [childFingerprint]
+  )
   const totalSlides = childrenArray.length
+
+  React.useEffect(() => {
+    setCurrentIndex((prev) => (prev >= totalSlides ? 0 : prev))
+  }, [childFingerprint, totalSlides])
 
   const goToPrevious = () => {
     setCurrentIndex((prev) => (prev === 0 ? totalSlides - 1 : prev - 1))
@@ -44,11 +47,15 @@ export function Slider({ children, className }: SliderProps) {
           className="flex transition-transform duration-500 ease-in-out h-full"
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
-          {childrenArray.map((child, index) => (
-            <div key={index} className="min-w-full h-full">
-              {child}
-            </div>
-          ))}
+          {childrenArray.map((child, index) => {
+            const slideKey =
+              React.isValidElement(child) && child.key != null ? String(child.key) : index
+            return (
+              <div key={slideKey} className="min-w-full h-full">
+                {child}
+              </div>
+            )
+          })}
         </div>
       </div>
       {totalSlides > 1 && (

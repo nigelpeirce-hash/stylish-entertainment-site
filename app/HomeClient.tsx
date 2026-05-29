@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -8,8 +8,9 @@ import { Slider } from "@/components/ui/slider";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { Quote } from "lucide-react";
-import { getRandomReviews } from "@/data/reviews";
-import type { Review } from "@/data/reviews";
+import { getDeterministicReviews } from "@/data/reviews";
+import { deterministicShuffle } from "@/lib/deterministic-shuffle";
+import { useHasMounted } from "@/hooks/useHasMounted";
 
 const services = [
   {
@@ -74,50 +75,18 @@ const services = [
   },
 ];
 
-// Testimonials Section Component - Displays 3 random reviews
-const TestimonialsSection = () => {
-  const [selectedReviews, setSelectedReviews] = useState<Review[]>([]);
-  const [isClient, setIsClient] = useState(false);
+/** SSR + first client paint: seeded pick — never Math.random() or skeleton swap. @see lib/HYDRATION.md */
+const HOMEPAGE_FEATURED_REVIEWS = getDeterministicReviews(3, "homepage-featured");
 
-  useEffect(() => {
-    setIsClient(true);
-    setSelectedReviews(getRandomReviews(3));
-  }, []);
-
-  if (!isClient) {
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto">
-        {[1, 2, 3].map((index) => (
-          <Card key={index} className="bg-gray-800/50 border-champagne-gold/40 backdrop-blur-sm h-full">
-            <CardContent className="p-6 sm:p-8 h-full flex flex-col">
-              <div className="flex justify-center mb-4">
-                <Quote className="w-8 h-8 text-champagne-gold/50" strokeWidth={1.5} />
-              </div>
-              <p className="text-base sm:text-lg text-white font-medium leading-relaxed text-center mb-6 italic flex-grow">&nbsp;</p>
-              <div className="text-center border-t border-champagne-gold/30 pt-4">
-                <p className="text-champagne-gold font-bold text-base sm:text-lg">&nbsp;</p>
-                <p className="text-gray-400 text-sm mt-1">&nbsp;</p>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
-  }
-
+function TestimonialsSection() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto">
-      {selectedReviews.map((review, index) => (
-        <motion.div
-          key={`${review.author}-${index}`}
-          initial={false}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: index * 0.15, ease: [0.22, 1, 0.36, 1] }}
-        >
+      {HOMEPAGE_FEATURED_REVIEWS.map((review) => (
+        <div key={`${review.author}::${review.venue}`}>
           <Card className="bg-gray-800/50 border-champagne-gold/40 backdrop-blur-sm h-full hover:border-champagne-gold/60 transition-all duration-300">
             <CardContent className="p-6 sm:p-8 h-full flex flex-col">
               <div className="flex justify-center mb-4">
-                <Quote className="w-8 h-8 text-champagne-gold/50" strokeWidth={1.5} style={{ filter: 'drop-shadow(0 2px 4px rgba(212, 175, 55, 0.2))' }} />
+                <Quote className="w-8 h-8 text-champagne-gold/50" strokeWidth={1.5} style={{ filter: "drop-shadow(0 2px 4px rgba(212, 175, 55, 0.2))" }} />
               </div>
               <p className="text-base sm:text-lg text-white font-medium leading-relaxed text-center mb-6 italic flex-grow">
                 &quot;{review.quote}&quot;
@@ -128,11 +97,11 @@ const TestimonialsSection = () => {
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       ))}
     </div>
   );
-};
+}
 
 const LCP_HERO_URL = "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_60,dpr_auto,w_1080/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg";
 
@@ -158,22 +127,19 @@ const gallerySliderImages = [
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163768/MartinBeddallPhotography02-e1530632660291_pabjzl.jpg", alt: "Elegant wedding celebration with professional lighting design and atmospheric wedding entertainment creating a memorable evening" },
 ];
 
-function shuffleArray<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
 export default function HomeClient() {
+  const mounted = useHasMounted();
   const [sliderImages, setSliderImages] = useState<typeof gallerySliderImages>(gallerySliderImages);
 
+  // Hero slide order: identical on server + first paint; reorder only after mount (seeded, not Math.random).
   useEffect(() => {
-    const t = setTimeout(() => setSliderImages(shuffleArray(gallerySliderImages)), 2500);
+    if (!mounted) return;
+    const t = setTimeout(
+      () => setSliderImages(deterministicShuffle(gallerySliderImages, "homepage-hero-live")),
+      2500
+    );
     return () => clearTimeout(t);
-  }, []);
+  }, [mounted]);
 
   return (
     <div>

@@ -33,7 +33,7 @@ import {
   CheckCircle,
   Circle,
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "@/lib/motion";
 import { toDisplayFee, toSafeDisplayString, toSafeReactChild } from "@/lib/transformers/booking-transformer";
 
 interface FeeLineItem {

@@ -24,7 +24,7 @@ import {
   JourneyEmailData,
 } from "@/lib/email-journey-templates";
 import { Monitor, Smartphone, Mail, Info } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 
 interface EmailTemplate {
   id: string;

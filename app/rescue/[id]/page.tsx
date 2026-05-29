@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import { CheckCircle2, Calendar, Loader2, XCircle, AlertCircle } from "lucide-react";
 import Link from "next/link";
 

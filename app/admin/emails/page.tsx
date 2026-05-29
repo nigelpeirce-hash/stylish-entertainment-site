@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import { Mail, ArrowLeft, Eye, Download } from "lucide-react";
 import Link from "next/link";
 import {

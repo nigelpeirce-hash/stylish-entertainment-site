@@ -1,3 +1,5 @@
+import { pickDeterministic } from "@/lib/deterministic-shuffle";
+
 export interface Review {
   quote: string;
   author: string;
@@ -98,7 +100,8 @@ export const reviews: Review[] = [
 ];
 
 /**
- * Shuffles an array using Fisher-Yates algorithm
+ * Shuffles an array using Fisher-Yates + Math.random().
+ * Client-only: call from useEffect after mount — never during SSR/first paint.
  */
 export function shuffleArray<T>(array: T[]): T[] {
   const shuffled = [...array];
@@ -110,7 +113,14 @@ export function shuffleArray<T>(array: T[]): T[] {
 }
 
 /**
- * Selects 3 random reviews from the reviews array
+ * Same seed → same reviews on server and client (SSR-safe).
+ */
+export function getDeterministicReviews(count: number = 3, seed: string): Review[] {
+  return pickDeterministic(reviews, count, seed);
+}
+
+/**
+ * Random reviews — use only inside useEffect after hydration.
  */
 export function getRandomReviews(count: number = 3): Review[] {
   const shuffled = shuffleArray(reviews);

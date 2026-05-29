@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { HelpCircle, Search, X, BookOpen, FileText, Mail, Calendar, Upload, Send, Inbox } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 
 interface WorkflowDoc {
   id: string;

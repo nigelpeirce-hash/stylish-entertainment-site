@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Music, X, CheckCircle, Sparkles } from "lucide-react";
 import { isBanned } from "@/lib/bannedSongs";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 
 const STORAGE_KEY_YMCA_CHECKED = "stylishentertainment_ymca_checked";
 const STORAGE_KEY_YMCA_BLOCKED = "stylishentertainment_ymca_blocked";

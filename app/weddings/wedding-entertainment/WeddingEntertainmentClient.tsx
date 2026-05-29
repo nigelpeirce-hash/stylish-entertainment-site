@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
@@ -183,7 +183,7 @@ export default function WeddingEntertainmentClient() {
               </motion.div>
             ))}
           </div>
-          <p className="text-center">
+          <div className="text-center">
             <Link
               href="/testi/"
               className="inline-flex items-center gap-2 text-champagne-gold hover:text-gold-light font-semibold transition-colors"
@@ -191,7 +191,7 @@ export default function WeddingEntertainmentClient() {
               Read all reviews
               <ArrowRight className="w-4 h-4" />
             </Link>
-          </p>
+          </div>
         </div>
       </section>
 

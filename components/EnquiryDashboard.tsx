@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { EnquiryKanban } from "@/components/EnquiryKanban";
 import { EnquiryStats } from "@/components/EnquiryStats";
 import { RefreshCw, Filter } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 
 export interface Enquiry {
   id: string;

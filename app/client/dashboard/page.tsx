@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import { Calendar, MessageSquare, User, Plus } from "lucide-react";
 import { ProfileDropdown } from "@/components/ProfileDropdown";
 import { SingleEventHero } from "./SingleEventHero";

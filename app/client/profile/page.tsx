@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { motion } from "framer-motion";
+import { motion } from "@/lib/motion";
 import { User, Mail, Phone, MapPin, Calendar, ArrowLeft, Edit2, X, Check, Trash2, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import {
