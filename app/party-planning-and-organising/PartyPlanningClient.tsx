@@ -246,19 +246,39 @@ export default function PartyPlanningClient() {
           />
         </div>
         <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/70 via-black/40 to-gray-900" />
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="relative z-20 text-center px-4 max-w-4xl mx-auto pt-48 md:pt-52"
-        >
+        <div className="relative z-20 text-center px-4 max-w-4xl mx-auto pt-40 pb-24 sm:pt-48 sm:pb-28 md:pt-52">
+          <div className="inline-block mb-6 px-6 py-2 bg-champagne-gold/10 rounded-full border border-champagne-gold/30 backdrop-blur-sm">
+            <span className="text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase">
+              Trusted at Babington House since 2003
+            </span>
+          </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
-            Professional Party Planning & Event Organization
+            Party Planning &amp; Event Production
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md">
-            Bespoke celebrations in Somerset, Wiltshire, and beyond
+          <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md mb-8 max-w-3xl mx-auto">
+            DJs, lighting, styling and production support — one experienced team helping shape celebrations across Somerset, Wiltshire and beyond.
           </p>
-        </motion.div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-4">
+            <Button
+              asChild
+              size="lg"
+              className="min-h-[48px] bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg"
+            >
+              <Link href="/contact-us/">Request an Event Proposal</Link>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="min-h-[48px] border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 hover:scale-105 transition-all duration-300 backdrop-blur-sm"
+            >
+              <a href="tel:+447970793177">Call 07970 793177</a>
+            </Button>
+          </div>
+          <p className="text-xs sm:text-sm text-gray-300 drop-shadow-md">
+            20+ years · Trusted venues · Somerset, Wiltshire &amp; UK-wide
+          </p>
+        </div>
         <div className="absolute bottom-0 left-0 right-0 z-20">
           <WaveDivider />
         </div>
@@ -461,7 +481,7 @@ export default function PartyPlanningClient() {
               <Card className="bg-gradient-to-br from-champagne-gold/20 to-transparent border-2 border-champagne-gold/50 shadow-[0_0_30px_rgba(212,175,55,0.3)]">
                 <CardContent className="p-8 sm:p-12 text-center">
                   <h3 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                    Ready to Plan Your Perfect Event?
+                    Ready to plan your party or event?
                   </h3>
                   <p className="text-gray-200 text-lg md:text-xl leading-relaxed mb-8 max-w-2xl mx-auto">
                     Let us take the stress out of planning your celebration. Contact us today to discuss your event and discover how we can make it truly unforgettable.
