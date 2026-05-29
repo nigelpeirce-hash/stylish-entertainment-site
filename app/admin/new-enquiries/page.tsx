@@ -85,12 +85,16 @@ function NewEnquiriesContent() {
     setRefreshing(true);
 
     try {
-      const response = await fetch("/api/admin/new-enquiries/?t=" + Date.now());
+      const response = await fetch("/api/admin/new-enquiries/?t=" + Date.now(), {
+        credentials: "include",
+      });
       if (response.ok) {
         const data = await response.json();
         setEnquiries(data.enquiries || []);
         setHireEnquiries(data.hireEnquiries || []);
         setQuoteRequestEnquiries(data.quoteRequestEnquiries || []);
+      } else {
+        console.error("Failed to load new enquiries:", response.status);
       }
     } catch (error) {
       console.error("Error fetching enquiries:", error);
@@ -149,7 +153,9 @@ function NewEnquiriesContent() {
               New Enquiries
             </h1>
             <p className="text-gray-400 mt-1">
-              Review and manage new enquiries
+              {enquiries.length > 0
+                ? `${enquiries.length} awaiting review (Enquire, contact & hire forms)`
+                : "Review and manage new enquiries"}
             </p>
           </div>
           <Button
@@ -353,12 +359,12 @@ function NewEnquiriesContent() {
           </motion.div>
         )}
 
-        {/* New Enquiries List */}
+        {/* New Enquiries List – contact & general (quote/hire shown above) */}
         <div className="space-y-4">
           <h2 className="text-2xl font-bold text-white">
-            New Enquiries ({nonHireEnquiries.length})
+            Contact &amp; general ({nonHireEnquiries.length})
           </h2>
-          {nonHireEnquiries.length === 0 && conflictEnquiries.length === 0 && hireEnquiries.length === 0 && quoteRequestEnquiries.length === 0 && (
+          {enquiries.length === 0 && (
             <Card className="bg-gray-800 border-gray-700">
               <CardContent className="p-12 text-center">
                 <CheckCircle2 className="w-16 h-16 text-gray-600 mx-auto mb-4" />

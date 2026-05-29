@@ -1,27 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { randomUUID } from "crypto";
 import { prisma } from "@/lib/prisma";
-import { sendEmail } from "@/lib/email";
-import { getJourneyEmail } from "@/lib/email-journey-templates";
-import { getResendConfig } from "@/lib/email-config";
-import { Resend } from "resend";
+import { createNewEnquiry } from "@/lib/create-new-enquiry";
+import { parseEventDate } from "@/lib/parse-event-date";
+import {
+  getEmailValidationError,
+  getEventDateValidationError,
+  getPhoneValidationError,
+  PUBLIC_FORM_MESSAGES,
+  toPublicFormError,
+} from "@/lib/public-form-errors";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
-
-function getResend(): Resend | null {
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey || apiKey === "re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxx") return null;
-  if (!apiKey.startsWith("re_") || apiKey.length < 35) return null;
-  return new Resend(apiKey);
-}
 
 const VALID_SERVICES = ["lighting", "dj_kit", "production", "hire_only", "combination"] as const;
 
 /**
  * POST /api/public/quote-request
  * Single "Request a quote" – creates NewEnquiry with enquiryType 'quote_request',
- * quoteRequestData { services, message }, optional selectedHireItems. Validates stock, emails admin.
+ * quoteRequestData { services, message }, optional selectedHireItems.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -29,6 +26,7 @@ export async function POST(request: NextRequest) {
     const {
       name,
       email,
+      phone,
       eventDate,
       venue,
       eventType,
@@ -38,18 +36,37 @@ export async function POST(request: NextRequest) {
     } = body;
 
     if (!name || typeof name !== "string" || !name.trim()) {
-      return NextResponse.json({ error: "Full name is required" }, { status: 400 });
-    }
-    if (!email || typeof email !== "string" || !email.trim()) {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
-    }
-    if (!eventDate) {
-      return NextResponse.json({ error: "Event date is required" }, { status: 400 });
+      return NextResponse.json(
+        { error: PUBLIC_FORM_MESSAGES.nameRequired, field: "name" },
+        { status: 400 }
+      );
     }
 
-    const parsedDate = new Date(eventDate);
-    if (isNaN(parsedDate.getTime())) {
-      return NextResponse.json({ error: "Invalid event date" }, { status: 400 });
+    const emailError = getEmailValidationError(typeof email === "string" ? email : "");
+    if (emailError) {
+      return NextResponse.json({ error: emailError, field: "email" }, { status: 400 });
+    }
+
+    const phoneError = getPhoneValidationError(typeof phone === "string" ? phone : "");
+    if (phoneError) {
+      return NextResponse.json({ error: phoneError, field: "phone" }, { status: 400 });
+    }
+
+    const dateError = getEventDateValidationError(
+      typeof eventDate === "string" ? eventDate : String(eventDate ?? "")
+    );
+    if (dateError) {
+      return NextResponse.json({ error: dateError, field: "eventDate" }, { status: 400 });
+    }
+
+    let parsedDate: Date;
+    try {
+      parsedDate = parseEventDate(eventDate);
+    } catch {
+      return NextResponse.json(
+        { error: PUBLIC_FORM_MESSAGES.eventDateInvalid, field: "eventDate" },
+        { status: 400 }
+      );
     }
 
     const venueTrimmed = typeof venue === "string" ? venue.trim() : "";
@@ -60,6 +77,13 @@ export async function POST(request: NextRequest) {
     const selectedServices = rawServices
       .filter((s: unknown) => typeof s === "string" && VALID_SERVICES.includes(s as (typeof VALID_SERVICES)[number]))
       .filter((v: string, i: number, a: string[]) => a.indexOf(v) === i) as string[];
+
+    if (selectedServices.length === 0) {
+      return NextResponse.json(
+        { error: PUBLIC_FORM_MESSAGES.servicesRequired, field: "services" },
+        { status: 400 }
+      );
+    }
 
     const items = Array.isArray(selectedItems) ? selectedItems : [];
     const validated: { hireItemId: string; quantity: number }[] = [];
@@ -103,29 +127,11 @@ export async function POST(request: NextRequest) {
 
     const quoteRequestData =
       selectedServices.length > 0 || typeof message === "string"
-        ? ({ services: selectedServices, message: typeof message === "string" ? message.trim() || undefined : undefined } as object)
+        ? {
+            services: selectedServices,
+            message: typeof message === "string" ? message.trim() || undefined : undefined,
+          }
         : undefined;
-
-    const enquiry = await prisma.newEnquiry.create({
-      data: {
-        id: randomUUID(),
-        name: name.trim(),
-        email: email.trim().toLowerCase(),
-        phoneAreaCode: null,
-        phoneNumber: null,
-        message: typeof message === "string" ? message.trim() || null : null,
-        eventDate: parsedDate,
-        venuePostcode,
-        venueName,
-        eventType: eventType || null,
-        enquiryType: "quote_request",
-        quoteRequestData: quoteRequestData as any,
-        selectedHireItems: selectedHireItems.length ? (selectedHireItems as any) : null,
-        isConflict: false,
-        status: "new",
-        updatedAt: new Date(),
-      },
-    });
 
     const dateLabel = parsedDate.toLocaleDateString("en-GB", {
       weekday: "long",
@@ -133,44 +139,6 @@ export async function POST(request: NextRequest) {
       month: "long",
       day: "numeric",
     });
-
-    // Client autoresponder
-    try {
-      const resend = getResend();
-      const emailConfig = getResendConfig("booking");
-      const { subject: autoSubject, html: autoHtml } = getJourneyEmail("enquiry-autoresponder", {
-        clientName: name.trim(),
-        eventType: eventType || "event",
-        eventDate: dateLabel,
-        venueName: venueName !== "TBC" ? venueName : undefined,
-        brochureUrl: "https://res.cloudinary.com/stylish/brochures/general-stylish-brochure.pdf",
-      });
-      if (resend) {
-        const result = await resend.emails.send({
-          from: emailConfig.from,
-          replyTo: emailConfig.replyTo,
-          to: [email.trim().toLowerCase()],
-          subject: autoSubject,
-          html: autoHtml,
-        });
-        if (result.data?.id && !result.error) {
-          console.log("[quote-request] Autoresponder sent to:", email.trim());
-          await prisma.newEnquiry.update({
-            where: { id: enquiry.id },
-            data: { firstTouchEmailSent: true, firstTouchEmailSentAt: new Date() },
-          });
-        } else {
-          console.error("[quote-request] Autoresponder failed:", result.error);
-        }
-      }
-    } catch (autoErr) {
-      console.error("[quote-request] Autoresponder error:", autoErr);
-    }
-
-    // Email to admin
-    const recipientEmail = process.env.CONTACT_FORM_EMAIL || "info@stylishentertainment.co.uk";
-    const backupEmail = process.env.NOTIFICATION_EMAIL;
-    const recipients = [recipientEmail, ...(backupEmail && backupEmail !== recipientEmail ? [backupEmail] : [])];
 
     const serviceLabels: Record<string, string> = {
       lighting: "Lighting",
@@ -197,12 +165,12 @@ export async function POST(request: NextRequest) {
         ? selectedHireItems.reduce((sum, i) => sum + (i.price ?? 0) * i.quantity, 0)
         : 0;
 
-    const subject = `Quote request: ${name.trim()} @ ${venueName} — ${dateLabel}`;
-    const html = `
+    const adminHtml = `
       <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #1A1A1A;">Quote Request</h2>
         <p><strong>Client:</strong> ${name.trim()}</p>
         <p><strong>Email:</strong> ${email.trim()}</p>
+        <p><strong>Phone:</strong> ${phone.trim()}</p>
         <p><strong>Event:</strong> ${dateLabel}</p>
         <p><strong>Venue:</strong> ${venueName}</p>
         <p><strong>Services requested:</strong> ${servicesLine}</p>
@@ -210,24 +178,35 @@ export async function POST(request: NextRequest) {
         <p><strong>Hire items:</strong></p>
         <pre style="background: #f5f5f5; padding: 12px; border-radius: 6px; white-space: pre-wrap;">${rows}</pre>
         ${total > 0 ? `<p><strong>Hire total:</strong> £${total.toFixed(2)}</p>` : ""}
-        <p style="color: #666; font-size: 14px;">Enquiry ID: ${enquiry.id}. Send quote (lighting / DJ / production / hire) as appropriate.</p>
       </div>
     `;
-    const text = `Quote Request\n\nClient: ${name.trim()}\nEmail: ${email.trim()}\nEvent: ${dateLabel}\nVenue: ${venueName}\n\nServices requested: ${servicesLine}\n${typeof message === "string" && message.trim() ? `Message: ${message.trim()}\n` : ""}\nHire items:\n${rows}\n${total > 0 ? `Hire total: £${total.toFixed(2)}\n` : ""}\nEnquiry ID: ${enquiry.id}`;
-    await sendEmail({ to: recipients, subject, html, text }).catch((err) =>
-      console.error("[quote-request] Admin email failed:", err)
-    );
+
+    const result = await createNewEnquiry({
+      name: name.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      eventDate: parsedDate,
+      venueName,
+      venuePostcode,
+      eventType: eventType || null,
+      message: typeof message === "string" ? message.trim() || null : null,
+      enquiryType: "quote_request",
+      quoteRequestData,
+      selectedHireItems: selectedHireItems.length ? selectedHireItems : null,
+      adminEmailHtml: adminHtml,
+      adminEmailSubject: `Quote request: ${name.trim()} @ ${venueName} — ${dateLabel}`,
+    });
 
     return NextResponse.json({
       success: true,
-      enquiryId: enquiry.id,
+      enquiryId: result.enquiry.id,
       message: `Thank you! We'll check availability for ${dateLabel} and send your quote shortly.`,
       dateLabel,
     });
-  } catch (e: any) {
+  } catch (e: unknown) {
     console.error("[quote-request]", e);
     return NextResponse.json(
-      { error: e?.message || "Failed to submit quote request" },
+      { error: toPublicFormError(e) },
       { status: 500 }
     );
   }

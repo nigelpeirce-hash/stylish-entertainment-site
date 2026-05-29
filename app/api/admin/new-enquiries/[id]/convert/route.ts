@@ -4,6 +4,10 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity-log";
 import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
+import {
+  servicesFromQuoteRequestData,
+  type QuoteRequestData,
+} from "@/lib/create-new-enquiry";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -120,28 +124,37 @@ export async function POST(
       if (lower === "wedding") return "wedding";
       if (lower === "corporate") return "corporate";
       if (lower === "private party" || lower === "party") return "party";
-      return "party"; // Default "Other" to party (non-wedding content)
+      return "party";
     };
+
+    const qrd = (enquiry.quoteRequestData as QuoteRequestData | null) ?? null;
+    const services = servicesFromQuoteRequestData(qrd);
+    const upsellItems = qrd?.upsells ?? qrd?.upsellItems ?? [];
+    const preferredDJ = qrd?.preferredDJ ?? null;
+    const priority = qrd?.priority ?? "medium";
+    const contactPreference = qrd?.contactPreference ?? "Email";
     
     const booking = await prisma.$transaction(async (tx) => {
-      // Create booking
       const newBooking = await tx.booking.create({
         data: {
           id: randomUUID(),
           updatedAt: new Date(),
           userId: user.id,
-          name: enquiry.name, // ✅ Automatic: Client Names
+          name: enquiry.name,
           email: enquiry.email,
           phoneAreaCode: enquiry.phoneAreaCode,
           phoneNumber: enquiry.phoneNumber,
-          message: enquiry.message || null, // What they want – for building quote
-          eventType: normalizeEventType(enquiry.eventType), // ✅ Automatic: From enquiry form
-          eventDate: enquiry.eventDate, // ✅ Automatic: Event Date
-          venueName: enquiry.venueName || "TBD", // ✅ Automatic: Venue
+          message: enquiry.message || null,
+          eventType: normalizeEventType(enquiry.eventType),
+          eventDate: enquiry.eventDate,
+          venueName: enquiry.venueName || "TBD",
           venuePostcode: enquiry.venuePostcode,
-          // 🛠️ ceremonyTime: Not available in enquiry - must be added manually via booking detail page
+          services,
+          preferredDJ,
+          upsellItems,
+          contactPreference,
           status: "pending",
-          priority: "medium",
+          priority,
           conflictStatus: enquiry.isConflict ? "pending" : null,
         },
       });

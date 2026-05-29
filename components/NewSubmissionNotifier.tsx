@@ -90,27 +90,51 @@ export function NewSubmissionNotifier() {
     return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
   };
 
+  const getPriority = (enquiry: {
+    eventDate: string;
+    quoteRequestData?: unknown;
+  }): string => {
+    const qrd = enquiry.quoteRequestData as { priority?: string } | null;
+    if (qrd?.priority) return qrd.priority;
+
+    const eventDate = new Date(enquiry.eventDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    eventDate.setHours(0, 0, 0, 0);
+    const daysUntil = Math.floor((eventDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    if (daysUntil >= 0 && daysUntil <= 14) return "urgent";
+    return "medium";
+  };
+
   // Check for new submissions periodically
   useEffect(() => {
     const checkForNewSubmissions = async () => {
       try {
-        const response = await fetch("/api/admin/bookings/?status=pending", { credentials: "include" });
+        const response = await fetch("/api/admin/new-enquiries/", { credentials: "include" });
         if (response.ok) {
           const data = await response.json();
-          const bookings: PendingEnquiry[] = (data.bookings || []).map((b: any) => ({
-            id: b.id,
-            name: b.name,
-            email: b.email,
-            venueName: b.venueName || "TBC",
-            priority: b.priority || "medium",
-            createdAt: b.createdAt,
-            timeAgo: getTimeAgo(b.createdAt),
+          const enquiries: PendingEnquiry[] = (data.enquiries || []).map((e: {
+            id: string;
+            name: string;
+            email: string;
+            venueName: string | null;
+            venuePostcode: string;
+            eventDate: string;
+            quoteRequestData?: unknown;
+            createdAt: string;
+          }) => ({
+            id: e.id,
+            name: e.name,
+            email: e.email,
+            venueName: e.venueName || e.venuePostcode || "TBC",
+            priority: getPriority(e),
+            createdAt: e.createdAt,
+            timeAgo: getTimeAgo(e.createdAt),
           }));
 
-          // Find new enquiries by comparing IDs
           const lastChecked = lastCheckedIdsRef.current;
-          const currentIds = new Set(bookings.map((b) => b.id));
-          const newEnquiries = bookings.filter((b) => !lastChecked.has(b.id));
+          const currentIds = new Set(enquiries.map((b) => b.id));
+          const newEnquiries = enquiries.filter((b) => !lastChecked.has(b.id));
 
           // If new enquiries arrived
           if (newEnquiries.length > 0 && lastChecked.size > 0) {
@@ -191,8 +215,8 @@ export function NewSubmissionNotifier() {
     setShowModal(false);
   };
 
-  const handleViewBookings = () => {
-    window.location.href = "/admin/bookings?status=pending";
+  const handleViewEnquiries = () => {
+    window.location.href = "/admin/new-enquiries/";
   };
 
   const handleToggleMute = () => {
@@ -310,7 +334,7 @@ export function NewSubmissionNotifier() {
                               </div>
                             </div>
                           </div>
-                          <Link href={`/admin/bookings/${enquiry.id}`}>
+                          <Link href={`/admin/new-enquiries/${enquiry.id}/`}>
                             <Button
                               variant="outline"
                               size="sm"
@@ -329,7 +353,7 @@ export function NewSubmissionNotifier() {
                 {/* Action Buttons */}
                 <div className="flex gap-3">
                   <Button
-                    onClick={handleViewBookings}
+                    onClick={handleViewEnquiries}
                     className="flex-1 bg-champagne-gold text-black hover:bg-champagne-gold/90 font-semibold"
                   >
                     View All Pending ({notification.count})
@@ -372,7 +396,7 @@ export function NewSubmissionNotifier() {
                   ? "bg-red-600 text-white border-red-500"
                   : "bg-champagne-gold text-black border-champagne-gold/50"
               } rounded-lg shadow-2xl border-2 p-4 relative cursor-pointer`}
-              onClick={handleViewBookings}
+              onClick={handleViewEnquiries}
             >
               <div className="flex items-start gap-3">
                 <motion.div
@@ -452,7 +476,7 @@ export function NewSubmissionNotifier() {
             <motion.button
               onClick={() => {
                 handleDismiss();
-                window.location.href = "/admin/bookings?status=pending";
+                window.location.href = "/admin/new-enquiries/";
               }}
               className="bg-champagne-gold text-black rounded-full p-4 shadow-2xl cursor-pointer hover:bg-champagne-gold/90 transition-colors relative"
               whileHover={{ scale: 1.1 }}

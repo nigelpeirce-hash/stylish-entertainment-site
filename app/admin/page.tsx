@@ -50,6 +50,7 @@ export default function AdminDashboard() {
     unreadEmails: 0,
     totalThreads: 0,
     pendingBookings: 0,
+    pendingNewEnquiries: 0,
     todayEvents: 0,
   });
   const [loading, setLoading] = useState(true);
@@ -109,6 +110,7 @@ export default function AdminDashboard() {
         unreadEmails: unread.length,
         totalThreads: unread.length,
         pendingBookings: newEnquiries.length,
+        pendingNewEnquiries: data.pendingNewEnquiries ?? 0,
         todayEvents: 0,
       });
       setPriorityStats({ urgent, medium });
@@ -464,14 +466,16 @@ export default function AdminDashboard() {
               </CardContent>
             </Card>
           </Link>
-          <div className="block relative" title="View pending leads">
-            <Link href="/admin/bookings?status=pending" className="block">
+          <div className="block relative" title="Review new form submissions (Enquire, contact, quote request)">
+            <Link href="/admin/bookings/" className="block">
               <Card className={`h-full transition-all cursor-pointer relative overflow-hidden shadow-lg ${
-                stats.pendingBookings > 0
+                stats.pendingNewEnquiries > 0
                   ? "bg-red-950/50 border-red-500/50 ring-2 ring-red-500/20 animate-pulse"
+                  : stats.pendingBookings > 0
+                  ? "bg-gray-800/90 border border-gray-600 hover:border-champagne-gold/40"
                   : "bg-gray-800/90 border border-gray-600 hover:border-champagne-gold/40"
               }`}>
-                {stats.pendingBookings > 0 && (
+                {(stats.pendingNewEnquiries > 0 || stats.pendingBookings > 0) && (
                   <div className="absolute inset-0 bg-red-500/5 pointer-events-none animate-pulse" />
                 )}
                 <CardContent className="p-8 relative z-10 flex flex-col">
@@ -485,11 +489,13 @@ export default function AdminDashboard() {
                           </span>
                         )}
                       </div>
-                      <p className={`font-serif text-5xl font-bold tabular-nums tracking-tight ${stats.pendingBookings > 0 ? "text-red-200" : "text-white"}`}>
-                        {stats.pendingBookings}
+                      <p className={`font-serif text-5xl font-bold tabular-nums tracking-tight ${stats.pendingNewEnquiries > 0 ? "text-red-200" : stats.pendingBookings > 0 ? "text-red-200" : "text-white"}`}>
+                        {stats.pendingNewEnquiries}
                       </p>
                       <p className="font-serif text-sm text-gray-400 mt-2">
-                        {stats.pendingBookings} waiting for first touch
+                        {stats.pendingNewEnquiries > 0
+                          ? "From Enquire & contact forms — open Inbox to review"
+                          : `${stats.pendingBookings} pending bookings awaiting first touch`}
                       </p>
                       <Button
                         type="button"
@@ -555,18 +561,33 @@ export default function AdminDashboard() {
               Quick Action: New Booking
             </Button>
             <div className="space-y-3">
-              <Link href="/admin/bookings">
+              <Link href="/admin/bookings/">
                 <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
                   <CardContent className="p-4 flex items-center gap-3">
                     <Calendar className="w-5 h-5 text-champagne-gold/80" />
                     <div>
-                      <h3 className="font-medium text-white">Manage Bookings</h3>
-                      <p className="text-xs text-gray-400">View and manage all bookings</p>
+                      <h3 className="font-medium text-white">Inbox</h3>
+                      <p className="text-xs text-gray-400">New enquiries &amp; bookings</p>
                     </div>
                   </CardContent>
                 </Card>
               </Link>
-              <Link href="/admin/inbox">
+              <Link href="/admin/new-enquiries/">
+                <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
+                  <CardContent className="p-4 flex items-center gap-3">
+                    <FileText className="w-5 h-5 text-champagne-gold/80" />
+                    <div>
+                      <h3 className="font-medium text-white">Review Enquiries</h3>
+                      <p className="text-xs text-gray-400">
+                        {stats.pendingNewEnquiries > 0
+                          ? `${stats.pendingNewEnquiries} awaiting review`
+                          : "Enquire & quote requests"}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+              <Link href="/admin/inbox/">
                 <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
                   <CardContent className="p-4 flex items-center gap-3">
                     <Inbox className="w-5 h-5 text-champagne-gold/80" />

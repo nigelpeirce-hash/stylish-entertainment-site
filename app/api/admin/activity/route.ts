@@ -37,6 +37,7 @@ export async function GET(request: NextRequest) {
       select: {
         id: true,
         bookingId: true,
+        enquiryId: true,
         action: true,
         description: true,
         performedBy: true,
@@ -52,22 +53,33 @@ export async function GET(request: NextRequest) {
             eventType: true,
           },
         },
+        NewEnquiry: {
+          select: {
+            id: true,
+            name: true,
+            venueName: true,
+            venuePostcode: true,
+            eventDate: true,
+            enquiryType: true,
+          },
+        },
       },
     });
 
     const activity = logs.map((log) => ({
       id: log.id,
       bookingId: log.bookingId,
+      enquiryId: log.enquiryId,
       action: log.action,
       description: log.description,
       performedBy: log.performedBy,
       actor: log.actor ?? "system",
       metadata: log.metadata as Record<string, unknown> | null,
       createdAt: log.createdAt,
-      bookingName: log.Booking?.name ?? null,
-      venueName: log.Booking?.venueName ?? null,
-      eventDate: log.Booking?.eventDate ?? null,
-      eventType: log.Booking?.eventType ?? null,
+      bookingName: log.Booking?.name ?? log.NewEnquiry?.name ?? null,
+      venueName: log.Booking?.venueName ?? log.NewEnquiry?.venueName ?? log.NewEnquiry?.venuePostcode ?? null,
+      eventDate: log.Booking?.eventDate ?? log.NewEnquiry?.eventDate ?? null,
+      eventType: log.Booking?.eventType ?? log.NewEnquiry?.enquiryType ?? null,
     }));
 
     return NextResponse.json({

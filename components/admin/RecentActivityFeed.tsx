@@ -23,7 +23,8 @@ import {
 
 interface ActivityItem {
   id: string;
-  bookingId: string;
+  bookingId: string | null;
+  enquiryId?: string | null;
   action: string;
   description: string;
   performedBy?: string | null;
@@ -68,6 +69,8 @@ function getActionLabel(action: string): string {
     guest_request_submitted: "Guest request",
     final_payment_sent: "Final payment confirmed",
     hire_request_confirmed: "Hire request",
+    enquiry_received: "Enquiry received",
+    enquiry_converted: "Enquiry converted",
     crew_removed: "Crew removed",
     crew_cancelled: "Crew cancelled",
     email_sent: "Email sent",
@@ -201,10 +204,19 @@ export default function RecentActivityFeed() {
                       }
                       const metaStr = metaParts.length > 0 ? metaParts.join(" · ") : null;
 
+                      const href = item.enquiryId
+                        ? `/admin/new-enquiries/${item.enquiryId}/`
+                        : item.bookingId
+                          ? `/admin/bookings/${item.bookingId}/`
+                          : "/admin/bookings/";
+                      const subtitle =
+                        item.bookingName ||
+                        (item.description ? item.description.split(" – ")[0] : "Activity");
+
                       return (
                         <li key={item.id}>
                           <Link
-                            href={`/admin/bookings/${item.bookingId}`}
+                            href={href}
                             className="flex items-start gap-3 p-3 rounded-lg bg-gray-900/60 border border-gray-700 hover:border-champagne-gold/40 hover:bg-gray-800/80 transition-all group"
                             title={formatExact(date)}
                           >
@@ -221,7 +233,7 @@ export default function RecentActivityFeed() {
                                 </span>
                               </div>
                               <p className="text-sm text-gray-300 truncate" title={item.description}>
-                                {item.bookingName || "Booking"}{item.venueName ? ` · ${item.venueName}` : ""}
+                                {subtitle}{item.venueName ? ` · ${item.venueName}` : ""}
                               </p>
                               {metaStr && (
                                 <p className="text-xs text-gray-500 mt-0.5 truncate" title={metaStr}>

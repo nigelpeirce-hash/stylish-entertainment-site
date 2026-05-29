@@ -131,7 +131,7 @@ export async function GET(request: NextRequest) {
     let unreadThreads: unknown[] = [];
     let recentThreads: unknown[] = [];
 
-    const [unreadRaw, pendingBookingsRaw, recentRaw, conflictCount] = await Promise.all([
+    const [unreadRaw, pendingBookingsRaw, recentRaw, conflictCount, pendingNewEnquiries] = await Promise.all([
       inboxIds.length > 0
         ? fetchThreads(unreadWhere, 5, true).catch((e) => {
             if ((e as any)?.code === "P2022") {
@@ -155,6 +155,9 @@ export async function GET(request: NextRequest) {
           })
         : Promise.resolve([]),
       getUnresolvedConflictsCount(),
+      prisma.newEnquiry.count({
+        where: { status: "new" },
+      }),
     ]);
 
     unreadThreads = Array.isArray(unreadRaw) ? unreadRaw : [];
@@ -177,6 +180,7 @@ export async function GET(request: NextRequest) {
         unreadThreads,
         recentThreads,
         pendingBookings,
+        pendingNewEnquiries,
         conflictCount,
         timestamp: new Date().toISOString(),
       },

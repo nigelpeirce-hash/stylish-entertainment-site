@@ -8,9 +8,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Package, Plus, Minus, CheckCircle2, Loader2 } from "lucide-react";
+import { Package, Plus, Minus, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import { trackEnquiryComplete } from "@/lib/analytics";
+import {
+  getEmailValidationError,
+  getEventDateValidationError,
+  getPhoneValidationError,
+  minEventDateInputValue,
+  PUBLIC_FORM_MESSAGES,
+  toPublicFormError,
+  type PublicFormField,
+} from "@/lib/public-form-errors";
 
 const STORAGE_KEY = "public_hire_basket";
 
@@ -69,6 +78,7 @@ export default function RequestQuoteClient() {
   const [form, setForm] = useState({
     name: "",
     email: "",
+    phone: "",
     eventDate: "",
     venue: "",
     message: "",
@@ -78,6 +88,7 @@ export default function RequestQuoteClient() {
   const [loadingHire, setLoadingHire] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [errorField, setErrorField] = useState<PublicFormField | null>(null);
   const [success, setSuccess] = useState(false);
   const [successDate, setSuccessDate] = useState("");
 
@@ -145,34 +156,59 @@ export default function RequestQuoteClient() {
     persistBasket(next);
   };
 
+  const showFieldError = (field: PublicFormField) =>
+    errorField === field ? "border-red-500/70 ring-1 ring-red-500/40" : "";
+
+  const showFormError = (message: string, field: PublicFormField | null = null) => {
+    setError(message);
+    setErrorField(field);
+    requestAnimationFrame(() => {
+      document.getElementById("quote-form-error")?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setErrorField(null);
+
     if (!form.name.trim()) {
-      setError("Full name is required");
+      showFormError(PUBLIC_FORM_MESSAGES.nameRequired, "name");
       return;
     }
-    if (!form.email.trim()) {
-      setError("Email is required");
+
+    const emailError = getEmailValidationError(form.email);
+    if (emailError) {
+      showFormError(emailError, "email");
       return;
     }
-    if (!form.eventDate.trim()) {
-      setError("Event date is required");
+
+    const phoneError = getPhoneValidationError(form.phone);
+    if (phoneError) {
+      showFormError(phoneError, "phone");
       return;
     }
+
+    const dateError = getEventDateValidationError(form.eventDate);
+    if (dateError) {
+      showFormError(dateError, "eventDate");
+      return;
+    }
+
     if (services.length === 0) {
-      setError("Select at least one service");
+      showFormError(PUBLIC_FORM_MESSAGES.servicesRequired, "services");
       return;
     }
 
     setSubmitting(true);
     try {
-      const r = await fetch("/api/public/quote-request", {
+      const r = await fetch("/api/public/quote-request/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: form.name.trim(),
           email: form.email.trim(),
+          phone: form.phone.trim(),
           eventDate: form.eventDate,
           venue: form.venue.trim() || undefined,
           message: form.message.trim() || undefined,
@@ -180,9 +216,20 @@ export default function RequestQuoteClient() {
           selectedItems: basket.map((e) => ({ hireItemId: e.hireItemId, quantity: e.quantity })),
         }),
       });
-      const d = await r.json();
+
+      let d: { error?: string; field?: PublicFormField } = {};
+      try {
+        d = await r.json();
+      } catch {
+        showFormError(PUBLIC_FORM_MESSAGES.serverError);
+        return;
+      }
+
       if (!r.ok) {
-        setError(d?.error || "Something went wrong");
+        showFormError(
+          toPublicFormError(d?.error ?? PUBLIC_FORM_MESSAGES.checkForm),
+          d?.field ?? null
+        );
         return;
       }
       // Store enquiry data for thank-you page conversion tracking
@@ -193,7 +240,11 @@ export default function RequestQuoteClient() {
       persistBasket([]);
       router.push("/thank-you/");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to submit");
+      if (err instanceof TypeError && String(err.message).includes("fetch")) {
+        showFormError(PUBLIC_FORM_MESSAGES.networkError);
+      } else {
+        showFormError(toPublicFormError(err));
+      }
     } finally {
       setSubmitting(false);
     }
@@ -243,7 +294,13 @@ export default function RequestQuoteClient() {
             <CardContent className="p-6 space-y-6">
               <div>
                 <Label className="text-gray-300 mb-2 block">Services you&apos;re interested in</Label>
-                <div className="flex flex-wrap gap-3">
+                <div
+                  className={`flex flex-wrap gap-3 rounded-lg ${
+                    errorField === "services"
+                      ? "border border-red-500/70 ring-1 ring-red-500/40 p-3 -m-1"
+                      : ""
+                  }`}
+                >
                   {SERVICE_OPTIONS.map((opt) => (
                     <label
                       key={opt.value}
@@ -268,7 +325,7 @@ export default function RequestQuoteClient() {
                     id="name"
                     value={form.name}
                     onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                    className="bg-gray-900 border-gray-600 text-white mt-1"
+                    className={`bg-gray-900 border-gray-600 text-white mt-1 ${showFieldError("name")}`}
                     required
                   />
                 </div>
@@ -279,10 +336,23 @@ export default function RequestQuoteClient() {
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-                    className="bg-gray-900 border-gray-600 text-white mt-1"
+                    className={`bg-gray-900 border-gray-600 text-white mt-1 ${showFieldError("email")}`}
                     required
                   />
                 </div>
+              </div>
+
+              <div>
+                <Label htmlFor="phone" className="text-gray-300">Phone *</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={form.phone}
+                  onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+                  placeholder="e.g. 07700 900000"
+                  className={`bg-gray-900 border-gray-600 text-white mt-1 ${showFieldError("phone")}`}
+                  required
+                />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -292,8 +362,10 @@ export default function RequestQuoteClient() {
                     id="eventDate"
                     type="date"
                     value={form.eventDate}
+                    min={minEventDateInputValue()}
+                    max="2099-12-31"
                     onChange={(e) => setForm((f) => ({ ...f, eventDate: e.target.value }))}
-                    className="bg-gray-900 border-gray-600 text-white mt-1"
+                    className={`bg-gray-900 border-gray-600 text-white mt-1 ${showFieldError("eventDate")}`}
                     required
                   />
                 </div>
@@ -402,7 +474,17 @@ export default function RequestQuoteClient() {
           )}
 
           {error && (
-            <p className="text-red-400 text-sm mb-4">{error}</p>
+            <div
+              id="quote-form-error"
+              role="alert"
+              className="mb-4 rounded-lg border border-red-500/40 bg-red-950/50 px-4 py-3 flex gap-3"
+            >
+              <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" aria-hidden />
+              <div>
+                <p className="font-medium text-red-300">We couldn&apos;t send your request</p>
+                <p className="text-sm text-red-200/90 mt-1">{error}</p>
+              </div>
+            </div>
           )}
 
           <Button

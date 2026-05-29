@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import {
+  NEW_ENQUIRY_BOOKING_SELECT,
+  serializeNewEnquiry,
+} from "@/lib/serialize-new-enquiry";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -28,14 +32,8 @@ export async function GET(
     const enquiry = await prisma.newEnquiry.findUnique({
       where: { id: enquiryId },
       include: {
-        originalBooking: {
-          select: {
-            id: true,
-            name: true,
-            eventDate: true,
-            venueName: true,
-            venuePostcode: true,
-          },
+        Booking: {
+          select: NEW_ENQUIRY_BOOKING_SELECT,
         },
       },
     });
@@ -44,7 +42,7 @@ export async function GET(
       return NextResponse.json({ error: "Enquiry not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ enquiry });
+    return NextResponse.json({ enquiry: serializeNewEnquiry(enquiry) });
   } catch (error) {
     console.error("Error fetching enquiry:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

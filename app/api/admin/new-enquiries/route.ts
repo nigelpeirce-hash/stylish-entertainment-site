@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
+import {
+  NEW_ENQUIRY_BOOKING_SELECT,
+  serializeNewEnquiry,
+} from "@/lib/serialize-new-enquiry";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -23,14 +27,8 @@ export async function GET(request: NextRequest) {
         },
       },
       include: {
-        originalBooking: {
-          select: {
-            id: true,
-            name: true,
-            eventDate: true,
-            venueName: true,
-            venuePostcode: true,
-          },
+        Booking: {
+          select: NEW_ENQUIRY_BOOKING_SELECT,
         },
       },
       orderBy: {
@@ -38,10 +36,12 @@ export async function GET(request: NextRequest) {
       },
     });
 
+    const serialized = enquiries.map(serializeNewEnquiry);
+
     return NextResponse.json({
-      enquiries,
-      hireEnquiries: enquiries.filter((e: any) => e.enquiryType === "hire_only"),
-      quoteRequestEnquiries: enquiries.filter((e: any) => e.enquiryType === "quote_request"),
+      enquiries: serialized,
+      hireEnquiries: serialized.filter((e) => e.enquiryType === "hire_only"),
+      quoteRequestEnquiries: serialized.filter((e) => e.enquiryType === "quote_request"),
     });
   } catch (error) {
     console.error("Error fetching new enquiries:", error);

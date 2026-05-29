@@ -65,6 +65,34 @@ interface Booking {
   }>;
 }
 
+interface PendingEnquiry {
+  id: string;
+  name: string;
+  email: string;
+  phoneAreaCode: string | null;
+  phoneNumber: string | null;
+  eventDate: string;
+  venueName: string | null;
+  venuePostcode: string;
+  enquiryType: string | null;
+  status: string;
+  createdAt: string;
+  isConflict: boolean;
+}
+
+function getEnquiryTypeLabel(type: string | null): string {
+  switch (type) {
+    case "quote_request":
+      return "Quote Request";
+    case "contact":
+      return "Contact Form";
+    case "hire_only":
+      return "Hire Quote";
+    default:
+      return "New Enquiry";
+  }
+}
+
 // Helper function to get initials from name
 function getInitials(name: string): string {
   const parts = name.trim().split(/\s+/);
@@ -98,6 +126,7 @@ function AdminBookingsContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [pendingEnquiries, setPendingEnquiries] = useState<PendingEnquiry[]>([]);
   const [filter, setFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
@@ -163,6 +192,19 @@ function AdminBookingsContent() {
       if (response.ok) {
         const data = await response.json();
         setBookings(data.bookings || []);
+      }
+
+      if (!currentShowArchived) {
+        const enquiryRes = await fetch("/api/admin/new-enquiries/?t=" + Date.now(), {
+          credentials: "include",
+        });
+        if (enquiryRes.ok) {
+          const enquiryData = await enquiryRes.json();
+          const raw = (enquiryData.enquiries || []) as PendingEnquiry[];
+          setPendingEnquiries(raw.filter((e) => e.status === "new"));
+        }
+      } else {
+        setPendingEnquiries([]);
       }
     } catch (error) {
       console.error("Error fetching bookings:", error);
@@ -518,6 +560,18 @@ function AdminBookingsContent() {
     });
   };
 
+  const searchLower = search.trim().toLowerCase();
+  const filteredPendingEnquiries = pendingEnquiries.filter((enquiry) => {
+    if (!searchLower) return true;
+    const phone =
+      enquiry.phoneAreaCode && enquiry.phoneNumber
+        ? `${enquiry.phoneAreaCode}${enquiry.phoneNumber}`
+        : "";
+    return [enquiry.name, enquiry.email, enquiry.venueName, enquiry.venuePostcode, phone]
+      .filter(Boolean)
+      .some((v) => String(v).toLowerCase().includes(searchLower));
+  });
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
@@ -644,7 +698,83 @@ function AdminBookingsContent() {
 
       {/* Inbox – tile grid */}
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
-        {bookings.length === 0 ? (
+        {!showArchived && filteredPendingEnquiries.length > 0 && (
+          <section className="mb-8">
+            <div className="flex items-center justify-between gap-4 mb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-white flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-champagne-gold" />
+                  New enquiries
+                  <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-champagne-gold text-black">
+                    {filteredPendingEnquiries.length}
+                  </span>
+                </h2>
+                <p className="text-sm text-gray-400 mt-1">
+                  From Enquire / contact forms — review and convert to a booking when ready.
+                </p>
+              </div>
+              <Link href="/admin/new-enquiries/">
+                <Button variant="outline" size="sm" className="border-champagne-gold/50 text-champagne-gold">
+                  View all
+                </Button>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {filteredPendingEnquiries.map((enquiry) => {
+                const initials = getInitials(enquiry.name);
+                const initialsColor = getInitialsColor(enquiry.name);
+                return (
+                  <motion.div
+                    key={enquiry.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="h-full"
+                  >
+                    <Link href={`/admin/new-enquiries/${enquiry.id}/`} className="block h-full group">
+                      <div className="h-full flex flex-col rounded-xl border border-champagne-gold/40 overflow-hidden transition-all hover:shadow-xl hover:border-champagne-gold/70 shadow-lg border-t-4 border-t-champagne-gold animate-pulse bg-gray-800/80">
+                        <div className="flex-1 flex flex-col p-4 min-w-0">
+                          <div className="flex items-start gap-3">
+                            <div
+                              className={`flex-shrink-0 w-11 h-11 rounded-xl ${initialsColor} flex items-center justify-center text-white font-bold text-sm`}
+                            >
+                              {initials}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="font-semibold text-white text-base truncate group-hover:text-champagne-gold transition-colors">
+                                {deduplicateName(getDisplayName(enquiry.name) || enquiry.name)}
+                              </h3>
+                              <p className="text-champagne-gold font-medium text-sm mt-0.5">
+                                {formatEventDate(enquiry.eventDate)}
+                              </p>
+                              <p className="text-xs text-amber-500/80 uppercase tracking-wide mt-1 truncate">
+                                {enquiry.venueName || enquiry.venuePostcode || "Venue TBC"}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-1.5 mt-3">
+                            <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-champagne-gold/20 text-champagne-gold border border-champagne-gold/40">
+                              {getEnquiryTypeLabel(enquiry.enquiryType)}
+                            </span>
+                            {enquiry.isConflict && (
+                              <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-red-900/50 text-red-300 border border-red-500/50">
+                                Conflict
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="p-3 pt-2 border-t border-champagne-gold/20 text-center">
+                          <span className="text-xs font-medium text-champagne-gold">Review &amp; convert →</span>
+                        </div>
+                      </div>
+                    </Link>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {bookings.length === 0 && filteredPendingEnquiries.length === 0 ? (
           <Card className="bg-gray-800 border-champagne-gold/30">
             <CardContent className="p-12 text-center">
               <Mail className="w-16 h-16 mx-auto mb-4 text-gray-600" />
@@ -652,6 +782,10 @@ function AdminBookingsContent() {
             </CardContent>
           </Card>
         ) : (
+          <>
+            {bookings.length > 0 && filteredPendingEnquiries.length > 0 && (
+              <h2 className="text-lg font-semibold text-gray-300 mb-4">Bookings</h2>
+            )}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {bookings.map((booking) => {
               const initials = getInitials(booking.name);
@@ -832,6 +966,7 @@ function AdminBookingsContent() {
               );
             })}
           </div>
+          </>
         )}
       </div>
     </div>

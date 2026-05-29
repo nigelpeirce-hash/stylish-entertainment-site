@@ -119,7 +119,64 @@ export async function getStaffPushKeys(): Promise<{
 }
 
 /**
- * Send new lead notification to both Ali and Nigel
+ * Send new enquiry notification (unified inbox) to both Ali and Nigel
+ */
+export async function sendNewEnquiryNotification(enquiry: {
+  id: string;
+  name: string;
+  eventDate: Date;
+  venueName: string;
+  isConflict?: boolean;
+}): Promise<void> {
+  const { ali, nigel } = await getStaffPushKeys();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.stylishentertainment.co.uk";
+  const enquiryUrl = `${siteUrl}/admin/new-enquiries/${enquiry.id}`;
+
+  const eventDate = new Date(enquiry.eventDate).toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
+  const title = enquiry.isConflict
+    ? `⚠️ Enquiry (conflict): ${enquiry.name}`
+    : `🆕 New Enquiry: ${enquiry.name}`;
+  const message = `${eventDate} at ${enquiry.venueName}. Tap to review.`;
+
+  const notifications: Promise<NotificationResult>[] = [];
+
+  if (ali) {
+    notifications.push(
+      sendPushoverNotification({
+        title,
+        message,
+        userKey: ali,
+        priority: enquiry.isConflict ? 1 : 0,
+        url: enquiryUrl,
+        urlTitle: "View Enquiry",
+      })
+    );
+  }
+
+  if (nigel) {
+    notifications.push(
+      sendPushoverNotification({
+        title,
+        message,
+        userKey: nigel,
+        priority: enquiry.isConflict ? 1 : 0,
+        url: enquiryUrl,
+        urlTitle: "View Enquiry",
+      })
+    );
+  }
+
+  await Promise.allSettled(notifications);
+}
+
+/**
+ * @deprecated New public forms create NewEnquiry records — use sendNewEnquiryNotification.
+ * Kept for legacy booking-creation paths.
  */
 export async function sendNewLeadNotification(booking: {
   id: string;
