@@ -47,8 +47,35 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Fetch authoritative booking data at send time so the recipient and subject
+    // come from the database, not from the possibly-stale values the browser submitted.
+    const booking = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      select: {
+        email: true,
+        venueName: true,
+        eventDate: true,
+        feeBreakdown: true,
+        emailsSent: true,
+      },
+    });
+
+    if (!booking) {
+      return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+    }
+    if (!booking.email) {
+      return NextResponse.json(
+        { error: "Booking has no email address" },
+        { status: 400 }
+      );
+    }
+
+    // Subject uses DB venue/date (fall back to submitted values only if the DB field is absent).
+    const subjectVenue = booking.venueName ?? venueName;
+    const subjectEventDate = booking.eventDate ?? eventDate;
+
     // Format event date
-    const formattedDate = new Date(eventDate).toLocaleDateString("en-GB", {
+    const formattedDate = new Date(subjectEventDate).toLocaleDateString("en-GB", {
       weekday: "long",
       year: "numeric",
       month: "long",
@@ -72,18 +99,15 @@ export async function POST(request: NextRequest) {
     const result = await getResend().emails.send({
       from: emailConfig.from,
       replyTo: emailConfig.replyTo,
-      to: [clientEmail],
-      subject: `Your Quote - ${venueName} on ${formattedDate}`,
+      to: [booking.email],
+      subject: `Your Quote - ${subjectVenue} on ${formattedDate}`,
       html: emailHTML,
     });
 
-    // Update booking with quoted fee
+    // Update booking with quoted fee. Track persistence so the caller can surface
+    // recordSaved:false when the send succeeded but the record could not be saved.
+    let recordSaved = false;
     try {
-      const booking = await prisma.booking.findUnique({
-        where: { id: bookingId },
-        select: { feeBreakdown: true, emailsSent: true },
-      });
-
       if (booking) {
         const existingFeeBreakdown = (booking.feeBreakdown as any) || {};
         const existingEmailsSent = (booking.emailsSent as any) || {};
@@ -107,7 +131,7 @@ export async function POST(request: NextRequest) {
         composedEmails.push({
           sentAt: new Date().toISOString(),
           sentBy: admin.name || admin.email || "System",
-          subject: `Your Quote - ${venueName} on ${formattedDate}`,
+          subject: `Your Quote - ${subjectVenue} on ${formattedDate}`,
           messageId: result.data?.id,
           fee: fee,
           services: services,
@@ -125,6 +149,7 @@ export async function POST(request: NextRequest) {
             lastEmailSentAt: new Date(),
           },
         });
+        recordSaved = true;
       }
     } catch (dbError) {
       console.error("Error updating booking with quoted fee:", dbError);
@@ -135,20 +160,20 @@ export async function POST(request: NextRequest) {
       await logActivity({
         bookingId,
         action: "composed_email_sent",
-        description: `Quote email sent to ${clientEmail} (fee: £${fee})`,
+        description: `Quote email sent to ${booking.email} (fee: £${fee})`,
         actor: "admin",
         performedBy: admin?.name ?? admin?.email ?? undefined,
-        metadata: { venueName, fee },
+        metadata: { venueName: subjectVenue, fee },
       });
       await notifyAdminSignificantEvent({
         type: "composed_email_sent",
         bookingId,
         title: "Composed email sent",
-        description: `Quote sent to ${clientName} for ${venueName} – £${fee}`,
+        description: `Quote sent to ${clientName} for ${subjectVenue} – £${fee}`,
         actor: "admin",
         performedBy: admin?.name ?? admin?.email ?? undefined,
         bookingName: clientName,
-        venueName: venueName ?? undefined,
+        venueName: subjectVenue ?? undefined,
         eventDate: formattedDate,
       });
     } catch (e) {
@@ -157,8 +182,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      recordSaved,
       messageId: result.data?.id,
-      message: "Email sent successfully and quoted fee saved",
+      message: recordSaved
+        ? "Email sent successfully and quoted fee saved"
+        : "Email sent, but saving the quote record failed",
     });
   } catch (error: any) {
     console.error("Error sending composed email:", error);
