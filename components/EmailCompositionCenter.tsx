@@ -19,6 +19,35 @@ import {
 } from "@/lib/transformers/booking-transformer";
 import { SafeText } from "@/components/SafeText";
 
+// sessionStorage-backed idempotency key for quote sends, scoped per booking.
+// Lives in sessionStorage (not component state) so it survives modal close/open,
+// page refresh and route remount within the same tab. A retry after a lost
+// response therefore reuses the same key, letting the server dedupe the send.
+// sessionStorage is per-tab, so two separate tabs remain independent by design.
+const QUOTE_IDEMPOTENCY_PREFIX = "quote-send-idempotency:";
+
+function getOrCreateQuoteIdempotencyKey(bookingId: string): string {
+  if (typeof window === "undefined") return "";
+  const storageKey = `${QUOTE_IDEMPOTENCY_PREFIX}${bookingId}`;
+  let key = window.sessionStorage.getItem(storageKey);
+  if (!key) {
+    key =
+      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    window.sessionStorage.setItem(storageKey, key);
+  }
+  return key;
+}
+
+function resetQuoteIdempotencyKey(bookingId: string): void {
+  if (typeof window === "undefined") return;
+  const storageKey = `${QUOTE_IDEMPOTENCY_PREFIX}${bookingId}`;
+  window.sessionStorage.removeItem(storageKey);
+  // Generate a fresh key so the next deliberate send/revision is a new attempt.
+  getOrCreateQuoteIdempotencyKey(bookingId);
+}
+
 interface EmailCompositionCenterProps {
   bookingId: string;
   clientEmail: string;
@@ -246,6 +275,8 @@ export function EmailCompositionCenter({
     setError("");
 
     try {
+      // Reused across modal close/open, refresh and route remount within this tab.
+      const idempotencyKey = getOrCreateQuoteIdempotencyKey(bookingId);
       const response = await fetch("/api/admin/send-composed-email/", {
         method: "POST",
         headers: {
@@ -253,6 +284,7 @@ export function EmailCompositionCenter({
         },
         body: JSON.stringify({
           bookingId,
+          idempotencyKey,
           clientEmail,
           clientName,
           venueName,
@@ -275,6 +307,9 @@ export function EmailCompositionCenter({
         throw new Error(result.error || "Failed to send email");
       }
 
+      // Successful response: retire this attempt's key and mint a fresh one
+      // so a future deliberate resend/revision is treated as a new send.
+      resetQuoteIdempotencyKey(bookingId);
       setSuccess(true);
       setTimeout(() => {
         setIsOpen(false);

@@ -29,6 +29,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const {
       bookingId,
+      idempotencyKey,
       clientEmail,
       clientName,
       venueName,
@@ -68,6 +69,27 @@ export async function POST(request: NextRequest) {
         { error: "Booking has no email address" },
         { status: 400 }
       );
+    }
+
+    // Idempotency: if this exact send attempt was already processed (same
+    // idempotencyKey from the client's sessionStorage), return the prior result
+    // instead of sending again. A deliberate revision/resend uses a fresh key,
+    // so this never blocks intentional follow-up quotes.
+    if (idempotencyKey) {
+      const priorComposed =
+        ((booking.emailsSent as any)?.composedEmails as any[]) || [];
+      const duplicate = priorComposed.find(
+        (e) => e?.idempotencyKey === idempotencyKey
+      );
+      if (duplicate) {
+        return NextResponse.json({
+          success: true,
+          recordSaved: true,
+          duplicate: true,
+          messageId: duplicate.messageId,
+          message: "Quote email already sent for this attempt",
+        });
+      }
     }
 
     // Subject uses DB venue/date (fall back to submitted values only if the DB field is absent).
@@ -133,6 +155,7 @@ export async function POST(request: NextRequest) {
           sentBy: admin.name || admin.email || "System",
           subject: `Your Quote - ${subjectVenue} on ${formattedDate}`,
           messageId: result.data?.id,
+          idempotencyKey: idempotencyKey || undefined,
           fee: fee,
           services: services,
         });
