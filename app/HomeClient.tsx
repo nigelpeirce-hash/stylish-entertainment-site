@@ -232,7 +232,7 @@ export default function HomeClient() {
               </Button>
             </div>
             <p className="text-xs sm:text-sm text-gray-300 drop-shadow-md">
-              159+ five-star Google reviews · 20+ years · Somerset &amp; UK-wide
+              Five-star Google reviews · 20+ years · Trusted by couples across the UK and Europe
             </p>
           </div>
         </div>
