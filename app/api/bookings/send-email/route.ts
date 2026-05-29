@@ -15,10 +15,12 @@ export const runtime = 'nodejs';
 
 export async function POST(request: NextRequest) {
   try {
-    // Only allow admin users or system to send emails
+    // Only allow admin users to send emails
     const session = await getServerSession();
-    // For now, allow sending (in production, you might want to restrict this)
-    
+    if (!session?.user || (session.user as any)?.role !== "admin") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { bookingId, emailType } = body;
 

@@ -20,6 +20,7 @@ import {
   Link as LinkIcon,
 } from "lucide-react";
 import Link from "next/link";
+import { sanitizeEmailHtml } from "@/lib/sanitize-email-html";
 
 interface Email {
   id: string;
@@ -535,14 +536,24 @@ export default function ThreadDetail() {
                     )}
                   </div>
 
-                  {email.htmlContent || email.bodyHtml ? (
-                    <div
-                      className="prose prose-invert max-w-none"
-                      dangerouslySetInnerHTML={{ __html: email.htmlContent || email.bodyHtml || "" }}
-                    />
-                  ) : (
-                    <p className="text-white whitespace-pre-wrap">{email.textContent || email.bodyText}</p>
-                  )}
+                  {(() => {
+                    // Sanitize inbound email HTML; fall back to plain text on failure.
+                    const rawHtml = email.htmlContent || email.bodyHtml || "";
+                    const sanitized = rawHtml
+                      ? sanitizeEmailHtml(rawHtml)
+                      : { ok: true, html: "" };
+                    if (sanitized.ok && sanitized.html) {
+                      return (
+                        <div
+                          className="prose prose-invert max-w-none"
+                          dangerouslySetInnerHTML={{ __html: sanitized.html }}
+                        />
+                      );
+                    }
+                    return (
+                      <p className="text-white whitespace-pre-wrap">{email.textContent || email.bodyText}</p>
+                    );
+                  })()}
                 </CardContent>
               </Card>
             </motion.div>

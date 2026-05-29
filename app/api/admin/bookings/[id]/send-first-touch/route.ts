@@ -72,6 +72,25 @@ export async function POST(
     });
     const text = html.replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
 
+    // Idempotency: atomically claim the send before dispatching the email.
+    // Only one concurrent request can flip lastEmailSentAt from null → now,
+    // which prevents duplicates from double-clicks, two tabs, and retries.
+    const now = new Date();
+    const claim = await prisma.booking.updateMany({
+      where: { id: bookingId, lastEmailSentAt: null },
+      data: { lastEmailSentAt: now, updatedAt: now },
+    });
+
+    if (claim.count === 0) {
+      // First Touch already sent (or the client was already contacted).
+      // Return success so the dashboard removes the row without re-sending.
+      return NextResponse.json({
+        success: true,
+        alreadySent: true,
+        message: "First Touch already sent for this booking",
+      });
+    }
+
     const sendResult = await sendEmail({
       to: booking.email,
       subject,
@@ -81,6 +100,10 @@ export async function POST(
 
     if (sendResult.error) {
       console.error("[Send First Touch] Resend error:", sendResult.error);
+      // Roll back the claim so the admin can retry after a genuine send failure.
+      await prisma.booking
+        .update({ where: { id: bookingId }, data: { lastEmailSentAt: null } })
+        .catch(() => {});
       return NextResponse.json(
         {
           success: false,
@@ -92,12 +115,6 @@ export async function POST(
         { status: 500 }
       );
     }
-
-    const now = new Date();
-    await prisma.booking.update({
-      where: { id: bookingId },
-      data: { lastEmailSentAt: now, updatedAt: now },
-    });
 
     await logActivity({
       bookingId,
