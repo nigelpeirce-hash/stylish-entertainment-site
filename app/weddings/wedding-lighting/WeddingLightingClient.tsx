@@ -99,24 +99,27 @@ export default function WeddingLightingClient() {
   return (
     <div>
       {/* Hero */}
-      <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-50 flex items-center justify-center">
-          <Image
-            src={HERO_IMAGE_URL}
-            alt="Sami and Tammy's wedding with beautiful lighting design creating an elegant and romantic atmosphere, captured by Ria Mishaal Photography"
-            fill
-            className="object-cover object-center brightness-110"
-            style={{ objectPosition: "center center" }}
-            priority
-            fetchPriority="high"
-            sizes="100vw"
-          />
+      <section className="relative isolate min-h-[60vh] overflow-hidden bg-gray-900 text-white">
+        <div className="absolute inset-0 -z-10">
+          <div className="relative h-full w-full min-h-[60vh]">
+            <Image
+              src={HERO_IMAGE_URL}
+              alt="Sami and Tammy's wedding with beautiful lighting design creating an elegant and romantic atmosphere, captured by Ria Mishaal Photography"
+              fill
+              className="object-cover object-center brightness-110"
+              style={{ objectPosition: "center center" }}
+              priority
+              fetchPriority="high"
+              sizes="100vw"
+            />
+          </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/25 to-gray-900/80" />
         </div>
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-48 md:pt-52"
+          className="relative z-10 flex min-h-[60vh] flex-col items-center justify-center px-4 pt-28 text-center sm:pt-48 max-w-4xl mx-auto w-full"
         >
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">Wedding Lighting</h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md">
@@ -129,7 +132,7 @@ export default function WeddingLightingClient() {
       <section className="py-16 px-3 sm:px-4 bg-gray-800">
         <div className="container mx-auto max-w-4xl">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
             className="prose prose-lg prose-invert max-w-none"
@@ -148,7 +151,7 @@ export default function WeddingLightingClient() {
       <section className="py-16 px-3 sm:px-4 bg-gray-900">
         <div className="container mx-auto max-w-7xl">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.4 }}
           >
@@ -170,7 +173,7 @@ export default function WeddingLightingClient() {
                 Our clients trust us to transform their most important moments into masterpieces.
               </p>
               <Link 
-                href="/testi" 
+                href="/testi/" 
                 className="inline-flex items-center gap-2 text-champagne-gold hover:text-white transition-colors group"
               >
                 <span className="border-b border-champagne-gold">Read Client Experiences</span>

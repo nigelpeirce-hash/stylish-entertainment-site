@@ -110,7 +110,7 @@ const TestimonialsSection = () => {
       {selectedReviews.map((review, index) => (
         <motion.div
           key={`${review.author}-${index}`}
-          initial={{ opacity: 0, y: 30 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: index * 0.15, ease: [0.22, 1, 0.36, 1] }}
         >
@@ -177,7 +177,7 @@ export default function HomeClient() {
 
   return (
     <div>
-      <section className="relative w-full h-[60vh] sm:h-[75vh] md:h-[85vh] lg:h-[92vh] h-60dvh sm:h-75dvh md:h-85dvh lg:h-92dvh overflow-hidden bg-gray-900">
+      <section className="relative w-full h-[78dvh] min-h-[520px] sm:h-[75vh] md:h-[85vh] lg:h-[92vh] overflow-hidden bg-gray-900">
         <Slider className="h-full">
           {sliderImages.map((image, index) => (
             <div key={image.src} className="relative w-full h-full flex-shrink-0 flex items-center justify-center bg-gray-900">
@@ -198,31 +198,61 @@ export default function HomeClient() {
             </div>
           ))}
         </Slider>
+        <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-black/55 to-black/25 sm:from-black/80 sm:via-black/45 sm:to-black/15 pointer-events-none" aria-hidden />
+        <div className="absolute inset-x-0 bottom-0 z-20 px-4 pb-6 pt-28 sm:inset-0 sm:flex sm:items-end sm:justify-center sm:pb-14 md:pb-16 sm:pt-0 pointer-events-none">
+          <div className="pointer-events-auto text-center max-w-5xl mx-auto w-full">
+            <div className="inline-block mb-3 sm:mb-6 px-4 sm:px-6 py-1.5 sm:py-2 bg-champagne-gold/10 rounded-full border border-champagne-gold/30 backdrop-blur-sm">
+              <span className="text-xs sm:text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase">
+                Trusted at Babington House since 2003
+              </span>
+            </div>
+            <h1 className="text-2xl leading-snug sm:text-4xl sm:leading-tight md:text-5xl lg:text-6xl font-sans mb-2 sm:mb-4 text-white font-bold drop-shadow-lg px-1">
+              Luxury Wedding Entertainment
+              <br className="sm:hidden" />
+              &amp; Event Production
+            </h1>
+            <p className="text-sm sm:text-lg md:text-xl text-white font-semibold leading-relaxed drop-shadow-md mb-4 sm:mb-6 max-w-3xl mx-auto">
+              DJs, lighting and styling — one experienced team, UK-wide.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center items-center mb-3 sm:mb-4">
+              <Button
+                asChild
+                size="lg"
+                className="min-h-[48px] bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg"
+              >
+                <Link href="/contact-us/">Check Availability</Link>
+              </Button>
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="min-h-[48px] border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 hover:scale-105 transition-all duration-300 backdrop-blur-sm"
+              >
+                <Link href="/artists/djs/dj-nige/">Meet DJ Nige</Link>
+              </Button>
+            </div>
+            <p className="text-xs sm:text-sm text-gray-300 drop-shadow-md">
+              159+ five-star Google reviews · 20+ years · Somerset &amp; UK-wide
+            </p>
+          </div>
+        </div>
       </section>
 
       <section className="relative py-12 md:py-20 flex items-center justify-center bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 text-white overflow-hidden">
         <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
-          <div className="inline-block mb-6 px-6 py-2 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
-            <span className="text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase">Luxury Event Production</span>
-          </div>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
             Entertainment & <span className="text-gradient">Production</span> Studio
-          </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold leading-relaxed px-4 drop-shadow-md mb-8">
+          </h2>
+          <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold leading-relaxed px-4 drop-shadow-md">
             DJs and musicians UK-wide. Lighting design, venue styling and technical production in the South West and beyond. Weddings, private parties, corporate. Confident, crafted—strictly no YMCA.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button asChild variant="outline" size="lg" className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 hover:scale-105 transition-all duration-300">
-              <Link href="/artists/djs/">Meet Our DJs</Link>
-            </Button>
-          </div>
         </div>
       </section>
 
       <section className="py-16 md:py-24 px-3 sm:px-4 bg-gray-900 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-champagne-gold/5 via-transparent to-transparent pointer-events-none" />
         <div className="container mx-auto max-w-3xl relative z-10">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center">
+          <motion.div initial={false} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center">
             <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/20">
               <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">The Stylish Difference</span>
             </div>
@@ -240,7 +270,7 @@ export default function HomeClient() {
 
       <section className="py-20 px-3 sm:px-4 bg-gray-700">
         <div className="container mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-12">
+          <motion.div initial={false} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-12">
             <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/20">
               <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Our Services</span>
             </div>
@@ -249,7 +279,7 @@ export default function HomeClient() {
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
             {services.map((service, index) => (
-              <motion.div key={service.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: index * 0.1 }}>
+              <motion.div key={service.title} initial={false} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: index * 0.1 }}>
                 <Link href={service.href}>
                   <Card className="h-full bg-gray-800 border-champagne-gold/30 hover:shadow-xl transition-all duration-300 hover:border-champagne-gold/60 group cursor-pointer">
                     <div className="relative h-48 overflow-hidden bg-gray-100">
@@ -269,7 +299,7 @@ export default function HomeClient() {
 
       <section className="py-20 px-3 sm:px-4 bg-gray-800 relative overflow-hidden">
         <div className="container mx-auto max-w-6xl">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-12">
+          <motion.div initial={false} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-12">
             <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/20">
               <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Client Testimonials</span>
             </div>
@@ -287,7 +317,7 @@ export default function HomeClient() {
 
       <section className="py-20 px-3 sm:px-4 bg-gray-700">
         <div className="container mx-auto max-w-6xl">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-12">
+          <motion.div initial={false} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-12">
             <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/20">
               <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Our Team</span>
             </div>
@@ -295,7 +325,7 @@ export default function HomeClient() {
             <p className="text-base sm:text-lg md:text-xl text-gray-300 px-4 max-w-3xl mx-auto">The passionate professionals behind Stylish Entertainment</p>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.1 }}>
+            <motion.div initial={false} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.1 }}>
               <Link href="/about/">
                 <Card className="bg-gray-900 border-champagne-gold/30 h-full hover:border-champagne-gold/60 transition-all duration-300 cursor-pointer group">
                   <CardContent className="p-6 sm:p-8">
@@ -310,8 +340,8 @@ export default function HomeClient() {
                 </Card>
               </Link>
             </motion.div>
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }}>
-              <Link href="/about/">
+            <motion.div initial={false} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6, delay: 0.2 }}>
+              <Link href="/artists/djs/dj-nige/">
                 <Card className="bg-gray-900 border-champagne-gold/30 h-full hover:border-champagne-gold/60 transition-all duration-300 cursor-pointer group">
                   <CardContent className="p-6 sm:p-8">
                     <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700 group-hover:scale-105 transition-transform duration-300">

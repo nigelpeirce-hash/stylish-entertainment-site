@@ -106,7 +106,7 @@ export default function FooterRefactored() {
 
         {/* Bottom bar - copyright, legal links */}
         <div className="border-t border-black/20 mt-4 pt-4 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-2 sm:gap-4 text-center text-sm">
-          <p className={footerText}>
+          <p className={footerText} suppressHydrationWarning>
             © {new Date().getFullYear()} Stylish Entertainment Ltd
           </p>
           <span className="hidden sm:inline text-black/50">·</span>

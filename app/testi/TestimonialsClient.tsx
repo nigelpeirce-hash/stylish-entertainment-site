@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import GoogleReviews from "@/components/GoogleReviews";
 import { ExternalLink, MapPin } from "lucide-react";
 import { RefinedStar } from "@/components/RefinedStar";
@@ -77,19 +78,11 @@ export default function TestimonialsClient() {
             fetchPriority="high"
           />
         </div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-48 md:pt-52"
-        >
+        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-48 md:pt-52">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
-            Wall of Love
+            Client Reviews &amp; Testimonials
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md">
-            Real reviews from our happy clients
-          </p>
-        </motion.div>
+        </div>
       </section>
 
       {/* Trust Bar */}
@@ -125,11 +118,44 @@ export default function TestimonialsClient() {
         </div>
       </section>
 
+      {/* Enquiry CTA */}
+      <section className="py-12 px-4 md:px-8 bg-gray-950 border-b border-champagne-gold/20 max-w-full overflow-x-hidden">
+        <div className="container mx-auto max-w-4xl">
+          <Card className="border-2 border-champagne-gold/50 bg-gray-800 shadow-xl">
+            <CardContent className="p-8 sm:p-10 text-center">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">
+                Planning a wedding or event?
+              </h2>
+              <p className="text-gray-300 text-lg mb-8 max-w-2xl mx-auto">
+                Join hundreds of couples who trusted Stylish Entertainment with their celebration.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Button
+                  asChild
+                  size="lg"
+                  className="min-h-[48px] bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg"
+                >
+                  <Link href="/contact-us/">Check Availability</Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="min-h-[48px] border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10"
+                >
+                  <a href="tel:+447970793177">Call 07970 793177</a>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
       {/* Testimonials Section */}
       <section className="py-20 px-4 bg-gray-800 max-w-full overflow-x-hidden">
         <div className="container mx-auto max-w-6xl">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
@@ -148,43 +174,13 @@ export default function TestimonialsClient() {
 
           {/* Google Reviews Section */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.2 }}
             className="mb-16"
           >
             <GoogleReviews maxReviews={5} className="luxury-theme" />
-          </motion.div>
-
-          {/* Google Summary Card – directly above venue filter buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="flex justify-center mb-8"
-          >
-            <div className="inline-flex items-center gap-4 px-4 py-3 sm:px-6 sm:py-4 bg-gray-900/60 backdrop-blur-sm border border-champagne-gold/30 rounded-xl shadow-[0_0_24px_rgba(212,175,55,0.12)]">
-              <img
-                src="https://www.google.com/favicon.ico"
-                alt="Google"
-                className="w-6 h-6 shrink-0"
-                aria-hidden
-              />
-              <div className="flex gap-0.5 shrink-0">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <RefinedStar
-                    key={star}
-                    filled={true}
-                    className="w-[18px] h-[18px] text-champagne-gold"
-                  />
-                ))}
-              </div>
-              <span className="text-sm sm:text-base font-semibold text-white whitespace-nowrap">
-                159+ Five-Star Reviews on Google
-              </span>
-            </div>
           </motion.div>
 
           {/* Venue Filter Chips – min 40px height on mobile for tap targets */}
@@ -208,7 +204,7 @@ export default function TestimonialsClient() {
           {activeFilter === "All" && (
             <motion.div
               className="flex flex-col md:flex-row gap-6 md:gap-8 mb-20"
-              initial="hidden"
+              initial={false}
               whileInView="visible"
               viewport={{ once: true }}
               variants={{
@@ -239,20 +235,23 @@ export default function TestimonialsClient() {
                           {testimonial.author}
                         </p>
                         <div className="border-t border-white/10 pt-4 mt-4">
-                          <p className="text-champagne-gold text-[15px] sm:text-base flex items-center gap-2">
-                            <MapPin className="w-3.5 h-3.5 text-champagne-gold shrink-0" aria-hidden />
+                          <p className="text-champagne-gold text-[15px] sm:text-base">
                             {testimonial.venueUrl ? (
                               <Link
                                 href={testimonial.venueUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="hover:opacity-90 transition-opacity underline flex items-center gap-1"
+                                className="hover:opacity-90 transition-opacity underline inline-flex items-center gap-1"
                               >
+                                <MapPin className="w-3.5 h-3.5 text-champagne-gold shrink-0" aria-hidden />
                                 {venueName}
                                 <ExternalLink className="w-3 h-3" />
                               </Link>
                             ) : (
-                              venueName
+                              <span className="inline-flex items-center gap-2">
+                                <MapPin className="w-3.5 h-3.5 text-champagne-gold shrink-0" aria-hidden />
+                                {venueName}
+                              </span>
                             )}
                           </p>
                           {location && (
@@ -274,7 +273,7 @@ export default function TestimonialsClient() {
           <motion.div
             key={`masonry-${activeFilter}`}
             className="testimonials-masonry testimonials-masonry-tidy"
-            initial="hidden"
+            initial={false}
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={{
@@ -340,20 +339,23 @@ export default function TestimonialsClient() {
                         {testimonial.author}
                       </p>
                       <div className="border-t border-white/10 pt-4 mt-4">
-                        <p className="text-champagne-gold text-[15px] sm:text-base flex items-center gap-2">
-                          <MapPin className="w-3.5 h-3.5 text-champagne-gold shrink-0" aria-hidden />
+                        <p className="text-champagne-gold text-[15px] sm:text-base">
                           {testimonial.venueUrl ? (
                             <Link
                               href={testimonial.venueUrl}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="hover:opacity-90 transition-opacity underline flex items-center gap-1"
+                              className="hover:opacity-90 transition-opacity underline inline-flex items-center gap-1"
                             >
+                              <MapPin className="w-3.5 h-3.5 text-champagne-gold shrink-0" aria-hidden />
                               {venueName}
                               <ExternalLink className="w-3 h-3" />
                             </Link>
                           ) : (
-                            venueName
+                            <span className="inline-flex items-center gap-2">
+                              <MapPin className="w-3.5 h-3.5 text-champagne-gold shrink-0" aria-hidden />
+                              {venueName}
+                            </span>
                           )}
                         </p>
                         {location && (

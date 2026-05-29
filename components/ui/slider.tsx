@@ -102,8 +102,7 @@ export function Slider({ children, className }: SliderProps) {
           {/* Navigation Hint Text */}
           <div className="absolute bottom-12 sm:bottom-14 left-1/2 -translate-x-1/2 z-10 bg-gray-900/95 backdrop-blur-sm px-3 py-1.5 rounded-lg shadow-lg border border-champagne-gold/50">
             <p className="text-[10px] sm:text-xs text-champagne-gold font-medium">
-              <span className="hidden sm:inline">Click arrows or dots to navigate</span>
-              <span className="sm:hidden">Swipe or tap</span>
+              Swipe or tap to navigate
             </p>
           </div>
         </>

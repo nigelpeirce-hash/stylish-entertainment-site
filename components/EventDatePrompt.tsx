@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "lucide-react";
+import { minEventDateInputValue } from "@/lib/public-form-errors";
 
 const STORAGE_KEY_EVENT_DATE = "stylishentertainment_event_date";
 const STORAGE_KEY_PROMPT_SHOWN = "stylishentertainment_prompt_shown";
@@ -18,6 +19,11 @@ export default function EventDatePrompt() {
   const [isOpen, setIsOpen] = useState(false);
   const [eventDate, setEventDate] = useState("");
   const [hasDate, setHasDate] = useState(false);
+  const [minDate, setMinDate] = useState("");
+
+  useEffect(() => {
+    setMinDate(minEventDateInputValue());
+  }, []);
 
   useEffect(() => {
     // On client dashboard or bookings/new: don't show prompt and clear main-site countdown
@@ -139,7 +145,7 @@ export default function EventDatePrompt() {
                 type="date"
                 value={eventDate}
                 onChange={handleDateChange}
-                min={new Date().toISOString().split("T")[0]}
+                min={minDate || undefined}
                 className="bg-gray-700 border-gray-600 text-white"
               />
             </div>

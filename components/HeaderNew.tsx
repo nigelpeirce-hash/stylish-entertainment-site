@@ -57,7 +57,8 @@ const aboutLinks = [
 
 export default function HeaderNew() {
   const { data: session, status } = useSession();
-  const isLoggedIn = status === "authenticated" && !!session;
+  const [mounted, setMounted] = useState(false);
+  const isLoggedIn = mounted && status === "authenticated" && !!session;
   const [isBurgerOpen, setIsBurgerOpen] = useState(false);
   const [artistsOpen, setArtistsOpen] = useState(false);
   const [weddingsOpen, setWeddingsOpen] = useState(false);
@@ -68,6 +69,10 @@ export default function HeaderNew() {
   const [aboutOpen, setAboutOpen] = useState(false);
 
   const closeBurger = () => setIsBurgerOpen(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (isBurgerOpen) {

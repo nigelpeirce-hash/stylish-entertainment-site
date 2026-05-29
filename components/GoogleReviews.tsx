@@ -34,6 +34,11 @@ export default function GoogleReviews({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [showFallback, setShowFallback] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     // If reviews are provided as props, use them
@@ -96,8 +101,8 @@ export default function GoogleReviews({
     );
   };
 
-  // Show fallback badge if API fails or no reviews
-  if (showFallback || (error && reviews.length === 0)) {
+  // Show fallback badge if API fails or no reviews (client only)
+  if (mounted && (showFallback || (error && reviews.length === 0))) {
     return (
       <div className={`flex items-center justify-center py-8 ${className}`}>
         <div className="inline-flex items-center gap-3 px-6 py-4 bg-gray-900/50 backdrop-blur-sm border border-champagne-gold/30 rounded-lg">
@@ -119,7 +124,7 @@ export default function GoogleReviews({
     );
   }
 
-  if (loading) {
+  if (!mounted || loading) {
     return (
       <div className={`flex items-center justify-center py-12 ${className}`}>
         <div className="text-gray-400">Loading reviews...</div>
@@ -151,7 +156,7 @@ export default function GoogleReviews({
       <AnimatePresence mode="wait">
         <motion.div
           key={currentIndex}
-          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          initial={false}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -20, scale: 0.95 }}
           transition={{ duration: 0.5 }}

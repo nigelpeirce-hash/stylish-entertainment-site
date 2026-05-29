@@ -10,8 +10,8 @@ const WelcomeBanner = () => {
   if (!isReturning) return null;
 
   return (
-    <motion.div 
-      initial={{ height: 0, opacity: 0 }}
+    <motion.div
+      initial={false}
       animate={{ height: 'auto', opacity: 1 }}
       className="bg-gray-950 border-b border-champagne-gold/30 py-2 px-4"
     >

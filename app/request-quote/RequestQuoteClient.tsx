@@ -74,6 +74,7 @@ function saveBasket(items: BasketEntry[]) {
 
 export default function RequestQuoteClient() {
   const router = useRouter();
+  const [minEventDate, setMinEventDate] = useState("");
   const [services, setServices] = useState<string[]>([]);
   const [form, setForm] = useState({
     name: "",
@@ -101,6 +102,7 @@ export default function RequestQuoteClient() {
 
   useEffect(() => {
     setBasket(loadBasket());
+    setMinEventDate(minEventDateInputValue());
   }, []);
 
   useEffect(() => {
@@ -362,7 +364,7 @@ export default function RequestQuoteClient() {
                     id="eventDate"
                     type="date"
                     value={form.eventDate}
-                    min={minEventDateInputValue()}
+                    min={minEventDate || undefined}
                     max="2099-12-31"
                     onChange={(e) => setForm((f) => ({ ...f, eventDate: e.target.value }))}
                     className={`bg-gray-900 border-gray-600 text-white mt-1 ${showFieldError("eventDate")}`}

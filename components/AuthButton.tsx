@@ -24,15 +24,14 @@ export function AuthButtonSimple() {
 
   if (status === "loading" || !mounted) {
     return (
-      <Link href="/contact-us/">
-        <Button
-          variant="outline"
-          size="sm"
-          className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
-        >
-          Enquire
-        </Button>
-      </Link>
+      <Button
+        asChild
+        variant="outline"
+        size="sm"
+        className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
+      >
+        <Link href="/contact-us/">Enquire</Link>
+      </Button>
     );
   }
 
@@ -40,16 +39,17 @@ export function AuthButtonSimple() {
     const isAdmin = (session.user as any)?.role === "admin";
     return (
       <div className="flex items-center gap-2">
-        <Link href={isAdmin ? "/admin/" : clientDashboardPath()}>
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
-          >
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
+        >
+          <Link href={isAdmin ? "/admin/" : clientDashboardPath()}>
             <User className="w-4 h-4 mr-2" />
             {isAdmin ? "Admin" : "Dashboard"}
-          </Button>
-        </Link>
+          </Link>
+        </Button>
         <Button
           onClick={() => signOut({ callbackUrl: "/" })}
           variant="outline"
@@ -64,15 +64,14 @@ export function AuthButtonSimple() {
   }
 
   return (
-    <Link href="/contact-us/">
-      <Button
-        variant="outline"
-        size="sm"
-        className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
-      >
-        Enquire
-      </Button>
-    </Link>
+    <Button
+      asChild
+      variant="outline"
+      size="sm"
+      className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
+    >
+      <Link href="/contact-us/">Enquire</Link>
+    </Button>
   );
 }
 
@@ -90,15 +89,14 @@ export function AuthButton() {
   if (status === "loading" || !mounted) {
     // Return consistent UI during SSR and initial client render
     return (
-      <Link href="/contact-us/">
-        <Button
-          variant="outline"
-          size="sm"
-          className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
-        >
-          Enquire
-        </Button>
-      </Link>
+      <Button
+        asChild
+        variant="outline"
+        size="sm"
+        className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
+      >
+        <Link href="/contact-us/">Enquire</Link>
+      </Button>
     );
   }
 
@@ -106,16 +104,17 @@ export function AuthButton() {
     const isAdmin = (session.user as any)?.role === "admin";
     return (
       <div className="flex items-center gap-2">
-        <Link href={isAdmin ? "/admin/" : clientDashboardPath()}>
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
-          >
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
+        >
+          <Link href={isAdmin ? "/admin/" : clientDashboardPath()}>
             <User className="w-4 h-4 mr-2" />
             {isAdmin ? "Admin" : "Dashboard"}
-          </Button>
-        </Link>
+          </Link>
+        </Button>
         <Button
           onClick={() => signOut({ callbackUrl: "/" })}
           variant="outline"
@@ -133,30 +132,31 @@ export function AuthButton() {
   if (isReturning) {
     return (
       <div className="relative group">
-        <Link href="/dashboard/secure-booking">
-          <motion.div
-            animate={{
-              scale: [1, 1.05, 1],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
+        <motion.div
+          animate={{
+            scale: [1, 1.05, 1],
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        >
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/20 font-semibold relative"
+            title="Welcome back! Your booking is ready to finalise."
           >
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/20 font-semibold relative"
-              title="Welcome back! Your booking is ready to finalise."
-            >
+            <Link href="/dashboard/secure-booking">
               <span className="absolute -top-1 -left-1 text-[10px] text-champagne-gold font-bold opacity-80">
                 S
               </span>
               Secure My Date
-            </Button>
-          </motion.div>
-        </Link>
+            </Link>
+          </Button>
+        </motion.div>
         {/* Tooltip */}
         <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50">
           <div className="bg-gray-900 text-white text-xs py-1.5 px-3 rounded-md whitespace-nowrap shadow-lg border border-champagne-gold/30">
@@ -171,14 +171,13 @@ export function AuthButton() {
   }
 
   return (
-    <Link href="/contact-us/">
-      <Button
-        variant="outline"
-        size="sm"
-        className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
-      >
-        Enquire
-      </Button>
-    </Link>
+    <Button
+      asChild
+      variant="outline"
+      size="sm"
+      className="border-champagne-gold/50 text-white hover:bg-champagne-gold/20"
+    >
+      <Link href="/contact-us/">Enquire</Link>
+    </Button>
   );
 }

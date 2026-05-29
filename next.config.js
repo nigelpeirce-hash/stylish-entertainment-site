@@ -215,6 +215,8 @@ const nextConfig = {
       // --- Wildcard families ---
       legacy("/testimonial-view/:path*", "/testi/"),
       legacy("/testi/page/:path*", "/testi/"),
+      legacy("/team-view/nigel-peirce", "/artists/djs/dj-nige/"),
+      legacy("/team-view/nigel-peirce/", "/artists/djs/dj-nige/"),
       legacy("/team-view/:path*", "/about/"),
       legacy("/category/babington-house", "/venues/babington-house/"),
       legacy("/category/babington-house/", "/venues/babington-house/"),
@@ -318,6 +320,8 @@ const nextConfig = {
       { source: '/zoom-dj/', destination: '/artists/djs/', permanent: true },
 
       // --- Analytics legacy: wildcards first (before any broader rules below) ---
+      { source: '/team-view/nigel-peirce', destination: '/artists/djs/dj-nige/', permanent: true },
+      { source: '/team-view/nigel-peirce/', destination: '/artists/djs/dj-nige/', permanent: true },
       { source: '/team-view/:path*', destination: '/about/', permanent: true },
       { source: '/blog/venue-decoration-styling/:path*', destination: '/about/blog/', permanent: true },
       { source: '/spring-ball/:path*', destination: '/about/blog/bristol-university-spring-ball/', permanent: true },
