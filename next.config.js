@@ -30,6 +30,9 @@ const nextConfig = {
     formats: ['image/avif', 'image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1360, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // Dev: local /_next/image optimizer often times out on image-heavy pages (e.g. Babington).
+    // Images load direct from Cloudinary in development; production keeps optimization.
+    unoptimized: process.env.NODE_ENV === 'development',
   },
   // Canonical URLs end with `/`. Sitemap, redirect destinations, and SEO
   // canonical tags all assume trailing slash. Changing this from false caused

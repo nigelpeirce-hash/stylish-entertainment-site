@@ -318,7 +318,7 @@ export default function DJRosterSection({ djs: initialDjs }: DJRosterSectionProp
                                       src={embed}
                                       title={`${dj.name} - Mix ${idx + 1}`}
                                       className="absolute inset-0 w-full h-full"
-                                      allow="encrypted-media; fullscreen; autoplay; idle-detection; speaker-selection; web-share"
+                                      allow="encrypted-media; fullscreen; autoplay; idle-detection; web-share"
                                       frameBorder="0"
                                     />
                                   </div>
@@ -520,7 +520,7 @@ export default function DJRosterSection({ djs: initialDjs }: DJRosterSectionProp
                                           src={embed}
                                           title={`${dj.name} - Mix ${idx + 1}`}
                                           className="absolute inset-0 w-full h-full"
-                                          allow="encrypted-media; fullscreen; autoplay; idle-detection; speaker-selection; web-share"
+                                          allow="encrypted-media; fullscreen; autoplay; idle-detection; web-share"
                                           frameBorder="0"
                                           height="60px"
                                         />

@@ -1181,31 +1181,90 @@ div[data-cky-tag="detail"],
   }
 }
 
-/* Lightbox Navigation Arrows - Make More Visible */
-.yarl__button {
-  background-color: rgba(212, 175, 55, 0.4) !important;
-  color: #ffffff !important;
+/* Site-wide lightbox: edge-to-edge slides, fullscreen cover, visible nav */
+.yarl__root {
+  --yarl__color_backdrop: rgba(0, 0, 0, 0.96);
+}
+
+.yarl__carousel {
+  --yarl__carousel_spacing_px: 0 !important;
+  --yarl__carousel_spacing_percent: 0 !important;
+  --yarl__carousel_padding_px: 0 !important;
+  --yarl__carousel_padding_percent: 0 !important;
+  justify-content: flex-start !important;
+  column-gap: 0 !important;
+}
+
+.yarl__container {
+  overflow: hidden !important;
+}
+
+.yarl__slide {
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+.yarl__slide_wrapper {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.yarl__slide_image,
+.yarl__slide_image_cover {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+  object-fit: cover !important;
+}
+
+/* Prev/next — YARL positions .yarl__navigation_prev / _next, not .yarl__button_prev */
+.yarl__navigation_prev,
+.yarl__navigation_next {
+  z-index: 10001 !important;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.8)) !important;
+}
+
+.yarl__navigation_prev .yarl__button,
+.yarl__navigation_next .yarl__button {
+  background-color: rgba(212, 175, 55, 0.85) !important;
+  color: #1a1a1a !important;
   border: 2px solid rgba(255, 255, 255, 0.5) !important;
   border-radius: 50% !important;
   width: 56px !important;
   height: 56px !important;
-  padding: 16px !important;
+  min-width: 56px !important;
+  min-height: 56px !important;
+  padding: 12px !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7) !important;
-  transition: all 0.3s ease !important;
   backdrop-filter: blur(8px) !important;
 }
 
-.yarl__button:hover {
-  background-color: rgba(212, 175, 55, 0.6) !important;
-  transform: scale(1.1) !important;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.9) !important;
+.yarl__navigation_prev .yarl__button:hover,
+.yarl__navigation_next .yarl__button:hover {
+  background-color: rgba(212, 175, 55, 1) !important;
+  transform: scale(1.08) !important;
 }
 
-.yarl__button svg {
-  width: 28px !important;
-  height: 28px !important;
-  stroke-width: 4 !important;
+.yarl__navigation_prev .yarl__button svg,
+.yarl__navigation_next .yarl__button svg {
+  width: 32px !important;
+  height: 32px !important;
+  stroke-width: 2.5 !important;
+  color: #1a1a1a !important;
+}
+
+/* Toolbar close */
+.yarl__toolbar .yarl__button {
+  background-color: rgba(212, 175, 55, 0.4) !important;
   color: #ffffff !important;
+  border: 2px solid rgba(255, 255, 255, 0.5) !important;
+  border-radius: 50% !important;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.7)) !important;
+}
+
+.yarl__toolbar .yarl__button:hover {
+  background-color: rgba(212, 175, 55, 0.6) !important;
 }
 
 /* Masonry Grid Styles */

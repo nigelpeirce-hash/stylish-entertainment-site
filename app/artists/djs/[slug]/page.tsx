@@ -352,7 +352,7 @@ export default async function DJProfilePage({
                           title={`${dj.name} \u2014 mix ${idx + 1}`}
                           loading="lazy"
                           className="absolute inset-0 w-full h-full"
-                          allow="encrypted-media; fullscreen; autoplay; idle-detection; speaker-selection; web-share"
+                          allow="encrypted-media; fullscreen; autoplay; idle-detection; web-share"
                         />
                       </div>
                     ))}

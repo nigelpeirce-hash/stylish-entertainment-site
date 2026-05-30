@@ -4,10 +4,8 @@ import { useState } from "react";
 import { motion } from "@/lib/motion";
 import Image from "next/image";
 import Link from "next/link";
-import Lightbox from "yet-another-react-lightbox";
 import { ChevronLeft, ChevronRight, MapPin, Video, FileText, Zap, Map, Home, Camera, Sparkles, Flame, Music, Lightbulb } from "lucide-react";
-import "yet-another-react-lightbox/styles.css";
-import { LIGHTBOX_CAROUSEL, LIGHTBOX_CONTROLLER, toLightboxSlides } from "@/components/lightbox-config";
+import SiteLightbox from "@/components/SiteLightbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -418,59 +416,12 @@ export default function MellsBarnClient() {
         </section>
       </div>
 
-      {/* Lightbox */}
-      <Lightbox
+      <SiteLightbox
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
         index={lightboxIndex}
-        slides={toLightboxSlides(mellsBarnPhotos)}
-        carousel={LIGHTBOX_CAROUSEL}
-        controller={LIGHTBOX_CONTROLLER}
-        on={{ view: ({ index }) => setLightboxIndex(index) }}
-        render={{
-          buttonPrev: () => (
-            <button
-              className="yarl__button yarl__button_prev"
-              style={{
-                backgroundColor: "rgba(212, 175, 55, 0.9)",
-                color: "#1a1a1a",
-                border: "2px solid rgba(255, 255, 255, 0.3)",
-                borderRadius: "50%",
-                padding: "16px",
-                width: "56px",
-                height: "56px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
-              }}
-              aria-label="Previous image"
-            >
-              <ChevronLeft size={28} strokeWidth={3} />
-            </button>
-          ),
-          buttonNext: () => (
-            <button
-              className="yarl__button yarl__button_next"
-              style={{
-                backgroundColor: "rgba(212, 175, 55, 0.9)",
-                color: "#1a1a1a",
-                border: "2px solid rgba(255, 255, 255, 0.3)",
-                borderRadius: "50%",
-                padding: "16px",
-                width: "56px",
-                height: "56px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.5)",
-              }}
-              aria-label="Next image"
-            >
-              <ChevronRight size={28} strokeWidth={3} />
-            </button>
-          ),
-        }}
+        slides={mellsBarnPhotos}
+        onView={setLightboxIndex}
       />
     </div>
   );

@@ -4,10 +4,8 @@ import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "@/lib/motion";
-import Lightbox from "yet-another-react-lightbox";
 import { ChevronLeft, ChevronRight, Map, Sparkles, Music, MapPin } from "lucide-react";
-import "yet-another-react-lightbox/styles.css";
-import { LIGHTBOX_CAROUSEL, LIGHTBOX_CONTROLLER, toLightboxSlides } from "@/components/lightbox-config";
+import SiteLightbox from "@/components/SiteLightbox";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { getEditorialServiceRegions, EDITORIAL_SERVICE_HEADLINE } from "@/lib/service-areas";
 import { Card, CardContent } from "@/components/ui/card";
@@ -447,17 +445,11 @@ export default function PrivatePartiesDemoClient() {
         </div>
       </section>
 
-      <Lightbox
+      <SiteLightbox
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
         index={lightboxIndex}
-        slides={toLightboxSlides(galleryPhotos)}
-        carousel={LIGHTBOX_CAROUSEL}
-        controller={LIGHTBOX_CONTROLLER}
-        render={{
-          buttonPrev: () => <ChevronLeft className="w-8 h-8 text-white" />,
-          buttonNext: () => <ChevronRight className="w-8 h-8 text-white" />,
-        }}
+        slides={galleryPhotos}
       />
     </div>
   );

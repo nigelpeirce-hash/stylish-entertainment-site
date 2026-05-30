@@ -3,13 +3,10 @@
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import dynamic from "next/dynamic";
 import { motion, AnimatePresence } from "@/lib/motion";
 import { ChevronLeft, ChevronRight, Sparkles, Sun, Lightbulb, ExternalLink } from "lucide-react";
-import { LIGHTBOX_CAROUSEL, LIGHTBOX_CONTROLLER, toLightboxSlides } from "@/components/lightbox-config";
+import SiteLightbox from "@/components/SiteLightbox";
 import { Button } from "@/components/ui/button";
-
-const Lightbox = dynamic(() => import("./PartyLightingLightbox"), { ssr: false });
 
 type EventFilter = "all" | "weddings" | "corporate" | "outdoor";
 
@@ -468,28 +465,12 @@ export default function PartyLightingClient() {
         </div>
       </section>
 
-      {lightboxOpen && (
-        <Lightbox
-          open={lightboxOpen}
-          close={() => setLightboxOpen(false)}
-          index={lightboxIndex}
-          slides={toLightboxSlides(filteredPhotos)}
-          carousel={LIGHTBOX_CAROUSEL}
-          controller={LIGHTBOX_CONTROLLER}
-          render={{
-            buttonPrev: (props) => (
-              <button {...props} type="button" aria-label="Previous image">
-                <ChevronLeft className="w-8 h-8 text-white" aria-hidden />
-              </button>
-            ),
-            buttonNext: (props) => (
-              <button {...props} type="button" aria-label="Next image">
-                <ChevronRight className="w-8 h-8 text-white" aria-hidden />
-              </button>
-            ),
-          }}
-        />
-      )}
+      <SiteLightbox
+        open={lightboxOpen}
+        close={() => setLightboxOpen(false)}
+        index={lightboxIndex}
+        slides={filteredPhotos}
+      />
     </div>
   );
 }

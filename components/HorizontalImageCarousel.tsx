@@ -3,14 +3,8 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
-import dynamic from "next/dynamic";
 import type { ImagePhoto } from "@/components/ImageCarousel";
-import { LIGHTBOX_CAROUSEL, LIGHTBOX_CONTROLLER, toLightboxSlides } from "@/components/lightbox-config";
-
-const Lightbox = dynamic(
-  () => import("yet-another-react-lightbox"),
-  { ssr: false, loading: () => null }
-);
+import SiteLightbox from "@/components/SiteLightbox";
 
 interface HorizontalImageCarouselProps {
   images: ImagePhoto[];
@@ -38,26 +32,25 @@ export default function HorizontalImageCarousel({
   const [currentIndex, setCurrentIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const multi = images.length > 1;
 
   useEffect(() => {
-    import("yet-another-react-lightbox/styles.css");
-  }, []);
-
-  useEffect(() => {
-    if (autoplayMs <= 0 || images.length <= 1) return;
+    if (autoplayMs <= 0 || !multi) return;
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
     }, autoplayMs);
     return () => clearInterval(timer);
-  }, [autoplayMs, images.length]);
+  }, [autoplayMs, images.length, multi]);
 
   const goToPrevious = (e?: React.MouseEvent) => {
     e?.stopPropagation();
+    if (!multi) return;
     setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
   };
 
   const goToNext = (e?: React.MouseEvent) => {
     e?.stopPropagation();
+    if (!multi) return;
     setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
   };
 
@@ -68,7 +61,7 @@ export default function HorizontalImageCarousel({
 
   if (images.length === 0) return null;
 
-  if (images.length === 1) {
+  if (!multi) {
     return (
       <>
         <div
@@ -84,25 +77,11 @@ export default function HorizontalImageCarousel({
             priority
           />
         </div>
-        <Lightbox
+        <SiteLightbox
           open={lightboxOpen}
           close={() => setLightboxOpen(false)}
           index={lightboxIndex}
-          slides={toLightboxSlides(images)}
-          carousel={LIGHTBOX_CAROUSEL}
-          controller={LIGHTBOX_CONTROLLER}
-          render={{
-            buttonPrev: () => (
-              <button className="yarl__button yarl__button_prev" style={lightboxBtnStyle} aria-label="Previous">
-                <ChevronLeft size={28} strokeWidth={3} />
-              </button>
-            ),
-            buttonNext: () => (
-              <button className="yarl__button yarl__button_next" style={lightboxBtnStyle} aria-label="Next">
-                <ChevronRight size={28} strokeWidth={3} />
-              </button>
-            ),
-          }}
+          slides={images}
         />
       </>
     );
@@ -120,41 +99,42 @@ export default function HorizontalImageCarousel({
             style={{ transform: `translateX(-${currentIndex * 100}%)` }}
           >
             {images.map((image, index) => (
-              <div key={index} className="min-w-full relative">
+              <div key={index} className="min-w-full w-full flex-shrink-0 relative h-full">
                 <Image
                   src={image.src}
                   alt={image.alt}
                   fill
                   className="object-cover"
                   sizes="(max-width: 768px) 100vw, 50vw"
-                  loading={index <= 1 ? "eager" : "lazy"}
-                  priority={index === 0}
+                  loading={index === 0 ? "eager" : "lazy"}
                 />
               </div>
             ))}
           </div>
 
-          {/* Navigation – compact buttons */}
           <button
+            type="button"
             onClick={goToPrevious}
-            className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-champagne-gold/90 border border-champagne-gold/50 rounded-full p-1.5 md:p-2 opacity-0 group-hover:opacity-100 transition-all duration-300"
+            className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-champagne-gold/80 border border-champagne-gold/50 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             aria-label="Previous image"
           >
-            <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 text-white" />
+            <ChevronLeft className="h-5 w-5 md:h-6 md:w-6 text-white" />
           </button>
           <button
+            type="button"
             onClick={goToNext}
-            className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-champagne-gold/90 border border-champagne-gold/50 rounded-full p-1.5 md:p-2 opacity-0 group-hover:opacity-100 transition-all duration-300"
+            className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 z-10 bg-black/50 hover:bg-champagne-gold/80 border border-champagne-gold/50 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             aria-label="Next image"
           >
-            <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-white" />
+            <ChevronRight className="h-5 w-5 md:h-6 md:w-6 text-white" />
           </button>
 
           {showDots && (
-            <div className="absolute bottom-2 md:bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
               {images.map((_, index) => (
                 <button
                   key={index}
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     setCurrentIndex(index);
@@ -172,41 +152,13 @@ export default function HorizontalImageCarousel({
         </div>
       </div>
 
-      <Lightbox
+      <SiteLightbox
         open={lightboxOpen}
         close={() => setLightboxOpen(false)}
         index={lightboxIndex}
-        slides={toLightboxSlides(images)}
-        carousel={LIGHTBOX_CAROUSEL}
-        controller={LIGHTBOX_CONTROLLER}
-        on={{ view: ({ index }) => setLightboxIndex(index) }}
-        render={{
-          buttonPrev: () => (
-            <button className="yarl__button yarl__button_prev" style={lightboxBtnStyle} aria-label="Previous">
-              <ChevronLeft size={18} strokeWidth={2.5} />
-            </button>
-          ),
-          buttonNext: () => (
-            <button className="yarl__button yarl__button_next" style={lightboxBtnStyle} aria-label="Next">
-              <ChevronRight size={18} strokeWidth={2.5} />
-            </button>
-          ),
-        }}
+        slides={images}
+        onView={setLightboxIndex}
       />
     </>
   );
 }
-
-const lightboxBtnStyle: React.CSSProperties = {
-  backgroundColor: "rgba(212, 175, 55, 0.9)",
-  color: "#1a1a1a",
-  border: "1px solid rgba(255, 255, 255, 0.3)",
-  borderRadius: "50%",
-  padding: "10px",
-  width: "40px",
-  height: "40px",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.4)",
-};
