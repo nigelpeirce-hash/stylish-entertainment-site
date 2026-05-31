@@ -196,6 +196,58 @@ const nextConfig = {
       legacy("/what-we-do/equipment-dj-band-sound-kit/", "/services/kit-hire/"),
       legacy("/what-we-do/led-lighting-php", "/services/lighting-design/"),
       legacy("/what-we-do/led-lighting-php/", "/services/lighting-design/"),
+      legacy("/what-we-do/djs-discos", "/artists/djs/"),
+      legacy("/what-we-do/djs-discos/", "/artists/djs/"),
+      legacy(
+        "/what-we-do/musicians-bands-entertainers",
+        "/artists/musicians/"
+      ),
+      legacy(
+        "/what-we-do/musicians-bands-entertainers/",
+        "/artists/musicians/"
+      ),
+      legacy(
+        "/what-we-do/party-planning-production",
+        "/party-planning-and-organising/"
+      ),
+      legacy(
+        "/what-we-do/party-planning-production/",
+        "/party-planning-and-organising/"
+      ),
+      legacy("/what-we-do/venue-decoration", "/services/venue-styling/"),
+      legacy("/what-we-do/venue-decoration/", "/services/venue-styling/"),
+      legacy(
+        "/what-we-do/selfie-mirror-photo-booth-hire",
+        "/galleries/"
+      ),
+      legacy(
+        "/what-we-do/selfie-mirror-photo-booth-hire/",
+        "/galleries/"
+      ),
+      legacy("/wedding-styling", "/services/venue-styling/"),
+      legacy("/wedding-styling/", "/services/venue-styling/"),
+      legacy("/wedding-lighting", "/weddings/wedding-lighting/"),
+      legacy("/wedding-lighting/", "/weddings/wedding-lighting/"),
+      legacy("/babington-house", "/venues/babington-house/"),
+      legacy("/babington-house/", "/venues/babington-house/"),
+      legacy("/babington-wedding-info", "/venues/babington-house/"),
+      legacy("/babington-wedding-info/", "/venues/babington-house/"),
+      legacy(
+        "/blogs/five-ways-to-totally-transform-a-venue-lighting",
+        "/about/blog/five-ways-to-totally-transform-a-venue-1-lighting/"
+      ),
+      legacy(
+        "/blogs/five-ways-to-totally-transform-a-venue-lighting/",
+        "/about/blog/five-ways-to-totally-transform-a-venue-1-lighting/"
+      ),
+      legacy(
+        "/blogs/why-you-should-use-an-experienced-professional-dj",
+        "/about/blog/why-you-should-use-an-experienced-professional-dj/"
+      ),
+      legacy(
+        "/blogs/why-you-should-use-an-experienced-professional-dj/",
+        "/about/blog/why-you-should-use-an-experienced-professional-dj/"
+      ),
       legacy("/what-we-do", "/what-we-do/"),
       legacy("/what-we-do/", "/what-we-do/"),
       legacy("/galleries/venue-decoration", "/services/venue-styling/"),
@@ -507,7 +559,9 @@ const nextConfig = {
       { source: '/wedding-djs', destination: '/artists/djs/', permanent: true },
       { source: '/wedding-djs/', destination: '/artists/djs/', permanent: true },
       { source: '/blogs/:path*', destination: '/about/blog/', permanent: true },
-      { source: '/wedding-lighting-design', destination: '/services/lighting-design/', permanent: true },
+      // Canonical wedding lighting URL (matches legacy-host map above; was wrongly → /services/lighting-design/)
+      { source: '/wedding-lighting-design', destination: '/weddings/wedding-lighting/', permanent: true },
+      { source: '/wedding-lighting-design/', destination: '/weddings/wedding-lighting/', permanent: true },
       { source: '/what-we-do/venue-styling', destination: '/services/venue-styling/', permanent: true },
       { source: '/wedding-styling', destination: '/services/venue-styling/', permanent: true },
       { source: '/wedding-styling/', destination: '/services/venue-styling/', permanent: true },

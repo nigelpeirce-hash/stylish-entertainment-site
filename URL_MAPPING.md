@@ -25,8 +25,8 @@ Based on Google Analytics data, here are the suggested URL mappings:
 6. **`/galleries/venue-decoration/`** → **`/what-we-do/venue-decoration/`**
    - Venue decoration page exists on new site
 
-7. **`/wedding-lighting-design/`** → **`/services/lighting-design/`**
-   - Alternative: `/weddings/wedding-lighting/` (both exist)
+7. **`/wedding-lighting-design/`** → **`/weddings/wedding-lighting/`**
+   - Canonical wedding lighting page (see `REDIRECT_LEGACY_AUDIT.md`; duplicate same-site rule fixed May 2026)
 
 8. **`/what-we-do/fire-pit-hire/`** → **`/services/fire-pit-hire/`**
    - Fire pit hire page exists on new site
