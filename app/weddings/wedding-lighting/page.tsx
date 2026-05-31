@@ -9,10 +9,10 @@ const PAGE_URL = "https://www.stylishentertainment.co.uk/weddings/wedding-lighti
 // rendered title was 87 chars and would truncate in Google SERPs. The keyword
 // stack already covers the value-prop; brand surfaces via JSON-LD provider.
 export const metadata: Metadata = createMetadata({
-  title: "Wedding Lighting & Design | Festoon, Fairy & Uplighting",
+  title: "Wedding Lighting Design | Uplighting, Festoon & Fairy Lights",
   titleAbsolute: true,
   description:
-    "Bespoke wedding lighting across Somerset, the South West and London. Festoon, fairy-light canopies, LED uplighting and gobo projection.",
+    "Bespoke wedding lighting design — uplighting, fairy-light canopies, festoon and dancefloor lighting for barns, marquees and estates. Trusted at Babington House since 2003.",
   path: "weddings/wedding-lighting",
   keywords: [
     "wedding lighting",
@@ -26,6 +26,8 @@ export const metadata: Metadata = createMetadata({
     "wedding lighting Bath",
     "wedding lighting Bristol",
     "Babington House wedding lighting",
+    "wedding lighting cost",
+    "how much does wedding lighting cost",
   ],
 });
 
@@ -40,7 +42,7 @@ const serviceJsonLd = {
   name: "Wedding Lighting Design",
   url: PAGE_URL,
   description:
-    "Bespoke wedding lighting design across Somerset, the South West, London and the Home Counties. Festoon, fairy-light canopies, LED uplighting and gobo projection.",
+    "Bespoke wedding lighting design — uplighting, fairy-light canopies, festoon and dancefloor lighting for barns, marquees and country estates. Trusted at Babington House since 2003.",
   serviceType: "Wedding Lighting Design",
   category: "Wedding Lighting",
   provider: {

@@ -173,7 +173,7 @@ export default async function RootLayout({
           <link
             rel="preload"
             as="image"
-            href="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768163797/150730_sami-tammy_ria-mishaal-photography_775_bbo9bb.jpg"
+            href="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768162258/Fairy-light-Tunnel_sc40ed.jpg"
             fetchPriority="high"
           />
         )}
