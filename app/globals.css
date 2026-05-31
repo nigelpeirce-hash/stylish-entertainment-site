@@ -66,21 +66,38 @@ p[data-cky-tag="title"],
   border: 2px solid #1a1a1a !important;
 }
 
-/* CookieYes floating "Revisit consent" widget – keep above footer/content, tappable on mobile */
+/* CookieYes floating "Revisit consent" widget – visible, tappable, clear of safe areas */
 .cky-btn-revisit-wrapper,
 .cky-revisit-bottom-left,
 .cky-revisit-bottom-right {
   z-index: 9990 !important;
-  bottom: max(1rem, env(safe-area-inset-bottom)) !important;
+  bottom: max(1.25rem, env(safe-area-inset-bottom)) !important;
+  left: max(1rem, env(safe-area-inset-left)) !important;
+  right: auto !important;
+}
+.cky-revisit-bottom-right,
+.cky-btn-revisit-wrapper.cky-revisit-bottom-right {
+  left: auto !important;
+  right: max(1rem, env(safe-area-inset-right)) !important;
 }
 .cky-btn-revisit-wrapper .cky-btn-revisit,
 button.cky-btn-revisit {
+  min-width: 3rem !important;
+  min-height: 3rem !important;
+  padding: 0.5rem !important;
   background-color: #d4af37 !important;
-  border: 1px solid rgba(255, 255, 255, 0.35) !important;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45) !important;
+  border: 2px solid rgba(255, 255, 255, 0.5) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 9999px !important;
+}
+.cky-btn-revisit-wrapper .cky-btn-revisit:hover,
+button.cky-btn-revisit:hover {
+  background-color: #e5c76b !important;
 }
 .cky-btn-revisit-wrapper .cky-btn-revisit img,
 button.cky-btn-revisit img {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
   filter: brightness(0) saturate(100%) !important;
 }
 

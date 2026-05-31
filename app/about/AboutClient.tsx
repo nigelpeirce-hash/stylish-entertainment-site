@@ -1,8 +1,11 @@
 "use client";
 
 import { motion } from "@/lib/motion";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 
 const services = [
   {
@@ -54,7 +57,7 @@ const benefits = [
   },
   {
     title: "Personal Service",
-    description: "We're a small, family-run business. You'll work directly with Ali and Nige, who bring years of combined experience to each project. We're not a large corporation – we're a team of two who care about making your event work well.",
+    description: "We're a small, family-run business. You'll work directly with Ali and DJ Nige — including his long experience at Babington House — not a faceless agency. We're a team of two who care how your event feels on the night.",
   },
 ];
 
@@ -77,8 +80,8 @@ export default function AboutClient() {
             className="text-center mb-12"
           >
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold tracking-wide px-4">About Us</h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-white md:text-gray-300 font-semibold px-4">
-              Learn more about Stylish Entertainment
+            <p className="text-lg sm:text-xl md:text-2xl text-white md:text-gray-300 font-semibold px-4 max-w-3xl mx-auto">
+              A family-run team for luxury weddings and parties — DJs, lighting and production from one experienced pair, trusted at Babington House since 2003.
             </p>
           </motion.div>
 
@@ -104,10 +107,25 @@ export default function AboutClient() {
                     </p>
                   </div>
                   <div>
-                    <h3 className="text-xl font-semibold text-champagne-gold mb-1">Nige – Technical Vision & Legendary Events</h3>
+                    <h3 className="text-xl font-semibold text-champagne-gold mb-1">
+                      <Link href="/artists/djs/dj-nige/" className="hover:text-gold-light transition-colors">
+                        DJ Nige
+                      </Link>
+                      {" "}– Wedding &amp; Event DJ
+                    </h3>
                     <p className="text-gray-200 md:text-gray-300 leading-relaxed text-base sm:text-lg">
-                      Nige's love of music began through his family's UK rights to Rock-Ola Jukeboxes post-WWII, giving him early access to hundreds of 7-inch singles with holes in the middle when he started DJing at 14. His career has since seen him light and entertain for icons including Sir Sean Connery and Simon Cowell. He holds a 44-tonne vehicle (artic) license and has been trusted to drive, build and operate mega-events, as well as design lighting for legendary acts at <a href="https://cheeseandgrain.com" target="_blank" rel="noopener noreferrer" className="text-champagne-gold hover:text-gold-light underline">The Cheese & Grain</a>, including The Orb, Martin Kemp, Toyah, Republica, The Skids, Dave Rowntree (Blur), and more. He brings technical vision, creative flair, and calm delivery to every project.
+                      Nigel (DJ Nige) has been DJing since he was 14 and has spent more than twenty years reading rooms at luxury weddings and private parties. He is the resident DJ at{" "}
+                      <Link href="/venues/babington-house/" className="text-champagne-gold hover:text-gold-light underline">
+                        Babington House
+                      </Link>{" "}
+                      (Soho House) — trusted since 2003 to move a celebration from elegant drinks through to a full dancefloor without forcing the mood. Open-format sets span soul, disco, house, indie, R&amp;B and contemporary party music; lighting and production know-how mean music and atmosphere are shaped together, not bolted on at the end.
                     </p>
+                    <Button asChild variant="outline" size="sm" className="mt-4 border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10">
+                      <Link href="/artists/djs/dj-nige/">
+                        Meet DJ Nige — full profile
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -129,13 +147,17 @@ export default function AboutClient() {
               </CardHeader>
               <CardContent className="p-6 sm:p-8 pt-0 space-y-4">
                 <p className="text-gray-200 md:text-gray-300 leading-relaxed text-base sm:text-lg">
-                  With over 20 years of experience creating celebrations, we bring a background in music and creative industries to wedding and party entertainment. Our journey began in 1997 when Nige co-founded <a href="https://factory.uk.com" target="_blank" rel="noopener noreferrer" className="text-champagne-gold hover:text-gold-light underline">Factory Studios</a>, an award-winning production company and recording studios, which provided experience in creative and technical work.
+                  STYLISH Entertainment brings together music, lighting and styling for weddings and parties across the South West, London and beyond. Ali leads the luxe client experience and venue relationships;{" "}
+                  <Link href="/artists/djs/dj-nige/" className="text-champagne-gold hover:text-gold-light underline">
+                    DJ Nige
+                  </Link>{" "}
+                  leads the soundtrack and the technical side of how a room should feel as the evening builds.
                 </p>
-                  <p className="text-gray-200 md:text-gray-300 leading-relaxed text-base sm:text-lg">
-                  Nige's background includes working as a freelance producer for Pete Tong's Essential Selection on Radio 1, which took him around clubs in the UK and Europe, alongside work with Virgin Radio and clients such as Sony and Universal, bringing a depth of industry knowledge and creative expertise to every event. This experience helps us understand how to create the right atmosphere and mood for each celebration, and we work hard to get the details right.
-                  </p>
                 <p className="text-gray-200 md:text-gray-300 leading-relaxed text-base sm:text-lg">
-                  In 2004, we established Stylish Entertainment, applying this background to weddings, parties, and events. Since then, we have been a trusted supplier at Babington House since 2003, building on our reputation for excellence and reliability.
+                  Nige&apos;s path runs from club and radio work (including freelance production for Pete Tong&apos;s Essential Selection) through premium London venues to his long residency at Babington House from 2003. That depth in music — not just equipment — is what couples notice on the night: timing, energy and a dancefloor that still feels right at the end.
+                </p>
+                <p className="text-gray-200 md:text-gray-300 leading-relaxed text-base sm:text-lg">
+                  We formalised STYLISH Entertainment in 2004 and have since built lasting relationships with venues including Kin House, Pennard House and Mells Barn, as well as Babington House. The same team plans your DJ set, lighting design and production so your celebration feels cohesive from first dance to last song.
                 </p>
               </CardContent>
             </Card>
@@ -317,31 +339,45 @@ export default function AboutClient() {
                   <div className="relative w-full aspect-square mb-6 rounded-lg overflow-hidden bg-gray-700">
                     <Image
                       src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162279/Nigel-DJ-Babs-House-0009-1_f59b99.jpg"
-                      alt="Nige - Creative & Technical at Stylish Entertainment"
+                      alt="DJ Nige at Babington House — wedding and event DJ"
                       fill
                       className="object-cover"
                       priority
                       sizes="(max-width: 1024px) 100vw, 33vw"
                     />
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-serif font-bold text-champagne-gold mb-2 tracking-wide">Nige</h3>
-                  <p className="text-gray-400 text-sm font-semibold mb-4 uppercase tracking-wider">Creative & Technical</p>
+                  <h3 className="text-2xl md:text-3xl font-serif font-bold text-champagne-gold mb-2 tracking-wide">
+                    <Link href="/artists/djs/dj-nige/" className="hover:text-gold-light transition-colors">
+                      DJ Nige
+                    </Link>
+                  </h3>
+                  <p className="text-gray-400 text-sm font-semibold mb-4 uppercase tracking-wider">Founder &amp; Resident DJ</p>
                   <div className="space-y-4 text-gray-200 md:text-gray-300 leading-relaxed">
                     <p>
-                      Nige's love of music was sparked by his family's UK rights to Rock-Ola Jukeboxes post-WWII. This gave him early access to the vinyl that came off the jukeboxes—hundreds of 7-inch singles with holes in the middle—which he had when he started DJing at 14. It was this early connection to music through his family heritage that shaped his deep appreciation for music and technical excellence.
+                      DJ Nige is an open-format wedding and event DJ known for reading a room and building energy naturally — from relaxed early evening through to a packed dancefloor. Couples and planners book him for judgement on music, not a fixed playlist: soul, funk, disco, house, garage, indie, R&amp;B and contemporary party tracks chosen with the flow of your day in mind.
                     </p>
                     <p>
-                      His London career saw him co-found <a href="https://factory.uk.com" target="_blank" rel="noopener noreferrer" className="text-champagne-gold hover:text-gold-light underline">Factory Studios</a>, an award-winning production company and recording studios. During this time, he worked as a freelance producer for Pete Tong's Essential Selection on Radio 1, which took him around clubs in the UK and Europe, recording Sir Sean Connery in Spain and selling a TV campaign to Simon Cowell, establishing himself as a trusted creative partner to high-profile clients.
+                      His defining venue relationship is{" "}
+                      <Link href="/venues/babington-house/" className="text-champagne-gold hover:text-gold-light underline">
+                        Babington House
+                      </Link>
+                      , where he has been part of weddings and parties since 2003. That long experience of how the bar, terrace, Orangery and outdoor spaces work together is something every Babington couple benefits from when they book STYLISH.
                     </p>
                     <p>
-                      Following a sabbatical from Factory Studios, Nige's seminal moments came through playing backstage at Glastonbury Festival's Pyramid stage and his first gig at Babington House in 2003—a bridge that led to his 20-year residency at Babington House, where he continues to bring technical vision and creative flair to every celebration.
+                      Behind the decks he brings calm, professional delivery and the production background to tie DJing with lighting design when you want one team shaping the whole atmosphere. High-profile and private clients value his discretion as much as his mixing.
                     </p>
+                    <Button asChild className="w-full sm:w-auto bg-champagne-gold text-black hover:bg-champagne-gold/90">
+                      <Link href="/artists/djs/dj-nige/">
+                        View DJ Nige profile
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Link>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
             </motion.div>
 
-            {/* Column 3: Technical Accolades Sidebar */}
+            {/* Column 3: DJ Nige at a glance */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -352,34 +388,44 @@ export default function AboutClient() {
               <Card className="bg-gradient-to-br from-champagne-gold/10 to-yellow-400/10 border-champagne-gold/30 h-full">
                 <CardHeader className="p-6 sm:p-8 pb-4">
                   <CardTitle className="text-xl md:text-2xl font-serif font-bold text-champagne-gold tracking-wide">
-                    Technical Accolades
+                    DJ Nige at a glance
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6 sm:p-8 pt-0 space-y-6">
                   <div className="space-y-3">
-                    <h4 className="text-lg font-semibold text-white mb-3">Heritage</h4>
+                    <h4 className="text-lg font-semibold text-white mb-3">Babington House</h4>
                     <p className="text-gray-200 text-sm leading-relaxed">
-                      Lifelong music collector whose love of music began through his family's UK rights to Rock-Ola Jukeboxes post-WWII, giving him early access to hundreds of 7-inch singles with holes in the middle when he started DJing at 14.
+                      Resident DJ since 2003 — hundreds of weddings and parties at one of the UK&apos;s most celebrated venues.{" "}
+                      <Link href="/venues/babington-house/" className="text-champagne-gold hover:text-gold-light underline">
+                        Babington guide
+                      </Link>
                     </p>
                   </div>
                   <div className="border-t border-champagne-gold/30 pt-6 space-y-3">
-                    <h4 className="text-lg font-semibold text-white mb-3">Lighting Design</h4>
+                    <h4 className="text-lg font-semibold text-white mb-3">Open-format DJ</h4>
                     <p className="text-gray-200 text-sm leading-relaxed">
-                      ABTT Qualified Theatre Electrician and Freelance LD at <a href="https://cheeseandgrain.com" target="_blank" rel="noopener noreferrer" className="text-champagne-gold hover:text-gold-light underline">The Cheese & Grain</a>, lighting acts including The Orb, Martin Kemp, Johnny Vegas, and Hothouse Flowers.
+                      Soul, disco, house, indie, R&amp;B and party classics — mixed with timing and instinct, not a rigid playlist.
                     </p>
                   </div>
                   <div className="border-t border-champagne-gold/30 pt-6 space-y-3">
-                    <h4 className="text-lg font-semibold text-white mb-3">Heavy Logistics</h4>
+                    <h4 className="text-lg font-semibold text-white mb-3">Music + lighting</h4>
                     <p className="text-gray-200 text-sm leading-relaxed">
-                      Licensed 44-tonne Artic driver and Ducati rider, combining precision logistics with a passion for engineering excellence.
+                      DJ sets and{" "}
+                      <Link href="/weddings/wedding-lighting/" className="text-champagne-gold hover:text-gold-light underline">
+                        lighting design
+                      </Link>{" "}
+                      from one team so the evening feels joined-up.
                     </p>
                   </div>
                   <div className="border-t border-champagne-gold/30 pt-6 space-y-3">
                     <h4 className="text-lg font-semibold text-white mb-3">Discretion</h4>
                     <p className="text-gray-200 text-sm leading-relaxed">
-                      Quite private with no public social media presence, Nige is trusted by high-profile clients for absolute privacy and professional discretion in every project.
+                      Trusted by private and high-profile clients who value professionalism and confidentiality on the night.
                     </p>
                   </div>
+                  <Button asChild variant="outline" className="w-full border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10">
+                    <Link href="/artists/djs/dj-nige/">Full DJ profile</Link>
+                  </Button>
                 </CardContent>
               </Card>
             </motion.div>

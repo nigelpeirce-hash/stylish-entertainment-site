@@ -349,8 +349,8 @@ const nextConfig = {
       { source: '/mells-barn-weddings', destination: '/venues/mells-barn/', permanent: true },
       { source: '/pennard-house-lighting', destination: '/venues/pennard-house/', permanent: true },
       { source: '/pennard-house-lighting/', destination: '/venues/pennard-house/', permanent: true },
-      { source: '/dj-nige', destination: '/artists/djs/', permanent: true },
-      { source: '/dj-nige/', destination: '/artists/djs/', permanent: true },
+      { source: '/dj-nige', destination: '/artists/djs/dj-nige/', permanent: true },
+      { source: '/dj-nige/', destination: '/artists/djs/dj-nige/', permanent: true },
       { source: '/babington-house/:path*', destination: '/venues/babington-house/', permanent: true },
 
       // --- Galleries / nggallery / category ---
@@ -408,7 +408,7 @@ const nextConfig = {
       { source: '/testimonial-view/:path*', destination: '/testi/', permanent: true },
       { source: '/testi/page/:path*', destination: '/testi/', permanent: true },
       { source: '/christmas/attachment/:path*', destination: '/parties/christmas/', permanent: true },
-      { source: '/dj-nige/attachment/:path*', destination: '/artists/djs/', permanent: true },
+      { source: '/dj-nige/attachment/:path*', destination: '/artists/djs/dj-nige/', permanent: true },
       { source: '/fire-pit-html/attachment/:path*', destination: '/services/fire-pit-hire/', permanent: true },
       { source: '/lighting-hire/attachment/:path*', destination: '/parties/party-lighting/', permanent: true },
       { source: '/party-lighting/attachment/:path*', destination: '/parties/party-lighting/', permanent: true },

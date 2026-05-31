@@ -2,12 +2,17 @@
 
 import Script from "next/script";
 
+/** Production GA4 web stream (Stylish Entertainment). Override via env in Vercel if needed. */
+const DEFAULT_GA4_MEASUREMENT_ID = "G-8WGHN47VLM";
+
 export default function GoogleAnalytics() {
-  // Use env var only – no hardcoded fallback (prevents wrong/test property in production)
-  const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID;
+  const GA_MEASUREMENT_ID =
+    process.env.NEXT_PUBLIC_GOOGLE_ANALYTICS_ID ||
+    process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ||
+    DEFAULT_GA4_MEASUREMENT_ID;
 
   if (!GA_MEASUREMENT_ID) {
-    return null; // Don't load if not configured
+    return null;
   }
 
   return (

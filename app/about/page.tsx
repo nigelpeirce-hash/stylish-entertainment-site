@@ -8,12 +8,12 @@ const baseUrl = "https://www.stylishentertainment.co.uk";
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "STYLISH Entertainment: Frome-based event entertainment with 20+ years' experience. Weddings, parties and events. Trusted at Babington House since 2003.",
+    "Meet STYLISH Entertainment — Ali Peirce and DJ Nige (resident DJ at Babington House since 2003). Luxury wedding DJs, lighting and production across the UK.",
   alternates: { canonical: `${baseUrl}/about/` },
   openGraph: {
     title: "About Us",
     description:
-      "STYLISH Entertainment: Frome-based event entertainment with 20+ years' experience. Weddings, parties and events. Trusted at Babington House since 2003.",
+      "Meet STYLISH Entertainment — Ali Peirce and DJ Nige (resident DJ at Babington House since 2003). Luxury wedding DJs, lighting and production across the UK.",
     type: "website",
     url: `${baseUrl}/about/`,
   },
@@ -63,7 +63,9 @@ const professionalServiceSchema = {
     {
       "@type": "Person",
       "name": "Nigel Peirce",
-      "jobTitle": "Production & DJ"
+      "alternateName": "DJ Nige",
+      "jobTitle": "Wedding & Event DJ",
+      "url": `${baseUrl}/artists/djs/dj-nige/`
     }
   ]
 };

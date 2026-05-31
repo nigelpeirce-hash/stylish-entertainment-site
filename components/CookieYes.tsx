@@ -59,8 +59,11 @@ export default function CookieYes() {
     .cky-consent-bar button.cky-btn-accept, .cky-consent-bar [data-cky-tag="accept-button"] { background-color: #1a1a1a !important; color: #ffffff !important; }
     .cky-consent-bar button.cky-btn-reject, .cky-consent-bar [data-cky-tag="reject-button"] { background-color: #424242 !important; color: #ffffff !important; border-color: #424242 !important; }
     .cky-consent-bar button.cky-btn-customize, .cky-consent-bar [data-cky-tag="settings-button"] { background-color: #ffffff !important; color: #1a1a1a !important; border: 2px solid #1a1a1a !important; }
-    .cky-btn-revisit-wrapper, .cky-revisit-bottom-left, .cky-revisit-bottom-right { z-index: 9990 !important; bottom: max(1rem, env(safe-area-inset-bottom)) !important; }
-    .cky-btn-revisit-wrapper .cky-btn-revisit, button.cky-btn-revisit { background-color: #d4af37 !important; border: 1px solid rgba(255,255,255,0.35) !important; box-shadow: 0 2px 12px rgba(0,0,0,0.45) !important; }
+    .cky-btn-revisit-wrapper, .cky-revisit-bottom-left, .cky-revisit-bottom-right { z-index: 9990 !important; bottom: max(1.25rem, env(safe-area-inset-bottom)) !important; left: max(1rem, env(safe-area-inset-left)) !important; right: auto !important; }
+    .cky-revisit-bottom-right, .cky-btn-revisit-wrapper.cky-revisit-bottom-right { left: auto !important; right: max(1rem, env(safe-area-inset-right)) !important; }
+    .cky-btn-revisit-wrapper .cky-btn-revisit, button.cky-btn-revisit { min-width: 3rem !important; min-height: 3rem !important; padding: 0.5rem !important; background-color: #d4af37 !important; border: 2px solid rgba(255,255,255,0.5) !important; box-shadow: 0 4px 16px rgba(0,0,0,0.5) !important; border-radius: 9999px !important; }
+    .cky-btn-revisit-wrapper .cky-btn-revisit:hover, button.cky-btn-revisit:hover { background-color: #e5c76b !important; }
+    .cky-btn-revisit-wrapper .cky-btn-revisit img, button.cky-btn-revisit img { width: 1.25rem !important; height: 1.25rem !important; filter: brightness(0) saturate(100%) !important; }
     .cky-modal, .cky-preference-center, div[data-cky-tag="detail"], .cky-overlay { z-index: 99999 !important; }
   `;
 
