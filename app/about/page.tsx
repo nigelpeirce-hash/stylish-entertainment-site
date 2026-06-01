@@ -8,12 +8,12 @@ const baseUrl = "https://www.stylishentertainment.co.uk";
 export const metadata: Metadata = {
   title: "About Us",
   description:
-    "Meet STYLISH Entertainment — Ali Peirce and DJ Nige (resident DJ at Babington House since 2003). Luxury wedding DJs, lighting and production across the UK.",
+    "Meet STYLISH Entertainment — Ali Peirce and DJ Nige (resident DJ at Babington House since 2003). Weddings, private parties and corporate events — DJs, lighting and production across the UK.",
   alternates: { canonical: `${baseUrl}/about/` },
   openGraph: {
     title: "About Us",
     description:
-      "Meet STYLISH Entertainment — Ali Peirce and DJ Nige (resident DJ at Babington House since 2003). Luxury wedding DJs, lighting and production across the UK.",
+      "Meet STYLISH Entertainment — Ali Peirce and DJ Nige (resident DJ at Babington House since 2003). Weddings, private parties and corporate events — DJs, lighting and production across the UK.",
     type: "website",
     url: `${baseUrl}/about/`,
   },
