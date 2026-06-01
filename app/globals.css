@@ -1491,3 +1491,24 @@ input[type="time"]::-webkit-datetime-edit-ampm-field {
 [data-book-dj-form] input[type="date"] {
   color-scheme: dark;
 }
+
+@keyframes christmas-snowfall {
+  0% {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  10%,
+  90% {
+    opacity: 0.3;
+  }
+  100% {
+    transform: translateY(100vh);
+    opacity: 0;
+  }
+}
+
+.christmas-snowflake {
+  animation-name: christmas-snowfall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
