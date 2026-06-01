@@ -24,7 +24,7 @@ const jsonLd = buildBlogPostingJsonLd({
   description:
     "Discover why hiring an experienced, professional DJ is essential for your wedding or event. Learn about the benefits of professional DJ services over amateur options.",
   image:
-    "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163774/Jade-and-Emma-0064_t4shle.jpg",
+    "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163223/Nigel-DJ-Babs-House-0019_y4rjks.jpg",
   datePublished: "2026-01-13T09:46:45Z",
   dateModified: "2026-02-10T20:58:19Z",
 });

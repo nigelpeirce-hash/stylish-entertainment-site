@@ -25,7 +25,7 @@ export default function ProfessionalDJBlogContent() {
 
   // Collect all images for lightbox navigation
   const allImages = useMemo(() => [
-    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg", alt: "Professional DJ setup at Babington House with custom lighting, professional sound equipment, and atmospheric wedding entertainment" },
+    { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163223/Nigel-DJ-Babs-House-0019_y4rjks.jpg", alt: "Wedding guests dancing on the bar at Babington House with a packed dancefloor" },
     { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163683/NP-Decks-2_y32tje.jpg", alt: "Professional DJ decks and mixing equipment for high-quality sound production" },
     { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163197/DJ-Kit-on-Croquet-Lawn_jncfnl.jpg", alt: "Professional DJ kit setup on croquet lawn showcasing quality sound equipment" },
     { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163297/Mirjam-and-Ben-1062-1_vy1hgx.jpg", alt: "Professional DJ Nige performing at a wedding, showcasing expert mixing and crowd engagement" },
@@ -39,8 +39,8 @@ export default function ProfessionalDJBlogContent() {
       <section className="relative min-h-[50vh] flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white overflow-hidden">
         <div className="absolute inset-0 opacity-40 flex items-center justify-center">
           <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163774/Jade-and-Emma-0064_t4shle.jpg"
-            alt="Professional DJ and wedding entertainment at Babington House, Somerset"
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163223/Nigel-DJ-Babs-House-0019_y4rjks.jpg"
+            alt="Wedding guests dancing on the bar at Babington House with a packed dancefloor"
             fill
             className="object-cover object-center brightness-110"
             style={{ objectPosition: 'center center' }}
@@ -82,8 +82,8 @@ export default function ProfessionalDJBlogContent() {
                   <div className="my-8">
                     <div className="relative aspect-[16/9] overflow-hidden rounded-lg my-6">
                       <BlogImage
-                        src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg"
-                        alt="Professional DJ setup at Babington House with custom lighting, professional sound equipment, and atmospheric wedding entertainment"
+                        src={allImages[0].src}
+                        alt={allImages[0].alt}
                         images={allImages}
                         index={0}
                       />

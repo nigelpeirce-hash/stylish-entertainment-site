@@ -6,6 +6,8 @@ export type BlogCategory =
   | "Corporate Events"
   | "Real Events";
 
+export type JournalBasePath = "about/blog" | "about/journal";
+
 export interface BlogPost {
   title: string;
   slug: string;
@@ -13,6 +15,12 @@ export interface BlogPost {
   image: string;
   alt: string;
   category: BlogCategory;
+  /** Defaults to about/blog — newer articles may live under about/journal */
+  basePath?: JournalBasePath;
+}
+
+export function getPostHref(post: BlogPost): string {
+  return `/${post.basePath ?? "about/blog"}/${post.slug}/`;
 }
 
 /** Venue guide featured when no Babington blog post exists — links to existing venue content. */
@@ -80,6 +88,17 @@ export const BROWSE_TOPICS = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    title: "How To Keep A Wedding Dancefloor Full",
+    slug: "how-to-keep-a-wedding-dancefloor-full",
+    basePath: "about/journal",
+    category: "Wedding Entertainment",
+    excerpt:
+      "What actually keeps a wedding dancefloor busy all night? Practical wedding DJ advice from Nige — resident at Babington House since 2003 — on timing, requests, lighting and reading the room.",
+    image:
+      "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768737146/full-dance-floor300x200_iglsa1.jpg",
+    alt: "Packed wedding dancefloor with guests dancing at a formal reception",
+  },
+  {
     title: "How Much Does Wedding Lighting Cost in 2026?",
     slug: "how-much-does-wedding-lighting-cost-2026",
     category: "Wedding Lighting",
@@ -96,8 +115,8 @@ export const BLOG_POSTS: BlogPost[] = [
     excerpt:
       "What separates a great wedding DJ from a playlist or an inexperienced performer? Twenty years of weddings has taught us a few things about timing, taste and keeping a dancefloor full.",
     image:
-      "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg",
-    alt: "Professional DJ at Babington House with lighting and sound setup",
+      "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163223/Nigel-DJ-Babs-House-0019_y4rjks.jpg",
+    alt: "Wedding guests dancing on the bar at Babington House with a packed dancefloor",
   },
   {
     title: "Five Ways to Totally Transform a Venue #1 Lighting",

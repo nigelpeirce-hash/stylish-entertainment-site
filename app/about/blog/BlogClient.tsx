@@ -11,6 +11,7 @@ import {
   BLOG_POSTS,
   BROWSE_TOPICS,
   FEATURED_GUIDE,
+  getPostHref,
   type BlogCategory,
 } from "@/data/blog";
 
@@ -219,7 +220,7 @@ export default function BlogClient() {
                     viewport={{ once: true }}
                     transition={{ duration: 0.5, delay: index * 0.08 }}
                   >
-                    <Link href={`/about/blog/${post.slug}/`}>
+                    <Link href={getPostHref(post)}>
                       <Card className="h-full bg-gray-900 border-champagne-gold/30 hover:shadow-xl transition-all duration-300 hover:border-champagne-gold/60 group cursor-pointer">
                         <div className="relative h-56 md:h-64 overflow-hidden bg-gray-100">
                           <Image

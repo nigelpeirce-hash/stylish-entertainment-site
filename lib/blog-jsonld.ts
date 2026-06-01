@@ -7,6 +7,8 @@ const PUBLISHER_LOGO =
 export interface BlogPostingInput {
   /** Path under /about/blog/, e.g. "bristol-university-spring-ball" */
   slug: string;
+  /** Full canonical path segment (no slashes), e.g. "about/journal/how-to-keep-a-wedding-dancefloor-full" */
+  pathname?: string;
   /** Visible H1 / canonical post title */
   headline: string;
   description: string;
@@ -16,6 +18,8 @@ export interface BlogPostingInput {
   datePublished: string;
   /** ISO 8601 last-modified date; defaults to datePublished */
   dateModified?: string;
+  /** Override default Organization author — e.g. DJ Nige as Person */
+  author?: { name: string; url?: string; type?: "Person" | "Organization" };
 }
 
 /**
@@ -24,7 +28,19 @@ export interface BlogPostingInput {
  * and rendering inside `<script type="application/ld+json">`.
  */
 export function buildBlogPostingJsonLd(input: BlogPostingInput) {
-  const url = generateCanonicalUrl(`about/blog/${input.slug}`);
+  const path = input.pathname ?? `about/blog/${input.slug}`;
+  const url = generateCanonicalUrl(path);
+  const author = input.author
+    ? {
+        "@type": input.author.type ?? "Person",
+        name: input.author.name,
+        ...(input.author.url ? { url: input.author.url } : {}),
+      }
+    : {
+        "@type": "Organization" as const,
+        name: "Stylish Entertainment",
+        url: SITE_URL,
+      };
   return {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -36,11 +52,7 @@ export function buildBlogPostingJsonLd(input: BlogPostingInput) {
     datePublished: input.datePublished,
     dateModified: input.dateModified ?? input.datePublished,
     inLanguage: "en-GB",
-    author: {
-      "@type": "Organization",
-      name: "Stylish Entertainment",
-      url: SITE_URL,
-    },
+    author,
     publisher: {
       "@type": "Organization",
       name: "Stylish Entertainment",

@@ -102,6 +102,7 @@ export const PATH_SEGMENT_LABELS: Record<string, string> = {
   // Extract just the segment part (without slashes) for URL parsing
   "about": "About Us",
   "blog": "Journal",
+  "journal": "Journal",
   "artists": "Artists",
   "djs": "DJs",
   "musicians": "Musicians",

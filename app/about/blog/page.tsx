@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { createMetadata } from "@/lib/metadata";
-import { BLOG_POSTS } from "@/data/blog";
+import { BLOG_POSTS, getPostHref } from "@/data/blog";
 import BlogClient from "./BlogClient";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +29,7 @@ const blogSchema = {
   blogPost: BLOG_POSTS.map((post) => ({
     "@type": "BlogPosting",
     headline: post.title,
-    url: `${baseUrl}/about/blog/${post.slug}/`,
+    url: `${baseUrl.replace(/\/$/, "")}${getPostHref(post)}`,
     description: post.excerpt,
   })),
 };
