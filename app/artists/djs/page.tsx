@@ -21,7 +21,7 @@ export default async function DJsPage() {
     name: "Stylish Entertainment DJs",
     url: PAGE_URL,
     description:
-      "Wedding and event DJs at Stylish Entertainment, including DJ Nige (22-year resident at Babington House), DJ James, James H and Rich S.",
+      "Luxury wedding DJs and party DJs who read the room — non-cheesy wedding DJs for weddings, private parties and corporate events. DJ Nige, resident at Babington House since 2003.",
     isPartOf: {
       "@type": "WebSite",
       "@id": `${SITE_URL}/#website`,

@@ -3,11 +3,11 @@
 import dynamic from "next/dynamic";
 import { motion } from "@/lib/motion";
 import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState } from "react";
-import { Target, Clock, Sparkles, Wrench, Music, Shield, Search } from "lucide-react";
+import { Clock, Sparkles, Music, Shield, Search, Eye, MicOff } from "lucide-react";
 import DJRosterSection from "@/components/DJRosterSection";
 
 /** Below-the-fold video gallery – loaded after initial paint to improve LCP/TBT on mobile */
@@ -33,6 +33,92 @@ import { getEditorialServiceRegions, EDITORIAL_SERVICE_HEADLINE } from "@/lib/se
 import type { DJCardData } from "@/lib/dj-data";
 
 const allVenues = getVenuesWeveWorkedAt();
+
+const linkClass =
+  "text-champagne-gold hover:text-champagne-gold/80 underline underline-offset-2 transition-colors";
+
+const djApartCards = [
+  {
+    icon: Eye,
+    title: "Reading the room",
+    copy: "The best DJs watch more than they talk. They notice who is dancing, who is at the bar, when energy is building and when to hold back.",
+  },
+  {
+    icon: Music,
+    title: "Music knowledge",
+    copy: "Deep crates across decades and genres — not a wedding playlist on shuffle. The right track at the right moment, for mixed-age crowds who want to share the same dancefloor.",
+  },
+  {
+    icon: Clock,
+    title: "Energy management",
+    copy: "Great parties are built gradually. Knowing when to lift the room, when to let conversation breathe and when to push into peak-time moments.",
+  },
+  {
+    icon: Sparkles,
+    title: "Elegant presentation",
+    copy: "Discreet setup, polished presence and music that feels curated — wedding DJs and party DJs who fit luxury venues, not novelty acts.",
+  },
+  {
+    icon: Shield,
+    title: "Professional production",
+    copy: "Sound and lighting planned as one atmosphere — often alongside our wedding lighting and venue styling teams, not a DJ who turns up with a speaker.",
+  },
+  {
+    icon: MicOff,
+    title: "Confidence without ego",
+    copy: "No mic-hype, no forced interaction, no YMCA. Non-cheesy wedding DJs who let the music do the talking.",
+  },
+];
+
+const dancefloorFlow = [
+  {
+    phase: "Arrival music",
+    detail:
+      "Background that feels considered from the first guest — not silence, not a full dance set. The tone is set long before anyone expects to dance.",
+  },
+  {
+    phase: "Early evening transition",
+    detail:
+      "As the room fills and speeches finish, energy shifts naturally. Must-plays land at the right moment; the floor begins to gather without being forced.",
+  },
+  {
+    phase: "Peak-time moments",
+    detail:
+      "When the room is ready, momentum builds — mixed generations on the same floor, energy rising without gimmicks or shouty DJ banter.",
+  },
+  {
+    phase: "Late-night momentum",
+    detail:
+      "The hours after midnight matter. A packed dancefloor is maintained by judgement, not volume — keeping people who do not want to leave.",
+  },
+];
+
+const djStyles = [
+  {
+    name: "DJ Nige",
+    slug: "dj-nige",
+    summary: "Luxury weddings, Babington House and sophisticated mixed-age crowds.",
+    traits: ["Luxury weddings", "Babington House", "Sophisticated mixed-age crowds"],
+  },
+  {
+    name: "Rich S",
+    slug: "rich-s",
+    summary: "Broad musical knowledge, radio background and an adaptable wedding specialist.",
+    traits: ["Broad musical knowledge", "Radio background", "Adaptable wedding specialist"],
+  },
+  {
+    name: "James H",
+    slug: "james-h",
+    summary: "Corporate events, big-room confidence and an experienced presenter.",
+    traits: ["Corporate events", "Big-room confidence", "Experienced presenter"],
+  },
+  {
+    name: "DJ James",
+    slug: "dj-james",
+    summary: "Modern weddings, party-focused and energetic celebrations.",
+    traits: ["Modern weddings", "Party-focused", "Energetic celebrations"],
+  },
+];
 
 export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
   const [venueSearch, setVenueSearch] = useState("");
@@ -60,13 +146,20 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
         </div>
         <div className="relative z-10 text-center px-4 max-w-5xl mx-auto pt-40 pb-12 sm:pt-48 md:pt-52">
           <div className="inline-block mb-6 px-6 py-2 bg-champagne-gold/10 rounded-full border border-champagne-gold/30 backdrop-blur-sm">
-            <span className="text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase">Meet The Team</span>
+            <span className="text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase">
+              Trusted at Babington House since 2003
+            </span>
           </div>
           <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
-            DJs & Live DJ Acts <span className="text-gradient drop-shadow-md">Across the UK</span>
+            DJs Who Read The Room
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold leading-relaxed px-4 drop-shadow-md mb-8 max-w-3xl mx-auto">
-            Intelligent, high-energy entertainment for weddings, private parties and corporate events.
+          <p className="text-lg sm:text-xl md:text-2xl text-champagne-gold/90 font-medium italic px-4 drop-shadow-md mb-4 max-w-3xl mx-auto">
+            For people who care about atmosphere.
+          </p>
+          <p className="text-base sm:text-lg md:text-xl text-white/95 leading-relaxed px-4 drop-shadow-md mb-8 max-w-3xl mx-auto">
+            Wedding, party and corporate DJs who manage energy, know when to build and when to hold
+            back — reading the room rather than running through a playlist. No gimmicks. No forced
+            interaction.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-4">
             <Button
@@ -86,7 +179,7 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
             </Button>
           </div>
           <p className="text-xs sm:text-sm text-gray-300 drop-shadow-md">
-            20+ years · Weddings, parties &amp; corporate · UK-wide
+            22+ years · Luxury wedding DJs who read the room · UK-wide
           </p>
         </div>
       </section>
@@ -122,7 +215,47 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
         </div>
       </aside>
 
-      {/* Selling Points */}
+      {/* What 22 Years At Babington House Taught Me */}
+      <section className="py-16 md:py-20 px-3 sm:px-4 bg-gray-900">
+        <div className="container mx-auto max-w-3xl">
+          <motion.div
+            initial={false}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-8 text-center">
+              What 22 Years At Babington House Taught Me
+            </h2>
+            <div className="space-y-6 text-gray-300 text-lg leading-relaxed">
+              <p>
+                The best DJs watch more than they talk. They notice when the room is ready, when to
+                hold back and when one more track will keep people on the floor — not drive them to
+                the bar.
+              </p>
+              <p>
+                Great parties are built gradually. Guests remember how a night felt, not which songs
+                played. Reading the room matters more than playlists — and different generations can
+                share the same dancefloor when the DJ has judgement, not just a crate of hits.
+              </p>
+              <p>
+                That is what twenty-two years at{" "}
+                <Link href="/venues/babington-house/" className={linkClass}>
+                  Babington House
+                </Link>{" "}
+                teaches you. Avoid mic-hype and forced interaction. Let the music and the energy do
+                the work — whether it is a luxury wedding, a{" "}
+                <Link href="/parties/private-parties/" className={linkClass}>
+                  private party
+                </Link>{" "}
+                or a corporate celebration.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* What Sets Our DJs Apart */}
       <section className="py-16 px-3 sm:px-4 bg-gray-900">
         <div className="container mx-auto max-w-6xl">
           <motion.div
@@ -133,192 +266,201 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
             className="text-center mb-12"
           >
             <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/20 rounded-full border border-champagne-gold/40">
-              <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Why Choose Us</span>
+              <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Why We&apos;re Different</span>
             </div>
             <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-6 text-white font-bold px-4">
               What Sets Our <span className="text-gradient">DJs Apart</span>
             </h2>
-          </motion.div>
-
-          {/* Introduction Text Box */}
-          <motion.div
-            initial={false}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-            className="max-w-4xl mx-auto mb-12"
-          >
-            <Card className="bg-gray-800 border-2 border-champagne-gold/30 shadow-lg">
-              <CardContent className="p-6 sm:p-8">
-                <p className="text-base sm:text-lg text-gray-200 leading-relaxed mb-4">
-                  Our DJs shape the atmosphere and flow of your event—reading the room, building energy and crafting bespoke sets that keep the dance floor full. Choose a solo DJ, our DJ-plus-sax duo, or the full festival lineup of DJ, sax and percussion. High-end sound and lighting, zero gimmicks.
-                </p>
-                <p className="text-base sm:text-lg text-gray-200 leading-relaxed mb-4">
-                  Founder <Link href="/artists/djs/dj-nige/" className="text-champagne-gold hover:text-champagne-gold/80 underline font-medium">DJ Nige</Link> has been the resident DJ at <Link href="/venues/babington-house/" className="text-champagne-gold hover:text-champagne-gold/80 underline font-medium">Babington House</Link> (Soho House Group) since 2003 — over twenty-two years and hundreds of weddings — and the rest of the roster is held to the same standard.
-                </p>
-                <p className="text-base sm:text-lg text-gray-200 leading-relaxed">
-                  No clichés, no YMCA—just polished, crowd-led entertainment that feels right for your wedding, party or corporate celebration.
-                </p>
-              </CardContent>
-            </Card>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto px-4">
+              Not equipment lists — judgement. Luxury wedding DJs and party DJs held to the same
+              standard: atmosphere, flow and guest experience.
+            </p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-            <motion.div
-              initial={false}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              <Card className="h-full border-champagne-gold/30 bg-gray-800 hover:shadow-xl transition-all duration-300 hover:border-champagne-gold/60">
-                <CardContent className="p-6">
-                  <div className="mb-4 flex items-center justify-center">
-                    <div className="p-4 bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-full border-2 border-champagne-gold/60 shadow-lg relative">
-                      <Target className="w-10 h-10 text-champagne-gold" strokeWidth={2.5} />
-                      {/* Bullseye rings */}
-                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                        <div className="w-16 h-16 rounded-full border-2 border-champagne-gold/40"></div>
-                        <div className="absolute w-10 h-10 rounded-full border-2 border-champagne-gold/50"></div>
-                        <div className="absolute w-6 h-6 rounded-full border-2 border-champagne-gold/60"></div>
-                        <div className="absolute w-3 h-3 rounded-full bg-champagne-gold/80 border border-champagne-gold"></div>
+            {djApartCards.map((item, index) => (
+              <motion.div
+                key={item.title}
+                initial={false}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 * (index + 1) }}
+              >
+                <Card className="h-full border-champagne-gold/30 bg-gray-800 hover:shadow-xl transition-all duration-300 hover:border-champagne-gold/60">
+                  <CardContent className="p-6">
+                    <div className="mb-4 flex items-center justify-center">
+                      <div className="p-4 bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-full border-2 border-champagne-gold/60 shadow-lg">
+                        <item.icon className="w-8 h-8 text-champagne-gold" strokeWidth={2.5} />
                       </div>
                     </div>
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-3">Professional Standards</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    Polished presence, seamless mixing and clean setups—no mic-shouting or novelty antics.
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={false}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <Card className="h-full border-champagne-gold/30 bg-gray-800 hover:shadow-xl transition-all duration-300 hover:border-champagne-gold/60">
-                <CardContent className="p-6">
-                  <div className="mb-4 flex items-center justify-center">
-                    <div className="p-4 bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-full border-2 border-champagne-gold/60 shadow-lg relative flex items-center justify-center">
-                      <svg 
-                        className="w-10 h-10 text-champagne-gold relative z-10" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        stroke="currentColor" 
-                        strokeWidth="2.5"
-                      >
-                        <circle cx="12" cy="12" r="10" />
-                        {/* Hour hand pointing to 5 (5 o'clock position) */}
-                        <line x1="12" y1="12" x2="15" y2="17.2" strokeLinecap="round" strokeWidth="2.5" />
-                        {/* Minute hand pointing to 12 */}
-                        <line x1="12" y1="12" x2="12" y2="4" strokeLinecap="round" strokeWidth="1.5" />
-                        {/* Clock face markers */}
-                        <circle cx="12" cy="4" r="0.5" fill="currentColor" />
-                        <circle cx="20" cy="12" r="0.5" fill="currentColor" />
-                        <circle cx="12" cy="20" r="0.5" fill="currentColor" />
-                        <circle cx="4" cy="12" r="0.5" fill="currentColor" />
-                        {/* Center dot */}
-                        <circle cx="12" cy="12" r="1" fill="currentColor" />
-                      </svg>
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-3">Extended Performance</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    Full five-hour sets when you need them—no break, no dip in energy, from first dance to last track.
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={false}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            >
-              <Card className="h-full border-champagne-gold/30 bg-gray-800 hover:shadow-xl transition-all duration-300 hover:border-champagne-gold/60">
-                <CardContent className="p-6">
-                  <div className="mb-4 flex items-center justify-center">
-                    <div className="p-4 bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-full border-2 border-champagne-gold/60 shadow-lg">
-                      <Sparkles className="w-8 h-8 text-champagne-gold" strokeWidth={2.5} />
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-3">Dedicated Service</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    Flexible, attentive and committed to your brief—from first contact to last track.
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={false}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <Card className="h-full border-champagne-gold/30 bg-gray-800 hover:shadow-xl transition-all duration-300 hover:border-champagne-gold/60">
-                <CardContent className="p-6">
-                  <div className="mb-4 flex items-center justify-center">
-                    <div className="p-4 bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-full border-2 border-champagne-gold/60 shadow-lg">
-                      <Wrench className="w-8 h-8 text-champagne-gold" strokeWidth={2.5} />
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-3">Early Setup Available</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    Early load-in available so everything is ready before your guests arrive.
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={false}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.5 }}
-            >
-              <Card className="h-full border-champagne-gold/30 bg-gray-800 hover:shadow-xl transition-all duration-300 hover:border-champagne-gold/60">
-                <CardContent className="p-6">
-                  <div className="mb-4 flex items-center justify-center">
-                    <div className="p-4 bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-full border-2 border-champagne-gold/60 shadow-lg">
-                      <Music className="w-8 h-8 text-champagne-gold" strokeWidth={2.5} />
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-3">Your Music, Your Way</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    Your playlist, your must-plays and must-not-plays—we work to your brief, not a generic formula.
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            <motion.div
-              initial={false}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.6 }}
-            >
-              <Card className="h-full border-champagne-gold/30 bg-gray-800 hover:shadow-xl transition-all duration-300 hover:border-champagne-gold/60">
-                <CardContent className="p-6">
-                  <div className="mb-4 flex items-center justify-center">
-                    <div className="p-4 bg-gradient-to-br from-gray-800/90 to-gray-900/90 rounded-full border-2 border-champagne-gold/60 shadow-lg">
-                      <Shield className="w-8 h-8 text-champagne-gold" strokeWidth={2.5} />
-                    </div>
-                  </div>
-                  <h3 className="text-xl font-bold text-white mb-3">Fully Insured Equipment</h3>
-                  <p className="text-gray-300 leading-relaxed">
-                    Well-maintained sound and lighting, PAT tested and covered by public liability insurance.
-                  </p>
-                </CardContent>
-              </Card>
-            </motion.div>
+                    <h3 className="text-xl font-bold text-white mb-3">{item.title}</h3>
+                    <p className="text-gray-300 leading-relaxed">{item.copy}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
+      {/* How We Build A Dancefloor */}
+      <section className="py-16 md:py-20 px-3 sm:px-4 bg-gray-950">
+        <div className="container mx-auto max-w-5xl">
+          <motion.div
+            initial={false}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+              How We Build A Dancefloor
+            </h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              A packed dancefloor is created long before the first dance — through arrival music,
+              timing and energy management across the whole evening.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+            {dancefloorFlow.map((step, index) => (
+              <motion.div
+                key={step.phase}
+                initial={false}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.08 }}
+              >
+                <Card className="h-full border-champagne-gold/30 bg-gray-900/80">
+                  <CardContent className="p-6">
+                    <h3 className="text-champagne-gold font-semibold text-lg mb-3">{step.phase}</h3>
+                    <p className="text-gray-300 leading-relaxed">{step.detail}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+
+          <p className="text-gray-300 text-lg leading-relaxed text-center max-w-3xl mx-auto">
+            DJs are one part of the overall atmosphere. We often plan music alongside{" "}
+            <Link href="/weddings/wedding-entertainment/" className={linkClass}>
+              wedding entertainment
+            </Link>
+            ,{" "}
+            <Link href="/weddings/wedding-lighting/" className={linkClass}>
+              wedding lighting
+            </Link>
+            ,{" "}
+            <Link href="/parties/private-parties/" className={linkClass}>
+              private parties
+            </Link>{" "}
+            and{" "}
+            <Link href="/services/venue-styling/" className={linkClass}>
+              venue styling
+            </Link>{" "}
+            — so the dancefloor, the room and the outdoor spaces feel like one experience.
+          </p>
+        </div>
+      </section>
+
+      {/* Not All DJs Are The Same */}
+      <section className="py-16 md:py-20 px-3 sm:px-4 bg-gray-900">
+        <div className="container mx-auto max-w-6xl">
+          <motion.div
+            initial={false}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4">
+              Not All DJs Are The Same
+            </h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              Personality and style matter as much as music taste. Here is how to think about our
+              roster — wedding DJs who read the room, party DJs and corporate DJs held to the same
+              standard.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {djStyles.map((dj, index) => (
+              <motion.div
+                key={dj.slug}
+                initial={false}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.08 }}
+              >
+                <Card className="h-full border-champagne-gold/30 bg-gray-800 hover:border-champagne-gold/50 transition-all">
+                  <CardContent className="p-6 sm:p-8">
+                    <h3 className="text-xl font-bold text-white mb-2">
+                      <Link href={`/artists/djs/${dj.slug}/`} className={linkClass}>
+                        {dj.name}
+                      </Link>
+                    </h3>
+                    <p className="text-gray-300 leading-relaxed mb-4">{dj.summary}</p>
+                    <ul className="space-y-2">
+                      {dj.traits.map((trait) => (
+                        <li key={trait} className="text-gray-400 text-sm">
+                          — {trait}
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why Couples Choose Stylish Entertainment — bridge to roster */}
+      <section className="py-16 md:py-20 px-3 sm:px-4 bg-gray-950 border-y border-champagne-gold/20">
+        <div className="container mx-auto max-w-3xl">
+          <motion.div
+            initial={false}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-8 text-center">
+              Why Couples Choose Stylish Entertainment
+            </h2>
+            <div className="space-y-6 text-gray-300 text-lg leading-relaxed">
+              <p>Most people don&apos;t book us because they want a DJ.</p>
+              <p>They book us because they want a party that feels effortless.</p>
+              <p>
+                For more than twenty years we&apos;ve learned that packed dancefloors are rarely
+                created by bigger speakers, brighter lights or longer playlists. They happen when
+                music, timing, lighting and atmosphere work together.
+              </p>
+              <p>
+                That&apos;s why many couples choose us for more than just a DJ.{" "}
+                <Link href="/weddings/wedding-lighting/" className={linkClass}>
+                  Lighting design
+                </Link>
+                ,{" "}
+                <Link href="/services/venue-styling/" className={linkClass}>
+                  venue styling
+                </Link>
+                , musicians and production can all be planned together by one experienced team — the
+                same approach behind our{" "}
+                <Link href="/weddings/wedding-entertainment/" className={linkClass}>
+                  wedding entertainment
+                </Link>{" "}
+                and{" "}
+                <Link href="/parties/private-parties/" className={linkClass}>
+                  private party
+                </Link>{" "}
+                work.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* DJ Roster — cards and profiles unchanged */}
       <DJRosterSection djs={djs} />
 
       <DJsVideoGallery />
@@ -388,7 +530,22 @@ export default function DJsPageContent({ djs }: { djs: DJCardData[] }) {
             className="mb-8 text-center"
           >
             <p className="text-gray-300 text-base sm:text-lg">
-              Complete the experience: <Link href="/weddings/wedding-lighting/" className="text-champagne-gold hover:text-champagne-gold/80 underline font-medium">Wedding Lighting</Link> · <Link href="/services/venue-styling/" className="text-champagne-gold hover:text-champagne-gold/80 underline font-medium">Venue Styling</Link> · <Link href="/what-we-do/" className="text-champagne-gold hover:text-champagne-gold/80 underline font-medium">Production &amp; Hire</Link>
+              Complete the experience:{" "}
+              <Link href="/weddings/wedding-entertainment/" className={linkClass}>
+                Wedding Entertainment
+              </Link>{" "}
+              ·{" "}
+              <Link href="/weddings/wedding-lighting/" className={linkClass}>
+                Wedding Lighting
+              </Link>{" "}
+              ·{" "}
+              <Link href="/parties/private-parties/" className={linkClass}>
+                Private Parties
+              </Link>{" "}
+              ·{" "}
+              <Link href="/services/venue-styling/" className={linkClass}>
+                Venue Styling
+              </Link>
             </p>
           </motion.div>
 
