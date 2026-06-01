@@ -261,7 +261,7 @@ export default function Galleries() {
               See the dramatic transformations we create at venues in the South West and beyond
             </p>
           </motion.div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 max-w-6xl mx-auto mb-8 md:mb-10">
+          <div className="grid grid-cols-1 gap-6 md:gap-8 mb-8 md:mb-10">
             {beforeAfterTransforms.map((transform, index) => (
               <motion.div
                 key={index}
@@ -270,21 +270,26 @@ export default function Galleries() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
               >
-                <Card className="h-full bg-gray-800/50 backdrop-blur-sm border-2 border-champagne-gold/30 shadow-xl overflow-hidden hover:border-champagne-gold/60 transition-all duration-300">
+                <Card className="bg-gray-800/50 backdrop-blur-sm border-2 border-champagne-gold/30 shadow-xl overflow-hidden hover:border-champagne-gold/60 transition-all duration-300">
                   <CardContent className="p-4 sm:p-6">
-                    <BeforeAfter before={transform.before} after={transform.after} />
+                    <BeforeAfter
+                      before={transform.before}
+                      after={transform.after}
+                      aspectRatio="16/9"
+                      fullWidth
+                    />
                   </CardContent>
                 </Card>
               </motion.div>
             ))}
           </div>
-          {/* Video Transformation – wider container so YouTube serves HD (720p+ needs ~1090px+) */}
+          {/* Video Transformation – portrait reel; constrain width so 9:16 stays proportional */}
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="max-w-3xl md:max-w-6xl lg:max-w-7xl mx-auto"
+            className="max-w-md mx-auto"
           >
             <Card className="bg-gray-800/50 backdrop-blur-sm border-2 border-champagne-gold/30 shadow-xl overflow-hidden hover:border-champagne-gold/60 transition-all duration-300">
               <CardContent className="p-4 sm:p-6">
@@ -294,7 +299,7 @@ export default function Galleries() {
                 <p className="text-sm text-gray-300 text-center mb-4">
                   Watch how we transform spaces with fun and creative styling
                 </p>
-                <div className="relative w-full aspect-[9/16] sm:aspect-video rounded-lg overflow-hidden bg-gray-900 shadow-lg">
+                <div className="relative w-full aspect-[9/16] rounded-lg overflow-hidden bg-gray-900 shadow-lg">
                   <LazyIframe
                     src="https://www.youtube.com/embed/47yP9a9lEg8?vq=hd1080"
                     title="Venue transformation and fun styling example - Stylish Entertainment"
