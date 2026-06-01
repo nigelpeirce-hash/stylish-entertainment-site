@@ -168,6 +168,16 @@ export default async function RootLayout({
             fetchPriority="high"
           />
         )}
+        {/* /weddings/wedding-entertainment LCP preload – hero image for PageSpeed */}
+        {(pathname === "/weddings/wedding-entertainment" ||
+          pathname === "/weddings/wedding-entertainment/") && (
+          <link
+            rel="preload"
+            as="image"
+            href="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768749164/MartinBeddallPhotography02-e1530632660291_pabjzl.jpg"
+            fetchPriority="high"
+          />
+        )}
         {/* /weddings/wedding-lighting LCP preload – hero image for PageSpeed */}
         {(pathname === "/weddings/wedding-lighting" || pathname === "/weddings/wedding-lighting/") && (
           <link
