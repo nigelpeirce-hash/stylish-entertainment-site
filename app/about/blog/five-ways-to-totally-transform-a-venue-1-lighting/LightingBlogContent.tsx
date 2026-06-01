@@ -16,7 +16,7 @@ const BlogImage = dynamicImport(() => import("@/components/BlogImage"), {
 
 export default function LightingBlogContent() {
   useEffect(() => {
-    document.title = "Five Ways to Totally Transform a Venue #1 Lighting | Stylish Entertainment Blog";
+    document.title = "Five Ways to Totally Transform a Venue #1 Lighting | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute("content", "Discover how lighting can transform any venue for weddings, parties, and corporate events. From fairy lights to LED uplighting, explore creative lighting design ideas from STYLISH Entertainment.");
@@ -60,7 +60,7 @@ export default function LightingBlogContent() {
           className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-32 md:pt-40"
         >
           <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/20">
-            <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Blog</span>
+            <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Journal</span>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
             Five Ways to Totally Transform a Venue #1 Lighting

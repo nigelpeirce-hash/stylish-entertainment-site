@@ -37,7 +37,7 @@ export default function Navigation() {
     { href: "/testi", label: "Testimonials" },
     { href: "/about/faq", label: "FAQ" },
     { href: "/about", label: "About Us" },
-    { href: "/about/blog", label: "Blog" },
+    { href: "/about/blog/", label: "Journal" },
   ];
 
   const whatWeOfferLinks = [

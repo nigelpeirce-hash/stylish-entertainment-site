@@ -45,7 +45,7 @@ const galleryPhotos: ImagePhoto[] = [
 
 export default function BristolBlogContent() {
   useEffect(() => {
-    document.title = "Bristol University Spring Ball | Stylish Entertainment Blog";
+    document.title = "Bristol University Spring Ball | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute("content", "STYLISH Entertainment designed and implemented lighting and sound for the Bristol University Spring Ball at Kings Weston House, transforming the venue for 750 law students.");
@@ -73,7 +73,7 @@ export default function BristolBlogContent() {
           className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-32 md:pt-40"
         >
           <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/20">
-            <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Blog</span>
+            <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Journal</span>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
             Bristol University Spring Ball

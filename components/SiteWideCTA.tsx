@@ -60,6 +60,8 @@ const EXACT_HIDE = [
 function shouldHide(pathname: string | null): boolean {
   if (!pathname) return false;
   if (PREFIX_HIDE.some((p) => pathname.startsWith(p))) return true;
+  // Individual journal articles include their own contextual CTA
+  if (/^\/about\/blog\/.+/.test(pathname)) return true;
   return EXACT_HIDE.some((p) => pathname === p || pathname === `${p}/`);
 }
 

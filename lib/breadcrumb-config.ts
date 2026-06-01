@@ -13,7 +13,7 @@ export const BREADCRUMB_ROUTE_LABELS: Record<string, string> = {
   
   // Public routes
   "/about": "About Us",
-  "/blog": "Blog",
+  "/blog": "Journal",
   "/artists": "Artists",
   "/djs": "DJs",
   "/musicians": "Musicians",
@@ -101,7 +101,7 @@ export const BREADCRUMB_ROUTE_LABELS: Record<string, string> = {
 export const PATH_SEGMENT_LABELS: Record<string, string> = {
   // Extract just the segment part (without slashes) for URL parsing
   "about": "About Us",
-  "blog": "Blog",
+  "blog": "Journal",
   "artists": "Artists",
   "djs": "DJs",
   "musicians": "Musicians",

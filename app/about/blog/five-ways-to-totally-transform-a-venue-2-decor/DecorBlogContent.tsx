@@ -18,7 +18,7 @@ const LazyIframe = dynamicImport(() => import("@/components/LazyIframe"), {
 
 export default function DecorBlogContent() {
   useEffect(() => {
-    document.title = "Five Ways to Totally Transform a Venue #2 Decor | Stylish Entertainment Blog";
+    document.title = "Five Ways to Totally Transform a Venue #2 Decor | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute("content", "Discover how decor can transform your wedding venue. From Middle Eastern themes to circus tents, explore creative venue styling ideas from STYLISH Entertainment.");
@@ -53,7 +53,7 @@ export default function DecorBlogContent() {
           className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-32 md:pt-40"
         >
           <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/20">
-            <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Blog</span>
+            <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Journal</span>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
             Five Ways to Totally Transform a Venue #2 Decor
