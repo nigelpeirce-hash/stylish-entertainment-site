@@ -3,8 +3,9 @@ import PartyPlanningClient from "./PartyPlanningClient";
 import { createMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = createMetadata({
-  title: "Professional Party Planning & Event Organization | Somerset, Wiltshire & Beyond",
-  description: "Complete party planning and event organization services. From intimate celebrations to grand events, we handle every detail including entertainment, lighting, styling, and coordination in the South West and beyond. 20+ years of experience.",
+  title: "Private Event Production | Party Planning Somerset & UK",
+  description:
+    "Creative direction, DJs, lighting, styling and production for milestone birthdays, marquee parties and estate celebrations. Private event production and luxury party planning across Somerset, Bath, Bristol, London and UK-wide. 20+ years at Babington House.",
   pathname: "party-planning-and-organising",
 });
 

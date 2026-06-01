@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useState } from "react";
 import { motion } from "@/lib/motion";
 import Image from "next/image";
@@ -10,51 +11,267 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import BeforeAfter from "@/components/BeforeAfter";
 import { Button } from "@/components/ui/button";
 import WaveDivider from "@/components/WaveDivider";
-import { Calendar, Users, Sparkles, CheckCircle2, Video, Lightbulb, Music2, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Briefcase,
+  Building2,
+  Cake,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Home,
+  Lightbulb,
+  Music2,
+  Palette,
+  Sparkles,
+  Tent,
+  Users,
+  Video,
+  XCircle,
+} from "lucide-react";
+
+const linkClass =
+  "text-champagne-gold hover:text-gold-light underline underline-offset-2 transition-colors";
 
 const processSteps = [
   {
-    id: "vision",
-    title: "The Vision (Consultation)",
-    Icon: Video,
+    id: "dream",
+    title: "Dream It",
+    Icon: Sparkles,
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768731827/Camilla-Richard-0063_ngmblz.jpg",
-    imageAlt: "Initial consultation meeting for event planning",
-    description: "Every extraordinary event begins with understanding your vision. Through comprehensive consultations, we explore your ideas, preferences, and goals to create a bespoke plan that reflects your unique style.",
+    imageAlt: "Consultation for private event production — understanding the celebration and guest list",
+    description:
+      "We start by understanding what you are celebrating, who is coming and how the night should feel — not with a supplier checklist, but with the atmosphere you want guests to remember.",
     bullets: [
-      "Comprehensive event consultation to understand your vision",
-      "Budget planning and cost management",
-      "Venue selection and site visits",
+      "What the occasion means and who the party is really for",
+      "How you want arrival, dinner, dancing and outdoor spaces to flow",
+      "Must-haves, must-nots and the mood you want before the first guest walks in",
     ],
   },
   {
     id: "design",
-    title: "The Design (Production)",
+    title: "Design It",
     Icon: Lightbulb,
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768733254/Babington-House-in-Green_oms0ws.jpg",
-    imageAlt: "Lighting design and production setup in progress",
-    description: "From concept to reality, we transform your vision into a meticulously planned production. Our technical expertise ensures every element—from lighting design to sound systems—is perfectly orchestrated.",
+    imageAlt: "Lighting design and creative direction for a private celebration",
+    description:
+      "We shape the atmosphere — music, lighting, layout, styling, production and supplier coordination — so every element connects before installation begins.",
     bullets: [
-      "Lighting design and installation",
-      "Sound system setup and management",
-      "Venue styling and decoration",
+      "Entertainment strategy — DJs, musicians and how energy builds through the night",
+      "Lighting design, exterior spaces and room transformation",
+      "Production planning — sound, power, staging, timing and crew",
     ],
   },
   {
-    id: "night",
-    title: "The Night (Execution)",
+    id: "deliver",
+    title: "Deliver It",
     Icon: Music2,
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163815/Highcliffe-Castle-Wedding-2-web_pgsbaa.jpg",
-    imageAlt: "Party in full swing with flawless execution",
-    description: "On the day, our experienced team executes every detail flawlessly. With seamless coordination and dedicated on-site management, you can relax and enjoy your celebration while we handle everything behind the scenes.",
+    imageAlt: "Private celebration in full swing — production managed on the night",
+    description:
+      "Our team installs, manages and runs the production so the party feels effortless for you. We coordinate suppliers, solve problems quietly and keep the guest experience at the centre.",
     bullets: [
-      "Day-of event coordination and management",
-      "Supplier liaison and coordination",
-      "Problem-solving and on-the-day support",
+      "Installation, technical checks and on-site production management",
+      "Coordination with venue, caterers and trusted suppliers",
+      "A team that owns the evening atmosphere — not just individual hire items",
     ],
   },
 ];
 
-// Before and After – 2-row layout: Barn transformation + Party room transformation (matches galleries)
+const whatWeDoCards: Array<{ Icon: typeof Sparkles; title: string; copy: ReactNode }> = [
+  {
+    Icon: Sparkles,
+    title: "Creative Direction",
+    copy: "Overall vision, atmosphere, flow and style — so the party feels intentional, not assembled from separate suppliers.",
+  },
+  {
+    Icon: Music2,
+    title: "Entertainment Strategy",
+    copy: (
+      <>
+        <Link href="/artists/djs/" className={linkClass}>
+          DJs
+        </Link>
+        , musicians, performers and how energy builds from arrival through to the final dancefloor — not
+        one flat playlist all night.
+      </>
+    ),
+  },
+  {
+    Icon: Lightbulb,
+    title: "Lighting & Atmosphere",
+    copy: (
+      <>
+        Dancefloor lighting, uplighting, exterior tree lighting, courtyard lighting, festoon, fairy lights
+        and room transformation — see our{" "}
+        <Link href="/parties/party-lighting/" className={linkClass}>
+          party lighting
+        </Link>{" "}
+        approach.
+      </>
+    ),
+  },
+  {
+    Icon: Video,
+    title: "Production",
+    copy: "Sound, power, staging, timing, crew and technical logistics — the infrastructure that lets creative ideas work on the night.",
+  },
+  {
+    Icon: Palette,
+    title: "Styling & Finishing Touches",
+    copy: (
+      <>
+        Furniture, props,{" "}
+        <Link href="/services/fire-pit-hire/" className={linkClass}>
+          fire pits
+        </Link>
+        , outdoor spaces and guest experience details — plus{" "}
+        <Link href="/services/venue-styling/" className={linkClass}>
+          venue styling
+        </Link>{" "}
+        where the room needs more than lights alone.
+      </>
+    ),
+  },
+  {
+    Icon: Users,
+    title: "Supplier Coordination",
+    copy: "Working with venues, caterers, florists, photographers and trusted suppliers — without pretending to replace every specialist planner in every category.",
+  },
+];
+
+const partiesWeProduce: Array<{ Icon: typeof Cake; title: string; copy: ReactNode }> = [
+  {
+    Icon: Cake,
+    title: "Milestone birthdays",
+    copy: "40th, 50th, 60th and 70th celebrations where the guest of honour matters and the dancefloor still has to deliver — personal music, lighting and production shaped around the people in the room.",
+  },
+  {
+    Icon: Tent,
+    title: "Marquee parties",
+    copy: "Empty field to finished venue — structure, flow, lighting that softens the canvas and entertainment that evolves from first drink to peak-time dancing.",
+  },
+  {
+    Icon: Home,
+    title: "House and garden parties",
+    copy: (
+      <>
+        Private homes transformed without losing their character — sound, lighting and layout that work
+        for intimate rooms and outdoor terraces. More on our{" "}
+        <Link href="/parties/private-parties/" className={linkClass}>
+          private parties
+        </Link>{" "}
+        approach.
+      </>
+    ),
+  },
+  {
+    Icon: Building2,
+    title: "Estate celebrations",
+    copy: "Multiple spaces, outdoor zones, lighting paths between rooms and entertainment that keeps guests moving — production that connects the whole property, not just one marquee or barn.",
+  },
+  {
+    Icon: Sparkles,
+    title: "Themed parties",
+    copy: "Wild West, Gatsby, disco, club nights and bespoke concepts — creative direction and production that commits to the theme without feeling like a fancy-dress shop.",
+  },
+  {
+    Icon: Briefcase,
+    title: "Corporate and brand celebrations",
+    copy: "Polished production, music and guest experience for clients and teams — presenter confidence, room energy and the kind of detail that reflects well on your brand.",
+  },
+];
+
+const after20YearsPoints = [
+  "Guests do not remember supplier lists. They remember moments.",
+  "The reveal when they enter the space — lighting, layout and music already working together.",
+  "The first drink outside at sunset, with festoon or courtyard lighting doing its job quietly.",
+  "The dancefloor suddenly taking off because timing and programming were right, not because someone turned the volume up.",
+  "Fire pits or exterior lighting at midnight — outdoor spaces still connected to the party.",
+  "Great production creates those moments deliberately. That is what this service is for.",
+];
+
+const goodFitItems = [
+  "You have a venue, house, barn, marquee or estate and need the whole atmosphere shaped — not just one hire item dropped in.",
+  "You want DJs, lighting, styling and production managed together by one experienced team.",
+  "You are planning a milestone birthday or serious private celebration with a meaningful budget.",
+  "You want creative ideas but also practical delivery — someone who can both imagine the night and run it.",
+  "You want one team to own the evening atmosphere from first idea to final dancefloor.",
+];
+
+const notFitItems = [
+  "You only need a very basic DJ booking with no production or creative input.",
+  "You already have a full planner and only need a single lighting or sound hire.",
+  "You want the cheapest possible supplier list with no creative direction.",
+];
+
+const whatWeDontDoItems = [
+  "We are not a wedding planner.",
+  "We are not a venue finder.",
+  "We are not a directory of suppliers.",
+];
+
+const typicalProductionBriefPhases = [
+  {
+    label: "The brief",
+    detail:
+      "A client wants to celebrate a 50th birthday for 150 guests at home. The house, garden and marquee all need to work as one celebration — not three separate areas with a DJ dropped in at the end.",
+  },
+  {
+    label: "Where we start",
+    detail:
+      "We start with the atmosphere — how guests should feel on arrival, where energy builds and how outdoor spaces stay connected after dark.",
+  },
+  {
+    label: "Arrival",
+    detail: "Guests arrive through a lit pathway — exterior lighting that sets the tone before anyone reaches the marquee or dancefloor.",
+  },
+  {
+    label: "Garden drinks",
+    detail:
+      "Drinks are served in the garden — considered background, courtyard lighting and a flow that feels natural, not rushed toward dinner.",
+  },
+  {
+    label: "The marquee",
+    detail:
+      "The marquee becomes the heart of the celebration — lighting, layout and sound planned so the room feels intentional, not like a tent waiting for a band.",
+  },
+  {
+    label: "Dinner to dancing",
+    detail:
+      "Dining transitions into dancing — timing, must-plays and programming handled so the floor gathers without a jarring switch.",
+  },
+  {
+    label: "After dark",
+    detail: (
+      <>
+        Fire pits and exterior lighting keep outdoor spaces alive after dark — so guests drift outside for
+        one more drink without the party splitting in two. See our{" "}
+        <Link href="/services/fire-pit-hire/" className={linkClass}>
+          fire pit hire
+        </Link>
+        .
+      </>
+    ),
+  },
+  {
+    label: "One experience",
+    detail: (
+      <>
+        <Link href="/artists/djs/" className={linkClass}>
+          DJs
+        </Link>
+        ,{" "}
+        <Link href="/parties/party-lighting/" className={linkClass}>
+          lighting
+        </Link>{" "}
+        and production are all managed as one experience — one team owning the evening, not a list of
+        suppliers left to coordinate themselves.
+      </>
+    ),
+  },
+];
+
+// Before and After – kept as centrepiece of transformation section
 const beforeAfterTransforms = [
   {
     title: "Barn Transformation",
@@ -97,7 +314,6 @@ function ProcessCarousel() {
       className="relative overflow-hidden rounded-xl border border-champagne-gold/30 bg-gray-900 shadow-xl"
     >
       <div className="flex flex-col lg:flex-row">
-        {/* Image - compact aspect */}
         <div className="relative w-full lg:w-1/2 aspect-video lg:aspect-[4/3] shrink-0">
           <Image
             src={step.image}
@@ -107,14 +323,12 @@ function ProcessCarousel() {
             sizes="(max-width: 1024px) 100vw, 50vw"
             priority={stepIndex === 0}
           />
-          {/* Step labels on image */}
           <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
             <span className="text-white/90 text-sm font-medium drop-shadow-lg">
               Step {stepIndex + 1} of {processSteps.length}
             </span>
           </div>
         </div>
-        {/* Content */}
         <div className="flex-1 p-6 md:p-8 flex flex-col justify-center">
           <Card className="bg-transparent border-0 shadow-none">
             <CardHeader className="p-0 pb-4">
@@ -135,7 +349,6 @@ function ProcessCarousel() {
               </ul>
             </CardContent>
           </Card>
-          {/* Nav arrows + dots */}
           <div className="flex items-center justify-between mt-6 pt-6 border-t border-champagne-gold/20">
             <button
               onClick={goPrev}
@@ -177,67 +390,67 @@ const partyPlanningPhotos: ImagePhoto[] = [
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163371/Lighting-Design-at-Kings-Weston-House_qxzunv.jpg",
     width: 1200,
     height: 900,
-    alt: "Complete party planning service at Kings Weston House with professional lighting design and event coordination",
+    alt: "Private event production at Kings Weston House with professional lighting design",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163745/Pool-Party01_qe5ro0.jpg",
     width: 1200,
     height: 900,
-    alt: "Pool party planning and organization with professional event management and entertainment coordination",
+    alt: "Pool party production with lighting and entertainment coordination",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163790/Party-dj-with-lazer_wnhreb.jpg",
     width: 1200,
     height: 900,
-    alt: "Full party planning service including DJ entertainment, lighting, and complete event coordination",
+    alt: "Private event production including DJ entertainment and dancefloor lighting",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163633/Stretch-Marquee-Lighting-e1483614284289_lmsqwr.jpg",
     width: 1200,
     height: 900,
-    alt: "Marquee party planning with professional lighting installation and complete event styling",
+    alt: "Marquee party production with professional lighting installation",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768754478/IMG_2866_zhs5sz.jpg",
     width: 1200,
     height: 900,
-    alt: "Professional party planning and event styling creating an extraordinary celebration",
+    alt: "Private event production and creative direction for a milestone celebration",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768742320/IMG_1871_161201_n88x5z.jpg",
     width: 1200,
     height: 900,
-    alt: "Bespoke event organization with lighting design and venue styling",
+    alt: "Event lighting and production with venue styling",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768741619/IMG_0487_aoaxho.jpg",
     width: 1200,
     height: 900,
-    alt: "Complete party planning from concept to execution in the South West",
+    alt: "Private party production from concept to delivery in the South West",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768729861/798D06F8-3A1A-464B-B222-219CFFB7888D_1_105_c_leivu1.jpg",
     width: 1200,
     height: 900,
-    alt: "Event coordination and styling for memorable celebrations",
+    alt: "Creative event production and styling for private celebrations",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768649763/80EF72DA-E9D2-4CC9-9AAE-6AF923A5481E_1_102_a_efp2sw.jpg",
     width: 1200,
     height: 900,
-    alt: "Party planning and organization delivering extraordinary events",
+    alt: "Private event production delivering atmosphere and guest experience",
   },
 ];
 
 export default function PartyPlanningClient() {
   return (
     <div className="max-w-full overflow-x-hidden">
-      {/* Hero – LCP: w_1200 + fetchPriority high, preloaded in layout */}
+      {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center justify-center text-white overflow-hidden max-w-full">
         <div className="absolute inset-0 z-0">
           <Image
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768754478/IMG_2866_zhs5sz.jpg"
-            alt="Professional party planning and event organization services"
+            alt="Private event production — creative direction, lighting and entertainment for milestone celebrations"
             fill
             className="object-cover object-center"
             priority
@@ -249,14 +462,16 @@ export default function PartyPlanningClient() {
         <div className="relative z-20 text-center px-4 max-w-4xl mx-auto pt-40 pb-24 sm:pt-48 sm:pb-28 md:pt-52">
           <div className="inline-block mb-6 px-6 py-2 bg-champagne-gold/10 rounded-full border border-champagne-gold/30 backdrop-blur-sm">
             <span className="text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase">
-              Trusted at Babington House since 2003
+              Milestone · Marquee · Estate
             </span>
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
-            Party Planning &amp; Event Production
+            Private Event Production
           </h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md mb-8 max-w-3xl mx-auto">
-            DJs, lighting, styling and production support — one experienced team helping shape celebrations across Somerset, Wiltshire and beyond.
+          <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md mb-8 max-w-3xl mx-auto leading-relaxed">
+            Creative direction, DJs, lighting, styling and production for milestone birthdays, marquee
+            parties, estate celebrations and private events — one experienced team shaping the atmosphere
+            from first idea to final dancefloor.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-4">
             <Button
@@ -276,7 +491,7 @@ export default function PartyPlanningClient() {
             </Button>
           </div>
           <p className="text-xs sm:text-sm text-gray-300 drop-shadow-md">
-            20+ years · Trusted venues · Somerset, Wiltshire &amp; UK-wide
+            Trusted at Babington House since 2003 · 20+ years · South West, London &amp; UK-wide
           </p>
         </div>
         <div className="absolute bottom-0 left-0 right-0 z-20">
@@ -284,58 +499,66 @@ export default function PartyPlanningClient() {
         </div>
       </section>
 
-      {/* Before and After – 2-row layout (matches galleries) */}
-      <section className="py-16 md:py-20 px-4 sm:px-6 bg-gray-900 max-w-full overflow-x-hidden">
-        <div className="w-full max-w-[1700px] mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mb-10 md:mb-14 text-center"
-          >
-            <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
-              <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">Featured</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans mb-3 text-white font-bold">
-              Before and After
-            </h2>
-            <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto">
-              Drag the slider or click anywhere to compare
-            </p>
-          </motion.div>
-          <div className="grid grid-cols-1 gap-16">
-            {beforeAfterTransforms.map((transform, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <Card className="bg-gray-800/50 backdrop-blur-sm border-2 border-champagne-gold/30 shadow-xl overflow-hidden hover:border-champagne-gold/60 transition-all duration-300">
-                  <CardContent className="p-4 sm:p-6">
-                    <BeforeAfter
-                      before={transform.before}
-                      after={transform.after}
-                      aspectRatio="16/9"
-                      fullWidth
-                    />
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Content */}
       <div
         style={{
-          background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
+          background:
+            "radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)",
         }}
       >
-        {/* Introduction */}
+        {/* Why Some Parties Feel Different */}
+        <section className="py-20 px-4 max-w-full overflow-x-hidden">
+          <div className="container mx-auto max-w-3xl">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="text-center"
+            >
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
+                Why Some Parties Feel Different
+              </h2>
+              <p className="text-gray-200 text-lg md:text-xl leading-relaxed mb-6">
+                The most memorable celebrations are rarely just about budget. They are the ones where every
+                element works together — arrival, lighting, music, layout, timing, outdoor spaces and the
+                final dancefloor.
+              </p>
+              <p className="text-gray-300 text-lg leading-relaxed">
+                Extraordinary private celebrations need more than suppliers. They need creative direction,
+                atmosphere and production that connects the whole evening — so guests feel something from
+                the moment they arrive, not just when the DJ starts.
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* After 20 Years Of Parties… */}
+        <section className="py-20 px-4 bg-gray-950/60 max-w-full overflow-x-hidden border-y border-champagne-gold/10">
+          <div className="container mx-auto max-w-3xl">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-8 text-center">
+                After 20 Years Of Parties&hellip;
+              </h2>
+              <ul className="space-y-4">
+                {after20YearsPoints.map((point, idx) => (
+                  <li
+                    key={idx}
+                    className="text-base sm:text-lg leading-relaxed text-gray-300 pl-4 border-l-2 border-champagne-gold/40"
+                  >
+                    {point}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* What We Actually Do */}
         <section className="py-20 px-4 max-w-full overflow-x-hidden">
           <div className="container mx-auto max-w-6xl">
             <motion.div
@@ -343,94 +566,135 @@ export default function PartyPlanningClient() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="relative"
+              className="text-center mb-12"
             >
-              {/* 20 Years of Excellence Badge */}
-              <div className="absolute -top-4 -right-4 md:-right-8 z-10">
-                <motion.div
-                  initial={{ scale: 0, rotate: -180 }}
-                  whileInView={{ scale: 1, rotate: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: 0.3 }}
-                  className="relative w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-champagne-gold to-gold-dark border-4 border-champagne-gold/50 shadow-[0_0_30px_rgba(212,175,55,0.5)] flex items-center justify-center"
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">What We Actually Do</h2>
+              <p className="text-gray-300 text-lg max-w-2xl mx-auto leading-relaxed">
+                &ldquo;Party planning&rdquo; can mean many things. This page is about{" "}
+                <strong className="text-white font-semibold">private event production</strong> and creative
+                direction — shaping atmosphere, entertainment strategy and technical delivery together. The
+                same team behind{" "}
+                <Link href="/weddings/wedding-entertainment/" className={linkClass}>
+                  wedding entertainment
+                </Link>{" "}
+                and{" "}
+                <Link href="/parties/private-parties/" className={linkClass}>
+                  private parties
+                </Link>
+                , applied to serious celebrations with meaningful budgets.
+              </p>
+            </motion.div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {whatWeDoCards.map(({ Icon, title, copy }) => (
+                <Card
+                  key={title}
+                  className="bg-white/5 backdrop-blur-md border-champagne-gold/30 hover:border-champagne-gold/50 hover:shadow-[0_0_20px_rgba(212,175,55,0.2)] transition-all duration-300"
                 >
-                  <div className="text-center">
-                    <div className="text-2xl md:text-3xl font-bold text-black">20</div>
-                    <div className="text-xs md:text-sm font-semibold text-black">Years</div>
-                  </div>
-                  <div className="absolute inset-0 rounded-full border-2 border-champagne-gold/30 animate-ping opacity-20"></div>
-                </motion.div>
-              </div>
-
-              <div className="text-center mb-12 relative">
-                <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6">
-                  Stress-Free Event Planning
-                </h2>
-                <p className="text-gray-200 text-lg md:text-xl leading-relaxed mb-6 max-w-3xl mx-auto">
-                  Planning a party or event can be overwhelming, but it doesn&apos;t have to be. With over 20 years of experience creating unforgettable celebrations, we offer complete party planning and event organization services that handle every detail, so you can relax and enjoy your own event.
-                </p>
-                <p className="text-gray-200 text-lg md:text-xl leading-relaxed max-w-3xl mx-auto">
-                  From intimate gatherings to grand celebrations, we work closely with you to understand your vision and bring it to life with professional expertise, attention to detail, and seamless coordination.
-                </p>
-              </div>
-            </motion.div>
+                  <CardContent className="p-6">
+                    <Icon className="w-10 h-10 mb-4 text-champagne-gold" />
+                    <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
+                    <p className="text-gray-300 text-sm leading-relaxed">{copy}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </section>
 
-        {/* Planning Pillars Grid */}
-        <section className="py-20 px-4 max-w-full overflow-x-hidden">
-          <div className="container mx-auto max-w-6xl">
+        {/* A Typical Private Event Production Brief — illustration, not a case study */}
+        <section className="py-20 px-4 bg-gray-950/60 max-w-full overflow-x-hidden border-y border-champagne-gold/10">
+          <div className="container mx-auto max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
             >
-              <Card className="bg-white/5 backdrop-blur-md border-champagne-gold/30 hover:border-champagne-gold/50 hover:shadow-[0_0_20px_rgba(212,175,55,0.2)] transition-all duration-300">
-                <CardContent className="p-6 text-center">
-                  <Calendar className="w-12 h-12 mx-auto mb-4 text-champagne-gold" />
-                  <h3 className="text-xl font-bold text-white mb-3">Event Coordination</h3>
-                  <p className="text-gray-300 text-sm leading-relaxed">
-                    Complete timeline management and day-of coordination to ensure everything runs smoothly
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/5 backdrop-blur-md border-champagne-gold/30 hover:border-champagne-gold/50 hover:shadow-[0_0_20px_rgba(212,175,55,0.2)] transition-all duration-300">
-                <CardContent className="p-6 text-center">
-                  <Users className="w-12 h-12 mx-auto mb-4 text-champagne-gold" />
-                  <h3 className="text-xl font-bold text-white mb-3">Supplier Management</h3>
-                  <p className="text-gray-300 text-sm leading-relaxed">
-                    Coordinate with all suppliers including caterers, florists, photographers, and venues
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/5 backdrop-blur-md border-champagne-gold/30 hover:border-champagne-gold/50 hover:shadow-[0_0_20px_rgba(212,175,55,0.2)] transition-all duration-300">
-                <CardContent className="p-6 text-center">
-                  <Sparkles className="w-12 h-12 mx-auto mb-4 text-champagne-gold" />
-                  <h3 className="text-xl font-bold text-white mb-3">Design & Styling</h3>
-                  <p className="text-gray-300 text-sm leading-relaxed">
-                    Create cohesive design themes and styling that reflects your personal vision
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/5 backdrop-blur-md border-champagne-gold/30 hover:border-champagne-gold/50 hover:shadow-[0_0_20px_rgba(212,175,55,0.2)] transition-all duration-300">
-                <CardContent className="p-6 text-center">
-                  <CheckCircle2 className="w-12 h-12 mx-auto mb-4 text-champagne-gold" />
-                  <h3 className="text-xl font-bold text-white mb-3">Full Service</h3>
-                  <p className="text-gray-300 text-sm leading-relaxed">
-                    Entertainment, lighting, styling, and production all managed under one roof
-                  </p>
-                </CardContent>
-              </Card>
+              <div className="text-center mb-10">
+                <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
+                  <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">
+                    Illustration
+                  </span>
+                </div>
+                <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
+                  A Typical Private Event Production Brief
+                </h2>
+                <p className="text-gray-400 text-base max-w-xl mx-auto">
+                  Not a case study — just how a milestone celebration might unfold when production, creative
+                  direction and guest experience are planned as one story.
+                </p>
+              </div>
+              <div className="space-y-4">
+                {typicalProductionBriefPhases.map((phase, idx) => (
+                  <div
+                    key={phase.label}
+                    className="flex gap-4 p-4 sm:p-5 rounded-lg bg-gray-900/70 border border-champagne-gold/15"
+                  >
+                    <span className="flex-shrink-0 w-8 h-8 rounded-full bg-champagne-gold/15 border border-champagne-gold/40 flex items-center justify-center text-champagne-gold text-sm font-bold">
+                      {idx + 1}
+                    </span>
+                    <div>
+                      <p className="text-champagne-gold font-semibold mb-1">{phase.label}</p>
+                      <p className="text-gray-300 text-sm sm:text-base leading-relaxed">{phase.detail}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </motion.div>
           </div>
         </section>
 
-        {/* Gallery - Horizontal Carousel */}
+        {/* From Empty Space To Finished Party — before/after sliders */}
+        <section className="py-16 md:py-20 px-4 sm:px-6 bg-gray-900 max-w-full overflow-x-hidden">
+          <div className="w-full max-w-[1700px] mx-auto px-4">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="mb-10 md:mb-14 text-center"
+            >
+              <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
+                <span className="text-xs font-semibold text-champagne-gold tracking-wider uppercase">
+                  Venue Transformation
+                </span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans mb-4 text-white font-bold">
+                From Empty Space To Finished Party
+              </h2>
+              <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto leading-relaxed">
+                Before and after matters because most great parties begin as empty rooms, barns, lawns or
+                marquees. Our job is to make the space feel intentional before the first guest arrives —
+                creative event production you can see, not just read about.
+              </p>
+              <p className="text-sm text-gray-400 mt-3">Drag the slider or click anywhere to compare</p>
+            </motion.div>
+            <div className="grid grid-cols-1 gap-16">
+              {beforeAfterTransforms.map((transform, index) => (
+                <motion.div
+                  key={index}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <Card className="bg-gray-800/50 backdrop-blur-sm border-2 border-champagne-gold/30 shadow-xl overflow-hidden hover:border-champagne-gold/60 transition-all duration-300">
+                    <CardContent className="p-4 sm:p-6">
+                      <BeforeAfter
+                        before={transform.before}
+                        after={transform.after}
+                        aspectRatio="16/9"
+                        fullWidth
+                      />
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Gallery */}
         <section className="py-16 px-4 bg-gray-950/50 max-w-full overflow-x-hidden">
           <div className="container mx-auto max-w-7xl">
             <motion.div
@@ -450,7 +714,7 @@ export default function PartyPlanningClient() {
           </div>
         </section>
 
-        {/* The Process - Compact Carousel */}
+        {/* Process — Dream It / Design It / Deliver It */}
         <section className="py-20 px-4 max-w-full overflow-x-hidden">
           <div className="container mx-auto max-w-6xl">
             <motion.div
@@ -460,16 +724,157 @@ export default function PartyPlanningClient() {
               transition={{ duration: 0.6 }}
               className="text-center mb-12"
             >
-              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-                The Process
-              </h2>
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">How We Work</h2>
+              <p className="text-gray-400 max-w-xl mx-auto">
+                Three stages — from the first conversation to the final dancefloor.
+              </p>
             </motion.div>
-
             <ProcessCarousel />
           </div>
         </section>
 
-        {/* Call to Action */}
+        {/* The Parties We Produce */}
+        <section className="py-20 px-4 bg-gray-950/60 max-w-full overflow-x-hidden border-y border-champagne-gold/10">
+          <div className="container mx-auto max-w-6xl">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="text-center mb-12"
+            >
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">The Parties We Produce</h2>
+              <p className="text-gray-300 text-lg max-w-2xl mx-auto">
+                Private party production across Somerset, Bath, Bristol, London and UK-wide — from milestone
+                birthdays to marquee party production and house party production at scale.
+              </p>
+            </motion.div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {partiesWeProduce.map(({ Icon, title, copy }) => (
+                <Card
+                  key={title}
+                  className="bg-gray-900/70 border border-champagne-gold/20 hover:border-champagne-gold/40 transition-colors"
+                >
+                  <CardContent className="p-6">
+                    <Icon className="w-8 h-8 text-champagne-gold mb-3" />
+                    <h3 className="text-lg font-bold text-white mb-2">{title}</h3>
+                    <p className="text-gray-400 text-sm leading-relaxed">{copy}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Babington proof */}
+        <section className="py-20 px-4 max-w-full overflow-x-hidden">
+          <div className="container mx-auto max-w-3xl">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="p-8 md:p-10 rounded-2xl bg-gray-900/70 border border-champagne-gold/25 backdrop-blur-sm"
+            >
+              <h2 className="text-2xl sm:text-3xl font-bold text-white mb-6 text-center">
+                What Babington House Taught Us
+              </h2>
+              <p className="text-gray-200 text-lg leading-relaxed mb-4">
+                For more than twenty years we have helped create the atmosphere at{" "}
+                <Link href="/venues/babington-house/" className={linkClass}>
+                  Babington House
+                </Link>
+                , one of the UK&apos;s most celebrated private members&apos; clubs. Working at that level
+                teaches you that details matter — not louder speakers or bigger lists of suppliers, but
+                better guest experiences.
+              </p>
+              <p className="text-gray-300 leading-relaxed">
+                That standard now informs every private event we produce — whether the venue is a members&apos;
+                club, a family estate or a marquee in a field. It is one reason couples and hosts trust us
+                with milestone birthdays, estate celebrations and party planning Somerset clients ask us to
+                lead from concept to delivery.
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* What We Don't Do */}
+        <section className="py-20 px-4 max-w-full overflow-x-hidden">
+          <div className="container mx-auto max-w-3xl">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6 text-center">
+                What We Don&apos;t Do
+              </h2>
+              <ul className="space-y-4 mb-8">
+                {whatWeDontDoItems.map((item, idx) => (
+                  <li
+                    key={idx}
+                    className="flex items-start gap-3 text-gray-400 text-base sm:text-lg leading-relaxed pl-4 border-l-2 border-gray-600"
+                  >
+                    <XCircle className="w-5 h-5 text-gray-500 shrink-0 mt-0.5" aria-hidden="true" />
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-lg sm:text-xl text-white font-semibold text-center leading-relaxed p-6 rounded-xl bg-champagne-gold/10 border border-champagne-gold/30">
+                We are the team responsible for the atmosphere, production and guest experience.
+              </p>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Is This For You? */}
+        <section className="py-20 px-4 bg-gray-950/60 max-w-full overflow-x-hidden border-t border-champagne-gold/10">
+          <div className="container mx-auto max-w-4xl">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl sm:text-4xl font-bold text-white mb-10 text-center">
+                Is This For You?
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-lg font-semibold text-champagne-gold mb-4 flex items-center gap-2">
+                    <CheckCircle2 className="w-5 h-5 shrink-0" />
+                    A good fit if&hellip;
+                  </h3>
+                  <ul className="space-y-3">
+                    {goodFitItems.map((item, idx) => (
+                      <li key={idx} className="flex items-start gap-3 text-gray-300 text-sm leading-relaxed">
+                        <span className="text-champagne-gold mt-1 shrink-0">•</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-gray-400 mb-4 flex items-center gap-2">
+                    <XCircle className="w-5 h-5 shrink-0" />
+                    Not necessarily if&hellip;
+                  </h3>
+                  <ul className="space-y-3">
+                    {notFitItems.map((item, idx) => (
+                      <li key={idx} className="flex items-start gap-3 text-gray-400 text-sm leading-relaxed">
+                        <span className="text-gray-500 mt-1 shrink-0">•</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* CTA */}
         <section className="py-20 px-4 max-w-full overflow-x-hidden">
           <div className="container mx-auto max-w-4xl">
             <motion.div
@@ -481,27 +886,44 @@ export default function PartyPlanningClient() {
               <Card className="bg-gradient-to-br from-champagne-gold/20 to-transparent border-2 border-champagne-gold/50 shadow-[0_0_30px_rgba(212,175,55,0.3)]">
                 <CardContent className="p-8 sm:p-12 text-center">
                   <h3 className="text-3xl sm:text-4xl font-bold text-white mb-6">
-                    Ready to plan your party or event?
+                    Ready to shape the atmosphere?
                   </h3>
                   <p className="text-gray-200 text-lg md:text-xl leading-relaxed mb-8 max-w-2xl mx-auto">
-                    Let us take the stress out of planning your celebration. Contact us today to discuss your event and discover how we can make it truly unforgettable.
+                    Tell us what you are celebrating, where and how you want the night to feel. We will reply
+                    with honest ideas and a clear next step — private event production for clients who want
+                    the whole evening pulled together, not just one supplier booked in isolation.
                   </p>
-                  <Button
-                    asChild
-                    size="lg"
-                    className="min-h-[48px] h-[48px] sm:h-auto sm:min-h-[48px] bg-champagne-gold text-black hover:bg-gold-light hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(212,175,55,0.5)] mb-4"
-                  >
-                    <Link href="/contact-us/" className="flex items-center justify-center min-h-[48px] py-3">Request an Event Proposal</Link>
-                  </Button>
-                  <p className="text-gray-300 text-sm mt-6">
-                    Not sure where to start?{" "}
-                    <Link
-                      href="/babington-wedding-info/"
-                      className="text-champagne-gold hover:text-gold-light underline"
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center mb-4">
+                    <Button
+                      asChild
+                      size="lg"
+                      className="min-h-[48px] bg-champagne-gold text-black hover:bg-gold-light hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(212,175,55,0.5)]"
                     >
-                      View our Venue Guides
+                      <Link href="/contact-us/">Request an Event Proposal</Link>
+                    </Button>
+                    <Button
+                      asChild
+                      variant="outline"
+                      size="lg"
+                      className="min-h-[48px] border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10"
+                    >
+                      <a href="tel:+447970793177">Call 07970 793177</a>
+                    </Button>
+                  </div>
+                  <p className="text-gray-400 text-sm mt-6">
+                    Explore{" "}
+                    <Link href="/parties/private-parties/" className={linkClass}>
+                      private parties
                     </Link>
-                    {" "}(Babington, Kin House, Mells).
+                    ,{" "}
+                    <Link href="/parties/party-lighting/" className={linkClass}>
+                      party lighting
+                    </Link>{" "}
+                    and our{" "}
+                    <Link href="/artists/djs/" className={linkClass}>
+                      DJ roster
+                    </Link>
+                    .
                   </p>
                 </CardContent>
               </Card>
