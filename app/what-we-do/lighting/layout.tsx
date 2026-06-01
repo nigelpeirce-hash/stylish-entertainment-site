@@ -2,10 +2,20 @@ import type { Metadata } from "next";
 import { createMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = createMetadata({
-  title: "Lighting",
+  title: "The Art of the Atmosphere | Lighting Inspiration Gallery",
   description:
-    "Wedding and event lighting design. Ambient, feature and dance floor lighting.",
-  pathname: "what-we-do/lighting",
+    "Lighting inspiration and atmosphere gallery — uplighting, festoon, fairy lights, mirror balls and exterior lighting for weddings, parties and events. Explore ideas, then plan via our wedding or party lighting pages.",
+  path: "what-we-do/lighting",
+  keywords: [
+    "lighting inspiration",
+    "event lighting ideas",
+    "venue lighting ideas",
+    "atmospheric lighting",
+    "lighting gallery",
+    "wedding lighting ideas",
+    "party lighting ideas",
+    "festoon lighting inspiration",
+  ],
 });
 
 export default function LightingLayout({
