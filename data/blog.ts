@@ -88,6 +88,17 @@ export const BROWSE_TOPICS = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    title: "Why Does One Wedding DJ Cost £400 And Another £1,500?",
+    slug: "why-does-one-wedding-dj-cost-400-and-another-1500",
+    basePath: "about/journal",
+    category: "Wedding Entertainment",
+    excerpt:
+      "Why do wedding DJ prices vary so much? An honest guide to what you are really comparing — experience, preparation, reliability, equipment and judgement on the night.",
+    image:
+      "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162609/Nigel-DJ-Babs-House-0004_n7thhh.jpg",
+    alt: "DJ Nige performing at a Babington House wedding reception",
+  },
+  {
     title: "How To Keep A Wedding Dancefloor Full",
     slug: "how-to-keep-a-wedding-dancefloor-full",
     basePath: "about/journal",

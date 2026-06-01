@@ -37,6 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url('/about', 'monthly', 0.9),
     url('/about/faq', 'monthly', 0.8),
     url('/about/blog', 'monthly', 0.8),
+    url('/about/journal/why-does-one-wedding-dj-cost-400-and-another-1500', 'monthly', 0.8),
     url('/about/journal/how-to-keep-a-wedding-dancefloor-full', 'monthly', 0.8),
     url('/about/blog/how-much-does-wedding-lighting-cost-2026', 'monthly', 0.8),
     url('/about/blog/five-ways-to-totally-transform-a-venue-1-lighting', 'monthly', 0.7),
