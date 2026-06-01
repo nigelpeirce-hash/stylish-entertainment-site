@@ -5,7 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createMetadata, generateCanonicalUrl } from "@/lib/metadata";
 import { normalizeMixcloudEmbeds } from "@/lib/mixcloud-utils";
-import { getDJExtras, type DJResidency } from "@/lib/dj-extras";
+import { getDJExtras, type DJFounderStory, type DJResidency } from "@/lib/dj-extras";
 
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
@@ -107,6 +107,7 @@ export async function generateMetadata({
   const extras = getDJExtras(slug);
   const title = dj.seoTitle?.trim() || `${dj.name} | Wedding & Event DJ`;
   const baseDescription =
+    extras?.profileSeoDescription?.trim() ||
     dj.seoDescription?.trim() ||
     dj.strapLine?.trim() ||
     stripToLength(dj.bio) ||
@@ -136,6 +137,18 @@ export async function generateMetadata({
     title,
     description,
     path: `artists/djs/${slug}`,
+    keywords:
+      slug === "dj-nige"
+        ? [
+            "luxury wedding DJ",
+            "non-cheesy wedding DJ",
+            "open-format DJ",
+            "private party DJ",
+            "corporate event DJ",
+            "wedding DJs who read the room",
+            "Babington House DJ",
+          ]
+        : undefined,
     openGraph: ogImageUrl
       ? {
           images: [
@@ -151,41 +164,43 @@ export async function generateMetadata({
   });
 }
 
+function renderLinkedText(text: string, keyPrefix: string) {
+  const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+  const nodes: ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+  while ((match = linkRegex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      nodes.push(text.substring(lastIndex, match.index));
+    }
+    nodes.push(
+      <Link
+        key={`${keyPrefix}-${match.index}`}
+        href={match[2]}
+        className="text-champagne-gold underline hover:text-champagne-gold/80"
+      >
+        {match[1]}
+      </Link>
+    );
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) {
+    nodes.push(text.substring(lastIndex));
+  }
+  return nodes.length ? nodes : text;
+}
+
 function renderBioParagraphs(fullBio: string) {
   const beforeTestimonials = fullBio.split("---")[0] ?? "";
   return beforeTestimonials
     .split(/\n\n+/)
     .map((p) => p.trim())
     .filter((p) => p && !p.includes("**Recent Testimonials**"))
-    .map((paragraph, idx) => {
-      const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
-      const nodes: ReactNode[] = [];
-      let lastIndex = 0;
-      let match: RegExpExecArray | null;
-      while ((match = linkRegex.exec(paragraph)) !== null) {
-        if (match.index > lastIndex) {
-          nodes.push(paragraph.substring(lastIndex, match.index));
-        }
-        nodes.push(
-          <Link
-            key={`l-${idx}-${match.index}`}
-            href={match[2]}
-            className="text-champagne-gold underline hover:text-champagne-gold/80"
-          >
-            {match[1]}
-          </Link>
-        );
-        lastIndex = match.index + match[0].length;
-      }
-      if (lastIndex < paragraph.length) {
-        nodes.push(paragraph.substring(lastIndex));
-      }
-      return (
-        <p key={idx} className="text-base sm:text-lg leading-relaxed text-gray-200 mb-5">
-          {nodes.length ? nodes : paragraph}
-        </p>
-      );
-    });
+    .map((paragraph, idx) => (
+      <p key={idx} className="text-base sm:text-lg leading-relaxed text-gray-200 mb-5">
+        {renderLinkedText(paragraph, `bio-${idx}`)}
+      </p>
+    ));
 }
 
 export default async function DJProfilePage({
@@ -292,9 +307,14 @@ export default async function DJProfilePage({
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-sans mb-4 text-white font-bold drop-shadow-lg">
             {dj.name}
           </h1>
-          {dj.strapLine?.trim() ? (
-            <p className="text-lg sm:text-xl md:text-2xl text-champagne-gold font-semibold drop-shadow-md">
-              {dj.strapLine}
+          {(extras?.profileTagline ?? dj.strapLine)?.trim() ? (
+            <p className="text-lg sm:text-xl md:text-2xl text-champagne-gold font-semibold drop-shadow-md mb-4">
+              {extras?.profileTagline ?? dj.strapLine}
+            </p>
+          ) : null}
+          {extras?.founderStory?.heroIntro ? (
+            <p className="text-base sm:text-lg text-white/90 leading-relaxed drop-shadow-md max-w-2xl mx-auto">
+              {extras.founderStory.heroIntro}
             </p>
           ) : null}
         </div>
@@ -304,15 +324,19 @@ export default async function DJProfilePage({
         <ResidencyStrip residency={extras.residency} />
       ) : null}
 
+      {extras?.founderStory ? (
+        <FounderStorySections story={extras.founderStory} />
+      ) : null}
+
       <section className="py-16 px-4 bg-gray-900">
         <div className="container mx-auto max-w-3xl">
-          {bioSource ? (
+          {!extras?.founderStory && bioSource ? (
             renderBioParagraphs(bioSource)
-          ) : (
+          ) : !extras?.founderStory ? (
             <p className="text-base sm:text-lg leading-relaxed text-gray-200 mb-5">
               {dj.name} is one of our professional DJs available for weddings, private parties and corporate events across the UK.
             </p>
-          )}
+          ) : null}
 
           {(youtubeEmbed || mixcloudEmbeds.length > 0) && (
             <div className="mt-12 space-y-8">
@@ -379,13 +403,171 @@ export default async function DJProfilePage({
         </div>
       </section>
 
+      {extras?.founderStory?.typicalEvent ? (
+        <TypicalEventSection event={extras.founderStory.typicalEvent} />
+      ) : null}
+
       {extras?.testimonials && extras.testimonials.length > 0 ? (
         <TestimonialsSection
           heading={extras.testimonialsHeading ?? "What Couples Are Saying"}
+          intro={
+            extras.testimonialsIntro ??
+            "A small selection of recent wedding feedback. Every quote is real, unedited and used with the couples' permission."
+          }
           testimonials={extras.testimonials}
         />
       ) : null}
     </>
+  );
+}
+
+function FounderStorySections({ story }: { story: DJFounderStory }) {
+  return (
+    <>
+      <section className="py-16 px-4 bg-gray-950 border-b border-champagne-gold/10">
+        <div className="container mx-auto max-w-3xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-8 text-center">
+            What 22 Years At Babington House Taught Me
+          </h2>
+          <ul className="space-y-4">
+            {story.babingtonAuthority.map((point, idx) => (
+              <li
+                key={idx}
+                className="text-base sm:text-lg leading-relaxed text-gray-300 pl-4 border-l-2 border-champagne-gold/40"
+              >
+                {point}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="py-16 px-4 bg-gray-900">
+        <div className="container mx-auto max-w-3xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-10 text-center">
+            Beyond The DJ Booth
+          </h2>
+          <div className="space-y-8">
+            {[story.beyondBooth.radio, story.beyondBooth.live].map((block) => (
+              <div
+                key={block.heading}
+                className="p-6 rounded-xl bg-gray-800/60 border border-champagne-gold/20"
+              >
+                <h3 className="text-xl font-bold text-champagne-gold mb-3">{block.heading}</h3>
+                <p className="text-gray-300 leading-relaxed mb-3">{block.context}</p>
+                <p className="text-gray-200 leading-relaxed">{block.lesson}</p>
+              </div>
+            ))}
+            <div className="p-6 rounded-xl bg-gray-800/60 border border-champagne-gold/20">
+              <h3 className="text-xl font-bold text-champagne-gold mb-3">
+                {story.beyondBooth.today.heading}
+              </h3>
+              <p className="text-gray-300 leading-relaxed">
+                {renderLinkedText(story.beyondBooth.today.body, "today")}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 px-4 bg-gray-950">
+        <div className="container mx-auto max-w-4xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 text-center">
+            Why Couples Book DJ Nige
+          </h2>
+          <p className="text-gray-400 text-center mb-10 max-w-2xl mx-auto">
+            People book Nigel because they want atmosphere, not attention-seeking DJ performances.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {story.whyBook.map((item) => (
+              <div
+                key={item.title}
+                className="p-5 rounded-xl bg-gray-900/70 border border-champagne-gold/20"
+              >
+                <h3 className="text-white font-semibold mb-2">{item.title}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">{item.copy}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 px-4 bg-gray-900">
+        <div className="container mx-auto max-w-3xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 text-center">
+            How I Build A Dancefloor
+          </h2>
+          <p className="text-gray-400 text-center mb-10">{story.dancefloorMessage}</p>
+          <div className="space-y-4">
+            {story.dancefloor.map((step) => (
+              <div
+                key={step.phase}
+                className="flex gap-4 p-4 rounded-lg bg-gray-800/50 border border-champagne-gold/15"
+              >
+                <span className="text-champagne-gold font-semibold min-w-[7rem]">{step.phase}</span>
+                <p className="text-gray-300 leading-relaxed">{step.detail}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-12 px-4 bg-gray-950 border-b border-champagne-gold/10">
+        <div className="container mx-auto max-w-3xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-8 text-center">
+            The Founder Story
+          </h2>
+          {renderBioParagraphs(story.founderNarrative)}
+          <ol className="space-y-4 mt-10 pt-10 border-t border-champagne-gold/20">
+            {story.careerHighlights.map((item, idx) => (
+              <li key={item.label} className="flex gap-4 items-start">
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-champagne-gold/15 border border-champagne-gold/40 flex items-center justify-center text-champagne-gold text-sm font-bold">
+                  {idx + 1}
+                </span>
+                <div>
+                  <p className="text-white font-semibold">{item.label}</p>
+                  <p className="text-gray-400 text-sm leading-relaxed">{item.detail}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-10 pt-10 border-t border-champagne-gold/20">
+            {renderLinkedText(story.atmosphereLinks, "atmosphere")}
+          </p>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function TypicalEventSection({
+  event,
+}: {
+  event: DJFounderStory["typicalEvent"];
+}) {
+  return (
+    <section className="py-16 px-4 bg-gray-950 border-t border-champagne-gold/10">
+      <div className="container mx-auto max-w-3xl">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-6 text-center">
+          A Typical DJ Nige Event
+        </h2>
+        <p className="text-gray-300 text-lg leading-relaxed mb-8">{event.intro}</p>
+        <div className="space-y-3">
+          {event.phases.map((phase) => (
+            <div
+              key={phase.label}
+              className="flex flex-col sm:flex-row sm:gap-4 p-4 rounded-lg bg-gray-900/60 border border-champagne-gold/15"
+            >
+              <span className="text-champagne-gold font-semibold sm:min-w-[11rem] mb-1 sm:mb-0">
+                {phase.label}
+              </span>
+              <p className="text-gray-300 leading-relaxed text-sm sm:text-base">{phase.detail}</p>
+            </div>
+          ))}
+        </div>
+        <p className="text-gray-400 leading-relaxed mt-8">{event.closing}</p>
+      </div>
+    </section>
   );
 }
 
@@ -423,9 +605,11 @@ function ResidencyStrip({ residency }: { residency: DJResidency }) {
 
 function TestimonialsSection({
   heading,
+  intro,
   testimonials,
 }: {
   heading: string;
+  intro: string;
   testimonials: Array<{
     quote: string;
     author: string;
@@ -442,9 +626,7 @@ function TestimonialsSection({
         <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white text-center mb-3">
           {heading}
         </h2>
-        <p className="text-center text-gray-400 mb-10 max-w-2xl mx-auto">
-          A small selection of recent wedding feedback. Every quote is real, unedited and used with the couples&apos; permission.
-        </p>
+        <p className="text-center text-gray-400 mb-10 max-w-2xl mx-auto">{intro}</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {testimonials.map((t, idx) => (
             <figure
