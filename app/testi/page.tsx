@@ -3,15 +3,25 @@ import TestimonialsClient from "./TestimonialsClient";
 import { testimonials } from "@/data/testimonials";
 
 export const metadata: Metadata = {
-  title: "Client Reviews & Testimonials",
-  description: "Five-star Google reviews from weddings and events across the UK and Europe. Trusted by couples at Babington House, Devon, London, Monaco, Norfolk, Suffolk and beyond.",
-  keywords: ["Wedding DJ Testimonials", "Babington House Reviews", "Wedding Entertainment Reviews", "Party DJ Testimonials", "Somerset Wedding DJs"],
+  title: "Client Reviews & Testimonials | Wedding DJ & Event Production",
+  description:
+    "Wedding DJ reviews, wedding entertainment reviews and Babington House DJ reviews from real clients. Wedding lighting reviews, private party testimonials and event production feedback across the UK.",
+  keywords: [
+    "Wedding DJ Reviews",
+    "Wedding Entertainment Reviews",
+    "Babington House DJ Reviews",
+    "Wedding Lighting Reviews",
+    "Private Party Testimonials",
+    "Event Production Reviews",
+    "Babington House Reviews",
+  ],
   alternates: {
     canonical: "./",
   },
   openGraph: {
-    title: "Client Reviews & Testimonials",
-    description: "Five-star Google reviews from weddings and events across the UK and Europe. Trusted by couples at Babington House, Devon, London, Monaco, Norfolk, Suffolk and beyond.",
+    title: "Client Reviews & Testimonials | Wedding DJ & Event Production",
+    description:
+      "Wedding DJ reviews, wedding entertainment reviews and Babington House DJ reviews from real clients. Wedding lighting reviews, private party testimonials and event production feedback across the UK.",
   },
 };
 

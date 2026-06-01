@@ -54,6 +54,7 @@ const EXACT_HIDE = [
   "/pennard-house-lighting",
   "/venues/north-cadbury-court",
   "/venues/babington-house",
+  "/testi",
 ];
 
 function shouldHide(pathname: string | null): boolean {

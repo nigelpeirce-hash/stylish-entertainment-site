@@ -1150,3 +1150,172 @@ export const testimonials: Testimonial[] = [
     venueFilter: "Somerset",
   },
 ];
+
+export function testimonialKey(t: Testimonial): string {
+  return `${t.author}|${t.venue}`;
+}
+
+/** Notable venues referenced in client testimonials — for trust sections and venue pages. */
+export const TRUSTED_VENUE_NAMES: Array<{ name: string; location?: string }> = [
+  { name: "Babington House", location: "Somerset" },
+  { name: "Berkeley Castle", location: "Gloucestershire" },
+  { name: "Warwick Castle", location: "Warwickshire" },
+  { name: "Lulworth Castle", location: "Dorset" },
+  { name: "Rockingham Castle", location: "Leicestershire" },
+  { name: "Sessions Art Club", location: "London" },
+  { name: "Brympton House", location: "Somerset" },
+  { name: "North Cadbury Court", location: "Somerset" },
+  { name: "Kin House", location: "Wiltshire" },
+  { name: "The Newt", location: "Somerset" },
+  { name: "Mells Barn", location: "Somerset" },
+];
+
+/** Recurring themes with exact excerpts from existing testimonials. */
+export const PROOF_THEMES: Array<{
+  theme: string;
+  excerpt: string;
+  author: string;
+  venue: string;
+}> = [
+  {
+    theme: "The dancefloor was full all night",
+    excerpt: "The dance floor was full all night and he knew exactly what people wanted to hear.",
+    author: "Alex & Nicky",
+    venue: "Warwick Castle, Warwickshire",
+  },
+  {
+    theme: "They read the room perfectly",
+    excerpt: "you read the crowd just perfectly",
+    author: "Jenna and Steve Bartlett",
+    venue: "Lulworth Castle, Dorset",
+  },
+  {
+    theme: "Not cheesy",
+    excerpt: "not too cheesy and lots of people dancing",
+    author: "Jasmine & Jonathan Chaytor",
+    venue: "Stoke Park, Buckinghamshire",
+  },
+  {
+    theme: "Music for all generations",
+    excerpt:
+      "Age ranges at our party spanned unborn babies, seventeen-year-olds, and those in their eighties but we think that at some point almost everyone was on the dance floor.",
+    author: "Nigel and Gilly Timmis",
+    venue: "The Newt, Somerset",
+  },
+  {
+    theme: "Professional and easy to work with",
+    excerpt:
+      "We were so impressed with his professionalism and the standard of the service he provided, as well as how friendly and helpful he was.",
+    author: "Rachel and Will Espensen",
+    venue: "Almonry Barn, Somerset",
+  },
+  {
+    theme: "Lighting transformed the venue",
+    excerpt: "The tree lighting also looked incredible and photographed so well!",
+    author: "Ellie & David Hearn",
+    venue: "Babington House Hotel",
+  },
+];
+
+/** Hand-picked strongest testimonials for the featured section (matched by author). */
+export const FEATURED_TESTIMONIAL_AUTHORS = [
+  "Alina and Dan",
+  "Jenna and Steve Bartlett",
+  "Jo Haddon",
+  "Ellie & David Hearn",
+  "Camilla & Dan Wilkins",
+  "Hannah and Alex Torres",
+  "Rebecca & Dan Shreeve",
+  "Sophie & Sam Hawsley",
+] as const;
+
+export function findTestimonialByAuthor(partialAuthor: string): Testimonial | undefined {
+  const needle = partialAuthor.toLowerCase();
+  return testimonials.find(
+    (t) =>
+      t.author.toLowerCase().includes(needle) || needle.includes(t.author.toLowerCase())
+  );
+}
+
+export function getFeaturedTestimonials(): Testimonial[] {
+  return FEATURED_TESTIMONIAL_AUTHORS.map((author) => findTestimonialByAuthor(author)).filter(
+    (t): t is Testimonial => Boolean(t)
+  );
+}
+
+export function truncateQuote(quote: string, maxLen = 220): string {
+  if (quote.length <= maxLen) return quote;
+  const slice = quote.slice(0, maxLen);
+  const lastSpace = slice.lastIndexOf(" ");
+  return `${(lastSpace > 120 ? slice.slice(0, lastSpace) : slice).trim()}…`;
+}
+
+const PRIORITY_FILTERS = [
+  "Babington House",
+  "Somerset",
+  "London",
+  "Wiltshire",
+  "Dorset",
+  "Gloucestershire",
+] as const;
+
+const SPECIAL_FILTERS = ["Private Party", "Lighting / Production"] as const;
+
+export function matchesTestimonialFilter(t: Testimonial, filter: string): boolean {
+  if (filter === "All") return true;
+  if (filter === "Private Party") {
+    return (
+      /private party|birthday party|50th birthday|private celebration/i.test(t.venue) ||
+      /private party|birthday party|50th birthday/i.test(t.quote)
+    );
+  }
+  if (filter === "Lighting / Production") {
+    return /lighting|lights|styling|production|uplight|festoon|mirror ball|led dance|disco lights|tree lighting/i.test(
+      t.quote
+    );
+  }
+  return t.venueFilter === filter;
+}
+
+/** Filter chips: priority counties first, then theme filters, then remaining counties. */
+export function getPrioritizedTestimonialFilters(): string[] {
+  const fromData = new Set(getVenueFiltersFromTestimonials());
+  const ordered: string[] = ["All"];
+
+  for (const label of PRIORITY_FILTERS) {
+    if (fromData.has(label)) {
+      ordered.push(label);
+      fromData.delete(label);
+    }
+  }
+
+  ordered.push(...SPECIAL_FILTERS);
+
+  const rest = [...fromData].sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" }));
+  return [...ordered, ...rest];
+}
+
+const VENUE_PAGE_MATCHERS: Record<string, (t: Testimonial) => boolean> = {
+  "babington-house": (t) => t.venueFilter === "Babington House",
+  "mells-barn": (t) => /mells/i.test(t.venue),
+  "pennard-house": (t) => /pennard/i.test(t.venue),
+  "kin-house": (t) => /kin house/i.test(t.venue),
+  "dj-nige": (t) =>
+    /\bnigel\b|\bnige\b|dj nige/i.test(t.quote) ||
+    /\bnigel\b|\bnige\b/i.test(t.author.toLowerCase()),
+  "wedding-entertainment": (t) =>
+    /wedding/i.test(t.venue) || /wedding/i.test(t.quote),
+};
+
+/** Reusable venue-scoped testimonials for venue and service pages. */
+export function getTestimonialsForVenuePage(slug: string, limit = 3): Testimonial[] {
+  const matcher = VENUE_PAGE_MATCHERS[slug];
+  if (!matcher) return [];
+  return testimonials.filter(matcher).slice(0, limit);
+}
+
+/** Testimonials for a named venue filter label (e.g. Babington House, Somerset). */
+export function getTestimonialsByVenueFilter(venueFilter: string, limit?: number): Testimonial[] {
+  const matched = testimonials.filter((t) => t.venueFilter === venueFilter);
+  return limit ? matched.slice(0, limit) : matched;
+}
