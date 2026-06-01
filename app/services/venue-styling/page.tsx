@@ -1,211 +1,112 @@
-"use client";
+import VenueStylingClient from "./VenueStylingClient";
 
-import { motion } from "@/lib/motion";
-import { useState } from "react";
-import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { Palette, Calculator } from "lucide-react";
-import Gallery, { Photo } from "@/components/Gallery";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { ServiceQuoteGenerator } from "@/components/ServiceQuoteGenerator";
+const PAGE_URL = "https://www.stylishentertainment.co.uk/services/venue-styling/";
 
-const stylingPhotos: Photo[] = [
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163723/IMG_6321_xu8q8j.jpg",
-    width: 1200,
-    height: 800,
-    alt: "Elegant Wedding Venue Styling",
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: [
+    {
+      "@type": "Question",
+      name: "Do you provide full venue styling?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes — from consultation and table styling through to draping, backdrops, outdoor areas and lighting coordination. Scope depends on the venue and brief.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Can you style weddings and private parties?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes. Wedding venue styling, milestone birthdays, garden parties and private celebrations across Somerset, the South West and UK-wide.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Can styling be combined with lighting?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Absolutely — and it should be. We plan styling alongside wedding lighting and party lighting so texture, colour and light work as one vision.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Do you provide florals?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "We coordinate florals and table styling with your chosen florist rather than supplying flowers directly.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Can you work with our florist or planner?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes. We are used to working alongside florists, planners and venue teams so styling, lighting and production stay coordinated.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Do you style marquees and barns?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Regularly. Marquees, barns, orangeries and country houses are among the spaces we style most.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "Can you provide themed styling?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "Yes — alpine lodge, winter wonderland, Gatsby, disco and bespoke concepts where the brief suits.",
+      },
+    },
+    {
+      "@type": "Question",
+      name: "How early should we enquire?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: "For peak wedding dates and December events, enquire as soon as your venue and date are confirmed — styling and lighting benefit from lead time.",
+      },
+    },
+  ],
+};
+
+const serviceJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "@id": `${PAGE_URL}#service`,
+  name: "Venue Styling & Transformation",
+  url: PAGE_URL,
+  description:
+    "Venue styling and transformation for weddings, private parties and events. Styling, lighting coordination and finishing touches across Somerset, the South West and UK-wide.",
+  serviceType: "Venue Styling",
+  category: "Event Styling",
+  provider: {
+    "@type": "Organization",
+    "@id": "https://www.stylishentertainment.co.uk/#localbusiness",
+    name: "Stylish Entertainment",
+    url: "https://www.stylishentertainment.co.uk",
   },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg",
-    width: 1200,
-    height: 800,
-    alt: "Elegant wedding venue styling with sophisticated lighting design and professional decoration",
+  areaServed: {
+    "@type": "Country",
+    name: "United Kingdom",
   },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768742034/IMG_1348_161201_zwmdh2.jpg",
-    width: 1200,
-    height: 800,
-    alt: "Luxury wedding venue styling with elegant lighting and sophisticated interior design",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768742094/IMG_4162_h3h0bb.jpg",
-    width: 1200,
-    height: 800,
-    alt: "Professional wedding venue styling with atmospheric lighting and elegant decoration",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768742204/Saltburn_231005__0050_1558_y6diu8.jpg",
-    width: 1200,
-    height: 800,
-    alt: "Sophisticated wedding venue styling with professional lighting design and elegant atmosphere",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163679/IMG_3094-1_aiyu5i.jpg",
-    width: 1200,
-    height: 800,
-    alt: "Elegant venue styling with sophisticated lighting and decoration creating a luxurious atmosphere",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163675/DSC00018_kixfyj.jpg",
-    width: 1200,
-    height: 800,
-    alt: "Beautiful venue styling with elegant decorations and professional lighting design",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163647/Orangery-violet_c95cvu.jpg",
-    width: 1200,
-    height: 800,
-    alt: "Orangery venue with violet lighting and elegant styling creating a romantic atmosphere",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163633/Stretch-Marquee-Lighting-e1483614284289_lmsqwr.jpg",
-    width: 1200,
-    height: 800,
-    alt: "Stretch marquee with professional lighting and elegant venue styling for wedding celebrations",
-  },
-];
+};
 
 export default function VenueStylingService() {
-  const [quoteOpen, setQuoteOpen] = useState(false);
-
   return (
-    <div>
-      {/* Hero */}
-      <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-50 flex items-center justify-center">
-          <Image
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,w_1920/v1768163723/IMG_6321_xu8q8j.jpg"
-            alt="Saltburn venue with elegant venue styling, professional wedding decoration and sophisticated interior design creating a luxurious wedding atmosphere"
-            fill
-            className="object-cover object-center brightness-110"
-            style={{ objectPosition: 'center center' }}
-            priority
-            sizes="100vw"
-          />
-        </div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-48 md:pt-52"
-        >
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">Venue Styling</h1>
-          <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md">
-            Complete venue transformation with elegant styling that reflects your personal vision
-          </p>
-        </motion.div>
-      </section>
-
-      {/* Service Details */}
-      <section className="py-20 px-3 sm:px-4 bg-gray-800">
-        <div className="container mx-auto max-w-4xl">
-          <Card className="bg-gray-800 border-champagne-gold/30">
-            <CardHeader>
-              <div className="flex items-center gap-3 mb-4">
-                <Palette className="h-8 w-8 text-champagne-gold" />
-                <CardTitle className="text-3xl md:text-4xl text-white">Professional Venue Styling</CardTitle>
-              </div>
-              <CardDescription className="text-lg text-gray-300">
-                Elevate your wedding aesthetic with our expert venue styling service. We work closely with you to create a cohesive design theme that reflects your personal taste and transforms your venue into a stunning celebration space.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div>
-                <h3 className="text-xl font-bold text-white mb-4">What We Offer</h3>
-                <ul className="space-y-3">
-                  {[
-                    "Full venue styling consultation",
-                    "Table centerpieces and floral arrangements",
-                    "Drapery and fabric installations",
-                    "Custom backdrops and photo walls",
-                    "Cohesive design theme throughout",
-                    "Themed decor and accessories",
-                    "Complete venue transformation",
-                  ].map((feature, idx) => (
-                    <li key={idx} className="flex items-start gap-3">
-                      <span className="text-champagne-gold mt-1">•</span>
-                      <span className="text-gray-300">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="pt-6 border-t border-champagne-gold/30 flex flex-wrap gap-3">
-                <Dialog open={quoteOpen} onOpenChange={setQuoteOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="outline" size="lg" className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10">
-                      <Calculator className="w-5 h-5 mr-2" />
-                      Get a quote
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto bg-gray-900 border-champagne-gold/30">
-                    <DialogHeader>
-                      <DialogTitle className="text-white">Venue styling quote</DialogTitle>
-                    </DialogHeader>
-                    <ServiceQuoteGenerator
-                      category="venue_styling"
-                      title="Venue styling quote"
-                      compact
-                      onClose={() => setQuoteOpen(false)}
-                    />
-                  </DialogContent>
-                </Dialog>
-                <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
-                  <Link href="/contact-us/">Get in Touch</Link>
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Gallery */}
-      <section className="py-20 px-3 sm:px-4 bg-gray-900">
-        <div className="container mx-auto max-w-7xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mb-12"
-          >
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-sans mb-3 sm:mb-4 text-center text-white font-bold px-4">Venue Styling Gallery</h2>
-            <p className="text-base sm:text-lg text-gray-300 text-center max-w-2xl mx-auto px-4">
-              Elegant styling that reflects your personal vision
-            </p>
-          </motion.div>
-          <div className="w-full md:max-w-4xl md:mx-auto">
-            <Gallery photos={stylingPhotos} columns={2} />
-          </div>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="pt-20 pb-8 px-3 sm:px-4 bg-gray-800">
-        <div className="container mx-auto max-w-4xl text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-sans mb-4 sm:mb-6 text-white font-bold px-4">
-              Ready to style your venue?
-            </h2>
-            <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
-              <Link href="/contact">Get in Touch</Link>
-            </Button>
-          </motion.div>
-        </div>
-      </section>
-    </div>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <VenueStylingClient />
+    </>
   );
 }

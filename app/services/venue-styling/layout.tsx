@@ -2,22 +2,21 @@ import type { Metadata } from "next";
 import { createMetadata } from "@/lib/metadata";
 
 export const metadata: Metadata = createMetadata({
-  title: "Venue Styling | Wedding & Event Decor Specialists",
+  title: "Venue Styling & Transformation | Weddings & Events",
   description:
-    "Professional wedding and event venue styling: drapes, chair styling, table centerpieces, custom backdrops, photo walls and room transformations. Cohesive design across Somerset, the South West, London and the Home Counties.",
+    "Venue styling and transformation for weddings, private parties and events. Styling, lighting coordination and finishing touches — Somerset, South West and UK-wide.",
   path: "services/venue-styling",
   keywords: [
     "venue styling",
     "wedding venue styling",
-    "wedding decor Somerset",
-    "wedding decoration South West",
-    "room transformation",
-    "wedding drapes",
-    "wedding chair styling",
-    "wedding centerpieces",
-    "wedding photo walls",
-    "venue styling Bath",
-    "venue styling Bristol",
+    "event styling",
+    "party styling",
+    "marquee styling",
+    "barn wedding styling",
+    "wedding decor",
+    "venue transformation",
+    "event styling Somerset",
+    "party styling South West",
   ],
 });
 
