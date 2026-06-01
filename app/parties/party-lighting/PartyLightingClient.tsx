@@ -1,12 +1,30 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence } from "@/lib/motion";
-import { ChevronLeft, ChevronRight, Sparkles, Sun, Lightbulb, ExternalLink } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+  Sun,
+  Lightbulb,
+  ExternalLink,
+  DoorOpen,
+  UtensilsCrossed,
+  Trees,
+  Music2,
+  Moon,
+  Check,
+} from "lucide-react";
 import SiteLightbox from "@/components/SiteLightbox";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+
+const linkClass =
+  "text-champagne-gold hover:text-gold-light underline underline-offset-2 transition-colors";
 
 type EventFilter = "all" | "weddings" | "corporate" | "outdoor";
 
@@ -20,11 +38,9 @@ interface Photo {
   serviceType?: "dance-floor" | "festoon" | "atmospheric";
 }
 
-// LCP-optimized URL for first hero image (preloaded in layout, w_1200 for mobile)
 const LCP_HERO_URL =
   "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768162258/Fairy-light-Tunnel_sc40ed.jpg";
 
-// Hero mood images – high-impact, spaced for premium feel
 const heroMoodImages: Photo[] = [
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162258/Fairy-light-Tunnel_sc40ed.jpg",
@@ -63,12 +79,79 @@ const heroMoodImages: Photo[] = [
   },
 ];
 
-// Service toolkit – half-screen cards with photo + minimal text
+const howWeLightParty: Array<{
+  icon: typeof DoorOpen;
+  title: string;
+  copy: ReactNode;
+}> = [
+  {
+    icon: DoorOpen,
+    title: "Arrival & first impressions",
+    copy: (
+      <>
+        Exterior lighting, entrance lighting, fairy tunnels and pathway lighting set the tone before
+        guests reach the room. First impressions are not decoration — they tell people the evening
+        matters.
+      </>
+    ),
+  },
+  {
+    icon: UtensilsCrossed,
+    title: "Dining & conversation",
+    copy: (
+      <>
+        Warm architectural uplighting and soft room light that flatters faces and architecture — not
+        harsh overhead glare. Guests talk longer when the room feels considered.
+      </>
+    ),
+  },
+  {
+    icon: Trees,
+    title: "Outdoor spaces",
+    copy: (
+      <>
+        Tree lighting, courtyard lighting, festoon over terraces and garden party lighting keep
+        outdoor areas connected after dark — so guests drift outside naturally, not because the music
+        stopped.
+      </>
+    ),
+  },
+  {
+    icon: Music2,
+    title: "Dancefloor & energy",
+    copy: (
+      <>
+        Mirror balls, moving heads, DJ lighting and white dancefloor lighting that gives the floor
+        momentum without tacky disco effects. We often pair this with our{" "}
+        <Link href="/artists/djs/" className={linkClass}>
+          private party DJs
+        </Link>
+        .
+      </>
+    ),
+  },
+  {
+    icon: Moon,
+    title: "Late-night atmosphere",
+    copy: (
+      <>
+        Fire pits, festoon, chill-out spaces and softer outdoor lighting for the hours when energy
+        dips but conversation continues. See our{" "}
+        <Link href="/services/fire-pit-hire/" className={linkClass}>
+          fire pit hire
+        </Link>{" "}
+        for outdoor gathering spaces.
+      </>
+    ),
+  },
+];
+
 const toolkitServices = [
   {
     id: "mirror-ball",
     title: "Mirror Ball Clusters",
-    description: "Dramatic disco atmosphere with signature mirror ball installations. Perfect for dance floors and high-energy celebrations.",
+    description:
+      "Mirror ball hire for dancefloors that feel alive — clusters and glitterballs that catch the light without turning the room into a school disco.",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162930/Mirrorball-Cluster-Glitterball-Clusters_mwjd8x.jpg",
     alt: "Mirrorball cluster and glitterball clusters creating disco atmosphere on the dance floor",
     galleryCategory: "dance-floor",
@@ -76,7 +159,8 @@ const toolkitServices = [
   {
     id: "festoon",
     title: "Edison Vintage Festoons",
-    description: "Warm, nostalgic lighting for outdoor and indoor spaces. Fairy light tunnels and festoon strings for weddings and alfresco events.",
+    description:
+      "Festoon lighting for marquees, courtyards and terraces — warm, nostalgic light that makes outdoor party lighting feel intentional, not improvised.",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163791/Edison-Vintage-Festoon-on-a-hot-night_qlolnk.jpg",
     alt: "Edison vintage festoon lighting strung outdoors on a warm summer night",
     galleryCategory: "festoon",
@@ -84,7 +168,8 @@ const toolkitServices = [
   {
     id: "uplighting",
     title: "LED Architectural Uplighting",
-    description: "Highlight venue features with intelligent colour-changing LED systems. Amber, warm white, and dramatic colour washes.",
+    description:
+      "Architectural uplighting that highlights venue features — amber, warm white and considered colour washes that flatter the room and the guests.",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162636/IMG_8030_b5un4j.jpg",
     alt: "LED architectural uplighting for venues",
     galleryCategory: "atmospheric",
@@ -92,19 +177,52 @@ const toolkitServices = [
   {
     id: "fairy-tunnel",
     title: "Fairy Light Tunnels",
-    description: "Magical entrances and pathways. Transform any space with our iconic fairy light tunnel installations.",
+    description:
+      "Magical entrances and pathways — fairy light tunnels that transform arrival into an experience and guide guests naturally into the party.",
     image: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162258/Fairy-light-Tunnel_sc40ed.jpg",
     alt: "Fairy light tunnel creating spectacular entrance for weddings and evening events",
     galleryCategory: "festoon",
   },
 ];
 
-// Venue spotlights – narrative case studies
+const whatLightingChanges = [
+  "Makes empty spaces feel designed, not hired",
+  "Helps guests move naturally between areas",
+  "Keeps outdoor spaces connected after dark",
+  "Makes photos look warmer and more atmospheric",
+  "Turns a marquee or barn into a proper party room",
+  "Gives the dancefloor energy without tacky disco effects",
+];
+
+const setupRange = [
+  {
+    title: "Simple dancefloor setup",
+    detail: "Mirror balls, DJ lighting and white dancefloor lighting — enough to give the floor energy without overcomplicating the room.",
+  },
+  {
+    title: "Architectural uplighting",
+    detail: "Warm uplighting for dining rooms, barns and marquees — flattering light that makes architecture and guests look their best.",
+  },
+  {
+    title: "Outdoor festoon & tree lighting",
+    detail: "Festoon, tree lighting and courtyard lighting for terraces, gardens and lawns — outdoor party lighting that keeps guests outside.",
+  },
+  {
+    title: "Full venue transformation",
+    detail: "Arrival tunnels, dining light, outdoor zones and dancefloor production planned together — event lighting design for estates and marquee weekends.",
+  },
+];
+
 const venueSpotlights = [
   {
     venue: "Babington House",
-    tagline: "Making Babington House feel intimate",
-    narrative: "Soho House's Somerset retreat demanded a balance of sophistication and warmth. We deployed vintage Edison festoons, bush lights, and atmospheric uplighting to create intimate zones across the grounds.",
+    tagline: "Intimate zones across a members' club estate",
+    challenge:
+      "A Soho House estate with multiple rooms, terraces and outdoor spaces — guests move between areas all evening, and each zone needs to feel connected.",
+    approach:
+      "Vintage Edison festoons, bush lights and atmospheric uplighting across the grounds — creating intimate pockets rather than one flat wash of light.",
+    effect:
+      "Spaces feel linked rather than disconnected. Guests stay outside for drinks and drift naturally between areas instead of clustering in one room.",
     images: [
       {
         src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163784/babs-bush-lights_ria-mishaal-photography_01_wvrfst.jpg",
@@ -115,13 +233,16 @@ const venueSpotlights = [
         alt: "Babington House mini chill-out camp with atmospheric lighting and festoons",
       },
     ],
-    testimonial: "The lighting transformed the space completely. Our guests couldn't stop talking about the fairy lights.",
-    testimonialAttribution: "— Wedding at Babington House",
   },
   {
     venue: "Pennard House",
-    tagline: "Architectural uplighting meets alfresco dining",
-    narrative: "Pennard House's stunning architecture called for amber uplighting to highlight its features. We complemented it with festoon lighting for the pizzarova area and tree lighting for outdoor dining.",
+    tagline: "Architecture that glows, alfresco that stays alive",
+    challenge:
+      "Stunning architecture that needed to feel warm for an evening event — plus alfresco dining areas that would lose atmosphere once the sun dropped.",
+    approach:
+      "Amber architectural uplighting on the house, festoon lighting for the pizzarova area and tree lighting for outdoor dining — each layer serving a different part of the evening.",
+    effect:
+      "The house glows warmly from outside. Outdoor dining stays part of the party rather than an add-on people forget about after dark.",
     images: [
       {
         src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768731384/Pennard-House-Lighting-with-Amber-Up-lighting_sljvaa.jpg",
@@ -132,13 +253,16 @@ const venueSpotlights = [
         alt: "Pennard House festoon lighting and pizzarova alfresco dining area",
       },
     ],
-    testimonial: "Professional, creative, and exactly what we envisioned. The amber uplighting made the house glow.",
-    testimonialAttribution: "— Private Event, Pennard House",
   },
   {
     venue: "The Newt",
-    tagline: "First wedding with our fairy light tunnel",
-    narrative: "The Newt Somerset's first wedding with our fairy light tunnel installation. A prestigious Somerset estate transformed with a magical entrance that set the tone for the entire evening.",
+    tagline: "First wedding, memorable arrival",
+    challenge:
+      "A prestigious Somerset estate hosting its first wedding — the entrance and barn needed to feel intentional, not like empty event space waiting to be filled.",
+    approach:
+      "A fairy light tunnel for arrival, plus over 800 metres of fairy lights in the Threshing Barn — marquee lighting at scale, designed around how guests actually move through the estate.",
+    effect:
+      "Guests arrive into something memorable. The barn transforms from working space to proper party room — and photos capture warmth the daylight never would.",
     images: [
       {
         src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768736010/The-Newt-Somerset-with-our-Fairy-Light-Tunnel-installed-for-their-first-wedding_xwmaca.jpg",
@@ -149,12 +273,72 @@ const venueSpotlights = [
         alt: "The Newt Somerset Threshing Barn with over 800 metres of fairy lights",
       },
     ],
-    testimonial: "The fairy light tunnel was the highlight of our wedding. Magical.",
-    testimonialAttribution: "— Wedding at The Newt, Somerset",
   },
 ];
 
-// Filterable gallery – all photos with event type tags
+const FAQ_ITEMS: Array<{ question: string; answer: ReactNode }> = [
+  {
+    question: "Can you provide simple dancefloor lighting?",
+    answer:
+      "Yes. Not every party needs a full production. We regularly supply simple dancefloor lighting setups — mirror balls, DJ lighting and white dancefloor lighting designed to give the floor energy without tacky disco effects.",
+  },
+  {
+    question: "Do you provide outdoor party lighting?",
+    answer: (
+      <>
+        Yes. Outdoor party lighting is a core part of what we do — festoon, tree lighting, courtyard
+        lighting and garden party lighting that keeps terraces and lawns connected to the party after
+        dark. It pairs naturally with{" "}
+        <Link href="/parties/private-parties/" className={linkClass}>
+          private party production
+        </Link>
+        .
+      </>
+    ),
+  },
+  {
+    question: "Can you light trees, courtyards and gardens?",
+    answer:
+      "Yes. Tree lighting, courtyard lighting and garden lighting are among our most requested services — especially for barn parties, marquee weekends and estate celebrations where guests move between indoor and outdoor spaces.",
+  },
+  {
+    question: "Can lighting be added to a DJ booking?",
+    answer: (
+      <>
+        Yes. We often combine party lighting with{" "}
+        <Link href="/artists/djs/" className={linkClass}>
+          DJ bookings
+        </Link>{" "}
+        so music and lighting are planned together — dancefloor lighting, mirror balls and atmospheric
+        room light from one experienced team.
+      </>
+    ),
+  },
+  {
+    question: "Do you provide lighting for marquees and barns?",
+    answer:
+      "Yes. Marquee lighting and barn lighting are regular requests — festoon, uplighting and fairy lights that turn a temporary structure or empty barn into a proper party room.",
+  },
+  {
+    question: "Do you install and remove the lighting?",
+    answer:
+      "Yes. Delivery, installation and removal are included. We assess your venue, install before guests arrive and collect afterwards — so you focus on hosting, not cables and ladders.",
+  },
+  {
+    question: "How early should we enquire?",
+    answer: (
+      <>
+        Popular summer dates and marquee weekends book early — especially when you need tree
+        lighting, courtyard lighting or a full estate-wide design. Enquire via our{" "}
+        <Link href="/contact-us/" className={linkClass}>
+          contact page
+        </Link>{" "}
+        as soon as you have a date and venue in mind.
+      </>
+    ),
+  },
+];
+
 const filterablePhotos: Photo[] = [
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768162258/Fairy-light-Tunnel_sc40ed.jpg", alt: "Romantic fairy light tunnel entrance for garden weddings", width: 1200, height: 900, eventTypes: ["weddings", "outdoor"], venue: "Various", serviceType: "festoon" },
   { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163529/Wedding-Tree-Lighting_pgzhix.jpg", alt: "Wedding tree lighting with fairy lights for magical outdoor setting", width: 1200, height: 900, eventTypes: ["weddings", "outdoor"], serviceType: "festoon" },
@@ -177,7 +361,6 @@ export default function PartyLightingClient() {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
-  // Hero auto-advance
   const advanceHero = useCallback(() => {
     setHeroIndex((i) => (i + 1) % heroMoodImages.length);
   }, []);
@@ -195,7 +378,7 @@ export default function PartyLightingClient() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      {/* 1. Hero – rotating gallery; copy overlay fixed for enquiry + SSR-safe rendering */}
+      {/* Hero */}
       <section className="relative h-[70vh] min-h-[520px] w-full overflow-hidden">
         <div className="absolute inset-0">
           {heroMoodImages.map((image, i) => (
@@ -229,8 +412,10 @@ export default function PartyLightingClient() {
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-2 sm:mb-3 drop-shadow-lg">
             Party Lighting
           </h1>
-          <p className="text-base sm:text-lg md:text-xl text-white/95 max-w-xl mb-6 drop-shadow-md">
-            Atmospheric lighting design for weddings and events — trusted at Babington House, The Newt and beyond.
+          <p className="text-base sm:text-lg md:text-xl text-white/95 max-w-2xl mb-6 drop-shadow-md">
+            From simple dancefloor lighting to exterior tree lighting, courtyard lighting, festoon,
+            mirror balls and full venue transformations — atmospheric party lighting designed around
+            how your guests use the space.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center mb-3">
             <Button
@@ -246,15 +431,14 @@ export default function PartyLightingClient() {
               size="lg"
               className="min-h-[48px] border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 hover:scale-105 transition-all duration-300 backdrop-blur-sm"
             >
-              <Link href="tel:+447970793177">Call 07970 793177</Link>
+              <Link href="/parties/private-parties/">Private Parties</Link>
             </Button>
           </div>
           <p className="text-xs sm:text-sm text-gray-300 drop-shadow-md">
-            20+ years · Babington House since 2003 · UK-wide
+            20+ years · Party lighting hire · South West, London &amp; UK-wide
           </p>
         </div>
 
-        {/* Hero nav dots – 44px min touch targets for accessibility */}
         <div className="absolute bottom-6 right-6 md:bottom-10 md:right-10 flex gap-2 z-20">
           {heroMoodImages.map((_, i) => (
             <button
@@ -288,12 +472,129 @@ export default function PartyLightingClient() {
         </button>
       </section>
 
-      {/* 2. Service Toolkit Cards – half-screen layouts */}
+      {/* After 20 Years Of Lighting Parties */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
+        <div className="max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center">
+              After 20 Years Of Lighting Parties&hellip;
+            </h2>
+            <div className="space-y-6 text-gray-300 text-lg leading-relaxed">
+              <p>
+                The biggest mistake is treating lighting as decoration. Great lighting directs
+                attention, creates atmosphere and changes how guests use a space.
+              </p>
+              <p>
+                It can make a marquee feel intimate, a barn feel magical, a courtyard feel connected
+                and a dancefloor feel irresistible. That is what{" "}
+                <Link href="/parties/private-parties/" className={linkClass}>
+                  event lighting design
+                </Link>{" "}
+                means to us — not filling a room with kit, but shaping how the evening unfolds.
+              </p>
+              <p>
+                We have learned this over two decades at Babington House, Pennard House, The Newt and
+                hundreds of private parties — from a simple mirror ball on a dancefloor to
+                estate-wide tree lighting and courtyard festoon. The scale changes; the principle
+                does not.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* How We Light A Party */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">How We Light A Party</h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              Party lighting hire planned around how guests actually move through your evening — not
+              a product catalogue.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {howWeLightParty.map((item, i) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+              >
+                <Card className="bg-white/5 backdrop-blur border-champagne-gold/30 hover:border-champagne-gold/50 transition-all h-full">
+                  <CardContent className="p-8">
+                    <item.icon className="w-10 h-10 text-champagne-gold mb-5" />
+                    <h3 className="text-xl font-bold mb-4">{item.title}</h3>
+                    <p className="text-gray-300 leading-relaxed">{item.copy}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Exterior Lighting That Connects The Party */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <Trees className="w-8 h-8 text-champagne-gold" />
+              <h2 className="text-3xl md:text-4xl font-bold text-center">
+                Exterior Lighting That Connects The Party
+              </h2>
+            </div>
+            <div className="space-y-6 text-gray-300 text-lg leading-relaxed">
+              <p>
+                Most DJs stop at the dancefloor. We do not. Tree lighting, courtyard lighting,
+                terraces, pathways and arrival routes — outdoor party lighting planned so guests move
+                naturally between spaces instead of clustering in one room.
+              </p>
+              <p>
+                When the dining room, terrace and garden all feel part of the same evening, people
+                drift outside for one more drink without the party splitting in two. Festoon over a
+                courtyard, fairy lights in the trees, pathway lighting to the marquee — each layer
+                guides movement and keeps the atmosphere connected after dark.
+              </p>
+              <p>
+                It is one of the things we are asked for most at barn parties, marquee weekends and
+                estate celebrations — and one of the reasons clients book us alongside{" "}
+                <Link href="/artists/djs/" className={linkClass}>
+                  DJ and production
+                </Link>{" "}
+                rather than a hire company that drops kit and leaves.
+              </p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Toolkit – reframed */}
       <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
         <div className="max-w-6xl mx-auto mb-16 text-center">
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">Our Lighting Toolkit</h2>
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">The Tools We Use To Create Those Moments</h2>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Each service paired with a professional photo. Hover for details, click to view gallery.
+            Mirror balls, festoon, uplighting and fairy tunnels — each chosen for what it does to a
+            space, not just what it is. For wedding-specific design, see our{" "}
+            <Link href="/weddings/wedding-lighting/" className={linkClass}>
+              wedding lighting
+            </Link>{" "}
+            page.
           </p>
         </div>
 
@@ -345,12 +646,88 @@ export default function PartyLightingClient() {
         </div>
       </section>
 
-      {/* 3. Venue Spotlights – storytelling case studies */}
+      {/* What Party Lighting Can Change */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">What Party Lighting Can Change</h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              Lighting is not decoration. It changes how guests experience a party.
+            </p>
+          </motion.div>
+
+          <ul className="space-y-4">
+            {whatLightingChanges.map((point, i) => (
+              <motion.li
+                key={point}
+                initial={{ opacity: 0, x: -16 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: i * 0.06 }}
+                className="flex items-start gap-4 p-4 rounded-lg bg-gray-900/60 border border-champagne-gold/20"
+              >
+                <Check className="w-5 h-5 text-champagne-gold flex-shrink-0 mt-0.5" />
+                <span className="text-gray-200 text-lg">{point}</span>
+              </motion.li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* Simple Setup To Full Transformation */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
+        <div className="max-w-6xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Simple Setup To Full Transformation</h2>
+            <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+              Not every party needs a huge production. Tell us what you are celebrating and we will
+              recommend the right level of party lighting hire — honest advice, not upselling.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {setupRange.map((item, i) => (
+              <motion.div
+                key={item.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+              >
+                <Card className="bg-gray-900/80 border-champagne-gold/20 h-full">
+                  <CardContent className="p-6">
+                    <h3 className="text-champagne-gold font-semibold text-lg mb-3">{item.title}</h3>
+                    <p className="text-gray-300 leading-relaxed">{item.detail}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+
+          <p className="text-gray-300 text-lg leading-relaxed max-w-3xl mx-auto text-center mt-12">
+            Some clients need a simple dancefloor setup. Others want tree lighting, courtyards,
+            dining spaces and outdoor zones linked together. We help you spend money where guests
+            will notice the difference most.
+          </p>
+        </div>
+      </section>
+
+      {/* Venue Spotlights */}
       <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
         <div className="max-w-6xl mx-auto mb-16 text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">Venue Spotlights</h2>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
-            Narrative case studies: the goal, the solution, the result.
+            The challenge, the lighting approach and the effect on the party — at venues we know well.
           </p>
         </div>
 
@@ -369,7 +746,21 @@ export default function PartyLightingClient() {
                 </span>
                 <h3 className="text-2xl md:text-3xl font-bold mt-1">{spotlight.tagline}</h3>
               </div>
-              <p className="text-gray-400 text-lg leading-relaxed">{spotlight.narrative}</p>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
+                <div className="p-5 rounded-lg bg-gray-900/60 border border-white/10">
+                  <h4 className="text-champagne-gold font-semibold mb-2 uppercase tracking-wide text-xs">The challenge</h4>
+                  <p className="text-gray-300 leading-relaxed">{spotlight.challenge}</p>
+                </div>
+                <div className="p-5 rounded-lg bg-gray-900/60 border border-white/10">
+                  <h4 className="text-champagne-gold font-semibold mb-2 uppercase tracking-wide text-xs">The lighting approach</h4>
+                  <p className="text-gray-300 leading-relaxed">{spotlight.approach}</p>
+                </div>
+                <div className="p-5 rounded-lg bg-gray-900/60 border border-white/10">
+                  <h4 className="text-champagne-gold font-semibold mb-2 uppercase tracking-wide text-xs">The effect on the party</h4>
+                  <p className="text-gray-300 leading-relaxed">{spotlight.effect}</p>
+                </div>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
                 {spotlight.images.map((img, i) => (
@@ -378,17 +769,12 @@ export default function PartyLightingClient() {
                   </div>
                 ))}
               </div>
-
-              <blockquote className="border-l-4 border-champagne-gold pl-6 py-2 mt-6 bg-gray-900/50 rounded-r-lg">
-                <p className="text-white/90 italic">&ldquo;{spotlight.testimonial}&rdquo;</p>
-                <cite className="text-gray-500 text-sm not-italic mt-1 block">{spotlight.testimonialAttribution}</cite>
-              </blockquote>
             </motion.article>
           ))}
         </div>
       </section>
 
-      {/* 4. Interactive Filtering – Weddings / Corporate / Outdoor */}
+      {/* Gallery with filters */}
       <section id="gallery" className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50 scroll-mt-28">
         <div className="max-w-6xl mx-auto mb-12">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">Browse by Event</h2>
@@ -447,16 +833,50 @@ export default function PartyLightingClient() {
         </motion.div>
       </section>
 
-      {/* Enquiry CTA – lighting-hire traffic needs a clear path beyond the gallery */}
-      <section className="py-16 px-4 bg-gray-900/50 border-t border-white/5">
+      {/* FAQs */}
+      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+        <div className="max-w-3xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-12"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Frequently Asked Questions</h2>
+          </motion.div>
+          <div className="space-y-6">
+            {FAQ_ITEMS.map((item, i) => (
+              <motion.div
+                key={item.question}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+              >
+                <Card className="bg-gray-900/60 border-champagne-gold/20">
+                  <CardContent className="p-6">
+                    <h3 className="text-lg font-semibold text-white mb-3">{item.question}</h3>
+                    <div className="text-gray-300 leading-relaxed">{item.answer}</div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section className="py-20 px-4 bg-gray-900/50 border-t border-champagne-gold/20">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-4">Planning lighting for your event?</h2>
-          <p className="text-gray-300 text-lg mb-6">
-            Share your venue and date — we&apos;ll advise on design and availability.
+          <Lightbulb className="w-10 h-10 text-champagne-gold mx-auto mb-6" />
+          <h2 className="text-2xl md:text-3xl font-bold mb-6">Planning Lighting For Your Party?</h2>
+          <p className="text-gray-200 text-lg mb-8 leading-relaxed">
+            Tell us what you are celebrating, where it is happening and how you want the space to
+            feel — we will reply with honest ideas about party lighting hire and a clear next step.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button asChild size="lg" className="min-h-[48px] bg-champagne-gold text-black hover:bg-champagne-gold/90 hover:scale-105 transition-all duration-300 shadow-lg">
-              <Link href="/contact-us/">Check Availability</Link>
+              <Link href="/contact-us/">Get in Touch</Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="min-h-[48px] border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10">
               <Link href="tel:+447970793177">Call 07970 793177</Link>
