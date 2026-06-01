@@ -5,7 +5,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createMetadata, generateCanonicalUrl } from "@/lib/metadata";
 import { normalizeMixcloudEmbeds } from "@/lib/mixcloud-utils";
-import { getDJExtras, type DJFounderStory, type DJResidency } from "@/lib/dj-extras";
+import { getDJExtras, type DJFounderStory, type DJResidency, type DJRosterProfile } from "@/lib/dj-extras";
 
 export const dynamic = "force-dynamic";
 export const dynamicParams = true;
@@ -148,7 +148,32 @@ export async function generateMetadata({
             "wedding DJs who read the room",
             "Babington House DJ",
           ]
-        : undefined,
+        : slug === "rich-s"
+          ? [
+              "wedding DJ Somerset",
+              "wedding DJ Bath",
+              "wedding DJ Bristol",
+              "radio DJ",
+              "non-cheesy wedding DJ",
+              "private party DJ",
+            ]
+          : slug === "james-h"
+            ? [
+                "corporate event DJ",
+                "event DJ",
+                "party DJ",
+                "wedding DJ",
+                "radio DJ",
+              ]
+            : slug === "dj-james"
+              ? [
+                  "modern wedding DJ",
+                  "wedding DJ Somerset",
+                  "party DJ",
+                  "wedding DJ Bath",
+                  "wedding DJ Bristol",
+                ]
+              : undefined,
     openGraph: ogImageUrl
       ? {
           images: [
@@ -312,9 +337,9 @@ export default async function DJProfilePage({
               {extras?.profileTagline ?? dj.strapLine}
             </p>
           ) : null}
-          {extras?.founderStory?.heroIntro ? (
+          {(extras?.founderStory?.heroIntro ?? extras?.rosterProfile?.heroIntro) ? (
             <p className="text-base sm:text-lg text-white/90 leading-relaxed drop-shadow-md max-w-2xl mx-auto">
-              {extras.founderStory.heroIntro}
+              {extras?.founderStory?.heroIntro ?? extras?.rosterProfile?.heroIntro}
             </p>
           ) : null}
         </div>
@@ -328,80 +353,37 @@ export default async function DJProfilePage({
         <FounderStorySections story={extras.founderStory} />
       ) : null}
 
-      <section className="py-16 px-4 bg-gray-900">
-        <div className="container mx-auto max-w-3xl">
-          {!extras?.founderStory && bioSource ? (
-            renderBioParagraphs(bioSource)
-          ) : !extras?.founderStory ? (
-            <p className="text-base sm:text-lg leading-relaxed text-gray-200 mb-5">
-              {dj.name} is one of our professional DJs available for weddings, private parties and corporate events across the UK.
-            </p>
-          ) : null}
+      {extras?.rosterProfile ? (
+        <RosterProfileSections profile={extras.rosterProfile} djName={dj.name} />
+      ) : null}
 
-          {(youtubeEmbed || mixcloudEmbeds.length > 0) && (
-            <div className="mt-12 space-y-8">
-              {youtubeEmbed ? (
-                <div>
-                  <h2 className="text-xs font-semibold text-champagne-gold uppercase tracking-wider mb-3">
-                    Watch
-                  </h2>
-                  <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black/30 shadow-lg">
-                    <iframe
-                      src={youtubeEmbed}
-                      title={`${dj.name} \u2014 video`}
-                      loading="lazy"
-                      className="absolute inset-0 w-full h-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                      allowFullScreen
-                      referrerPolicy="strict-origin-when-cross-origin"
-                    />
-                  </div>
-                </div>
-              ) : null}
+      {extras?.founderStory ? (
+        <MediaAndCTASection
+          djName={dj.name}
+          youtubeEmbed={youtubeEmbed}
+          mixcloudEmbeds={mixcloudEmbeds}
+        />
+      ) : null}
 
-              {mixcloudEmbeds.length > 0 ? (
-                <div>
-                  <h2 className="text-xs font-semibold text-champagne-gold uppercase tracking-wider mb-3">
-                    Listen
-                  </h2>
-                  <div className="space-y-3">
-                    {mixcloudEmbeds.map((embed, idx) => (
-                      <div
-                        key={idx}
-                        className="relative w-full rounded-lg overflow-hidden bg-black/30 shadow-lg"
-                        style={{ height: "60px" }}
-                      >
-                        <iframe
-                          src={embed}
-                          title={`${dj.name} \u2014 mix ${idx + 1}`}
-                          loading="lazy"
-                          className="absolute inset-0 w-full h-full"
-                          allow="encrypted-media; fullscreen; autoplay; idle-detection; web-share"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-            </div>
-          )}
-
-          <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/contact-us/"
-              className="inline-flex items-center justify-center px-8 py-3 rounded-lg bg-champagne-gold text-black font-semibold min-h-[48px] hover:bg-champagne-gold/90 transition-colors"
-            >
-              Enquire about {dj.name}
-            </Link>
-            <Link
-              href="/artists/djs/"
-              className="inline-flex items-center justify-center px-8 py-3 rounded-lg border border-champagne-gold text-champagne-gold font-semibold min-h-[48px] hover:bg-champagne-gold/10 transition-colors"
-            >
-              View all DJs
-            </Link>
+      {!extras?.founderStory && !extras?.rosterProfile ? (
+        <section className="py-16 px-4 bg-gray-900">
+          <div className="container mx-auto max-w-3xl">
+            {bioSource ? (
+              renderBioParagraphs(bioSource)
+            ) : (
+              <p className="text-base sm:text-lg leading-relaxed text-gray-200 mb-5">
+                {dj.name} is one of our professional DJs available for weddings, private parties and corporate events across the UK.
+              </p>
+            )}
+            <MediaAndCTASection
+              djName={dj.name}
+              youtubeEmbed={youtubeEmbed}
+              mixcloudEmbeds={mixcloudEmbeds}
+              embedded
+            />
           </div>
-        </div>
-      </section>
+        </section>
+      ) : null}
 
       {extras?.founderStory?.typicalEvent ? (
         <TypicalEventSection event={extras.founderStory.typicalEvent} />
@@ -417,7 +399,226 @@ export default async function DJProfilePage({
           testimonials={extras.testimonials}
         />
       ) : null}
+
+      {extras?.rosterProfile ? (
+        <MediaAndCTASection
+          djName={dj.name}
+          youtubeEmbed={youtubeEmbed}
+          mixcloudEmbeds={mixcloudEmbeds}
+        />
+      ) : null}
     </>
+  );
+}
+
+function RosterProfileSections({
+  profile,
+  djName,
+}: {
+  profile: DJRosterProfile;
+  djName: string;
+}) {
+  const firstName = djName.replace(/^DJ\s+/i, "").split(" ")[0] ?? djName;
+
+  return (
+    <>
+      <section className="py-16 px-4 bg-gray-950 border-b border-champagne-gold/10">
+        <div className="container mx-auto max-w-3xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-8 text-center">
+            What {firstName} Brings To A Room
+          </h2>
+          <ul className="space-y-4">
+            {profile.whatTheyBring.map((point, idx) => (
+              <li
+                key={idx}
+                className="text-base sm:text-lg leading-relaxed text-gray-300 pl-4 border-l-2 border-champagne-gold/40"
+              >
+                {renderLinkedText(point, `bring-${idx}`)}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      <section className="py-16 px-4 bg-gray-900">
+        <div className="container mx-auto max-w-4xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-10 text-center">
+            Best Suited For
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {profile.bestSuitedFor.map((item) => (
+              <div
+                key={item.title}
+                className="p-5 rounded-xl bg-gray-900/70 border border-champagne-gold/20"
+              >
+                <h3 className="text-white font-semibold mb-2">{item.title}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed">
+                  {renderLinkedText(item.copy, item.title)}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 px-4 bg-gray-950">
+        <div className="container mx-auto max-w-3xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4 text-center">
+            How {firstName} Builds A Dancefloor
+          </h2>
+          <p className="text-gray-400 text-center mb-10">{profile.dancefloorMessage}</p>
+          <div className="space-y-4">
+            {profile.dancefloor.map((step) => (
+              <div
+                key={step.phase}
+                className="flex gap-4 p-4 rounded-lg bg-gray-800/50 border border-champagne-gold/15"
+              >
+                <span className="text-champagne-gold font-semibold min-w-[7rem]">{step.phase}</span>
+                <p className="text-gray-300 leading-relaxed">{step.detail}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 px-4 bg-gray-900">
+        <div className="container mx-auto max-w-4xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-10 text-center">
+            Music Style &amp; Strengths
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {profile.musicStyle.map((item) => (
+              <div
+                key={item.title}
+                className="p-5 rounded-xl bg-gray-800/60 border border-champagne-gold/20"
+              >
+                <h3 className="text-champagne-gold font-semibold mb-2">{item.title}</h3>
+                <p className="text-gray-300 text-sm leading-relaxed">{item.copy}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="py-12 px-4 bg-gray-950 border-b border-champagne-gold/10">
+        <div className="container mx-auto max-w-3xl">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-8 text-center">
+            Background
+          </h2>
+          <ol className="space-y-4">
+            {profile.careerHighlights.map((item, idx) => (
+              <li key={item.label} className="flex gap-4 items-start">
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-champagne-gold/15 border border-champagne-gold/40 flex items-center justify-center text-champagne-gold text-sm font-bold">
+                  {idx + 1}
+                </span>
+                <div>
+                  <p className="text-white font-semibold">{item.label}</p>
+                  <p className="text-gray-400 text-sm leading-relaxed">
+                    {renderLinkedText(item.detail, `career-${idx}`)}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+          <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-10 pt-10 border-t border-champagne-gold/20">
+            {profile.careerClosing}
+          </p>
+          <p className="text-base sm:text-lg leading-relaxed text-gray-300 mt-6">
+            {renderLinkedText(profile.rosterLinks, "roster-links")}
+          </p>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function MediaAndCTASection({
+  djName,
+  youtubeEmbed,
+  mixcloudEmbeds,
+  embedded = false,
+}: {
+  djName: string;
+  youtubeEmbed: string | null;
+  mixcloudEmbeds: string[];
+  embedded?: boolean;
+}) {
+  const hasMedia = Boolean(youtubeEmbed) || mixcloudEmbeds.length > 0;
+  const inner = (
+    <>
+      {hasMedia ? (
+        <div className={`space-y-8 ${embedded ? "mt-12" : ""}`}>
+          {youtubeEmbed ? (
+            <div>
+              <h2 className="text-xs font-semibold text-champagne-gold uppercase tracking-wider mb-3">
+                Watch
+              </h2>
+              <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-black/30 shadow-lg">
+                <iframe
+                  src={youtubeEmbed}
+                  title={`${djName} \u2014 video`}
+                  loading="lazy"
+                  className="absolute inset-0 w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                  referrerPolicy="strict-origin-when-cross-origin"
+                />
+              </div>
+            </div>
+          ) : null}
+
+          {mixcloudEmbeds.length > 0 ? (
+            <div>
+              <h2 className="text-xs font-semibold text-champagne-gold uppercase tracking-wider mb-3">
+                Listen
+              </h2>
+              <div className="space-y-3">
+                {mixcloudEmbeds.map((embed, idx) => (
+                  <div
+                    key={idx}
+                    className="relative w-full rounded-lg overflow-hidden bg-black/30 shadow-lg"
+                    style={{ height: "60px" }}
+                  >
+                    <iframe
+                      src={embed}
+                      title={`${djName} \u2014 mix ${idx + 1}`}
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full"
+                      allow="encrypted-media; fullscreen; autoplay; idle-detection; web-share"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      <div className={`flex flex-col sm:flex-row gap-4 justify-center ${hasMedia ? "mt-12" : ""}`}>
+        <Link
+          href="/contact-us/"
+          className="inline-flex items-center justify-center px-8 py-3 rounded-lg bg-champagne-gold text-black font-semibold min-h-[48px] hover:bg-champagne-gold/90 transition-colors"
+        >
+          Enquire about {djName}
+        </Link>
+        <Link
+          href="/artists/djs/"
+          className="inline-flex items-center justify-center px-8 py-3 rounded-lg border border-champagne-gold text-champagne-gold font-semibold min-h-[48px] hover:bg-champagne-gold/10 transition-colors"
+        >
+          View all DJs
+        </Link>
+      </div>
+    </>
+  );
+
+  if (embedded) {
+    return inner;
+  }
+
+  return (
+    <section className="py-16 px-4 bg-gray-900 border-t border-champagne-gold/10">
+      <div className="container mx-auto max-w-3xl">{inner}</div>
+    </section>
   );
 }
 

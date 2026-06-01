@@ -41,22 +41,33 @@ interface DJRosterCard {
 // For DJ Nige specifically, we also include every Babington House testimonial
 // regardless of whether the quote text mentions his name. He is the 22-year
 // resident DJ at Babington House, so all Babington testimonials belong to him.
+function testimonialMatchesDj(djName: string, quote: string): boolean {
+  const q = quote.toLowerCase();
+
+  if (djName === "DJ Nige") {
+    return ["nige", "nigel"].some((kw) => q.includes(kw));
+  }
+  if (djName === "Rich S") {
+    if (q.includes("rich s") || q.includes("rich smith")) return true;
+    if (q.includes("nige") && q.includes("rich")) return false;
+    if (q.includes("win & rich") || q.includes("rich and laurie")) return false;
+    return /\brich\b/.test(q) && (q.includes("dj") || q.includes("djing") || q.includes("tunes"));
+  }
+  if (djName === "James H") {
+    return q.includes("james h");
+  }
+  if (djName === "DJ James") {
+    return q.includes("james f");
+  }
+
+  return false;
+}
+
 function getDJTestimonials(djName: string) {
-  const djKeywords: { [key: string]: string[] } = {
-    "DJ Nige": ["nige", "nigel"],
-    "DJ Rich": ["rich"],
-    "James H DJ": ["james"],
-  };
-
-  const keywords = djKeywords[djName] || [];
-  if (keywords.length === 0) return [];
-
   const matched = testimonials.filter((t) => {
-    const quoteLower = t.quote.toLowerCase();
-    const mentionsDj = keywords.some((kw) => quoteLower.includes(kw));
     const isNigeBabington =
       djName === "DJ Nige" && t.venueFilter === "Babington House";
-    return mentionsDj || isNigeBabington;
+    return isNigeBabington || testimonialMatchesDj(djName, t.quote);
   });
 
   // Defensive dedupe by author (case-insensitive) in case of any future
