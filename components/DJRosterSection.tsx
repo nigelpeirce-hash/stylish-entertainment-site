@@ -16,6 +16,7 @@ import {
 import LazyIframe from "@/components/LazyIframe";
 import { ArrowRight, Quote } from "lucide-react";
 import { testimonials } from "@/data/testimonials";
+import { getDJExtras } from "@/lib/dj-extras";
 import type { DJCardData } from "@/lib/dj-data";
 
 interface DJRosterCard {
@@ -130,10 +131,15 @@ function mapDJ(raw: {
   mixcloudEmbeds?: string[];
   mixcloudUrl?: string | null;
 }): DJRosterCard {
+  const extras = raw.slug ? getDJExtras(raw.slug) : null;
   const youtubeEmbed = normalizeYouTubeUrl(raw.youtubeEmbed ?? null);
   const bio = raw.bio || "";
-  const fullBio = (raw.fullBio && raw.fullBio.trim()) ? raw.fullBio : bio;
-  const strapLine = (raw.strapLine && raw.strapLine.trim()) ? raw.strapLine : "Professional DJ Services";
+  const fullBio =
+    extras?.quickPreviewBio?.trim() ||
+    (raw.fullBio && raw.fullBio.trim() ? raw.fullBio : bio);
+  const strapLine =
+    extras?.quickPreviewStrapLine?.trim() ||
+    (raw.strapLine && raw.strapLine.trim() ? raw.strapLine : "Professional DJ Services");
   const mixcloudEmbeds =
     raw.mixcloudEmbeds && raw.mixcloudEmbeds.length > 0
       ? raw.mixcloudEmbeds
@@ -358,15 +364,67 @@ export default function DJRosterSection({ djs: initialDjs }: DJRosterSectionProp
                           </DialogTrigger>
                           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-gray-900 border-champagne-gold/30">
                             <DialogHeader>
-                              <DialogTitle className="text-3xl md:text-4xl text-white font-bold mb-4">
+                              <DialogTitle className="text-3xl md:text-4xl text-white font-bold mb-2">
                                 {dj.name}
                               </DialogTitle>
+                              {(() => {
+                                const previewExtras = dj.slug ? getDJExtras(dj.slug) : null;
+                                return (
+                                  <>
+                                    {previewExtras?.quickPreviewStrapLine ? (
+                                      <p className="text-lg text-champagne-gold font-medium mb-4">
+                                        {previewExtras.quickPreviewStrapLine}
+                                      </p>
+                                    ) : null}
+                                    {previewExtras?.quickPreviewTags &&
+                                    previewExtras.quickPreviewTags.length > 0 ? (
+                                      <div className="flex flex-wrap gap-2 mb-6">
+                                        {previewExtras.quickPreviewTags.map((tag) => (
+                                          <span
+                                            key={tag}
+                                            className="inline-flex px-3 py-1 rounded-full text-xs font-semibold tracking-wide bg-champagne-gold/10 text-champagne-gold border border-champagne-gold/30"
+                                          >
+                                            {tag}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    ) : null}
+                                  </>
+                                );
+                              })()}
                               <div className="text-base sm:text-lg text-gray-100 leading-relaxed space-y-6 prose prose-lg max-w-none">
                                 {(() => {
+                                  const previewExtras = dj.slug ? getDJExtras(dj.slug) : null;
                                   const fullBio = dj.fullBio || "";
                                   const parts = fullBio.split("---");
                                   const bioText = parts[0] || "";
                                   const testimonialsText = parts[1];
+                                  const knownForItems = previewExtras?.quickPreviewKnownFor ?? [];
+
+                                  const knownForBlock =
+                                    knownForItems.length > 0 ? (
+                                      <div className="mt-8 pt-6 border-t border-champagne-gold/20">
+                                        <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-champagne-gold mb-4">
+                                          Known For
+                                        </h3>
+                                        <ul className="space-y-2.5">
+                                          {knownForItems.map((item) => (
+                                            <li
+                                              key={item}
+                                              className="flex items-start gap-3 text-gray-200 leading-relaxed"
+                                            >
+                                              <span
+                                                aria-hidden="true"
+                                                className="text-champagne-gold mt-1 shrink-0"
+                                              >
+                                                •
+                                              </span>
+                                              <span>{item}</span>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    ) : null;
 
                                   return (
                                     <>
@@ -404,6 +462,8 @@ export default function DJRosterSection({ djs: initialDjs }: DJRosterSectionProp
                                             </p>
                                           );
                                         })}
+
+                                      {knownForBlock}
 
                                       {testimonialsText && (
                                         <div className="mt-8 pt-6 border-t-2 border-champagne-gold/30">

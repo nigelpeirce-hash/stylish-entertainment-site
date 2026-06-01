@@ -36,7 +36,8 @@ export interface DJExtras {
   /**
    * Long-form bio displayed ONLY on the profile page (/artists/djs/[slug]/).
    * Takes precedence over the database `fullBio` field when set.
-   * The listing-page "Quick preview" modal continues to use the DB `fullBio`.
+   * The listing-page "Quick preview" modal uses quickPreviewBio / quickPreviewStrapLine
+   * when set; otherwise DB fullBio / strapLine.
    * Format: paragraphs separated by blank lines. Markdown links [text](url)
    * are rendered as gold links.
    */
@@ -55,6 +56,14 @@ export interface DJExtras {
   testimonialsHeading?: string;
   testimonialsIntro?: string;
   testimonials?: Testimonial[];
+  /** Overrides DB strapLine on the listing card and optional modal subtitle. */
+  quickPreviewStrapLine?: string;
+  /** Overrides DB fullBio in the listing-page Quick preview modal only. */
+  quickPreviewBio?: string;
+  /** Scan tags shown under the strapline in the Quick preview modal. */
+  quickPreviewTags?: string[];
+  /** Bullets shown immediately before testimonials in the Quick preview modal. */
+  quickPreviewKnownFor?: string[];
 }
 
 // Merged founder narrative — lessons only; career facts live in the timeline below.
@@ -206,6 +215,29 @@ const DJ_NIGE_FOUNDER_STORY: DJFounderStory = {
   testimonialsIntro: "What matters most is what clients say after the event.",
 };
 
+const DJ_NIGE_QUICK_PREVIEW_STRAPLINE =
+  "22 years at Babington House. A lifetime reading dancefloors.";
+
+const DJ_NIGE_QUICK_PREVIEW_BIO = `For more than three decades Nigel Peirce has been creating unforgettable weddings, private parties and corporate events. As resident DJ at [Babington House](/venues/babington-house/) since 2003, he has become known for sophisticated music programming, instinctive crowd reading and creating packed dancefloors without gimmicks or forced interaction.
+
+From producing Pete Tong's Essential Selection on BBC Radio 1 to DJing backstage at Glastonbury Festival and entertaining guests including Adele, Kate Winslet and James Corden, Nigel brings a depth of experience rarely found in the wedding and events world.
+
+Luxury weddings. Private parties. Corporate celebrations. Atmosphere first, playlists second.`;
+
+const DJ_NIGE_QUICK_PREVIEW_TAGS = [
+  "Luxury Weddings",
+  "Babington House",
+  "Non-Cheesy DJ",
+];
+
+const DJ_NIGE_QUICK_PREVIEW_KNOWN_FOR = [
+  "Reading the room",
+  "Luxury weddings",
+  "Mixed-generation dancefloors",
+  "No forced interaction",
+  "Music-led atmosphere",
+];
+
 // Hand-picked testimonial lineup for DJ Nige's profile page, displayed in
 // this exact order. Two Babington House (his 22-year residency) plus one
 // non-Babington venue to show geographic / venue range.
@@ -248,6 +280,10 @@ export function getDJExtras(slug: string): DJExtras | null {
       heroImageUrl: DJ_NIGE_HERO_IMAGE,
       testimonialsHeading: "What Couples Are Saying",
       testimonialsIntro: DJ_NIGE_FOUNDER_STORY.testimonialsIntro,
+      quickPreviewStrapLine: DJ_NIGE_QUICK_PREVIEW_STRAPLINE,
+      quickPreviewBio: DJ_NIGE_QUICK_PREVIEW_BIO,
+      quickPreviewTags: DJ_NIGE_QUICK_PREVIEW_TAGS,
+      quickPreviewKnownFor: DJ_NIGE_QUICK_PREVIEW_KNOWN_FOR,
       testimonials: NIGE_PROFILE_TESTIMONIAL_AUTHORS
         .map((name) => testimonials.find((t) => t.author === name))
         .filter((t): t is Testimonial => Boolean(t)),
