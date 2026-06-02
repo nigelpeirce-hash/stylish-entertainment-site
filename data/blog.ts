@@ -88,6 +88,17 @@ export const BROWSE_TOPICS = [
 
 export const BLOG_POSTS: BlogPost[] = [
   {
+    title: "10 Things We've Learned From Hundreds Of Babington House Weddings",
+    slug: "10-things-weve-learned-from-hundreds-of-babington-house-weddings",
+    basePath: "about/journal",
+    category: "Venue Guides",
+    excerpt:
+      "After hundreds of Babington House weddings since 2003, DJ Nige shares what makes the venue work — the bar, terrace, Orangery, lighting, music and guest flow from real experience.",
+    image:
+      "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768740393/Albert-Palmer-Photography-002_rpgfzf.jpg",
+    alt: "Babington House wedding guests on the Croquet Lawn — summer estate celebration",
+  },
+  {
     title: "Why Does One Wedding DJ Cost £400 And Another £1,500?",
     slug: "why-does-one-wedding-dj-cost-400-and-another-1500",
     basePath: "about/journal",
