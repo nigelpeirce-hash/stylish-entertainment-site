@@ -238,7 +238,7 @@ export default function StaffManagement() {
 
     setDeletingId(memberId);
     try {
-      const response = await fetch(`/api/admin/staff/${memberId}/${forceDelete /? "?force=true" : ""}`, {
+      const response = await fetch(`/api/admin/staff/${memberId}${forceDelete ? "?force=true" : ""}`, {
         method: "DELETE",
         credentials: "include",
       });
