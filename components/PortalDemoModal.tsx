@@ -191,7 +191,7 @@ function ContractTabContent() {
       return (
         <>
           {before.trim()}{" "}
-          <Link href="/privacy-policy" className="text-champagne-gold hover:underline">
+          <Link href="/privacy-policy/" className="text-champagne-gold hover:underline">
             Privacy Policy
           </Link>{" "}
           {after?.trim() || ""}
@@ -243,7 +243,7 @@ function ContractTabContent() {
             <p className="mb-4 text-gray-400 whitespace-pre-line text-xs">{TERMS_ABRIDGED}</p>
             <p className="mb-4 text-sm">
               Full terms at{" "}
-              <Link href="/terms-and-conditions" className="text-champagne-gold hover:underline">
+              <Link href="/terms-and-conditions/" className="text-champagne-gold hover:underline">
                 stylishentertainment.co.uk/terms-and-conditions
               </Link>
             </p>

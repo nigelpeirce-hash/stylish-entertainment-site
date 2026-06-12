@@ -94,9 +94,9 @@ export default function OrderDetailPage() {
     }
 
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     } else if (status === "authenticated" && (session?.user as any)?.role === "admin" && orderId) {
       fetchOrder();
     }
@@ -177,7 +177,7 @@ export default function OrderDetailPage() {
   return (
     <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
       <div className="container mx-auto max-w-5xl">
-        <Link href="/admin/orders">
+        <Link href="/admin/orders/">
           <Button variant="ghost" className="text-gray-300 hover:text-white mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Orders

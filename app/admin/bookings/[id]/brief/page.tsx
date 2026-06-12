@@ -73,9 +73,9 @@ export default function MasterBriefPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     }
   }, [status, session, router]);
 
@@ -83,7 +83,7 @@ export default function MasterBriefPage() {
     const fetchBrief = async () => {
       try {
         setLoading(true);
-        const res = await fetch(`/api/admin/bookings/${bookingId}/internal-brief`);
+        const res = await fetch(`/api/admin/bookings/${bookingId}/internal-brief/`);
         const data = await res.json();
         if (res.ok) {
           setBriefData(data);
@@ -125,7 +125,7 @@ export default function MasterBriefPage() {
             <h1 className="text-xl font-bold text-white mb-2">Error</h1>
             <p className="text-gray-400">{error || "Failed to load brief"}</p>
             <Button
-              onClick={() => router.push(`/admin/bookings/${bookingId}`)}
+              onClick={() => router.push(`/admin/bookings/${bookingId}/`)}
               className="mt-4"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -171,7 +171,7 @@ export default function MasterBriefPage() {
         <div className="no-print sticky top-0 z-50 bg-gray-900/95 backdrop-blur-sm border-b border-gray-800">
           <div className="container mx-auto max-w-4xl px-6 py-4">
             <div className="flex items-center justify-between">
-              <Link href={`/admin/bookings/${bookingId}`}>
+              <Link href={`/admin/bookings/${bookingId}/`}>
                 <Button variant="ghost" size="sm">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Booking

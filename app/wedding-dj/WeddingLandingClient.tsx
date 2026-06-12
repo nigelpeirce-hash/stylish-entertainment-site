@@ -629,7 +629,7 @@ export default function WeddingLandingClient() {
 
           <div className="text-center mt-10 flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button asChild variant="outline" size="lg" className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 font-semibold text-lg px-8 py-6">
-              <Link href="/demo/portal-preview" target="_blank" rel="noopener noreferrer">
+              <Link href="/demo/portal-preview/" target="_blank" rel="noopener noreferrer">
                 See the Portal
               </Link>
             </Button>

@@ -21,7 +21,7 @@ export default function ClientPortalSarahTimPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
       return;
     }
   }, [status, router]);
@@ -38,7 +38,7 @@ export default function ClientPortalSarahTimPage() {
     <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
       <div className="container mx-auto max-w-xl">
         <Link
-          href="/admin"
+          href="/admin/"
           className="inline-flex items-center gap-2 text-champagne-gold hover:underline text-sm mb-8"
         >
           <ArrowLeft className="w-4 h-4" /> Back to admin
@@ -58,7 +58,7 @@ export default function ClientPortalSarahTimPage() {
               Open static demo <ExternalLink className="w-4 h-4" />
             </a>
             <Link
-              href="/admin/sandbox/client-portal-hero-demo"
+              href="/admin/sandbox/client-portal-hero-demo/"
               className="inline-flex items-center gap-2 px-6 py-3 border border-champagne-gold/50 text-champagne-gold font-semibold rounded-lg hover:bg-champagne-gold/10 transition-colors"
             >
               Hero photo demo <ExternalLink className="w-4 h-4" />

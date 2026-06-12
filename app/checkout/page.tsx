@@ -57,7 +57,7 @@ export default function CheckoutPage() {
   useEffect(() => {
     let sid = localStorage.getItem("cartSessionId");
     if (!sid) {
-      router.push("/hire");
+      router.push("/hire/");
       return;
     }
     setSessionId(sid);
@@ -76,11 +76,11 @@ export default function CheckoutPage() {
 
   const fetchCart = async (sid: string) => {
     try {
-      const response = await fetch(`/api/cart?sessionId=${sid}`);
+      const response = await fetch(`/api/cart/?sessionId=${sid}`);
       if (response.ok) {
         const data = await response.json();
         if (!data.cart || data.cart.items.length === 0) {
-          router.push("/hire");
+          router.push("/hire/");
           return;
         }
         setCart(data.cart);
@@ -172,7 +172,7 @@ export default function CheckoutPage() {
                 </p>
                 <div className="flex gap-3 justify-center">
                   <Button
-                    onClick={() => router.push("/hire")}
+                    onClick={() => router.push("/hire/")}
                     variant="outline"
                     className="border-gray-600 text-gray-300"
                   >
@@ -195,7 +195,7 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
       <div className="container mx-auto max-w-6xl">
-        <Link href="/hire">
+        <Link href="/hire/">
           <Button variant="ghost" className="text-gray-300 hover:text-white mb-6">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Hire Shop

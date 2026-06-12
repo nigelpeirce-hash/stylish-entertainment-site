@@ -51,7 +51,7 @@ export default function TermsAndConditionsPage() {
                           .split(PRIVACY_LINK_PLACEHOLDER)[0]
                           .trim()}{" "}
                         <Link
-                          href="/privacy-policy"
+                          href="/privacy-policy/"
                           className="text-champagne-gold hover:text-gold-light underline"
                         >
                           Privacy Policy

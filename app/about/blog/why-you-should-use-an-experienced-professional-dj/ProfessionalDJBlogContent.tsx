@@ -224,7 +224,7 @@ export default function ProfessionalDJBlogContent() {
                         Contact us
                       </Link>
                       {" "}to learn more about our professional DJ services, or{" "}
-                      <Link href="/artists/djs" className="text-champagne-gold hover:text-gold-light underline">
+                      <Link href="/artists/djs/" className="text-champagne-gold hover:text-gold-light underline">
                         meet our DJs
                       </Link>
                       .

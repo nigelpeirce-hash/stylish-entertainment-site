@@ -21,7 +21,7 @@ export default function TermsPortalDemoPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
       return;
     }
   }, [status, router]);
@@ -38,7 +38,7 @@ export default function TermsPortalDemoPage() {
     <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
       <div className="container mx-auto max-w-xl">
         <Link
-          href="/admin"
+          href="/admin/"
           className="inline-flex items-center gap-2 text-champagne-gold hover:underline text-sm mb-8"
         >
           <ArrowLeft className="w-4 h-4" /> Back to admin
@@ -49,7 +49,7 @@ export default function TermsPortalDemoPage() {
             Visual demo of where and how the personalised T&C acceptance appears in the client portal.
           </p>
           <a
-            href="/terms-portal-flow-demo"
+            href="/terms-portal-flow-demo/"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 px-6 py-3 bg-champagne-gold text-black font-semibold rounded-lg hover:bg-champagne-gold/90 transition-colors"

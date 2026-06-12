@@ -47,37 +47,37 @@ export function CommandMenu({ open, onOpenChange }: CommandMenuProps) {
 
           <CommandGroup heading="Navigation">
             <CommandItem
-              onSelect={() => runCommand(() => router.push("/admin/inbox"))}
+              onSelect={() => runCommand(() => router.push("/admin/inbox/"))}
             >
               <Inbox className="mr-2 h-4 w-4" />
               <span>Inbox</span>
             </CommandItem>
             <CommandItem
-              onSelect={() => runCommand(() => router.push("/admin/90-day-command"))}
+              onSelect={() => runCommand(() => router.push("/admin/90-day-command/"))}
             >
               <CalendarPlus className="mr-2 h-4 w-4" />
               <span>90-Day Command Centre</span>
             </CommandItem>
             <CommandItem
-              onSelect={() => runCommand(() => router.push("/admin/bookings"))}
+              onSelect={() => runCommand(() => router.push("/admin/bookings/"))}
             >
               <CalendarPlus className="mr-2 h-4 w-4" />
               <span>Manage Bookings</span>
             </CommandItem>
             <CommandItem
-              onSelect={() => runCommand(() => router.push("/admin/settings"))}
+              onSelect={() => runCommand(() => router.push("/admin/settings/"))}
             >
               <Settings className="mr-2 h-4 w-4" />
               <span>Settings</span>
             </CommandItem>
             <CommandItem
-              onSelect={() => runCommand(() => router.push("/admin/staff-management"))}
+              onSelect={() => runCommand(() => router.push("/admin/staff-management/"))}
             >
               <Users className="mr-2 h-4 w-4" />
               <span>Staff Management</span>
             </CommandItem>
             <CommandItem
-              onSelect={() => runCommand(() => router.push("/admin/orders"))}
+              onSelect={() => runCommand(() => router.push("/admin/orders/"))}
             >
               <Package className="mr-2 h-4 w-4" />
               <span>Hire Orders</span>

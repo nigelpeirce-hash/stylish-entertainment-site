@@ -25,7 +25,7 @@ export default function ThankYouPage() {
   useEffect(() => {
     async function fetchInfo() {
       try {
-        const res = await fetch(`/api/guest-requests/${token}`);
+        const res = await fetch(`/api/guest-requests/${token}/`);
         if (res.ok) {
           const data = await res.json();
           setCoupleName(data.coupleName || "");
@@ -42,7 +42,7 @@ export default function ThankYouPage() {
       icon: Music,
       title: "Professional DJs",
       description: "Expert DJs who read the room and keep the dance floor packed all night.",
-      href: "/artists/djs",
+      href: "/artists/djs/",
       color: "from-purple-500/20 to-purple-600/10",
       borderColor: "border-purple-500/30",
       iconColor: "text-purple-400",
@@ -51,7 +51,7 @@ export default function ThankYouPage() {
       icon: Lightbulb,
       title: "Lighting Design",
       description: "Transform any venue with stunning lighting that creates the perfect atmosphere.",
-      href: "/services/lighting-design",
+      href: "/services/lighting-design/",
       color: "from-amber-500/20 to-amber-600/10",
       borderColor: "border-amber-500/30",
       iconColor: "text-amber-400",
@@ -60,7 +60,7 @@ export default function ThankYouPage() {
       icon: Camera,
       title: "View Our Gallery",
       description: "See how we've helped couples create unforgettable celebrations.",
-      href: "/galleries",
+      href: "/galleries/",
       color: "from-champagne-gold/20 to-champagne-gold/10",
       borderColor: "border-champagne-gold/30",
       iconColor: "text-champagne-gold",
@@ -179,7 +179,7 @@ export default function ThankYouPage() {
           className="mt-6 text-center"
         >
           <Link
-            href={`/requests/${token}`}
+            href={`/requests/${token}/`}
             className="text-gray-500 text-sm hover:text-gray-300 transition-colors"
           >
             ← Back to song requests
@@ -201,11 +201,11 @@ export default function ThankYouPage() {
             South West • London • UK-wide
           </p>
           <div className="mt-4 flex justify-center gap-4 text-xs text-gray-600">
-            <Link href="/privacy-policy" className="hover:text-gray-400">
+            <Link href="/privacy-policy/" className="hover:text-gray-400">
               Privacy Policy
             </Link>
             <span>•</span>
-            <Link href="/terms-and-conditions" className="hover:text-gray-400">
+            <Link href="/terms-and-conditions/" className="hover:text-gray-400">
               Terms
             </Link>
           </div>

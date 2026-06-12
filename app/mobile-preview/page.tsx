@@ -125,18 +125,18 @@ export default function MobilePreview() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[
                   { href: "/", label: "Homepage" },
-                  { href: "/weddings/wedding-entertainment", label: "Wedding Entertainment" },
-                  { href: "/artists/djs", label: "DJs" },
-                  { href: "/artists/musicians", label: "Musicians" },
-                  { href: "/services/lighting-design", label: "Lighting Design" },
-                  { href: "/services/venue-styling", label: "Venue Styling" },
-                  { href: "/hire", label: "Hire Shop" },
+                  { href: "/weddings/wedding-entertainment/", label: "Wedding Entertainment" },
+                  { href: "/artists/djs/", label: "DJs" },
+                  { href: "/artists/musicians/", label: "Musicians" },
+                  { href: "/services/lighting-design/", label: "Lighting Design" },
+                  { href: "/services/venue-styling/", label: "Venue Styling" },
+                  { href: "/hire/", label: "Hire Shop" },
                   { href: "/contact-us/", label: "Contact Us" },
-                  { href: "/about/blog", label: "Blog" },
-                  { href: "/babington-wedding-info", label: "Babington House" },
-                  { href: "/kin-house-wiltshire", label: "Kin House" },
-                  { href: "/pennard-house-lighting", label: "Pennard House" },
-                  { href: "/mells-barn-weddings", label: "Mells Barn" },
+                  { href: "/about/blog/", label: "Blog" },
+                  { href: "/babington-wedding-info/", label: "Babington House" },
+                  { href: "/kin-house-wiltshire/", label: "Kin House" },
+                  { href: "/pennard-house-lighting/", label: "Pennard House" },
+                  { href: "/mells-barn-weddings/", label: "Mells Barn" },
                 ].map((page) => (
                   <Button
                     key={page.href}

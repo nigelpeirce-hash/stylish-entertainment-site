@@ -47,7 +47,7 @@ export default function ClientThreadDetail() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     }
   }, [status, router]);
 
@@ -60,7 +60,7 @@ export default function ClientThreadDetail() {
 
   const fetchThread = async () => {
     try {
-      const response = await fetch(`/api/client/threads/${threadId}`);
+      const response = await fetch(`/api/client/threads/${threadId}/`);
       if (response.ok) {
         const data = await response.json();
         setThread(data.thread);

@@ -252,14 +252,14 @@ export function generateBreadcrumbs(
     // On /admin itself, show non-clickable "Admin Dashboard"
     breadcrumbs.push({
       label: "Admin Dashboard",
-      href: "/admin",
+      href: "/admin/",
       isClickable: false,
     });
   } else if (showAdminContext) {
     // For admin routes, start with clickable "Admin Dashboard"
     breadcrumbs.push({
       label: "Admin Dashboard",
-      href: "/admin",
+      href: "/admin/",
       isClickable: true,
     });
     
@@ -267,7 +267,7 @@ export function generateBreadcrumbs(
     if (isPasswordReset) {
       breadcrumbs.push({
         label: "Settings",
-        href: "/admin/settings",
+        href: "/admin/settings/",
         isClickable: true,
       });
     }

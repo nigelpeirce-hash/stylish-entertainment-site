@@ -31,15 +31,15 @@ export default function DevBypassToggle() {
       const userEmail = session?.user?.email;
       
       if (userRole !== "admin") {
-        router.push("/client/dashboard");
+        router.push("/client/dashboard/");
         return;
       } else if (!isSuperAdmin(userEmail) && !devBypass) {
         // Not SuperAdmin - redirect to dashboard
-        router.push("/admin");
+        router.push("/admin/");
         return;
       }
     } else if (status === "unauthenticated" && !devBypass) {
-      router.push("/login");
+      router.push("/login/");
       return;
     }
 
@@ -86,7 +86,7 @@ export default function DevBypassToggle() {
             <p className="text-sm text-gray-400 mb-4">
               Current environment: <strong>{process.env.NODE_ENV || "production"}</strong>
             </p>
-            <Link href="/admin">
+            <Link href="/admin/">
               <Button variant="outline" className="w-full">
                 Back to Admin
               </Button>
@@ -155,7 +155,7 @@ export default function DevBypassToggle() {
 
             {/* Quick Links */}
             <div className="flex gap-3">
-              <Link href="/admin" className="flex-1">
+              <Link href="/admin/" className="flex-1">
                 <Button variant="outline" className="w-full">
                   Admin Dashboard
                 </Button>

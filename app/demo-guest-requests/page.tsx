@@ -186,7 +186,7 @@ export default function DemoGuestRequestPage() {
           </motion.div>
 
           <div className="space-y-4">
-            <Link href="/artists/djs">
+            <Link href="/artists/djs/">
               <Card className="bg-gradient-to-r from-purple-500/20 to-purple-600/10 border-purple-500/30 hover:scale-[1.02] transition-transform cursor-pointer">
                 <CardContent className="p-4 flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-gray-900/50 flex items-center justify-center flex-shrink-0">
@@ -201,7 +201,7 @@ export default function DemoGuestRequestPage() {
               </Card>
             </Link>
 
-            <Link href="/services/lighting-design">
+            <Link href="/services/lighting-design/">
               <Card className="bg-gradient-to-r from-amber-500/20 to-amber-600/10 border-amber-500/30 hover:scale-[1.02] transition-transform cursor-pointer">
                 <CardContent className="p-4 flex items-center gap-4">
                   <div className="w-12 h-12 rounded-full bg-gray-900/50 flex items-center justify-center flex-shrink-0">
@@ -469,7 +469,7 @@ export default function DemoGuestRequestPage() {
               Planning your own event?
             </Link>
             <Link
-              href="/galleries"
+              href="/galleries/"
               className="bg-white text-black px-6 py-3 rounded-full text-base font-semibold hover:bg-gray-200 transition-colors"
             >
               View Our Work

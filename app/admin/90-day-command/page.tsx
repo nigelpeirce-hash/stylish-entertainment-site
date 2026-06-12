@@ -230,7 +230,7 @@ const BookingCard = memo(function BookingCard({
             </div>
             <div className="flex-shrink-0">
               <Link 
-                href={booking.unreadPortalMessages ? `/admin/bookings/${booking.id}#communications` : `/admin/bookings/${booking.id}`}
+                href={booking.unreadPortalMessages ? `/admin/bookings/${booking.id}#communications/` : `/admin/bookings/${booking.id}/`}
                 prefetch={false}
               >
                 <Button
@@ -531,12 +531,12 @@ export default function NinetyDayCommandCentre() {
     // Not authenticated and no dev bypass - redirect (only once)
     redirectAttemptedRef.current = true;
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (
       status === "authenticated" &&
       (session?.user as any)?.role !== "admin"
     ) {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, (session?.user as any)?.role, router]); // Only depend on specific values
@@ -570,7 +570,7 @@ export default function NinetyDayCommandCentre() {
 
     setUpdating(bookingId);
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}/manual-override`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/manual-override/`, {
         method: "PATCH",
         headers: { 
           "Content-Type": "application/json",
@@ -717,7 +717,7 @@ export default function NinetyDayCommandCentre() {
     }
 
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
@@ -878,7 +878,7 @@ export default function NinetyDayCommandCentre() {
             )}
             <div className="flex gap-3">
               {isUnauthorized ? (
-                <Link href="/login" prefetch={false}>
+                <Link href="/login/" prefetch={false}>
                   <Button className="bg-amber-600 hover:bg-amber-700 text-white">
                     Log in again
                   </Button>
@@ -896,7 +896,7 @@ export default function NinetyDayCommandCentre() {
                   Retry Sync
                 </Button>
               )}
-              <Link href="/admin" prefetch={false}>
+              <Link href="/admin/" prefetch={false}>
                 <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800">
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back to Dashboard
@@ -974,7 +974,7 @@ export default function NinetyDayCommandCentre() {
                 <RefreshCw className="w-4 h-4 mr-2" />
                 Refresh
               </Button>
-              <Link href="/admin">
+              <Link href="/admin/">
                 <Button
                   variant="outline"
                   className="border-gray-600 text-gray-300 hover:bg-gray-800"
@@ -1166,7 +1166,7 @@ export default function NinetyDayCommandCentre() {
                             </td>
                             <td className="p-4">
                               <div className="flex items-center gap-2">
-                                <Link href={`/admin/bookings/${booking.id}`} prefetch={false}>
+                                <Link href={`/admin/bookings/${booking.id}/`} prefetch={false}>
                                   <Button
                                     variant="ghost"
                                     size="sm"

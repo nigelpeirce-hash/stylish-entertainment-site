@@ -21,7 +21,7 @@ export default function SandboxClientPortalPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
       return;
     }
   }, [status, router]);
@@ -69,13 +69,13 @@ export default function SandboxClientPortalPage() {
       <div className="container mx-auto max-w-xl">
         <div className="mb-6 flex items-center justify-between">
           <Link
-            href="/admin"
+            href="/admin/"
             className="inline-flex items-center gap-2 text-champagne-gold hover:underline"
           >
             <ArrowLeft className="w-4 h-4" /> Back to admin
           </Link>
           <Link
-            href="/demo/guest-requests-workflow"
+            href="/demo/guest-requests-workflow/"
             className="text-sm text-champagne-gold hover:underline"
           >
             Guest requests workflow demo →

@@ -175,7 +175,7 @@ export default function PartyDJsClient() {
               {/* CTA Buttons */}
               <div className="pt-6 border-t border-champagne-gold/20 flex flex-col sm:flex-row gap-4">
                 <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-gold-light shadow-[0_0_15px_rgba(212,175,55,0.3)]">
-                  <Link href="/artists/djs" aria-label="Meet our DJs and view their profiles">Meet Our DJs</Link>
+                  <Link href="/artists/djs/" aria-label="Meet our DJs and view their profiles">Meet Our DJs</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline" className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10">
                   <Link href="/contact-us/" aria-label="Check availability and send an enquiry">Check Availability</Link>

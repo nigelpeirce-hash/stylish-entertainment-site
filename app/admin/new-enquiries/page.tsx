@@ -131,9 +131,9 @@ function NewEnquiriesContent() {
       sessionStorage.getItem("dev_admin_bypass") === "true";
 
     if (status === "unauthenticated" && !devBypass) {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin" && !devBypass) {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     } else {
       fetchEnquiries();
     }
@@ -274,7 +274,7 @@ function NewEnquiriesContent() {
                                 Venue: {enquiry.originalBooking.venueName} ({enquiry.originalBooking.venuePostcode})
                               </p>
                               <Link
-                                href={`/admin/bookings/${enquiry.originalBooking.id}`}
+                                href={`/admin/bookings/${enquiry.originalBooking.id}/`}
                                 className="inline-flex items-center gap-1 text-amber-400 hover:text-amber-300 text-sm mt-2"
                               >
                                 View Original Booking

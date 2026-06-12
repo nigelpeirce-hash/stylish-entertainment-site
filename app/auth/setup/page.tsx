@@ -110,7 +110,7 @@ function AuthSetupContent() {
       } else {
         setSuccess(true);
         setTimeout(() => {
-          router.push("/login?setup=complete");
+          router.push("/login/?setup=complete");
         }, 2000);
       }
     } catch (error) {
@@ -155,7 +155,7 @@ function AuthSetupContent() {
               <p className="text-red-400 text-lg mb-2">Invalid Invite Link</p>
               <p className="text-gray-300 text-sm mb-4">{error}</p>
             </div>
-            <Link href="/login">
+            <Link href="/login/">
               <Button className="w-full bg-champagne-gold text-black hover:bg-gold-light">
                 Go to Login
               </Button>
@@ -237,7 +237,7 @@ function AuthSetupContent() {
               <p className="text-sm text-gray-400">
                 Already have an account?{" "}
                 <Link
-                  href="/login"
+                  href="/login/"
                   className="text-champagne-gold hover:text-gold-light underline"
                 >
                   Sign in here

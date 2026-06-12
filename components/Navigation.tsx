@@ -23,55 +23,55 @@ export default function Navigation() {
   const [venuesOpen, setVenuesOpen] = useState(false);
 
   const navLinks = [
-    { href: "/request-quote", label: "Request a quote" },
+    { href: "/request-quote/", label: "Request a quote" },
     { href: "/contact-us/", label: "Contact" },
   ];
 
   const galleriesLinks = [
-    { href: "/galleries", label: "Images" },
-    { href: "/galleries/videos", label: "Videos" },
-    { href: "/galleries/instagram", label: "Instagram" },
+    { href: "/galleries/", label: "Images" },
+    { href: "/galleries/videos/", label: "Videos" },
+    { href: "/galleries/instagram/", label: "Instagram" },
   ];
 
   const aboutLinks = [
-    { href: "/testi", label: "Testimonials" },
-    { href: "/about/faq", label: "FAQ" },
-    { href: "/about", label: "About Us" },
+    { href: "/testi/", label: "Testimonials" },
+    { href: "/about/faq/", label: "FAQ" },
+    { href: "/about/", label: "About Us" },
     { href: "/about/blog/", label: "Journal" },
   ];
 
   const whatWeOfferLinks = [
     { href: "/party-planning-and-organising/", label: "Party Planning" },
-    { href: "/what-we-do/venue-decoration", label: "Venue Styling" },
-    { href: "/what-we-do/lighting", label: "Lighting" },
-    { href: "/what-we-do/equipment-dj-band-sound-kit", label: "Sound" },
-    { href: "/fire-pit-html", label: "Fire Pit Hire" },
-    { href: "/hire", label: "Hire Shop" },
+    { href: "/services/venue-styling/", label: "Venue Styling" },
+    { href: "/services/lighting-design/", label: "Lighting" },
+    { href: "/services/kit-hire/", label: "Sound" },
+    { href: "/services/fire-pit-hire/", label: "Fire Pit Hire" },
+    { href: "/hire/", label: "Hire Shop" },
   ];
 
   const weddingLinks = [
-    { href: "/weddings/wedding-lighting", label: "Wedding Lighting" },
-    { href: "/weddings/wedding-entertainment", label: "Wedding Entertainment" },
+    { href: "/weddings/wedding-lighting/", label: "Wedding Lighting" },
+    { href: "/weddings/wedding-entertainment/", label: "Wedding Entertainment" },
   ];
 
   const partiesLinks = [
-    { href: "/parties/private-parties", label: "Private Parties" },
-    { href: "/parties/party-lighting", label: "Party Lighting" },
+    { href: "/parties/private-parties/", label: "Private Parties" },
+    { href: "/parties/party-lighting/", label: "Party Lighting" },
     { href: "/parties/corporate/", label: "Corporate" },
-    { href: "/parties/christmas", label: "Christmas" },
+    { href: "/parties/christmas/", label: "Christmas" },
   ];
 
   const artistsLinks = [
-    { href: "/artists/djs", label: "DJs" },
-    { href: "/artists/musicians", label: "Musicians" },
+    { href: "/artists/djs/", label: "DJs" },
+    { href: "/artists/musicians/", label: "Musicians" },
   ];
 
   const venuesLinks = [
-    { href: "/venues", label: "All Venues" },
-    { href: "/babington-wedding-info", label: "Babington House" },
-    { href: "/venues/mells-barn", label: "Mells Barn" },
-    { href: "/pennard-house-lighting", label: "Pennard House" },
-    { href: "/kin-house-wiltshire", label: "Kin House" },
+    { href: "/venues/", label: "All Venues" },
+    { href: "/venues/babington-house/", label: "Babington House" },
+    { href: "/venues/mells-barn/", label: "Mells Barn" },
+    { href: "/venues/pennard-house/", label: "Pennard House" },
+    { href: "/kin-house-wiltshire/", label: "Kin House" },
   ];
 
   return (

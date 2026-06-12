@@ -88,7 +88,7 @@ export default function DatabaseAuditPage() {
     }
 
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
       return;
     }
 
@@ -97,11 +97,11 @@ export default function DatabaseAuditPage() {
       const userEmail = session?.user?.email;
       
       if (userRole !== "admin") {
-        router.push("/client/dashboard");
+        router.push("/client/dashboard/");
         return;
       } else if (!isSuperAdmin(userEmail) && !devBypass) {
         // Not SuperAdmin - redirect to dashboard
-        router.push("/admin");
+        router.push("/admin/");
         return;
       }
     }
@@ -114,7 +114,7 @@ export default function DatabaseAuditPage() {
     // Handle authentication - only redirect when status is determined
     // Type assertion for NextAuth v5 compatibility
     if ((status as string) === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     }
   }, [status, session, router]);
 
@@ -236,7 +236,7 @@ export default function DatabaseAuditPage() {
                 <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
                 Refresh Audit
               </Button>
-              <Link href="/admin">
+              <Link href="/admin/">
                 <Button
                   variant="outline"
                   className="border-gray-600 text-gray-300 hover:bg-gray-800"

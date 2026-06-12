@@ -164,9 +164,9 @@ export default function AdminDashboard() {
     // Not authenticated and no dev bypass - redirect to login (only once)
     redirectAttemptedRef.current = true;
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     }
   }, [status, session, router]); // Only depend on specific values, not entire session
 
@@ -353,7 +353,7 @@ export default function AdminDashboard() {
                         e.preventDefault();
                         setSendingFirstTouchId(b.id);
                         try {
-                          const res = await fetch(`/api/admin/bookings/${b.id}/send-first-touch`, {
+                          const res = await fetch(`/api/admin/bookings/${b.id}/send-first-touch/`, {
                             method: "POST",
                             credentials: "include",
                           });
@@ -416,7 +416,7 @@ export default function AdminDashboard() {
             </div>
             <div className="flex flex-wrap gap-3">
               <AdminHelp />
-              <Link href="/admin/90-day-command">
+              <Link href="/admin/90-day-command/">
                 <Button
                   variant="outline"
                   className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10 whitespace-nowrap"
@@ -455,7 +455,7 @@ export default function AdminDashboard() {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
         >
-          <Link href="/admin/inbox" className="block">
+          <Link href="/admin/inbox/" className="block">
             <Card className="bg-gray-800/90 border border-gray-600 hover:border-champagne-gold/40 transition-all cursor-pointer h-full shadow-lg">
               <CardContent className="p-8 flex items-center justify-between">
                 <div>
@@ -617,7 +617,7 @@ export default function AdminDashboard() {
           <div>
             <h2 className="font-serif text-lg font-semibold text-gray-300 uppercase tracking-widest mb-4">The Talent</h2>
             <div className="space-y-3">
-              <Link href="/admin/djs">
+              <Link href="/admin/djs/">
                 <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
                   <CardContent className="p-4 flex items-center gap-3">
                     <Music className="w-5 h-5 text-champagne-gold/80" />
@@ -628,7 +628,7 @@ export default function AdminDashboard() {
                   </CardContent>
                 </Card>
               </Link>
-              <Link href="/admin/musicians">
+              <Link href="/admin/musicians/">
                 <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
                   <CardContent className="p-4 flex items-center gap-3">
                     <Music className="w-5 h-5 text-champagne-gold/80" />
@@ -639,7 +639,7 @@ export default function AdminDashboard() {
                   </CardContent>
                 </Card>
               </Link>
-              <Link href="/admin/staff-management">
+              <Link href="/admin/staff-management/">
                 <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
                   <CardContent className="p-4 flex items-center gap-3">
                     <Users className="w-5 h-5 text-champagne-gold/80" />
@@ -657,7 +657,7 @@ export default function AdminDashboard() {
           <div>
             <h2 className="font-serif text-lg font-semibold text-gray-300 uppercase tracking-widest mb-4">Inventory & Assets</h2>
             <div className="space-y-3">
-              <Link href="/admin/hire-items">
+              <Link href="/admin/hire-items/">
                 <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
                   <CardContent className="p-4 flex items-center gap-3">
                     <Package className="w-5 h-5 text-champagne-gold/80" />
@@ -668,7 +668,7 @@ export default function AdminDashboard() {
                   </CardContent>
                 </Card>
               </Link>
-              <Link href="/admin/service-quote-items">
+              <Link href="/admin/service-quote-items/">
                 <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
                   <CardContent className="p-4 flex items-center gap-3">
                     <Calculator className="w-5 h-5 text-champagne-gold/80" />
@@ -679,7 +679,7 @@ export default function AdminDashboard() {
                   </CardContent>
                 </Card>
               </Link>
-              <Link href="/admin/email-templates">
+              <Link href="/admin/email-templates/">
                 <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
                   <CardContent className="p-4 flex items-center gap-3">
                     <FileText className="w-5 h-5 text-champagne-gold/80" />
@@ -690,7 +690,7 @@ export default function AdminDashboard() {
                   </CardContent>
                 </Card>
               </Link>
-              <Link href="/admin/orders">
+              <Link href="/admin/orders/">
                 <Card className="bg-gray-800/80 border border-gray-700 hover:border-champagne-gold/50 transition-all cursor-pointer">
                   <CardContent className="p-4 flex items-center gap-3">
                     <Package className="w-5 h-5 text-champagne-gold/80" />
@@ -724,7 +724,7 @@ export default function AdminDashboard() {
           <DeveloperSettings authBypassed={!!devBypass}>
             {isSuperAdminUser && (
               <>
-                <Link href="/admin/db-audit">
+                <Link href="/admin/db-audit/">
                   <Card className="bg-gray-800 border border-gray-600 hover:border-gray-500 transition-all cursor-pointer h-full">
                     <CardContent className="p-4 flex items-center gap-3">
                       <Database className="w-5 h-5 text-indigo-400" />
@@ -735,7 +735,7 @@ export default function AdminDashboard() {
                     </CardContent>
                   </Card>
                 </Link>
-                <Link href="/admin/email-audit">
+                <Link href="/admin/email-audit/">
                   <Card className="bg-gray-800 border border-gray-600 hover:border-gray-500 transition-all cursor-pointer h-full">
                     <CardContent className="p-4 flex items-center gap-3">
                       <Mail className="w-5 h-5 text-purple-400" />
@@ -747,7 +747,7 @@ export default function AdminDashboard() {
                   </Card>
                 </Link>
                 {(process.env.NODE_ENV === "development" || (typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"))) && (
-                  <Link href="/admin/dev-bypass-toggle">
+                  <Link href="/admin/dev-bypass-toggle/">
                     <Card className="bg-gray-800 border border-gray-600 hover:border-gray-500 transition-all cursor-pointer h-full">
                       <CardContent className="p-4 flex items-center gap-3">
                         <AlertCircle className="w-5 h-5 text-yellow-400" />
@@ -759,7 +759,7 @@ export default function AdminDashboard() {
                     </Card>
                   </Link>
                 )}
-                <Link href="/admin/hire-items/seed">
+                <Link href="/admin/hire-items/seed/">
                   <Card className="bg-gray-800 border border-gray-600 hover:border-gray-500 transition-all cursor-pointer h-full">
                     <CardContent className="p-4 flex items-center gap-3">
                       <Package className="w-5 h-5 text-champagne-gold/80" />
@@ -770,7 +770,7 @@ export default function AdminDashboard() {
                     </CardContent>
                   </Card>
                 </Link>
-                <Link href="/admin/users">
+                <Link href="/admin/users/">
                   <Card className="bg-gray-800 border border-gray-600 hover:border-gray-500 transition-all cursor-pointer h-full">
                     <CardContent className="p-4 flex items-center gap-3">
                       <Users className="w-5 h-5 text-champagne-gold/80" />
@@ -781,7 +781,7 @@ export default function AdminDashboard() {
                     </CardContent>
                   </Card>
                 </Link>
-                <Link href="/admin/settings">
+                <Link href="/admin/settings/">
                   <Card className="bg-gray-800 border border-gray-600 hover:border-gray-500 transition-all cursor-pointer h-full">
                     <CardContent className="p-4 flex items-center gap-3">
                       <Settings className="w-5 h-5 text-champagne-gold/80" />

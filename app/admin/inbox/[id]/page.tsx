@@ -128,9 +128,9 @@ export default function ThreadDetail() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     }
   }, [status, session, router]);
 
@@ -316,7 +316,7 @@ export default function ThreadDetail() {
     <div className="min-h-screen bg-gray-900 text-white py-12 px-4">
       <div className="container mx-auto max-w-4xl">
         <div className="mb-6">
-          <Link href="/admin/inbox">
+          <Link href="/admin/inbox/">
             <Button variant="outline" className="border-champagne-gold text-champagne-gold mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Inbox
@@ -324,7 +324,7 @@ export default function ThreadDetail() {
           </Link>
 
           {thread.booking && (
-            <Link href={`/admin/bookings?bookingId=${thread.booking.id}`}>
+            <Link href={`/admin/bookings/?bookingId=${thread.booking.id}`}>
               <Card className="bg-gray-800 border-champagne-gold/30 mb-4 cursor-pointer hover:border-champagne-gold/60">
                 <CardContent className="p-4">
                   <div className="flex items-center gap-3">

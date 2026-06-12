@@ -99,16 +99,16 @@ export default function AdminSettings() {
     }
 
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated") {
       const userRole = (session?.user as any)?.role;
       const userEmail = session?.user?.email;
       
       if (userRole !== "admin") {
-        router.push("/client/dashboard");
+        router.push("/client/dashboard/");
       } else if (!isSuperAdmin(userEmail)) {
         // Not SuperAdmin - redirect to dashboard
-        router.push("/admin");
+        router.push("/admin/");
       }
     }
   }, [status, session, router]);

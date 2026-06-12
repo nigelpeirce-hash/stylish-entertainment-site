@@ -199,7 +199,7 @@ export function AcceptTermsModule({
                             .split(PRIVACY_LINK_PLACEHOLDER)[0]
                             .trim()}{" "}
                           <Link
-                            href="/privacy-policy"
+                            href="/privacy-policy/"
                             className="text-champagne-gold hover:text-champagne-gold/80 underline"
                             target="_blank"
                             rel="noopener noreferrer"

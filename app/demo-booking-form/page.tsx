@@ -31,15 +31,15 @@ export default function DemoBookingForm() {
       const userEmail = session?.user?.email;
       
       if (userRole !== "admin") {
-        router.push("/client/dashboard");
+        router.push("/client/dashboard/");
         return;
       } else if (!isSuperAdmin(userEmail) && !devBypass) {
         // Not SuperAdmin - redirect to dashboard
-        router.push("/admin");
+        router.push("/admin/");
         return;
       }
     } else if (status === "unauthenticated" && !devBypass) {
-      router.push("/login");
+      router.push("/login/");
       return;
     }
   }, [status, session, router]);
@@ -80,7 +80,7 @@ export default function DemoBookingForm() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8"
         >
-          <Link href="/admin">
+          <Link href="/admin/">
             <Button variant="outline" className="border-champagne-gold text-champagne-gold mb-4">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Admin

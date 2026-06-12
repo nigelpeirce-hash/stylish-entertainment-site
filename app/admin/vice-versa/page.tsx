@@ -108,9 +108,9 @@ function ViceVersaContent() {
     }
 
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     }
   }, [status, session, router]);
 
@@ -147,7 +147,7 @@ function ViceVersaContent() {
 
   const handleHandoff = async (bookingId: string, to: "ali" | "husband", note?: string) => {
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}/handoff`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/handoff/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -173,7 +173,7 @@ function ViceVersaContent() {
 
   const handleMarkTechReady = async (bookingId: string) => {
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ isTechReady: true }),
@@ -249,7 +249,7 @@ function ViceVersaContent() {
         <div className="container mx-auto max-w-7xl px-6 py-6">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-4xl font-bold font-serif">Vice Versa Dashboard</h1>
-            <Link href="/admin">
+            <Link href="/admin/">
               <Button variant="outline" size="lg" className="border-champagne-gold text-champagne-gold text-lg">
                 Main Dashboard
               </Button>
@@ -366,7 +366,7 @@ function ViceVersaContent() {
                                 <Button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    window.location.href = `/admin/email-templates?bookingId=${booking.id}&category=quote`;
+                                    window.location.href = `/admin/email-templates/?bookingId=${booking.id}&category=quote`;
                                   }}
                                   className="flex-1 h-14 bg-green-600 hover:bg-green-700 text-white text-lg font-semibold"
                                 >
@@ -376,7 +376,7 @@ function ViceVersaContent() {
                                 <Button
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    window.location.href = `/admin/email-templates?bookingId=${booking.id}&category=contract`;
+                                    window.location.href = `/admin/email-templates/?bookingId=${booking.id}&category=contract`;
                                   }}
                                   className="flex-1 h-14 bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold"
                                 >
@@ -551,7 +551,7 @@ function ViceVersaContent() {
                   </div>
 
                   <div className="pt-4 border-t border-gray-700">
-                    <Link href={`/admin/bookings/${selectedBooking.id}`}>
+                    <Link href={`/admin/bookings/${selectedBooking.id}/`}>
                       <Button
                         variant="outline"
                         className="w-full border-champagne-gold text-champagne-gold text-lg h-12"

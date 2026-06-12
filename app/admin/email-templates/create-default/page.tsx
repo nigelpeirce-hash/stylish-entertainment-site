@@ -17,9 +17,9 @@ export default function CreateDefaultTemplate() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     }
   }, [status, session, router]);
 
@@ -126,7 +126,7 @@ Kind regards,`,
       if (response.ok) {
         setResult("success");
         setTimeout(() => {
-          router.push("/admin/email-templates");
+          router.push("/admin/email-templates/");
         }, 2000);
       } else {
         setResult("error");
@@ -188,7 +188,7 @@ Kind regards,`,
                   >
                     {creating ? "Creating..." : "Create Default Template"}
                   </Button>
-                  <Link href="/admin/email-templates">
+                  <Link href="/admin/email-templates/">
                     <Button variant="outline" className="border-gray-600 text-gray-300">
                       Cancel
                     </Button>

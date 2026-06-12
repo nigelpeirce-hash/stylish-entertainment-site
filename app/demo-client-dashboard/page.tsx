@@ -100,7 +100,7 @@ export default function DemoClientDashboardPage() {
           transition={{ delay: 0.1 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"
         >
-          <Link href="/book-dj">
+          <Link href="/book-dj/">
             <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
               <CardContent className="p-6 flex items-center gap-4">
                 <div className="p-3 bg-champagne-gold/20 rounded-lg">
@@ -114,7 +114,7 @@ export default function DemoClientDashboardPage() {
             </Card>
           </Link>
 
-          <Link href="/client/profile">
+          <Link href="/client/profile/">
             <Card className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full">
               <CardContent className="p-6 flex items-center gap-4">
                 <div className="p-3 bg-champagne-gold/20 rounded-lg">
@@ -356,11 +356,11 @@ export default function DemoClientDashboardPage() {
           <CardContent className="p-6">
             <p className="text-center text-gray-400 text-sm">
               This is a demo view of the client dashboard.{" "}
-              <Link href="/demo-booking-flow" className="text-champagne-gold hover:text-gold-light underline">
+              <Link href="/demo-booking-flow/" className="text-champagne-gold hover:text-gold-light underline">
                 View the complete booking flow
               </Link>
               {" or "}
-              <Link href="/login" className="text-champagne-gold hover:text-gold-light underline">
+              <Link href="/login/" className="text-champagne-gold hover:text-gold-light underline">
                 login to see your actual dashboard
               </Link>
               .

@@ -284,7 +284,7 @@ export default function AliDashboardDemo() {
 
             <Card 
               className="bg-gray-800 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all cursor-pointer h-full"
-              onClick={() => window.location.href = "/admin/ali-inbox-demo"}
+              onClick={() => window.location.href = "/admin/ali-inbox-demo/"}
             >
               <CardContent className="p-6 flex items-center gap-4">
                 <div className="p-3 bg-champagne-gold/20 rounded-lg">

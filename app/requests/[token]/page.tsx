@@ -92,7 +92,7 @@ export default function GuestRequestPage() {
   useEffect(() => {
     async function fetchBookingInfo() {
       try {
-        const res = await fetch(`/api/guest-requests/${token}`);
+        const res = await fetch(`/api/guest-requests/${token}/`);
         const data = await res.json();
         
         if (!res.ok) {
@@ -128,7 +128,7 @@ export default function GuestRequestPage() {
     
     setSubmitting(true);
     try {
-      const res = await fetch(`/api/guest-requests/${token}/songs`, {
+      const res = await fetch(`/api/guest-requests/${token}/songs/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -161,7 +161,7 @@ export default function GuestRequestPage() {
       
       // Redirect to thank you page if all slots used
       if (bookingInfo.myRequests.length + 1 >= MAX_SONGS) {
-        router.push(`/requests/${token}/thank-you`);
+        router.push(`/requests/${token}/thank-you/`);
       }
     } catch (err) {
       alert("Something went wrong. Please try again.");
@@ -175,7 +175,7 @@ export default function GuestRequestPage() {
     if (!bookingInfo) return;
     
     try {
-      const res = await fetch(`/api/guest-requests/${token}/songs?id=${requestId}`, {
+      const res = await fetch(`/api/guest-requests/${token}/songs/?id=${requestId}`, {
         method: "DELETE",
       });
       
@@ -393,7 +393,7 @@ export default function GuestRequestPage() {
                 You&apos;ve added your {MAX_SONGS} song requests.
               </p>
               <Button
-                onClick={() => router.push(`/requests/${token}/thank-you`)}
+                onClick={() => router.push(`/requests/${token}/thank-you/`)}
                 className="bg-champagne-gold text-black hover:bg-gold-light"
               >
                 <Sparkles className="w-4 h-4 mr-2" />
@@ -437,7 +437,7 @@ export default function GuestRequestPage() {
               Planning your own event?
             </Link>
             <Link
-              href="/galleries"
+              href="/galleries/"
               className="bg-white text-black px-6 py-3 rounded-full text-base font-semibold hover:bg-gray-200 transition-colors"
             >
               View Our Work

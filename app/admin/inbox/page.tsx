@@ -298,9 +298,9 @@ export default function AdminInbox() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     }
   }, [status, session, router]);
 
@@ -848,7 +848,7 @@ export default function AdminInbox() {
         <div className="flex items-center gap-2">
           {isNigel && showAdvanced && (
             <>
-              <Link href="/admin/email-audit">
+              <Link href="/admin/email-audit/">
                 <Button variant="ghost" size="sm" className="text-gray-400 hover:text-white">
                   Email Audit
                 </Button>

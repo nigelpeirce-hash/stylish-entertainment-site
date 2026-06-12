@@ -20,7 +20,7 @@ const WelcomeBanner = () => {
           Welcome back{clientName ? `, ${clientName}` : ''}. We have provisionally held your date.
         </span>
         <Link 
-          href="/dashboard/secure-booking" 
+          href="/dashboard/secure-booking/" 
           className="text-champagne-gold font-bold hover:text-white underline decoration-champagne-gold/50 underline-offset-4 transition-colors"
         >
           Finalise Your Booking →

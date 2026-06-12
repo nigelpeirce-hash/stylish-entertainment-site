@@ -262,12 +262,12 @@ function AdminBookingsContent() {
     const isAdmin = session && (session?.user as any)?.role === "admin";
 
     if (status === "unauthenticated" && !devBypass && !isLocalhost) {
-      router.push("/login");
+      router.push("/login/");
       return;
     }
 
     if (status === "authenticated" && !isAdmin && !devBypass && !isLocalhost) {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
       return;
     }
   }, [status, session, router]);
@@ -361,7 +361,7 @@ function AdminBookingsContent() {
         newFlag = null;
       }
 
-      const response = await fetch(`/api/admin/bookings/${bookingId}/flag`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/flag/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ flaggedFor: newFlag }),
@@ -379,7 +379,7 @@ function AdminBookingsContent() {
     try {
       // Map "ali" to the correct value and track who assigned
       const assignValue = assignedTo === "ali" ? "ali" : assignedTo;
-      const response = await fetch(`/api/admin/bookings/${bookingId}/handoff`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/handoff/`, {
         method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -400,7 +400,7 @@ function AdminBookingsContent() {
 
   const handleRestore = async (bookingId: string) => {
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}/restore`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/restore/`, {
         method: "POST",
         credentials: "include",
       });
@@ -581,7 +581,7 @@ function AdminBookingsContent() {
             <h1 className="text-2xl font-bold">
               {session?.user?.name?.toLowerCase().includes("ali") ? "Ali's Desk" : "Inbox"}
             </h1>
-            <Link href="/admin">
+            <Link href="/admin/">
               <Button variant="outline" size="sm" className="border-champagne-gold text-champagne-gold">
                 {session?.user?.name?.toLowerCase().includes("ali") ? "Ali's Desk" : "Dashboard"}
               </Button>
@@ -846,7 +846,7 @@ function AdminBookingsContent() {
 
                     {/* Main content – clickable to open booking */}
                     <Link
-                      href={`/admin/bookings/${booking.id}`}
+                      href={`/admin/bookings/${booking.id}/`}
                       className="flex-1 flex flex-col p-4 pt-2 min-w-0 group"
                     >
                       <div className="flex items-start gap-3">

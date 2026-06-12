@@ -172,9 +172,9 @@ export default function BookingDetail() {
     }
 
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     }
   }, [status, session, router, bookingId]);
 
@@ -199,7 +199,7 @@ export default function BookingDetail() {
   const fetchBooking = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/admin/bookings/${bookingId}?t=${Date.now()}`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/?t=${Date.now()}`, {
         cache: 'no-store',
       });
       if (response.ok) {
@@ -243,7 +243,7 @@ export default function BookingDetail() {
   const handleHandoff = async (assignTo: "wife" | "husband") => {
     if (!booking) return;
     try {
-      const response = await fetch(`/api/admin/bookings/${booking.id}`, {
+      const response = await fetch(`/api/admin/bookings/${booking.id}/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -277,7 +277,7 @@ export default function BookingDetail() {
         if (!response.ok) throw new Error("Failed to send brochure");
         alert("Brochure sent successfully!");
       } else if (resourceType === "quote") {
-        window.location.href = `/admin/email-templates?bookingId=${booking.id}&category=quote`;
+        window.location.href = `/admin/email-templates/?bookingId=${booking.id}&category=quote`;
       }
     } catch (error: any) {
       alert(error.message || `Failed to send ${resourceType}`);
@@ -342,7 +342,7 @@ export default function BookingDetail() {
         <div className="container mx-auto max-w-[1920px] px-6 py-4">
           <div className="flex items-center justify-between gap-4">
             {/* Left: Back Button */}
-            <Link href="/admin/bookings">
+            <Link href="/admin/bookings/">
               <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back

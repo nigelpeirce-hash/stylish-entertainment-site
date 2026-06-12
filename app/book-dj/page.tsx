@@ -137,7 +137,7 @@ function BookDJPageContent() {
     (async () => {
       try {
         const res = await fetch(
-          `/api/book-dj/quote?token=${encodeURIComponent(quoteParam)}`
+          `/api/book-dj/quote/?token=${encodeURIComponent(quoteParam)}`
         );
         const data = await res.json().catch(() => ({}));
         if (cancelled) return;
@@ -271,7 +271,7 @@ function BookDJPageContent() {
         // If account was created, redirect to login
         if (data.createAccount && !session) {
           setTimeout(() => {
-            router.push(`/login?registered=true&email=${encodeURIComponent(data.email)}`);
+            router.push(`/login/?registered=true&email=${encodeURIComponent(data.email)}`);
           }, 2000);
         }
       }
@@ -306,7 +306,7 @@ function BookDJPageContent() {
                 </Button>
                 {session && (
                   <Button
-                    onClick={() => router.push("/client/dashboard")}
+                    onClick={() => router.push("/client/dashboard/")}
                     variant="outline"
                     className="border-gray-700 text-white"
                   >
@@ -832,7 +832,7 @@ function BookDJPageContent() {
                 {!session && (
                   <p className="text-center text-sm text-gray-400">
                     Already have an account?{" "}
-                    <Link href="/login" className="text-champagne-gold hover:text-gold-light underline">
+                    <Link href="/login/" className="text-champagne-gold hover:text-gold-light underline">
                       Sign in here
                     </Link>
                   </p>

@@ -67,13 +67,13 @@ export default function DJsPage() {
   // Tightened session check - return loading immediately if unauthenticated
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
       return;
     }
     
     if (status === "authenticated") {
       if ((session?.user as any)?.role !== "admin") {
-        router.push("/client/dashboard");
+        router.push("/client/dashboard/");
         return;
       }
       // Only fetch DJs if authenticated as admin
@@ -269,7 +269,7 @@ export default function DJsPage() {
               <h1 className="text-4xl font-bold mb-2 text-white">DJs</h1>
               <p className="text-gray-200">Manage DJ profiles and information</p>
             </div>
-            <Link href="/admin">
+            <Link href="/admin/">
               <Button variant="outline" className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10">
                 Back to Dashboard
               </Button>

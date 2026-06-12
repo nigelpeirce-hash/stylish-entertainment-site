@@ -207,7 +207,7 @@ export default function BookingDetail() {
 
   // Use SWR for data fetching with caching and background refresh
   const { data, error, isLoading, mutate } = useSWR<BookingFetcherResult>(
-    shouldFetch ? `/api/admin/bookings/${bookingId}` : null,
+    shouldFetch ? `/api/admin/bookings/${bookingId}/` : null,
     bookingFetcher,
     {
       refreshInterval: 0, // Don't auto-refresh (user can manually refresh)
@@ -263,7 +263,7 @@ export default function BookingDetail() {
     setDepositInvoiceDraft(null);
     setDepositOverrideAmount("");
     try {
-      const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice`);
+      const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice/`);
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error ?? "Failed to load draft");
       setDepositInvoiceDraft(data);
@@ -298,9 +298,9 @@ export default function BookingDetail() {
     }
 
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, session, router]);
@@ -360,7 +360,7 @@ export default function BookingDetail() {
   const handleHandoff = async (assignTo: "ali" | "husband") => {
     if (!booking) return;
     try {
-      const response = await fetch(`/api/admin/bookings/${booking.id}/handoff`, {
+      const response = await fetch(`/api/admin/bookings/${booking.id}/handoff/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -396,7 +396,7 @@ export default function BookingDetail() {
         if (!response.ok) throw new Error("Failed to send brochure");
         alert("Brochure sent successfully!");
       } else if (resourceType === "quote") {
-        window.location.href = `/admin/email-templates?bookingId=${booking.id}&category=quote`;
+        window.location.href = `/admin/email-templates/?bookingId=${booking.id}&category=quote`;
       }
     } catch (error: any) {
       alert(error.message || `Failed to send ${resourceType}`);
@@ -409,7 +409,7 @@ export default function BookingDetail() {
     if (!booking) return;
     setDeleting(true);
     try {
-      const response = await fetch(`/api/admin/bookings/${booking.id}`, {
+      const response = await fetch(`/api/admin/bookings/${booking.id}/`, {
         method: "DELETE",
       });
       if (!response.ok) {
@@ -417,7 +417,7 @@ export default function BookingDetail() {
         throw new Error(error.error || "Failed to delete booking");
       }
       alert("Booking permanently deleted");
-      router.push("/admin/bookings");
+      router.push("/admin/bookings/");
     } catch (error: any) {
       alert(error.message || "Failed to delete booking");
     } finally {
@@ -553,7 +553,7 @@ export default function BookingDetail() {
       <div className={`sticky ${isFallbackMode ? "top-[72px]" : "top-0"} z-50 bg-gray-800/95 backdrop-blur-sm border-b border-gray-700 shadow-sm`}>
         <div className="container mx-auto max-w-[1920px] px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between gap-4">
-            <Link href="/admin/bookings">
+            <Link href="/admin/bookings/">
               <Button variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-700">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
@@ -660,7 +660,7 @@ export default function BookingDetail() {
                         if (!booking?.email) return;
                         setSendingFinalizeInvite(true);
                         try {
-                          const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite`, { method: "POST" });
+                          const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite/`, { method: "POST" });
                           const data = await res.json();
                           if (res.ok) {
                             await handleBookingUpdate();
@@ -684,7 +684,7 @@ export default function BookingDetail() {
                     <Edit className="w-4 h-4 mr-2" />
                     Edit Booking
                   </Button>
-                  <Button onClick={() => router.push(`/admin/bookings/${booking.id}/brief`)} variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-700">
+                  <Button onClick={() => router.push(`/admin/bookings/${booking.id}/brief/`)} variant="outline" size="sm" className="border-gray-600 text-gray-300 hover:bg-gray-700">
                     <FileText className="w-4 h-4 mr-2" />
                     Generate Master Brief
                   </Button>
@@ -911,7 +911,7 @@ export default function BookingDetail() {
                           checked={booking.depositReceivedManual || false}
                           onCheckedChange={async (checked) => {
                             try {
-                              const response = await fetch(`/api/admin/bookings/${booking.id}/flexible-update`, {
+                              const response = await fetch(`/api/admin/bookings/${booking.id}/flexible-update/`, {
                                 method: "PATCH",
                                 headers: { "Content-Type": "application/json" },
                                 body: JSON.stringify({ depositReceivedManual: checked }),
@@ -993,7 +993,7 @@ export default function BookingDetail() {
                       if (!booking?.email) return;
                       setSendingFinalizeInvite(true);
                       try {
-                        const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite`, { method: "POST" });
+                        const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite/`, { method: "POST" });
                         const data = await res.json();
                         if (res.ok) {
                           await handleBookingUpdate();
@@ -1057,7 +1057,7 @@ export default function BookingDetail() {
                       if (!confirm("This will invalidate the client's current portal link immediately. Continue?")) return;
                       setRegeneratingPortalToken(true);
                       try {
-                        const res = await fetch(`/api/admin/bookings/${booking.id}/regenerate-portal-token`, { method: "POST" });
+                        const res = await fetch(`/api/admin/bookings/${booking.id}/regenerate-portal-token/`, { method: "POST" });
                         const data = await res.json();
                         if (res.ok) {
                           await handleBookingUpdate();
@@ -1455,7 +1455,7 @@ export default function BookingDetail() {
                         if (!Number.isNaN(n)) body.amount = n;
                         else body.amount = depositInvoiceDraft.amount;
                       }
-                      const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice`, {
+                      const res = await fetch(`/api/admin/bookings/${booking.id}/send-deposit-invoice/`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(body),
@@ -1865,7 +1865,7 @@ export default function BookingDetail() {
                         flexPayload.overrideReason = "Updated via Edit booking details";
                         flexPayload.eventDate = new Date(eventDateRaw).toISOString();
                       }
-                      const flexRes = await fetch(`/api/admin/bookings/${booking.id}/flexible-update`, {
+                      const flexRes = await fetch(`/api/admin/bookings/${booking.id}/flexible-update/`, {
                         method: "PATCH",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(flexPayload),
@@ -1886,7 +1886,7 @@ export default function BookingDetail() {
                       if (clientPostcode !== null) clientPayload.clientPostcode = clientPostcode || null;
                       if (numberOfGuests !== null && !isNaN(numberOfGuests)) clientPayload.numberOfGuests = numberOfGuests;
                       if (Object.keys(clientPayload).length > 0) {
-                        const clientRes = await fetch(`/api/admin/bookings/${booking.id}`, {
+                        const clientRes = await fetch(`/api/admin/bookings/${booking.id}/`, {
                           method: "PATCH",
                           headers: { "Content-Type": "application/json" },
                           body: JSON.stringify(clientPayload),

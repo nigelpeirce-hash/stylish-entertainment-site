@@ -77,13 +77,13 @@ export default function AdminUsers() {
     const hasAccess = (isAdmin && isSuperAdminUser) || devBypass || isLocalhost;
 
     if (status === "unauthenticated" && !hasAccess) {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated") {
       if (!isAdmin) {
-        router.push("/client/dashboard");
+        router.push("/client/dashboard/");
       } else if (!isSuperAdminUser && !devBypass && !isLocalhost) {
         // Not SuperAdmin - redirect to dashboard
-        router.push("/admin");
+        router.push("/admin/");
       }
     }
 
@@ -234,7 +234,7 @@ export default function AdminUsers() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
               <div className="flex items-center gap-4 mb-2">
-                <Link href="/admin">
+                <Link href="/admin/">
                   <Button
                     variant="outline"
                     size="sm"

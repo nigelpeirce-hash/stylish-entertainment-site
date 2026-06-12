@@ -106,7 +106,7 @@ export default function DemoGuestRequestsWorkflowPage() {
 
     // Test 1: GET guest-requests (public)
     try {
-      const r1 = await fetch(`/api/guest-requests/${token}`);
+      const r1 = await fetch(`/api/guest-requests/${token}/`);
       const d1 = await r1.json();
       tests[0].status = r1.ok ? "ok" : "fail";
       tests[0].message = r1.ok ? `${d1.coupleName} – ${d1.totalRequests} requests` : d1.error;
@@ -119,7 +119,7 @@ export default function DemoGuestRequestsWorkflowPage() {
     // Test 2: POST a song (then we'd need to delete - skip or do a quick POST)
     if (data.guestRequestsEnabled) {
       try {
-        const r2 = await fetch(`/api/guest-requests/${token}/songs`, {
+        const r2 = await fetch(`/api/guest-requests/${token}/songs/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -146,7 +146,7 @@ export default function DemoGuestRequestsWorkflowPage() {
     if (portalToken) {
       try {
         const r3 = await fetch(
-          `/api/client/bookings/${data.bookingId}/guest-requests?token=${encodeURIComponent(portalToken)}`
+          `/api/client/bookings/${data.bookingId}/guest-requests/?token=${encodeURIComponent(portalToken)}`
         );
         const d3 = await r3.json();
         tests[2].status = r3.ok ? "ok" : "fail";
@@ -167,7 +167,7 @@ export default function DemoGuestRequestsWorkflowPage() {
       <div className="max-w-2xl mx-auto">
         <div className="mb-6">
           <Link
-            href="/admin"
+            href="/admin/"
             className="text-champagne-gold hover:underline text-sm"
           >
             ← Back to admin

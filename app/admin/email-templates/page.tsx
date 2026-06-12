@@ -51,9 +51,9 @@ export default function EmailTemplates() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     }
   }, [status, session, router]);
 
@@ -187,7 +187,7 @@ export default function EmailTemplates() {
               <h1 className="text-4xl font-bold mb-2">Email Templates</h1>
               <p className="text-gray-400">Create and manage email templates for quick replies</p>
             </div>
-            <Link href="/admin">
+            <Link href="/admin/">
               <Button variant="outline" className="border-champagne-gold text-champagne-gold">
                 Back to Dashboard
               </Button>
@@ -250,7 +250,7 @@ export default function EmailTemplates() {
                     </div>
                   </div>
                   <div className="flex gap-2">
-                    <Link href={`/admin/email-templates/${template.id}`}>
+                    <Link href={`/admin/email-templates/${template.id}/`}>
                       <Button
                         size="sm"
                         variant="outline"
@@ -380,7 +380,7 @@ export default function EmailTemplates() {
               <Plus className="w-4 h-4 mr-2" />
               Create New Template
             </Button>
-            <Link href="/admin/email-templates/create-default">
+            <Link href="/admin/email-templates/create-default/">
               <Button
                 variant="outline"
                 className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10"

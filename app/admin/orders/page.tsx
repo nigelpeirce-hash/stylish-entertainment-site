@@ -66,9 +66,9 @@ export default function OrdersPage() {
     }
 
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     } else if (status === "authenticated" && (session?.user as any)?.role === "admin") {
       fetchOrders();
     }
@@ -159,7 +159,7 @@ export default function OrdersPage() {
               <h1 className="text-4xl font-bold mb-2">Hire Orders</h1>
               <p className="text-gray-400">View and manage hire item orders</p>
             </div>
-            <Link href="/admin">
+            <Link href="/admin/">
               <Button variant="outline" className="border-champagne-gold text-champagne-gold">
                 Back to Dashboard
               </Button>
@@ -271,7 +271,7 @@ export default function OrdersPage() {
                       </span>
                     )}
                   </div>
-                  <Link href={`/admin/orders/${order.id}`}>
+                  <Link href={`/admin/orders/${order.id}/`}>
                     <Button
                       variant="outline"
                       size="sm"

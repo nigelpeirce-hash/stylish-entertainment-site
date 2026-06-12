@@ -401,7 +401,7 @@ export default function RequestQuoteClient() {
               <CardContent className="p-6">
                 <h2 className="text-lg font-semibold text-white mb-4">Hire items (optional)</h2>
                 <p className="text-sm text-gray-400 mb-4">
-                  Add items from the hire shop. Same basket as <Link href="/hire" className="text-champagne-gold hover:underline">Hire Shop</Link>.
+                  Add items from the hire shop. Same basket as <Link href="/hire/" className="text-champagne-gold hover:underline">Hire Shop</Link>.
                 </p>
                 {loadingHire ? (
                   <p className="text-gray-400">Loading items…</p>
@@ -506,7 +506,7 @@ export default function RequestQuoteClient() {
         </form>
 
         <p className="text-gray-500 text-sm mt-6">
-          Prefer to browse hire items first? <Link href="/hire" className="text-champagne-gold hover:underline">Go to Hire Shop</Link>.
+          Prefer to browse hire items first? <Link href="/hire/" className="text-champagne-gold hover:underline">Go to Hire Shop</Link>.
         </p>
       </div>
     </div>

@@ -243,7 +243,7 @@ export default function HirePage() {
       {/* Header */}
       <div className={`bg-gray-800 border-b border-champagne-gold/30 sticky top-0 z-50 transition-opacity duration-300 ${isShopClosed ? "opacity-40 pointer-events-none" : ""}`}>
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/what-we-do/equipment-dj-band-sound-kit">
+          <Link href="/services/kit-hire/">
             <Button variant="ghost" className="text-gray-300 hover:text-white">
               ← What We Do
             </Button>
@@ -284,7 +284,7 @@ export default function HirePage() {
                 <CardContent className="p-6">
                   <div className="mb-4">
                     {item.imageUrl ? (
-                      <Link href={`/hire/${item.slug || item.id}`}>
+                      <Link href={`/hire/${item.slug || item.id}/`}>
                         <img
                           src={sanitizeCloudinaryUrl(item.imageUrl) || item.imageUrl}
                           alt={item.name}
@@ -296,7 +296,7 @@ export default function HirePage() {
                         <Package className="w-16 h-16 text-gray-500" />
                       </div>
                     )}
-                    <Link href={`/hire/${item.slug || item.id}`}>
+                    <Link href={`/hire/${item.slug || item.id}/`}>
                       <h3 className="text-xl font-semibold text-white mb-2 hover:text-champagne-gold transition-colors cursor-pointer">
                         {item.name}
                       </h3>

@@ -49,9 +49,9 @@ export default function ServiceQuoteItemsPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as { role?: string })?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     }
   }, [status, session, router]);
 
@@ -67,7 +67,7 @@ export default function ServiceQuoteItemsPage() {
     try {
       setLoading(true);
       const url = filterCategory
-        ? `/api/admin/service-quote-items?category=${encodeURIComponent(filterCategory)}`
+        ? `/api/admin/service-quote-items/?category=${encodeURIComponent(filterCategory)}`
         : "/api/admin/service-quote-items";
       const response = await fetch(url);
       const data = await response.json().catch(() => ({}));
@@ -134,7 +134,7 @@ export default function ServiceQuoteItemsPage() {
     setSaving(true);
     try {
       if (editingId) {
-        const response = await fetch(`/api/admin/service-quote-items/${editingId}`, {
+        const response = await fetch(`/api/admin/service-quote-items/${editingId}/`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -182,7 +182,7 @@ export default function ServiceQuoteItemsPage() {
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this quote item?")) return;
     try {
-      const response = await fetch(`/api/admin/service-quote-items/${id}`, { method: "DELETE" });
+      const response = await fetch(`/api/admin/service-quote-items/${id}/`, { method: "DELETE" });
       if (response.ok) await fetchItems();
       else {
         const data = await response.json();
@@ -200,7 +200,7 @@ export default function ServiceQuoteItemsPage() {
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <Link href="/admin" className="text-champagne-gold/80 hover:text-champagne-gold text-sm mb-2 inline-block">
+            <Link href="/admin/" className="text-champagne-gold/80 hover:text-champagne-gold text-sm mb-2 inline-block">
               ← Admin
             </Link>
             <h1 className="text-2xl font-bold text-white">Lighting & Venue Styling Quote Items</h1>

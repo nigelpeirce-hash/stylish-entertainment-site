@@ -106,9 +106,9 @@ export default function EmailTemplateEditor() {
     const hasAccess = isAdmin || devBypass || isLocalhost;
 
     if (status === "unauthenticated" && !hasAccess) {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && !hasAccess) {
-      router.push("/admin");
+      router.push("/admin/");
     }
 
     if (hasAccess && templateId) {
@@ -156,7 +156,7 @@ export default function EmailTemplateEditor() {
 
   const fetchLockedData = async (bookingId: string) => {
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}/locked-event-data`);
+      const response = await fetch(`/api/admin/bookings/${bookingId}/locked-event-data/`);
       if (response.ok) {
         const data = await response.json();
         setLockedEventData(data);
@@ -323,7 +323,7 @@ export default function EmailTemplateEditor() {
           className="mb-8"
         >
           <div className="flex items-center gap-4 mb-6">
-            <Link href="/admin/email-templates">
+            <Link href="/admin/email-templates/">
               <Button
                 variant="outline"
                 size="sm"

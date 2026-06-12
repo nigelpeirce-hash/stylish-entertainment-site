@@ -33,7 +33,7 @@ export default function DemoCountdownPage() {
             Retro LED-style countdown display for wedding dates
           </p>
           <Link 
-            href="/client/dashboard" 
+            href="/client/dashboard/" 
             className="text-champagne-gold hover:text-gold-light underline"
           >
             View in Client Dashboard (requires login)
@@ -169,7 +169,7 @@ export default function DemoCountdownPage() {
           className="mt-8 text-center"
         >
           <Link
-            href="/demo-client-dashboard"
+            href="/demo-client-dashboard/"
             className="text-champagne-gold hover:text-gold-light underline"
           >
             ← Back to Dashboard Demo

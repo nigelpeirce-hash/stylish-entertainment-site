@@ -171,9 +171,9 @@ export default function BookingDetail() {
     }
 
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     }
   }, [status, session, router, bookingId]);
 
@@ -198,7 +198,7 @@ export default function BookingDetail() {
   const fetchBooking = async () => {
     try {
       setLoading(true); // Show loading state when refreshing
-      const response = await fetch(`/api/admin/bookings/${bookingId}?t=${Date.now()}`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/?t=${Date.now()}`, {
         cache: 'no-store', // Prevent caching to ensure fresh data
       });
       if (response.ok) {
@@ -297,11 +297,11 @@ export default function BookingDetail() {
         alert("Brochure sent successfully!");
       } else if (action === "quote") {
         // Navigate to email templates with quote category or create quote
-        window.location.href = `/admin/email-templates?bookingId=${booking.id}&category=quote`;
+        window.location.href = `/admin/email-templates/?bookingId=${booking.id}&category=quote`;
       } else if (action === "cancel") {
         const confirmed = window.confirm(`Are you sure you want to mark "${booking.name}" booking as cancelled?`);
         if (!confirmed) return;
-        const response = await fetch(`/api/admin/bookings/${booking.id}`, {
+        const response = await fetch(`/api/admin/bookings/${booking.id}/`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: "cancelled" }),
@@ -322,7 +322,7 @@ export default function BookingDetail() {
     if (!booking) return;
     
     try {
-      const response = await fetch(`/api/admin/bookings/${booking.id}`, {
+      const response = await fetch(`/api/admin/bookings/${booking.id}/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ eventDate: newDate }),
@@ -357,7 +357,7 @@ export default function BookingDetail() {
         updateData.isTechReady = true;
       }
 
-      const response = await fetch(`/api/admin/bookings/${booking.id}`, {
+      const response = await fetch(`/api/admin/bookings/${booking.id}/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updateData),
@@ -438,7 +438,7 @@ export default function BookingDetail() {
         <div className="container mx-auto max-w-7xl px-4 py-6">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             {/* Back Button */}
-            <Link href="/admin/bookings">
+            <Link href="/admin/bookings/">
               <Button variant="outline" size="sm" className="border-champagne-gold/50 text-champagne-gold hover:bg-champagne-gold/10 mb-4">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
@@ -740,7 +740,7 @@ export default function BookingDetail() {
               {/* Send Reply Button (Green) */}
               <Button
                 onClick={() => {
-                  window.location.href = `/admin/email-templates?bookingId=${booking.id}`;
+                  window.location.href = `/admin/email-templates/?bookingId=${booking.id}`;
                 }}
                 className="h-20 bg-green-600 hover:bg-green-700 text-white text-lg font-semibold"
                 size="lg"
@@ -1188,7 +1188,7 @@ export default function BookingDetail() {
                   {booking.emailThreads.map((thread) => (
                     <Link
                       key={thread.id}
-                      href={`/admin/inbox/${thread.id}`}
+                      href={`/admin/inbox/${thread.id}/`}
                       className="block p-3 rounded bg-gray-900/50 hover:bg-gray-900 transition-colors"
                     >
                       <div className="flex items-center justify-between">
@@ -1208,7 +1208,7 @@ export default function BookingDetail() {
                     </Link>
                   ))}
                 </div>
-                <Link href={`/admin/inbox?bookingId=${booking.id}`}>
+                <Link href={`/admin/inbox/?bookingId=${booking.id}`}>
                   <Button variant="outline" className="mt-4 border-champagne-gold text-champagne-gold">
                     View All Emails
                   </Button>

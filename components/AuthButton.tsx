@@ -149,7 +149,7 @@ export function AuthButton() {
             className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/20 font-semibold relative"
             title="Welcome back! Your booking is ready to finalise."
           >
-            <Link href="/dashboard/secure-booking">
+            <Link href="/dashboard/secure-booking/">
               <span className="absolute -top-1 -left-1 text-[10px] text-champagne-gold font-bold opacity-80">
                 S
               </span>

@@ -28,7 +28,7 @@ export default function DevAdminEntry() {
     sessionStorage.setItem("dev_admin_name", "Dev Admin");
     
     // Redirect to admin dashboard
-    router.push("/admin");
+    router.push("/admin/");
   };
 
   if (!isDev) {
@@ -45,7 +45,7 @@ export default function DevAdminEntry() {
             <p className="text-gray-300">
               This development entry point is only available in development mode.
             </p>
-            <Link href="/login" className="block mt-4">
+            <Link href="/login/" className="block mt-4">
               <Button variant="outline" className="w-full border-champagne-gold text-champagne-gold">
                 Go to Login
               </Button>
@@ -93,7 +93,7 @@ export default function DevAdminEntry() {
             <p className="text-xs text-gray-500 mb-2">
               Or use the standard login:
             </p>
-            <Link href="/login">
+            <Link href="/login/">
               <Button variant="outline" className="w-full border-gray-600 text-gray-300">
                 Go to Login Page
               </Button>

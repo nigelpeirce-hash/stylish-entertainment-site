@@ -35,9 +35,9 @@ export default function FixDatesPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     }
   }, [status, session, router]);
 
@@ -70,7 +70,7 @@ export default function FixDatesPage() {
 
     setUpdating(bookingId);
     try {
-      const response = await fetch(`/api/admin/bookings/${bookingId}`, {
+      const response = await fetch(`/api/admin/bookings/${bookingId}/`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ eventDate: dateValue }),
@@ -116,7 +116,7 @@ export default function FixDatesPage() {
     <div className="min-h-screen bg-gray-900 text-white p-8">
       <div className="container mx-auto max-w-6xl">
         <div className="mb-6">
-          <Link href="/admin/bookings">
+          <Link href="/admin/bookings/">
             <Button variant="outline" className="mb-4">
               ← Back to Bookings
             </Button>

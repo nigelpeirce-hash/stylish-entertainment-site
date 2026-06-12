@@ -128,13 +128,13 @@ export default function DemoBookingFlowPage() {
                 </p>
                 <div className="flex gap-2 mt-4">
                   <Button
-                    onClick={() => router.push("/client/dashboard")}
+                    onClick={() => router.push("/client/dashboard/")}
                     className="bg-champagne-gold text-black hover:bg-gold-light"
                   >
                     Go to Dashboard
                   </Button>
                   <Button
-                    onClick={() => router.push("/book-dj")}
+                    onClick={() => router.push("/book-dj/")}
                     variant="outline"
                     className="border-gray-700 text-white"
                   >
@@ -150,20 +150,20 @@ export default function DemoBookingFlowPage() {
                 </p>
                 <div className="flex gap-2 mt-4">
                   <Button
-                    onClick={() => router.push("/login")}
+                    onClick={() => router.push("/login/")}
                     className="bg-champagne-gold text-black hover:bg-gold-light"
                   >
                     Login
                   </Button>
                   <Button
-                    onClick={() => router.push("/register")}
+                    onClick={() => router.push("/register/")}
                     variant="outline"
                     className="border-gray-700 text-white"
                   >
                     Register
                   </Button>
                   <Button
-                    onClick={() => router.push("/book-dj")}
+                    onClick={() => router.push("/book-dj/")}
                     variant="outline"
                     className="border-gray-700 text-white"
                   >
@@ -260,7 +260,7 @@ export default function DemoBookingFlowPage() {
                 variant="outline"
                 className="border-gray-700 text-white"
               >
-                <Link href="/book-dj">
+                <Link href="/book-dj/">
                   Booking Form
                 </Link>
               </Button>
@@ -269,7 +269,7 @@ export default function DemoBookingFlowPage() {
                 variant="outline"
                 className="border-gray-700 text-white"
               >
-                <Link href="/dj-worksheet">
+                <Link href="/dj-worksheet/">
                   DJ Worksheet
                 </Link>
               </Button>
@@ -278,7 +278,7 @@ export default function DemoBookingFlowPage() {
                 variant="outline"
                 className="border-gray-700 text-white"
               >
-                <Link href="/login">
+                <Link href="/login/">
                   Login
                 </Link>
               </Button>
@@ -287,7 +287,7 @@ export default function DemoBookingFlowPage() {
                 variant="outline"
                 className="border-gray-700 text-white"
               >
-                <Link href="/register">
+                <Link href="/register/">
                   Register
                 </Link>
               </Button>

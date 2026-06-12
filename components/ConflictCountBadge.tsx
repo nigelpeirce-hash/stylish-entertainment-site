@@ -38,7 +38,7 @@ export function ConflictCountBadge() {
   }
 
   return (
-    <Link href="/admin/bookings?filter=conflicts">
+    <Link href="/admin/bookings/?filter=conflicts">
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}

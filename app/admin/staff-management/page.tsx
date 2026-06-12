@@ -91,13 +91,13 @@ export default function StaffManagement() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
       return;
     }
 
     if (status === "authenticated") {
       if ((session?.user as any)?.role !== "admin") {
-        router.push("/client/dashboard");
+        router.push("/client/dashboard/");
         return;
       }
       fetchStaff();
@@ -238,7 +238,7 @@ export default function StaffManagement() {
 
     setDeletingId(memberId);
     try {
-      const response = await fetch(`/api/admin/staff/${memberId}/${forceDelete ? "?force=true" : ""}`, {
+      const response = await fetch(`/api/admin/staff/${memberId}/${forceDelete /? "?force=true" : ""}`, {
         method: "DELETE",
         credentials: "include",
       });

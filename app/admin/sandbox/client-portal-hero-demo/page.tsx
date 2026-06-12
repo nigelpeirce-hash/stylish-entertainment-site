@@ -39,7 +39,7 @@ export default function ClientPortalHeroDemoPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
       return;
     }
   }, [status, router]);
@@ -138,7 +138,7 @@ export default function ClientPortalHeroDemoPage() {
     >
       <div className="container mx-auto max-w-7xl">
         <Link
-          href="/admin"
+          href="/admin/"
           className="inline-flex items-center gap-2 text-champagne-gold hover:underline text-sm mb-4"
         >
           <ArrowLeft className="w-4 h-4" /> Back to admin

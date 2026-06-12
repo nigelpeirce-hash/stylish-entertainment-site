@@ -76,7 +76,7 @@ export default function NewEnquiryDetail() {
       sessionStorage.getItem("dev_admin_bypass") === "true";
 
     if (status === "unauthenticated" && !devBypass) {
-      router.push("/login");
+      router.push("/login/");
     } else {
       fetchEnquiry();
     }
@@ -129,7 +129,7 @@ export default function NewEnquiryDetail() {
         className="max-w-4xl mx-auto space-y-6"
       >
         {/* Back Button */}
-        <Link href="/admin/new-enquiries">
+        <Link href="/admin/new-enquiries/">
           <Button
             variant="outline"
             size="sm"
@@ -185,7 +185,7 @@ export default function NewEnquiryDetail() {
                         <span className="font-semibold">Venue:</span> {enquiry.originalBooking.venueName} ({enquiry.originalBooking.venuePostcode})
                       </p>
                     </div>
-                    <Link href={`/admin/bookings/${enquiry.originalBooking.id}`}>
+                    <Link href={`/admin/bookings/${enquiry.originalBooking.id}/`}>
                       <Button
                         variant="outline"
                         size="sm"
@@ -403,7 +403,7 @@ export default function NewEnquiryDetail() {
                         // Booking already existed
                         alert(`Booking already exists. Redirecting to booking ${data.bookingId}`);
                       }
-                      router.push(`/admin/bookings/${data.bookingId}`);
+                      router.push(`/admin/bookings/${data.bookingId}/`);
                     } else {
                       // Handle specific error cases
                       if (data.code === "DUPLICATE_BOOKING") {
@@ -414,7 +414,7 @@ export default function NewEnquiryDetail() {
                         // Already converted
                         if (data.bookingId) {
                           alert(`This enquiry has already been converted. Redirecting to booking ${data.bookingId}`);
-                          router.push(`/admin/bookings/${data.bookingId}`);
+                          router.push(`/admin/bookings/${data.bookingId}/`);
                         } else {
                           alert(data.error || "This enquiry has already been converted");
                         }
@@ -440,7 +440,7 @@ export default function NewEnquiryDetail() {
                       method: "PATCH",
                     });
                     if (response.ok) {
-                      router.push("/admin/new-enquiries");
+                      router.push("/admin/new-enquiries/");
                     } else {
                       alert("Failed to update enquiry status");
                     }

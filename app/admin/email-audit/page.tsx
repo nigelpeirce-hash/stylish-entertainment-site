@@ -84,7 +84,7 @@ export default function EmailAuditPage() {
     }
 
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
       return;
     }
 
@@ -93,11 +93,11 @@ export default function EmailAuditPage() {
       const userEmail = session?.user?.email;
       
       if (userRole !== "admin") {
-        router.push("/client/dashboard");
+        router.push("/client/dashboard/");
         return;
       } else if (!isSuperAdmin(userEmail) && !devBypass) {
         // Not SuperAdmin - redirect to dashboard
-        router.push("/admin");
+        router.push("/admin/");
         return;
       }
     }
@@ -113,9 +113,9 @@ export default function EmailAuditPage() {
     }
 
     if ((status as string) === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     }
   }, [status, session, router]);
 
@@ -234,7 +234,7 @@ export default function EmailAuditPage() {
                 <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? "animate-spin" : ""}`} />
                 Refresh Audit
               </Button>
-              <Link href="/admin/settings">
+              <Link href="/admin/settings/">
                 <Button
                   variant="outline"
                   className="border-gray-600 text-gray-300 hover:bg-gray-800"
@@ -243,7 +243,7 @@ export default function EmailAuditPage() {
                   Configure Inboxes
                 </Button>
               </Link>
-              <Link href="/admin">
+              <Link href="/admin/">
                 <Button
                   variant="outline"
                   className="border-gray-600 text-gray-300 hover:bg-gray-800"

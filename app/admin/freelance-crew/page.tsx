@@ -43,9 +43,9 @@ export default function FreelanceCrewPage() {
     }
 
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     } else if (status === "authenticated") {
       fetchCrew();
     }

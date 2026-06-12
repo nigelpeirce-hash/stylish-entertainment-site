@@ -69,9 +69,9 @@ export default function EmailJourneyPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     }
   }, [status, session, router]);
 
@@ -198,7 +198,7 @@ export default function EmailJourneyPage() {
                 Preview and manage customer lifecycle email templates
               </p>
             </div>
-            <Link href="/admin">
+            <Link href="/admin/">
               <Button
                 variant="outline"
                 className="border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10"

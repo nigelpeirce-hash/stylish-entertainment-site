@@ -24,7 +24,7 @@ export default function FooterDemoPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
       return;
     }
   }, [status, router]);
@@ -43,7 +43,7 @@ export default function FooterDemoPage() {
       <div className="sticky top-0 z-50 bg-gray-900 text-white py-2 px-4 border-b border-champagne-gold/30">
         <div className="container mx-auto flex flex-wrap items-center justify-between gap-3">
           <Link
-            href="/admin"
+            href="/admin/"
             className="inline-flex items-center gap-2 text-champagne-gold hover:underline text-sm"
           >
             <ArrowLeft className="w-4 h-4" /> Back to admin

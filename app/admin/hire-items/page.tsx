@@ -57,9 +57,9 @@ export default function HireItemsPage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin") {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     }
   }, [status, session, router]);
 
@@ -219,7 +219,7 @@ export default function HireItemsPage() {
               <h1 className="text-4xl font-bold mb-2">Hire Shop Items</h1>
               <p className="text-gray-400">Manage hire items - prices, stock, and details</p>
             </div>
-            <Link href="/admin">
+            <Link href="/admin/">
               <Button variant="outline" className="border-champagne-gold text-champagne-gold">
                 Back to Dashboard
               </Button>

@@ -30,9 +30,9 @@ function EnquiriesContent() {
       sessionStorage.getItem("dev_admin_bypass") === "true";
 
     if (status === "unauthenticated" && !devBypass) {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated" && (session?.user as any)?.role !== "admin" && !devBypass) {
-      router.push("/client/dashboard");
+      router.push("/client/dashboard/");
     }
   }, [status, session, router]);
 

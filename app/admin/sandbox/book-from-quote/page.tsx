@@ -30,7 +30,7 @@ export default function SandboxBookFromQuotePage() {
 
   useEffect(() => {
     if (status === "unauthenticated") {
-      router.push("/login");
+      router.push("/login/");
       return;
     }
   }, [status, router]);
@@ -97,7 +97,7 @@ export default function SandboxBookFromQuotePage() {
       <div className="container mx-auto max-w-xl">
         <div className="mb-6">
           <Link
-            href="/admin"
+            href="/admin/"
             className="inline-flex items-center gap-2 text-champagne-gold hover:underline"
           >
             <ArrowLeft className="w-4 h-4" /> Back to admin

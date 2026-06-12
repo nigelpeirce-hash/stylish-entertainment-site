@@ -240,7 +240,7 @@ export default function EmailDemoPage() {
                 Preview all email templates that will be sent to clients and staff
               </p>
             </div>
-            <Link href="/admin">
+            <Link href="/admin/">
               <Button variant="outline" className="border-gray-600 text-gray-300 hover:bg-gray-800">
                 Back to Dashboard
               </Button>

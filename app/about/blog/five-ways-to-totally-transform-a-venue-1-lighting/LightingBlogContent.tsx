@@ -244,11 +244,11 @@ export default function LightingBlogContent() {
                   <div className="my-8 p-6 bg-gray-800/50 rounded-lg border border-champagne-gold/20">
                     <p className="mb-4">
                       Our STYLISH range of lighting is available for hire, including delivery and installation at your venue by our professional team. Perfect for weddings, parties, and corporate events, our lighting solutions can transform any space. For the full gallery of our lighting designs, head to{" "}
-                      <Link href="/services/lighting-design" className="text-champagne-gold hover:text-gold-light underline">
+                      <Link href="/services/lighting-design/" className="text-champagne-gold hover:text-gold-light underline">
                         lighting design services
                       </Link>
                       {" "}or{" "}
-                      <Link href="/parties/party-lighting" className="text-champagne-gold hover:text-gold-light underline">
+                      <Link href="/parties/party-lighting/" className="text-champagne-gold hover:text-gold-light underline">
                         party lighting
                       </Link>
                       .

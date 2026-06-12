@@ -41,7 +41,7 @@ export interface TermsSection {
   body: string;
 }
 
-/** Placeholder replaced with <a href="/privacy-policy">Privacy Policy</a> when rendering. */
+/** Placeholder replaced with <a href="/privacy-policy/">Privacy Policy</a> when rendering. */
 export const PRIVACY_LINK_PLACEHOLDER = "{{PRIVACY_LINK}}";
 
 export const TERMS_SECTIONS: TermsSection[] = [

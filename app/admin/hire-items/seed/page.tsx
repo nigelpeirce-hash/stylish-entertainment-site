@@ -30,16 +30,16 @@ export default function SeedHireItems() {
     }
 
     if (status === "unauthenticated" && !devBypass) {
-      router.push("/login");
+      router.push("/login/");
     } else if (status === "authenticated") {
       const userRole = (session?.user as any)?.role;
       const userEmail = session?.user?.email;
       
       if (userRole !== "admin") {
-        router.push("/client/dashboard");
+        router.push("/client/dashboard/");
       } else if (!isSuperAdmin(userEmail) && !devBypass) {
         // Not SuperAdmin - redirect to dashboard
-        router.push("/admin");
+        router.push("/admin/");
       }
     }
   }, [status, session, router]);
@@ -56,7 +56,7 @@ export default function SeedHireItems() {
         const data = await response.json();
         setResult("success");
         setMessage(data.message || "Seeded items removed. Shop Closed sign will show.");
-        setTimeout(() => router.push("/hire"), 2000);
+        setTimeout(() => router.push("/hire/"), 2000);
       } else {
         const error = await response.json();
         setResult("error");
@@ -85,7 +85,7 @@ export default function SeedHireItems() {
         setResult("success");
         setMessage(data.message || "Items seeded successfully!");
         setTimeout(() => {
-          router.push("/hire");
+          router.push("/hire/");
         }, 2000);
       } else {
         const error = await response.json();
@@ -163,7 +163,7 @@ export default function SeedHireItems() {
                   >
                     {clearing ? "Removing..." : "Remove Seeded Items"}
                   </Button>
-                  <Link href="/admin">
+                  <Link href="/admin/">
                     <Button variant="outline" className="border-gray-600 text-gray-300">
                       Cancel
                     </Button>
