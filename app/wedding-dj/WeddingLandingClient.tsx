@@ -16,6 +16,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import LazyIframe from "@/components/LazyIframe";
+import { PROOF_THEMES, testimonials } from "@/data/testimonials";
+import { RefinedStar } from "@/components/RefinedStar";
 
 interface DJ {
   name: string;
@@ -55,18 +57,56 @@ function normalizeYouTubeUrl(url: string | null | undefined): string | null {
   return null;
 }
 
-// Hero image – Mells Barn with fairy lights
+const CLOUD = (path: string) =>
+  `https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/${path}`;
+
+// Hero – packed dancefloor (same energy as the landing page promise)
 const heroImage = {
-  src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163500/Mells-Barn-Fairy-lights-in-ceiling_vmzs3p.jpg",
-  alt: "Mells Barn wedding venue with fairy lights in ceiling – magical atmosphere",
+  src: CLOUD("v1768737146/full-dance-floor300x200_iglsa1.jpg"),
+  alt: "Packed wedding dancefloor with guests dancing — professional wedding DJ entertainment",
 };
 
-// Social proof gallery – packed dancefloors, stylish setups
+// Snapshot quotes — same pattern as /testi/ (dancefloor, taste, no cheese)
+const weddingDjHighlights = PROOF_THEMES.filter((item) =>
+  ["The dancefloor was full all night", "They read the room perfectly", "Not cheesy"].includes(
+    item.theme
+  )
+);
+
+// Party gallery — guests visible; no empty rooms, band-only or lighting-only shots
 const galleryPhotos = [
-  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768749164/MartinBeddallPhotography02-e1530632660291_pabjzl.jpg", alt: "Wedding celebration with professional lighting – Martin Beddall Photography" },
-  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163661/Hedsor-House-with-DJ-and-Sax_zv7pnl.jpg", alt: "Hedsor House dance floor with DJ and sax – sophisticated wedding entertainment" },
-  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768163299/Nigel-DJ-Babs-House-0009-1_hmbsn3.jpg", alt: "DJ performing at Babington House with professional wedding entertainment" },
-  { src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_auto,dpr_auto/v1768736010/The-Newt-Somerset-with-our-Fairy-Light-Tunnel-installed-for-their-first-wedding_xwmaca.jpg", alt: "The Newt Somerset wedding with fairy light tunnel – magical atmosphere" },
+  {
+    src: CLOUD("v1768749164/MartinBeddallPhotography02-e1530632660291_pabjzl.jpg"),
+    alt: "Packed wedding dancefloor with guests dancing — Martin Beddall Photography",
+  },
+  {
+    src: CLOUD("v1768163299/Nigel-DJ-Babs-House-0009-1_hmbsn3.jpg"),
+    alt: "DJ Nige at Babington House with guests dancing on a packed dancefloor",
+  },
+  {
+    src: CLOUD("v1768163223/Nigel-DJ-Babs-House-0019_y4rjks.jpg"),
+    alt: "Wedding guests dancing on a packed dancefloor at Babington House",
+  },
+  {
+    src: CLOUD("v1768163661/Hedsor-House-with-DJ-and-Sax_zv7pnl.jpg"),
+    alt: "Hedsor House wedding with DJ, saxophone and guests on the dancefloor",
+  },
+  {
+    src: CLOUD("v1768163506/DJ-Nige-white-dance-floor-lighting_kigdwb.jpg"),
+    alt: "DJ Nige with white dancefloor lighting and a busy wedding party",
+  },
+  {
+    src: CLOUD("v1768163806/Jade-and-Emma-0061_vd8lwz.jpg"),
+    alt: "Bride and groom dancing on the bar at Babington House with guests cheering",
+  },
+  {
+    src: CLOUD("v1768735237/Jade-and-Emma-0066-1_p6jwnu.jpg"),
+    alt: "Wedding guests celebrating on the dancefloor at Babington House",
+  },
+  {
+    src: CLOUD("v1768163328/Nigel-DJ-Babs-House-0021-1_xmxz8v.jpg"),
+    alt: "Couple dancing on the bar at Babington House surrounded by wedding guests",
+  },
 ];
 
 // Comparison table data
@@ -121,18 +161,19 @@ export default function WeddingLandingClient() {
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       {/* Hero Section */}
-      <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
+      <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden md:min-h-[85vh]">
         <div className="absolute inset-0">
           <Image
             src={heroImage.src}
             alt={heroImage.alt}
             fill
-            className="object-cover brightness-[0.7]"
+            className="object-cover object-center brightness-90"
             priority
             sizes="100vw"
-            quality={85}
+            placeholder="blur"
+            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA8A/9k="
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-gray-950" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-gray-950" />
         </div>
 
         <motion.div
@@ -154,6 +195,32 @@ export default function WeddingLandingClient() {
             </Button>
           </div>
         </motion.div>
+      </section>
+
+      {/* Trust bar */}
+      <section className="border-y border-champagne-gold/20 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 px-4 py-8">
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-6 md:gap-10">
+          <div className="flex items-center gap-3">
+            <div className="flex gap-0.5">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <RefinedStar key={star} filled className="h-[18px] w-[18px] text-champagne-gold" />
+              ))}
+            </div>
+            <span className="text-2xl font-bold text-white">5.0</span>
+          </div>
+          <div className="hidden items-center gap-3 rounded-lg border border-champagne-gold/30 bg-white/5 px-4 py-2 backdrop-blur-md md:flex">
+            <span className="text-xl font-bold text-champagne-gold">20+</span>
+            <span className="text-sm text-gray-300">Years experience</span>
+          </div>
+          <div className="flex items-center gap-3 rounded-lg border border-champagne-gold/30 bg-white/5 px-4 py-2 backdrop-blur-md">
+            <span className="text-sm font-semibold text-champagne-gold">Babington House</span>
+            <span className="text-sm font-bold text-white">since 2003</span>
+          </div>
+          <div className="hidden items-center gap-3 rounded-lg border border-champagne-gold/30 bg-white/5 px-4 py-2 backdrop-blur-md md:flex">
+            <span className="text-xl font-bold text-champagne-gold">{testimonials.length}+</span>
+            <span className="text-sm text-gray-300">Client reviews</span>
+          </div>
+        </div>
       </section>
 
       {/* Anti-Cringe Manifesto */}
@@ -238,8 +305,8 @@ export default function WeddingLandingClient() {
                   <div className="flex items-start gap-4">
                     <CheckCircle2 className="w-10 h-10 text-champagne-gold flex-shrink-0 mt-1" />
                     <div>
-                      <h3 className="text-xl font-bold mb-2">We Travel to You</h3>
-                      <p className="text-gray-300">Whether it&apos;s a grand ballroom or an intimate barn, we bring the vibe to your venue.</p>
+                      <h3 className="text-xl font-bold mb-2">We Read The Room</h3>
+                      <p className="text-gray-300">The evening builds — warm-up, first dance, then party time — when your guests are actually ready.</p>
                     </div>
                   </div>
                 </CardContent>
@@ -277,6 +344,7 @@ export default function WeddingLandingClient() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
+                  className={index > 0 ? "hidden md:block" : undefined}
                 >
                   <Card className="bg-gray-900 border-2 border-champagne-gold/40 overflow-hidden hover:shadow-2xl transition-all duration-300 hover:border-champagne-gold/60 group flex flex-col">
                     <div className="relative aspect-[4/3] overflow-hidden bg-gray-900">
@@ -399,7 +467,7 @@ export default function WeddingLandingClient() {
       </section>
 
       {/* Social Proof – Gallery + Testimonial */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+      <section className="pt-16 md:pt-20 pb-8 md:pb-10 px-4 md:px-8 bg-gray-950">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -408,9 +476,44 @@ export default function WeddingLandingClient() {
             className="text-center mb-12"
           >
             <h2 className="text-3xl md:text-5xl font-bold mb-4">What Couples Say</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Snapshots from real client feedback — and the dancefloors behind them.{" "}
+              <Link href="/testi/" className="text-champagne-gold underline hover:text-gold-light">
+                Read the full testimonial archive
+              </Link>
+              .
+            </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          <div className="mb-12 hidden grid-cols-1 gap-5 md:grid md:grid-cols-3">
+            {weddingDjHighlights.map((item, i) => (
+              <motion.div
+                key={item.theme}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+              >
+                <Card className="h-full border-champagne-gold/20 bg-gray-900/60">
+                  <CardContent className="flex h-full flex-col p-6">
+                    <h3 className="mb-3 text-base font-bold text-champagne-gold">{item.theme}</h3>
+                    <p className="flex-grow text-sm italic leading-relaxed text-gray-300">
+                      &ldquo;{item.excerpt}&rdquo;
+                    </p>
+                    <p className="mt-4 border-t border-white/10 pt-4 text-xs text-gray-500">
+                      {item.author} · {item.venue}
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </div>
+
+          <p className="mb-6 text-center text-sm font-semibold uppercase tracking-wider text-champagne-gold/80">
+            On the dancefloor
+          </p>
+
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
             {galleryPhotos.map((photo, i) => (
               <motion.div
                 key={i}
@@ -418,7 +521,7 @@ export default function WeddingLandingClient() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
-                className="relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer group"
+                className={`relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer group${i >= 4 ? " hidden md:block" : ""}`}
                 onClick={() => openLightbox(i)}
               >
                 <Image
@@ -426,13 +529,20 @@ export default function WeddingLandingClient() {
                   alt={photo.alt}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  priority={i === 0}
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  priority={i < 4}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
               </motion.div>
             ))}
           </div>
+
+          <p className="mb-10 text-center text-sm text-gray-500">
+            Tap any photo to enlarge · More event photography in our{" "}
+            <Link href="/galleries/" className="text-champagne-gold underline hover:text-gold-light">
+              gallery
+            </Link>
+          </p>
 
           <motion.blockquote
             initial={{ opacity: 0, y: 20 }}
@@ -449,13 +559,13 @@ export default function WeddingLandingClient() {
       </section>
 
       {/* How We Work – 3 Steps */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
+      <section className="pt-8 md:pt-10 pb-16 md:pb-20 px-4 md:px-8 bg-gray-900/50">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-10"
           >
             <h2 className="text-3xl md:text-5xl font-bold mb-4">3 Steps to a Better Party</h2>
           </motion.div>
@@ -469,7 +579,7 @@ export default function WeddingLandingClient() {
               className="text-center"
             >
               <div className="w-16 h-16 rounded-full bg-champagne-gold text-black font-bold text-2xl flex items-center justify-center mx-auto mb-4">1</div>
-              <h3 className="text-xl font-bold mb-2">The Vibe Check</h3>
+              <h3 className="text-xl font-bold mb-2">The Music Brief</h3>
               <p className="text-gray-400">Your musical taste, your &quot;must-haves,&quot; and your &quot;absolutely-nots&quot;—all captured in your online planning space when you book, at your own pace.</p>
             </motion.div>
             <motion.div
@@ -498,6 +608,91 @@ export default function WeddingLandingClient() {
         </div>
       </section>
 
+      {/* Contextual links — desktop only */}
+      <section className="hidden border-b border-white/5 bg-gray-950 px-4 py-12 md:block md:px-8">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="mb-3 text-2xl font-bold md:text-3xl">Planning your wedding?</h2>
+          <p className="mb-8 text-gray-400">
+            Useful reading from weddings we know well — venues, dancefloors and how we work as a team.
+          </p>
+          <div className="flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <Link
+              href="/venues/babington-house/"
+              className="rounded-lg border border-champagne-gold/30 bg-gray-900/60 px-5 py-3 text-sm font-medium text-champagne-gold transition-colors hover:border-champagne-gold/50 hover:bg-champagne-gold/10"
+            >
+              Babington House wedding guide
+            </Link>
+            <Link
+              href="/about/journal/how-to-keep-a-wedding-dancefloor-full/"
+              className="rounded-lg border border-champagne-gold/30 bg-gray-900/60 px-5 py-3 text-sm font-medium text-champagne-gold transition-colors hover:border-champagne-gold/50 hover:bg-champagne-gold/10"
+            >
+              How to keep a dancefloor full
+            </Link>
+            <Link
+              href="/weddings/wedding-entertainment/"
+              className="rounded-lg border border-champagne-gold/30 bg-gray-900/60 px-5 py-3 text-sm font-medium text-champagne-gold transition-colors hover:border-champagne-gold/50 hover:bg-champagne-gold/10"
+            >
+              Wedding entertainment &amp; production
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Comparison Table — desktop only (manifesto covers mobile) */}
+      <section className="hidden bg-gray-950 px-4 py-16 md:block md:px-8 md:py-20">
+        <div className="max-w-4xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-10 text-center"
+          >
+            <h2 className="mb-3 text-3xl font-bold md:text-4xl">How We&apos;re Different</h2>
+            <p className="mx-auto max-w-2xl text-gray-400">
+              A quick comparison — what couples often worry about versus how we actually work.
+            </p>
+          </motion.div>
+          <div className="overflow-x-auto">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+            >
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="border-b-2 border-champagne-gold/50">
+                    <th className="px-4 py-4 text-left font-semibold text-gray-400">Feature</th>
+                    <th className="px-4 py-4 text-left font-semibold text-red-400/90">
+                      The &quot;Typical&quot; DJ
+                    </th>
+                    <th className="px-4 py-4 text-left font-semibold text-champagne-gold">Us</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {comparisonRows.map((row, i) => (
+                    <tr key={i} className="border-b border-white/10 transition-colors hover:bg-white/5">
+                      <td className="px-4 py-4 font-medium">{row.feature}</td>
+                      <td className="px-4 py-4 text-gray-500">
+                        <span className="inline-flex items-center gap-2">
+                          <X className="h-4 w-4 text-red-500/70" />
+                          {row.typical}
+                        </span>
+                      </td>
+                      <td className="px-4 py-4 text-gray-200">
+                        <span className="inline-flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-champagne-gold" />
+                          {row.us}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
       {/* Client Portal Section */}
       <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950" aria-labelledby="portal-features-heading">
         <div className="max-w-5xl mx-auto">
@@ -513,10 +708,20 @@ export default function WeddingLandingClient() {
             </p>
           </motion.div>
 
-          {/* Mobile: horizontal scroll with snap. Desktop: 2-column grid */}
+          {/* Mobile: short summary. Desktop: feature grid */}
+          <ul className="mx-auto mb-8 max-w-md space-y-3 text-left text-sm text-gray-300 md:hidden">
+            <li className="flex gap-2">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-champagne-gold" />
+              <span>Build your playlist and &quot;do not play&quot; list at your own pace</span>
+            </li>
+            <li className="flex gap-2">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-champagne-gold" />
+              <span>Approve guest requests — nothing plays without your say-so</span>
+            </li>
+          </ul>
+
           <div
-            className="flex md:grid md:grid-cols-2 overflow-x-auto md:overflow-visible gap-6 pb-4 md:pb-0 -mx-4 px-4 md:mx-0 md:px-0 snap-x snap-mandatory md:snap-none"
-            style={{ WebkitOverflowScrolling: "touch" }}
+            className="hidden gap-6 md:grid md:grid-cols-2"
             role="list"
           >
             <motion.div
@@ -524,7 +729,6 @@ export default function WeddingLandingClient() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="flex-shrink-0 w-[85vw] min-w-[280px] max-w-[340px] md:w-auto md:min-w-0 md:max-w-none snap-center snap-always md:snap-align-none"
               role="listitem"
             >
               <Card className="bg-white/5 border-champagne-gold/30 h-full">
@@ -542,7 +746,6 @@ export default function WeddingLandingClient() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.15 }}
-              className="flex-shrink-0 w-[85vw] min-w-[280px] max-w-[340px] md:w-auto md:min-w-0 md:max-w-none snap-center snap-always md:snap-align-none"
               role="listitem"
             >
               <Card className="bg-white/5 border-champagne-gold/30 h-full">
@@ -560,7 +763,6 @@ export default function WeddingLandingClient() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="flex-shrink-0 w-[85vw] min-w-[280px] max-w-[340px] md:w-auto md:min-w-0 md:max-w-none snap-center snap-always md:snap-align-none"
               role="listitem"
             >
               <Card className="bg-white/5 border-champagne-gold/30 h-full">
@@ -578,7 +780,6 @@ export default function WeddingLandingClient() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.25 }}
-              className="flex-shrink-0 w-[85vw] min-w-[280px] max-w-[340px] md:w-auto md:min-w-0 md:max-w-none snap-center snap-always md:snap-align-none"
               role="listitem"
             >
               <Card className="bg-white/5 border-champagne-gold/30 h-full">
@@ -592,16 +793,11 @@ export default function WeddingLandingClient() {
             </motion.div>
           </div>
 
-          {/* Mobile: scroll hint */}
-          <p className="md:sr-only text-center text-gray-500 text-sm mt-3 mb-4" aria-hidden="true">
-            Swipe to see all features
-          </p>
-
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-10"
+            className="mb-10 hidden md:block"
           >
             <p className="text-gray-400 text-center mb-6">
               Take a look at what your planning space looks like:
@@ -639,52 +835,12 @@ export default function WeddingLandingClient() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="max-w-2xl mx-auto mt-10 text-center"
+            className="mx-auto mt-10 hidden max-w-2xl text-center md:block"
           >
             <blockquote className="text-base italic text-white/90 border-l-2 border-champagne-gold pl-4 text-left">
               &ldquo;Your organisation and research has been magnificent, and the fact you have held everything technical together has made this weekend brilliant.&rdquo;
               <cite className="block text-sm text-champagne-gold not-italic mt-2">— Rob & Jules, Babington House</cite>
             </blockquote>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Comparison Table */}
-      <section className="pt-10 pb-20 md:pt-14 md:pb-28 px-4 md:px-8 bg-gray-950">
-        <div className="max-w-4xl mx-auto overflow-x-auto">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="border-b-2 border-champagne-gold/50">
-                  <th className="text-left py-4 px-4 text-gray-400 font-semibold">Feature</th>
-                  <th className="text-left py-4 px-4 text-red-400/90 font-semibold">The &quot;Typical&quot; DJ</th>
-                  <th className="text-left py-4 px-4 text-champagne-gold font-semibold">Us</th>
-                </tr>
-              </thead>
-              <tbody>
-                {comparisonRows.map((row, i) => (
-                  <tr key={i} className="border-b border-white/10 hover:bg-white/5 transition-colors">
-                    <td className="py-4 px-4 font-medium">{row.feature}</td>
-                    <td className="py-4 px-4 text-gray-500">
-                      <span className="inline-flex items-center gap-2">
-                        <X className="w-4 h-4 text-red-500/70" />
-                        {row.typical}
-                      </span>
-                    </td>
-                    <td className="py-4 px-4 text-gray-200">
-                      <span className="inline-flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-champagne-gold" />
-                        {row.us}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
           </motion.div>
         </div>
       </section>
@@ -697,10 +853,12 @@ export default function WeddingLandingClient() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready for a wedding that doesn&apos;t feel like a school disco?</h2>
-            <p className="text-gray-400 text-lg mb-8">Stop settling for &quot;standard.&quot; Let&apos;s talk about your music.</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to check your date?</h2>
+            <p className="text-gray-400 text-lg mb-8">
+              Tell us your date and venue — we&apos;ll confirm availability and come back with a clear quote.
+            </p>
             <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-gold-light font-semibold text-lg px-10 py-6">
-              <Link href="/contact-us/">Check Availability & Pricing</Link>
+              <Link href="/contact-us/">Check Your Date</Link>
             </Button>
           </motion.div>
         </div>
