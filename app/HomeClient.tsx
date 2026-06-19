@@ -11,6 +11,7 @@ import { Quote } from "lucide-react";
 import { getDeterministicReviews } from "@/data/reviews";
 import { deterministicShuffle } from "@/lib/deterministic-shuffle";
 import { useHasMounted } from "@/hooks/useHasMounted";
+import { HOME_HERO_ALT, HOME_HERO_LCP_URL } from "@/lib/home-hero";
 
 const services = [
   {
@@ -81,8 +82,8 @@ const HOMEPAGE_FEATURED_REVIEWS = getDeterministicReviews(3, "homepage-featured"
 function TestimonialsSection() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-7xl mx-auto">
-      {HOMEPAGE_FEATURED_REVIEWS.map((review) => (
-        <div key={`${review.author}::${review.venue}`}>
+      {HOMEPAGE_FEATURED_REVIEWS.map((review, index) => (
+        <div key={`${review.author}::${review.venue}`} className={index >= 1 ? "hidden md:block" : undefined}>
           <Card className="bg-gray-800/50 border-champagne-gold/40 backdrop-blur-sm h-full hover:border-champagne-gold/60 transition-all duration-300">
             <CardContent className="p-6 sm:p-8 h-full flex flex-col">
               <div className="flex justify-center mb-4">
@@ -103,7 +104,7 @@ function TestimonialsSection() {
   );
 }
 
-const LCP_HERO_URL = "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_60,dpr_auto,w_1080/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg";
+const LCP_HERO_URL = HOME_HERO_LCP_URL;
 
 function smallerCloudinaryUrl(url: string): string {
   return url
@@ -131,9 +132,10 @@ export default function HomeClient() {
   const mounted = useHasMounted();
   const [sliderImages, setSliderImages] = useState<typeof gallerySliderImages>(gallerySliderImages);
 
-  // Hero slide order: identical on server + first paint; reorder only after mount (seeded, not Math.random).
+  // Hero slide shuffle: desktop only — mobile uses a static LCP image.
   useEffect(() => {
     if (!mounted) return;
+    if (window.matchMedia("(max-width: 767px)").matches) return;
     const t = setTimeout(
       () => setSliderImages(deterministicShuffle(gallerySliderImages, "homepage-hero-live")),
       2500
@@ -143,27 +145,50 @@ export default function HomeClient() {
 
   return (
     <div>
-      <section className="relative w-full h-[78dvh] min-h-[520px] sm:h-[75vh] md:h-[85vh] lg:h-[92vh] overflow-hidden bg-gray-900">
-        <Slider className="h-full">
-          {sliderImages.map((image, index) => (
-            <div key={image.src} className="relative w-full h-full flex-shrink-0 flex items-center justify-center bg-gray-900">
-              <Image
-                src={index === 0 && image.src.includes("Saltburn_231005__0020_0640_nmzjp6") ? LCP_HERO_URL : sliderCloudinaryUrl(image.src)}
-                alt={image.alt}
-                fill
-                className="object-cover"
-                style={{ objectPosition: "center center" }}
-                priority={index <= 1}
-                fetchPriority={index === 0 ? "high" : "auto"}
-                sizes="(max-width: 1920px) 100vw, 1920px"
-                loading={index <= 1 ? "eager" : "lazy"}
-                quality={65}
-                unoptimized={index === 0}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
-            </div>
-          ))}
-        </Slider>
+      <section className="relative w-full h-[60vh] min-h-[440px] overflow-hidden bg-gray-900 md:h-[85vh] lg:h-[92vh]">
+        {/* Mobile — single static hero for LCP (no carousel DOM) */}
+        <div className="absolute inset-0 md:hidden">
+          <Image
+            src={LCP_HERO_URL}
+            alt={HOME_HERO_ALT}
+            fill
+            className="object-cover"
+            style={{ objectPosition: "center center" }}
+            priority
+            fetchPriority="high"
+            sizes="100vw"
+            quality={65}
+            unoptimized
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
+        </div>
+        {/* md+ — hero carousel */}
+        <div className="absolute inset-0 hidden h-full md:block">
+          <Slider className="h-full">
+            {sliderImages.map((image, index) => (
+              <div key={image.src} className="relative w-full h-full flex-shrink-0 flex items-center justify-center bg-gray-900">
+                <Image
+                  src={
+                    index === 0 && image.src.includes("Saltburn_231005__0020_0640_nmzjp6")
+                      ? LCP_HERO_URL
+                      : sliderCloudinaryUrl(image.src)
+                  }
+                  alt={image.alt}
+                  fill
+                  className="object-cover"
+                  style={{ objectPosition: "center center" }}
+                  priority={index === 0}
+                  fetchPriority={index === 0 ? "high" : "auto"}
+                  sizes="(max-width: 1920px) 100vw, 1920px"
+                  loading={index === 0 ? "eager" : "lazy"}
+                  quality={65}
+                  unoptimized={index === 0}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
+              </div>
+            ))}
+          </Slider>
+        </div>
         <div className="absolute inset-0 z-10 bg-gradient-to-t from-black/90 via-black/55 to-black/25 sm:from-black/80 sm:via-black/45 sm:to-black/15 pointer-events-none" aria-hidden />
         <div className="absolute inset-x-0 bottom-0 z-20 px-4 pb-6 pt-28 sm:inset-0 sm:flex sm:items-end sm:justify-center sm:pb-14 md:pb-16 sm:pt-0 pointer-events-none">
           <div className="pointer-events-auto text-center max-w-5xl mx-auto w-full">
@@ -192,7 +217,7 @@ export default function HomeClient() {
                 asChild
                 variant="outline"
                 size="lg"
-                className="min-h-[48px] border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 hover:scale-105 transition-all duration-300 backdrop-blur-sm"
+                className="hidden min-h-[48px] border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 hover:scale-105 transition-all duration-300 backdrop-blur-sm sm:inline-flex"
               >
                 <Link href="/artists/djs/dj-nige/">Meet DJ Nige</Link>
               </Button>
@@ -204,7 +229,7 @@ export default function HomeClient() {
         </div>
       </section>
 
-      <section className="relative py-12 md:py-20 flex items-center justify-center bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 text-white overflow-hidden">
+      <section className="relative hidden py-12 md:flex md:py-28 items-center justify-center bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 text-white overflow-hidden">
         <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
           <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">
             Entertainment & <span className="text-gradient">Production</span> Studio
@@ -215,7 +240,7 @@ export default function HomeClient() {
         </div>
       </section>
 
-      <section className="py-16 md:py-24 px-3 sm:px-4 bg-gray-900 relative overflow-hidden">
+      <section className="py-12 md:py-28 px-3 sm:px-4 bg-gray-900 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-champagne-gold/5 via-transparent to-transparent pointer-events-none" />
         <div className="container mx-auto max-w-3xl relative z-10">
           <motion.div initial={false} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center">
@@ -234,7 +259,7 @@ export default function HomeClient() {
         </div>
       </section>
 
-      <section className="py-20 px-3 sm:px-4 bg-gray-700">
+      <section className="py-12 md:py-28 px-3 sm:px-4 bg-gray-700">
         <div className="container mx-auto">
           <motion.div initial={false} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-12">
             <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/20">
@@ -245,7 +270,14 @@ export default function HomeClient() {
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
             {services.map((service, index) => (
-              <motion.div key={service.title} initial={false} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: index * 0.1 }}>
+              <motion.div
+                key={service.title}
+                initial={false}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className={index >= 4 ? "hidden md:block" : undefined}
+              >
                 <Link href={service.href}>
                   <Card className="h-full bg-gray-800 border-champagne-gold/30 hover:shadow-xl transition-all duration-300 hover:border-champagne-gold/60 group cursor-pointer">
                     <div className="relative h-48 overflow-hidden bg-gray-100">
@@ -260,10 +292,18 @@ export default function HomeClient() {
               </motion.div>
             ))}
           </div>
+          <p className="mt-8 text-center md:hidden">
+            <Link
+              href="/what-we-do/"
+              className="text-sm font-medium text-champagne-gold underline hover:text-gold-light"
+            >
+              View all services
+            </Link>
+          </p>
         </div>
       </section>
 
-      <section className="py-20 px-3 sm:px-4 bg-gray-800 relative overflow-hidden">
+      <section className="py-12 md:py-28 px-3 sm:px-4 bg-gray-800 relative overflow-hidden">
         <div className="container mx-auto max-w-6xl">
           <motion.div initial={false} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-12">
             <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/20">
@@ -281,7 +321,7 @@ export default function HomeClient() {
         </div>
       </section>
 
-      <section className="py-20 px-3 sm:px-4 bg-gray-700">
+      <section className="hidden py-12 md:block md:py-28 px-3 sm:px-4 bg-gray-700">
         <div className="container mx-auto max-w-6xl">
           <motion.div initial={false} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="text-center mb-12">
             <div className="inline-block mb-4 px-4 py-1 bg-champagne-gold/10 rounded-full border border-champagne-gold/20">
