@@ -25,6 +25,7 @@ import WelcomeBackBanner from "@/components/WelcomeBackBanner";
 import PrefetchErrorHandler from "@/components/PrefetchErrorHandler";
 import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
 import { WEDDING_DJ_HERO_LCP_URL } from "@/lib/wedding-dj-hero";
+import { CONTACT_US_HERO_LCP_URL } from "@/lib/contact-us-hero";
 
 const raleway = Raleway({
   subsets: ["latin"],
@@ -205,7 +206,7 @@ export default async function RootLayout({
           <link
             rel="preload"
             as="image"
-            href="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768754478/IMG_2866_zhs5sz.jpg"
+            href={CONTACT_US_HERO_LCP_URL}
             fetchPriority="high"
           />
         )}

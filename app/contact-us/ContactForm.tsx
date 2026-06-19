@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "@/lib/motion";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,9 +16,12 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Lock, Loader2, Music } from "lucide-react";
 import { RefinedCheckmark } from "@/components/RefinedCheckmark";
 import { formSchema, type FormData, eventTypeOptions, djOptions, upsellOptions } from "@/lib/contact-schema";
-import DJSelectionModal from "@/components/DJSelectionModal";
-import { AnimatePresence } from "@/lib/motion";
+import { AnimatePresence, motion } from "@/lib/motion";
 import { VenueAutocomplete } from "@/components/VenueAutocomplete";
+
+const DJSelectionModal = dynamic(() => import("@/components/DJSelectionModal"), {
+  ssr: false,
+});
 
 // Load Google reCAPTCHA v3
 declare global {
@@ -216,18 +219,14 @@ export default function ContactForm() {
       )}
 
       <section
-        className="pt-20 pb-8 px-4 relative"
+        className="pt-12 pb-8 px-4 relative contact-ui md:pt-20"
         style={{
-          background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
+          background:
+            "radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)",
         }}
       >
         <div className="container mx-auto max-w-3xl">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
+          <div>
             <Card className="bg-white/5 backdrop-blur-xl border-champagne-gold/30">
               <CardHeader>
                 <h2 className="text-3xl md:text-4xl text-white font-semibold leading-none tracking-tight">Contact Us</h2>
@@ -236,13 +235,9 @@ export default function ContactForm() {
               <CardContent className="px-4 sm:px-6">
                 <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                   {error && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="p-4 bg-red-900/30 border-2 border-red-500/50 rounded-md text-red-400 font-medium text-center"
-                    >
+                    <div className="rounded-md border-2 border-red-500/50 bg-red-900/30 p-4 text-center font-medium text-red-400">
                       ⚠ {error}
-                    </motion.div>
+                    </div>
                   )}
 
                   <div className="contact-form-field">
@@ -436,16 +431,10 @@ export default function ContactForm() {
                 </form>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
 
-          {/* Additional Info */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="mt-12"
-          >
+          {/* Direct contact — desktop only (phone in header on mobile) */}
+          <div className="mt-12 hidden md:block">
             <Card className="bg-gradient-to-br from-champagne-gold/10 to-yellow-400/10 border-2 border-champagne-gold/40 backdrop-blur-lg">
               <CardContent className="p-8 text-center">
                 <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-3 sm:mb-4 px-4">
@@ -482,17 +471,18 @@ export default function ContactForm() {
                 </div>
               </CardContent>
             </Card>
-          </motion.div>
+          </div>
         </div>
       </section>
 
-      {/* DJ Selection Modal */}
-      <DJSelectionModal
-        open={isDJModalOpen}
-        onClose={() => setIsDJModalOpen(false)}
-        onSelect={handleDJSelect}
-        selectedDJ={selectedDJ}
-      />
+      {isDJModalOpen ? (
+        <DJSelectionModal
+          open={isDJModalOpen}
+          onClose={() => setIsDJModalOpen(false)}
+          onSelect={handleDJSelect}
+          selectedDJ={selectedDJ}
+        />
+      ) : null}
     </>
   );
 }
