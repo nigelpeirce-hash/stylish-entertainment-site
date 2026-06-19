@@ -294,9 +294,9 @@ export default function WeddingEntertainmentClient() {
   return (
     <div className="min-h-screen bg-gray-950 text-white">
       {/* Hero */}
-      <section className="relative isolate min-h-[70vh] overflow-hidden bg-gray-900 text-white">
+      <section className="relative isolate min-h-[60vh] min-h-[440px] overflow-hidden bg-gray-900 text-white md:min-h-[70vh]">
         <div className="absolute inset-0 -z-10">
-          <div className="relative h-full w-full min-h-[70vh]">
+          <div className="relative h-full w-full min-h-[60vh] md:min-h-[70vh]">
             <Image
               src={HERO_IMAGE_URL}
               alt="Packed wedding dancefloor in a tipi with fairy lights, moving heads and guests celebrating — Martin Beddall Photography"
@@ -309,7 +309,7 @@ export default function WeddingEntertainmentClient() {
           </div>
           <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/35 to-gray-950" />
         </div>
-        <div className="relative z-10 flex min-h-[70vh] flex-col items-center justify-end px-4 pb-8 pt-28 text-center sm:justify-center sm:pb-0 sm:pt-48 max-w-4xl mx-auto w-full">
+        <div className="relative z-10 flex min-h-[60vh] min-h-[440px] flex-col items-center justify-end px-4 pb-8 pt-28 text-center sm:justify-center sm:pb-0 sm:pt-48 max-w-4xl mx-auto w-full md:min-h-[70vh]">
           <div className="inline-block mb-6 px-6 py-2 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
             <span className="text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase">
               Trusted at Babington House since 2003
@@ -372,7 +372,7 @@ export default function WeddingEntertainmentClient() {
       </section>
 
       {/* Flow of the day */}
-      <section className="py-16 md:py-24 px-4 md:px-8 bg-gray-950">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-950">
         <div className="max-w-6xl mx-auto mb-14 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Flow of <span className="text-champagne-gold">the Day</span>
@@ -392,7 +392,9 @@ export default function WeddingEntertainmentClient() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center"
+              className={`grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center${
+                i >= 2 ? " hidden md:grid" : ""
+              }`}
             >
               <div className={i % 2 === 1 ? "lg:order-2" : ""}>
                 <div className="relative aspect-[4/3] rounded-xl overflow-hidden border border-champagne-gold/20 shadow-[0_0_24px_rgba(212,175,55,0.08)]">
@@ -431,7 +433,7 @@ export default function WeddingEntertainmentClient() {
       </section>
 
       {/* Wedding entertainment ideas — list content for search intent */}
-      <section id="ideas" className="py-16 md:py-24 px-4 md:px-8 bg-gray-900 border-y border-champagne-gold/20">
+      <section id="ideas" className="py-12 md:py-28 px-4 md:px-8 bg-gray-900 border-y border-champagne-gold/20">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={false}
@@ -455,6 +457,7 @@ export default function WeddingEntertainmentClient() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.04 }}
+                className={index >= 3 ? "hidden md:block" : undefined}
               >
                 <Card className="bg-gray-800/50 border-champagne-gold/20">
                   <CardContent className="p-5 sm:p-6 flex gap-4">
@@ -484,7 +487,7 @@ export default function WeddingEntertainmentClient() {
       </section>
 
       {/* Nigel voice — after 20 years */}
-      <section className="py-16 md:py-20 px-4 md:px-8 bg-gray-950">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-950">
         <motion.div
           initial={false}
           whileInView={{ opacity: 1, y: 0 }}
@@ -520,7 +523,7 @@ export default function WeddingEntertainmentClient() {
       </section>
 
       {/* Philosophy — not about equipment */}
-      <section className="py-16 md:py-20 px-4 md:px-8 bg-gray-900">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-900">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-8 text-center">
             Why Great Wedding Entertainment Isn&apos;t About{" "}
@@ -560,7 +563,7 @@ export default function WeddingEntertainmentClient() {
       </section>
 
       {/* How much entertainment do you need? */}
-      <section id="how-much" className="py-16 md:py-20 px-4 md:px-8 bg-gray-950 border-y border-champagne-gold/20">
+      <section id="how-much" className="py-12 md:py-28 px-4 md:px-8 bg-gray-950 border-y border-champagne-gold/20">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 text-center">
             How Much Wedding Entertainment Do We Need?
@@ -601,7 +604,7 @@ export default function WeddingEntertainmentClient() {
       </section>
 
       {/* How much does wedding entertainment cost? */}
-      <section id="cost" className="py-16 md:py-20 px-4 md:px-8 bg-gray-900">
+      <section id="cost" className="hidden py-12 md:block md:py-28 px-4 md:px-8 bg-gray-900">
         <div className="max-w-3xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6 text-center">
             How Much Does <span className="text-champagne-gold">Wedding Entertainment</span> Cost?
@@ -637,7 +640,7 @@ export default function WeddingEntertainmentClient() {
       </section>
 
       {/* How we plan the flow */}
-      <section className="py-16 md:py-20 px-4 md:px-8 bg-gray-950 border-y border-champagne-gold/20">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-950 border-y border-champagne-gold/20">
         <motion.div
           initial={false}
           whileInView={{ opacity: 1, y: 0 }}
@@ -686,7 +689,7 @@ export default function WeddingEntertainmentClient() {
       </section>
 
       {/* What couples say */}
-      <section className="pt-16 pb-6 px-4 md:pt-20 md:pb-8 md:px-8 bg-gray-950">
+      <section className="pt-12 pb-6 px-4 md:pt-20 md:pb-8 md:px-8 bg-gray-950">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={false}
@@ -707,6 +710,7 @@ export default function WeddingEntertainmentClient() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
+                className={index >= 1 ? "hidden md:block" : undefined}
               >
                 <Card className="h-full bg-gray-900/70 border-champagne-gold/30 backdrop-blur-sm">
                   <CardContent className="p-6 sm:p-8 flex flex-col h-full">
@@ -735,7 +739,7 @@ export default function WeddingEntertainmentClient() {
       </section>
 
       {/* Choose your vibe */}
-      <section className="pt-4 pb-16 px-4 md:pt-12 md:pb-28 md:px-8 bg-gray-950">
+      <section className="pt-4 pb-12 px-4 md:pt-12 md:pb-28 md:px-8 bg-gray-950">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={false}
@@ -765,6 +769,7 @@ export default function WeddingEntertainmentClient() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.1 }}
+                className={index >= 2 ? "hidden md:block" : undefined}
               >
                 <Link href={tile.href} className="block group">
                   <div className="relative aspect-[4/3] overflow-hidden rounded-xl border-2 border-champagne-gold/30 hover:border-champagne-gold/60 transition-all duration-300">
@@ -797,7 +802,7 @@ export default function WeddingEntertainmentClient() {
       </section>
 
       {/* Why one team — conversion */}
-      <section className="py-16 md:py-20 px-4 md:px-8 bg-gray-900 border-t border-champagne-gold/20">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-900 border-t border-champagne-gold/20">
         <motion.div
           initial={false}
           whileInView={{ opacity: 1, y: 0 }}

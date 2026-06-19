@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import SiteLightbox from "@/components/SiteLightbox";
 
 export interface ImagePhoto {
@@ -12,9 +13,15 @@ export interface ImagePhoto {
 
 interface ImageCarouselProps {
   images: ImagePhoto[];
+  mobileVisibleCount?: number;
+  viewAllHref?: string | null;
 }
 
-export default function ImageCarousel({ images }: ImageCarouselProps) {
+export default function ImageCarousel({
+  images,
+  mobileVisibleCount,
+  viewAllHref = null,
+}: ImageCarouselProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
@@ -29,7 +36,9 @@ export default function ImageCarousel({ images }: ImageCarouselProps) {
         {images.map((image, index) => (
           <div
             key={index}
-            className="relative w-full overflow-hidden rounded-lg bg-gray-900 shadow-lg hover:shadow-2xl transition-shadow duration-300 group"
+            className={`relative w-full overflow-hidden rounded-lg bg-gray-900 shadow-lg hover:shadow-2xl transition-shadow duration-300 group${
+              mobileVisibleCount != null && index >= mobileVisibleCount ? " hidden md:block" : ""
+            }`}
           >
             <img
               src={image.src}
@@ -43,6 +52,17 @@ export default function ImageCarousel({ images }: ImageCarouselProps) {
           </div>
         ))}
       </div>
+
+      {mobileVisibleCount != null &&
+      viewAllHref &&
+      images.length > mobileVisibleCount ? (
+        <p className="mt-6 text-center text-sm text-gray-400 md:hidden">
+          Tap any photo to enlarge ·{" "}
+          <Link href={viewAllHref} className="font-medium text-champagne-gold underline hover:text-gold-light">
+            View full gallery
+          </Link>
+        </p>
+      ) : null}
 
       <SiteLightbox
         open={lightboxOpen}

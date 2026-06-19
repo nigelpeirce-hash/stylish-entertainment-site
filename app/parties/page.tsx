@@ -3,12 +3,19 @@
 import { motion } from "@/lib/motion";
 import { useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Users, Building2, Snowflake } from "lucide-react";
+import { Sparkles, Users, Building2, Snowflake, Home } from "lucide-react";
+
+const HERO_IMAGE =
+  "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768736010/The-Newt-Somerset-with-our-Fairy-Light-Tunnel-installed-for-their-first-wedding_xwmaca.jpg";
+const HERO_ALT =
+  "Fairy light tunnel and atmospheric party lighting at a prestigious Somerset celebration";
 
 const partyServices = [
   {
+    id: "party-lighting",
     title: "Party Lighting",
     icon: Sparkles,
     description: "Transform your party venue with bespoke lighting design that creates the perfect atmosphere for your celebration.",
@@ -17,6 +24,7 @@ const partyServices = [
     alt: "Professional party lighting design creating an atmospheric celebration",
   },
   {
+    id: "private-parties",
     title: "Private Parties",
     icon: Users,
     description: "Complete party planning and production services for private celebrations. From intimate gatherings to grand events.",
@@ -25,6 +33,7 @@ const partyServices = [
     alt: "Elegant private party with professional entertainment and lighting",
   },
   {
+    id: "corporate",
     title: "Corporate Events",
     icon: Building2,
     description: "Professional entertainment and production for corporate events, galas, conferences and product launches.",
@@ -33,6 +42,18 @@ const partyServices = [
     alt: "Corporate event entertainment and production services",
   },
   {
+    id: "house-parties",
+    title: "House Parties",
+    icon: Home,
+    description:
+      "DJs, lighting and production for celebrations at home — sound and atmosphere shaped for intimate rooms, townhouses and garden parties.",
+    href: "/parties/private-parties/#house-parties",
+    image:
+      "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163371/Lighting-Design-at-Kings-Weston-House_qxzunv.jpg",
+    alt: "Professional lighting design at a private house party",
+  },
+  {
+    id: "christmas",
     title: "Christmas Parties",
     icon: Snowflake,
     description: "Festive entertainment and lighting for Christmas celebrations. Make your holiday party truly memorable.",
@@ -47,7 +68,10 @@ export default function Parties() {
     document.title = "Party Entertainment & Production | Stylish Entertainment";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Professional party entertainment, lighting design and production services across the UK. Private parties, corporate events and Christmas celebrations.");
+      metaDescription.setAttribute(
+        "content",
+        "Professional party entertainment, lighting design and production across the UK. House parties, private celebrations, corporate events and Christmas parties."
+      );
     }
   }, []);
 
@@ -55,21 +79,23 @@ export default function Parties() {
     <div>
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
-        <div className="absolute inset-0 opacity-50 flex items-center justify-center">
-          <img
-            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163130/Saltburn_231005__0020_0640_nmzjp6.jpg"
-            alt="Professional party entertainment and production services"
-            className="w-full h-full object-cover object-center brightness-110"
-            style={{ objectPosition: 'center center' }}
-            loading="eager"
+        <div className="absolute inset-0 z-0">
+          <Image
+            src={HERO_IMAGE}
+            alt={HERO_ALT}
+            fill
+            className="object-cover object-center opacity-50 brightness-110"
+            priority
             fetchPriority="high"
+            sizes="100vw"
           />
         </div>
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/50 via-black/30 to-gray-900" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-48 md:pt-52"
+          className="relative z-20 text-center px-4 max-w-4xl mx-auto pt-48 md:pt-52"
         >
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold px-4 drop-shadow-lg">Parties</h1>
           <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 drop-shadow-md">
@@ -89,9 +115,10 @@ export default function Parties() {
             className="text-center mb-12"
           >
             <p className="text-lg md:text-xl text-gray-300 leading-relaxed">
-              Whether you're planning an intimate private celebration, a corporate event, or a festive Christmas party, 
-              we bring years of experience and creative expertise to make your event truly unforgettable. From stunning 
-              lighting design to professional DJs and complete party planning, we handle every detail so you can enjoy 
+              Whether you&apos;re planning a house party at home, a milestone private celebration, a
+              corporate event or a festive Christmas party, we bring years of experience and creative
+              expertise to make your event truly unforgettable. From stunning lighting design to
+              professional DJs and complete party production, we handle every detail so you can enjoy
               your celebration.
             </p>
           </motion.div>
@@ -121,7 +148,7 @@ export default function Parties() {
               const Icon = service.icon;
               return (
                 <motion.div
-                  key={service.href}
+                  key={service.id}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}

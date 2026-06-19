@@ -330,7 +330,7 @@ export default function CorporateClient() {
         }}
       >
         {/* What Corporate Clients Actually Need */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <section className="py-12 md:py-28 px-4 sm:px-6 lg:px-8">
           <div className="container mx-auto max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -370,7 +370,7 @@ export default function CorporateClient() {
         </section>
 
         {/* Simple Support To Full Production — high on page for scope qualification */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-950/60 border-y border-champagne-gold/10">
+        <section className="py-12 md:py-28 px-4 sm:px-6 lg:px-8 bg-gray-950/60 border-y border-champagne-gold/10">
           <div className="container mx-auto max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -387,10 +387,12 @@ export default function CorporateClient() {
                 complete event sound and lighting with crew, styling and supplier coordination.
               </p>
               <ul className="space-y-2">
-                {productionScaleItems.map((item) => (
+                {productionScaleItems.map((item, idx) => (
                   <li
                     key={item}
-                    className="flex items-start gap-3 text-gray-300 text-sm sm:text-base leading-relaxed p-3 rounded-lg bg-gray-900/40 border border-champagne-gold/10"
+                    className={`flex items-start gap-3 text-gray-300 text-sm sm:text-base leading-relaxed p-3 rounded-lg bg-gray-900/40 border border-champagne-gold/10${
+                      idx >= 3 ? " hidden md:flex" : ""
+                    }`}
                   >
                     <span className="text-champagne-gold shrink-0">•</span>
                     <span>{item}</span>
@@ -417,7 +419,7 @@ export default function CorporateClient() {
         </section>
 
         {/* A Typical Corporate Brief — illustration, not a case study */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <section className="py-12 md:py-28 px-4 sm:px-6 lg:px-8">
           <div className="container mx-auto max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -443,7 +445,9 @@ export default function CorporateClient() {
                 {typicalCorporateBriefPhases.map((phase, idx) => (
                   <div
                     key={phase.label}
-                    className="flex gap-4 p-4 sm:p-5 rounded-lg bg-gray-900/70 border border-champagne-gold/15"
+                    className={`flex gap-4 p-4 sm:p-5 rounded-lg bg-gray-900/70 border border-champagne-gold/15${
+                      idx >= 3 ? " hidden md:flex" : ""
+                    }`}
                   >
                     <span className="flex-shrink-0 w-8 h-8 rounded-full bg-champagne-gold/15 border border-champagne-gold/40 flex items-center justify-center text-champagne-gold text-sm font-bold">
                       {idx + 1}
@@ -462,7 +466,7 @@ export default function CorporateClient() {
         </section>
 
         {/* Trusted By Brands That Care About Experience */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-950/60 border-y border-champagne-gold/10">
+        <section className="py-12 md:py-28 px-4 sm:px-6 lg:px-8 bg-gray-950/60 border-y border-champagne-gold/10">
           <div className="container mx-auto max-w-3xl text-center mb-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -496,7 +500,7 @@ export default function CorporateClient() {
         </section>
 
         {/* What 20 Years Of Corporate Events Taught Us */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <section className="py-12 md:py-28 px-4 sm:px-6 lg:px-8">
           <div className="container mx-auto max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -522,7 +526,7 @@ export default function CorporateClient() {
         </section>
 
         {/* Production pillars — reframed feature blocks */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8 border-t border-champagne-gold/10">
+        <section className="py-12 md:py-28 px-4 sm:px-6 lg:px-8 border-t border-champagne-gold/10">
           <div className="container mx-auto max-w-6xl">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Card className="bg-white/5 backdrop-blur-lg border-champagne-gold/30 hover:border-champagne-gold/50 transition-all duration-300">
@@ -553,7 +557,7 @@ export default function CorporateClient() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/5 backdrop-blur-lg border-champagne-gold/30 hover:border-champagne-gold/50 transition-all duration-300">
+              <Card className="bg-white/5 backdrop-blur-lg border-champagne-gold/30 hover:border-champagne-gold/50 transition-all duration-300 hidden md:block">
                 <CardHeader>
                   <Users className="w-10 h-10 text-champagne-gold mb-4" />
                   <CardTitle className="text-white">Curated Talent</CardTitle>
@@ -574,7 +578,7 @@ export default function CorporateClient() {
         </section>
 
         {/* Types Of Corporate Events We Produce */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-950/50">
+        <section className="py-12 md:py-28 px-4 sm:px-6 lg:px-8 bg-gray-950/50">
           <div className="container mx-auto max-w-6xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -592,10 +596,12 @@ export default function CorporateClient() {
               </p>
             </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {corporateEventTypes.map(({ Icon, title, copy }) => (
+              {corporateEventTypes.map(({ Icon, title, copy }, index) => (
                 <Card
                   key={title}
-                  className="bg-gray-900/70 border border-champagne-gold/20 hover:border-champagne-gold/40 transition-colors"
+                  className={`bg-gray-900/70 border border-champagne-gold/20 hover:border-champagne-gold/40 transition-colors${
+                    index >= 2 ? " hidden md:block" : ""
+                  }`}
                 >
                   <CardContent className="p-6">
                     <Icon className="w-8 h-8 text-champagne-gold mb-3" />
@@ -609,7 +615,7 @@ export default function CorporateClient() {
         </section>
 
         {/* Great Corporate Events Reflect The Brand */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <section className="py-12 md:py-28 px-4 sm:px-6 lg:px-8">
           <div className="container mx-auto max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -633,10 +639,12 @@ export default function CorporateClient() {
                   "Staff and guest experience that feels considered",
                   "Guest flow from arrival through to the dancefloor",
                   "Production that reflects brand values in the room",
-                ].map((item) => (
+                ].map((item, index) => (
                   <li
                     key={item}
-                    className="text-gray-300 text-sm leading-relaxed p-3 rounded-lg bg-gray-900/50 border border-champagne-gold/15"
+                    className={`text-gray-300 text-sm leading-relaxed p-3 rounded-lg bg-gray-900/50 border border-champagne-gold/15${
+                      index >= 3 ? " hidden md:block" : ""
+                    }`}
                   >
                     {item}
                   </li>
@@ -647,7 +655,7 @@ export default function CorporateClient() {
         </section>
 
         {/* Gallery */}
-        <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-950/50">
+        <section className="py-12 md:py-28 px-4 sm:px-6 lg:px-8 bg-gray-950/50">
           <div className="container mx-auto max-w-full px-4 sm:px-6 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -662,7 +670,7 @@ export default function CorporateClient() {
         </section>
 
         {/* Popular Entertainment Option — Festival Trio moved down */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <section className="hidden py-12 md:block md:py-28 px-4 sm:px-6 lg:px-8">
           <div className="container mx-auto max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -698,7 +706,7 @@ export default function CorporateClient() {
         </section>
 
         {/* Peace of Mind */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <section className="py-12 md:py-28 px-4 sm:px-6 lg:px-8">
           <div className="container mx-auto max-w-4xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -739,7 +747,7 @@ export default function CorporateClient() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-3 hidden md:flex">
                       <ClipboardCheck className="w-5 h-5 text-champagne-gold mt-1 flex-shrink-0" />
                       <div>
                         <h4 className="text-white font-semibold mb-1">Detailed RAMS</h4>
@@ -748,7 +756,7 @@ export default function CorporateClient() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-3 hidden md:flex">
                       <Award className="w-5 h-5 text-champagne-gold mt-1 flex-shrink-0" />
                       <div>
                         <h4 className="text-white font-semibold mb-1">Technical Riders</h4>
@@ -757,7 +765,7 @@ export default function CorporateClient() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-3 hidden md:flex">
                       <Users className="w-5 h-5 text-champagne-gold mt-1 flex-shrink-0" />
                       <div>
                         <h4 className="text-white font-semibold mb-1">Professional Crews</h4>
@@ -767,7 +775,7 @@ export default function CorporateClient() {
                         </p>
                       </div>
                     </div>
-                    <div className="flex items-start gap-3">
+                    <div className="flex items-start gap-3 hidden md:flex">
                       <Volume2 className="w-5 h-5 text-champagne-gold mt-1 flex-shrink-0" />
                       <div>
                         <h4 className="text-white font-semibold mb-1">Venue Coordination</h4>
@@ -785,7 +793,7 @@ export default function CorporateClient() {
         </section>
 
         {/* FAQs */}
-        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gray-950/50 border-t border-champagne-gold/10">
+        <section className="py-12 md:py-28 px-4 sm:px-6 lg:px-8 bg-gray-950/50 border-t border-champagne-gold/10">
           <div className="container mx-auto max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -800,7 +808,9 @@ export default function CorporateClient() {
                 {CORPORATE_FAQ_ITEMS.map((item, i) => (
                   <details
                     key={i}
-                    className="group rounded-xl border border-champagne-gold/20 bg-gray-900/60 overflow-hidden"
+                    className={`group rounded-xl border border-champagne-gold/20 bg-gray-900/60 overflow-hidden${
+                      i >= 3 ? " hidden md:block" : ""
+                    }`}
                   >
                     <summary className="cursor-pointer list-none px-5 py-4 text-white font-semibold hover:bg-champagne-gold/5 transition-colors [&::-webkit-details-marker]:hidden flex justify-between items-center gap-4">
                       {item.question}

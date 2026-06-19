@@ -27,6 +27,9 @@ import { Button } from "@/components/ui/button";
 const linkClass =
   "text-champagne-gold hover:text-gold-light underline underline-offset-2 transition-colors";
 
+const LCP_HERO_URL =
+  "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768736010/The-Newt-Somerset-with-our-Fairy-Light-Tunnel-installed-for-their-first-wedding_xwmaca.jpg";
+
 // Hero mood images – party moments (first dance feel, marquee, packed dancefloor)
 const heroMoodImages = [
   {
@@ -278,6 +281,8 @@ export default function PrivatePartiesClient() {
     setHeroIndex((i) => (i + 1) % heroMoodImages.length);
   }, []);
   useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    if (mq.matches) return;
     const t = setInterval(advanceHero, 5000);
     return () => clearInterval(t);
   }, [advanceHero]);
@@ -289,9 +294,21 @@ export default function PrivatePartiesClient() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white max-w-full overflow-x-hidden">
-      {/* Hero */}
-      <section className="relative h-[75vh] min-h-[520px] w-full overflow-hidden max-w-full">
-        <div className="absolute inset-0">
+      {/* Hero — static image on mobile; carousel on md+ */}
+      <section className="relative h-[60vh] min-h-[440px] w-full max-w-full overflow-hidden md:h-[70vh] md:min-h-[520px]">
+        <div className="absolute inset-0 md:hidden">
+          <Image
+            src={LCP_HERO_URL}
+            alt={heroMoodImages[0].alt}
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+            fetchPriority="high"
+            quality={85}
+          />
+        </div>
+        <div className="absolute inset-0 hidden md:block">
           {heroMoodImages.map((image, i) => (
             <div
               key={image.src}
@@ -351,7 +368,7 @@ export default function PrivatePartiesClient() {
           </p>
         </div>
 
-        <div className="absolute bottom-6 right-6 md:bottom-10 md:right-10 flex gap-2 z-20">
+        <div className="absolute bottom-6 right-6 z-20 hidden gap-2 md:bottom-10 md:right-10 md:flex">
           {heroMoodImages.map((_, i) => (
             <button
               key={i}
@@ -365,14 +382,14 @@ export default function PrivatePartiesClient() {
         </div>
         <button
           onClick={() => setHeroIndex((i) => (i - 1 + heroMoodImages.length) % heroMoodImages.length)}
-          className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-20"
+          className="absolute left-4 top-1/2 z-20 hidden min-h-[48px] min-w-[48px] -translate-y-1/2 items-center justify-center rounded-full bg-black/40 transition-colors hover:bg-black/60 md:flex"
           aria-label="Previous"
         >
           <ChevronLeft className="w-6 h-6" />
         </button>
         <button
           onClick={() => setHeroIndex((i) => (i + 1) % heroMoodImages.length)}
-          className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-20"
+          className="absolute right-4 top-1/2 z-20 hidden min-h-[48px] min-w-[48px] -translate-y-1/2 items-center justify-center rounded-full bg-black/40 transition-colors hover:bg-black/60 md:flex"
           aria-label="Next"
         >
           <ChevronRight className="w-6 h-6" />
@@ -380,7 +397,7 @@ export default function PrivatePartiesClient() {
       </section>
 
       {/* Before and After */}
-      <section className="py-16 md:py-20 px-4 md:px-8 bg-gray-900 max-w-full overflow-x-hidden">
+      <section className="py-12 md:py-20 px-4 md:px-8 bg-gray-900 max-w-full overflow-x-hidden">
         <div className="w-full max-w-[1700px] mx-auto px-4">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -408,6 +425,7 @@ export default function PrivatePartiesClient() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
+                className={index >= 1 ? "hidden md:block" : undefined}
               >
                 <Card className="bg-gray-800/50 backdrop-blur-sm border-2 border-champagne-gold/30 shadow-xl overflow-hidden hover:border-champagne-gold/60 transition-all duration-300">
                   <CardContent className="p-4 sm:p-6">
@@ -427,7 +445,7 @@ export default function PrivatePartiesClient() {
       </section>
 
       {/* After 20 Years Of Parties */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50 max-w-full overflow-x-hidden">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-900/50 max-w-full overflow-x-hidden">
         <div className="max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -462,7 +480,10 @@ export default function PrivatePartiesClient() {
       </section>
 
       {/* How We Create Private Parties */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950 max-w-full overflow-x-hidden">
+      <section
+        id="house-parties"
+        className="scroll-mt-28 py-12 md:py-28 px-4 md:px-8 bg-gray-950 max-w-full overflow-x-hidden"
+      >
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -485,6 +506,7 @@ export default function PrivatePartiesClient() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
+                className={i >= 2 ? "hidden md:block" : undefined}
               >
                 <Card className="bg-white/5 backdrop-blur border-champagne-gold/30 hover:border-champagne-gold/50 transition-all h-full">
                   <CardContent className="p-8">
@@ -500,7 +522,7 @@ export default function PrivatePartiesClient() {
       </section>
 
       {/* What Makes A Great Private Party? */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50 max-w-full overflow-x-hidden">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-900/50 max-w-full overflow-x-hidden">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -522,7 +544,9 @@ export default function PrivatePartiesClient() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.06 }}
-                className="flex items-start gap-4 p-4 rounded-lg bg-gray-900/60 border border-champagne-gold/20"
+                className={`flex items-start gap-4 p-4 rounded-lg bg-gray-900/60 border border-champagne-gold/20${
+                  i >= 3 ? " hidden md:flex" : ""
+                }`}
               >
                 <Check className="w-5 h-5 text-champagne-gold flex-shrink-0 mt-0.5" />
                 <span className="text-gray-200 text-lg">{point}</span>
@@ -533,7 +557,7 @@ export default function PrivatePartiesClient() {
       </section>
 
       {/* Gallery */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950 max-w-full overflow-x-hidden">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-950 max-w-full overflow-x-hidden">
         <div className="max-w-6xl mx-auto mb-12 text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">Atmospheric Venue Transformations</h2>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
@@ -552,7 +576,9 @@ export default function PrivatePartiesClient() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
-              className="relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer group"
+              className={`relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer group${
+                i >= 4 ? " hidden md:block" : ""
+              }`}
               onClick={() => openLightbox(i)}
             >
               <Image
@@ -566,10 +592,18 @@ export default function PrivatePartiesClient() {
             </motion.div>
           ))}
         </div>
+        {galleryPhotos.length > 4 ? (
+          <p className="mx-auto mt-6 max-w-6xl text-center text-sm text-gray-400 md:hidden">
+            Tap any photo to enlarge ·{" "}
+            <Link href="/galleries/" className="font-medium text-champagne-gold underline hover:text-gold-light">
+              View full gallery
+            </Link>
+          </p>
+        ) : null}
       </section>
 
       {/* Babington credibility */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50 max-w-full overflow-x-hidden">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-900/50 max-w-full overflow-x-hidden">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -613,7 +647,7 @@ export default function PrivatePartiesClient() {
       </section>
 
       {/* Where We Work */}
-      <section className="py-16 md:py-20 px-4 md:px-8 bg-gray-950 max-w-full overflow-x-hidden">
+      <section className="hidden py-12 md:block md:py-20 px-4 md:px-8 bg-gray-950 max-w-full overflow-x-hidden">
         <div className="max-w-4xl mx-auto text-center">
           <div className="flex items-center justify-center gap-3 mb-6">
             <MapPin className="w-6 h-6 text-champagne-gold/70" />
@@ -642,7 +676,7 @@ export default function PrivatePartiesClient() {
       </section>
 
       {/* FAQs */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50 max-w-full overflow-x-hidden">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-900/50 max-w-full overflow-x-hidden">
         <div className="max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -660,6 +694,7 @@ export default function PrivatePartiesClient() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
+                className={i >= 3 ? "hidden md:block" : undefined}
               >
                 <Card className="bg-gray-900/60 border-champagne-gold/20">
                   <CardContent className="p-6">

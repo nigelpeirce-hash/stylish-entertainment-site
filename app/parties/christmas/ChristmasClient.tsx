@@ -354,7 +354,7 @@ const SnowfallAnimation = () => {
   if (!mounted) return null;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden="true">
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden hidden md:block" aria-hidden="true">
       {snowflakes.map((snowflake) => (
         <Snowflake
           key={snowflake.id}
@@ -373,7 +373,7 @@ export default function ChristmasClient() {
       <SnowfallAnimation />
 
       {/* Hero */}
-      <section className="relative min-h-[70vh] flex items-center justify-center text-white overflow-hidden">
+      <section className="relative min-h-[60vh] min-h-[440px] flex items-center justify-center text-white overflow-hidden md:min-h-[70vh]">
         <div className="absolute inset-0 z-0">
           <Image
             src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768162256/Xmas1_ghqir1.jpg"
@@ -431,7 +431,7 @@ export default function ChristmasClient() {
         }}
       >
         {/* Why Christmas Parties Matter */}
-        <section className="py-20 px-3 sm:px-4 lg:px-8 relative">
+        <section className="py-12 md:py-28 px-3 sm:px-4 lg:px-8 relative">
           <div className="container mx-auto max-w-4xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -448,10 +448,12 @@ export default function ChristmasClient() {
                 for many companies, the most important celebration of the year.
               </p>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-10">
-                {whyChristmasMattersCards.map(({ Icon, title, detail }) => (
+                {whyChristmasMattersCards.map(({ Icon, title, detail }, index) => (
                   <div
                     key={title}
-                    className="flex flex-col items-center text-center p-4 sm:p-6 rounded-xl bg-gray-900/70 border border-champagne-gold/25 hover:border-champagne-gold/50 hover:shadow-[0_0_24px_rgba(212,175,55,0.12)] transition-all"
+                    className={`flex flex-col items-center text-center p-4 sm:p-6 rounded-xl bg-gray-900/70 border border-champagne-gold/25 hover:border-champagne-gold/50 hover:shadow-[0_0_24px_rgba(212,175,55,0.12)] transition-all${
+                      index >= 2 ? " hidden md:flex" : ""
+                    }`}
                   >
                     <div className="w-14 h-14 rounded-full bg-champagne-gold/10 border border-champagne-gold/30 flex items-center justify-center mb-4">
                       <Icon className="w-7 h-7 text-champagne-gold" />
@@ -477,7 +479,7 @@ export default function ChristmasClient() {
         </section>
 
         {/* After 20 Years Of Christmas Parties… */}
-        <section className="py-20 px-3 sm:px-4 lg:px-8 bg-gray-950/60 border-y border-champagne-gold/10">
+        <section className="py-12 md:py-28 px-3 sm:px-4 lg:px-8 bg-gray-950/60 border-y border-champagne-gold/10">
           <div className="container mx-auto max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -503,7 +505,7 @@ export default function ChristmasClient() {
         </section>
 
         {/* What Makes A Great Christmas Party? */}
-        <section className="py-20 px-3 sm:px-4 lg:px-8">
+        <section className="py-12 md:py-28 px-3 sm:px-4 lg:px-8">
           <div className="container mx-auto max-w-4xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -518,10 +520,12 @@ export default function ChristmasClient() {
                 Great Christmas parties are built gradually — not switched on in one moment.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {greatPartyElements.map((item) => (
+                {greatPartyElements.map((item, index) => (
                   <div
                     key={item.title}
-                    className="p-5 rounded-xl bg-gray-900/60 border border-champagne-gold/20"
+                    className={`p-5 rounded-xl bg-gray-900/60 border border-champagne-gold/20${
+                      index >= 2 ? " hidden md:block" : ""
+                    }`}
                   >
                     <h3 className="text-champagne-gold font-semibold mb-2">{item.title}</h3>
                     <p className="text-gray-400 text-sm leading-relaxed">{item.detail}</p>
@@ -533,7 +537,7 @@ export default function ChristmasClient() {
         </section>
 
         {/* Christmas Parties We Produce */}
-        <section className="py-20 px-3 sm:px-4 lg:px-8 bg-gray-950/50 border-y border-champagne-gold/10">
+        <section className="py-12 md:py-28 px-3 sm:px-4 lg:px-8 bg-gray-950/50 border-y border-champagne-gold/10">
           <div className="container mx-auto max-w-6xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -551,10 +555,12 @@ export default function ChristmasClient() {
               </p>
             </motion.div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {christmasPartiesWeProduce.map(({ Icon, title, copy }) => (
+              {christmasPartiesWeProduce.map(({ Icon, title, copy }, index) => (
                 <Card
                   key={title}
-                  className="bg-gray-900/70 border border-champagne-gold/20 hover:border-champagne-gold/40 transition-colors"
+                  className={`bg-gray-900/70 border border-champagne-gold/20 hover:border-champagne-gold/40 transition-colors${
+                    index >= 2 ? " hidden md:block" : ""
+                  }`}
                 >
                   <CardContent className="p-6">
                     <Icon className="w-8 h-8 text-champagne-gold mb-3" />
@@ -568,7 +574,7 @@ export default function ChristmasClient() {
         </section>
 
         {/* Popular Christmas Party Themes */}
-        <section className="py-16 px-3 sm:px-4 lg:px-8">
+        <section className="py-12 md:py-28 px-3 sm:px-4 lg:px-8">
           <div className="container mx-auto max-w-6xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -584,10 +590,12 @@ export default function ChristmasClient() {
                 clients often explore when planning a company Christmas party or winter gala.
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {christmasPartyThemes.map((theme) => (
+                {christmasPartyThemes.map((theme, index) => (
                   <Card
                     key={theme.title}
-                    className="bg-gray-900/70 border border-champagne-gold/20 overflow-hidden hover:border-champagne-gold/40 transition-colors"
+                    className={`bg-gray-900/70 border border-champagne-gold/20 overflow-hidden hover:border-champagne-gold/40 transition-colors${
+                      index >= 2 ? " hidden md:block" : ""
+                    }`}
                   >
                     <div className="relative h-36 sm:h-40">
                       <Image
@@ -611,7 +619,7 @@ export default function ChristmasClient() {
         </section>
 
         {/* Gallery */}
-        <section className="py-16 px-3 sm:px-4 lg:px-8 bg-gray-950">
+        <section className="py-12 md:py-28 px-3 sm:px-4 lg:px-8 bg-gray-950">
           <div className="container mx-auto max-w-full">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -620,13 +628,13 @@ export default function ChristmasClient() {
               transition={{ duration: 0.8 }}
               className="flex justify-center"
             >
-              <ImageCarousel images={christmasPhotos} />
+              <ImageCarousel images={christmasPhotos} mobileVisibleCount={4} viewAllHref="/galleries/" />
             </motion.div>
           </div>
         </section>
 
         {/* Service sections — text only, images live in hero, themes and gallery */}
-        <section className="py-16 px-3 sm:px-4 lg:px-8 bg-slate-950">
+        <section className="py-12 md:py-28 px-3 sm:px-4 lg:px-8 bg-slate-950">
           <div className="container mx-auto max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -685,7 +693,7 @@ export default function ChristmasClient() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/5 backdrop-blur-lg border-white/10">
+              <Card className="bg-white/5 backdrop-blur-lg border-white/10 hidden md:block">
                 <CardContent className="p-6 sm:p-8">
                   <h3 className="text-2xl font-bold text-champagne-gold mb-4 flex items-center gap-3">
                     <Calendar className="w-6 h-6" />
@@ -703,7 +711,7 @@ export default function ChristmasClient() {
                 </CardContent>
               </Card>
 
-              <Card className="bg-white/5 backdrop-blur-lg border-white/10">
+              <Card className="bg-white/5 backdrop-blur-lg border-white/10 hidden md:block">
                 <CardContent className="p-6 sm:p-8">
                   <h3 className="text-2xl font-bold text-champagne-gold mb-4 flex items-center gap-3">
                     <Sparkles className="w-6 h-6" />
@@ -729,7 +737,7 @@ export default function ChristmasClient() {
         </section>
 
         {/* From Dinner To Dancefloor */}
-        <section className="py-20 px-3 sm:px-4 lg:px-8">
+        <section className="py-12 md:py-28 px-3 sm:px-4 lg:px-8">
           <div className="container mx-auto max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -748,7 +756,9 @@ export default function ChristmasClient() {
                 {dinnerToDancefloorPhases.map((phase, idx) => (
                   <div
                     key={phase.label}
-                    className="flex gap-4 p-4 rounded-lg bg-gray-900/70 border border-champagne-gold/15"
+                    className={`flex gap-4 p-4 rounded-lg bg-gray-900/70 border border-champagne-gold/15${
+                      idx >= 3 ? " hidden md:flex" : ""
+                    }`}
                   >
                     <span className="flex-shrink-0 w-8 h-8 rounded-full bg-champagne-gold/15 border border-champagne-gold/40 flex items-center justify-center text-champagne-gold text-sm font-bold">
                       {idx + 1}
@@ -767,7 +777,7 @@ export default function ChristmasClient() {
         </section>
 
         {/* Simple Support To Full Christmas Party Production */}
-        <section className="py-20 px-3 sm:px-4 lg:px-8 bg-gray-950/60 border-y border-champagne-gold/10">
+        <section className="py-12 md:py-28 px-3 sm:px-4 lg:px-8 bg-gray-950/60 border-y border-champagne-gold/10">
           <div className="container mx-auto max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -784,10 +794,12 @@ export default function ChristmasClient() {
                 honest about the right fit.
               </p>
               <ul className="space-y-2">
-                {productionScaleItems.map((item) => (
+                {productionScaleItems.map((item, idx) => (
                   <li
                     key={item}
-                    className="flex items-start gap-3 text-gray-300 text-sm sm:text-base leading-relaxed p-3 rounded-lg bg-gray-900/40 border border-champagne-gold/10"
+                    className={`flex items-start gap-3 text-gray-300 text-sm sm:text-base leading-relaxed p-3 rounded-lg bg-gray-900/40 border border-champagne-gold/10${
+                      idx >= 3 ? " hidden md:flex" : ""
+                    }`}
                   >
                     <span className="text-champagne-gold shrink-0">•</span>
                     <span>{item}</span>
@@ -799,7 +811,7 @@ export default function ChristmasClient() {
         </section>
 
         {/* Popular Entertainment Option — Festival Trio */}
-        <section className="py-16 px-3 sm:px-4 lg:px-8">
+        <section className="hidden py-12 md:block md:py-28 px-3 sm:px-4 lg:px-8">
           <div className="container mx-auto max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -833,7 +845,7 @@ export default function ChristmasClient() {
         </section>
 
         {/* When Should You Book? */}
-        <section className="py-20 px-3 sm:px-4 lg:px-8 bg-gray-950/60 border-y border-champagne-gold/10">
+        <section className="py-12 md:py-28 px-3 sm:px-4 lg:px-8 bg-gray-950/60 border-y border-champagne-gold/10">
           <div className="container mx-auto max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -850,10 +862,12 @@ export default function ChristmasClient() {
                 entertainment and lighting.
               </p>
               <div className="space-y-3">
-                {bookingTimeline.map((item) => (
+                {bookingTimeline.map((item, idx) => (
                   <div
                     key={item.period}
-                    className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 p-4 sm:p-5 rounded-xl bg-gray-900/70 border border-champagne-gold/15"
+                    className={`flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6 p-4 sm:p-5 rounded-xl bg-gray-900/70 border border-champagne-gold/15${
+                      idx >= 2 ? " hidden md:flex" : ""
+                    }`}
                   >
                     <div className="flex items-center gap-4 sm:w-44 shrink-0">
                       <Calendar className="w-5 h-5 text-champagne-gold shrink-0" />
@@ -882,7 +896,7 @@ export default function ChristmasClient() {
         </section>
 
         {/* FAQs */}
-        <section className="py-20 px-3 sm:px-4 lg:px-8 bg-gray-950/50 border-t border-champagne-gold/10">
+        <section className="py-12 md:py-28 px-3 sm:px-4 lg:px-8 bg-gray-950/50 border-t border-champagne-gold/10">
           <div className="container mx-auto max-w-3xl">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -897,7 +911,9 @@ export default function ChristmasClient() {
                 {CHRISTMAS_FAQ_ITEMS.map((item, i) => (
                   <details
                     key={i}
-                    className="group rounded-xl border border-champagne-gold/20 bg-gray-900/60 overflow-hidden"
+                    className={`group rounded-xl border border-champagne-gold/20 bg-gray-900/60 overflow-hidden${
+                      i >= 3 ? " hidden md:block" : ""
+                    }`}
                   >
                     <summary className="cursor-pointer list-none px-5 py-4 text-white font-semibold hover:bg-champagne-gold/5 transition-colors [&::-webkit-details-marker]:hidden flex justify-between items-center gap-4">
                       {item.question}
