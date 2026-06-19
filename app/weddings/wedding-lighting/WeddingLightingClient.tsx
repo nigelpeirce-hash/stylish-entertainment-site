@@ -292,10 +292,10 @@ const galleryPhotos: Photo[] = [
 export default function WeddingLightingClient() {
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      {/* Hero — taller on desktop so wide tunnel photo isn’t cropped to a thin band */}
-      <section className="relative isolate min-h-[62vh] sm:min-h-[70vh] lg:min-h-[88vh] xl:min-h-[92vh] overflow-hidden bg-gray-900 text-white">
+      {/* Hero — shorter on mobile for LCP; full height from md */}
+      <section className="relative isolate min-h-[60vh] min-h-[440px] overflow-hidden bg-gray-900 text-white md:min-h-[70vh] lg:min-h-[88vh] xl:min-h-[92vh]">
         <div className="absolute inset-0 -z-10">
-          <div className="relative h-full w-full min-h-[62vh] sm:min-h-[70vh] lg:min-h-[88vh] xl:min-h-[92vh]">
+          <div className="relative h-full w-full min-h-[60vh] min-h-[440px] md:min-h-[70vh] lg:min-h-[88vh] xl:min-h-[92vh]">
             <Image
               src={HERO_IMAGE_URL}
               alt="Fairy light tunnel at a wedding — bespoke lighting design by Stylish Entertainment"
@@ -308,7 +308,7 @@ export default function WeddingLightingClient() {
           </div>
           <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/30 to-gray-950/95 lg:from-black/45 lg:via-black/20" />
         </div>
-        <div className="relative z-10 flex min-h-[62vh] sm:min-h-[70vh] lg:min-h-[88vh] xl:min-h-[92vh] flex-col items-center justify-end px-4 pb-8 pt-28 text-center sm:justify-center sm:pb-0 sm:pt-40 lg:pt-44 max-w-4xl mx-auto w-full">
+        <div className="relative z-10 flex min-h-[60vh] min-h-[440px] flex-col items-center justify-end px-4 pb-8 pt-28 text-center sm:justify-center sm:pb-0 sm:pt-40 max-w-4xl mx-auto w-full md:min-h-[70vh] lg:min-h-[88vh] xl:min-h-[92vh] lg:pt-44">
           <div className="inline-block mb-6 px-6 py-2 bg-champagne-gold/10 rounded-full border border-champagne-gold/30">
             <span className="text-sm md:text-base font-semibold text-champagne-gold tracking-wider uppercase">
               Trusted at Babington House since 2003
@@ -333,7 +333,7 @@ export default function WeddingLightingClient() {
               asChild
               variant="outline"
               size="lg"
-              className="min-h-[48px] border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 hover:scale-105 transition-all duration-300"
+              className="hidden min-h-[48px] border-champagne-gold text-champagne-gold hover:bg-champagne-gold/10 hover:scale-105 transition-all duration-300 sm:inline-flex"
             >
               <a href="tel:+447970793177">Call 07970 793177</a>
             </Button>
@@ -373,7 +373,7 @@ export default function WeddingLightingClient() {
       </section>
 
       {/* Our approach */}
-      <section className="py-16 md:py-20 px-4 md:px-8 bg-gray-900">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-900">
         <motion.div
           initial={false}
           whileInView={{ opacity: 1, y: 0 }}
@@ -408,7 +408,7 @@ export default function WeddingLightingClient() {
       </section>
 
       {/* Structured lighting sections */}
-      <section className="py-16 md:py-24 px-4 md:px-8 bg-gray-950">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-950">
         <div className="max-w-6xl mx-auto mb-14 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
             Why Each Choice <span className="text-champagne-gold">Matters</span>
@@ -430,8 +430,8 @@ export default function WeddingLightingClient() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5 }}
-                className={`grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center ${
-                  i % 2 === 1 ? "" : ""
+                className={`grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-center${
+                  i >= 2 ? " hidden md:grid" : ""
                 }`}
               >
                 <div className={i % 2 === 1 ? "lg:order-2" : ""}>
@@ -470,12 +470,17 @@ export default function WeddingLightingClient() {
             );
           })}
         </div>
+        <p className="mt-10 text-center md:hidden">
+          <Link href="/galleries/" className={`text-sm ${linkClass}`}>
+            View wedding lighting gallery
+          </Link>
+        </p>
       </section>
 
       {/* Common mistakes */}
       <section
         id="mistakes"
-        className="py-16 md:py-24 px-4 md:px-8 bg-gray-900 border-y border-champagne-gold/20"
+        className="py-12 md:py-28 px-4 md:px-8 bg-gray-900 border-y border-champagne-gold/20"
       >
         <div className="max-w-4xl mx-auto">
           <motion.div
@@ -501,6 +506,7 @@ export default function WeddingLightingClient() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: index * 0.05 }}
+                className={index >= 3 ? "hidden md:list-item" : undefined}
               >
                 <Card className="bg-gray-800/50 border-champagne-gold/20 hover:border-champagne-gold/35 transition-colors">
                   <CardContent className="p-6 flex gap-4">
@@ -521,7 +527,7 @@ export default function WeddingLightingClient() {
       </section>
 
       {/* Cost guidance */}
-      <section id="cost" className="py-16 md:py-20 px-4 md:px-8 bg-gray-950">
+      <section id="cost" className="py-12 md:py-28 px-4 md:px-8 bg-gray-950">
         <motion.div
           initial={false}
           whileInView={{ opacity: 1, y: 0 }}
@@ -565,8 +571,8 @@ export default function WeddingLightingClient() {
         </motion.div>
       </section>
 
-      {/* Before / after */}
-      <section className="py-16 md:py-24 px-4 md:px-8 bg-gray-900/80">
+      {/* Before / after — desktop only (slider is heavy on mobile) */}
+      <section className="hidden py-12 md:block md:py-28 px-4 md:px-8 bg-gray-900/80">
         <div className="max-w-5xl mx-auto">
           <motion.div
             initial={false}
@@ -590,7 +596,7 @@ export default function WeddingLightingClient() {
       </section>
 
       {/* Gallery */}
-      <section className="py-16 md:py-24 px-3 sm:px-4 bg-gray-950" id="gallery">
+      <section className="py-12 md:py-28 px-3 sm:px-4 bg-gray-950" id="gallery">
         <div className="container mx-auto max-w-7xl">
           <motion.div
             initial={false}
@@ -603,12 +609,12 @@ export default function WeddingLightingClient() {
               A selection of recent weddings across the South West and beyond.
             </p>
           </motion.div>
-          <Gallery photos={galleryPhotos} columns={3} />
+          <Gallery photos={galleryPhotos} columns={3} mobileVisibleCount={4} viewAllHref="/galleries/" />
         </div>
       </section>
 
       {/* Venue examples */}
-      <section className="py-16 md:py-20 px-4 md:px-8 bg-gray-900 border-y border-champagne-gold/20">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-900 border-y border-champagne-gold/20">
         <div className="max-w-5xl mx-auto">
           <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-3">
             Venues We Know Inside Out
@@ -617,11 +623,13 @@ export default function WeddingLightingClient() {
             Lighting schemes designed with real knowledge of each room, terrace and barn.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {VENUE_EXAMPLES.map((venue) => (
+            {VENUE_EXAMPLES.map((venue, index) => (
               <Link
                 key={venue.href}
                 href={venue.href}
-                className="group flex items-center justify-between p-5 rounded-xl bg-gray-800/60 border border-champagne-gold/20 hover:border-champagne-gold/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.12)] transition-all"
+                className={`group flex items-center justify-between p-5 rounded-xl bg-gray-800/60 border border-champagne-gold/20 hover:border-champagne-gold/40 hover:shadow-[0_0_20px_rgba(212,175,55,0.12)] transition-all${
+                  index >= 2 ? " hidden md:flex" : ""
+                }`}
               >
                 <div>
                   <p className="text-white font-semibold group-hover:text-champagne-gold transition-colors">
@@ -646,7 +654,7 @@ export default function WeddingLightingClient() {
       </section>
 
       {/* Service area + testimonials link */}
-      <section className="py-16 px-4 md:px-8 bg-gray-950">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-950">
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
           <div className="space-y-4">
             <h2 className="text-2xl md:text-3xl font-serif text-white">
@@ -673,7 +681,7 @@ export default function WeddingLightingClient() {
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
-          <Card className="bg-white/5 border-champagne-gold/20 backdrop-blur-xl">
+          <Card className="hidden bg-white/5 border-champagne-gold/20 backdrop-blur-xl md:block">
             <CardContent className="p-8 space-y-6">
               <div>
                 <h3 className="text-xs uppercase tracking-widest text-champagne-gold mb-4">
@@ -702,7 +710,7 @@ export default function WeddingLightingClient() {
       </section>
 
       {/* Enquiry CTA */}
-      <section className="py-20 px-4 md:px-8 bg-gray-900">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-900">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={false}
