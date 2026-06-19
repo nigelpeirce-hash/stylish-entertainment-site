@@ -2,6 +2,12 @@
 
 import Script from "next/script";
 
+/**
+ * @deprecated GA4 is loaded via Google Tag Manager only (see app/layout.tsx).
+ * Do not mount this component alongside GTM — it double-counts users and page views.
+ * GTM container: GTM-WB3F6V7 · Measurement ID: G-8WGHN47VLM
+ */
+
 /** Production GA4 web stream (Stylish Entertainment). Override via env in Vercel if needed. */
 const DEFAULT_GA4_MEASUREMENT_ID = "G-8WGHN47VLM";
 

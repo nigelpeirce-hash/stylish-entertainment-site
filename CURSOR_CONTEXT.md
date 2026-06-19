@@ -2,7 +2,7 @@
 
 Agent familiarisation for the Stylish Entertainment website project.
 
-**Last updated:** May 21, 2026 (SEO audit follow-ups: musicians metadata, title/desc tightening, Service + CollectionPage JSON-LD, hi-res OG images)
+**Last updated:** June 19, 2026 (GA4 via GTM only — removed duplicate GoogleAnalytics from layout)
 
 ---
 
@@ -52,7 +52,7 @@ Agent familiarisation for the Stylish Entertainment website project.
 - Shared UI, forms, admin components
 - **HeaderNew.tsx** – Main site header (CRITICAL). Layout imports it directly; no HeaderSwitcher. Dark bg, gold accents, wordmark "Stylish"/"Entertainment", strapline (hidden ≤991px), Enquire (mobile visible, 15% smaller), burger nav. Uses AuthButtonSimple. Styles: `HeaderNew.module.css` with `!important` on colours (overrides globals.css base). Demo: `/demo/header-preview`. Legacy `Navigation.tsx` unused.
 - **CookieYes.tsx** – consent banner (delayed 2.5s for LCP); injects contrast-override `<style>` after load for WCAG AA. Contrast rules also in `app/globals.css`.
-- **GoogleTagManager.tsx**, **GoogleAnalytics.tsx** – analytics
+- **GoogleTagManager.tsx** – GA4 via GTM only (GTM-WB3F6V7 → G-8WGHN47VLM); **GoogleAnalytics.tsx** deprecated (do not mount alongside GTM)
 - **ui/slider.tsx** – hero slider; dot buttons use 48×48px min touch target for accessibility
 
 ### Data (`/data`)

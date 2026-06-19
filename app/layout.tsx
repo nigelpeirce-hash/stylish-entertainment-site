@@ -17,7 +17,6 @@ export const viewport: Viewport = {
 import HeaderNew from "@/components/HeaderNew";
 import FooterRefactored from "@/components/FooterRefactored";
 import SiteWideCTA from "@/components/SiteWideCTA";
-import GoogleAnalytics from "@/components/GoogleAnalytics";
 import GoogleTagManager from "@/components/GoogleTagManager";
 import CookieYes from "@/components/CookieYes";
 import Breadcrumbs from "@/components/Breadcrumbs";
@@ -277,8 +276,8 @@ export default async function RootLayout({
             }}
           />
           <PrefetchErrorHandler />
+          {/* GA4 via GTM only (G-8WGHN47VLM) — do not also load components/GoogleAnalytics.tsx */}
           <GoogleTagManager />
-          <GoogleAnalytics />
           <CookieYes />
           <Suspense fallback={null}>
             <WelcomeBackBanner />

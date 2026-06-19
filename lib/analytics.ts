@@ -27,9 +27,8 @@ function isAnalyticsDisabled(): boolean {
 }
 
 /**
- * Track a GA4 event
- * Uses gtag when available; otherwise pushes to dataLayer so the event is queued
- * for when gtag loads (important for thank-you page where gtag may load after useEffect)
+ * Track a GA4 event via gtag (from GTM Google tag) or dataLayer queue before GTM loads.
+ * Site loads GA4 through GTM only — do not also mount GoogleAnalytics.tsx.
  */
 export function trackEvent(
   eventName: string,
@@ -42,10 +41,8 @@ export function trackEvent(
   if (typeof window === 'undefined') return;
 
   if (window.gtag) {
-    console.log("[Analytics] gtag event fired:", eventName, params);
     window.gtag('event', eventName, params);
   } else {
-    console.warn("[Analytics] gtag not available, pushing to dataLayer:", eventName);
     (window as any).dataLayer = (window as any).dataLayer || [];
     (window as any).dataLayer.push({
       event: eventName,
