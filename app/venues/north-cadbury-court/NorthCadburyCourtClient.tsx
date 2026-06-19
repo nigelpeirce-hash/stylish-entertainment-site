@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { motion } from "@/lib/motion";
@@ -10,6 +11,17 @@ export default function NorthCadburyCourtClient() {
     <div>
       {/* Hero */}
       <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768749164/MartinBeddallPhotography02-e1530632660291_pabjzl.jpg"
+            alt="Elegant Somerset country house wedding reception — entertainment and lighting by STYLISH"
+            fill
+            className="object-cover object-center"
+            priority
+            fetchPriority="high"
+            sizes="100vw"
+          />
+        </div>
         <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/70 via-black/40 to-gray-800" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}

@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { ShoppingCart, Plus, Minus, X, Package, ChevronDown, ChevronUp, CheckCircle2, Loader2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { sanitizeCloudinaryUrl } from "@/lib/cloudinary-utils";
 import { trackEnquiryComplete } from "@/lib/analytics";
 
@@ -240,6 +241,35 @@ export default function HirePage() {
         </div>
       )}
 
+      {/* Hero */}
+      <section className="relative min-h-[50vh] md:min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768162508/Kin-House-Stage-Lighting-and-Sound-supply_j8yln4.jpg"
+            alt="Stage with professional sound and lighting setup for a wedding reception"
+            fill
+            className="object-cover object-center opacity-50 brightness-110"
+            priority
+            fetchPriority="high"
+            sizes="100vw"
+          />
+        </div>
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/50 via-black/30 to-gray-900" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="relative z-20 text-center px-4 max-w-4xl mx-auto pt-48 md:pt-52 pb-8"
+        >
+          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-2 drop-shadow-lg">
+            Create Your Setup
+          </h1>
+          <p className="text-lg sm:text-xl text-white font-semibold drop-shadow-md">
+            Add items to your basket, then request a quote. No payment now.
+          </p>
+        </motion.div>
+      </section>
+
       {/* Header */}
       <div className={`bg-gray-800 border-b border-champagne-gold/30 sticky top-0 z-50 transition-opacity duration-300 ${isShopClosed ? "opacity-40 pointer-events-none" : ""}`}>
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
@@ -264,15 +294,6 @@ export default function HirePage() {
       </div>
 
       <div className={`container mx-auto px-4 py-8 transition-opacity duration-300 ${isShopClosed ? "opacity-40 pointer-events-none" : ""}`}>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-4xl font-bold mb-2">Create Your Setup</h1>
-          <p className="text-gray-400">Add items to your basket, then request a quote. No payment now.</p>
-        </motion.div>
-
         {/* Items Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {items.map((item) => {

@@ -117,6 +117,36 @@ const TRUSTED_SINCE_2003 = [
 export default function AboutClient() {
   return (
     <div>
+      {/* Hero */}
+      <section className="relative min-h-[60vh] flex items-center justify-center bg-gray-900 text-white overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768162279/Nigel-DJ-Babs-House-0009-1_f59b99.jpg"
+            alt="Nigel Peirce DJing at Babington House — STYLISH Entertainment co-founder"
+            fill
+            className="object-cover object-center opacity-50 brightness-110"
+            priority
+            fetchPriority="high"
+            sizes="100vw"
+          />
+        </div>
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-black/50 via-black/30 to-gray-900" />
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8 }}
+          className="relative z-20 text-center px-4 max-w-4xl mx-auto pt-48 md:pt-52"
+        >
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold tracking-wide px-4 drop-shadow-lg">
+            About Us
+          </h1>
+          <p className="text-lg sm:text-xl md:text-2xl text-white font-semibold px-4 max-w-3xl mx-auto leading-relaxed drop-shadow-md">
+            A family-run team for weddings, private parties and corporate events — DJs, lighting
+            and production from one experienced pair, trusted at Babington House since 2003.
+          </p>
+        </motion.div>
+      </section>
+
       <section
         className="pt-20 pb-8 px-3 sm:px-4"
         style={{
@@ -125,22 +155,6 @@ export default function AboutClient() {
         }}
       >
         <div className="container mx-auto max-w-5xl space-y-8">
-          {/* Hero */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
-          >
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-sans mb-4 sm:mb-6 text-white font-bold tracking-wide px-4">
-              About Us
-            </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-white md:text-gray-300 font-semibold px-4 max-w-3xl mx-auto leading-relaxed">
-              A family-run team for weddings, private parties and corporate events — DJs, lighting
-              and production from one experienced pair, trusted at Babington House since 2003.
-            </p>
-          </motion.div>
-
           {/* Short intro */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

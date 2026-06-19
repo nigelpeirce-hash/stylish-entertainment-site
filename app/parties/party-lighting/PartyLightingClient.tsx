@@ -365,6 +365,8 @@ export default function PartyLightingClient() {
     setHeroIndex((i) => (i + 1) % heroMoodImages.length);
   }, []);
   useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    if (mq.matches) return;
     const t = setInterval(advanceHero, 5000);
     return () => clearInterval(t);
   }, [advanceHero]);
@@ -378,9 +380,21 @@ export default function PartyLightingClient() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      {/* Hero */}
-      <section className="relative h-[70vh] min-h-[520px] w-full overflow-hidden">
-        <div className="absolute inset-0">
+      {/* Hero — static image on mobile; carousel on md+ */}
+      <section className="relative h-[60vh] min-h-[440px] w-full overflow-hidden md:h-[70vh] md:min-h-[520px]">
+        <div className="absolute inset-0 md:hidden">
+          <Image
+            src={LCP_HERO_URL}
+            alt={heroMoodImages[0].alt}
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+            fetchPriority="high"
+            quality={85}
+          />
+        </div>
+        <div className="absolute inset-0 hidden md:block">
           {heroMoodImages.map((image, i) => (
             <div
               key={image.src}
@@ -439,7 +453,7 @@ export default function PartyLightingClient() {
           </p>
         </div>
 
-        <div className="absolute bottom-6 right-6 md:bottom-10 md:right-10 flex gap-2 z-20">
+        <div className="absolute bottom-6 right-6 hidden gap-2 md:bottom-10 md:right-10 md:flex z-20">
           {heroMoodImages.map((_, i) => (
             <button
               key={i}
@@ -458,14 +472,14 @@ export default function PartyLightingClient() {
         </div>
         <button
           onClick={() => setHeroIndex((i) => (i - 1 + heroMoodImages.length) % heroMoodImages.length)}
-          className="absolute left-4 top-1/2 -translate-y-1/2 min-w-[48px] min-h-[48px] rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-20"
+          className="absolute left-4 top-1/2 z-20 hidden min-h-[48px] min-w-[48px] -translate-y-1/2 items-center justify-center rounded-full bg-black/40 transition-colors hover:bg-black/60 md:flex"
           aria-label="Previous slide"
         >
           <ChevronLeft className="w-6 h-6" aria-hidden />
         </button>
         <button
           onClick={() => setHeroIndex((i) => (i + 1) % heroMoodImages.length)}
-          className="absolute right-4 top-1/2 -translate-y-1/2 min-w-[48px] min-h-[48px] rounded-full bg-black/40 hover:bg-black/60 flex items-center justify-center transition-colors z-20"
+          className="absolute right-4 top-1/2 z-20 hidden min-h-[48px] min-w-[48px] -translate-y-1/2 items-center justify-center rounded-full bg-black/40 transition-colors hover:bg-black/60 md:flex"
           aria-label="Next slide"
         >
           <ChevronRight className="w-6 h-6" aria-hidden />
@@ -473,7 +487,7 @@ export default function PartyLightingClient() {
       </section>
 
       {/* After 20 Years Of Lighting Parties */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-900/50">
         <div className="max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -508,7 +522,7 @@ export default function PartyLightingClient() {
       </section>
 
       {/* How We Light A Party */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-950">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -531,6 +545,7 @@ export default function PartyLightingClient() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
+                className={i >= 2 ? "hidden md:block" : undefined}
               >
                 <Card className="bg-white/5 backdrop-blur border-champagne-gold/30 hover:border-champagne-gold/50 transition-all h-full">
                   <CardContent className="p-8">
@@ -545,8 +560,8 @@ export default function PartyLightingClient() {
         </div>
       </section>
 
-      {/* Exterior Lighting That Connects The Party */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
+      {/* Exterior Lighting That Connects The Party — desktop only (covered in How We Light) */}
+      <section className="hidden py-12 md:block md:py-28 px-4 md:px-8 bg-gray-900/50">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -585,7 +600,7 @@ export default function PartyLightingClient() {
       </section>
 
       {/* Toolkit – reframed */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-900/50">
         <div className="max-w-6xl mx-auto mb-16 text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">The Tools We Use To Create Those Moments</h2>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
@@ -598,7 +613,7 @@ export default function PartyLightingClient() {
           </p>
         </div>
 
-        <div className="space-y-24 md:space-y-32">
+        <div className="space-y-12 md:space-y-24 lg:space-y-32">
           {toolkitServices.map((service, i) => (
             <motion.div
               key={service.id}
@@ -608,7 +623,7 @@ export default function PartyLightingClient() {
               transition={{ duration: 0.6 }}
               className={`grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center max-w-6xl mx-auto ${
                 i % 2 === 1 ? "lg:flex-row-reverse" : ""
-              }`}
+              }${i >= 2 ? " hidden md:grid" : ""}`}
             >
               <div className={i % 2 === 1 ? "lg:order-2" : ""}>
                 <div className="relative aspect-[4/3] rounded-xl overflow-hidden group">
@@ -647,7 +662,7 @@ export default function PartyLightingClient() {
       </section>
 
       {/* What Party Lighting Can Change */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-950">
         <div className="max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -669,7 +684,9 @@ export default function PartyLightingClient() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.06 }}
-                className="flex items-start gap-4 p-4 rounded-lg bg-gray-900/60 border border-champagne-gold/20"
+                className={`flex items-start gap-4 p-4 rounded-lg bg-gray-900/60 border border-champagne-gold/20${
+                  i >= 3 ? " hidden md:flex" : ""
+                }`}
               >
                 <Check className="w-5 h-5 text-champagne-gold flex-shrink-0 mt-0.5" />
                 <span className="text-gray-200 text-lg">{point}</span>
@@ -680,7 +697,7 @@ export default function PartyLightingClient() {
       </section>
 
       {/* Simple Setup To Full Transformation */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-900/50">
         <div className="max-w-6xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -703,6 +720,7 @@ export default function PartyLightingClient() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
+                className={i >= 2 ? "hidden md:block" : undefined}
               >
                 <Card className="bg-gray-900/80 border-champagne-gold/20 h-full">
                   <CardContent className="p-6">
@@ -723,7 +741,7 @@ export default function PartyLightingClient() {
       </section>
 
       {/* Venue Spotlights */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-950">
         <div className="max-w-6xl mx-auto mb-16 text-center">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">Venue Spotlights</h2>
           <p className="text-gray-400 text-lg max-w-2xl mx-auto">
@@ -732,13 +750,13 @@ export default function PartyLightingClient() {
         </div>
 
         <div className="max-w-5xl mx-auto space-y-20">
-          {venueSpotlights.map((spotlight) => (
+          {venueSpotlights.map((spotlight, spotlightIndex) => (
             <motion.article
               key={spotlight.venue}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="space-y-6"
+              className={`space-y-6${spotlightIndex > 0 ? " hidden md:block" : ""}`}
             >
               <div>
                 <span className="text-champagne-gold text-sm font-medium tracking-wide uppercase">
@@ -775,7 +793,7 @@ export default function PartyLightingClient() {
       </section>
 
       {/* Gallery with filters */}
-      <section id="gallery" className="py-20 md:py-28 px-4 md:px-8 bg-gray-900/50 scroll-mt-28">
+      <section id="gallery" className="py-12 md:py-28 px-4 md:px-8 bg-gray-900/50 scroll-mt-28">
         <div className="max-w-6xl mx-auto mb-12">
           <h2 className="text-3xl md:text-5xl font-bold mb-4">Browse by Event</h2>
           <p className="text-gray-400 text-lg mb-8">
@@ -814,7 +832,9 @@ export default function PartyLightingClient() {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.25 }}
-                className="relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer group"
+                className={`relative aspect-[4/3] rounded-xl overflow-hidden cursor-pointer group${
+                  i >= 4 ? " hidden md:block" : ""
+                }`}
                 onClick={() => openLightbox(i)}
               >
                 <Image
@@ -831,10 +851,19 @@ export default function PartyLightingClient() {
             ))}
           </AnimatePresence>
         </motion.div>
+
+        {filteredPhotos.length > 4 ? (
+          <p className="mx-auto mt-6 max-w-6xl text-center text-sm text-gray-400 md:hidden">
+            Tap any photo to enlarge ·{" "}
+            <Link href="/galleries/" className="font-medium text-champagne-gold underline hover:text-gold-light">
+              View full gallery
+            </Link>
+          </p>
+        ) : null}
       </section>
 
       {/* FAQs */}
-      <section className="py-20 md:py-28 px-4 md:px-8 bg-gray-950">
+      <section className="py-12 md:py-28 px-4 md:px-8 bg-gray-950">
         <div className="max-w-3xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -852,6 +881,7 @@ export default function PartyLightingClient() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.05 }}
+                className={i >= 3 ? "hidden md:block" : undefined}
               >
                 <Card className="bg-gray-900/60 border-champagne-gold/20">
                   <CardContent className="p-6">
