@@ -209,7 +209,7 @@ export default async function RootLayout({
             fetchPriority="high"
           />
         )}
-        {/* /wedding-dj LCP preload – hero image for mobile PageSpeed (matches WeddingDjHero unoptimized src) */}
+        {/* /wedding-dj LCP preload – hero image for mobile PageSpeed */}
         {(pathname === "/wedding-dj" || pathname === "/wedding-dj/") && (
           <link
             rel="preload"
