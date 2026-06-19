@@ -24,6 +24,7 @@ import { Providers } from "@/components/Providers";
 import WelcomeBackBanner from "@/components/WelcomeBackBanner";
 import PrefetchErrorHandler from "@/components/PrefetchErrorHandler";
 import { ErrorBoundaryWrapper } from "@/components/ErrorBoundaryWrapper";
+import { WEDDING_DJ_HERO_LCP_URL } from "@/lib/wedding-dj-hero";
 
 const raleway = Raleway({
   subsets: ["latin"],
@@ -208,12 +209,12 @@ export default async function RootLayout({
             fetchPriority="high"
           />
         )}
-        {/* /wedding-dj LCP preload – hero image for mobile PageSpeed */}
+        {/* /wedding-dj LCP preload – hero image for mobile PageSpeed (matches WeddingDjHero unoptimized src) */}
         {(pathname === "/wedding-dj" || pathname === "/wedding-dj/") && (
           <link
             rel="preload"
             as="image"
-            href="https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768737146/full-dance-floor300x200_iglsa1.jpg"
+            href={WEDDING_DJ_HERO_LCP_URL}
             fetchPriority="high"
           />
         )}

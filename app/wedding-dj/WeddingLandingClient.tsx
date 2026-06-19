@@ -61,14 +61,6 @@ function normalizeYouTubeUrl(url: string | null | undefined): string | null {
 const CLOUD = (path: string) =>
   `https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/${path}`;
 
-// Hero – packed dancefloor (same energy as the landing page promise)
-const HERO_LCP_URL =
-  "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768737146/full-dance-floor300x200_iglsa1.jpg";
-const heroImage = {
-  src: HERO_LCP_URL,
-  alt: "Packed wedding dancefloor with guests dancing — professional wedding DJ entertainment",
-};
-
 function mapRosterDj(dj: {
   name: string;
   imageUrl?: string | null;
@@ -159,44 +151,6 @@ export default function WeddingLandingClient({
 
   return (
     <div className="min-h-screen bg-gray-950 text-white">
-      {/* Hero Section */}
-      <section className="relative flex min-h-[70vh] items-center justify-center overflow-hidden md:min-h-[85vh]">
-        <div className="absolute inset-0">
-          <Image
-            src={heroImage.src}
-            alt={heroImage.alt}
-            fill
-            className="object-cover object-center brightness-90"
-            priority
-            fetchPriority="high"
-            sizes="100vw"
-            placeholder="blur"
-            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA8A/9k="
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-gray-950" />
-        </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          className="relative z-10 text-center px-4 max-w-4xl mx-auto pt-32 md:pt-40"
-        >
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-            You&apos;re Terrified of a Cheesy DJ.<br />
-            <span className="text-champagne-gold">We&apos;re the Antidote.</span>
-          </h1>
-          <p className="text-lg md:text-xl text-white/95 mb-10 max-w-2xl mx-auto">
-            High-quality, modern wedding entertainment for couples who hate &quot;wedding music.&quot; We&apos;re professional, and we promise: no cringe, no cheesy chat, and absolutely no &quot;YMCA.&quot;
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button asChild size="lg" className="bg-champagne-gold text-black hover:bg-gold-light font-semibold text-lg px-8 py-6">
-              <Link href="/contact-us/">Check Your Date</Link>
-            </Button>
-          </div>
-        </motion.div>
-      </section>
-
       {/* Trust bar */}
       <section className="border-y border-champagne-gold/20 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 px-4 py-8">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-6 md:gap-10">
