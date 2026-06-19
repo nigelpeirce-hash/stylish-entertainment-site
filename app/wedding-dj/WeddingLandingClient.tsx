@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "@/lib/motion";
@@ -16,6 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import LazyIframe from "@/components/LazyIframe";
+import type { DJCardData } from "@/lib/dj-data";
 import { PROOF_THEMES, testimonials } from "@/data/testimonials";
 import { RefinedStar } from "@/components/RefinedStar";
 
@@ -61,10 +62,35 @@ const CLOUD = (path: string) =>
   `https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/${path}`;
 
 // Hero – packed dancefloor (same energy as the landing page promise)
+const HERO_LCP_URL =
+  "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto,w_1200/v1768737146/full-dance-floor300x200_iglsa1.jpg";
 const heroImage = {
-  src: CLOUD("v1768737146/full-dance-floor300x200_iglsa1.jpg"),
+  src: HERO_LCP_URL,
   alt: "Packed wedding dancefloor with guests dancing — professional wedding DJ entertainment",
 };
+
+function mapRosterDj(dj: {
+  name: string;
+  imageUrl?: string | null;
+  bio?: string | null;
+  strapLine?: string | null;
+  fullBio?: string | null;
+  youtubeEmbed?: string | null;
+  mixcloudEmbeds?: string[];
+}): DJ {
+  const rawEmbeds = Array.isArray(dj.mixcloudEmbeds) ? dj.mixcloudEmbeds : [];
+  const embeds = rawEmbeds.filter((u) => u && typeof u === "string" && u.trim() !== "");
+  return {
+    name: dj.name,
+    image: dj.imageUrl ?? null,
+    alt: `${dj.name} – professional wedding DJ`,
+    mixingStyle: dj.strapLine?.trim() ? dj.strapLine : "Professional DJ Services",
+    bio: dj.bio ?? "",
+    fullBio: dj.fullBio?.trim() ? dj.fullBio : null,
+    youtubeEmbed: normalizeYouTubeUrl(dj.youtubeEmbed),
+    mixcloudEmbeds: embeds,
+  };
+}
 
 // Snapshot quotes — same pattern as /testi/ (dancefloor, taste, no cheese)
 const weddingDjHighlights = PROOF_THEMES.filter((item) =>
@@ -117,41 +143,14 @@ const comparisonRows = [
   { feature: "Professionalism", typical: "Part-time hobbyist", us: "Full-time entertainment experts" },
 ];
 
-export default function WeddingLandingClient() {
+export default function WeddingLandingClient({
+  initialDjs,
+}: {
+  initialDjs: DJCardData[];
+}) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
-  const [djs, setDjs] = useState<DJ[]>([]);
-  const [loadingDJs, setLoadingDJs] = useState(true);
-
-  useEffect(() => {
-    const fetchDJs = async () => {
-      try {
-        const res = await fetch("/api/djs");
-        const data = await res.json();
-        const apiDJs = data.djs ?? [];
-        const mapped: DJ[] = apiDJs.map((dj: { name: string; imageUrl?: string | null; bio?: string | null; strapLine?: string | null; fullBio?: string | null; youtubeEmbed?: string | null; mixcloudEmbeds?: string[]; mixcloudUrl?: string | null }) => {
-          const rawEmbeds = Array.isArray(dj.mixcloudEmbeds) ? dj.mixcloudEmbeds : (dj.mixcloudUrl ? [dj.mixcloudUrl] : []);
-          const embeds = rawEmbeds.filter((u: string) => u && typeof u === "string" && u.trim() !== "");
-          return {
-            name: dj.name,
-            image: dj.imageUrl ?? null,
-            alt: `${dj.name} – professional wedding DJ`,
-            mixingStyle: (dj.strapLine && dj.strapLine.trim()) ? dj.strapLine : "Professional DJ Services",
-            bio: dj.bio ?? "",
-            fullBio: dj.fullBio && dj.fullBio.trim() ? dj.fullBio : null,
-            youtubeEmbed: normalizeYouTubeUrl(dj.youtubeEmbed),
-            mixcloudEmbeds: embeds,
-          };
-        });
-        setDjs(mapped);
-      } catch {
-        setDjs([]);
-      } finally {
-        setLoadingDJs(false);
-      }
-    };
-    fetchDJs();
-  }, []);
+  const djs = initialDjs.map(mapRosterDj);
 
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
@@ -169,6 +168,7 @@ export default function WeddingLandingClient() {
             fill
             className="object-cover object-center brightness-90"
             priority
+            fetchPriority="high"
             sizes="100vw"
             placeholder="blur"
             blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCwAA8A/9k="
@@ -331,11 +331,7 @@ export default function WeddingLandingClient() {
             </p>
           </motion.div>
 
-          {loadingDJs ? (
-            <div className="text-center py-12 text-gray-400">
-              <p>Loading DJs...</p>
-            </div>
-          ) : djs.length > 0 ? (
+          {djs.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 items-start">
               {djs.map((dj, index) => (
                 <motion.div
@@ -356,7 +352,7 @@ export default function WeddingLandingClient() {
                           className="object-cover object-center group-hover:scale-110 transition-transform duration-500"
                           style={{ objectPosition: "center center" }}
                           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          priority={index === 0}
+                          loading="lazy"
                         />
                       ) : (
                         <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-gray-400">

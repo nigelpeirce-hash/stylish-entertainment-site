@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { fetchActiveDJsForRoster } from "@/lib/dj-data";
 import WeddingLandingClient from "./WeddingLandingClient";
 
 export const metadata: Metadata = {
@@ -16,6 +17,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function WeddingDJPage() {
-  return <WeddingLandingClient />;
+export default async function WeddingDJPage() {
+  const initialDjs = await fetchActiveDJsForRoster();
+  return <WeddingLandingClient initialDjs={initialDjs} />;
 }
