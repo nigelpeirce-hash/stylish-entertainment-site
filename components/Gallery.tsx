@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import SiteLightbox from "@/components/SiteLightbox";
 
 export interface Photo {
@@ -11,12 +12,23 @@ export interface Photo {
   alt: string;
 }
 
+const DEFAULT_MOBILE_VISIBLE = 4;
+
 interface GalleryProps {
   photos: Photo[];
   columns?: number;
+  /** Photos shown on mobile before the rest are hidden until md breakpoint. */
+  mobileVisibleCount?: number;
+  /** Mobile-only link when the gallery is capped. Set null on /galleries/ itself. */
+  viewAllHref?: string | null;
 }
 
-export default function Gallery({ photos, columns = 1 }: GalleryProps) {
+export default function Gallery({
+  photos,
+  columns = 1,
+  mobileVisibleCount = DEFAULT_MOBILE_VISIBLE,
+  viewAllHref = "/galleries/",
+}: GalleryProps) {
   const [index, setIndex] = useState(-1);
 
   const normalizedPhotos = photos.map((photo) => ({
@@ -25,6 +37,9 @@ export default function Gallery({ photos, columns = 1 }: GalleryProps) {
     height: 900,
   }));
 
+  const cappedOnMobile = photos.length > mobileVisibleCount;
+  const showViewAllLink = cappedOnMobile && viewAllHref;
+
   return (
     <div className="gallery-wrapper flex justify-center">
       <div className="w-full max-w-5xl">
@@ -32,7 +47,9 @@ export default function Gallery({ photos, columns = 1 }: GalleryProps) {
           {normalizedPhotos.map((photo, photoIndex) => (
             <div
               key={photoIndex}
-              className="relative w-full overflow-hidden rounded-lg bg-gray-900 shadow-lg hover:shadow-2xl transition-shadow duration-300 group cursor-pointer aspect-[4/3]"
+              className={`relative aspect-[4/3] w-full cursor-pointer overflow-hidden rounded-lg bg-gray-900 shadow-lg transition-shadow duration-300 group hover:shadow-2xl${
+                photoIndex >= mobileVisibleCount ? " hidden md:block" : ""
+              }`}
               onClick={() => setIndex(photoIndex)}
             >
               <Image
@@ -40,12 +57,24 @@ export default function Gallery({ photos, columns = 1 }: GalleryProps) {
                 alt={photo.alt}
                 fill
                 sizes="(max-width: 768px) 100vw, 33vw"
-                className="object-contain hover:opacity-90 transition-opacity duration-300"
+                className="object-contain transition-opacity duration-300 hover:opacity-90"
               />
-              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-300 pointer-events-none" />
+              <div className="pointer-events-none absolute inset-0 bg-black/0 transition-colors duration-300 group-hover:bg-black/5" />
             </div>
           ))}
         </div>
+
+        {showViewAllLink ? (
+          <p className="mt-6 text-center text-sm text-gray-400 md:hidden">
+            Tap any photo to enlarge ·{" "}
+            <Link
+              href={viewAllHref}
+              className="font-medium text-champagne-gold underline hover:text-gold-light"
+            >
+              View full gallery
+            </Link>
+          </p>
+        ) : null}
       </div>
       <SiteLightbox
         open={index >= 0}

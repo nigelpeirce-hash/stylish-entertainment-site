@@ -35,4 +35,8 @@ npm run check:hydration
 
 Fix any reported `Math.random` / render-time `new Date()` in `app/` or `components/`.
 
-Last updated: 2026-05-29
+## Browser extensions (not app bugs)
+
+Google **Tag Assistant** injects `data-tag-assistant-present` / `data-tag-assistant-prod-present` on `<html>` before React hydrates — React then reports a mismatch. Fix: disable Tag Assistant while developing, or test in a private window with extensions off. `suppressHydrationWarning` on `<html>` / `<body>` in `app/layout.tsx` silences this noise only.
+
+Last updated: 2026-06-19

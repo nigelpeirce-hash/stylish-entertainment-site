@@ -380,7 +380,7 @@ export default function Galleries() {
                       initial="hidden"
                       animate="visible"
                     >
-                      <Gallery photos={lightingPhotos} columns={columns} />
+                      <Gallery photos={lightingPhotos} columns={columns} viewAllHref={null} />
                     </motion.div>
                   </TabsContent>
                 </motion.div>
@@ -419,7 +419,7 @@ export default function Galleries() {
                       initial="hidden"
                       animate="visible"
                     >
-                      <Gallery photos={stylingPhotos} columns={columns < 3 ? columns : 2} />
+                      <Gallery photos={stylingPhotos} columns={columns < 3 ? columns : 2} viewAllHref={null} />
                     </motion.div>
                   </TabsContent>
                 </motion.div>

@@ -134,7 +134,11 @@ export default async function RootLayout({
   const isHome = pathname === "/" || pathname === "/";
 
   return (
-    <html lang="en-GB" className={`${raleway.variable} ${bebasNeue.variable} ${dancingScript.variable} ${playfairDisplay.variable}`}>
+    <html
+      lang="en-GB"
+      className={`${raleway.variable} ${bebasNeue.variable} ${dancingScript.variable} ${playfairDisplay.variable}`}
+      suppressHydrationWarning
+    >
       <head>
         {/* Preconnect to critical origins for faster LCP */}
         <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
@@ -214,7 +218,10 @@ export default async function RootLayout({
           />
         )}
       </head>
-      <body className="relative min-h-screen" style={{
+      <body
+        className="relative min-h-screen"
+        suppressHydrationWarning
+        style={{
         background: 'radial-gradient(circle at center, rgb(31 41 55) 0%, rgb(17 24 39) 50%, rgb(0 0 0) 100%)'
       }}>
         {/* Decorative Light Leaks */}

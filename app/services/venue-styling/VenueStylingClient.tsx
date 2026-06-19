@@ -32,7 +32,10 @@ const linkClass =
   "text-champagne-gold hover:text-gold-light underline underline-offset-2 transition-colors";
 
 const HERO_IMAGE =
-  "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768163723/IMG_6321_xu8q8j.jpg";
+  "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg";
+
+const HERO_ALT =
+  "Babington House Orangery with fairy-light canopy over long dining tables — venue styling by Stylish Entertainment";
 
 const stylingPhotos: Photo[] = [
   {
@@ -40,12 +43,6 @@ const stylingPhotos: Photo[] = [
     width: 1200,
     height: 800,
     alt: "Reception room styled with warm uplighting, long banquet tables and floral centrepieces",
-  },
-  {
-    src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768741948/Saltburn_231005__0020_0640_nmzjp6.jpg",
-    width: 1200,
-    height: 800,
-    alt: "Babington House Orangery with fairy-light canopy over long dining tables",
   },
   {
     src: "https://res.cloudinary.com/drtwveoqo/image/upload/f_auto,q_85,dpr_auto/v1768742034/IMG_1348_161201_zwmdh2.jpg",
@@ -289,7 +286,7 @@ export default function VenueStylingClient() {
         <div className="absolute inset-0 z-0">
           <Image
             src={HERO_IMAGE}
-            alt="Reception room styled with warm uplighting, long banquet tables and floral centrepieces"
+            alt={HERO_ALT}
             fill
             className="object-cover object-center"
             priority
@@ -339,6 +336,30 @@ export default function VenueStylingClient() {
             "radial-gradient(circle at center, rgb(17 24 39) 0%, rgb(3 7 18) 50%, rgb(2 6 23) 100%)",
         }}
       >
+        {/* From Empty Space To Finished Room — gallery early for visual proof */}
+        <section className="py-12 md:py-16 px-3 sm:px-4 lg:px-8 bg-gray-950/40 border-b border-champagne-gold/10" id="gallery">
+          <div className="container mx-auto max-w-7xl">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="mb-8 md:mb-10 text-center"
+            >
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 px-4">
+                From Empty Space To Finished Room
+              </h2>
+              <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto px-4 leading-relaxed">
+                Most venues begin as blank spaces — an empty marquee, a barn, a dining room or a
+                courtyard. Our role is to make the space feel considered before guests arrive.
+              </p>
+            </motion.div>
+            <div className="w-full md:max-w-4xl md:mx-auto">
+              <Gallery photos={stylingPhotos} columns={2} />
+            </div>
+          </div>
+        </section>
+
         {/* Styling Is More Than Decoration */}
         <section className="py-20 px-3 sm:px-4 lg:px-8">
           <div className="container mx-auto max-w-3xl">
@@ -465,30 +486,6 @@ export default function VenueStylingClient() {
                 pages — styling and light planned together, not bolted on at the end.
               </p>
             </motion.div>
-          </div>
-        </section>
-
-        {/* From Empty Space To Finished Room */}
-        <section className="py-20 px-3 sm:px-4 lg:px-8">
-          <div className="container mx-auto max-w-7xl">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="mb-12 text-center"
-            >
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 px-4">
-                From Empty Space To Finished Room
-              </h2>
-              <p className="text-base sm:text-lg text-gray-300 max-w-2xl mx-auto px-4 leading-relaxed">
-                Most venues begin as blank spaces — an empty marquee, a barn, a dining room or a
-                courtyard. Our role is to make the space feel considered before guests arrive.
-              </p>
-            </motion.div>
-            <div className="w-full md:max-w-4xl md:mx-auto">
-              <Gallery photos={stylingPhotos} columns={2} />
-            </div>
           </div>
         </section>
 
