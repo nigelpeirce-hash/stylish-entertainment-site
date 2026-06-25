@@ -51,6 +51,7 @@ const EXACT_HIDE = [
   "/babington-wedding-info",
   "/babington-dj-final-details",
   "/dj-worksheet",
+  "/party-dj-worksheet",
   "/pennard-house-lighting",
   "/venues/north-cadbury-court",
   "/venues/babington-house",

@@ -4,7 +4,6 @@ import { getResendConfig } from "@/lib/email-config";
 import {
   checkPublicFormRateLimit,
   getClientIp,
-  isReasonableTimeField,
   isSafeReplyToEmail,
   rejectIfTooLong,
   sanitizeSubjectUserPart,
@@ -92,13 +91,18 @@ function str(formData: FormData, key: string): string {
   return String(formData.get(key) ?? "").trim();
 }
 
+function formatClientPhone(area: string, number: string): string {
+  if (area && number) return `${area} ${number}`;
+  return area || number || "—";
+}
+
 /**
- * POST multipart/form — DJ worksheet → info@ (honeypot: wsHp — must stay empty; avoid "website" naming or autofill fires and skips send).
+ * POST multipart/form — Party & Event DJ worksheet → info@ (honeypot: wsHp).
  */
 export async function POST(request: NextRequest) {
   const ip = getClientIp(request);
-  if (!checkPublicFormRateLimit("dj-worksheet", ip).ok) {
-    console.warn("[dj-worksheet] rate limit", { route: "dj-worksheet", ip });
+  if (!checkPublicFormRateLimit("party-dj-worksheet", ip).ok) {
+    console.warn("[party-dj-worksheet] rate limit", { route: "party-dj-worksheet", ip });
     return NextResponse.json(
       { error: "Too many submissions from this network. Please wait and try again." },
       { status: 429 }
@@ -111,71 +115,56 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, message: "Thank you." });
     }
 
-    const happyCouple1 = str(formData, "happyCouple1");
-    const happyCouple2 = str(formData, "happyCouple2");
+    const clientName = str(formData, "clientName");
     const email = str(formData, "email");
-    const weddingDate = str(formData, "weddingDate");
-    const clientPhone = str(formData, "clientPhone");
-    const venueName = str(formData, "venueName");
-    const venueContact = str(formData, "venueContact");
-    const venueAddress = str(formData, "venueAddress");
-    const venueAddress2 = str(formData, "venueAddress2");
-    const venueTown = str(formData, "venueTown");
-    const venueCounty = str(formData, "venueCounty");
-    const venuePostcode = str(formData, "venuePostcode");
-    const venueWhat3Words = str(formData, "venueWhat3Words");
-    const venueLoadInNotes = str(formData, "venueLoadInNotes");
-    const djSectionPhone = str(formData, "djSectionPhone");
-    const djArrivalTime = str(formData, "djArrivalTime");
+    const partyDate = str(formData, "partyDate");
+    const clientPhoneArea = str(formData, "clientPhoneArea");
+    const clientPhoneNumber = str(formData, "clientPhoneNumber");
+    const clientPhone = formatClientPhone(clientPhoneArea, clientPhoneNumber);
     const djStartFinishTime = str(formData, "djStartFinishTime");
-    const djSetupLocation = str(formData, "djSetupLocation");
-    const djParking = str(formData, "djParking");
-    const soundLimiter = str(formData, "soundLimiter");
     const numberOfGuests = str(formData, "numberOfGuests");
     const finalBalance = str(formData, "finalBalance");
     const musicNotesToDJ = str(formData, "musicNotesToDJ");
-    const musicNotesToStylish = str(formData, "musicNotesToStylish");
-    const firstDance = str(formData, "firstDance");
     const lastSong = str(formData, "lastSong");
     const musicDislikes = str(formData, "musicDislikes");
     const musicRequests = str(formData, "musicRequests");
+    const venueName = str(formData, "venueName");
+    const venueAddress = str(formData, "venueAddress");
+    const venueWhat3Words = str(formData, "venueWhat3Words");
+    const venueLoadInNotes = str(formData, "venueLoadInNotes");
+    const venuePhone = str(formData, "venuePhone");
+    const djArrivalTime = str(formData, "djArrivalTime");
+    const djSetupLocation = str(formData, "djSetupLocation");
+    const soundLimiter = str(formData, "soundLimiter");
     const file = formData.get("musicAttachment");
 
-    if (!happyCouple1 || !happyCouple2) {
-      return NextResponse.json({ error: "Please complete both Happy Couple name fields." }, { status: 400 });
+    if (!clientName) {
+      return NextResponse.json({ error: "Please enter the client name." }, { status: 400 });
     }
     if (!email || !isSafeReplyToEmail(email)) {
       return NextResponse.json({ error: "Please enter a valid email address." }, { status: 400 });
     }
 
     const lengthChecks: [string, string, number][] = [
-      [happyCouple1, "Happy couple (first name)", 120],
-      [happyCouple2, "Happy couple (second name)", 120],
-      [weddingDate, "Wedding date", 32],
-      [clientPhone, "Phone number", 48],
-      [venueName, "Venue name", 200],
-      [venueContact, "Venue contact", 200],
-      [venueAddress, "Venue address", 500],
-      [venueAddress2, "Venue address", 500],
-      [venueTown, "Town", 120],
-      [venueCounty, "County", 120],
-      [venuePostcode, "Post code", 24],
-      [venueWhat3Words, "What3words", 120],
-      [venueLoadInNotes, "Load-in / access notes", 2000],
-      [djSectionPhone, "Phone number", 48],
-      [djArrivalTime, "DJ arrival time", 16],
+      [clientName, "Client name", 240],
+      [partyDate, "Party date", 32],
+      [clientPhoneArea, "Area code", 16],
+      [clientPhoneNumber, "Phone number", 48],
       [djStartFinishTime, "DJ start and finish time", 120],
-      [djSetupLocation, "DJ setup location", 500],
-      [djParking, "DJ parking", 500],
-      [soundLimiter, "Sound limiter", 8],
       [numberOfGuests, "Number of guests", 12],
       [finalBalance, "Final balance", 200],
       [musicNotesToDJ, "Notes to the DJ", 8000],
-      [musicNotesToStylish, "Notes to STYLISH Entertainment", 8000],
-      [firstDance, "First dance", 300],
       [lastSong, "Last song", 300],
       [musicDislikes, "Dislikes", 8000],
       [musicRequests, "Music requests", 8000],
+      [venueName, "Venue / house name", 200],
+      [venueAddress, "Address", 500],
+      [venueWhat3Words, "What3words", 120],
+      [venueLoadInNotes, "Load-in / access notes", 2000],
+      [venuePhone, "Venue phone", 48],
+      [djArrivalTime, "DJ arrival time", 120],
+      [djSetupLocation, "DJ setup location", 500],
+      [soundLimiter, "Sound limiter", 200],
     ];
     for (const [val, label, max] of lengthChecks) {
       const lenErr = rejectIfTooLong(val, max, label);
@@ -184,30 +173,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    if (soundLimiter && soundLimiter !== "Yes" && soundLimiter !== "No") {
-      return NextResponse.json({ error: "Invalid sound limiter selection." }, { status: 400 });
+    if (!partyDate) {
+      return NextResponse.json({ error: "Please enter your party date." }, { status: 400 });
     }
-    if (!isReasonableTimeField(djArrivalTime, 16)) {
-      return NextResponse.json({ error: "Please enter a valid DJ arrival time." }, { status: 400 });
-    }
-    if (!weddingDate) {
-      return NextResponse.json({ error: "Please enter your wedding date." }, { status: 400 });
-    }
-    const parsedWedding = new Date(weddingDate);
-    if (Number.isNaN(parsedWedding.getTime())) {
-      return NextResponse.json({ error: "Please enter a valid wedding date." }, { status: 400 });
-    }
-    if (!venueName) {
-      return NextResponse.json({ error: "Please enter the venue name." }, { status: 400 });
-    }
-    if (!venueAddress) {
-      return NextResponse.json({ error: "Please enter the venue address." }, { status: 400 });
-    }
-    if (!venuePostcode) {
-      return NextResponse.json({ error: "Please enter the venue post code." }, { status: 400 });
-    }
-    if (!djArrivalTime) {
-      return NextResponse.json({ error: "Please enter DJ arrival time." }, { status: 400 });
+    const parsedParty = new Date(partyDate);
+    if (Number.isNaN(parsedParty.getTime())) {
+      return NextResponse.json({ error: "Please enter a valid party date." }, { status: 400 });
     }
     if (!djStartFinishTime) {
       return NextResponse.json({ error: "Please enter DJ start and finish time." }, { status: 400 });
@@ -243,54 +214,40 @@ export async function POST(request: NextRequest) {
       attachment = { filename, contentBase64: buf.toString("base64"), byteLength: buf.length };
     }
 
-    const weddingDateLabel = parsedWedding.toLocaleDateString("en-GB", {
+    const partyDateLabel = parsedParty.toLocaleDateString("en-GB", {
       day: "numeric",
       month: "long",
       year: "numeric",
     });
 
-    const happyCoupleLabel = `${happyCouple1} & ${happyCouple2}`;
-
     const rowDefs: { label: string; value: string; linkify: boolean }[] = [
-      { label: "Happy couple", value: happyCoupleLabel, linkify: false },
+      { label: "Client name", value: clientName, linkify: false },
       { label: "Email", value: email, linkify: false },
-      { label: "Wedding date", value: weddingDateLabel, linkify: false },
-      { label: "Your phone number", value: clientPhone || "—", linkify: false },
-      { label: "Venue name", value: venueName, linkify: false },
-      { label: "Venue contact", value: venueContact || "—", linkify: false },
-      { label: "Venue address", value: venueAddress, linkify: false },
-      { label: "Venue address 2", value: venueAddress2 || "—", linkify: false },
-      { label: "Town", value: venueTown || "—", linkify: false },
-      { label: "County", value: venueCounty || "—", linkify: false },
-      { label: "Post code", value: venuePostcode, linkify: false },
-      { label: "What3words", value: venueWhat3Words || "—", linkify: false },
-      {
-        label: "Load-in / access notes",
-        value: venueLoadInNotes || "—",
-        linkify: Boolean(venueLoadInNotes),
-      },
-      { label: "Phone number (DJ section)", value: djSectionPhone || "—", linkify: false },
-      { label: "DJ arrival time", value: djArrivalTime, linkify: false },
+      { label: "Party date", value: partyDateLabel, linkify: false },
+      { label: "Your phone number", value: clientPhone, linkify: false },
       { label: "DJ start and finish time", value: djStartFinishTime, linkify: false },
-      { label: "DJ setup location", value: djSetupLocation || "—", linkify: Boolean(djSetupLocation) },
-      { label: "DJ parking", value: djParking || "—", linkify: Boolean(djParking) },
-      { label: "Sound limiter", value: soundLimiter || "—", linkify: false },
       { label: "Number of guests", value: numberOfGuests || "—", linkify: false },
       { label: "Final balance", value: finalBalance, linkify: false },
-      { label: "First dance", value: firstDance || "—", linkify: false },
-      { label: "Last song", value: lastSong || "—", linkify: false },
+      { label: "Notes to the DJ", value: musicNotesToDJ || "—", linkify: Boolean(musicNotesToDJ) },
+      { label: "Last song (if any)", value: lastSong || "—", linkify: false },
       {
         label: "Dislikes (genres or tracks)",
         value: musicDislikes || "—",
         linkify: Boolean(musicDislikes),
       },
       { label: "Music requests", value: musicRequests || "—", linkify: Boolean(musicRequests) },
-      { label: "Notes to the DJ", value: musicNotesToDJ || "—", linkify: Boolean(musicNotesToDJ) },
+      { label: "Venue / house name", value: venueName || "—", linkify: false },
+      { label: "Address", value: venueAddress || "—", linkify: Boolean(venueAddress) },
+      { label: "What3words", value: venueWhat3Words || "—", linkify: false },
       {
-        label: "Notes to STYLISH Entertainment",
-        value: musicNotesToStylish || "—",
-        linkify: Boolean(musicNotesToStylish),
+        label: "Load-in / access notes",
+        value: venueLoadInNotes || "—",
+        linkify: Boolean(venueLoadInNotes),
       },
+      { label: "Venue phone", value: venuePhone || "—", linkify: false },
+      { label: "DJ arrival time", value: djArrivalTime || "—", linkify: false },
+      { label: "DJ setup location", value: djSetupLocation || "—", linkify: Boolean(djSetupLocation) },
+      { label: "Sound limiter", value: soundLimiter || "—", linkify: false },
     ];
 
     const fieldHtml = rowDefs
@@ -310,9 +267,9 @@ export async function POST(request: NextRequest) {
       <body style="font-family:Georgia,'Times New Roman',serif;background:#f5f5f5;margin:0;padding:24px;">
         <div style="max-width:720px;margin:0 auto;background:#fff;border-radius:8px;padding:28px;border:1px solid #e8e0d0;">
           <h1 style="font-size:22px;color:#1a1a1a;margin:0 0 8px;border-bottom:2px solid #D4AF37;padding-bottom:12px;">
-            DJ worksheet
+            Party &amp; Event DJ worksheet
           </h1>
-          <p style="color:#555;font-size:14px;margin:0 0 20px;">Submitted via stylishentertainment.co.uk/dj-worksheet</p>
+          <p style="color:#555;font-size:14px;margin:0 0 20px;">Submitted via stylishentertainment.co.uk/party-dj-worksheet</p>
           ${fieldHtml}
           ${
             attachment
@@ -355,7 +312,7 @@ export async function POST(request: NextRequest) {
       from: emailConfig.from,
       replyTo: email,
       to: toList,
-      subject: `DJ worksheet — ${sanitizeSubjectUserPart(happyCoupleLabel)} — ${sanitizeSubjectUserPart(weddingDateLabel)}`,
+      subject: `Party DJ worksheet — ${sanitizeSubjectUserPart(clientName)} — ${sanitizeSubjectUserPart(partyDateLabel)}`,
       html,
       text: textBody,
     };
@@ -366,7 +323,7 @@ export async function POST(request: NextRequest) {
 
     const result = await resend.emails.send(sendPayload);
     if (result.error) {
-      console.error("[dj-worksheet] Resend error:", JSON.stringify(result.error));
+      console.error("[party-dj-worksheet] Resend error:", JSON.stringify(result.error));
       return NextResponse.json(
         { error: "We could not send your worksheet. Please try again or email us directly." },
         { status: 502 }
@@ -375,7 +332,7 @@ export async function POST(request: NextRequest) {
 
     const messageId = result.data?.id;
     if (!messageId) {
-      console.error("[dj-worksheet] Resend returned success but no message id", JSON.stringify(result.data));
+      console.error("[party-dj-worksheet] Resend returned success but no message id", JSON.stringify(result.data));
       return NextResponse.json(
         { error: "We could not confirm the email was sent. Please try again or email info@stylishentertainment.co.uk." },
         { status: 502 }
@@ -384,7 +341,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, messageId });
   } catch (err) {
-    console.error("[dj-worksheet] unhandled", err instanceof Error ? err.message : "error");
+    console.error("[party-dj-worksheet] unhandled", err instanceof Error ? err.message : "error");
     return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
   }
 }

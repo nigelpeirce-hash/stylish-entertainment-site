@@ -534,8 +534,6 @@ const nextConfig = {
       { source: '/mirror-balls-anywhere/attachment/:path*', destination: '/services/lighting-design/', permanent: true },
       { source: '/musicians-bands-worksheet', destination: '/artists/musicians/', permanent: true },
       { source: '/musicians-bands-worksheet/', destination: '/artists/musicians/', permanent: true },
-      { source: '/party-dj-worksheet', destination: '/artists/djs/', permanent: true },
-      { source: '/party-dj-worksheet/', destination: '/artists/djs/', permanent: true },
       { source: '/tag/:path*', destination: '/about/blog/', permanent: true },
       { source: '/thanks', destination: '/thank-you/', permanent: true },
       { source: '/thanks/', destination: '/thank-you/', permanent: true },

@@ -6,7 +6,7 @@ const rateBuckets = new Map<string, { count: number; resetAt: number }>();
 const LIMIT_PER_WINDOW = 10;
 const WINDOW_MS = 15 * 60 * 1000;
 
-export type PublicFormRouteId = "dj-worksheet" | "babington-dj-final-details";
+export type PublicFormRouteId = "dj-worksheet" | "party-dj-worksheet" | "babington-dj-final-details";
 
 export function getClientIp(request: NextRequest): string {
   const xff = request.headers.get("x-forwarded-for");
