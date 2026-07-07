@@ -8,6 +8,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: '/',
         // Disallow attachment URLs (GSC attachment bloat); redirects in next.config.js send them to /
         disallow: [
+          '/_next/',
           '/admin/',
           '/api/',
           '/client/',
