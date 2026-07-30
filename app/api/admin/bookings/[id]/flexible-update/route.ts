@@ -6,8 +6,6 @@ import { logActivity } from "@/lib/activity-log";
 import { notifyAdminSignificantEvent } from "@/lib/admin-notifications";
 import { sendEmail } from "@/lib/email";
 import { DEPOSIT_CONFIRMED } from "@/lib/email-templates";
-import { getEmailBaseUrl } from "@/lib/get-base-url";
-import { clientBookingMagicUrl, clientPortalLoginUrl } from "@/lib/portal-paths";
 
 // Force dynamic rendering
 export const dynamic = 'force-dynamic';
@@ -218,13 +216,6 @@ export async function PATCH(
 
     if (shouldSendEmail) {
       try {
-        // Use magic link (works without password) — portalToken set above when deposit confirmed
-        const baseUrl = getEmailBaseUrl().replace(/\/$/, "");
-        const portalToken = updateData.portalToken ?? (currentBooking.portalToken as string | null);
-        const portalUrl = portalToken
-          ? clientBookingMagicUrl(baseUrl, bookingId, portalToken)
-          : clientPortalLoginUrl(baseUrl, bookingId);
-
         // Use updated booking data for email (eventDate/venueName may have changed this request; fee/balance from DB)
         const emailContent = DEPOSIT_CONFIRMED({
           booking: {
@@ -237,7 +228,6 @@ export async function PATCH(
             finalBalance: currentBooking.finalBalance,
             preferredDJ: currentBooking.preferredDJ,
           },
-          portalUrl,
         });
 
         // Send email

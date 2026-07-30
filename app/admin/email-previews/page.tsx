@@ -58,7 +58,7 @@ const mockJourneyData: JourneyEmailData = {
   eventType: "Wedding",
   eventDate: "Saturday, 15th June 2024",
   venueName: "Babington House",
-  clientAdminUrl: "https://stylishentertainment.co.uk/client/dashboard",
+  worksheetUrl: "https://stylishentertainment.co.uk/dj-worksheet/",
   brochureUrl: "https://stylishentertainment.co.uk/brochures/babington-house-2024.pdf",
   artistName: "James",
   bookingFee: "£150",

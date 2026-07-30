@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin-auth";
 import { prisma } from "@/lib/prisma";
 import { logActivity } from "@/lib/activity-log";
-import { sendEmail } from "@/lib/email";
-import { PORTAL_INVITATION } from "@/lib/email/templates";
-import { getEmailBaseUrl } from "@/lib/get-base-url";
-import { clientBookingMagicUrl } from "@/lib/portal-paths";
 import { generatePortalToken, newPortalTokenExpiry } from "@/lib/portal-token";
 
 export const dynamic = "force-dynamic";
@@ -14,10 +10,9 @@ export const runtime = "nodejs";
 /**
  * POST /api/admin/bookings/[id]/finalize-and-invite
  *
- * Finalize & Send Invite:
- * - Skip sending if deposit already confirmed (client already has portal link from Deposit confirmed email).
- * - Otherwise set status to 'confirmed', send PORTAL_INVITATION as autoresponder (sign in with credentials).
- * - Portal link in email is login URL so client is encouraged to sign in.
+ * Finalize a booking: set status to 'confirmed' and mint a fresh portal token so the
+ * portal can be opened from admin or shared manually. No email is sent to the client —
+ * client-facing emails no longer reference the portal.
  */
 export async function POST(
   request: NextRequest,
@@ -39,14 +34,7 @@ export async function POST(
       where: { id: bookingId },
       select: {
         id: true,
-        name: true,
-        email: true,
-        venueName: true,
-        eventType: true,
         status: true,
-        emailsSent: true,
-        depositReceivedManual: true,
-        depositReceived: true,
         portalToken: true,
       },
     });
@@ -55,76 +43,35 @@ export async function POST(
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
-    if (!booking.email) {
-      return NextResponse.json(
-        { error: "Booking has no email address" },
-        { status: 400 }
-      );
-    }
-
-    // If deposit already confirmed, client already has portal access from Deposit confirmed email — do not send Portal invitation
-    if (booking.depositReceivedManual === true || booking.depositReceived === true) {
-      return NextResponse.json({
-        success: true,
-        skipped: true,
-        message: "Deposit already confirmed; client already has portal access from that email. Portal invitation not sent.",
-      });
-    }
-
-    const baseUrl = getEmailBaseUrl().replace(/\/$/, "");
-    const portalToken = generatePortalToken();
-    const portalTokenExpiresAt = newPortalTokenExpiry();
-    const portalUrl = clientBookingMagicUrl(baseUrl, bookingId, portalToken);
-
-    const { subject, html, text } = PORTAL_INVITATION({
-      name: booking.name,
-      venueName: booking.venueName || "your venue",
-      portalUrl,
-      eventType: booking.eventType ?? undefined,
-    });
-
-    await sendEmail({
-      to: booking.email,
-      subject,
-      html,
-      text,
-    });
-
     const now = new Date();
-    const existingEmailsSent = (booking.emailsSent as Record<string, unknown>) || {};
-    const emailsSent = {
-      ...existingEmailsSent,
-      portalInvite: { sentAt: now.toISOString() },
-    };
+    const portalToken = booking.portalToken || generatePortalToken();
 
     await prisma.booking.update({
       where: { id: bookingId },
       data: {
         status: "confirmed",
         portalToken,
-        portalTokenExpiresAt,
-        lastEmailSentAt: now,
-        emailsSent,
+        portalTokenExpiresAt: newPortalTokenExpiry(),
         updatedAt: now,
       },
     });
 
     await logActivity({
       bookingId,
-      action: "portal_invite_sent",
-      description: `Portal invite sent to ${booking.email}`,
+      action: "booking_finalized",
+      description: "Booking marked as confirmed",
       actor: "admin",
       performedBy: admin?.name ?? admin?.email ?? undefined,
     });
 
     return NextResponse.json({
       success: true,
-      message: "Finalized and portal invite sent",
+      message: "Booking confirmed",
     });
   } catch (e: any) {
     console.error("[finalize-and-invite]", e);
     return NextResponse.json(
-      { error: e?.message || "Failed to finalize and send invite" },
+      { error: e?.message || "Failed to finalize booking" },
       { status: 500 }
     );
   }

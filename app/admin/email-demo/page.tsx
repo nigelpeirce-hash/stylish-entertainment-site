@@ -25,7 +25,7 @@ const demoClientData = {
   eventType: "Wedding",
   eventDate: "Saturday, 15th March 2025",
   venueName: "Babington House",
-  clientAdminUrl: "https://stylishentertainment.co.uk/client/dashboard",
+  worksheetUrl: "https://stylishentertainment.co.uk/dj-worksheet/",
   brochureUrl: "https://stylishentertainment.co.uk/brochure.pdf",
   artistName: "James",
   bookingFee: "£150",

@@ -2,7 +2,7 @@
 
 Agent familiarisation for the Stylish Entertainment website project.
 
-**Last updated:** June 19, 2026 (GA4 via GTM only — removed duplicate GoogleAnalytics from layout)
+**Last updated:** July 30, 2026 (client portal references removed from all client-facing emails)
 
 ---
 
@@ -138,6 +138,13 @@ See `.env.local.example` and `DISASTER_RECOVERY_GUIDE.md` for full list.
 
 ## Recent Work
 
+- **Client portal removed from client-facing emails (July 30, 2026):** No email sent to a client mentions or links to the client portal any more. Clients are pointed at the public worksheets (`/dj-worksheet/` for weddings, `/party-dj-worksheet/` for everything else) or asked to reply directly.
+  - **Copy/CTA stripped:** `depositEmailWeddingCelebration`, `depositEmailEventConfirmed` and `DEPOSIT_CONFIRMED` in `lib/email-templates.ts` lost their `portalUrl` parameter and their "Access your portal" / "View Your Countdown" buttons; they now say the worksheet is coming and to reply with questions. `bookingConfirmation` in `lib/email-journey-templates.ts` mentions the worksheet instead of the portal.
+  - **4-week check-in repointed:** `fourWeekCheckin` now links `{{worksheetUrl}}` ("Complete Your Worksheet") instead of `{{clientAdminUrl}}`. New helper `lib/worksheet-url.ts#worksheetUrlFor(baseUrl, eventType)` picks the wedding vs party worksheet. `clientAdminUrl` and `portalMagicUrl` are gone from `JourneyEmailData` — no template used them any more.
+  - **Portal-only emails deleted:** `PORTAL_INVITATION` and `PORTAL_REMINDER` removed from `lib/email/templates.ts`; `app/api/admin/bookings/[id]/send-portal-link/route.ts` deleted (it had no caller); the portal-reminder branch removed from `app/api/cron/email-journey/route.ts` (cron now runs 4 stages, not 6); the portal-invite email removed from `createBooking` in `lib/actions/booking-actions.ts` along with the `sendPortalInvite` input and its checkbox in `components/admin/bookings/add-booking-modal.tsx`.
+  - **Admin UI:** `finalize-and-invite` now only sets status to `confirmed` and refreshes `portalToken` — it sends nothing. Both admin buttons relabelled "Mark as Confirmed" / "Mark booking as confirmed".
+  - **Dead code removed:** `lib/email/renderer.ts` and `lib/email/index.ts` deleted. They appended a portal CTA to every rendered email and were unreachable anyway (`lib/email.ts` shadows the directory index, so nothing could import them).
+  - **Portal itself is untouched** — `/client/*`, magic-link tokens, and the admin sandbox link generator all still work. Only the emails changed. The `EMAIL_*_AUDIT.md` files still describe the old portal emails and are now stale.
 - **SEO audit follow-ups — Commit B (May 21, 2026):** Seven prioritised fixes from the live-site SEO audit, shipped together as one logical commit because they're all metadata/structured-data polish.
   1. **`/artists/musicians/` metadata fix.** Page was `"use client"` and mutated `document.title` from `useEffect`, so initial HTML title was the generic homepage default (~9 chars) — Google's most damaging miss in the audit. Added sibling `app/artists/musicians/layout.tsx` with `createMetadata` (title "Live Wedding Musicians UK | Quartets, Pianists & Bands", self-canonical, 12 keyword stack) and stripped the `useEffect` title/description mutation block from the page component. Initial HTML now ships a real 54-char title and 147-char description.
   2. **`/parties/corporate/` title + description trimmed and Service JSON-LD added.** Title was 107 chars (truncated in SERPs), description 287 chars. Cut to 58 / 149 chars while moving long-tail keywords to `keywords[]`. Inlined `Service` JSON-LD in `app/parties/corporate/page.tsx` (no offers/price band — corporate spend varies too widely) with cross-link to homepage `LocalBusiness` via `@id`. Audience: `BusinessAudience`.

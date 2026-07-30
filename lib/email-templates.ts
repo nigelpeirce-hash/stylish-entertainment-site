@@ -243,10 +243,8 @@ function depositBookedArtistLine(preferredDJ: string | null | undefined, eventLa
  */
 export function depositEmailWeddingCelebration({
   booking,
-  portalUrl,
 }: {
   booking: DepositEmailPayload;
-  portalUrl: string;
 }): { subject: string; html: string; text: string } {
   const { eventDate, venue, showVenue, clientName } = depositEmailData(booking);
   const { html: paymentSummaryHtml, text: paymentSummaryText } = depositPaymentSummary(booking);
@@ -273,10 +271,7 @@ export function depositEmailWeddingCelebration({
           ${bookedArtistHtml}
           ${paymentSummaryHtml}
           <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 0;">We can't wait for your big day.</p>
-          <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 24px 0 0 0;">Your personal wedding portal is ready — and it's a great place to get things rolling. Add your music must-plays and no-plays, your first dance song, and invite your guests so they can request songs too. No password needed; just click below to jump in.</p>
-        </div>
-        <div style="text-align: center; margin: 36px 0;">
-          <a href="${portalUrl}" style="display: inline-block; background-color: ${GOLD}; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);">Access your portal</a>
+          <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 24px 0 0 0;">We'll be in touch shortly with your wedding worksheet so you can share your music must-plays, no-plays and first dance. In the meantime, just reply to this email if you have any questions.</p>
         </div>
         ${SIGNATURE_BLOCK_HTML}
       </div>
@@ -284,7 +279,7 @@ export function depositEmailWeddingCelebration({
     </html>
   `;
 
-  const text = `Wedding Celebration\n\n${DEPOSIT_HEADLINE}\n\nYour wedding date, ${eventDate}, is confirmed.${showVenue ? ` We'll be with you at ${venue}.` : ""}\n\n${bookedArtistText}${paymentSummaryText}We can't wait for your big day.\n\nYour personal wedding portal is ready — and it's a great place to get things rolling. Add your music must-plays and no-plays, your first dance song, and invite your guests so they can request songs too. No password needed; just click the link below to jump in.\n\nAccess your portal: ${portalUrl}\n\n${CLIENT_SIGNOFF_TEXT}`;
+  const text = `Wedding Celebration\n\n${DEPOSIT_HEADLINE}\n\nYour wedding date, ${eventDate}, is confirmed.${showVenue ? ` We'll be with you at ${venue}.` : ""}\n\n${bookedArtistText}${paymentSummaryText}We can't wait for your big day.\n\nWe'll be in touch shortly with your wedding worksheet so you can share your music must-plays, no-plays and first dance. In the meantime, just reply to this email if you have any questions.\n\n${CLIENT_SIGNOFF_TEXT}`;
 
   return {
     subject: `Your Date is Secured: ${clientName} x Stylish Entertainment Ltd`,
@@ -298,10 +293,8 @@ export function depositEmailWeddingCelebration({
  */
 export function depositEmailEventConfirmed({
   booking,
-  portalUrl,
 }: {
   booking: DepositEmailPayload;
-  portalUrl: string;
 }): { subject: string; html: string; text: string } {
   const { eventDate, venue, showVenue, clientName } = depositEmailData(booking);
   const { dateLabel, closing } = depositWording(booking.eventType);
@@ -329,9 +322,7 @@ export function depositEmailEventConfirmed({
           ${bookedArtistHtml}
           ${paymentSummaryHtml}
           <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 0;">${closing}</p>
-        </div>
-        <div style="text-align: center; margin: 36px 0;">
-          <a href="${portalUrl}" style="display: inline-block; background-color: ${GOLD}; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);">View Your Countdown</a>
+          <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 24px 0 0 0;">We'll be in touch shortly with your worksheet so you can share your music preferences and running order. In the meantime, just reply to this email if you have any questions.</p>
         </div>
         ${SIGNATURE_BLOCK_HTML}
       </div>
@@ -339,7 +330,7 @@ export function depositEmailEventConfirmed({
     </html>
   `;
 
-  const text = `Event Confirmed\n\n${DEPOSIT_HEADLINE}\n\nYour ${dateLabel} date, ${eventDate}, is confirmed.${showVenue ? ` We'll be with you at ${venue}.` : ""}\n\n${bookedArtistText}${paymentSummaryText}${closing}\n\nView Your Countdown: ${portalUrl}\n\n${CLIENT_SIGNOFF_TEXT}`;
+  const text = `Event Confirmed\n\n${DEPOSIT_HEADLINE}\n\nYour ${dateLabel} date, ${eventDate}, is confirmed.${showVenue ? ` We'll be with you at ${venue}.` : ""}\n\n${bookedArtistText}${paymentSummaryText}${closing}\n\nWe'll be in touch shortly with your worksheet so you can share your music preferences and running order. In the meantime, just reply to this email if you have any questions.\n\n${CLIENT_SIGNOFF_TEXT}`;
 
   return {
     subject: `Your Date is Secured: ${clientName} x Stylish Entertainment Ltd`,
@@ -363,7 +354,7 @@ export interface DepositConfirmedBooking extends BookingDetails {
   preferredDJ?: string | null;
 }
 
-export function DEPOSIT_CONFIRMED({ booking, portalUrl }: { booking: DepositConfirmedBooking; portalUrl: string }): { subject: string; html: string; text: string } {
+export function DEPOSIT_CONFIRMED({ booking }: { booking: DepositConfirmedBooking }): { subject: string; html: string; text: string } {
   const eventDate = booking.eventDate 
     ? new Date(booking.eventDate).toLocaleDateString("en-GB", { weekday: "long", year: "numeric", month: "long", day: "numeric" })
     : "TBC";
@@ -408,9 +399,7 @@ export function DEPOSIT_CONFIRMED({ booking, portalUrl }: { booking: DepositConf
           ${bookedArtistHtml}
           ${paymentSummaryHtml}
           <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 0;">${closing}</p>
-        </div>
-        <div style="text-align: center; margin: 36px 0;">
-          <a href="${portalUrl}" style="display: inline-block; background-color: #D4AF37; color: #1A1A1A; text-decoration: none; padding: 18px 40px; border-radius: 8px; font-weight: bold; font-size: 16px; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(212, 175, 55, 0.4);">View Your Countdown</a>
+          <p style="font-size: 18px; line-height: 1.6; color: #333; font-weight: 300; margin: 24px 0 0 0;">We'll be in touch shortly with your worksheet so you can share your music preferences and running order. In the meantime, just reply to this email if you have any questions.</p>
         </div>
         ${SIGNATURE_BLOCK_HTML}
       </div>
@@ -426,7 +415,7 @@ ${bookedArtistText}
 ${paymentSummaryText}
 ${closing}
 
-View Your Countdown: ${portalUrl}
+We'll be in touch shortly with your worksheet so you can share your music preferences and running order. In the meantime, just reply to this email if you have any questions.
 
 ${CLIENT_SIGNOFF_TEXT}
   `;

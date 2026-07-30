@@ -6,8 +6,7 @@ import { getServerSession } from "@/lib/get-session";
 import { getResendConfig } from "@/lib/email-config";
 import { getBrochureLink, getVenueAsset, getTrackingUrl } from "@/lib/venue-assets";
 import { getEmailBaseUrl } from "@/lib/get-base-url";
-import { getClientPortalLoginUrl } from "@/lib/client-portal-url";
-import { clientDashboardLoginUrl } from "@/lib/portal-paths";
+import { worksheetUrlFor } from "@/lib/worksheet-url";
 import { buildMarkedPaidUrl } from "@/lib/deposit-paid-link";
 
 // Force dynamic rendering to prevent build-time errors
@@ -72,7 +71,7 @@ export async function POST(request: NextRequest) {
       eventType: clientData?.eventType,
       eventDate: clientData?.eventDate,
       venueName: clientData?.venueName,
-      clientAdminUrl: clientData?.clientAdminUrl || clientDashboardLoginUrl(getEmailBaseUrl()),
+      worksheetUrl: worksheetUrlFor(getEmailBaseUrl(), clientData?.eventType),
       brochureUrl: clientData?.brochureUrl, // Will be set below if not provided
     };
 
@@ -84,7 +83,6 @@ export async function POST(request: NextRequest) {
 
       if (booking) {
         const baseUrl = getEmailBaseUrl();
-        const clientAdminUrl = getClientPortalLoginUrl(baseUrl, booking.id);
         const invoiceReference = (booking as any).bookingReference?.trim() || `SE-${booking.id.slice(-8)}`;
         emailData = {
           clientName: booking.name,
@@ -98,7 +96,7 @@ export async function POST(request: NextRequest) {
               })
             : undefined,
           venueName: booking.venueName ?? undefined,
-          clientAdminUrl,
+          worksheetUrl: worksheetUrlFor(baseUrl, booking.eventType),
           brochureUrl: undefined, // Will be set below
           artistName: (booking as any).preferredDJ ?? undefined,
           bookingFee: (booking as any).bookingFee ?? undefined,

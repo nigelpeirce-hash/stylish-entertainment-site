@@ -664,18 +664,17 @@ export default function BookingDetail() {
                           const data = await res.json();
                           if (res.ok) {
                             await handleBookingUpdate();
-                            if (data.skipped) toast({ title: "Portal invite not sent", description: data.message || "Deposit already confirmed." });
-                            else toast({ title: "Portal invite sent", description: `Sign-in link sent to ${deduplicateName(getDisplayName(booking.name) || booking.name)}.` });
-                          } else throw new Error(data?.error ?? "Failed to send");
+                            toast({ title: "Booking confirmed", description: `${deduplicateName(getDisplayName(booking.name) || booking.name)} marked as confirmed. No email sent.` });
+                          } else throw new Error(data?.error ?? "Failed to confirm booking");
                         } catch (e: unknown) {
-                          toast({ title: "Error", description: (e as Error)?.message ?? "Failed to send", variant: "destructive" });
+                          toast({ title: "Error", description: (e as Error)?.message ?? "Failed to confirm booking", variant: "destructive" });
                         } finally {
                           setSendingFinalizeInvite(false);
                         }
                       }}
                       disabled={sendingFinalizeInvite}
                     >
-                      {sendingFinalizeInvite ? "Sending…" : "Send Portal Invite"}
+                      {sendingFinalizeInvite ? "Confirming…" : "Mark as Confirmed"}
                     </Button>
                   )}
                 </div>
@@ -980,66 +979,55 @@ export default function BookingDetail() {
                 )}
 
                 <p className="text-sm text-gray-400">
-                  Checking &quot;Deposit received&quot; sends the payment-confirmation email. Then use the action below to invite them to the portal.
+                  Checking &quot;Deposit received&quot; sends the payment-confirmation email. Then use the action below to move the booking to confirmed.
                 </p>
 
-                {/* Invite to portal — workflow step after deposit received */}
+                {/* Finalize booking — workflow step after deposit received */}
                 <div className="p-4 bg-gray-900/70 rounded-lg border-2 border-amber-500/30">
                   <p className="text-sm text-gray-300 mb-2">
-                    Send portal invite (sign-in link) before deposit is confirmed. Once deposit is confirmed, the client already gets the portal link in the Deposit confirmed email — no need to send this.
+                    Mark the booking as confirmed and refresh its portal link. Nothing is emailed to the client — client emails no longer reference the portal.
                   </p>
                   <Button
                     onClick={async () => {
-                      if (!booking?.email) return;
                       setSendingFinalizeInvite(true);
                       try {
                         const res = await fetch(`/api/admin/bookings/${booking.id}/finalize-and-invite/`, { method: "POST" });
                         const data = await res.json();
                         if (res.ok) {
                           await handleBookingUpdate();
-                          if (data.skipped) {
-                            toast({
-                              title: "Portal invite not sent",
-                              description: data.message || "Deposit already confirmed; client already has portal access from that email.",
-                            });
-                          } else {
-                            const clientName = deduplicateName(getDisplayName(booking.name) || booking.name);
-                            toast({
-                              title: "Portal invite sent",
-                              description: `Sign-in link sent to ${clientName}. They can sign in with their credentials to open their portal.`,
-                            });
-                          }
+                          const clientName = deduplicateName(getDisplayName(booking.name) || booking.name);
+                          toast({
+                            title: "Booking confirmed",
+                            description: `${clientName} marked as confirmed. No email was sent.`,
+                          });
                         } else {
-                          throw new Error(data?.error || "Failed to send portal invite");
+                          throw new Error(data?.error || "Failed to confirm booking");
                         }
                       } catch (e: any) {
                         toast({
                           title: "Error",
-                          description: e?.message || "Failed to send portal invite",
+                          description: e?.message || "Failed to confirm booking",
                           variant: "destructive",
                         });
                       } finally {
                         setSendingFinalizeInvite(false);
                       }
                     }}
-                    disabled={sendingFinalizeInvite || !booking?.email}
+                    disabled={sendingFinalizeInvite}
                     className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold disabled:opacity-50 disabled:pointer-events-none"
                   >
                     {sendingFinalizeInvite ? (
                       <>
                         <span className="animate-spin mr-2">⏳</span>
-                        Sending…
+                        Confirming…
                       </>
                     ) : (
                       <>
                         <Send className="w-4 h-4 mr-2" />
-                        Send portal invite (sign-in link)
+                        Mark booking as confirmed
                       </>
                     )}
                   </Button>
-                  {(booking.depositReceivedManual || false) && (
-                    <p className="text-xs text-amber-400/90 mt-2">Deposit already confirmed — client has portal link from that email. Use &quot;Send portal link&quot; below only to resend a sign-in link.</p>
-                  )}
                 </div>
 
                 {/* Revoke / regenerate portal access link */}

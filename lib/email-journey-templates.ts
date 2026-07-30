@@ -20,9 +20,8 @@ export interface JourneyEmailData {
   eventType?: string;
   eventDate?: string;
   venueName?: string;
-  clientAdminUrl?: string;
-  /** Magic-link URL for FINAL_CHASE: /client/bookings/[id]?token=... (no login required) */
-  portalMagicUrl?: string;
+  /** Public worksheet form for the client to complete: /dj-worksheet/ or /party-dj-worksheet/ */
+  worksheetUrl?: string;
   brochureUrl?: string;
   /** Artist/DJ name for booking confirmation (e.g. "James") */
   artistName?: string;
@@ -166,8 +165,7 @@ function buildEmailTemplate(
     .replace(/\{\{eventType\}\}/g, data.eventType || "your event")
     .replace(/\{\{eventDate\}\}/g, data.eventDate || "your event date")
     .replace(/\{\{venueName\}\}/g, data.venueName || "your venue")
-    .replace(/\{\{clientAdminUrl\}\}/g, data.clientAdminUrl || "#")
-    .replace(/\{\{portalMagicUrl\}\}/g, data.portalMagicUrl || data.clientAdminUrl || "#")
+    .replace(/\{\{worksheetUrl\}\}/g, data.worksheetUrl || "https://stylishentertainment.co.uk/dj-worksheet/")
     .replace(/\{\{brochureUrl\}\}/g, data.brochureUrl || "#")
     .replace(/\{\{artistName\}\}/g, data.artistName || "your DJ")
     .replace(/\{\{bookingFee\}\}/g, data.bookingFee || "[booking fee]")
@@ -251,7 +249,7 @@ export function gentleReminder(data: JourneyEmailData) {
 
 /**
  * 2. Booking Confirmation
- * Sent after deposit; includes payment terms, worksheet and link to Client Admin.
+ * Sent after deposit; includes payment terms and worksheet expectations.
  *
  * DB field mapping (used when sending via send-email with bookingId):
  * - {{clientName}}     → booking.name
@@ -261,7 +259,6 @@ export function gentleReminder(data: JourneyEmailData) {
  * - {{eventType}}     → booking.eventType
  * - {{eventDate}}     → formatted booking.eventDate
  * - {{venueName}}     → booking.venueName
- * - {{clientAdminUrl}}→ /client/bookings/[id]
  * - {{invoiceReference}} → booking.bookingReference or SE-{id slice}
  * - {{markedPaidUrl}} → signed link for "I've paid" (notification + flash Paid)
  */
@@ -290,7 +287,7 @@ export function bookingConfirmation(data: JourneyEmailData) {
     <p>Lovely to hear from you again and many thanks for sending over your booking request.</p>
     <p>I've spoken with {{artistName}} and he'd love to come and play for you.</p>
     <p>Initially please pay the deposit of {{bookingFee}} to secure {{artistName}}; the balance of {{balance}} is payable to {{artistName}} either in cash on the night or by BACS transfer two weeks before the wedding.</p>
-    <p>Once the payment has been made I will forward you a receipt along with a link to our portal. There you can add music requests and send a link to your guests so they can request songs too.</p>
+    <p>Once the payment has been made I will forward you a receipt along with your worksheet, where you can add your music requests.</p>
     <p>We request you return the worksheet 3 weeks before the wedding to give {{artistName}} the opportunity to prepare and allow you to focus on other things.</p>
     ${BOOKING_CONFIRMATION_BANK_BLOCK}
     <p>If you have any questions, please don't hesitate to reach out.</p>
@@ -306,7 +303,7 @@ export function bookingConfirmation(data: JourneyEmailData) {
 
 /**
  * 3. The 4-Week Check-in
- * Automation to ask for final song choices/logistics; link to portal for music preferences
+ * Automation to ask for final song choices/logistics; links to the public DJ worksheet
  */
 export function fourWeekCheckin(data: JourneyEmailData) {
   const contentHtml = `
@@ -320,9 +317,9 @@ export function fourWeekCheckin(data: JourneyEmailData) {
       <li>Any tracks you'd prefer not to hear</li>
       <li>Special moments such as your first dance or any key songs for the day</li>
     </ul>
-    <p>You can update your music preferences at your convenience using the link below:</p>
+    <p>You can share your music preferences at your convenience using the worksheet below:</p>
     <p style="text-align: center;">
-      <a href="{{clientAdminUrl}}" class="button">Update Your Music Preferences</a>
+      <a href="{{worksheetUrl}}" class="button">Complete Your Worksheet</a>
     </p>
     <h2>Final Logistics</h2>
     <p>We'll also be reviewing the final arrangements to make sure everything runs seamlessly on the day. If there have been any recent changes to timings or plans, please do let us know.</p>

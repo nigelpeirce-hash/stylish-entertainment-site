@@ -10,8 +10,6 @@ import {
 import { staffConfirmationEmail } from "@/lib/email-staff-confirmation";
 import { deduplicateName, getDisplayName } from "@/lib/utils/name-helpers";
 import { logActivity } from "@/lib/activity-log";
-import { getClientPortalLoginUrl } from "@/lib/client-portal-url";
-import { getEmailBaseUrl } from "@/lib/get-base-url";
 
 const getResend = () => {
   const apiKey = process.env.RESEND_API_KEY;
@@ -89,9 +87,6 @@ export async function POST(
       deduplicateName(getDisplayName(booking.name) || booking.name) || "there";
     const eventType = (booking.eventType || "").toLowerCase().trim();
 
-    const baseUrl = getEmailBaseUrl();
-    const portalUrl = getClientPortalLoginUrl(baseUrl, booking.id);
-
     const payload = {
       booking: {
         name: booking.name,
@@ -104,7 +99,6 @@ export async function POST(
         finalBalance: booking.finalBalance,
         preferredDJ: booking.preferredDJ,
       },
-      portalUrl,
     };
 
     const emailContent =

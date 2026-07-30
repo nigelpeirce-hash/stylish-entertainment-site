@@ -70,7 +70,6 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
     eventType: "wedding" as "wedding" | "party" | "corporate",
     serviceTypes: [] as string[],
     notes: "",
-    sendPortalInvite: false,
     earlySetup: false,
   });
 
@@ -186,7 +185,6 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
         eventType: "wedding",
         serviceTypes: [],
         notes: "",
-        sendPortalInvite: false,
         earlySetup: false,
       });
       setAssignedMembers([]);
@@ -364,7 +362,6 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
         eventType: formData.eventType,
         serviceTypes: formData.serviceTypes,
         notes: formData.notes || undefined,
-        sendPortalInvite: formData.sendPortalInvite,
         earlySetup: formData.earlySetup,
         assignedTeam: assignedMembers.length > 0 ? assignedMembers.map(m => ({
           id: m.id,
@@ -392,7 +389,6 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
           eventType: "wedding",
           serviceTypes: [],
           notes: "",
-          sendPortalInvite: false,
           earlySetup: false,
         });
         setAssignedMembers([]);
@@ -404,27 +400,10 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
           onSuccess();
         }
 
-        // Show feedback for portal invite when checkbox was ticked
-        if (formData.sendPortalInvite) {
-          if ((result as { portalInviteSent?: boolean; portalInviteError?: string }).portalInviteSent) {
-            toast({
-              title: "Booking created",
-              description: `Portal invite sent to ${formData.clientEmail}`,
-            });
-          } else {
-            const err = (result as { portalInviteError?: string }).portalInviteError;
-            toast({
-              title: "Booking created",
-              description: err ? `Portal invite could not be sent: ${err}` : "Portal invite could not be sent.",
-              variant: "destructive",
-            });
-          }
-        } else {
-          toast({
-            title: "Booking created",
-            description: "You can invite the client to the portal from the booking page.",
-          });
-        }
+        toast({
+          title: "Booking created",
+          description: `Booking added for ${formData.clientEmail}. No email has been sent to the client.`,
+        });
       }
     } catch (err: any) {
       setError(err.message || "Failed to create booking");
@@ -451,7 +430,6 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
         eventType: "wedding",
         serviceTypes: [],
         notes: "",
-        sendPortalInvite: false,
         earlySetup: false,
       });
       setAssignedMembers([]);
@@ -888,23 +866,6 @@ export function AddBookingModal({ open, onOpenChange, onSuccess }: AddBookingMod
                 />
               </div>
               
-              {/* Send Portal Invite Checkbox */}
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="sendPortalInvite"
-                  checked={formData.sendPortalInvite}
-                  onCheckedChange={(checked) =>
-                    setFormData({ ...formData, sendPortalInvite: checked === true })
-                  }
-                  disabled={loading}
-                />
-                <Label
-                  htmlFor="sendPortalInvite"
-                  className="text-sm text-gray-400 cursor-pointer"
-                >
-                  Send Portal Invite to client automatically
-                </Label>
-              </div>
             </div>
 
             {/* Error Message */}

@@ -1,5 +1,8 @@
 # Admin Flow Audit – New Enquiry to Dispatch
 
+**Portal-email workflow updated:** 30 July 2026
+The wider flow audit remains a point-in-time review. This update reflects the removal of portal invitations and links from client-facing emails.
+
 ## 1. Flow Overview
 
 ```mermaid
@@ -19,7 +22,7 @@ flowchart TB
         BkPage["Booking Page /admin/bookings/[id]"]
         Quote["Send Quote (artist, composed)"]
         Deposit["Deposit Invoice / Confirm"]
-        Portal["Finalize & Invite / Send Portal Link"]
+        Finalize["Mark Booking as Confirmed"]
     end
     
     subgraph Staff [Staff & Dispatch]
@@ -38,12 +41,11 @@ flowchart TB
     
     BkPage --> Quote
     BkPage --> Deposit
-    BkPage --> Portal
+    BkPage --> Finalize
     BkPage --> TeamAssign
     BkPage --> CrewAssign
     BkPage --> ArtistDispatch
     
-    Portal --> AutoDispatch
     ArtistDispatch --> ManualDispatch
     CrewAssign --> ManualDispatch
 ```
@@ -74,10 +76,9 @@ flowchart TB
 | Send deposit invoice | Deposit card button | `POST /api/admin/bookings/[id]/send-deposit-invoice` | OK |
 | Mark deposit received | FlexibleOperatorSidebar / flexible-update | `PATCH /api/admin/bookings/[id]/flexible-update` | OK |
 | Manual override (sidebar) | FlexibleOperatorSidebar | `PATCH /api/admin/bookings/[id]/manual-override` | OK |
-| Finalize & invite | Finalize & Invite button | `POST /api/admin/bookings/[id]/finalize-and-invite` | OK |
-| Send portal link | Send portal link button | `POST /api/admin/bookings/[id]/send-portal-link` | OK |
+| Mark booking as confirmed | Mark as Confirmed button | `POST /api/admin/bookings/[id]/finalize-and-invite` | OK; updates status/token and sends no email |
 
-**Wiring:** All deposit/portal flows correctly call their APIs. Flexible-update and manual-override both set `portalToken`, `status=confirmed` when deposit confirmed.
+**Wiring:** Deposit flows call their APIs. Flexible-update and manual-override set `portalToken` and `status=confirmed` when the deposit is confirmed. The legacy `finalize-and-invite` route name remains, but the route now only confirms the booking, refreshes portal-token expiry and logs `booking_finalized`; it does not email the client.
 
 ---
 
@@ -160,7 +161,7 @@ flowchart TB
 | `/api/admin/bookings/[id]` | booking page | GET, PATCH, DELETE | OK |
 | `/api/admin/bookings/[id]/audit-logs` | FlexibleOperatorSidebar | GET | OK |
 | `/api/admin/bookings/[id]/dispatch` | ArtistDispatch | POST | OK |
-| `/api/admin/bookings/[id]/finalize-and-invite` | booking page | POST | OK |
+| `/api/admin/bookings/[id]/finalize-and-invite` | booking page | POST | OK; confirms booking, no client email |
 | `/api/admin/bookings/[id]/flexible-update` | FlexibleOperatorSidebar, booking page | PATCH | OK |
 | `/api/admin/bookings/[id]/flag` | bookings page | POST | OK |
 | `/api/admin/bookings/[id]/handoff` | booking page | POST | OK |
@@ -170,7 +171,6 @@ flowchart TB
 | `/api/admin/bookings/[id]/restore` | bookings page | POST | OK |
 | `/api/admin/bookings/[id]/send-deposit-invoice` | booking page | POST | OK |
 | `/api/admin/bookings/[id]/send-first-touch` | admin dashboard | POST | OK |
-| `/api/admin/bookings/[id]/send-portal-link` | — | POST | API exists; no direct UI button found in admin |
 | `/api/admin/bookings/[id]/warehouse-items` | TechnicalEquipment | GET, POST, PATCH | OK |
 | `/api/admin/bookings/staff/confirm` | TeamAssignment, CrewAssignments, QuickStaffConfirm | POST | OK |
 | `/api/admin/bookings/staff/[id]` | TeamAssignment | DELETE | OK |
@@ -238,7 +238,6 @@ flowchart TB
 ### Low priority
 
 3. **API routes without obvious UI**  
-   - `send-portal-link` – API exists but no admin UI button found; consider adding to booking page or sidebar.  
    - `link-email` – verify usage.  
    - `fix-triggers`, `calculate-mileage`, `check-dates`, etc. – may be used by scripts or specific workflows.
 
@@ -251,7 +250,7 @@ flowchart TB
 | New enquiry | `app/admin/new-enquiries/`, `app/api/admin/new-enquiries/` |
 | Convert | `app/api/admin/new-enquiries/[id]/convert/route.ts` |
 | Booking page | `app/admin/bookings/[id]/page.tsx` |
-| Deposit / Portal | `app/api/admin/bookings/[id]/flexible-update/`, `finalize-and-invite/`, `send-portal-link/`, `manual-override/` |
+| Deposit / confirmation | `app/api/admin/bookings/[id]/flexible-update/`, `finalize-and-invite/`, `manual-override/` |
 | Staff assignment | `components/admin/TeamAssignment.tsx`, `components/CrewAssignments.tsx`, `app/api/admin/bookings/staff/` |
 | Dispatch | `components/ArtistDispatch.tsx`, `app/api/admin/bookings/[id]/dispatch/route.ts`, `lib/auto-dispatch-on-final-details.ts` |
 | 90-day command | `app/admin/90-day-command/page.tsx`, `app/api/admin/bookings/90-day-command/route.ts` |

@@ -1,7 +1,10 @@
 # Email Library Audit & Standardization
 
-**Date:** 2025-01-28  
+**Original audit:** 28 January 2025
+**Portal-email sections updated:** 30 July 2026
 **Scope:** All email-sending code across `app/api/**`, `lib/email*`, `lib/send-*`, `lib/*-email*`, components
+
+> The wider audit remains a point-in-time review from January 2025. Portal-related rows, gaps and recommendations below were refreshed after portal references were removed from all client-facing emails.
 
 ---
 
@@ -17,24 +20,21 @@
 | **Admin – send composed email (quote)** | Admin | feeBreakdown, emailsSent.composedEmails, lastEmailSentAt | ✅ Quote (venue, date, fee, DJ) | ✅ logActivity, notifyAdmin | ✅ emailsSent | ⚠️ Subject: `Your Quote - Venue on Date` (not standard) | HTML from admin; uses Resend directly | [app/api/admin/send-composed-email/route.ts](app/api/admin/send-composed-email/route.ts) |
 | **Admin – send DJ inquiry reply** | Admin | quoteSentAt, preferredDJ, etc. | ✅ Quote with DJ details | ✅ notifyAdmin (quote_sent) | ✅ | ⚠️ LUXE_STYLES inline; subject varies | Uses custom template; no logActivity | [app/api/admin/send-dj-inquiry-reply/route.ts](app/api/admin/send-dj-inquiry-reply/route.ts) |
 | **Admin – enquiries reply** | Admin | enquiryRepliedAt, enquiryRepliedByUserId (NewEnquiry) | ✅ Admin reply with custom intro | ⚠️ logActivity (booking only) | — | ✅ buildEnquiryReplyEmail (venue, date) | No notifyAdmin for NewEnquiry; subject: `Re: Your enquiry – Venue` | [app/api/admin/enquiries/[id]/reply/route.ts](app/api/admin/enquiries/[id]/reply/route.ts) |
-| **Admin – send portal link** | Admin | portalToken, lastEmailSentAt | ✅ Portal magic link | ⚠️ logActivity | — | ✅ venue, eventType, portalUrl | Custom inline HTML; no standard template | [app/api/admin/bookings/[id]/send-portal-link/route.ts](app/api/admin/bookings/[id]/send-portal-link/route.ts) |
 | **Admin – send deposit email** | Admin | lastEmailSentAt | ✅ Deposit confirmed (wedding/event) | ✅ logActivity | — | ✅ depositEmailWeddingCelebration / depositEmailEventConfirmed | Uses lib/email-templates; event-type aware | [app/api/admin/bookings/[id]/send-deposit-email/route.ts](app/api/admin/bookings/[id]/send-deposit-email/route.ts) |
 | **Admin – send first touch** | Admin | lastEmailSentAt | ✅ Thank you (venue, date) | ❌ No logActivity | — | ✅ FIRST_TOUCH from lib/email/templates | No logActivity, no notifyAdmin | [app/api/admin/bookings/[id]/send-first-touch/route.ts](app/api/admin/bookings/[id]/send-first-touch/route.ts) |
 | **Admin – staff confirmation** | Admin | confirmationEmailSent, status=confirmed | Staff receives | ✅ notifyAdmin (artist_assigned) | ✅ CommsLog | ✅ staffConfirmationEmail | Staff (internal) email; subject: venue, date, role | [app/api/admin/bookings/staff/confirm/route.ts](app/api/admin/bookings/staff/confirm/route.ts) |
 | **Admin – staff cancellation** | Admin | status=cancelled | Staff receives | ✅ logActivity | ✅ CommsLog | ✅ staffCancellationEmail | Staff (internal) email | [app/api/admin/bookings/staff/[id]/cancel/route.ts](app/api/admin/bookings/staff/[id]/cancel/route.ts) |
 | **Admin – dispatch** | Admin | emailsSent.artistDispatch, lastEmailSentAt | Staff receives worksheet | ✅ notifyAdmin (dispatched) | ✅ emailsSent | ✅ Artist Worksheet format | Subject: `Artist Worksheet - EventType at Venue - Date` ✅ | [app/api/admin/bookings/[id]/dispatch/route.ts](app/api/admin/bookings/[id]/dispatch/route.ts) |
-| **Admin – finalize and invite** | Admin | status, portalToken, emailsSent, lastEmailSentAt | ✅ Portal invite | ❌ No logActivity | ✅ emailsSent | ✅ PORTAL_INVITATION | Uses lib/email/templates | [app/api/admin/bookings/[id]/finalize-and-invite/route.ts](app/api/admin/bookings/[id]/finalize-and-invite/route.ts) |
+| **Admin – finalize booking** | Admin | status, portalToken, portalTokenExpiresAt | No email | — | ✅ logActivity (`booking_finalized`) | — | Legacy route name retained; confirms booking and refreshes token only | [app/api/admin/bookings/[id]/finalize-and-invite/route.ts](app/api/admin/bookings/[id]/finalize-and-invite/route.ts) |
 | **Confirm from quote – deposit invoice** | Client (quote token) | depositInvoiceSentAt, lastEmailSentAt | ✅ Deposit invoice (bank details) | — | — | ✅ depositInvoiceEmail | Uses lib/send-deposit-invoice; no AuditLog | [app/api/bookings/confirm-from-quote/route.ts](app/api/bookings/confirm-from-quote/route.ts) (via sendDepositInvoiceForBooking) |
 | **Confirm from quote – staff confirmation** | Client | confirmationEmailSent on assignment | Staff receives | — | ✅ CommsLog | ✅ staffConfirmationEmail | Same as admin staff confirm | [app/api/bookings/confirm-from-quote/route.ts](app/api/bookings/confirm-from-quote/route.ts) |
 | **Final payment sent – artist notify** | Client | finalDetailsConfirmed | — | ✅ logActivity, notifyAdmin | — | ⚠️ Plain HTML, SIGNATURE_BLOCK_HTML | Artists receive; subject: `Final payment received – Name @ Venue` | [app/api/client/bookings/[id]/final-payment-sent/route.ts](app/api/client/bookings/[id]/final-payment-sent/route.ts) |
 | **Confirm hire request – admin** | Client | — | — | ✅ logActivity | — | ⚠️ Simple inline HTML | Admin receives hire items; no notifyAdmin | [app/api/client/bookings/[id]/confirm-hire-request/route.ts](app/api/client/bookings/[id]/confirm-hire-request/route.ts) |
 | **Portal message – admin** | Client | — | — | ✅ notifyAdmin (portal_message) | — | ⚠️ Custom HTML, hardcoded info@ | Admin receives; no standard template | [app/api/client/portal-message/route.ts](app/api/client/portal-message/route.ts) |
 | **Cron – 3-day reminder** | Cron | emailsSent.threeDayReminder, lastEmailSentAt | ✅ Gentle reminder | — | ✅ emailsSent | ✅ gentle-reminder (venue, date) | Uses getJourneyEmail | [app/api/cron/email-journey/route.ts](app/api/cron/email-journey/route.ts) |
-| **Cron – 4-week check-in** | Cron | emailsSent.fourWeekCheckin, lastEmailSentAt | ✅ 4-week check-in | — | ✅ emailsSent | ✅ 4-week-checkin | Uses getJourneyEmail | [app/api/cron/email-journey/route.ts](app/api/cron/email-journey/route.ts) |
+| **Cron – 4-week check-in** | Cron | emailsSent.fourWeekCheckin, lastEmailSentAt | ✅ 4-week check-in with public worksheet link | — | ✅ emailsSent | ✅ 4-week-checkin | Wedding → `/dj-worksheet/`; other events → `/party-dj-worksheet/` | [app/api/cron/email-journey/route.ts](app/api/cron/email-journey/route.ts) |
 | **Cron – week-of excitement** | Cron | emailsSent.weekOfExcitement, lastEmailSentAt | ✅ Week-of email | — | ✅ emailsSent | ✅ week-of-excitement | Uses getJourneyEmail | [app/api/cron/email-journey/route.ts](app/api/cron/email-journey/route.ts) |
-| **Cron – FINAL_CHASE** | Cron | emailsSent.finalChase, lastEmailSentAt | ✅ Final chase (magic link) | — | ✅ emailsSent | ✅ final-chase | Uses getJourneyEmail; portalMagicUrl | [app/api/cron/email-journey/route.ts](app/api/cron/email-journey/route.ts) |
 | **Cron – post-wedding magic** | Cron | emailsSent.postWeddingMagic, lastEmailSentAt | ✅ Post-event thank you | — | ✅ emailsSent | ✅ post-wedding-magic | Uses getJourneyEmail | [app/api/cron/email-journey/route.ts](app/api/cron/email-journey/route.ts) |
-| **Cron – portal reminder** | Cron | emailsSent.portalReminder, lastEmailSentAt | ✅ Resend portal link | — | ✅ emailsSent | ✅ PORTAL_REMINDER | Uses lib/email/templates | [app/api/cron/email-journey/route.ts](app/api/cron/email-journey/route.ts) |
 | **Auto-dispatch (final details)** | Lib (triggered by final details) | emailsSent.autoDispatch | Staff receives worksheet | — | ✅ emailsSent | ✅ Same as admin dispatch | Subject matches standard | [lib/auto-dispatch-on-final-details.ts](lib/auto-dispatch-on-final-details.ts) |
 | **Admin notifications** | Various (logActivity, etc.) | — | — | Recipients receive | — | ⚠️ Generic `[Stylish] Title` | Internal admin emails | [lib/admin-notifications.ts](lib/admin-notifications.ts) |
 | **Client login notification** | Auth (magic link) | — | ✅ Magic link | — | — | ⚠️ Custom | Login flow | [lib/client-login-notifications.ts](lib/client-login-notifications.ts) |
@@ -62,7 +62,7 @@ Examples:
 - Brand line: "Stylish Entertainment"
 - Footer: `SIGNATURE_BLOCK_HTML` from [lib/email-signature.ts](lib/email-signature.ts)
 
-**Required dynamic placeholders:** clientName, venueName, eventDate, eventType, fee (where relevant), talent (where relevant), portalUrl (where relevant)
+**Required dynamic placeholders:** clientName, venueName, eventDate, eventType, fee (where relevant), talent (where relevant), worksheetUrl (for the 4-week check-in)
 
 ---
 
@@ -75,7 +75,6 @@ Examples:
 | Send composed email | `Your Quote - {Venue} on {Date}` | `{EventType} - {Venue} - {Date} – Your Quote` |
 | Enquiry reply | `Re: Your enquiry – {Venue}` | OK (reply format) |
 | Send first touch | `Thank you for your enquiry – {Venue} \| Stylish Entertainment Ltd` | OK |
-| Portal link | `Your Wedding Portal - {Name}` / `Your Booking Portal - {Name}` | OK (portal-specific) |
 | Deposit email | `Your Date is Secured: {Client} x Stylish Entertainment Ltd` | OK (deposit-specific) |
 | Deposit invoice | `Deposit invoice: {Client} – Stylish Entertainment Ltd` | OK |
 | Inquiries/new first touch | `Thank you for your enquiry - {Date}` | Add venue; use standard header/footer |
@@ -100,14 +99,12 @@ Examples:
 | Send first touch | logActivity, notifyAdmin |
 | Enquiries reply (NewEnquiry) | notifyAdmin (only booking gets logActivity) |
 | Confirm hire request | notifyAdmin |
-| Finalize and invite | logActivity |
 
 ### 3.4 Missing or inconsistent logging
 
 | Flow | Missing |
 |------|---------|
 | Contact form (both emails) | emailsSent / AuditLog for enquiry autoresponder |
-| Send portal link | emailsSent.portalInvite |
 | Send deposit email | emailsSent.depositConfirmation |
 | Send first touch | logActivity |
 | Send email (journey) | emailsSent update when bookingId provided |
@@ -159,17 +156,12 @@ Replace inline HTML in [app/api/inquiries/new/route.ts](app/api/inquiries/new/ro
 
 - **Send first touch:** Add `logActivity({ action: "first_touch_sent", ... })` and optionally `notifyAdminSignificantEvent`.
 - **Enquiries reply (NewEnquiry):** Add `notifyAdminSignificantEvent` for consistency.
-- **Finalize and invite:** Add `logActivity({ action: "portal_invite_sent", ... })`.
+- **Finalize booking:** Already logs `booking_finalized`; no client email is sent.
 - **Confirm hire request:** Add `notifyAdminSignificantEvent` (type: `hire_request_confirmed`).
 - **Quote request / Hire enquiry:** Add `sendNewLeadNotification` or equivalent admin notification.
 
-### 4.4 Standardize send-portal-link
+### 4.4 Add emailsSent updates where missing
 
-Use `PORTAL_INVITATION` from `lib/email/templates.ts` (like finalize-and-invite) instead of inline HTML. The finalize-and-invite route already uses it; send-portal-link has a different custom layout – consider refactoring to use the same template.
-
-### 4.5 Add emailsSent updates where missing
-
-- **Send portal link:** Ensure `emailsSent.portalInvite` is set (check if already done).
 - **Send deposit email:** Add `emailsSent.depositConfirmation`.
 - **Contact form autoresponder:** Consider storing in `emailsSent.enquiryAutoresponder` on the created booking (contact creates a booking).
 - **Send first touch:** Add `emailsSent.firstTouch` or similar if not already in schema.
@@ -182,10 +174,11 @@ Use `PORTAL_INVITATION` from `lib/email/templates.ts` (like finalize-and-invite)
 |------|---------|
 | [lib/email/send-email.ts](lib/email/send-email.ts) | Shared `sendEmail` – RESEND_DEFAULT_FROM |
 | [lib/email.ts](lib/email.ts) | Re-exports sendEmail |
-| [lib/email/templates.ts](lib/email/templates.ts) | FIRST_TOUCH, PORTAL_INVITATION, PORTAL_REMINDER |
+| [lib/email/templates.ts](lib/email/templates.ts) | FIRST_TOUCH |
 | [lib/email/enquiry-reply-template.ts](lib/email/enquiry-reply-template.ts) | buildEnquiryReplyEmail (admin reply) |
 | [lib/email-templates.ts](lib/email-templates.ts) | depositInvoiceEmail, depositEmailWeddingCelebration, depositEmailEventConfirmed, etc. |
-| [lib/email-journey-templates.ts](lib/email-journey-templates.ts) | getJourneyEmail (enquiry-autoresponder, gentle-reminder, 4-week, week-of, final-chase, post-wedding) |
+| [lib/email-journey-templates.ts](lib/email-journey-templates.ts) | getJourneyEmail (enquiry-autoresponder, gentle-reminder, booking-confirmation, 4-week, week-of, post-wedding) |
+| [lib/worksheet-url.ts](lib/worksheet-url.ts) | Selects the wedding or party worksheet URL for client emails |
 | [lib/email-signature.ts](lib/email-signature.ts) | SIGNATURE_BLOCK_HTML, CLIENT_SIGNOFF_TEXT |
 | [lib/email-config.ts](lib/email-config.ts) | getResendConfig (booking, general, dj_worksheet) |
 | [lib/send-deposit-invoice.ts](lib/send-deposit-invoice.ts) | sendDepositInvoiceForBooking |
@@ -194,7 +187,7 @@ Use `PORTAL_INVITATION` from `lib/email/templates.ts` (like finalize-and-invite)
 | [lib/admin-notifications.ts](lib/admin-notifications.ts) | notifyAdminSignificantEvent → admin emails |
 | [lib/client-login-notifications.ts](lib/client-login-notifications.ts) | Magic link emails |
 | [lib/auto-dispatch-on-final-details.ts](lib/auto-dispatch-on-final-details.ts) | Auto-dispatch worksheet to staff |
-| [lib/actions/booking-actions.ts](lib/actions/booking-actions.ts) | CRM booking creation + portal invite, artist confirmation |
+| [lib/actions/booking-actions.ts](lib/actions/booking-actions.ts) | CRM booking creation and artist confirmation |
 | [lib/email-send.ts](lib/email-send.ts) | sendEmailFromCRM (inbox-specific) |
 | [lib/dispatch-email.ts](lib/dispatch-email.ts) | buildDispatchEmailHtml (artist worksheet) |
 
@@ -204,11 +197,11 @@ Use `PORTAL_INVITATION` from `lib/email/templates.ts` (like finalize-and-invite)
 
 1. **Inconsistent subject lines** – Some use `{EventType} - {Venue} - {Date}`, others use `Your Quote - {Venue} on {Date}`.
 2. **Missing admin notifications** – Quote request, hire enquiry, send first touch, confirm hire request lack notifyAdmin/Pushover.
-3. **Missing logActivity** – Send first touch, finalize-and-invite, some enquiry flows.
-4. **Missing emailsSent** – Send portal link, send deposit email, contact autoresponder (on booking).
-5. **Duplicate / divergent templates** – inquiries/new uses different first-touch HTML than contact form; send-portal-link uses custom HTML vs. PORTAL_INVITATION.
+3. **Missing logActivity** – Send first touch and some enquiry flows.
+4. **Missing emailsSent** – Send deposit email and contact autoresponder (on booking).
+5. **Duplicate / divergent templates** – inquiries/new uses different first-touch HTML than contact form.
 6. **Admin-facing emails** – Quote request, hire enquiry, portal message, confirm hire request use simple inline HTML; acceptable for internal use but could use consistent styling.
-7. **No central PDF/portal notice tracking** – No unified "client received PDF" or "portal message sent" in emailsSent schema.
+7. **No central PDF notice tracking** – No unified “client received PDF” record in the emailsSent schema.
 
 ---
 
@@ -281,25 +274,7 @@ if (isNewEnquiry && admin) {
 
 Note: notifyAdminSignificantEvent may need to support `enquiryId` when `bookingId` is absent.
 
-### Edit 4: Finalize and invite – Add logActivity
-
-**File:** `app/api/admin/bookings/[id]/finalize-and-invite/route.ts`
-
-After prisma.booking.update:
-
-```ts
-import { logActivity } from "@/lib/activity-log";
-
-await logActivity({
-  bookingId,
-  action: "portal_invite_sent",
-  description: `Portal invite sent to ${booking.email}`,
-  actor: "admin",
-  performedBy: admin?.name ?? admin?.email ?? undefined,
-});
-```
-
-### Edit 5: Confirm hire request – Add notifyAdmin
+### Edit 4: Confirm hire request – Add notifyAdmin
 
 **File:** `app/api/client/bookings/[id]/confirm-hire-request/route.ts`
 
@@ -321,7 +296,7 @@ await notifyAdminSignificantEvent({
 
 Extend `SignificantEventType` in lib/admin-notifications.ts to include `hire_request_confirmed` if not already present.
 
-### Edit 6: Send composed email – Standardize subject (optional)
+### Edit 5: Send composed email – Standardize subject (optional)
 
 **File:** `app/api/admin/send-composed-email/route.ts`
 

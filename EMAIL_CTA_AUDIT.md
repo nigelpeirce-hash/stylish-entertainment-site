@@ -1,79 +1,71 @@
 # Email CTA Audit
 
-All client-facing email links use a production-safe base URL via `getEmailBaseUrl()` (from `lib/get-base-url.ts`). In production, when env vars are unset, this defaults to `https://stylishentertainment.co.uk` so links never point to localhost.
+**Last reviewed:** 30 July 2026
+**Scope:** Current email templates and send routes after removing client-portal references.
 
-Portal links that require login use `getClientPortalLoginUrl(baseUrl, bookingId)`, which sends the client to `/login?callbackUrl=/client/bookings/{id}` so after sign-in they land on their booking.
+Client-facing emails no longer mention or link to the client portal, dashboard, login or sign-in. Dedicated portal invitation/reminder emails and their send route have been removed.
 
 ---
 
-## Deposit confirmed (Wedding / Event)
+## Deposit and booking confirmation
+
+| Email | CTA / behaviour |
+|-------|-----------------|
+| Deposit confirmed (wedding/event) | No CTA. The email says the worksheet will follow and asks the client to reply with questions. |
+| Booking-confirmation journey | **I've paid** → signed `/api/client/bookings/{id}/marked-deposit-paid?sig=...`; validates the signature and records the payment notification. |
+| Deposit invoice | **I've paid** → signed payment-notification URL supplied as `markedPaidUrl`. |
+
+**Sources:** `lib/email-templates.ts`, `lib/email-journey-templates.ts`, `app/api/admin/bookings/[id]/send-deposit-email/route.ts`, `app/api/admin/bookings/[id]/flexible-update/route.ts`, `app/api/send-email/route.ts`.
+
+---
+
+## Four-week check-in
 
 | CTA | Purpose | URL / behaviour |
-|-----|--------|------------------|
-| **Access your portal** / **View Your Countdown** | Open client portal for this booking | `getClientPortalLoginUrl(baseUrl, booking.id)` → `/login?callbackUrl=/client/bookings/{id}`. After login, user is redirected to their booking portal. |
-| **I've paid** (booking-confirmation journey) | Mark deposit as paid | Signed link: `/api/client/bookings/{id}/marked-deposit-paid?sig=...`. Validates HMAC and redirects to thank-you page. |
+|-----|---------|-----------------|
+| **Complete Your Worksheet** | Collect final music and event details | `worksheetUrlFor(baseUrl, eventType)` chooses `/dj-worksheet/` for weddings and `/party-dj-worksheet/` for other events. |
 
-**Sources:** `send-deposit-email`, `send-test-email`, `flexible-update` (when deposit marked received), `lib/email-templates.ts` (DEPOSIT_CONFIRMED, depositEmailWeddingCelebration, depositEmailEventConfirmed). All use `getEmailBaseUrl()` and `getClientPortalLoginUrl()` for the portal CTA.
+The public worksheet pages are intentionally direct-link forms and are marked `noindex`.
 
----
-
-## Portal invite / Send portal link
-
-| CTA | Purpose | URL / behaviour |
-|-----|--------|------------------|
-| **View Your Countdown** | Open client portal | Same as above: `getClientPortalLoginUrl(baseUrl, booking.id)`. |
-
-**Sources:** `app/api/admin/bookings/[id]/send-portal-link/route.ts`, `lib/actions/booking-actions.ts` (sendPortalInvite). Both use `getEmailBaseUrl()` and `getClientPortalLoginUrl()`.
+**Sources:** `lib/worksheet-url.ts`, `lib/email-journey-templates.ts`, `app/api/cron/email-journey/route.ts`, `app/api/send-email/route.ts`.
 
 ---
 
-## Finalize & invite (magic link)
-
-| CTA | Purpose | URL / behaviour |
-|-----|--------|------------------|
-| **Step Into Your Portal** / **View Your Countdown** | One-click portal access (no login) | Magic link: `/client/bookings/{id}?token=...`. Middleware validates token and grants access. |
-
-**Sources:** `app/api/admin/bookings/[id]/finalize-and-invite/route.ts`, `app/api/cron/email-journey/route.ts` (portal reminder). Base URL from `getEmailBaseUrl()`.
-
----
-
-## Email journey (send-email API + cron)
+## Other email-journey CTAs
 
 | CTA | Template / stage | URL / behaviour |
-|-----|------------------|------------------|
-| **Update Your Music Preferences** | booking-confirmation | `clientAdminUrl` → `getClientPortalLoginUrl(baseUrl, booking.id)`. |
-| **I've paid** | booking-confirmation | `markedPaidUrl` → signed `/api/client/bookings/{id}/marked-deposit-paid?sig=...`. |
-| **CLICK TO ACCESS PORTAL NOW (No Login Required)** | final-chase | `portalMagicUrl` → `/client/bookings/{id}?token=...`. |
-| **Get in Touch** | 3-day reminder | Hardcoded `https://stylishentertainment.co.uk/contact-us`. |
-| **Leave a Google Review** / **Share on Instagram** | post-wedding-magic | Hardcoded review/social URLs. |
-| **Download Brochure** | enquiry-autoresponder | `brochureUrl` from venue assets or general brochure. |
+|-----|------------------|-----------------|
+| **Get in Touch** | Gentle reminder | `https://stylishentertainment.co.uk/contact-us/`. |
+| **Leave a Google Review** | Post-event follow-up | `NEXT_PUBLIC_GOOGLE_REVIEW_URL` when configured. |
+| **Share on Instagram** | Post-event follow-up | `https://www.instagram.com/stylishentertainment/`. |
 
-**Sources:** `app/api/send-email/route.ts` (clientAdminUrl, markedPaidUrl, brochureUrl), `app/api/cron/email-journey/route.ts` (clientAdminUrl, portalMagicUrl, portalUrl for reminder). All portal links that are not magic-link now use `getClientPortalLoginUrl(baseUrl, booking.id)` or `getEmailBaseUrl()` for base.
+The enquiry autoresponder and week-of email currently contain no primary CTA.
 
 ---
 
-## DJ / Artist quote emails
+## DJ / artist quote emails
 
 | CTA | Purpose | URL / behaviour |
-|-----|--------|------------------|
-| **Book Your DJ** / **Book Your DJ & Musician** | Pre-fill booking form from quote | `{baseUrl}/book-dj?quote={signedToken}`. `/book-dj` reads token and pre-fills from quote. |
+|-----|---------|-----------------|
+| **Book Your DJ** / **Book Your DJ & Musician** | Pre-fill the booking form from a quote | `{baseUrl}/book-dj?quote={signedToken}`. |
 
-**Sources:** `app/api/admin/send-dj-inquiry-reply/route.ts`, `app/api/admin/send-artist-quote/route.ts`. Both use `getEmailBaseUrl()` for base.
-
----
-
-## Other links in emails
-
-- **Footer:** Contact (tel, mailto, website), social (Facebook, Instagram, YouTube) — from `lib/email-signature.ts`; static/hardcoded.
-- **Monday brief (internal):** "View Booking" / "View Messages" → `{baseUrl}/admin/bookings/{id}` (admin-only).
-- **Terms & Conditions:** `{{tc_link}}` placeholder when used; set by caller.
+**Sources:** `app/api/admin/send-dj-inquiry-reply/route.ts`, `app/api/admin/send-artist-quote/route.ts`.
 
 ---
 
-## Summary
+## Internal and shared links
 
-- **Portal (login required):** Always `getClientPortalLoginUrl(baseUrl, bookingId)` so the link is `/login?callbackUrl=/client/bookings/{id}`.
-- **Portal (magic link):** `/client/bookings/{id}?token=...` with base from `getEmailBaseUrl()`.
-- **I've paid:** Signed API link; base from `getEmailBaseUrl()`.
-- **Book DJ / quote:** `getEmailBaseUrl()/book-dj?quote=...`.
-- **Base URL:** All client-facing email links use `getEmailBaseUrl()` so production never gets localhost.
+- **Email signature:** Contact and social links come from `lib/email-signature.ts`.
+- **Monday brief (internal):** “View Booking” / “View Messages” point to admin-only booking pages.
+- **Terms & Conditions:** `{{tc_link}}` is supplied by the caller where used.
+- **Production base URL:** Dynamic links use `getEmailBaseUrl()` so production emails do not point to localhost.
+
+---
+
+## Removed portal email paths
+
+- `PORTAL_INVITATION` and `PORTAL_REMINDER` were removed from `lib/email/templates.ts`.
+- `app/api/admin/bookings/[id]/send-portal-link/route.ts` was deleted.
+- Portal-reminder processing was removed from `app/api/cron/email-journey/route.ts`.
+- Booking creation no longer accepts `sendPortalInvite` or sends a portal email.
+- `finalize-and-invite` now confirms the booking and refreshes its token without emailing the client.
